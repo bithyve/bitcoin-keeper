@@ -1,8 +1,8 @@
+/* eslint-disable prefer-destructuring */
 import { ActivityIndicator, Platform, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import RNIap, {
-  Subscription,
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
@@ -18,11 +18,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import Relay from 'src/core/services/operations/Relay';
+import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
+import moment from 'moment'
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan(props) {
@@ -33,6 +34,7 @@ function ChoosePlan(props) {
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isUpgrade, setIsUpgrade] = useState(false);
+  const [isMonthly, setIsMonthly] = useState(true);
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const navigation = useNavigation();
@@ -40,7 +42,7 @@ function ChoosePlan(props) {
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
       const receipt = purchase.transactionReceipt;
-      const { id, appID }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+      const { id, appID, subscription: appSubscription }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
       const plan = items.filter(item => item.productIds.includes(purchase.productId));
       const response = await Relay.updateSubscription(id, appID, purchase)
       if (response.updated) {
@@ -52,9 +54,11 @@ function ChoosePlan(props) {
             level: response.level,
             icon: plan[0].icon
           };
+          setIsUpgrade(response.level > appSubscription.level)
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
+          setShowUpgradeModal(true)
         } catch (error) {
           console.log(error)
         }
@@ -79,38 +83,81 @@ function ChoosePlan(props) {
     init();
   }, []);
 
-  function getAmt(subscription: Subscription) {
-    try {
-      if (Platform.OS === 'ios') {
-        return subscription.localizedPrice;
-      }
-      return subscription.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[0]
-        .formattedPrice;
-    } catch (error) {
-      console.log('error', error);
-    }
-  }
-
   async function init() {
     try {
       const { id, appID }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-      const getPlansRespone = await Relay.getSubscriptionDetails(id, appID)
-      if (getPlansRespone.plans) {
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, appID)
+      if (getPlansResponse.plans) {
         const skus = []
-        getPlansRespone.plans.filter(plan => plan.isActive)
+        getPlansResponse.plans
           .forEach(plan => skus.push(...plan.productIds))
         const subscriptions = await getSubscriptions(skus);
-        const data = getPlansRespone.plans
+        const data = getPlansResponse.plans
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex(plan => plan.productIds.includes(subscription.productId))
-          data[index].planDetails = subscription
+          const monthlyPlans = []
+          const yearlyPlans = []
+          if (Platform.OS === 'android') {
+            subscription.subscriptionOfferDetails.forEach(offer => {
+              const monthly = offer.pricingPhases.pricingPhaseList.filter(list => (list.billingPeriod === 'P1M' && list.formattedPrice !== 'Free'))
+              const yearly = offer.pricingPhases.pricingPhaseList.filter(list => (list.billingPeriod === 'P1Y' && list.formattedPrice !== 'Free'))
+              if (monthly.length) monthlyPlans.push(offer)
+              if (yearly.length) yearlyPlans.push(offer)
+            })
+            data[index].monthlyPlanDetails = {
+              ...getPlanData(monthlyPlans),
+              productId: subscription.productId
+            }
+            data[index].yearlyPlanDetails = {
+              ...getPlanData(yearlyPlans),
+              productId: subscription.productId
+            }
+          } else if (Platform.OS === 'ios') {
+            const planDetails = {
+              price: subscription.localizedPrice,
+              currency: subscription.currency,
+              offerToken: null,
+              productId: subscription.productId,
+              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS} ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`
+            }
+            if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
+              data[index].monthlyPlanDetails = planDetails
+            } else if (subscription.subscriptionPeriodUnitIOS === 'YEAR') {
+              data[index].yearlyPlanDetails = planDetails
+            }
+          }
         });
-        // console.log('subscriptions', JSON.stringify(data))
         setItems(data);
         setLoading(false);
       }
     } catch (error) {
       console.log('error', error);
+    }
+  }
+
+  function getPlanData(offers) {
+    let offer
+    if (offers.length > 1) {
+      offers.sort((a, b) => a.pricingPhases.pricingPhaseList.length < b.pricingPhases.pricingPhaseList.length);
+      offer = offers[0]
+    } else {
+      offer = offers[0]
+    }
+    const trailPlan = offer.pricingPhases.pricingPhaseList.filter(list => list.formattedPrice === 'Free')
+    const paidPlan = offer.pricingPhases.pricingPhaseList.filter(list => list.formattedPrice !== 'Free')
+    if (trailPlan.length) {
+      return {
+        currency: offer.pricingPhases.pricingPhaseList[0].priceCurrencyCode,
+        offerToken: offer.offerToken,
+        trailPeriod: `${moment.duration(trailPlan[0].billingPeriod).asMonths()} months free`,
+        price: paidPlan[0].formattedPrice
+      }
+    }
+    return {
+      currency: offer.pricingPhases.pricingPhaseList[0].priceCurrencyCode,
+      offerToken: offer.offerToken,
+      trailPeriod: '',
+      price: paidPlan[0].formattedPrice
     }
   }
 
@@ -138,10 +185,11 @@ function ChoosePlan(props) {
       }
       setShowUpgradeModal(true);
       */
-      const sku = subscription.planDetails.productId
-      const offerToken = subscription.planDetails.subscriptionOfferDetails ? subscription.planDetails.subscriptionOfferDetails[1].offerToken : null;
+      const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
+      const sku = plan.productId
+      const { offerToken } = plan
       requestSubscription(
-        { sku: subscription.planDetails.productId, subscriptionOffers: [{ sku, offerToken }] },
+        { sku, subscriptionOffers: [{ sku, offerToken }] },
       );
     } catch (err) {
       console.log(err);
@@ -163,15 +211,18 @@ function ChoosePlan(props) {
   return (
     <ScreenWrapper barStyle="dark-content">
       <Box position="relative" flex={1}>
-        <HeaderTitle
-          title={choosePlan.choosePlantitle}
-          subtitle={
-            subscription.name === 'Diamond Hands'
-              ? `You are currently a ${subscription.name.slice(0, -1)}`
-              : `You are currently a ${subscription.name}`
-          }
-          headerTitleColor="light.primaryText"
-        />
+        <Box justifyContent='space-between' flexDirection="row">
+          <HeaderTitle
+            title={choosePlan.choosePlantitle}
+            subtitle={
+              subscription.name === 'Diamond Hands'
+                ? `You are currently a ${subscription.name}`
+                : `You are currently a ${subscription.name}`
+            }
+            headerTitleColor="light.primaryText"
+          />
+          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
+        </Box>
 
         <TierUpgradeModal
           visible={showUpgradeModal}
@@ -191,18 +242,16 @@ function ChoosePlan(props) {
               data={items}
               onPress={(item, level) => processSubscription(item, level)}
               onChange={(item) => setCurrentPosition(item)}
+              isMonthly={isMonthly}
             />
 
             <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />
 
-            <Box ml={8}>
+            <Box ml={5}>
               <Box>
                 <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
                   {getBenifitsTitle(items[currentPosition].name)}:
                 </Text>
-                {/* <Text fontSize={(12)} color={'light.GreyText'} >
-            {items[currentPosition].subTitle}
-          </Text> */}
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (

@@ -1,21 +1,21 @@
 import { Box } from 'native-base';
-import { FlatList, Pressable, StyleSheet, Platform } from 'react-native';
+import { FlatList, StyleSheet, Dimensions } from 'react-native';
 import React, { useContext, useState, useMemo } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { SvgUri } from 'react-native-svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import Text from 'src/components/KeeperText';
-import config from 'src/core/config';
 import { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
-import CustomYellowButton from '../CustomButton/CustomYellowButton';
+import ChoosePlanCarouselItem from './ChoosePlanCarouselItem';
 
+const { width } = Dimensions.get('window')
+const itemWidth = width / 3 - 10
 interface Props {
   data: SubScriptionPlan[],
   onPress?: any,
   onChange?: any,
+  isMonthly: boolean
 }
 
 
@@ -23,7 +23,7 @@ function ChoosePlanCarousel(props: Props) {
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
-  const [currentPosition, setCurrentPosition] = useState(subscription.level);
+  const [currentPosition, setCurrentPosition] = useState(subscription.level - 1);
 
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
@@ -46,97 +46,30 @@ function ChoosePlanCarousel(props: Props) {
     return 'Select';
   };
 
-  function renderItem({ item, index }) {
-
-    function getAmt() {
-      try {
-        if (item.productType === 'free') return 'Free'
-        if (Platform.OS === 'ios') {
-          return item.planDetails.localizedPrice;
-        }
-        return item.planDetails.subscriptionOfferDetails[0].pricingPhases.pricingPhaseList[1]
-          .formattedPrice;
-      } catch (error) {
-        return ''
-      }
-    }
-
-    return (
-      <Pressable onPress={() => _onSnapToItem(index)}>
-        <Box
-          backgroundColor={{
-            linearGradient: {
-              colors:
-                currentPosition === index
-                  ? ['light.gradientStart', 'light.gradientEnd']
-                  : ['#848484', '#848484'],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          }}
-          style={[
-            styles.wrapperView,
-            {
-              width: wp(currentPosition === index ? 115 : 100),
-              height: hp(currentPosition === index ? 260 : 200),
-            },
-          ]}
-        >
-          <Box py={2} alignItems="center" justifyContent="center">
-            {subscription.productId === item.productId && (
-              <Box backgroundColor="light.white" borderRadius={10} px={2}>
-                <Text fontSize={8} letterSpacing={0.64} bold>
-                  Current
-                </Text>
-              </Box>
-            )}
-            <Box my={15}>{currentPosition === index ? <SvgUri uri={`${config.RELAY}${item.iconFocused}`} /> : <SvgUri uri={`${config.RELAY}${item.icon}`} />}</Box>
-            <Text fontSize={13} bold color="light.white" mt={2}>
-              {item.name}
-            </Text>
-            <Text fontSize={10} color="light.white" mb={2}>
-              {item.subTitle}
-            </Text>
-
-            <Text fontSize={15} color="light.white">
-              {getAmt()}
-            </Text>
-            <Text fontSize={10} color="light.white">
-              {item.productType !== 'free' ? '/month' : ''}
-            </Text>
-            <Text bold fontSize={10} color="light.white" my={2}>
-              {item.trailPeriod}
-            </Text>
-            {currentPosition === index && subscription.productId !== item.productId ? (
-              <Box
-                style={{
-                  marginTop: hp(10),
-                }}
-              >
-                <CustomYellowButton
-                  onPress={() => props.onPress(item, index)}
-                  value={getBtnTitle(item)}
-                  disabled={!item.isActive}
-                />
-              </Box>
-            ) : null}
-          </Box>
-        </Box>
-      </Pressable>
-    );
-  }
   return (
     <Box
       style={{
-        marginTop: hp(40),
+        marginTop: hp(20),
       }}
     >
       <FlatList
         data={props.data}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.productId}
+        snapToInterval={itemWidth}
+        snapToStart
+        renderItem={({ item, index }) => (
+          <ChoosePlanCarouselItem
+            isMonthly={props.isMonthly}
+            item={item}
+            currentPosition={currentPosition}
+            index={index}
+            subscription={subscription}
+            onPress={() => _onSnapToItem(index)}
+            onSelect={() => props.onPress(item, index)}
+            itemWidth={itemWidth}
+          />
+        )}
       />
     </Box>
   );

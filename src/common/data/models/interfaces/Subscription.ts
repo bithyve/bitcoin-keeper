@@ -19,4 +19,18 @@ export type SubScriptionPlan = {
   trailPeriod?: string;
   productIds: string[];
   planDetails: Subscription;
+  monthlyPlanDetails?: {
+    productId: string;
+    offerToken: string;
+    price: string;
+    currency: string;
+    trailPeriod?: string;
+  };
+  yearlyPlanDetails?: {
+    productId: string;
+    offerToken: string;
+    price: string;
+    currency: string;
+    trailPeriod?: string;
+  };
 };
