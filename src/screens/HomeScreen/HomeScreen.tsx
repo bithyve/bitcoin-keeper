@@ -37,6 +37,7 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
+import BackHandlerUtils from 'src/utils/BackHandlerUtils';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -453,6 +454,10 @@ function TransVaultSuccessfulContent() {
 function HomeScreen({ navigation }) {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
+
+  useEffect(() => {
+    BackHandlerUtils();
+  }, []);
 
   return (
     <Box style={styles.container}>
