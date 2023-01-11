@@ -195,9 +195,6 @@ function EnterSeedScreen() {
             </Text>
           </Box>
         </Box>
-        <Text color="light.greenText" fontSize={13}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
-        </Text>
       </Box>
     );
   }
