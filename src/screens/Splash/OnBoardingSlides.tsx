@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -22,6 +22,7 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import BackHandlerUtils from 'src/utils/BackHandlerUtils';
 
 const { width } = Dimensions.get('window');
 
@@ -55,6 +56,10 @@ function OnBoardingSlides({ navigation }) {
       illustration: <Illustration_2 />,
     },
   ]);
+
+  useEffect(() => {
+    BackHandlerUtils();
+  }, []);
 
   const onViewRef = React.useRef((viewableItems) => {
     setCurrentPosition(viewableItems.changed[0].index);
