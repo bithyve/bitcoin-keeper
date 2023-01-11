@@ -6,6 +6,7 @@ import {
   FlatList,
   Dimensions,
   ImageBackground,
+  BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
@@ -22,7 +23,6 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import BackHandlerUtils from 'src/utils/BackHandlerUtils';
 
 const { width } = Dimensions.get('window');
 
@@ -58,7 +58,9 @@ function OnBoardingSlides({ navigation }) {
   ]);
 
   useEffect(() => {
-    BackHandlerUtils();
+    const backAction = () => true;
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
   }, []);
 
   const onViewRef = React.useRef((viewableItems) => {

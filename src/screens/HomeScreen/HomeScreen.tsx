@@ -1,5 +1,11 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ImageBackground, InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  ImageBackground,
+  InteractionManager,
+  StyleSheet,
+  TouchableOpacity,
+  BackHandler,
+} from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -37,7 +43,6 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
-import BackHandlerUtils from 'src/utils/BackHandlerUtils';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -456,7 +461,9 @@ function HomeScreen({ navigation }) {
   const [visibleModal, setVisibleModal] = useState(false);
 
   useEffect(() => {
-    BackHandlerUtils();
+    const backAction = () => true;
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
   }, []);
 
   return (

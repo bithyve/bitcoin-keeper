@@ -1,4 +1,4 @@
-import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -20,7 +20,6 @@ import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
-import BackHandlerUtils from 'src/utils/BackHandlerUtils';
 
 function Tile({ title, subTitle, onPress, Icon, loading = false }) {
   return (
@@ -121,7 +120,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }, [appRecreated]);
 
   useEffect(() => {
-    BackHandlerUtils();
+    const backAction = () => true;
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
   }, []);
 
   const passwordScreen = () => {
