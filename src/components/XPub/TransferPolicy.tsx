@@ -15,9 +15,11 @@ import KeyPadView from '../AppNumPad/KeyPadView';
 import Buttons from '../Buttons';
 
 function TransferPolicy({ wallet, close }) {
+  const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
+
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const [policyText, setPolicyText] = useState('');
+  const [policyText, setPolicyText] = useState(specs.transferPolicy);
 
   const onPressNumber = (digit) => {
     let temp = policyText;
@@ -33,10 +35,14 @@ function TransferPolicy({ wallet, close }) {
     }
   };
   const presshandler = () => {
-    const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
-    specs.transferPolicy = Number(policyText);
-    dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs });
-    Alert.alert('Transfer Policy Changed');
+    if (Number(policyText) > 0) {
+      specs.transferPolicy = Number(policyText);
+      dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs });
+      close();
+      Alert.alert('Transfer Policy Changed');
+    } else {
+      Alert.alert('Transfer Policy cannot be zero');
+    }
   };
 
   return (
