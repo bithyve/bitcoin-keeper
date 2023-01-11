@@ -77,7 +77,7 @@ function SendScreen({ route }) {
     };
   }, []);
 
-  const requestPermission = async () => {
+  const requestPermission = () => {
     Permissions.openSettings();
   }
 
@@ -284,7 +284,6 @@ const styles = ScaledSheet.create({
   },
   qrcontainer: {
     overflow: 'hidden',
-    backgroundColor: 'transparent',
     borderRadius: 10,
     marginVertical: hp(25),
   },
