@@ -25,7 +25,7 @@ import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import { translations } from 'src/common/content/LocContext';
-import { refreshWallets } from '../sagaActions/wallets';
+import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
 import { createWatcher } from '../utilities';
 import { RootState } from '../store';
@@ -541,19 +541,13 @@ function* healthCheckSignerWorker({
   try {
     const { vaultId, signerId } = payload;
     const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
-
-    const signers = [];
     for (const signer of vault.signers) {
       if (signer.signerId === signerId) {
-        const updatedSigner = JSON.parse(JSON.stringify(signer));
-        updatedSigner.lastHealthCheck = new Date();
+        const date = new Date();
+        yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
         yield put(uaiActionedEntity(signer.signerId));
-        signers.push(updatedSigner);
       }
     }
-    const updatedVault: Vault = JSON.parse(JSON.stringify(vault));
-    updatedVault.signers = signers;
-    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, vault);
   } catch (err) {
     console.log(err);
   }
