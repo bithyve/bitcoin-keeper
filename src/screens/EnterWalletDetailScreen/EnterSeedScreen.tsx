@@ -268,7 +268,7 @@ function EnterSeedScreen() {
                         }
                       : { borderColor: '#FDF7F0' },
                   ]}
-                  placeholder={`Enter ${getPlaceholder(index)} phrase`}
+                  placeholder={`Enter ${getPlaceholder(index)} word`}
                   placeholderTextColor="rgba(7,62,57,0.6)"
                   value={item?.name}
                   textContentType="none"
