@@ -147,16 +147,15 @@ function NewKeeperApp({ navigation }: { navigation }) {
     return (
       <Box>
         <Image
-          source={require('src/assets/video/test-net.gif')}
+          source={require('src/assets/video/Loader.gif')}
           style={{
             width: wp(270),
-            height: hp(200),
+            height: hp(180),
             alignSelf: 'center',
           }}
         />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
-          This feature is *only* for the testnet version of the app. The developers will get your
-          message along with other information from the app.
+          The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.
         </Text>
       </Box>
     );
@@ -251,10 +250,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
-        title="Shake to send feedback"
-        subTitle="Shake your device to send us a bug report or a feature request"
+        title="Multisig security for your sats"
+        subTitle="The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats"
         Content={SignUpModalContent}
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {

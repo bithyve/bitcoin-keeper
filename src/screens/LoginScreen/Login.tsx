@@ -181,16 +181,15 @@ function LoginScreen({ navigation, route }) {
     return (
       <Box>
         <Image
-          source={require('src/assets/video/test-net.gif')}
+          source={require('src/assets/video/Loader.gif')}
           style={{
             width: wp(270),
-            height: hp(200),
+            height: hp(180),
             alignSelf: 'center',
           }}
         />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
-          This feature is *only* for the testnet version of the app. The developers will get your
-          message along with other information from the app.
+          Make sure you understand the tradeoffs and the security guarantees different combinations offer.
         </Text>
       </Box>
     );
@@ -260,7 +259,7 @@ function LoginScreen({ navigation, route }) {
                 disabled
                 trackColor={{ true: '#FFFA' }}
                 thumbColor="#358475"
-                onChange={() => {}}
+                onChange={() => { }}
               />
             </HStack>
             <Box mt={10} alignSelf="flex-end" mr={10}>
@@ -340,9 +339,9 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
-        title="Share Feedback"
-        subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
+        close={() => { }}
+        title="Secure your bitcoin"
+        subTitle={`The Vault can be used in multiple configurations and with different signing devices`}
         subTitleColor="light.secondaryText"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}
