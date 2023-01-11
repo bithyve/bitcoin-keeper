@@ -3,7 +3,6 @@ import { Box } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
-import Text from 'src/components/KeeperText';
 
 HexaToastMessages.defaultProps = {
   Image: null,
@@ -11,26 +10,18 @@ HexaToastMessages.defaultProps = {
 };
 
 function HexaToastMessages({
-  title,
   Image,
   error,
-  width,
+  ToastBody
 }: {
-  title: string;
-  width: number | string;
   Image?: any;
   error?: boolean;
+  ToastBody?: any
 }) {
   return (
     <Box backgroundColor={error ? 'error.500' : 'light.accent'} style={styles.toast}>
       {Image && <Box>{Image}</Box>}
-      <Text
-        color={error ? 'error.200' : null}
-        style={{ marginLeft: Image ? 5 : 0, width }}
-        numberOfLines={2}
-      >
-        {title}
-      </Text>
+      {ToastBody}
     </Box>
   );
 }
