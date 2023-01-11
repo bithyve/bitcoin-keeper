@@ -25,37 +25,52 @@ import { setAppCreationError } from '../reducers/login';
 function* setupKeeperAppWorker({ payload }) {
   try {
     yield put(setAppCreationError(false));
+    let primaryMnemonic;
+    let primarySeed;
+    let defaultWalletShell: WalletShell;
+    let appID;
+    let id;
+    let imageEncryptionKey;
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
-    const primaryMnemonic = bip39.generateMnemonic();
-    const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    if (app) {
+      primaryMnemonic = app.primaryMnemonic;
+      primarySeed = app.primarySeed;
+      appID = app.appID;
+      id = app.id;
+      imageEncryptionKey = app.imageEncryptionKey;
+    } else {
+      primaryMnemonic = bip39.generateMnemonic();
+      primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
+      defaultWalletShell = {
+        id: getRandomBytes(12),
+        walletInstances: {},
+      };
+      appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
+      id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+      const entropy = yield call(
+        BIP85.bip39MnemonicToEntropy,
+        config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+        primaryMnemonic
+      );
+      imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+    }
 
-    const defaultWalletShell: WalletShell = {
-      id: getRandomBytes(12),
-      walletInstances: {},
-    };
-
-    const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
-
-    const entropy = yield call(
-      BIP85.bip39MnemonicToEntropy,
-      config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
-      primaryMnemonic
-    );
-    const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
     const response = yield call(Relay.createNewApp, id, appID, fcmToken);
     if (response && response.created) {
-      const app: KeeperApp = {
+      const newApp: KeeperApp = {
         id,
         appID,
         appName,
         primaryMnemonic,
         primarySeed: primarySeed.toString('hex'),
         imageEncryptionKey,
-        walletShellInstances: {
-          shells: [defaultWalletShell.id],
-          activeShell: defaultWalletShell.id,
-        },
+        walletShellInstances: app
+          ? app.walletShellInstances
+          : {
+              shells: [defaultWalletShell.id],
+              activeShell: defaultWalletShell.id,
+            },
         vaultShellInstances: {
           shells: [],
           activeShell: null,
@@ -64,11 +79,12 @@ function* setupKeeperAppWorker({ payload }) {
           productId: SubscriptionTier.L1,
           name: SubscriptionTier.L1,
           level: 1,
+          icon: 'assets/ic_pleb.svg',
         },
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
       };
-      yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+      yield call(dbManager.createObject, RealmSchema.KeeperApp, newApp);
       yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 
       // create default wallet
