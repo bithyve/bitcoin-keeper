@@ -1,14 +1,11 @@
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
-import React, { useState } from 'react';
-
+import React from 'react';
 import DotView from 'src/components/DotView';
-import { ScrollView } from 'react-native';
 import moment from 'moment';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 function SigningDeviceChecklist({ signer }: { signer: VaultSigner }) {
-  console.log('from comp', { signer });
   return (
     <Box padding={1}>
       {signer && (
