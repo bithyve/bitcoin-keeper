@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     paddingHorizontal: 18,
-    letterSpacing: 0.6,
+    letterSpacing: 0.2,
   },
   titleWrapper02: {
     marginTop: hp(70),
