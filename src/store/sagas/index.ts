@@ -24,7 +24,6 @@ import {
   updateUaiStackWatcher,
 } from './uai';
 import {
-  applicationUpdateWatcher,
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
   credentialStorageWatcher,
@@ -69,7 +68,6 @@ const rootSaga = function* () {
     credentialStorageWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
-    applicationUpdateWatcher,
     // notification
     updateFCMTokensWatcher,
     getMessageWatcher,
