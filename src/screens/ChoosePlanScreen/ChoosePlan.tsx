@@ -1,5 +1,5 @@
 /* eslint-disable prefer-destructuring */
-import { ActivityIndicator, Platform, ScrollView } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, Alert, Linking } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import RNIap, {
@@ -24,6 +24,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import Relay from 'src/core/services/operations/Relay';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment'
+import { getBundleId } from 'react-native-device-info';
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan(props) {
@@ -31,6 +32,7 @@ function ChoosePlan(props) {
   const { choosePlan } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { id, appID, subscription: appSubscription }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isUpgrade, setIsUpgrade] = useState(false);
@@ -42,7 +44,6 @@ function ChoosePlan(props) {
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
       const receipt = purchase.transactionReceipt;
-      const { id, appID, subscription: appSubscription }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
       const plan = items.filter(item => item.productIds.includes(purchase.productId));
       const response = await Relay.updateSubscription(id, appID, purchase)
       if (response.updated) {
@@ -127,6 +128,8 @@ function ChoosePlan(props) {
             }
           }
         });
+        data[0].monthlyPlanDetails = { productId: data[0].productIds[0] }
+        data[0].yearlyPlanDetails = { productId: data[0].productIds[0] }
         setItems(data);
         setLoading(false);
       }
@@ -140,6 +143,8 @@ function ChoosePlan(props) {
     if (offers.length > 1) {
       offers.sort((a, b) => a.pricingPhases.pricingPhaseList.length < b.pricingPhases.pricingPhaseList.length);
       offer = offers[0]
+    } else if (offers.length === 0) {
+      return null
     } else {
       offer = offers[0]
     }
@@ -158,6 +163,16 @@ function ChoosePlan(props) {
       offerToken: offer.offerToken,
       trailPeriod: '',
       price: paidPlan[0].formattedPrice
+    }
+  }
+
+  function manageSubscription(sku: string) {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('https://apps.apple.com/account/subscriptions');
+    } else if (Platform.OS === 'android') {
+      Linking.openURL(
+        `https://play.google.com/store/account/subscriptions?package=${getBundleId()}&sku=${sku}`,
+      );
     }
   }
 
@@ -185,12 +200,44 @@ function ChoosePlan(props) {
       }
       setShowUpgradeModal(true);
       */
-      const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
-      const sku = plan.productId
-      const { offerToken } = plan
-      requestSubscription(
-        { sku, subscriptionOffers: [{ sku, offerToken }] },
-      );
+      if (subscription.productType === 'free') {
+        const response = await Relay.updateSubscription(id, appID, { productId: subscription.productIds[0] })
+        if (response.updated) {
+          const updatedSubscription: SubScription = {
+            productId: subscription.productIds[0],
+            receipt: '',
+            name: subscription.name,
+            level: response.level,
+            icon: subscription.icon
+          };
+          setIsUpgrade(response.level > appSubscription.level)
+          dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+            subscription: updatedSubscription,
+          });
+          setShowUpgradeModal(true)
+        } else {
+          Alert.alert(
+            "",
+            response.error,
+            [
+              {
+                text: "Cancel",
+                onPress: () => { },
+                style: "cancel"
+              },
+              { text: "Manage", onPress: () => manageSubscription(response.productId) }
+            ]
+          );
+        }
+      } else {
+        const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
+        const sku = plan.productId
+        const { offerToken } = plan
+        requestSubscription(
+          { sku, subscriptionOffers: [{ sku, offerToken }] },
+        );
+      }
+
     } catch (err) {
       console.log(err);
     }

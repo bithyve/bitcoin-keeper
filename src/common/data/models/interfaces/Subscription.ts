@@ -21,16 +21,16 @@ export type SubScriptionPlan = {
   planDetails: Subscription;
   monthlyPlanDetails?: {
     productId: string;
-    offerToken: string;
-    price: string;
-    currency: string;
+    offerToken?: string;
+    price?: string;
+    currency?: string;
     trailPeriod?: string;
   };
   yearlyPlanDetails?: {
     productId: string;
-    offerToken: string;
-    price: string;
-    currency: string;
+    offerToken?: string;
+    price?: string;
+    currency?: string;
     trailPeriod?: string;
   };
 };

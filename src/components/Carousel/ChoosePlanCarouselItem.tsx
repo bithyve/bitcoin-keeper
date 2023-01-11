@@ -66,6 +66,16 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
     return 'Select';
   }, [item, isMonthly])
 
+  const canSelectPlan = useMemo(() => {
+    if (currentPosition === index) {
+      if (isMonthly) {
+        return !item.monthlyPlanDetails?.productId.includes(subscription.productId.toLowerCase())
+      }
+      return !item.yearlyPlanDetails?.productId.includes(subscription.productId.toLowerCase())
+    }
+    return false
+  }, [item, isMonthly, currentPosition])
+
   return (
     <Pressable onPress={() => onPress(index)}>
       <Box
@@ -111,7 +121,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
           <Text bold fontSize={10} color="light.white" my={2}>
             {getFreeTrail}
           </Text>
-          {currentPosition === index && !item.productIds.includes(subscription.productId.toLowerCase()) ? (
+          {canSelectPlan === true ? (
             <Box
               style={{
                 marginTop: hp(20),

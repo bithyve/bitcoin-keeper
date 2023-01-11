@@ -247,7 +247,8 @@ export default class Relay {
   ): Promise<{
     updated: boolean;
     level: number;
-    err?: string;
+    error?: string;
+    productId?: string;
   }> => {
     let res;
     try {
@@ -258,16 +259,9 @@ export default class Relay {
         data,
       });
     } catch (err) {
-      console.log('err', err.response.data);
-      if (err.response) throw new Error(err.response.data.err);
-      if (err.code) throw new Error(err.code);
+      return err.response.data;
     }
-    const { updated, level, err } = res.data || res.json;
-    return {
-      updated,
-      level,
-      err,
-    };
+    return res.data || res.json;
   };
 
   public static verifyReceipt = async (
