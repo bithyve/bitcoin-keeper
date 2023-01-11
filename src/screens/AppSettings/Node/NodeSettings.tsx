@@ -206,40 +206,41 @@ function NodeSettings() {
                       style={[styles.nodeTextHeader]}>
                       {settings.host}
                     </Text>
-                    <Text style={styles.nodeTextValue}>{item.host}</Text>
+                    <Text numberOfLines={1} style={styles.nodeTextValue}>{item.host}</Text>
                     <Text color='light.secondaryText' style={[styles.nodeTextHeader]}>
                       {settings.portNumber}
                     </Text>
                     <Text style={styles.nodeTextValue}>{item.port}</Text>
                   </Box>
                   <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+                  <Box style={styles.nodeButtons}>
+                    <TouchableOpacity onPress={() => onEdit(item)}>
+                      <Box style={[styles.actionArea, { paddingLeft: 15, paddingRight: 15 }]}>
+                        <EditIcon />
+                        <Text
+                          style={[styles.actionText]}>{common.edit}</Text>
+                      </Box>
+                    </TouchableOpacity>
+                    <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
 
-                  <TouchableOpacity onPress={() => onEdit(item)}>
-                    <Box style={[styles.actionArea, { paddingLeft: 15, paddingRight: 15 }]}>
-                      <EditIcon />
-                      <Text
-                        style={[styles.actionText]}>{common.edit}</Text>
-                    </Box>
-                  </TouchableOpacity>
-                  <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+                    <TouchableOpacity onPress={() => onConnectNode(item)}>
+                      <Box style={[styles.actionArea, { width: 70 }]}>
+                        {Node.nodeConnectionStatus(item) ? <DisconnectIcon /> : <ConnectIcon />}
+                        <Text style={[styles.actionText, { paddingTop: 0 }]}>
+                          {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
+                        </Text>
+                      </Box>
+                    </TouchableOpacity>
+                    <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
 
-                  <TouchableOpacity onPress={() => onConnectNode(item)}>
-                    <Box style={[styles.actionArea, { width: 70 }]}>
-                      {Node.nodeConnectionStatus(item) ? <DisconnectIcon /> : <ConnectIcon />}
-                      <Text style={[styles.actionText, { paddingTop: 0 }]}>
-                        {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
-                      </Text>
-                    </Box>
-                  </TouchableOpacity>
-                  <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
-
-                  <TouchableOpacity onPress={() => onDelete(item)}>
-                    <Box style={[styles.actionArea, { paddingLeft: 15 }]}>
-                      <DeleteIcon />
-                      <Text
-                        style={[styles.actionText]}>{common.delete}</Text>
-                    </Box>
-                  </TouchableOpacity>
+                    <TouchableOpacity onPress={() => onDelete(item)}>
+                      <Box style={[styles.actionArea, { paddingLeft: 15 }]}>
+                        <DeleteIcon />
+                        <Text
+                          style={[styles.actionText]}>{common.delete}</Text>
+                      </Box>
+                    </TouchableOpacity>
+                  </Box>
                 </Box>
               </TouchableOpacity>
             )}
@@ -344,8 +345,8 @@ const styles = StyleSheet.create({
     paddingRight: 40,
   },
   nodeDetail: {
-    width: '50%',
-    padding: 5,
+    width: '49%',
+    padding: 5
   },
   nodeList: {
     flexDirection: 'row',
@@ -353,6 +354,10 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     alignItems: 'center',
     borderRadius: 5,
+  },
+  nodeButtons: {
+    flexDirection: 'row',
+    width: '50%',
   },
   selectedItem: {
     borderWidth: 1,
@@ -384,7 +389,7 @@ const styles = StyleSheet.create({
   nodeTextValue: {
     fontSize: 12,
     letterSpacing: 1.56,
-    marginHorizontal: 20,
+    marginLeft: 20,
     paddingBottom: 2,
   },
   activityIndicator: {
