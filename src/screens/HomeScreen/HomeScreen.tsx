@@ -166,7 +166,7 @@ function LinkedWallets(props) {
               <Box
                 style={{
                   padding: 3,
-                  marginBottom: -3,
+                  // marginBottom: -3,
                 }}
               >
                 <BTC />
@@ -179,15 +179,16 @@ function LinkedWallets(props) {
                 }}
               >
                 {getAmount(netBalance)}
-                <Text
-                  color="light.white"
-                  style={{
-                    letterSpacing: 0.6,
-                    fontSize: hp(12),
-                  }}
-                >
-                  {getUnit()}
-                </Text>
+              </Text>
+              <Text
+                color="light.white"
+                style={{
+                  paddingLeft: 3,
+                  letterSpacing: 0.6,
+                  fontSize: hp(12),
+                }}
+              >
+                {getUnit()}
               </Text>
             </Box>
           ) : (
