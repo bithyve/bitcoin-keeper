@@ -469,7 +469,7 @@
     "noteSubTitle": "The subscription should be confirmed on the Play/ App Store. After trial period the subscription auto renews monthly"
   },
   "BackupWallet": {
-    "confirmSeedWord": "Confirm Seed Words",
+    "confirmSeedWord": "Confirm Backup phrase",
     "enterSeedWord": "Enter the second(02) word",
     "seedWordNote": "If you don’t have the words written down, you may choose to start over.",
     "startOver": "Start Over",
