@@ -44,6 +44,20 @@ export class RealmDatabase {
   };
 
   /**
+   * deletes instance of the database
+   */
+  public deleteDatabase = (): boolean => {
+    if (this.realm) {
+      this.realm.write(() => {
+        this.realm.deleteAll();
+      });
+      return true;
+    }
+    console.log('database not initialized');
+    return false;
+  };
+
+  /**
    * function that modifies objects in a realm(aka write transaction)
    * Write transactions let you create, modify, or delete Realm objects.
    * It handles operations in a single, idempotent update. A write transaction is all or nothing
