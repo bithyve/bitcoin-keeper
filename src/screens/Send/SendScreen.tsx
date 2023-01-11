@@ -13,8 +13,9 @@ import {
 import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import Text from 'src/components/KeeperText';
+import Permissions from 'react-native-permissions';
 
+import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -76,6 +77,10 @@ function SendScreen({ route }) {
     };
   }, []);
 
+  const requestPermission = async () => {
+    Permissions.openSettings();
+  }
+
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
   const navigateToNext = (
@@ -111,15 +116,15 @@ function SendScreen({ route }) {
       case PaymentInfoKind.PAYMENT_URI:
         sender.entityKind === 'VAULT'
           ? navigateToNext(
-              address,
-              TransferType.VAULT_TO_ADDRESS,
-              amount ? amount.toString() : null
-            )
+            address,
+            TransferType.VAULT_TO_ADDRESS,
+            amount ? amount.toString() : null
+          )
           : navigateToNext(
-              address,
-              TransferType.WALLET_TO_ADDRESS,
-              amount ? amount.toString() : null
-            );
+            address,
+            TransferType.WALLET_TO_ADDRESS,
+            amount ? amount.toString() : null
+          );
         break;
       default:
     }
@@ -174,6 +179,14 @@ function SendScreen({ route }) {
                 onBarCodeRead={(data) => {
                   handleTextChange(data.data);
                 }}
+                notAuthorizedView={
+                  <View style={{ ...styles.cameraView, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text>Camera permission is denied</Text>
+                    <TouchableOpacity onPress={requestPermission}>
+                      <Text>Tap to go to settings</Text>
+                    </TouchableOpacity>
+                  </View>
+                }
               />
             </Box>
             {/* send manually option */}
@@ -271,6 +284,7 @@ const styles = ScaledSheet.create({
   },
   qrcontainer: {
     overflow: 'hidden',
+    backgroundColor: 'transparent',
     borderRadius: 10,
     marginVertical: hp(25),
   },
