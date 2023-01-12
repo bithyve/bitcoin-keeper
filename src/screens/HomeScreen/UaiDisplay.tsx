@@ -61,6 +61,12 @@ function UaiDisplay({ uaiStack }) {
             navigtaion.navigate('VaultDetails');
           },
         };
+      case uaiType.VAULT_MIGRATION:
+        return {
+          cta: () => {
+            navigtaion.navigate('AddSigningDevice');
+          },
+        };
       case uaiType.DEFAULT:
         return {
           cta: () => {
