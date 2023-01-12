@@ -1,22 +1,20 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-plusplus */
-import { call, put, select } from "redux-saga/effects";
+import { call, put, select } from 'redux-saga/effects';
 import {
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash512,
-} from "src/core/services/operations/encryption";
-import DeviceInfo from "react-native-device-info";
-import { KeeperApp } from "src/common/data/models/interfaces/KeeperApp";
-import LoginMethod from "src/common/data/enums/LoginMethod";
-import { Platform } from "react-native";
-import { RealmSchema } from "src/storage/realm/enum";
-import Relay from "src/core/services/operations/Relay";
-import { getReleaseTopic } from "src/utils/releaseTopic";
-import messaging from "@react-native-firebase/messaging";
-import ElectrumClient from "src/core/services/electrum/client";
-import * as SecureStore from "../../storage/secure-store";
+} from 'src/core/services/operations/encryption';
+import DeviceInfo from 'react-native-device-info';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getReleaseTopic } from 'src/utils/releaseTopic';
+import messaging from '@react-native-firebase/messaging';
+import ElectrumClient from 'src/core/services/electrum/client';
+import * as SecureStore from '../../storage/secure-store';
 
 import {
   CHANGE_AUTH_CRED,
@@ -24,9 +22,7 @@ import {
   CREDS_AUTH,
   RESET_PIN,
   STORE_CREDS,
-  UPDATE_APPLICATION,
-  updateApplication,
-} from "../sagaActions/login";
+} from '../sagaActions/login';
 import {
   credsAuthenticated,
   credsChanged,
@@ -34,26 +30,24 @@ import {
   setCredStored,
   setKey,
   setupLoading,
-} from "../reducers/login";
+} from '../reducers/login';
 import {
   resetPinFailAttempts,
   setAppVersion,
   setPinHash,
   setPinResetCreds,
-} from "../reducers/storage";
+} from '../reducers/storage';
 
-import { RootState } from "../store";
-import { autoSyncWallets } from "../sagaActions/wallets";
-import { createWatcher } from "../utilities";
-import dbManager from "../../storage/realm/dbManager";
-import {
-  fetchFeeRates,
-  fetchExchangeRates,
-} from "../sagaActions/send_and_receive";
-import { getMessages } from "../sagaActions/notifications";
-import { setLoginMethod } from "../reducers/settings";
-import { setWarning } from "../sagaActions/bhr";
-import { uaiChecks } from "../sagaActions/uai";
+import { RootState } from '../store';
+import { autoSyncWallets } from '../sagaActions/wallets';
+import { createWatcher } from '../utilities';
+import dbManager from '../../storage/realm/dbManager';
+import { fetchFeeRates, fetchExchangeRates } from '../sagaActions/send_and_receive';
+import { getMessages } from '../sagaActions/notifications';
+import { setLoginMethod } from '../reducers/settings';
+import { setWarning } from '../sagaActions/bhr';
+import { uaiChecks } from '../sagaActions/uai';
+import { applyUpgradeSequence } from './upgrade';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -68,7 +62,7 @@ export const stringToArrayBuffer = (byteString: string): Uint8Array => {
 
 function* credentialsStorageWorker({ payload }) {
   try {
-    yield put(setupLoading("storingCreds"));
+    yield put(setupLoading('storingCreds'));
     const hash = yield call(hash512, payload.passcode);
     const AES_KEY = yield call(generateEncryptionKey);
     yield put(setKey(AES_KEY));
@@ -89,9 +83,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     // connect electrum-client
-    const privateNodes = yield select(
-      (state: RootState) => state.settings.nodeDetails
-    );
+    const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
     ElectrumClient.setActivePeer(privateNodes);
     yield call(ElectrumClient.connect);
 
@@ -103,25 +95,22 @@ function* credentialsStorageWorker({ payload }) {
 
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: "",
+      releaseNote: '',
       date: new Date().toString(),
-      title: "Initially installed",
+      title: 'Initially installed',
     });
   } catch (error) {
     console.log(error);
   }
 }
 
-export const credentialStorageWatcher = createWatcher(
-  credentialsStorageWorker,
-  STORE_CREDS
-);
+export const credentialStorageWatcher = createWatcher(credentialsStorageWorker, STORE_CREDS);
 
 function* credentialsAuthWorker({ payload }) {
   let key;
   try {
     const { method } = payload;
-    yield put(setupLoading("authenticating"));
+    yield put(setupLoading('authenticating'));
 
     let hash;
     let encryptedKey;
@@ -130,22 +119,23 @@ function* credentialsAuthWorker({ payload }) {
       encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
       const appId = yield select((state: RootState) => state.storage.appId);
-      const res = yield call(
-        SecureStore.verifyBiometricAuth,
-        payload.passcode,
-        appId
-      );
-      if (!res.success) throw new Error("Biometric Auth Failed");
+      const res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
+      if (!res.success) throw new Error('Biometric Auth Failed');
       hash = res.hash;
       encryptedKey = res.encryptedKey;
     }
     key = yield call(decrypt, hash, encryptedKey);
     yield put(setKey(key));
-    if (!key) throw new Error("Encryption key is missing");
+    if (!key) throw new Error('Encryption key is missing');
     const uint8array = yield call(stringToArrayBuffer, key);
     yield call(dbManager.initializeRealm, uint8array);
     yield call(generateSeedHash);
     yield put(setPinHash(hash));
+
+    const previousVersion = yield select((state) => state.storage.appVersion);
+    const newVersion = DeviceInfo.getVersion();
+    if (previousVersion !== newVersion)
+      yield call(applyUpgradeSequence, { previousVersion, newVersion });
   } catch (err) {
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
@@ -156,18 +146,13 @@ function* credentialsAuthWorker({ payload }) {
   yield put(setKey(key));
 
   // connect electrum-client
-  const privateNodes = yield select(
-    (state: RootState) => state.settings.nodeDetails
-  );
+  const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
   ElectrumClient.setActivePeer(privateNodes);
   yield call(ElectrumClient.connect);
 
   if (!payload.reLogin) {
     // case: login
-    const history = yield call(
-      dbManager.getCollection,
-      RealmSchema.BackupHistory
-    );
+    const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
 
     yield call(autoSyncWallets);
 
@@ -179,20 +164,10 @@ function* credentialsAuthWorker({ payload }) {
     yield put(getMessages());
     yield put(uaiChecks());
   }
-  // check if the app has been upgraded
-  const appVersion = yield select(
-    (state: RootState) => state.storage.appVersion
-  );
-  const currentVersion = DeviceInfo.getVersion();
-  if (currentVersion !== appVersion)
-    yield put(updateApplication(currentVersion, appVersion));
   yield put(credsAuthenticated(true));
 }
 
-export const credentialsAuthWatcher = createWatcher(
-  credentialsAuthWorker,
-  CREDS_AUTH
-);
+export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
 
 function* changeAuthCredWorker({ payload }) {
   const { oldPasscode, newPasscode } = payload;
@@ -204,7 +179,7 @@ function* changeAuthCredWorker({ payload }) {
       err,
     });
     yield put(pinChangedFailed(true));
-    yield put(credsChanged("not-changed"));
+    yield put(credsChanged('not-changed'));
   }
 }
 
@@ -221,16 +196,16 @@ function* resetPinWorker({ payload }) {
 
     // store the AES key against the hash
     if (!(yield call(SecureStore.store, newHash, newencryptedKey))) {
-      throw new Error("Unable to access secure store");
+      throw new Error('Unable to access secure store');
     }
-    yield put(credsChanged("changed"));
+    yield put(credsChanged('changed'));
     yield put(setPinHash(newHash));
   } catch (err) {
     console.log({
       err,
     });
     yield put(pinChangedFailed(true));
-    yield put(credsChanged("not-changed"));
+    yield put(credsChanged('not-changed'));
   }
 }
 
@@ -240,22 +215,19 @@ function* generateSeedHash() {
       dbManager.getObjectByIndex,
       RealmSchema.KeeperApp
     );
-    const words = primaryMnemonic.split(" ");
+    const words = primaryMnemonic.split(' ');
     const random = Math.floor(Math.random() * words.length);
     const hash = yield call(hash512, words[random]);
     yield put(setPinResetCreds({ hash, index: random }));
     yield put(resetPinFailAttempts());
   } catch (error) {
-    console.log("generateSeedHash error", error);
+    console.log('generateSeedHash error', error);
   }
 }
 
 export const resetPinCredWatcher = createWatcher(resetPinWorker, RESET_PIN);
 
-export const changeAuthCredWatcher = createWatcher(
-  changeAuthCredWorker,
-  CHANGE_AUTH_CRED
-);
+export const changeAuthCredWatcher = createWatcher(changeAuthCredWorker, CHANGE_AUTH_CRED);
 
 function* changeLoginMethodWorker({
   payload,
@@ -279,46 +251,4 @@ function* changeLoginMethodWorker({
   }
 }
 
-export const changeLoginMethodWatcher = createWatcher(
-  changeLoginMethodWorker,
-  CHANGE_LOGIN_METHOD
-);
-
-function* applicationUpdateWorker({
-  payload,
-}: {
-  payload: { newVersion: string; previousVersion: string };
-}) {
-  const { newVersion, previousVersion } = payload;
-  try {
-    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: "",
-      date: new Date().toString(),
-      title: `Upgraded from ${previousVersion}`,
-    });
-    messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
-    messaging().subscribeToTopic(getReleaseTopic(newVersion));
-    yield put(setAppVersion(DeviceInfo.getVersion()));
-    const res = yield call(Relay.fetchReleaseNotes, newVersion);
-    let notes = "";
-    notes = res.release
-      ? Platform.OS === "ios"
-        ? res.release.releaseNotes.ios
-        : res.release.releaseNotes.android
-      : "";
-    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: notes,
-      date: new Date().toString(),
-      title: `Upgraded from ${previousVersion}`,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export const applicationUpdateWatcher = createWatcher(
-  applicationUpdateWorker,
-  UPDATE_APPLICATION
-);
+export const changeLoginMethodWatcher = createWatcher(changeLoginMethodWorker, CHANGE_LOGIN_METHOD);
