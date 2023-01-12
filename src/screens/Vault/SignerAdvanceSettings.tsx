@@ -21,6 +21,8 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { globalStyles } from 'src/common/globalStyles';
+import { regsiterWithLedger } from 'src/hardware/ledger';
+import useVault from 'src/hooks/useVault';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 
@@ -48,19 +50,17 @@ function SignerAdvanceSettings({ route }: any) {
   const closeNfc = () => setNfcModal(false);
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
-  const { useQuery } = useContext(RealmWrapperContext);
 
-  const Vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault } = useVault();
 
   const register = async () => {
     if (signer.type === SignerType.COLDCARD) {
       openNfc();
-      await registerToColcard({ vault: Vault });
+      await registerToColcard({ vault: activeVault });
       closeNfc();
     }
   };
+  const transport = null;
 
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
@@ -69,6 +69,9 @@ function SignerAdvanceSettings({ route }: any) {
     switch (signer.type) {
       case SignerType.COLDCARD:
         register();
+        return;
+      case SignerType.LEDGER:
+        regsiterWithLedger(activeVault, transport);
         return;
       case SignerType.KEYSTONE:
       case SignerType.JADE:

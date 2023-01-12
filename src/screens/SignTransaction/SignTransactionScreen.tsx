@@ -31,7 +31,6 @@ import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
   signTransactionWithColdCard,
-  signTransactionWithLedger,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
@@ -163,15 +162,6 @@ function SignTransactionScreen() {
             defaultVault,
             closeNfc,
           });
-        } else if (SignerType.LEDGER === signerType) {
-          const { signedSerializedPSBT } = await signTransactionWithLedger({
-            setLedgerModal,
-            currentSigner,
-            signingPayload,
-            defaultVault,
-            serializedPSBT,
-          });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.MOBILE_KEY === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithMobileKey({
             setPasswordModal,
@@ -338,7 +328,6 @@ function SignTransactionScreen() {
         setTapsignerModal={setTapsignerModal}
         showOTPModal={showOTPModal}
         signTransaction={signTransaction}
-        LedgerCom={LedgerCom}
         textRef={textRef}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} />

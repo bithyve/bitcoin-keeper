@@ -25,6 +25,12 @@ import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
 import useBLE from 'src/hooks/useLedger';
 import useVault from 'src/hooks/useVault';
+import { signWithLedger } from 'src/hardware/ledger';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { useDispatch } from 'react-redux';
+import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+import { captureError } from 'src/core/services/sentry';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
 
@@ -52,16 +58,52 @@ function DeviceItem({ device, onSelectDevice }) {
   );
 }
 
-function LedgerContent({ signTransaction }) {
-  const { scanForPeripherals, requestPermissions, allDevices, disconnectFromDevice, isScanning } =
-    useBLE();
-
+function LedgerContent({ signer, setLedgerModal }: { signer: VaultSigner; setLedgerModal }) {
+  const {
+    scanForPeripherals,
+    requestPermissions,
+    allDevices,
+    disconnectFromDevice,
+    isScanning,
+    connectToDevice,
+  } = useBLE();
+  const dispatch = useDispatch();
+  const { activeVault } = useVault();
+  const { showToast } = useToastMessage();
   const scanForDevices = () => {
     requestPermissions((isGranted) => {
       if (isGranted) {
         scanForPeripherals();
       }
     });
+  };
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+  const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
+    (envelop) => signer.signerId === envelop.signerId
+  )[0];
+
+  const onSelectDevice = async (device) => {
+    try {
+      const transport = await connectToDevice(device);
+      const { signedSerializedPSBT } = await signWithLedger(
+        transport,
+        serializedPSBT,
+        signingPayload,
+        activeVault
+      );
+      dispatch(
+        updatePSBTEnvelops({
+          signerId: signer.signerId,
+          signedSerializedPSBT,
+        })
+      );
+      setLedgerModal(false);
+    } catch (error) {
+      captureError(error);
+      showToast(error.toString());
+    }
   };
 
   useEffect(() => {
@@ -75,7 +117,7 @@ function LedgerContent({ signTransaction }) {
     <>
       {isScanning ? <ActivityIndicator /> : null}
       {allDevices.map((device) => (
-        <DeviceItem device={device} onSelectDevice={signTransaction} key={device.id} />
+        <DeviceItem device={device} onSelectDevice={onSelectDevice} key={device.id} />
       ))}
     </>
   );
@@ -365,7 +407,6 @@ function SignerModals({
   setLedgerModal,
   setPasswordModal,
   showOTPModal,
-  LedgerCom,
   signTransaction,
   textRef,
   signers,
@@ -433,11 +474,10 @@ function SignerModals({
                 subTitle="Power up your Ledger Nano X and open the BTC app"
                 modalBackground={['light.gradientStart', 'light.gradientEnd']}
                 buttonBackground={['#FFFFFF', '#80A8A1']}
-                buttonText={LedgerCom.current ? 'SIGN' : null}
                 buttonTextColor="light.greenText"
                 textColor="light.white"
                 DarkCloseIcon
-                Content={() => <LedgerContent signTransaction={signTransaction} />}
+                Content={() => <LedgerContent signer={signer} setLedgerModal={setLedgerModal} />}
               />
             );
           case SignerType.MOBILE_KEY:

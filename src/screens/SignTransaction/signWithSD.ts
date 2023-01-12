@@ -8,7 +8,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
-import { signWithTapsigner , readTapsigner } from 'src/hardware/tapsigner';
+import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 
 export const signTransactionWithTapsigner = async ({
@@ -36,19 +36,18 @@ export const signTransactionWithTapsigner = async ({
       xpriv
     );
     return { signedSerializedPSBT, signingPayload: null };
-  } 
-    return withModal(async () => {
-      try {
-        const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
-        signingPayload.forEach((payload) => {
-          payload.inputsToSign = signedInput;
-        });
-        return { signingPayload, signedSerializedPSBT: null };
-      } catch (e) {
-        console.log(e);
-      }
-    })().catch(console.log);
-  
+  }
+  return withModal(async () => {
+    try {
+      const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
+      signingPayload.forEach((payload) => {
+        payload.inputsToSign = signedInput;
+      });
+      return { signingPayload, signedSerializedPSBT: null };
+    } catch (e) {
+      console.log(e);
+    }
+  })().catch(console.log);
 };
 
 export const signTransactionWithColdCard = async ({
@@ -67,9 +66,8 @@ export const signTransactionWithColdCard = async ({
       if (signer.signerId === activeSignerId) {
         signer.hasSigned = true;
         return signer;
-      } 
-        return signer;
-      
+      }
+      return signer;
     });
     dbManager.updateObjectById(RealmSchema.Vault, defaultVault.id, {
       signers: updatedSigners,
