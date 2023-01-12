@@ -14,6 +14,12 @@ const initializeRealm = async (
 };
 
 /**
+ * delete realm
+ * @returns Promise
+ */
+const deleteRealm = () => realm.deleteDatabase();
+
+/**
  * generic :: creates an object corresponding to provided schema
  * @param  {RealmSchema} schema
  * @param  {any} object
@@ -90,6 +96,7 @@ const getCollection = (schema: RealmSchema) => {
 
 export default {
   initializeRealm,
+  deleteRealm,
   createObject,
   getObjectByIndex,
   getObjectById,

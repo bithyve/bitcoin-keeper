@@ -1,4 +1,4 @@
-import { ActivityIndicator, BackHandler, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -20,6 +20,8 @@ import { recoverBackup } from 'src/store/sagaActions/bhr';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
+import config from 'src/core/config';
+import { NetworkType } from 'src/core/wallets/enums';
 
 function Tile({ title, subTitle, onPress, Icon, loading = false }) {
   return (
@@ -143,20 +145,43 @@ function NewKeeperApp({ navigation }: { navigation }) {
     }
   }, [keeperInitiating]);
 
+  const getSignUpModalContent = () => {
+    if (config.NETWORK_TYPE === NetworkType.MAINNET) {
+      return {
+        title: 'Multisig security for your sats',
+        subTitle: 'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
+        assert: {
+          loader: require('src/assets/video/Loader.gif'),
+          height: 180
+        },
+        message: 'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.'
+      }
+    } else {
+      return {
+        title: 'Shake to send feedback',
+        subTitle: 'Shake your device to send us a bug report or a feature request',
+        assert: {
+          loader: require('src/assets/video/test-net.gif'),
+          height: 200
+        },
+        message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+      }
+    }
+  }
+
   function SignUpModalContent() {
     return (
       <Box>
         <Image
-          source={require('src/assets/video/test-net.gif')}
+          source={getSignUpModalContent().assert.loader}
           style={{
             width: wp(270),
-            height: hp(200),
+            height: hp(getSignUpModalContent().assert.height),
             alignSelf: 'center',
           }}
         />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
-          This feature is *only* for the testnet version of the app. The developers will get your
-          message along with other information from the app.
+          {getSignUpModalContent().message}
         </Text>
       </Box>
     );
@@ -194,7 +219,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
             <Tile
               title="Recover for myself"
-              subTitle="Using Phrase"
+              subTitle="Using Backup Phrase"
               Icon={<Recover />}
               onPress={() => {
                 navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
@@ -212,8 +237,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
         </Box>
       </ScrollView>
       <Text color="light.primaryText" style={styles.noteText}>
-        When you use signing devices to restore Keeper, only vault is restored and the app has new
-        wallets
+        When you use signing devices to restore Keeper, only the vault is restored and the app has
+        new wallets
       </Text>
       <CloudRecoveryModal
         visible={cloudModal}
@@ -251,10 +276,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
-        title="Shake to send feedback"
-        subTitle="Shake your device to send us a bug report or a feature request"
+        title={getSignUpModalContent().title}
+        subTitle={getSignUpModalContent().subTitle}
         Content={SignUpModalContent}
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
@@ -285,7 +310,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     paddingHorizontal: 18,
-    letterSpacing: 0.6,
+    letterSpacing: 0.2,
   },
   titleWrapper02: {
     marginTop: hp(70),

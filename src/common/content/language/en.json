@@ -179,7 +179,7 @@
     "HexaPay": "Hexa Pay",
     "AliceWallet": "Alice’s Wallet",
     "HexaPaywalletsecurity": "You are about the enhance your Hexa Pay wallet's security",
-    "amountdesc": "",
+    "amountdesc": "The QR code will change once an amount is entered",
     "ConvertedAmount": "Converted Amount",
     "reflectSats": "It would take some time for the sats to reflect in your account based on the network conditions",
     "the_wallet_backup": "The wallet backup is ",
@@ -190,7 +190,7 @@
     "manage_backup": "Manage Backup",
     "add_new": "Add New",
     "buy": "Buy BTC",
-    "AddAmount": "Add Amount",
+    "AddAmount": "Enter Amount",
     "myaccounts": "My Accounts",
     "btcTo": "BTC to USD today",
     "buyBitCoin": "Buy Bitcoin",
@@ -472,10 +472,10 @@
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "The subscription should be confirmed on the Play/ App Store. After trial period the subscription auto renews monthly"
+    "noteSubTitle": "The subscription should be confirmed on the Play/App Store. After trial period the subscription auto renews monthly"
   },
   "BackupWallet": {
-    "confirmSeedWord": "Confirm Seed Words",
+    "confirmSeedWord": "Confirm Backup phrase",
     "enterSeedWord": "Enter the second(02) word",
     "seedWordNote": "If you don’t have the words written down, you may choose to start over.",
     "startOver": "Start Over",
@@ -502,9 +502,9 @@
     "skipHealthCheckPara01": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
     "skipHealthCheckPara02": "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris",
     "myWalletBackupTitle": "My Wallet Backup",
-    "SEED_BACKUP_CREATED": "Recovery Phrase backup is created",
-    "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
-    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
+    "SEED_BACKUP_CREATED": "Backup Phrase backup is created",
+    "SEED_BACKUP_CONFIRMED": "Backup Phrase backup is confirmed",
+    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Backup Phrase health confirmation is skipped",
     "CLOUD_BACKUP_CREATED": "Cloud backup created",
     "CLOUD_BACKUP_FAILED": "Cloud backup failed",
     "CLOUD_BACKUP_CONFIRMATION_SKIPPED": "Cloud backup confirmation skipped",

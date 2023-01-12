@@ -8,7 +8,7 @@ export class RealmDatabase {
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 35;
+  public static schemaVersion = 36;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -41,6 +41,20 @@ export class RealmDatabase {
   public getDatabase = (): Realm => {
     if (this.realm) return this.realm;
     throw new Error('database not initialized');
+  };
+
+  /**
+   * deletes instance of the database
+   */
+  public deleteDatabase = (): boolean => {
+    if (this.realm) {
+      this.realm.write(() => {
+        this.realm.deleteAll();
+      });
+      return true;
+    }
+    console.log('database not initialized');
+    return false;
   };
 
   /**

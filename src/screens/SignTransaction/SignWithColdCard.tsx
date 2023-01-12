@@ -20,6 +20,7 @@ import {
 } from 'src/hardware/coldcard';
 import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
 function Card({ message, buttonText, buttonCallBack }) {
   return (
@@ -59,20 +60,20 @@ function Card({ message, buttonText, buttonCallBack }) {
   );
 }
 
-function SignWithColdCard({ route }) {
+function SignWithColdCard({ route }: { route }) {
   const [nfcVisible, setNfcVisible] = useState(false);
   const [mk4Helper, showMk4Helper] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
   const Vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const {
-    signer,
-    signTransaction,
-    isMultisig,
-  }: { signer: VaultSigner; signTransaction; isMultisig: boolean } = route.params;
-  const { hasSigned, isMock } = signer;
-  const register = !hasSigned && !isMock && isMultisig;
+  const { signer, signTransaction, isMultisig } = route.params as {
+    signer: VaultSigner;
+    signTransaction;
+    isMultisig: boolean;
+  };
+  const { registered } = signer;
+
   const dispatch = useDispatch();
 
   const receiveFromColdCard = async () => {
@@ -90,6 +91,7 @@ function SignWithColdCard({ route }) {
   const registerCC = async () => {
     setNfcVisible(true);
     await registerToColcard({ vault: Vault });
+    dispatch(updateSignerDetails(signer, 'registered', true));
     setNfcVisible(false);
   };
   const { colorMode } = useColorMode();
@@ -97,7 +99,7 @@ function SignWithColdCard({ route }) {
     <ScreenWrapper>
       <VStack justifyContent="space-between" flex={1}>
         <VStack>
-          {register ? (
+          {!registered && isMultisig ? (
             <>
               <HeaderTitle
                 title="Register Device"

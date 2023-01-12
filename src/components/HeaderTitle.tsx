@@ -36,7 +36,12 @@ function HeaderTitle({
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <Box style={styles.backContainer}>
+        <Box
+          style={[
+            styles.backContainer,
+            title && subtitle ? styles.backBtnVerticalPadding : styles.backBtnTopPadding,
+          ]}
+        >
           <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.backButton}>
             <BackButton />
           </TouchableOpacity>
@@ -103,7 +108,12 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: '5@s',
+  },
+  backBtnVerticalPadding: {
     paddingVertical: windowHeight > 680 ? '15@s' : '7@s',
+  },
+  backBtnTopPadding: {
+    paddingTop: windowHeight > 680 ? '15@s' : '7@s',
   },
   backButton: {
     height: 20,

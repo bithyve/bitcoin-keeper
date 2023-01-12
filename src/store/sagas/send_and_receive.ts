@@ -42,7 +42,7 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { updatVaultImage } from '../sagaActions/bhr';
+import { updateVaultImage } from '../sagaActions/bhr';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
   if (!wallet.isUsable) return '';
@@ -235,7 +235,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
     });
-    yield put(updatVaultImage());
+    yield put(updateVaultImage());
   } catch (err) {
     yield put(
       sendPhaseThreeExecuted({

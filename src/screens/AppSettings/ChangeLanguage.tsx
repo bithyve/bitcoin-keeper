@@ -1,11 +1,8 @@
 import React, { useState, useContext } from 'react';
-
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { Box, ScrollView, useColorMode } from 'native-base';
+
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView, StatusBar, useColorMode } from 'native-base';
-import BackIcon from 'src/assets/images/back.svg';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
 import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
@@ -18,15 +15,15 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import availableLanguages from '../../common/content/availableLanguages';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import HeaderTitle from 'src/components/HeaderTitle';
 
 const styles = StyleSheet.create({
   btn: {
     flexDirection: 'row',
     height: wp('13%'),
     position: 'relative',
-    //   borderRadius: 10,
-    //   borderWidth: 1,
-    //   borderColor: Colors.borderColor,
+    marginHorizontal: 12,
   },
   textCurrency: {
     fontFamily: Fonts.RobotoCondensedRegular,
@@ -36,7 +33,7 @@ const styles = StyleSheet.create({
   },
   icArrow: {
     marginLeft: wp('3%'),
-    marginRight: wp('13%'),
+    marginRight: wp('8%'),
     alignSelf: 'center',
   },
   textValue: {
@@ -67,7 +64,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 28,
   },
   emptyView: {
     height: '55%',
@@ -155,7 +151,6 @@ const styles = StyleSheet.create({
 function ChangeLanguage() {
   const [currencyList] = useState(FiatCurrencies);
   const [countryList] = useState(CountryCode);
-  const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const [satsMode, setSatsMode] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -212,24 +207,10 @@ function ChangeLanguage() {
   }
 
   return (
-    <SafeAreaView style={styles.wrapper}>
-      <StatusBar backgroundColor="light.secondaryBackground" barStyle="dark-content" />
-      <Box mx={5} my={10}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </TouchableOpacity>
-      </Box>
+    <ScreenWrapper>
+      <HeaderTitle />
       <Box flex={1}>
-        {/* <ScrollView
-          overScrollMode="never"
-          bounces={false}
-          flex={1}
-          pb={20}
-          flexDirection={'column'}
-          showsVerticalScrollIndicator={false}
-          py={3}
-        > */}
-        <Box width="60%" marginLeft="10%">
+        <Box marginLeft="5%">
           <Text fontSize={16} letterSpacing={0.8} style={styles.mainText}>
             {settings.LanguageCountry}
           </Text>
@@ -334,17 +315,8 @@ function ChangeLanguage() {
             ))}
           </ScrollView>
         )}
-        {/* </ScrollView> */}
-        {/* <View style={{ marginBottom: 10 }}>
-          <LanguageNote
-            title={settings.HelpUstranslate}
-            subtitle={
-              settings.desc
-            }
-          />
-        </View> */}
       </Box>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 
