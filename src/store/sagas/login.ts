@@ -132,10 +132,10 @@ function* credentialsAuthWorker({ payload }) {
     yield call(generateSeedHash);
     yield put(setPinHash(hash));
 
-    const storedVersion = yield select((state) => state.storage.appVersion);
-    const currentVersion = DeviceInfo.getVersion();
-    if (currentVersion !== storedVersion)
-      yield call(applyUpgradeSequence, { storedVersion, newVersion: currentVersion });
+    const previousVersion = yield select((state) => state.storage.appVersion);
+    const newVersion = DeviceInfo.getVersion();
+    if (previousVersion !== newVersion)
+      yield call(applyUpgradeSequence, { previousVersion, newVersion });
   } catch (err) {
     if (payload.reLogin) {
       // yield put(switchReLogin(false));

@@ -5,7 +5,6 @@ export const SET_PIN_RESET_CREDS = 'SET_PIN_RESET_CREDS';
 export const INCREASE_PIN_FAIL_ATTEMTS = 'INCREASE_PIN_FAIL_ATTEMTS';
 export const RESET_PIN_FAIL_ATTEMTS = 'RESET_PIN_FAIL_ATTEMTS';
 export const KEY_FETCHED = 'KEY_FETCHED';
-export const RESET_REDUX_STORE = 'RESET_REDUX_STORE';
 
 export const setupKeeperApp = (appName?: string) => ({
   type: SETUP_KEEPER_APP,
@@ -53,8 +52,4 @@ export const keyFetched = (key) => ({
   payload: {
     key,
   },
-});
-
-export const resetReduxStore = () => ({
-  type: RESET_REDUX_STORE,
 });

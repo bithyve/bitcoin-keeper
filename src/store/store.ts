@@ -14,7 +14,7 @@ import storageReducer from './reducers/storage';
 import vaultReducer from './reducers/vaults';
 import walletReducer from './reducers/wallets';
 import networkReducer from './reducers/network';
-import { RESET_REDUX_STORE } from './sagaActions/storage';
+import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 
 const appReducer = combineReducers({
   settings: settingsReducer,

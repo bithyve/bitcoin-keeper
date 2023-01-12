@@ -8,20 +8,27 @@ import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { setAppVersion } from '../reducers/storage';
-import { resetReduxStore, setupKeeperApp } from '../sagaActions/storage';
+import { setupKeeperApp } from '../sagaActions/storage';
 import { stringToArrayBuffer } from './login';
+import { createWatcher } from '../utilities';
+import {
+  resetReduxStore,
+  updateVersionHistory,
+  UPDATE_VERSION_HISTORY,
+} from '../sagaActions/upgrade';
 
+const SWITCH_TO_MAINNET_VERSION = '1.1.1';
 export function* applyUpgradeSequence({
-  storedVersion,
+  previousVersion,
   newVersion,
 }: {
-  storedVersion: string;
+  previousVersion: string;
   newVersion: string;
 }) {
-  console.log(`applying upgrade sequence - from: ${storedVersion} to ${newVersion}`);
-  if (semver.lt(storedVersion, '1.1.1')) yield call(switchToMainnet);
+  console.log(`applying upgrade sequence - from: ${previousVersion} to ${newVersion}`);
+  if (semver.lt(previousVersion, SWITCH_TO_MAINNET_VERSION)) yield call(switchToMainnet);
   yield put(setAppVersion(newVersion));
-  yield call(updateVersionHistory, { newVersion, previousVersion: storedVersion });
+  yield put(updateVersionHistory(previousVersion, newVersion));
 }
 
 function* switchToMainnet() {
@@ -37,7 +44,12 @@ function* switchToMainnet() {
   yield put(setupKeeperApp());
 }
 
-function* updateVersionHistory({ newVersion, previousVersion }) {
+function* updateVersionHistoryWorker({
+  payload,
+}: {
+  payload: { previousVersion: string; newVersion: string };
+}) {
+  const { previousVersion, newVersion } = payload;
   try {
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
@@ -67,3 +79,8 @@ function* updateVersionHistory({ newVersion, previousVersion }) {
     console.log({ error });
   }
 }
+
+export const updateVersionHistoryWatcher = createWatcher(
+  updateVersionHistoryWorker,
+  UPDATE_VERSION_HISTORY
+);

@@ -58,6 +58,7 @@ import {
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
+import { updateVersionHistoryWatcher } from './upgrade';
 
 const rootSaga = function* () {
   const sagas = [
@@ -123,6 +124,9 @@ const rootSaga = function* () {
     backupWarningWatcher,
     recoverVaultWatcher,
     setupKeeperVaultRecoveryAppWatcher,
+
+    // upgrade
+    updateVersionHistoryWatcher,
   ];
 
   yield all(
