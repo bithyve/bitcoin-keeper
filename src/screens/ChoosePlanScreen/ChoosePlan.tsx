@@ -38,7 +38,7 @@ const plans = [
       'Add multiple BIP-85 wallets',
       'Autotransfer to vault',
       'Add one air gapped signing device',
-      'Community support',
+      'Get community support via Telegram',
     ],
     name: 'Pleb',
     productId: 'Pleb',
@@ -209,7 +209,7 @@ function ChoosePlan(props) {
     if (name === 'Diamond Hands') {
       return `${name} means`;
     }
-    return `A ${name} gets`;
+    return `A ${name} can`;
   };
 
   return (
