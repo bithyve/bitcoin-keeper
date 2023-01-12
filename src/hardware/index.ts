@@ -4,6 +4,14 @@ import { DerivationPurpose, SignerType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 
+export const UNVERIFYING_SIGNERS = [
+  SignerType.JADE,
+  SignerType.KEEPER,
+  SignerType.MOBILE_KEY,
+  SignerType.POLICY_SERVER,
+  SignerType.SEED_WORDS,
+  SignerType.TAPSIGNER,
+];
 export const generateSignerFromMetaData = ({
   xpub,
   derivationPath,
@@ -29,6 +37,7 @@ export const generateSignerFromMetaData = ({
     lastHealthCheck: new Date(),
     addedOn: new Date(),
     storageType,
+    registered: UNVERIFYING_SIGNERS.includes(signerType) || isMock,
   };
   return signer;
 };

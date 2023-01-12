@@ -8,6 +8,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
 
 import IconRecieve from 'src/assets/images/icon_received.svg';
+import UnconfirmedIcon from 'src/assets/images/pending.svg';
 import IconSent from 'src/assets/images/icon_sent.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
@@ -21,7 +22,8 @@ function TransactionElement({
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date).format('DD MMM YY  •  hh:mma');
-
+  console.log({ status: transaction.status, confirmations: transaction.confirmations });
+  const { status } = transaction;
   return (
     <TouchableOpacity onPress={onPress}>
       <Box style={styles.container}>
@@ -41,6 +43,11 @@ function TransactionElement({
           </Box>
         </Box>
         <Box style={styles.rowCenter}>
+          {status === 'Unconfirmed' ? (
+            <Box paddingX={3}>
+              <UnconfirmedIcon />
+            </Box>
+          ) : null}
           <Box>
             <BtcBlack />
           </Box>

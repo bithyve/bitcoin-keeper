@@ -405,22 +405,24 @@ function SignerModals({
               />
             );
           case SignerType.COLDCARD:
-            const { hasSigned, isMock } = signer;
-            const register = !hasSigned && !isMock && isMultisig;
+            const { registered } = signer;
             const navigateToSignWithColdCard = () => {
               setColdCardModal(false);
               navigation.dispatch(
                 CommonActions.navigate('SignWithColdCard', { signTransaction, signer, isMultisig })
               );
             };
+            const shouldRegister = !registered && isMultisig;
             return (
               <KeeperModal
                 visible={currentSigner && coldCardModal}
                 close={() => setColdCardModal(false)}
-                title={register ? 'Register Coldcard' : 'Keep your Mk4 ready'}
+                title={shouldRegister ? 'Register Coldcard' : 'Keep your Mk4 ready'}
                 subTitle="Keep your Mk4 ready before proceeding"
-                Content={() => <ColdCardContent register={register} isMultisig={isMultisig} />}
-                buttonText={register ? 'Register' : 'Proceed'}
+                Content={() => (
+                  <ColdCardContent register={shouldRegister} isMultisig={isMultisig} />
+                )}
+                buttonText={shouldRegister ? 'Register' : 'Proceed'}
                 buttonCallback={navigateToSignWithColdCard}
               />
             );
