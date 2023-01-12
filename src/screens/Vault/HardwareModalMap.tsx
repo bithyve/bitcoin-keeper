@@ -76,7 +76,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         Illustration: <ColdCardSetupImage />,
         Instructions: [
           ccInstructions,
-          `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).`,
+          `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
         ],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,

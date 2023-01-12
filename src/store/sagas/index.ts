@@ -24,7 +24,6 @@ import {
   updateUaiStackWatcher,
 } from './uai';
 import {
-  applicationUpdateWatcher,
   changeAuthCredWatcher,
   changeLoginMethodWatcher,
   credentialStorageWatcher,
@@ -59,6 +58,7 @@ import {
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
+import { updateVersionHistoryWatcher } from './upgrade';
 
 const rootSaga = function* () {
   const sagas = [
@@ -69,7 +69,6 @@ const rootSaga = function* () {
     credentialStorageWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
-    applicationUpdateWatcher,
     // notification
     updateFCMTokensWatcher,
     getMessageWatcher,
@@ -125,6 +124,9 @@ const rootSaga = function* () {
     backupWarningWatcher,
     recoverVaultWatcher,
     setupKeeperVaultRecoveryAppWatcher,
+
+    // upgrade
+    updateVersionHistoryWatcher,
   ];
 
   yield all(

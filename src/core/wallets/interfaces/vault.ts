@@ -56,7 +56,7 @@ export interface VaultSigner {
   bip85Config?: BIP85Config;
   lastHealthCheck: Date;
   addedOn: Date;
-  hasSigned?: boolean;
+  registered: boolean;
   amfData?: any;
   signerPolicy?: SignerPolicy;
 }

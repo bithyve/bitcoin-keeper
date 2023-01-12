@@ -333,12 +333,27 @@ function SigningDeviceDetails({ route }) {
         break;
       default:
         // Alert.alert('Health check for this device is not supported currently');
-        showToast(
-          'Health check for this device is not supported currently',
+        showToast('Health check for this device is not supported currently',
           <ToastError />,
           1000,
           false,
-          '60%'
+          '60%',
+          <Text
+            color='light.black'
+            style={{ marginLeft: 10, width: '60%' }}
+            numberOfLines={2}
+          >
+            Health check for this device is
+            <Text
+              color='light.black'
+              style={{
+                fontStyle: 'italic',
+                fontWeight: '600'
+              }}>
+              {' not supported '}
+            </Text>
+            currently
+          </Text>
         );
     }
   };

@@ -33,7 +33,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -41,14 +41,14 @@ import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerNameFromType, UNVERIFYING_SIGNERS } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { WalletMap } from './WalletMap';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
+import { WalletMap } from './WalletMap';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -151,29 +151,24 @@ function VaultInfo({ vault }: { vault: Vault }) {
             </Text>
           </VStack>
         </HStack>
-        <HStack alignItems="center">
-          <BTC />
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={30}>
-            {getAmount(confirmed + unconfirmed)}
+        <VStack alignItems="flex-end">
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+            Unconfirmed
           </Text>
-        </HStack>
+          {getNetworkAmount(unconfirmed, [styles.vaultInfoText, { fontSize: 12 }], 0.9)}
+        </VStack>
       </HStack>
-      <HStack justifyContent="space-between" paddingBottom={10} paddingTop={6}>
-        <Text color="light.white" style={styles.vaultInfoText} fontSize={10} bold>
-          Available to spend
+      <VStack paddingBottom="16" paddingTop="6">
+        {getNetworkAmount(confirmed, [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2])}
+        <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+          Available Balance
         </Text>
-        <HStack alignItems="center">
-          <BTC />
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={14} bold>
-            {confirmed}
-          </Text>
-        </HStack>
-      </HStack>
+      </VStack>
     </VStack>
   );
 }
 
-function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) {
+function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
   const navigation = useNavigation();
 
   const renderTransactionElement = ({ item }) => (
@@ -190,7 +185,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.12 }}>
+      <VStack style={{ paddingTop: windowHeight * 0.09 }}>
         <HStack justifyContent="space-between">
           <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
@@ -243,7 +238,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
 }
 
 function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationType; vault: Vault }) {
-  const Signers = vault.signers;
+  const { signers: Signers, isMultiSig } = vault;
   const styles = getStyles(0);
   const navigation = useNavigation();
 
@@ -293,61 +288,69 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
       showsHorizontalScrollIndicator={false}
       horizontal
     >
-      {Signers.map((signer) => (
-        <Box style={styles.signerCard} marginRight="3">
-          <TouchableOpacity
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate('SigningDeviceDetails', {
-                  SignerIcon: <SignerIcon />,
-                  signerId: signer.signerId,
-                  vaultId: vault.id,
-                })
-              );
-            }}
-          >
-            <Box
-              margin="1"
-              marginBottom="3"
-              width="12"
-              height="12"
-              borderRadius={30}
-              backgroundColor="#725436"
-              justifyContent="center"
-              alignItems="center"
-              alignSelf="center"
+      {Signers.map((signer) => {
+        const indicate =
+          !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
+
+        return (
+          <Box style={styles.signerCard} marginRight="3">
+            <TouchableOpacity
+              onPress={() => {
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceDetails', {
+                    SignerIcon: <SignerIcon />,
+                    signerId: signer.signerId,
+                    vaultId: vault.id,
+                  })
+                );
+              }}
             >
-              {WalletMap(signer.type, true).Icon}
-            </Box>
-            <VStack pb={2}>
-              <Text
-                color="light.textBlack"
-                fontSize={11}
-                letterSpacing={0.6}
-                textAlign="center"
-                numberOfLines={1}
+              {indicate ? <Box style={styles.indicator} /> : null}
+              <Box
+                margin="1"
+                width="12"
+                height="12"
+                borderRadius={30}
+                backgroundColor="#725436"
+                justifyContent="center"
+                alignItems="center"
+                alignSelf="center"
               >
-                {getSignerNameFromType(
-                  signer.type,
-                  signer.isMock,
-                  signer.amfData && signer.amfData.xpub
-                )}
+                {WalletMap(signer.type, true).Icon}
+              </Box>
+              <Text bold style={styles.unregistered}>
+                {indicate ? 'Not registered' : ''}
               </Text>
-              <Text
-                color="light.textBlack"
-                fontSize={8}
-                letterSpacing={0.6}
-                textAlign="center"
-                numberOfLines={2}
-              >
-                {signer.signerDescription
-                  ? signer.signerDescription
-                  : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
-              </Text>
-            </VStack>
-          </TouchableOpacity>
-        </Box>
-      ))}
+              <VStack pb={2}>
+                <Text
+                  color="light.textBlack"
+                  fontSize={11}
+                  letterSpacing={0.6}
+                  textAlign="center"
+                  numberOfLines={1}
+                >
+                  {getSignerNameFromType(
+                    signer.type,
+                    signer.isMock,
+                    signer.amfData && signer.amfData.xpub
+                  )}
+                </Text>
+                <Text
+                  color="light.textBlack"
+                  fontSize={8}
+                  letterSpacing={0.6}
+                  textAlign="center"
+                  numberOfLines={2}
+                >
+                  {signer.signerDescription
+                    ? signer.signerDescription
+                    : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
+                </Text>
+              </VStack>
+            </TouchableOpacity>
+          </Box>
+        );
+      })}
       <AddSigner />
     </ScrollView>
   );
@@ -554,6 +557,25 @@ const getStyles = (top) =>
     vaultInfoText: {
       marginLeft: wp(3),
       letterSpacing: 1.28,
+    },
+    indicator: {
+      height: 10,
+      width: 10,
+      borderRadius: 10,
+      position: 'absolute',
+      zIndex: 2,
+      right: '10%',
+      top: '5%',
+      borderWidth: 1,
+      borderColor: 'white',
+      backgroundColor: '#F86B50',
+    },
+    unregistered: {
+      color: '#6E563B',
+      fontSize: 8,
+      letterSpacing: 0.6,
+      textAlign: 'center',
+      numberOfLines: 1,
     },
   });
 export default VaultDetails;

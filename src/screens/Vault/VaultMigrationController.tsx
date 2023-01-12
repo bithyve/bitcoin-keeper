@@ -15,6 +15,7 @@ import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { Alert } from 'react-native';
+import { UNVERIFYING_SIGNERS } from 'src/hardware';
 
 function VaultMigrationController({ vaultCreating, signersState, planStatus }: any) {
   const navigation = useNavigation();
@@ -132,12 +133,25 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
     }
   }, []);
 
+  const updateSignerRegistrationIndication = () =>
+    signersState.map((signer: VaultSigner) => {
+      if (
+        subscriptionScheme.n !== 1 &&
+        !UNVERIFYING_SIGNERS.includes(signer.type) &&
+        signer.registered
+      ) {
+        return { ...signer, registered: false };
+      }
+      return signer;
+    });
+
   const initiateNewVault = () => {
     if (activeVault) {
+      const freshSignersState = updateSignerRegistrationIndication();
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
         vaultScheme: subscriptionScheme,
-        vaultSigners: signersState,
+        vaultSigners: freshSignersState,
         vaultDetails: {
           name: 'Vault',
           description: 'Secure your sats',
