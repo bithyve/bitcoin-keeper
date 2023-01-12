@@ -17,7 +17,7 @@ import {
   UPDATE_VERSION_HISTORY,
 } from '../sagaActions/upgrade';
 
-const SWITCH_TO_MAINNET_VERSION = '1.1.1';
+const SWITCH_TO_MAINNET_VERSION = '0.0.99';
 export function* applyUpgradeSequence({
   previousVersion,
   newVersion,
