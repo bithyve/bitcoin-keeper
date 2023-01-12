@@ -101,7 +101,6 @@ function* uaiChecksWorker({ payload }) {
     )[0];
 
     if (!secureVaultUai) {
-      console.log('no uai');
       yield put(
         addToUaiStack({
           title: 'Add a signing device to activate your vault',
@@ -112,7 +111,6 @@ function* uaiChecksWorker({ payload }) {
       );
     }
     if (vault && secureVaultUai) {
-      console.log('yes uai');
       yield put(uaiActioned(secureVaultUai.id));
     }
   }
