@@ -10,6 +10,8 @@ import moment from 'moment';
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
 import { WalletMap } from '../WalletMap';
+import Colors from 'src/theme/Colors';
+import Fonts from 'src/common/Fonts';
 
 function SignerData({ signer }: { signer: VaultSigner }) {
   return (
@@ -39,6 +41,8 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
         autoCapitalize="sentences"
         onChangeText={updateDescription}
         style={styles.descriptionEdit}
+        placeholder={'Add Description'}
+        placeholderTextColor={Colors.RichBlack}
         defaultValue={signer.signerDescription}
       />
     </VStack>
@@ -68,6 +72,7 @@ function DescriptionModal({
   return (
     <KeeperModal
       visible={visible}
+      modalBackground={['light.mainBackground', 'light.mainBackground']}
       close={close}
       title="Add Description"
       subTitle="Optionally you can add a short description to the signing device"
@@ -90,6 +95,10 @@ const styles = ScaledSheet.create({
     marginVertical: 10,
     borderRadius: 10,
     width: windowWidth * 0.7,
+    fontSize: 13,
+    fontFamily: Fonts.RobotoCondensedBold,
+    letterSpacing: 1,
+    opacity: 0.5
   },
   descriptionContainer: {
     width: windowWidth * 0.8,
