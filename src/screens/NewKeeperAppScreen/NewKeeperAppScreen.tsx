@@ -1,4 +1,4 @@
-import { ActivityIndicator, BackHandler, Platform, StyleSheet } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Image, Pressable, ScrollView } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -193,7 +193,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
             <Tile
               title="Recover for myself"
-              subTitle="Using Phrase"
+              subTitle="Using Backup Phrase"
               Icon={<Recover />}
               onPress={() => {
                 navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
@@ -211,8 +211,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
         </Box>
       </ScrollView>
       <Text color="light.primaryText" style={styles.noteText}>
-        When you use signing devices to restore Keeper, only vault is restored and the app has new
-        wallets
+        When you use signing devices to restore Keeper, only the vault is restored and the app has
+        new wallets
       </Text>
       <CloudRecoveryModal
         visible={cloudModal}
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '400',
     paddingHorizontal: 18,
-    letterSpacing: 0.6,
+    letterSpacing: 0.2,
   },
   titleWrapper02: {
     marginTop: hp(70),

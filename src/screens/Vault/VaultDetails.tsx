@@ -47,6 +47,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -193,31 +195,33 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
           <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
-          <TouchableOpacity>
-            <HStack alignItems="center">
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.dispatch(
-                    CommonActions.navigate('VaultTransactions', {
-                      title: 'Vault Transactions',
-                      subtitle: 'All incoming and outgoing transactions',
-                    })
-                  );
-                }}
-              >
-                <Text
-                  color="light.primaryGreen"
-                  marginRight={2}
-                  fontSize={11}
-                  bold
-                  letterSpacing={0.6}
+          {transactions.lenth ? (
+            <TouchableOpacity>
+              <HStack alignItems="center">
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.dispatch(
+                      CommonActions.navigate('VaultTransactions', {
+                        title: 'Vault Transactions',
+                        subtitle: 'All incoming and outgoing transactions',
+                      })
+                    );
+                  }}
                 >
-                  View All
-                </Text>
-              </TouchableOpacity>
-              <IconArrowBlack />
-            </HStack>
-          </TouchableOpacity>
+                  <Text
+                    color="light.primaryGreen"
+                    marginRight={2}
+                    fontSize={11}
+                    bold
+                    letterSpacing={0.6}
+                  >
+                    View All
+                  </Text>
+                </TouchableOpacity>
+                <IconArrowBlack />
+              </HStack>
+            </TouchableOpacity>
+          ) : null}
         </HStack>
       </VStack>
       <FlatList
@@ -226,6 +230,12 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
         renderItem={renderTransactionElement}
         keyExtractor={(item) => item}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <EmptyStateView
+            IllustartionImage={NoVaultTransactionIcon}
+            title={'No transactions yet.'}
+          />
+        }
       />
     </>
   );
@@ -289,7 +299,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               navigation.dispatch(
                 CommonActions.navigate('SigningDeviceDetails', {
                   SignerIcon: <SignerIcon />,
-                  signer,
+                  signerId: signer.signerId,
                   vaultId: vault.id,
                 })
               );
@@ -448,6 +458,7 @@ function VaultDetails({ route, navigation }) {
         borderTopLeftRadius={20}
         flex={1}
         justifyContent="space-between"
+        paddingBottom={windowHeight > 800 ? 5 : 0}
       >
         <TransactionList
           transactions={transactions}
