@@ -38,7 +38,7 @@ const findKeyInServer = (vaultSigners, type: SignerType) =>
 const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   // Keys Incase of level 1 we have level 1
   if (isOnL1) {
-    return { disabled: true, message: 'Upgrade to use these keys' };
+    return { disabled: true, message: 'Upgrade tier to use as key' };
   }
   // Keys Incase of already added
   if (findKeyInServer(vaultSigners, type)) {
@@ -63,7 +63,7 @@ const getDeviceStatus = (
       };
     case SignerType.LEDGER:
       return {
-        message: !isBLESupported ? 'BLE is not enabled in your device' : '',
+        message: !isBLESupported ? 'Start/Enable Bluetooth to use' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
       };
     case SignerType.MOBILE_KEY:
@@ -120,7 +120,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
           <SigningDevicesIllustration />
         </Box>
         <Text color="light.white" style={styles.modalText}>
-          {`For the ${SubscriptionTier.L1} tier, you need to select one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
+          {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
     );
@@ -271,7 +271,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
             dispatch(setSdIntroModal(false));
           }}
           title="Signing Devices"
-          subTitle="A signing device is a piece of hardware or software that stores one of the private keys needed for your vault"
+          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your vault"
           modalBackground={['light.gradientStart', 'light.gradientEnd']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"

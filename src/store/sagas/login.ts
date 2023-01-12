@@ -97,7 +97,7 @@ function* credentialsStorageWorker({ payload }) {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
       date: new Date().toString(),
-      title: 'Intial installed',
+      title: 'Initially installed',
     });
   } catch (error) {
     console.log(error);

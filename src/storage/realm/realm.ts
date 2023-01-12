@@ -1,12 +1,12 @@
-import Realm from 'realm';
-import { captureError } from 'src/core/services/sentry';
-import { RealmSchema } from './enum';
-import schema from './schema';
+import Realm from "realm";
+import { captureError } from "src/core/services/sentry";
+import { RealmSchema } from "./enum";
+import schema from "./schema";
 
 export class RealmDatabase {
   private realm: Realm;
 
-  public static file = 'keeper.realm';
+  public static file = "keeper.realm";
 
   public static schemaVersion = 35;
 
@@ -40,7 +40,7 @@ export class RealmDatabase {
    */
   public getDatabase = (): Realm => {
     if (this.realm) return this.realm;
-    throw new Error('database not initialized');
+    throw new Error("database not initialized");
   };
 
   /**

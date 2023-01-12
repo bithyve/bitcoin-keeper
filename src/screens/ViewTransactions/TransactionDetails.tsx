@@ -89,34 +89,22 @@ function TransactionDetails({ route }) {
           subtitle=""
           paddingTop={hp(20)}
         />
-        <Box
-          flexDirection="row"
-          alignItems="center"
-          marginTop={hp(40)}
-          width={wp(320)}
-          justifyContent="space-between"
-          paddingBottom={hp(25)}
-        >
+        <Box style={styles.transViewWrapper}>
           <Box flexDirection="row">
             {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
-            <Box
-              style={{
-                marginLeft: wp(10),
-                width: wp(120),
-              }}
-            >
-              <Text fontSize={14} color="light.headerText" numberOfLines={1}>
+            <Box style={styles.transView}>
+              <Text color="light.headerText" numberOfLines={1} style={styles.transIDText}>
                 {transaction.txid}
               </Text>
-              <Text fontSize={10} letterSpacing={0.5} color="light.dateText">
+              <Text style={styles.transDateText} color="light.dateText">
                 {moment(transaction?.date).format('DD MMM YY  •  hh:mma')}
               </Text>
             </Box>
           </Box>
           <Box>
-            <Text fontSize={19} letterSpacing={0.95}>
+            <Text style={styles.amountText}>
               {`${getAmount(transaction.amount)} `}
-              <Text color="light.dateText" letterSpacing={0.6} fontSize={hp(12)}>
+              <Text color="light.dateText" style={styles.unitText}>
                 {getUnit()}
               </Text>
             </Text>
@@ -124,7 +112,7 @@ function TransactionDetails({ route }) {
         </Box>
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Box alignItems="center" marginTop={hp(20)} justifyContent="center" marginX={3}>
+        <Box style={styles.infoCardsWrapper}>
           <InfoCard
             title="To Addresses"
             describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
@@ -176,6 +164,39 @@ const styles = ScaledSheet.create({
     flex: 1,
     padding: '20@s',
     backgroundColor: 'light.secondaryBackground',
+  },
+  transViewWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: hp(40),
+    width: wp(320),
+    justifyContent: 'space-between',
+    paddingBottom: hp(25),
+  },
+  transView: {
+    marginLeft: wp(10),
+    width: wp(120),
+  },
+  infoCardsWrapper: {
+    alignItems: 'center',
+    marginTop: hp(20),
+    justifyContent: 'center',
+    marginHorizontal: 3,
+  },
+  transDateText: {
+    fontSize: 10,
+    letterSpacing: 0.5,
+  },
+  transIDText: {
+    fontSize: 14,
+  },
+  amountText: {
+    fontSize: 19,
+    letterSpacing: 0.95,
+  },
+  unitText: {
+    letterSpacing: 0.6,
+    fontSize: hp(12),
   },
 });
 export default TransactionDetails;
