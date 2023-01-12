@@ -32,17 +32,6 @@ function UaiDisplay({ uaiStack }) {
             uaiSetActionFalse();
           },
         };
-      case uaiType.ALERT:
-        return {
-          modalDetails: {
-            heading: 'Details',
-            btnText: 'Okay',
-          },
-          cta: () => {
-            uaiSetActionFalse();
-            setShowModal(false);
-          },
-        };
       case uaiType.VAULT_TRANSFER:
         return {
           modalDetails: {
