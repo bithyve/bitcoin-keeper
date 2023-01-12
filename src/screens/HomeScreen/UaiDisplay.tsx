@@ -5,7 +5,7 @@ import Text from 'src/components/KeeperText';
 import { Pressable } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
-import { updateUaiStack } from 'src/store/sagaActions/uai';
+import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { StyleSheet } from 'react-native';
 import { TransferType } from 'src/common/data/enums/TransferType';
@@ -90,9 +90,7 @@ function UaiDisplay({ uaiStack }) {
   }, [uaiStack]);
 
   const uaiSetActionFalse = () => {
-    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); // Need to get a better way
-    updatedUai = { ...updatedUai, isActioned: true };
-    dispatch(updateUaiStack(updatedUai));
+    dispatch(uaiActioned(uai.id));
   };
 
   const pressHandler = () => {

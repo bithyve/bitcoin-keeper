@@ -48,6 +48,7 @@ import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -90,6 +91,9 @@ function* credentialsStorageWorker({ payload }) {
     // fetch fee and exchange rates
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
+
+    //uaiChecks
+    yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT]));
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
 
@@ -159,10 +163,9 @@ function* credentialsAuthWorker({ payload }) {
     // fetch fee and exchange rates
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
-
     yield put(setWarning(history));
     yield put(getMessages());
-    yield put(uaiChecks());
+    yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT]));
   }
   yield put(credsAuthenticated(true));
 }
