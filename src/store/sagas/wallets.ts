@@ -369,6 +369,7 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
         error: null,
       })
     );
+    yield put(uaiChecks([uaiType.VAULT_MIGRATION]));
   } catch (error) {
     yield put(
       vaultMigrationCompleted({

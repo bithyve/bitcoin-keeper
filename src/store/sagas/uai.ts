@@ -2,7 +2,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { createWatcher } from '../utilities';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,6 +17,8 @@ import {
 } from '../sagaActions/uai';
 import { setRefreshUai } from '../reducers/uai';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { SUBSCRIPTION_SCHEME_MAP } from 'src/hooks/usePlan';
 
 const healthCheckRemider = (signer: VaultSigner) => {
   const today = new Date();
@@ -48,13 +50,13 @@ function* addToUaiStackWorker({ payload }) {
 }
 
 function* uaiActionedWorker({ payload }) {
-  const { uaiId } = payload;
+  const { uaiId, action } = payload;
   const uai: UAI = dbManager
     .getCollection(RealmSchema.UAI)
     .filter((uai: UAI) => uai.id === uaiId)[0];
 
   yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, {
-    isActioned: true,
+    isActioned: action,
   });
   yield put(setRefreshUai());
 }
@@ -146,6 +148,36 @@ function* uaiChecksWorker({ payload }) {
           );
         }
       } else if (uai) yield put(uaiActionedEntity(uai.entityId, true));
+    }
+  }
+
+  if (checkForTypes.includes(uaiType.VAULT_MIGRATION)) {
+    const currentScheme = vault.scheme;
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const plan = app.subscription.name.toUpperCase();
+    const subscriptionScheme: VaultScheme = SUBSCRIPTION_SCHEME_MAP[plan];
+
+    const migrationUai = dbManager.getObjectByField(
+      RealmSchema.UAI,
+      uaiType.VAULT_MIGRATION,
+      'uaiType'
+    )[0];
+
+    if (currentScheme.m > subscriptionScheme.m || currentScheme.m < subscriptionScheme.m) {
+      if (!migrationUai) {
+        yield put(
+          addToUaiStack({
+            title: 'To use the vault, reconfigure signing devide',
+            isDisplay: false,
+            uaiType: uaiType.VAULT_MIGRATION,
+            prirority: 100,
+          })
+        );
+      } else {
+        yield put(uaiActioned(migrationUai.id, false));
+      }
+    } else {
+      yield put(uaiActioned(migrationUai.id));
     }
   }
 }

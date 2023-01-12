@@ -165,7 +165,13 @@ function* credentialsAuthWorker({ payload }) {
     yield put(fetchExchangeRates());
     yield put(setWarning(history));
     yield put(getMessages());
-    yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT]));
+    yield put(
+      uaiChecks([
+        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+        uaiType.SECURE_VAULT,
+        uaiType.VAULT_MIGRATION,
+      ])
+    );
   }
   yield put(credsAuthenticated(true));
 }

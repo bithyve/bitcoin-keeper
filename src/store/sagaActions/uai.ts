@@ -19,10 +19,11 @@ export const addToUaiStack = (payload: {
   };
 };
 
-export const uaiActioned = (uaiId: string) => ({
+export const uaiActioned = (uaiId: string, action: boolean = true) => ({
   type: UAI_ACTIONED,
   payload: {
     uaiId,
+    action,
   },
 });
 
