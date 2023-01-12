@@ -29,6 +29,7 @@ import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import usePlan from 'src/hooks/usePlan';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function Item({ device, setConnecting, connectToDevice }: any) {
@@ -139,12 +140,14 @@ function AddLedger() {
       showToast(`${ledger.signerName} added successfully`, <TickIcon />);
     }
   };
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
   const isAMF = isTestnet();
 
   const addLedger = async () => {
     try {
-      const { xpub, xfp, derivationPath } = await getLedgerDetails(transport);
+      const { xpub, xfp, derivationPath } = await getLedgerDetails(transport, isMultisig);
       const ledger: VaultSigner = generateSignerFromMetaData({
         xpub,
         xfp,
