@@ -535,14 +535,13 @@ function* refreshWalletsWorker({
         }
       } else {
         yield put(
-          addToUaiStack(
-            `Transfer fund to vault for ${wallet.presentationData.name}`,
-            false,
-            uaiType.VAULT_TRANSFER,
-            80,
-            null,
-            wallet.id
-          )
+          addToUaiStack({
+            title: `Transfer fund to vault for ${wallet.presentationData.name}`,
+            isDisplay: false,
+            uaiType: uaiType.VAULT_TRANSFER,
+            prirority: 80,
+            entityId: wallet.id,
+          })
         );
       }
     } else if (uai) yield put(uaiActionedEntity(uai.entityId, true));

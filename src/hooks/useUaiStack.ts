@@ -30,13 +30,12 @@ const useUaiStack = () => {
     if (!defaultVault) {
       if (!uai_SECURE_VAULT) {
         dispatch(
-          addToUaiStack(
-            'Add a signing device to activate your vault',
-            false,
-            uaiType.SECURE_VAULT,
-            100,
-            null
-          )
+          addToUaiStack({
+            title: 'Add a signing device to activate your vault',
+            isDisplay: false,
+            uaiType: uaiType.SECURE_VAULT,
+            prirority: 100,
+          })
         );
       }
     }

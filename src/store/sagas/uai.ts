@@ -4,6 +4,8 @@ import { call, put } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { createWatcher } from '../utilities';
+import { v4 as uuidv4 } from 'uuid';
+
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
@@ -20,10 +22,21 @@ const healthCheckRemider = (signer: VaultSigner) => {
 };
 
 function* addToUaiStackWorker({ payload }) {
-  const { uai } = payload;
-  const uaiData = { ...uai, timeStamp: new Date() };
+  const { title, isDisplay, displayText, prirority, entityId, uaiType } = payload;
+  const uai: UAI = {
+    id: uuidv4(),
+    title,
+    isActioned: false,
+    isDisplay,
+    displayText,
+    displayCount: 0,
+    uaiType,
+    prirority,
+    entityId,
+    timeStamp: new Date(),
+  };
   try {
-    yield call(dbManager.createObject, RealmSchema.UAI, uaiData);
+    yield call(dbManager.createObject, RealmSchema.UAI, uai);
   } catch (err) {
     console.error('Db add failed', err);
   }
@@ -44,14 +57,13 @@ function* uaiChecksWorker({ payload }) {
         const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
         if (!uais.length) {
           yield put(
-            addToUaiStack(
-              `Health check for ${signer.signerName} is due`,
-              false,
-              uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-              100,
-              null,
-              signer.signerId
-            )
+            addToUaiStack({
+              title: `Health check for ${signer.signerName} is due`,
+              isDisplay: false,
+              uaiType: uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+              prirority: 100,
+              entityId: signer.signerId,
+            })
           );
         } else {
           const uai = uais[0];
