@@ -58,7 +58,7 @@ export const VaultSignerSchema: ObjectSchema = {
     lastHealthCheck: 'date',
     addedOn: 'date',
     isMock: 'bool?',
-    hasSigned: { type: 'bool?', default: false },
+    registered: { type: 'bool?', default: false },
     storageType: 'string',
     amfData: '{}?',
     signerPolicy: `${RealmSchema.SignerPolicy}?`,

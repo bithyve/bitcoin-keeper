@@ -45,10 +45,10 @@ import { getSignerNameFromType } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { WalletMap } from './WalletMap';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
+import { WalletMap } from './WalletMap';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -231,10 +231,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
         keyExtractor={(item) => item}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <EmptyStateView
-            IllustartionImage={NoVaultTransactionIcon}
-            title={'No transactions yet.'}
-          />
+          <EmptyStateView IllustartionImage={NoVaultTransactionIcon} title="No transactions yet." />
         }
       />
     </>
@@ -242,7 +239,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
 }
 
 function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationType; vault: Vault }) {
-  const Signers = vault.signers;
+  const { signers: Signers, isMultiSig } = vault;
   const styles = getStyles(0);
   const navigation = useNavigation();
 
@@ -305,9 +302,9 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               );
             }}
           >
+            {!signer.registered && isMultiSig ? <Box style={styles.indicator} /> : null}
             <Box
               margin="1"
-              marginBottom="3"
               width="12"
               height="12"
               borderRadius={30}
@@ -318,6 +315,9 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
             >
               {WalletMap(signer.type, true).Icon}
             </Box>
+            <Text bold style={styles.unregistered}>
+              {!signer.registered && isMultiSig ? 'Not registered' : ''}
+            </Text>
             <VStack pb={2}>
               <Text
                 color="light.textBlack"
@@ -553,6 +553,25 @@ const getStyles = (top) =>
     vaultInfoText: {
       marginLeft: wp(3),
       letterSpacing: 1.28,
+    },
+    indicator: {
+      height: 10,
+      width: 10,
+      borderRadius: 10,
+      position: 'absolute',
+      zIndex: 2,
+      right: '10%',
+      top: '5%',
+      borderWidth: 1,
+      borderColor: 'white',
+      backgroundColor: '#F86B50',
+    },
+    unregistered: {
+      color: '#6E563B',
+      fontSize: 8,
+      letterSpacing: 0.6,
+      textAlign: 'center',
+      numberOfLines: 1,
     },
   });
 export default VaultDetails;
