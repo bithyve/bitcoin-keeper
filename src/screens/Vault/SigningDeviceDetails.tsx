@@ -28,7 +28,7 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import KeeperModal from 'src/components/KeeperModal';
 // asserts images and icons
 import SkipHealthCheckIcon from 'src/assets/images/skipHealthCheck.svg';
-import TapSigner from 'src/assets/images/TapsignerSetup.svg'
+import TapSigner from 'src/assets/images/TapsignerSetup.svg';
 import ColdCard from 'src/assets/images/ColdCardSetup.svg';
 import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
@@ -43,9 +43,12 @@ import ToastError from 'src/assets/images/toast_error.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 
 import openLink from 'src/utils/OpenLink';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 function SigningDeviceDetails({ route }) {
-
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -55,7 +58,7 @@ function SigningDeviceDetails({ route }) {
   const { healthcheck } = translations;
   const { tapsigner } = translations;
   const { coldcard } = translations;
-  const { signer, vaultId } = route.params;
+  const { signerId, vaultId } = route.params;
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
   const [healthCheckViewTapSigner, setHealthCheckViewTapsigner] = useState(false);
   const [healthCheckViewColdCard, setHealthCheckViewColdCard] = useState(false);
@@ -66,6 +69,12 @@ function SigningDeviceDetails({ route }) {
   const [detailModal, setDetailModal] = useState(false);
   const [cvc, setCvc] = useState('');
   const card = React.useRef(new CKTapCard()).current;
+  const { useQuery } = useContext(RealmWrapperContext);
+  const activeVault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
+  const signer = activeVault.signers.filter((signer) => signer.signerId === signerId)[0];
+
   const modalHandler = (callback) =>
     Platform.select({
       android: async () => {
@@ -97,57 +106,65 @@ function SigningDeviceDetails({ route }) {
     return { xpub, derivationPath, xfp };
   };
 
-  const getSignerContent = (
-    type: SignerType
-  ) => {
+  const getSignerContent = (type: SignerType) => {
     switch (type) {
       case SignerType.COLDCARD:
         return {
           title: 'Coldcard',
-          subTitle: 'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip. MicroPython software design allows you to make changes',
+          subTitle:
+            'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip. MicroPython software design allows you to make changes',
           assert: <ColdCard />,
-          description: '\u2022 It provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
-          FAQ: 'https://coldcard.com/docs/faq'
+          description:
+            '\u2022 It provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
+          FAQ: 'https://coldcard.com/docs/faq',
         };
       case SignerType.TAPSIGNER:
         return {
           title: 'TAPSIGNER',
-          subTitle: "TAPSIGNER's lower cost makes hardware wallet features and security available to a wider market around the world.",
+          subTitle:
+            "TAPSIGNER's lower cost makes hardware wallet features and security available to a wider market around the world.",
           assert: <TapSigner />,
-          description: "\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s).\n\u2022 The card form factor makes it easy to carry and easy to conceal.",
-          FAQ: 'https://tapsigner.com/faq'
+          description:
+            '\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s).\n\u2022 The card form factor makes it easy to carry and easy to conceal.',
+          FAQ: 'https://tapsigner.com/faq',
         };
       case SignerType.LEDGER:
         return {
           title: 'LEDGER',
-          subTitle: "All Ledgers are powered by an industry-leading Secure Element chip, together with Ledger's proprietary OS that protects your crypto & NFTs from sophisticated hacks. Peace of mind is assured with every Ledger.",
+          subTitle:
+            "All Ledgers are powered by an industry-leading Secure Element chip, together with Ledger's proprietary OS that protects your crypto & NFTs from sophisticated hacks. Peace of mind is assured with every Ledger.",
           assert: <Ledger />,
           description: '',
-          FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true'
+          FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
         };
       case SignerType.SEEDSIGNER:
         return {
-          title: "SeedSigner",
-          subTitle: 'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signing device using inexpensive, publicly available hardware components (usually < $50). SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup, and helps users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
+          title: 'SeedSigner',
+          subTitle:
+            'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signing device using inexpensive, publicly available hardware components (usually < $50). SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup, and helps users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
           assert: <SeedSigner />,
           description: '',
-          FAQ: 'https://seedsigner.com/faqs/'
+          FAQ: 'https://seedsigner.com/faqs/',
         };
       case SignerType.KEYSTONE:
         return {
           title: 'Keystone',
-          subTitle: 'It offers a convenient cold storage solution with open-source firmware, a 4-inch touchscreen, and PSBT Bitcoin multi-sig support. Protect your cryptocurrency with the perfect balance between a secure and convenient hardware wallet with mobile phone support.',
+          subTitle:
+            'It offers a convenient cold storage solution with open-source firmware, a 4-inch touchscreen, and PSBT Bitcoin multi-sig support. Protect your cryptocurrency with the perfect balance between a secure and convenient hardware wallet with mobile phone support.',
           assert: <Keystone />,
-          description: "\u2022All hardware wallets need some means of connecting to the network to sign transactions; how “air-gapped” your hardware wallet depends on how it limits the attack surface when transmitting data to an internet-enabled device.\n\u2022 With QR codes, you can verify each and every data transmission to ensure that information coming into the Keystone Hardware Wallet contains no trojans or viruses and information going out doesn’t leak private keys or any other sensitive information.\n\u2022 Keystone Hardware Wallet uses a bank-grade Secure Element to generate true random numbers, derive private and public keys, sign transactions, and [protect private keys from being leaked if an attacker has physical access to the device.",
-          FAQ: 'https://support.keyst.one/miscellaneous/faq'
+          description:
+            '\u2022All hardware wallets need some means of connecting to the network to sign transactions; how “air-gapped” your hardware wallet depends on how it limits the attack surface when transmitting data to an internet-enabled device.\n\u2022 With QR codes, you can verify each and every data transmission to ensure that information coming into the Keystone Hardware Wallet contains no trojans or viruses and information going out doesn’t leak private keys or any other sensitive information.\n\u2022 Keystone Hardware Wallet uses a bank-grade Secure Element to generate true random numbers, derive private and public keys, sign transactions, and [protect private keys from being leaked if an attacker has physical access to the device.',
+          FAQ: 'https://support.keyst.one/miscellaneous/faq',
         };
       case SignerType.PASSPORT:
         return {
           title: 'Foundation Passport',
-          subTitle: "Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering",
+          subTitle:
+            'Foundation products empower individuals to reclaim their digital sovereignty by taking control of your money and data. Foundation offers best-in-class security and privacy via openness. No walled gardens; no closed source engineering',
           assert: <PassportSVG />,
-          description: "\u2022Foundation products are beautiful, and intuitive, and remove the steep learning curve typically associated with Bitcoin and decentralized tech.\n\u2022 Foundation reflects our optimism about the future. Our products feel positive, aspirational, and a bit sci-fi.",
-          FAQ: 'https://docs.foundationdevices.com'
+          description:
+            '\u2022Foundation products are beautiful, and intuitive, and remove the steep learning curve typically associated with Bitcoin and decentralized tech.\n\u2022 Foundation reflects our optimism about the future. Our products feel positive, aspirational, and a bit sci-fi.',
+          FAQ: 'https://docs.foundationdevices.com',
         };
       default:
         return {
@@ -155,7 +172,7 @@ function SigningDeviceDetails({ route }) {
           subTitle: '',
           assert: null,
           description: '',
-          FAQ: ''
+          FAQ: '',
         };
     }
   };
@@ -316,7 +333,13 @@ function SigningDeviceDetails({ route }) {
         break;
       default:
         // Alert.alert('Health check for this device is not supported currently');
-        showToast('Health check for this device is not supported currently', <ToastError />, 1000, false, '60%');
+        showToast(
+          'Health check for this device is not supported currently',
+          <ToastError />,
+          1000,
+          false,
+          '60%'
+        );
     }
   };
 
@@ -353,16 +376,15 @@ function SigningDeviceDetails({ route }) {
   function SignerContent() {
     return (
       <Box>
-        <Center>
-          {getSignerContent(signer.type).assert}
-        </Center>
+        <Center>{getSignerContent(signer.type).assert}</Center>
         <Text
-          color='light.white'
+          color="light.white"
           style={{
             fontSize: 13,
             letterSpacing: 0.65,
-            marginTop: hp(25)
-          }}>
+            marginTop: hp(25),
+          }}
+        >
           {getSignerContent(signer.type).description}
         </Text>
       </Box>
@@ -411,7 +433,7 @@ function SigningDeviceDetails({ route }) {
 
       <ScrollView>
         <Box mx={5} mt={4}>
-          <SigningDeviceChecklist date={signer.lastHealthCheck} />
+          <SigningDeviceChecklist signer={signer} />
         </Box>
       </ScrollView>
 
@@ -538,7 +560,6 @@ function SigningDeviceDetails({ route }) {
           Content={SignerContent}
           DarkCloseIcon
           learnMore
-
         />
       </Box>
     </ScreenWrapper>

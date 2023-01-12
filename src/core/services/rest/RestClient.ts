@@ -122,14 +122,13 @@ class RestClient {
         },
         true
       );
-    } 
-      return axios.post(path, body, {
-        headers: {
-          ...RestClient.headers,
-          ...headers,
-        },
-      });
-    
+    }
+    return axios.post(path, body, {
+      headers: {
+        ...RestClient.headers,
+        ...headers,
+      },
+    });
   }
 
   async get(path: string, headers?: object): Promise<AxiosResponse | RequestResponse> {
@@ -142,14 +141,13 @@ class RestClient {
         },
         true
       );
-    } 
-      return axios.post(path, {
-        headers: {
-          ...RestClient.headers,
-          ...headers,
-        },
-      });
-    
+    }
+    return axios.post(path, {
+      headers: {
+        ...RestClient.headers,
+        ...headers,
+      },
+    });
   }
 }
 

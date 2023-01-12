@@ -289,7 +289,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               navigation.dispatch(
                 CommonActions.navigate('SigningDeviceDetails', {
                   SignerIcon: <SignerIcon />,
-                  signer,
+                  signerId: signer.signerId,
                   vaultId: vault.id,
                 })
               );
