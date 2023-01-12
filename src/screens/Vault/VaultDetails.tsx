@@ -234,6 +234,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
           <EmptyStateView
             IllustartionImage={NoVaultTransactionIcon}
             title={'No transactions yet.'}
+            subTitle={'Pull down to refresh'}
           />
         }
       />
