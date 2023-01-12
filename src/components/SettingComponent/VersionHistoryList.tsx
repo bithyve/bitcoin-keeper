@@ -6,6 +6,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import DotView from '../DotView';
+import moment from 'moment';
 
 function VersionHistoryList() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -37,7 +38,8 @@ function VersionHistoryList() {
               opacity={0.7}
               letterSpacing={0.3}
             >
-              {item.date}
+              {/* {item.date} */}
+              {moment(item.date).format('ddd DD MMM YYYY hh:mma')}
             </Text>
             <Box
               backgroundColor="light.primaryBackground"

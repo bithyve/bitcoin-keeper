@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -6,6 +6,7 @@ import {
   FlatList,
   Dimensions,
   ImageBackground,
+  BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
@@ -55,6 +56,12 @@ function OnBoardingSlides({ navigation }) {
       illustration: <Illustration_2 />,
     },
   ]);
+
+  useEffect(() => {
+    const backAction = () => true;
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
 
   const onViewRef = React.useRef((viewableItems) => {
     setCurrentPosition(viewableItems.changed[0].index);
