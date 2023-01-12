@@ -86,7 +86,6 @@ function ChoosePlan(props) {
 
   async function init() {
     try {
-      const { id, appID }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
       const getPlansResponse = await Relay.getSubscriptionDetails(id, appID)
       if (getPlansResponse.plans) {
         const skus = []

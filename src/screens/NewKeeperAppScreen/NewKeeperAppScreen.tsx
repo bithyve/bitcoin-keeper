@@ -350,5 +350,5 @@ function NewKeeperApp({ navigation }: { navigation }) {
       paddingVertical: '5%',
     },
   });
-
-  export default NewKeeperApp;
+}
+export default NewKeeperApp;

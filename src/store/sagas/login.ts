@@ -32,6 +32,7 @@ import {
   setKey,
   setupLoading,
   setRecepitVerificationError,
+  setRecepitVerificationFailed,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -112,6 +113,8 @@ function* credentialsAuthWorker({ payload }) {
   let key;
   const appId = yield select((state: RootState) => state.storage.appId);
   try {
+    yield put(setRecepitVerificationError(false));
+    yield put(setRecepitVerificationFailed(false));
     const { method } = payload;
     yield put(setupLoading('authenticating'));
     let hash;
@@ -150,6 +153,7 @@ function* credentialsAuthWorker({ payload }) {
           RealmSchema.KeeperApp
         );
         const response = yield call(Relay.verifyReceipt, id, appID);
+        console.log('response', response);
         if (response.isValid) {
           yield put(credsAuthenticated(true));
           yield put(setKey(key));
@@ -168,10 +172,11 @@ function* credentialsAuthWorker({ payload }) {
           ElectrumClient.setActivePeer(privateNodes);
           yield call(ElectrumClient.connect);
         } else {
-          yield put(credsAuthenticated(false));
+          yield put(setRecepitVerificationFailed(true));
         }
       } catch (error) {
         yield put(setRecepitVerificationError(true));
+        // yield put(credsAuthenticated(false));
         console.log(error);
       }
     } else {

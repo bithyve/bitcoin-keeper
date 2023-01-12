@@ -22,6 +22,7 @@ import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
+import useToastMessage from 'src/hooks/useToastMessage';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
@@ -47,9 +48,9 @@ function LoginScreen({ navigation, route }) {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
-
+  const { showToast } = useToastMessage();
   const [canLogin, setCanLogin] = useState(false);
-  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector((state) => state.login);
+  const { isAuthenticated, authenticationFailed, recepitVerificationError, recepitVerificationFailed } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -66,7 +67,11 @@ function LoginScreen({ navigation, route }) {
       setLogging(false)
       setLoginModal(false)
     }
-  }, [recepitVerificationError]);
+    if (recepitVerificationFailed) {
+      navigation.replace('App', { screen: 'ChoosePlan' });
+      showToast('Failed to validate your subscription', null, 3000, true);
+    }
+  }, [recepitVerificationError, recepitVerificationFailed]);
 
   useEffect(() => {
     if (failedAttempts >= 1) {

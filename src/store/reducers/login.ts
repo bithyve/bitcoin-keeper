@@ -18,6 +18,7 @@ export const initialState: {
   key: string | null;
   appCreationError: boolean;
   recepitVerificationError: boolean;
+  recepitVerificationFailed: boolean;
 } = {
   hasCreds: false,
   isAuthenticated: false,
@@ -36,6 +37,7 @@ export const initialState: {
   key: null,
   appCreationError: false,
   recepitVerificationError: false,
+  recepitVerificationFailed: false,
 };
 
 const loginSlice = createSlice({
@@ -81,6 +83,9 @@ const loginSlice = createSlice({
     setRecepitVerificationError: (state, action: PayloadAction<boolean>) => {
       state.recepitVerificationError = action.payload;
     },
+    setRecepitVerificationFailed: (state, action: PayloadAction<boolean>) => {
+      state.recepitVerificationFailed = action.payload;
+    },
   },
 });
 
@@ -93,5 +98,6 @@ export const {
   setKey,
   setAppCreationError,
   setRecepitVerificationError,
+  setRecepitVerificationFailed,
 } = loginSlice.actions;
 export default loginSlice.reducer;
