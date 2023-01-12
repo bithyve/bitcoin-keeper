@@ -258,7 +258,9 @@ function NodeSettings() {
       <Box style={styles.note} backgroundColor="light.mainBackground">
         <Note title={common.note} subtitle={settings.nodeSettingsNote} />
       </Box>
+
       <KeeperModal
+        justifyContent='center'
         visible={visible}
         close={closeAddNodeModal}
         title={settings.nodeDetailsTitle}
@@ -269,7 +271,6 @@ function NodeSettings() {
         buttonText=""
         buttonTextColor="#FAFAFA"
         buttonCallback={closeAddNodeModal}
-        textColor="#041513"
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
       />

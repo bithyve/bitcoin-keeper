@@ -47,7 +47,7 @@ import {
 } from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { RootState } from '../store';
-import { updatVaultImage, updateAppImage } from '../sagaActions/bhr';
+import { updateVaultImage, updateAppImage } from '../sagaActions/bhr';
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -246,10 +246,15 @@ export interface NewVaultInfo {
 function* addNewVaultWorker({
   payload,
 }: {
-  payload: { newVaultInfo?: NewVaultInfo; vault?: Vault };
+  payload: {
+    newVaultInfo?: NewVaultInfo;
+    vault?: Vault;
+    isMigrated?: Boolean;
+    oldVaultId?: string;
+  };
 }) {
   try {
-    const { newVaultInfo } = payload;
+    const { newVaultInfo, isMigrated, oldVaultId } = payload;
     let { vault } = payload;
     let vaultShell: VaultShell;
     let newVaultShell: boolean = false;
@@ -313,7 +318,9 @@ function* addNewVaultWorker({
       });
     }
     yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
-    yield put(updatVaultImage());
+    isMigrated
+      ? yield put(updateVaultImage({ archiveVaultId: oldVaultId }))
+      : yield put(updateVaultImage());
   } catch (err) {
     yield put(
       vaultCreated({
@@ -384,7 +391,9 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
       archived: true,
     });
     const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
-    yield call(addNewVaultWorker, { payload: { vault: migratedVault } });
+    yield call(addNewVaultWorker, {
+      payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
+    });
     yield put(
       vaultMigrationCompleted({
         isMigratingNewVault: false,
@@ -515,7 +524,6 @@ function* refreshWalletsWorker({
     },
   });
 
-  let computeNetBalance = false;
   for (const synchedWallet of synchedWallets) {
     if (synchedWallet.entityKind === EntityKind.VAULT) {
       yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
@@ -525,60 +533,54 @@ function* refreshWalletsWorker({
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
         specs: synchedWallet.specs,
       });
-      if ((synchedWallet as Wallet).specs.hasNewTxn) computeNetBalance = true;
     }
   }
 
-  if (computeNetBalance) {
-    const wallets: Wallet[] = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.Wallet,
-      null,
-      true
-    );
-    // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+  const existingWallets: Wallet[] = yield call(
+    dbManager.getObjectByIndex,
+    RealmSchema.Wallet,
+    null,
+    true
+  );
+  // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
 
-    let netBalance = 0;
-    wallets.forEach((wallet) => {
-      const { confirmed, unconfirmed } = wallet.specs.balances;
-      netBalance = netBalance + confirmed + unconfirmed;
-    });
+  let netBalance = 0;
+  existingWallets.forEach((wallet) => {
+    const { confirmed, unconfirmed } = wallet.specs.balances;
+    netBalance = netBalance + confirmed + unconfirmed;
+  });
 
-    const UAIcollection: Wallet[] = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.UAI,
-      null,
-      true
-    );
+  yield put(setNetBalance(netBalance));
 
-    for (const wallet of wallets) {
-      const uai: any = UAIcollection.find((uai: any) => uai.entityId === wallet.id);
+  const UAIcollection: Wallet[] = yield call(
+    dbManager.getObjectByIndex,
+    RealmSchema.UAI,
+    null,
+    true
+  );
 
-      if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
-        if (uai) {
-          if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
-            yield put(uaiActionedEntity(uai.entityId, false));
-          }
-        } else {
-          yield put(
-            addToUaiStack(
-              `Transfer fund to vault for ${wallet.presentationData.name}`,
-              false,
-              uaiType.VAULT_TRANSFER,
-              80,
-              null,
-              wallet.id
-            )
-          );
+  for (const wallet of existingWallets) {
+    const uai: any = UAIcollection.find((uai: any) => uai.entityId === wallet.id);
+
+    if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+      if (uai) {
+        if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+          yield put(uaiActionedEntity(uai.entityId, false));
         }
-      } else if (uai) yield put(uaiActionedEntity(uai.entityId, true));
-    }
-
-    yield put(setNetBalance(netBalance));
+      } else {
+        yield put(
+          addToUaiStack(
+            `Transfer fund to vault for ${wallet.presentationData.name}`,
+            false,
+            uaiType.VAULT_TRANSFER,
+            80,
+            null,
+            wallet.id
+          )
+        );
+      }
+    } else if (uai) yield put(uaiActionedEntity(uai.entityId, true));
   }
-
-  // update F&F channels if any new txs found on an assigned address
-  // if( Object.keys( activeAddressesWithNewTxsMap ).length )  yield call( updatePaymentAddressesToChannels, activeAddressesWithNewTxsMap, synchedWallets )
 }
 
 export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH_WALLETS);

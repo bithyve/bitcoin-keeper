@@ -10,12 +10,11 @@ import {
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import { Platform } from 'react-native';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import ElectrumClient from 'src/core/services/electrum/client';
+import Relay from 'src/core/services/operations/Relay';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -24,8 +23,6 @@ import {
   CREDS_AUTH,
   RESET_PIN,
   STORE_CREDS,
-  UPDATE_APPLICATION,
-  updateApplication,
 } from '../sagaActions/login';
 import {
   credsAuthenticated,
@@ -52,6 +49,7 @@ import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
+import { applyUpgradeSequence } from './upgrade';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -101,7 +99,7 @@ function* credentialsStorageWorker({ payload }) {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
       date: new Date().toString(),
-      title: 'Intial installed',
+      title: 'Initially installed',
     });
   } catch (error) {
     console.log(error);
@@ -133,6 +131,11 @@ function* credentialsAuthWorker({ payload }) {
     const uint8array = yield call(stringToArrayBuffer, key);
     yield call(dbManager.initializeRealm, uint8array);
     yield put(setPinHash(hash));
+
+    const previousVersion = yield select((state) => state.storage.appVersion);
+    const newVersion = DeviceInfo.getVersion();
+    if (previousVersion !== newVersion)
+      yield call(applyUpgradeSequence, { previousVersion, newVersion });
   } catch (err) {
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
@@ -179,10 +182,7 @@ function* credentialsAuthWorker({ payload }) {
   } else {
     yield put(credsAuthenticated(true));
   }
-  // check if the app has been upgraded
-  const appVersion = yield select((state: RootState) => state.storage.appVersion);
-  const currentVersion = DeviceInfo.getVersion();
-  if (currentVersion !== appVersion) yield put(updateApplication(currentVersion, appVersion));
+  yield put(credsAuthenticated(true));
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
@@ -270,39 +270,3 @@ function* changeLoginMethodWorker({
 }
 
 export const changeLoginMethodWatcher = createWatcher(changeLoginMethodWorker, CHANGE_LOGIN_METHOD);
-
-function* applicationUpdateWorker({
-  payload,
-}: {
-  payload: { newVersion: string; previousVersion: string };
-}) {
-  const { newVersion, previousVersion } = payload;
-  try {
-    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: '',
-      date: new Date().toString(),
-      title: `Upgraded from ${previousVersion}`,
-    });
-    messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
-    messaging().subscribeToTopic(getReleaseTopic(newVersion));
-    yield put(setAppVersion(DeviceInfo.getVersion()));
-    const res = yield call(Relay.fetchReleaseNotes, newVersion);
-    let notes = '';
-    notes = res.release
-      ? Platform.OS === 'ios'
-        ? res.release.releaseNotes.ios
-        : res.release.releaseNotes.android
-      : '';
-    yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-      releaseNote: notes,
-      date: new Date().toString(),
-      title: `Upgraded from ${previousVersion}`,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export const applicationUpdateWatcher = createWatcher(applicationUpdateWorker, UPDATE_APPLICATION);

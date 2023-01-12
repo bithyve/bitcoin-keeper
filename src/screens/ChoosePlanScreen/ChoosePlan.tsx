@@ -252,7 +252,7 @@ function ChoosePlan(props) {
     if (name === 'Diamond Hands') {
       return `${name} means`;
     }
-    return `A ${name} gets`;
+    return `A ${name} can`;
   };
 
   return (

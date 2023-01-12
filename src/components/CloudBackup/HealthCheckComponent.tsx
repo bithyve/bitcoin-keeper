@@ -100,7 +100,7 @@ function HealthCheckComponent(props) {
           {BackupWallet.healthCheck}
         </Text>
         <Text fontSize={13} color="light.secondaryText" mb={10}>
-          For the Recovery Phrase
+          For the Backup Phrase
         </Text>
       </Box>
       <Box>

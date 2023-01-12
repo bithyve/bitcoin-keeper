@@ -67,10 +67,10 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderRadius={10}
               borderWidth={0}
               height="12"
+              fontSize={13}
               value={host}
               autoCorrect={false}
               autoComplete="off"
-              keyboardType="name-phone-pad"
               onChangeText={(text) => {
                 setIsHostValid(!(text === null || text.length === 0));
                 setHost(text);
@@ -89,6 +89,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
               borderRadius={10}
               borderWidth={0}
               height="12"
+              fontSize={13}
               value={port}
               autoCorrect={false}
               autoComplete="off"
@@ -109,7 +110,6 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
     width: '100%',
     flexDirection: 'row',
   },
@@ -139,7 +139,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 7,
   },
-
   useSSL: {
     flexDirection: 'row',
     justifyContent: 'space-between',

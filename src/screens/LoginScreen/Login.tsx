@@ -20,6 +20,8 @@ import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import config from 'src/core/config';
+import { NetworkType } from 'src/core/wallets/enums';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
@@ -185,20 +187,45 @@ function LoginScreen({ navigation, route }) {
     setResetPassSuccessVisible(true);
   };
 
+  const getLoginModalContent = () => {
+    if (config.NETWORK_TYPE === NetworkType.MAINNET) {
+      return {
+        title: 'Secure your bitcoin',
+        subTitle: 'The Vault can be used in multiple configurations and with different signing devices',
+        assert: {
+          loader: require('src/assets/video/Loader.gif'),
+          height: 180
+        },
+        message: 'Make sure you understand the tradeoffs and the security guarantees different combinations offer.'
+      }
+    }
+    return {
+      title: 'Share Feedback',
+      subTitle: '(Testnet only)\nShake your device to send us a bug report or a feature request',
+      assert: {
+        loader: require('src/assets/video/test-net.gif'),
+        height: 200
+      },
+      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+    }
+
+  }
+
   function LoginModalContent() {
     return (
       <Box>
         <Image
-          source={require('src/assets/video/test-net.gif')}
+          source={getLoginModalContent().assert.loader}
           style={{
             width: wp(270),
-            height: hp(200),
+            height: hp(getLoginModalContent().assert.height),
             alignSelf: 'center',
           }}
         />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
-          This feature is *only* for the testnet version of the app. The developers will get your
-          message along with other information from the app.
+          {
+            getLoginModalContent().message
+          }
         </Text>
       </Box>
     );
@@ -349,8 +376,8 @@ function LoginScreen({ navigation, route }) {
       <KeeperModal
         visible={loginModal}
         close={() => { }}
-        title="Share Feedback"
-        subTitle={`(Testnet only)\nShake your device to send us a bug report or a feature request`}
+        title={getLoginModalContent().title}
+        subTitle={getLoginModalContent().subTitle}
         subTitleColor="light.secondaryText"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}
