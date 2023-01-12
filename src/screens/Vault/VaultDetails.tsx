@@ -41,7 +41,7 @@ import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerNameFromType, UNVERIFYING_SIGNERS } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
@@ -284,64 +284,69 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
       showsHorizontalScrollIndicator={false}
       horizontal
     >
-      {Signers.map((signer) => (
-        <Box style={styles.signerCard} marginRight="3">
-          <TouchableOpacity
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate('SigningDeviceDetails', {
-                  SignerIcon: <SignerIcon />,
-                  signerId: signer.signerId,
-                  vaultId: vault.id,
-                })
-              );
-            }}
-          >
-            {!signer.registered && isMultiSig ? <Box style={styles.indicator} /> : null}
-            <Box
-              margin="1"
-              width="12"
-              height="12"
-              borderRadius={30}
-              backgroundColor="#725436"
-              justifyContent="center"
-              alignItems="center"
-              alignSelf="center"
+      {Signers.map((signer) => {
+        const indicate =
+          !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
+
+        return (
+          <Box style={styles.signerCard} marginRight="3">
+            <TouchableOpacity
+              onPress={() => {
+                navigation.dispatch(
+                  CommonActions.navigate('SigningDeviceDetails', {
+                    SignerIcon: <SignerIcon />,
+                    signerId: signer.signerId,
+                    vaultId: vault.id,
+                  })
+                );
+              }}
             >
-              {WalletMap(signer.type, true).Icon}
-            </Box>
-            <Text bold style={styles.unregistered}>
-              {!signer.registered && isMultiSig ? 'Not registered' : ''}
-            </Text>
-            <VStack pb={2}>
-              <Text
-                color="light.textBlack"
-                fontSize={11}
-                letterSpacing={0.6}
-                textAlign="center"
-                numberOfLines={1}
+              {indicate ? <Box style={styles.indicator} /> : null}
+              <Box
+                margin="1"
+                width="12"
+                height="12"
+                borderRadius={30}
+                backgroundColor="#725436"
+                justifyContent="center"
+                alignItems="center"
+                alignSelf="center"
               >
-                {getSignerNameFromType(
-                  signer.type,
-                  signer.isMock,
-                  signer.amfData && signer.amfData.xpub
-                )}
+                {WalletMap(signer.type, true).Icon}
+              </Box>
+              <Text bold style={styles.unregistered}>
+                {indicate ? 'Not registered' : ''}
               </Text>
-              <Text
-                color="light.textBlack"
-                fontSize={8}
-                letterSpacing={0.6}
-                textAlign="center"
-                numberOfLines={2}
-              >
-                {signer.signerDescription
-                  ? signer.signerDescription
-                  : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
-              </Text>
-            </VStack>
-          </TouchableOpacity>
-        </Box>
-      ))}
+              <VStack pb={2}>
+                <Text
+                  color="light.textBlack"
+                  fontSize={11}
+                  letterSpacing={0.6}
+                  textAlign="center"
+                  numberOfLines={1}
+                >
+                  {getSignerNameFromType(
+                    signer.type,
+                    signer.isMock,
+                    signer.amfData && signer.amfData.xpub
+                  )}
+                </Text>
+                <Text
+                  color="light.textBlack"
+                  fontSize={8}
+                  letterSpacing={0.6}
+                  textAlign="center"
+                  numberOfLines={2}
+                >
+                  {signer.signerDescription
+                    ? signer.signerDescription
+                    : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
+                </Text>
+              </VStack>
+            </TouchableOpacity>
+          </Box>
+        );
+      })}
       <AddSigner />
     </ScrollView>
   );
