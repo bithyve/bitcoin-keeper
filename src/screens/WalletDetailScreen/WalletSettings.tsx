@@ -29,6 +29,8 @@ import Note from 'src/components/Note/Note';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import config from 'src/core/config';
+import { NetworkType } from 'src/core/wallets/enums';
 
 type Props = {
   title: string;
@@ -223,15 +225,16 @@ function WalletSettings({ route }) {
               setTransferPolicyVisible(true);
             }}
           />
-
-          <Option
-            title="Receive Test Sats"
-            subTitle="Receive Test Sats to this address"
-            onPress={() => {
-              setAppLoading(true);
-              getTestSats();
-            }}
-          />
+          {config.NETWORK_TYPE == NetworkType.TESTNET && (
+            <Option
+              title="Receive Test Sats"
+              subTitle="Receive Test Sats to this address"
+              onPress={() => {
+                setAppLoading(true);
+                getTestSats();
+              }}
+            />
+          )}
 
           <Option
             title="Sign PSBT"

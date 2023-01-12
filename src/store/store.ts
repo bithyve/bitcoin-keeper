@@ -1,5 +1,5 @@
 import { persistReducer, persistStore } from 'redux-persist';
-
+import storage from 'redux-persist/lib/storage';
 import { combineReducers } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
@@ -14,8 +14,9 @@ import storageReducer from './reducers/storage';
 import vaultReducer from './reducers/vaults';
 import walletReducer from './reducers/wallets';
 import networkReducer from './reducers/network';
+import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 
-export const rootReducer = combineReducers({
+const appReducer = combineReducers({
   settings: settingsReducer,
   login: loginReducer,
   storage: storageReducer,
@@ -26,6 +27,15 @@ export const rootReducer = combineReducers({
   vault: vaultReducer,
   network: networkReducer,
 });
+
+const rootReducer = (state, action) => {
+  if (action.type === RESET_REDUX_STORE) {
+    storage.removeItem('persist:root');
+    return appReducer(undefined, action);
+  }
+
+  return appReducer(state, action);
+};
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

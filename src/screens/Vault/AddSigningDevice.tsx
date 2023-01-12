@@ -279,17 +279,17 @@ function AddSigningDevice() {
 
   let preTitle: string;
   if (planStatus === VaultMigrationType.DOWNGRADE) {
-    preTitle = 'Remove';
+    preTitle = 'Remove Signing Devices';
   } else if (planStatus === VaultMigrationType.UPGRADE) {
-    preTitle = 'Add';
+    preTitle = 'Add Signing Devices';
   } else {
-    preTitle = 'Change';
+    preTitle = 'Signing Devices';
   }
 
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={`${preTitle} Signing Devices`}
+        title={`${preTitle}`}
         subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
         headerTitleColor="light.textBlack"
       />

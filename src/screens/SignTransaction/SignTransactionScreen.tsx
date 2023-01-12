@@ -157,9 +157,6 @@ function SignTransactionScreen() {
             setColdCardModal,
             withNfcModal,
             serializedPSBTEnvelop,
-            signers,
-            activeSignerId,
-            defaultVault,
             closeNfc,
           });
         } else if (SignerType.MOBILE_KEY === signerType) {

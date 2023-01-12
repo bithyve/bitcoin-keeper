@@ -1,12 +1,8 @@
 import { Alert } from 'react-native';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletOperations from 'src/core/wallets/operations';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
-import dbManager from 'src/storage/realm/dbManager';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
@@ -54,24 +50,11 @@ export const signTransactionWithColdCard = async ({
   setColdCardModal,
   withNfcModal,
   serializedPSBTEnvelop,
-  signers,
-  activeSignerId,
-  defaultVault,
   closeNfc,
 }) => {
   try {
     setColdCardModal(false);
     await withNfcModal(async () => signWithColdCard(serializedPSBTEnvelop.serializedPSBT));
-    const updatedSigners = getJSONFromRealmObject(signers).map((signer: VaultSigner) => {
-      if (signer.signerId === activeSignerId) {
-        signer.hasSigned = true;
-        return signer;
-      }
-      return signer;
-    });
-    dbManager.updateObjectById(RealmSchema.Vault, defaultVault.id, {
-      signers: updatedSigners,
-    });
   } catch (error) {
     closeNfc();
     captureError(error);

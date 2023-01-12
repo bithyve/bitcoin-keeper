@@ -1,5 +1,11 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ImageBackground, InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  ImageBackground,
+  InteractionManager,
+  StyleSheet,
+  TouchableOpacity,
+  BackHandler,
+} from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -166,7 +172,7 @@ function LinkedWallets(props) {
               <Box
                 style={{
                   padding: 3,
-                  marginBottom: -3,
+                  // marginBottom: -3,
                 }}
               >
                 <BTC />
@@ -179,15 +185,16 @@ function LinkedWallets(props) {
                 }}
               >
                 {getAmount(netBalance)}
-                <Text
-                  color="light.white"
-                  style={{
-                    letterSpacing: 0.6,
-                    fontSize: hp(12),
-                  }}
-                >
-                  {getUnit()}
-                </Text>
+              </Text>
+              <Text
+                color="light.white"
+                style={{
+                  paddingLeft: 3,
+                  letterSpacing: 0.6,
+                  fontSize: hp(12),
+                }}
+              >
+                {getUnit()}
               </Text>
             </Box>
           ) : (
@@ -300,7 +307,7 @@ function VaultStatus(props) {
 
               <Text color="light.white" style={styles.vaultSubHeading} bold>
                 {!signers.length
-                  ? 'Add a signing device to upgrade '
+                  ? 'Add a signing device to enable '
                   : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
               </Text>
 
@@ -452,6 +459,12 @@ function TransVaultSuccessfulContent() {
 function HomeScreen({ navigation }) {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
+
+  useEffect(() => {
+    const backAction = () => true;
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, []);
 
   return (
     <Box style={styles.container}>
