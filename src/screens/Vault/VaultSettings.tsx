@@ -178,7 +178,7 @@ function VaultSettings({ route }) {
       <Box alignItems="center" paddingX={wp(25)}>
         <Option
           title="Generate Descriptors"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
+          subTitle="Get additional details for the Vault"
           onPress={() => setGenratorModalVisible(true)}
           Icon={false}
         />
