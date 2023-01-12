@@ -8,7 +8,7 @@ import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { setAppVersion } from '../reducers/storage';
-import { setupKeeperApp } from '../sagaActions/storage';
+import { resetReduxStore, setupKeeperApp } from '../sagaActions/storage';
 import { stringToArrayBuffer } from './login';
 
 export function* applyUpgradeSequence({
@@ -27,8 +27,8 @@ export function* applyUpgradeSequence({
 function* switchToMainnet() {
   // remove existing realm database
   const deleted = yield call(dbManager.deleteRealm);
-  console.log({ deleted });
   if (!deleted) throw new Error('failed to switch to mainnet');
+  yield put(resetReduxStore());
 
   // re-initialise a fresh instance of realm
   const AES_KEY = yield select((state) => state.login.key);

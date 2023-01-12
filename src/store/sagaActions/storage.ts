@@ -5,51 +5,56 @@ export const SET_PIN_RESET_CREDS = 'SET_PIN_RESET_CREDS';
 export const INCREASE_PIN_FAIL_ATTEMTS = 'INCREASE_PIN_FAIL_ATTEMTS';
 export const RESET_PIN_FAIL_ATTEMTS = 'RESET_PIN_FAIL_ATTEMTS';
 export const KEY_FETCHED = 'KEY_FETCHED';
+export const RESET_REDUX_STORE = 'RESET_REDUX_STORE';
 
 export const setupKeeperApp = (appName?: string) => ({
-    type: SETUP_KEEPER_APP,
-    payload: {
-      appName,
-    },
-  });
+  type: SETUP_KEEPER_APP,
+  payload: {
+    appName,
+  },
+});
 
 export const setupKeeperAppVaultReovery = (vaultShellInstances, subscription, appName?) => ({
-    type: SETUP_KEEPER_APP_VAULT_RECOVERY,
-    payload: {
-      vaultShellInstances,
-      subscription,
-      appName,
-    },
-  });
+  type: SETUP_KEEPER_APP_VAULT_RECOVERY,
+  payload: {
+    vaultShellInstances,
+    subscription,
+    appName,
+  },
+});
 
 export const setAppId = (appId?: string) => ({
-    type: SET_APP_ID,
-    payload: {
-      appId,
-    },
-  });
+  type: SET_APP_ID,
+  payload: {
+    appId,
+  },
+});
 
 export const setPinResetCreds = (hash: string, index: number) => ({
-    type: SET_PIN_RESET_CREDS,
-    payload: {
-      hash,
-      index,
-    },
-  });
+  type: SET_PIN_RESET_CREDS,
+  payload: {
+    hash,
+    index,
+  },
+});
 
 export const increasePinFailAttempts = () => ({
-    type: INCREASE_PIN_FAIL_ATTEMTS,
-    payload: {},
-  });
+  type: INCREASE_PIN_FAIL_ATTEMTS,
+  payload: {},
+});
 
 export const resetPinFailAttempts = () => ({
-    type: RESET_PIN_FAIL_ATTEMTS,
-    payload: {},
-  });
+  type: RESET_PIN_FAIL_ATTEMTS,
+  payload: {},
+});
 
 export const keyFetched = (key) => ({
-    type: KEY_FETCHED,
-    payload: {
-      key,
-    },
-  });
+  type: KEY_FETCHED,
+  payload: {
+    key,
+  },
+});
+
+export const resetReduxStore = () => ({
+  type: RESET_REDUX_STORE,
+});
