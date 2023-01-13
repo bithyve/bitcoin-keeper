@@ -15,6 +15,7 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import ElectrumClient from 'src/core/services/electrum/client';
 import Relay from 'src/core/services/operations/Relay';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -94,6 +95,9 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
 
+    // uaiChecks
+    yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT]));
+
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
 
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
@@ -165,7 +169,14 @@ function* credentialsAuthWorker({ payload }) {
           yield put(fetchExchangeRates());
           yield put(getMessages());
           yield put(setWarning(history));
-          yield put(uaiChecks());
+          yield put(fetchExchangeRates());
+          yield put(
+            uaiChecks([
+              uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+              uaiType.SECURE_VAULT,
+              uaiType.VAULT_MIGRATION,
+            ])
+          );
           yield call(generateSeedHash);
           // connect electrum-client
           const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);

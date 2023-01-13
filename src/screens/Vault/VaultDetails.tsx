@@ -226,7 +226,11 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         keyExtractor={(item) => item}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <EmptyStateView IllustartionImage={NoVaultTransactionIcon} title="No transactions yet." />
+          <EmptyStateView
+            IllustartionImage={NoVaultTransactionIcon}
+            title={'No transactions yet.'}
+            subTitle={'Pull down to refresh'}
+          />
         }
       />
     </>

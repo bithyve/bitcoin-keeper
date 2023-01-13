@@ -20,8 +20,8 @@ import {
 import {
   addUaiStackWatcher,
   uaiActionedEntityWatcher,
+  uaiActionedWatcher,
   uaiChecksWatcher,
-  updateUaiStackWatcher,
 } from './uai';
 import {
   changeAuthCredWatcher,
@@ -106,7 +106,7 @@ const rootSaga = function* () {
     // UAI
     uaiChecksWatcher,
     addUaiStackWatcher,
-    updateUaiStackWatcher,
+    uaiActionedWatcher,
     uaiActionedEntityWatcher,
 
     // BHR

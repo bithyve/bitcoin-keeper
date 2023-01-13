@@ -26,6 +26,9 @@ import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment'
 import { getBundleId } from 'react-native-device-info';
 import TierUpgradeModal from './TierUpgradeModal';
+import { useDispatch } from 'react-redux';
+import { uaiChecks } from 'src/store/sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 function ChoosePlan(props) {
   const { translations } = useContext(LocalizationContext);
@@ -40,6 +43,7 @@ function ChoosePlan(props) {
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const navigation = useNavigation();
+  const disptach = useDispatch();
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
@@ -187,6 +191,8 @@ function ChoosePlan(props) {
       dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
         subscription: sub,
       });
+      disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
+
       if (item.productId === SubscriptionTier.L1) {
         setIsUpgrade(false);
       } else if (
