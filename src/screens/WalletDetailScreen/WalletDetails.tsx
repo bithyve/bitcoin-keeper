@@ -315,6 +315,7 @@ function WalletDetails({ route }) {
                 <EmptyStateView
                   IllustartionImage={NoTransactionIcon}
                   title={'No transactions yet.'}
+                  subTitle={'Pull down to refresh'}
                 />
               }
             />
@@ -531,17 +532,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-  },
-  noTransactionsContainer: {
-    paddingTop: hp(20),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noTransactionText: {
-    fontSize: 12,
-    letterSpacing: 0.6,
-    opacity: 0.85,
-    fontWeight: '300',
   },
 });
 export default WalletDetails;

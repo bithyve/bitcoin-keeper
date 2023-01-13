@@ -115,8 +115,8 @@ function VaultSettings({ route }) {
     return (
       <LinearGradient
         colors={['#B17F44', '#6E4A35']}
-        start={[0, 0]}
-        end={[1, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -178,7 +178,7 @@ function VaultSettings({ route }) {
       <Box alignItems="center" paddingX={wp(25)}>
         <Option
           title="Generate Descriptors"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
+          subTitle="Get additional details for the Vault"
           onPress={() => setGenratorModalVisible(true)}
           Icon={false}
         />
