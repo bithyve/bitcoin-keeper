@@ -30,6 +30,9 @@ import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import TierUpgradeModal from './TierUpgradeModal';
+import { useDispatch } from 'react-redux';
+import { uaiChecks } from 'src/store/sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const plans = [
   {
@@ -91,6 +94,7 @@ function ChoosePlan(props) {
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const navigation = useNavigation();
+  const disptach = useDispatch();
 
   useEffect(() => {
     let purchaseUpdateSubscription;
@@ -183,6 +187,8 @@ function ChoosePlan(props) {
       dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
         subscription: sub,
       });
+      disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
+
       if (item.productId === SubscriptionTier.L1) {
         setIsUpgrade(false);
       } else if (
