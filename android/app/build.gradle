@@ -344,7 +344,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    // implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
+    implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
     implementation("com.google.android.gms:play-services-drive:17.0.0")
     implementation 'com.google.android.gms:play-services-auth:20.2.0'
     implementation 'com.google.http-client:google-http-client-gson:1.26.0'
