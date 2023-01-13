@@ -652,7 +652,7 @@ function SendConfirmation({ route }) {
         Content={SendSuccessfulContent}
       />
       <KeeperModal
-        visible={visibleTransVaultModal || true}
+        visible={visibleTransVaultModal}
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
