@@ -168,6 +168,7 @@ function SendConfirmation({ route }) {
           }}
           primaryText="Transfer Now"
           primaryCallback={() => onTransferNow()}
+          paddingHorizontal={wp(20)}
         />
       </>
     );
@@ -651,7 +652,7 @@ function SendConfirmation({ route }) {
         Content={SendSuccessfulContent}
       />
       <KeeperModal
-        visible={visibleTransVaultModal}
+        visible={visibleTransVaultModal || true}
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
