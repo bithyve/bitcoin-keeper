@@ -23,8 +23,6 @@ export enum BITCOIN_NETWORK {
 // defaults to development environment
 const DEFAULT_CONFIG = {
   BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
-  TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
-  MAINNET_WRAPPER: 'https://api.bithyve.com',
   RELAY: 'https://bithyve-dev-relay.el.r.appspot.com/',
   SIGNING_SERVER: 'https://dev-sign.bithyve.com/',
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
@@ -35,14 +33,6 @@ const DEFAULT_CONFIG = {
 };
 
 class Configuration {
-  public TESTNET_WRAPPER: string = config.TESTNET_WRAPPER?.trim()
-    ? config.TESTNET_WRAPPER.trim()
-    : DEFAULT_CONFIG.TESTNET_WRAPPER;
-
-  public MAINNET_WRAPPER: string = config.MAINNET_WRAPPER?.trim()
-    ? config.MAINNET_WRAPPER.trim()
-    : DEFAULT_CONFIG.MAINNET_WRAPPER;
-
   public RELAY = config.RELAY?.trim() ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
 
   public SIGNING_SERVER = config.SIGNING_SERVER?.trim()
