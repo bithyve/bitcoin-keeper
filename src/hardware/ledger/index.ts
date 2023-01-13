@@ -1,6 +1,5 @@
 import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import config from 'src/core/config';
-
 import BluetoothTransport from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
@@ -10,6 +9,8 @@ import { PsbtV2 } from './client/psbtv2';
 import AppClient from './client/appClient';
 import { DefaultWalletPolicy, WalletPolicy } from './client/policy';
 import { generateSignerFromMetaData } from '..';
+
+const bscript = require('bitcoinjs-lib/src/script');
 
 export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig) => {
   const app = new AppClient(transport);
@@ -76,8 +77,11 @@ export const regsiterWithLedger = async (vault: Vault, transport) => {
 
 const getWalletPolicy = async (vault: Vault) => {
   const { signers, isMultiSig, scheme } = vault;
+  const path = `${signers[0].xpubInfo.xfp}${signers[0].xpubInfo.derivationPath.slice(
+    signers[0].xpubInfo.derivationPath.indexOf('/')
+  )}`;
   const walletPolicy = !isMultiSig
-    ? new DefaultWalletPolicy('wpkh(@0/**)', `[${signers[0]}]${signers[0].xpub}`)
+    ? new DefaultWalletPolicy('wpkh(@0/**)', `[${path}]${signers[0].xpub}`)
     : new WalletPolicy(
         'ColdStorage',
         `wsh(sortedmulti(${scheme.m},${signers.map((_, index) => `@${index}/**`).join(',')}))`,
@@ -112,10 +116,12 @@ export const signWithLedger = async (
   const { inputsToSign } = signingPayload[0];
   for (let inputIndex = 0; inputIndex < inputsToSign.length; inputIndex += 1) {
     const { sighashType, publicKey } = inputsToSign[inputIndex];
+    const { signature: derSignature } = signedData[inputIndex];
+    const { signature } = bscript.signature.decode(derSignature); // re-encode from der to 64 byte
     psbtv0.addSignedDisgest(
       signedData[inputIndex].inputIndex,
       Buffer.from(publicKey, 'hex'),
-      signedData[inputIndex].signature,
+      signature,
       sighashType
     );
   }

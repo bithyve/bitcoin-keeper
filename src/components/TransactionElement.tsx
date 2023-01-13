@@ -22,7 +22,6 @@ function TransactionElement({
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date).format('DD MMM YY  •  hh:mma');
-  console.log({ status: transaction.status, confirmations: transaction.confirmations });
   const { status } = transaction;
   return (
     <TouchableOpacity onPress={onPress}>
