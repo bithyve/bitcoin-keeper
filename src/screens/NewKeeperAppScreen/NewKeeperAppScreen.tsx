@@ -158,197 +158,199 @@ function NewKeeperApp({ navigation }: { navigation }) {
       console.log(error)
       dispatch(setupKeeperApp('', ''));
     }
+  }
 
-    const getSignUpModalContent = () => {
-      if (config.NETWORK_TYPE === NetworkType.MAINNET) {
-        return {
-          title: 'Multisig security for your sats',
-          subTitle: 'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
-          assert: {
-            loader: require('src/assets/video/Loader.gif'),
-            height: 180
-          },
-          message: 'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.'
-        }
-      }
+  const getSignUpModalContent = () => {
+    if (config.NETWORK_TYPE === NetworkType.MAINNET) {
       return {
-        title: 'Shake to send feedback',
-        subTitle: 'Shake your device to send us a bug report or a feature request',
+        title: 'Multisig security for your sats',
+        subTitle: 'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
         assert: {
-          loader: require('src/assets/video/test-net.gif'),
-          height: 200
+          loader: require('src/assets/video/Loader.gif'),
+          height: 180
         },
-        message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+        message: 'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.'
       }
-
+    }
+    return {
+      title: 'Shake to send feedback',
+      subTitle: 'Shake your device to send us a bug report or a feature request',
+      assert: {
+        loader: require('src/assets/video/test-net.gif'),
+        height: 200
+      },
+      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
     }
 
-    function SignUpModalContent() {
-      return (
-        <Box>
-          <Image
-            source={getSignUpModalContent().assert.loader}
-            style={{
-              width: wp(270),
-              height: hp(getSignUpModalContent().assert.height),
-              alignSelf: 'center',
-            }}
-          />
-          <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
-            {getSignUpModalContent().message}
-          </Text>
-        </Box>
-      );
-    }
+  }
 
+  function SignUpModalContent() {
     return (
-      <ScreenWrapper barStyle="dark-content">
-        <ScrollView style={styles.wrapper}>
-          <Box>
-            <Box style={styles.titleWrapper}>
-              <Text color="light.textBlack" style={styles.titleText}>
-                New Keeper App
-              </Text>
-              <Text color="light.GreyText" style={styles.subTitleText}>
-                Use this option if you want to create a new Keeper app
-              </Text>
-            </Box>
-            <Tile
-              title="Start New"
-              subTitle="New vault and wallets"
-              Icon={<App />}
-              onPress={() => {
-                setInitiating(true);
-              }}
-              loading={keeperInitiating}
-            />
-
-            <Box style={styles.titleWrapper02}>
-              <Text color="light.textBlack" style={styles.titleText}>
-                Existing Keeper App
-              </Text>
-              <Text color="light.textBlack" style={styles.subTitleText}>
-                If you previously had a Keeper wallet you can recover it
-              </Text>
-
-              <Tile
-                title="Recover for myself"
-                subTitle="Using Backup Phrase"
-                Icon={<Recover />}
-                onPress={() => {
-                  navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
-                }}
-              />
-              <Tile
-                title="Inheritance Keeper vault"
-                subTitle="Using signing devices"
-                onPress={() => {
-                  navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-                }}
-                Icon={<Inheritance />}
-              />
-            </Box>
-          </Box>
-        </ScrollView>
-        <Text color="light.primaryText" style={styles.noteText}>
-          When you use signing devices to restore Keeper, only the vault is restored and the app has
-          new wallets
+      <Box>
+        <Image
+          source={getSignUpModalContent().assert.loader}
+          style={{
+            width: wp(270),
+            height: hp(getSignUpModalContent().assert.height),
+            alignSelf: 'center',
+          }}
+        />
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
+          {getSignUpModalContent().message}
         </Text>
-        <CloudRecoveryModal
-          visible={cloudModal}
-          close={closeCloudModal}
-          title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
-          subTitle={seed.seedDescription}
-          buttonText="Next"
-          buttonTextColor="light.white"
-          buttonCallback={passwordScreen}
-          textColor="light.primaryText"
-          onPressNext={(backup) => {
-            setSelectedBackup(backup);
-            passwordScreen();
-          }}
-        />
-        <PasswordModal
-          visible={passwordModal}
-          closePasswordModal={closePassword}
-          title="Confirm Password"
-          subTitle={seed.seedDescription}
-          dscription={seed.seedDescription}
-          buttonText="Next"
-          buttonTextColor="light.white"
-          textColor="light.primaryText"
-          backup={selectedBackup}
-          onPressNext={(password) => {
-            dispatch(recoverBackup(password, selectedBackup.encData));
-          }}
-        />
-        <ModalWrapper
-          visible={createCloudBackupModal}
-          onSwipeComplete={() => setCreateCloudBackupModal(false)}
-        >
-          <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-        </ModalWrapper>
-        <KeeperModal
-          dismissible={false}
-          close={() => { }}
-          visible={modalVisible}
-          title={getSignUpModalContent().title}
-          subTitle={getSignUpModalContent().subTitle}
-          Content={SignUpModalContent}
-          buttonText={appCreated ? 'Next' : null}
-          buttonCallback={() => {
-            setModalVisible(false);
-            navigation.replace('App', { screen: 'NewHome' });
-          }}
-          subTitleColor="light.secondaryText"
-          subTitleWidth={wp(210)}
-          showCloseIcon={false}
-        />
-        <KeeperModal
-          dismissible={false}
-          close={() => { }}
-          visible={appCreationError}
-          title="Something went wrong"
-          subTitle="Please check your internet connection and try again."
-          Content={Box}
-          buttonText="Retry"
-          buttonCallback={() => {
-            setInitiating(true)
-          }}
-          subTitleColor="light.secondaryText"
-          subTitleWidth={wp(210)}
-          showCloseIcon={false}
-        />
-      </ScreenWrapper>
+      </Box>
     );
   }
-  const styles = StyleSheet.create({
-    wrapper: {
-      paddingTop: '5%',
-    },
-    titleWrapper: {
-      marginBottom: hp(10),
-    },
-    titleText: {
-      fontSize: 18,
-      paddingHorizontal: 18,
-      fontWeight: '400',
-      letterSpacing: 0.9,
-    },
-    subTitleText: {
-      fontSize: 12,
-      fontWeight: '400',
-      paddingHorizontal: 18,
-      letterSpacing: 0.2,
-    },
-    titleWrapper02: {
-      marginTop: hp(70),
-    },
-    noteText: {
-      fontSize: 12,
-      paddingHorizontal: '5%',
-      paddingVertical: '5%',
-    },
-  });
+
+  return (
+    <ScreenWrapper barStyle="dark-content">
+      <ScrollView style={styles.wrapper}>
+        <Box>
+          <Box style={styles.titleWrapper}>
+            <Text color="light.textBlack" style={styles.titleText}>
+              New Keeper App
+            </Text>
+            <Text color="light.GreyText" style={styles.subTitleText}>
+              Use this option if you want to create a new Keeper app
+            </Text>
+          </Box>
+          <Tile
+            title="Start New"
+            subTitle="New vault and wallets"
+            Icon={<App />}
+            onPress={() => {
+              setInitiating(true);
+            }}
+            loading={keeperInitiating}
+          />
+
+          <Box style={styles.titleWrapper02}>
+            <Text color="light.textBlack" style={styles.titleText}>
+              Existing Keeper App
+            </Text>
+            <Text color="light.textBlack" style={styles.subTitleText}>
+              If you previously had a Keeper wallet you can recover it
+            </Text>
+
+            <Tile
+              title="Recover for myself"
+              subTitle="Using Backup Phrase"
+              Icon={<Recover />}
+              onPress={() => {
+                navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
+              }}
+            />
+            <Tile
+              title="Inheritance Keeper vault"
+              subTitle="Using signing devices"
+              onPress={() => {
+                navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+              }}
+              Icon={<Inheritance />}
+            />
+          </Box>
+        </Box>
+      </ScrollView>
+      <Text color="light.primaryText" style={styles.noteText}>
+        When you use signing devices to restore Keeper, only the vault is restored and the app has
+        new wallets
+      </Text>
+      <CloudRecoveryModal
+        visible={cloudModal}
+        close={closeCloudModal}
+        title={Platform.OS === 'ios' ? 'Recover wallet from iCloud' : 'Recover wallet from Drive'}
+        subTitle={seed.seedDescription}
+        buttonText="Next"
+        buttonTextColor="light.white"
+        buttonCallback={passwordScreen}
+        textColor="light.primaryText"
+        onPressNext={(backup) => {
+          setSelectedBackup(backup);
+          passwordScreen();
+        }}
+      />
+      <PasswordModal
+        visible={passwordModal}
+        closePasswordModal={closePassword}
+        title="Confirm Password"
+        subTitle={seed.seedDescription}
+        dscription={seed.seedDescription}
+        buttonText="Next"
+        buttonTextColor="light.white"
+        textColor="light.primaryText"
+        backup={selectedBackup}
+        onPressNext={(password) => {
+          dispatch(recoverBackup(password, selectedBackup.encData));
+        }}
+      />
+      <ModalWrapper
+        visible={createCloudBackupModal}
+        onSwipeComplete={() => setCreateCloudBackupModal(false)}
+      >
+        <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
+      </ModalWrapper>
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={modalVisible}
+        title={getSignUpModalContent().title}
+        subTitle={getSignUpModalContent().subTitle}
+        Content={SignUpModalContent}
+        buttonText={appCreated ? 'Next' : null}
+        buttonCallback={() => {
+          setModalVisible(false);
+          navigation.replace('App', { screen: 'NewHome' });
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
+    </ScreenWrapper>
+  );
 }
+
+const styles = StyleSheet.create({
+  wrapper: {
+    paddingTop: '5%',
+  },
+  titleWrapper: {
+    marginBottom: hp(10),
+  },
+  titleText: {
+    fontSize: 18,
+    paddingHorizontal: 18,
+    fontWeight: '400',
+    letterSpacing: 0.9,
+  },
+  subTitleText: {
+    fontSize: 12,
+    fontWeight: '400',
+    paddingHorizontal: 18,
+    letterSpacing: 0.2,
+  },
+  titleWrapper02: {
+    marginTop: hp(70),
+  },
+  noteText: {
+    fontSize: 12,
+    paddingHorizontal: '5%',
+    paddingVertical: '5%',
+  },
+});
+
 export default NewKeeperApp;
