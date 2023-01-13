@@ -1,12 +1,12 @@
-import { ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, HStack, VStack } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -31,29 +31,45 @@ import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { captureError } from 'src/core/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { globalStyles } from 'src/common/globalStyles';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
+import { WalletMap } from '../Vault/WalletMap';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 function DeviceItem({ device, onSelectDevice }) {
-  const [pending, setPending] = useState(false);
+  const [signing, setSigning] = useState(false);
+
   const onPress = async () => {
-    setPending(true);
+    setSigning(true);
     try {
       await onSelectDevice(device);
     } catch (error) {
       console.log(error);
     } finally {
-      setPending(false);
+      setSigning(false);
     }
   };
   return (
-    <TouchableOpacity onPress={() => onPress()} style={{ flexDirection: 'row' }}>
-      <Text color="light.white" fontSize={14} letterSpacing={1.12}>
-        {device.name}
-      </Text>
-      {pending ? <ActivityIndicator /> : null}
+    <TouchableOpacity onPress={() => onPress()} style={{ marginBottom: 30 }}>
+      <HStack
+        style={[
+          globalStyles.centerRow,
+          { justifyContent: 'space-between', width: windowWidth * 0.65 },
+        ]}
+      >
+        <HStack style={[globalStyles.centerRow]}>
+          <Box style={styles.icon}>{WalletMap(SignerType.LEDGER, true).Icon}</Box>
+          <VStack style={{ paddingLeft: 20 }}>
+            <Text style={[globalStyles.font14, { letterSpacing: 1.12 }]}>{device.name}</Text>
+            <Text style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+              {signing ? 'Signing...' : 'Select to sign with this device'}
+            </Text>
+          </VStack>
+        </HStack>
+        <Box>{signing ? <ActivityIndicator /> : <RightArrowIcon />}</Box>
+      </HStack>
     </TouchableOpacity>
   );
 }
@@ -114,12 +130,15 @@ function LedgerContent({ signer, setLedgerModal }: { signer: VaultSigner; setLed
   }, []);
 
   return (
-    <>
-      {isScanning ? <ActivityIndicator /> : null}
+    <Box>
+      {isScanning && !allDevices.length ? <ActivityIndicator /> : null}
       {allDevices.map((device) => (
         <DeviceItem device={device} onSelectDevice={onSelectDevice} key={device.id} />
       ))}
-    </>
+      <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        Make sure the BTC app is opened after the app detects the device
+      </Text>
+    </Box>
   );
 }
 
@@ -473,12 +492,7 @@ function SignerModals({
                 visible={currentSigner && ledgerModal}
                 close={() => setLedgerModal(false)}
                 title="Looking for Nano X"
-                subTitle="Power up your Ledger Nano X and open the BTC app"
-                modalBackground={['light.gradientStart', 'light.gradientEnd']}
-                buttonBackground={['#FFFFFF', '#80A8A1']}
-                buttonTextColor="light.greenText"
-                textColor="light.white"
-                DarkCloseIcon
+                subTitle="Select when your Ledger device shows up to sign with it"
                 Content={() => <LedgerContent signer={signer} setLedgerModal={setLedgerModal} />}
               />
             );
@@ -590,5 +604,16 @@ function SignerModals({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    height: 30,
+    width: 30,
+    borderRadius: 30,
+    backgroundColor: '#725436',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 export default SignerModals;
