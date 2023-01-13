@@ -4,6 +4,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { WalletType, NetworkType, TxPriority } from 'src/core/wallets/enums';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import ElectrumClient from 'src/core/services/electrum/client';
 
 describe('Wallet primitives', () => {
   let primaryMnemonic;
@@ -14,13 +15,22 @@ describe('Wallet primitives', () => {
   let txnPriority;
   let PSBT;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     primaryMnemonic =
       'duty burger portion domain athlete sweet birth impact miss shield help peanut';
     walletShell = {
       id: getRandomBytes(12),
       walletInstances: {},
     };
+
+    try {
+      ElectrumClient.setActivePeer([]);
+      await ElectrumClient.connect();
+      console.log('Electrum connected');
+    } catch (err) {
+      console.log('failed to connect to Electrum:', err);
+      process.exit(1);
+    }
   });
 
   test('wallet factory: creating a wallet', async () => {
@@ -49,7 +59,10 @@ describe('Wallet primitives', () => {
 
   test('wallet operations: fetching balance, utxos & transactions', async () => {
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    const { synchedWallets } = await WalletOperations.syncWallets([wallet], network);
+    const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
+      [wallet],
+      network
+    );
     [wallet] = synchedWallets;
 
     const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = wallet.specs;
@@ -68,8 +81,8 @@ describe('Wallet primitives', () => {
   });
 
   test('wallet operations: transaction fee fetch', async () => {
-    const res = await Relay.fetchFeeAndExchangeRates();
-    averageTxFees = res.averageTxFees;
+    const averageTxFeeByNetwork = await WalletOperations.calculateAverageTxFee();
+    averageTxFees = averageTxFeeByNetwork;
     expect(averageTxFees[NetworkType.MAINNET]).toBeDefined();
     expect(averageTxFees[NetworkType.TESTNET]).toBeDefined();
   });
