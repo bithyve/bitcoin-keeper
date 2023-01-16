@@ -9,7 +9,7 @@ import {
   BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, StatusBar } from 'native-base';
 
 import LinearGradient from 'src/components/KeeperGradient';
 
@@ -67,12 +67,12 @@ function OnBoardingSlides({ navigation }) {
     setCurrentPosition(viewableItems.changed[0].index);
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
-
+  console.log('windowHeight', windowHeight);
   return (
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
       <ImageBackground resizeMode="contain" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
-          <Box justifyContent="center" mr={4} mt={windowHeight > 800 ? 10 : 2} height={10}>
+          <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
             {currentPosition !== 1 && (
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
