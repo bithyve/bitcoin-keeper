@@ -58,7 +58,7 @@ function SettingUpTapsigner(props) {
           {healthcheck.EnterCVV}
         </Text>
       </Box>
-      <Box>
+      <Box px={4}>
         {/* pin input view */}
         <CVVInputsView passCode={inputText} passcodeFlag={passcodeFlag} backgroundColor textColor />
         {/*  */}
