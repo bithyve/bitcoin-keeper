@@ -83,13 +83,13 @@ const getWalletPolicy = async (vault: Vault) => {
   const walletPolicy = !isMultiSig
     ? new DefaultWalletPolicy('wpkh(@0/**)', `[${path}]${signers[0].xpub}`)
     : new WalletPolicy(
-        'ColdStorage',
+        'Keeper Vault',
         `wsh(sortedmulti(${scheme.m},${signers.map((_, index) => `@${index}/**`).join(',')}))`,
         signers.map((signer) => {
-          const path = `${signer.xpubInfo.xfp}${signer.xpubInfo.derivationPath.slice(
+          const path = `${signer.xpubInfo.xfp.toLowerCase()}${signer.xpubInfo.derivationPath.slice(
             signer.xpubInfo.derivationPath.indexOf('/')
           )}`;
-          return `[${path}]${signer.xpub}/**`;
+          return `[${path}]${signer.xpub}`;
         })
       );
   return walletPolicy;
