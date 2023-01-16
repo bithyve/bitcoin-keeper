@@ -33,7 +33,7 @@ function SettingUpTapsigner(props) {
   };
 
   return (
-    <Box backgroundColor="light.secondaryBackground" borderRadius={10}>
+    <Box backgroundColor="light.mainBackground" borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           margin={5}
