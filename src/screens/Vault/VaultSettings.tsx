@@ -49,7 +49,7 @@ const DescritporsModalContent = ({ descriptorString }) => {
           await onShare();
         }}
       >
-        <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+        <Box style={styles.inputWrapper} backgroundColor="light.primaryBackground">
           <Text width="100%" padding={10} noOfLines={4}>
             {descriptorString}
           </Text>
