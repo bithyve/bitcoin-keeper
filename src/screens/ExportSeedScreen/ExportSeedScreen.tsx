@@ -30,7 +30,6 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
 
-
   useEffect(() => {
     if (backupMethod !== null) {
       setBackupSuccessModal(true);
