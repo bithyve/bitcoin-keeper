@@ -319,7 +319,7 @@ function WalletSettings({ route }) {
                 showToast('Cosigner Details Copied Successfully', <TickIcon />);
               }}
               subText="Cosigner Details"
-              noteSubText="The cosigner details are for the selected wallet only and n wallets in the app"
+              noteSubText="The cosigner details are for the selected wallet only"
               copyable={false}
             />
           )}

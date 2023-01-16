@@ -84,7 +84,7 @@ function ShowXPub({
           ) : null}
         </Box>
       </Box>
-      <Box width={wp(250)}>
+      <Box width={wp(280)}>
         <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
       </Box>
     </>
