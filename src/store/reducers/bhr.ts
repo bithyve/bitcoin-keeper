@@ -23,6 +23,11 @@ const initialState: {
   backupWarning: boolean;
   signingDevices: SigningDeviceRecovery[];
   vaultMetaData: Object;
+
+  relayWalletUpdateLoading: boolean;
+  relayWalletUpdate: boolean;
+  relayWalletError: boolean;
+  realyWalletErrorMessage: string;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -43,6 +48,10 @@ const initialState: {
   backupWarning: false,
   signingDevices: [],
   vaultMetaData: {},
+  relayWalletUpdateLoading: false,
+  relayWalletUpdate: false,
+  relayWalletError: false,
+  realyWalletErrorMessage: null,
 };
 
 const bhrSlice = createSlice({
@@ -113,6 +122,23 @@ const bhrSlice = createSlice({
     setVaultMetaData: (state, action: PayloadAction<any>) => {
       state.vaultMetaData = action.payload;
     },
+    setRelayWalletUpdateLoading: (state, action: PayloadAction<boolean>) => {
+      state.relayWalletUpdateLoading = action.payload;
+    },
+    relayWalletUpdateSuccess: (state) => {
+      state.relayWalletUpdate = true;
+      state.relayWalletUpdateLoading = false;
+    },
+    relayWalletUpdateFail: (state, action: PayloadAction<string>) => {
+      state.relayWalletError = true;
+      state.realyWalletErrorMessage = action.payload;
+      state.relayWalletUpdateLoading = false;
+    },
+    resetRealyWalletState: (state) => {
+      state.relayWalletError = false;
+      state.relayWalletUpdate = false;
+      state.relayWalletUpdateLoading = false;
+    },
   },
 });
 
@@ -135,6 +161,10 @@ export const {
   setBackupWarning,
   setSigningDevices,
   setVaultMetaData,
+  setRelayWalletUpdateLoading,
+  relayWalletUpdateSuccess,
+  relayWalletUpdateFail,
+  resetRealyWalletState,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -156,6 +186,10 @@ const bhrPersistConfig = {
     'recoverBackupFailed',
     'invalidPassword',
     'backupWarning',
+    'relayWalletUpdateLoading',
+    'relayWalletUpdate',
+    'relayWalletError',
+    'realyWalletErrorMessage',
   ],
 };
 
