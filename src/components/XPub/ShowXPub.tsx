@@ -13,7 +13,7 @@ import Note from '../Note/Note';
 
 function ShowXPub({
   data,
-  copy = () => {},
+  copy = () => { },
   subText,
   noteSubText,
   copyable = true,
@@ -84,7 +84,7 @@ function ShowXPub({
           ) : null}
         </Box>
       </Box>
-      <Box width="85%">
+      <Box width={wp(250)}>
         <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
       </Box>
     </>
