@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Input, View } from 'native-base';
 import { useDispatch } from 'react-redux';
@@ -14,6 +14,9 @@ import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { useAppSelector } from 'src/store/hooks';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
 function EditWalletSettings({ route }) {
   const navigtaion = useNavigation();
@@ -24,6 +27,8 @@ function EditWalletSettings({ route }) {
 
   const { wallet } = route.params;
   const { showToast } = useToastMessage();
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
 
   const [walletName, setWalletName] = useState(wallet.presentationData.name);
   const [walletDescription, setWalletDescription] = useState(wallet.presentationData.description);
@@ -34,9 +39,19 @@ function EditWalletSettings({ route }) {
       description: walletDescription,
     };
     dispatch(updateWalletDetails(wallet, details));
-    showToast('Wallet details updated', <TickIcon />);
-    navigtaion.goBack();
   };
+
+  useEffect(() => {
+    if (relayWalletError) {
+      showToast(realyWalletErrorMessage, <ToastErrorIcon />);
+      dispatch(resetRealyWalletState());
+    }
+    if (relayWalletUpdate) {
+      showToast('Wallet details updated', <TickIcon />);
+      dispatch(resetRealyWalletState());
+      navigtaion.goBack();
+    }
+  }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
   return (
     <View style={styles.Container} background="light.secondaryBackground">
@@ -78,6 +93,7 @@ function EditWalletSettings({ route }) {
             }}
             primaryText="Save"
             primaryCallback={editWallet}
+            primaryLoading={relayWalletUpdateLoading}
             primaryDisable={!walletName || !walletDescription}
           />
         </View>
