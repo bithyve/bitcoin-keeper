@@ -13,7 +13,6 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 // asserts
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
-import BTC from 'src/assets/images/btc_white.svg';
 import BackIcon from 'src/assets/images/back_white.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -49,6 +48,8 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -134,6 +135,10 @@ function VaultInfo({ vault }: { vault: Vault }) {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = vault;
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+
   const styles = getStyles(0);
   return (
     <VStack paddingY={12}>
@@ -155,11 +160,13 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
             Unconfirmed
           </Text>
-          {getNetworkAmount(unconfirmed, [styles.vaultInfoText, { fontSize: 12 }], 0.9)}
+          {getNetworkAmount(unconfirmed, [styles.vaultInfoText, { fontSize: 12 }], 0.9,
+            exchangeRates, currencyCode, currentCurrency)}
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(confirmed, [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2])}
+        {getNetworkAmount(confirmed, [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 },
+          2], 1, exchangeRates, currencyCode, currentCurrency)}
         <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>
@@ -226,7 +233,11 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         keyExtractor={(item) => item}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <EmptyStateView IllustartionImage={NoVaultTransactionIcon} title="No transactions yet." />
+          <EmptyStateView
+            IllustartionImage={NoVaultTransactionIcon}
+            title={'No transactions yet.'}
+            subTitle={'Pull down to refresh'}
+          />
         }
       />
     </>

@@ -45,8 +45,20 @@ import { getKeystoneDetails, getTxHexFromKeystonePSBT } from 'src/hardware/keyst
 import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getJadeDetails } from 'src/hardware/jade';
+import ElectrumClient from 'src/core/services/electrum/client';
 
 jest.setTimeout(20000);
+
+const connectToElectrumClient = async () => {
+  try {
+    ElectrumClient.setActivePeer([]);
+    await ElectrumClient.connect();
+    console.log('Electrum connected');
+  } catch (err) {
+    console.log('failed to connect to Electrum:', err);
+    process.exit(1);
+  }
+};
 
 describe('Vault: Single-sig(1-of-1)', () => {
   let primaryMnemonic;
@@ -65,6 +77,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
       id: getRandomBytes(12),
       vaultInstances: {},
     };
+    connectToElectrumClient();
 
     const networkType = NetworkType.TESTNET;
     const network = WalletUtilities.getNetworkByType(networkType);
@@ -119,7 +132,10 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
   test('vault operations: fetching balance, utxos & transactions', async () => {
     const network = WalletUtilities.getNetworkByType(vault.networkType);
-    const { synchedWallets } = await WalletOperations.syncWallets([vault], network);
+    const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
+      [vault],
+      network
+    );
     [vault] = synchedWallets;
 
     const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.specs;
@@ -138,8 +154,8 @@ describe('Vault: Single-sig(1-of-1)', () => {
   });
 
   test('vault operations: transaction fee fetch', async () => {
-    const res = await Relay.fetchFeeAndExchangeRates();
-    averageTxFees = res.averageTxFees;
+    const averageTxFeeByNetwork = await WalletOperations.calculateAverageTxFee();
+    averageTxFees = averageTxFeeByNetwork;
     expect(averageTxFees[NetworkType.MAINNET]).toBeDefined();
     expect(averageTxFees[NetworkType.TESTNET]).toBeDefined();
   });
@@ -323,7 +339,10 @@ describe('Vault: Multi-sig(2-of-3)', () => {
 
   test('vault operations: fetching balance, utxos & transactions', async () => {
     const network = WalletUtilities.getNetworkByType(vault.networkType);
-    const { synchedWallets } = await WalletOperations.syncWallets([vault], network);
+    const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
+      [vault],
+      network
+    );
     [vault] = synchedWallets;
 
     const { balances, transactions, confirmedUTXOs, unconfirmedUTXOs } = vault.specs;
@@ -342,8 +361,8 @@ describe('Vault: Multi-sig(2-of-3)', () => {
   });
 
   test('vault operations: transaction fee fetch', async () => {
-    const res = await Relay.fetchFeeAndExchangeRates();
-    averageTxFees = res.averageTxFees;
+    const averageTxFeeByNetwork = await WalletOperations.calculateAverageTxFee();
+    averageTxFees = averageTxFeeByNetwork;
     expect(averageTxFees[NetworkType.MAINNET]).toBeDefined();
     expect(averageTxFees[NetworkType.TESTNET]).toBeDefined();
   });

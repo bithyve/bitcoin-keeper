@@ -279,7 +279,7 @@
     "WalletNamePlaceHolder": "Maldives Funds",
     "WalletDescriptionPlaceholder": "Single-sig",
     "AutoTransferInitiated": "Auto transfer initiated at (optional)",
-    "AutoTransferInitiatedDesc": "When the wallet balance crosses the amount specified here, a transaction for transferring sats from the wallet to the Vault is initiated for user approval",
+    "AutoTransferInitiatedDesc": "When the wallet balance crosses this amount, a transfer to the Vault is initiated for user approval",
     "WalletDetails": "Wallet Details",
     "EditWalletDeatils": "Edit wallet name and description",
     "TransferSuccessful": "Transfer Successful!",
