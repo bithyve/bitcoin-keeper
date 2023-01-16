@@ -2,14 +2,14 @@ import React, { useContext, useState } from 'react';
 import { Box, Text, Pressable, View } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import { Alert, Clipboard } from 'react-native';
+import { Share } from 'react-native';
 // components and functions
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
-import IconCopy from 'src/assets/images/icon_copy.svg';
+import IconShare from 'src/assets/images/icon_share.svg';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/images/backup.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -32,14 +32,23 @@ type Props = {
 };
 
 const DescritporsModalContent = ({ descriptorString }) => {
-  const copyDescriptor = () => {
-    Clipboard.setString(descriptorString);
-    Alert.alert('Decriptor Copied Successfully');
+  const onShare = async () => {
+    try {
+      await Share.share({
+        message: descriptorString,
+      });
+    } catch (error: any) {
+      console.log(error.message);
+    }
   };
 
   return (
     <View width={'80%'}>
-      <TouchableOpacity onPress={copyDescriptor}>
+      <TouchableOpacity
+        onPress={async () => {
+          await onShare();
+        }}
+      >
         <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
           <Text width="100%" padding={10} noOfLines={4}>
             {descriptorString}
@@ -55,12 +64,17 @@ const DescritporsModalContent = ({ descriptorString }) => {
         alignItems="center"
         style={styles.buttonContainer}
       >
-        <TouchableOpacity style={styles.IconText} onPress={copyDescriptor}>
+        <TouchableOpacity
+          style={styles.IconText}
+          onPress={async () => {
+            await onShare();
+          }}
+        >
           <Box>
-            <IconCopy />
+            <IconShare />
           </Box>
           <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
-            Copy
+            Share
           </Text>
         </TouchableOpacity>
       </Box>
