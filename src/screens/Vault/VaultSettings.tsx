@@ -170,7 +170,7 @@ function VaultSettings({ route }) {
       <Box>
         <HeaderTitle
           title="Vault Settings"
-          subtitle="See the app settings screen and the items that will go in here."
+          subtitle="Settings specific to the Vault"
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor="light.textBlack"
           titleFontSize={20}
@@ -192,7 +192,7 @@ function VaultSettings({ route }) {
       <Box alignItems="center" paddingX={wp(25)}>
         <Option
           title="Generate Descriptors"
-          subTitle="Get additional details for the Vault"
+          subTitle="Vault configuration that needs to be stored privately"
           onPress={() => setGenratorModalVisible(true)}
           Icon={false}
         />
@@ -202,7 +202,7 @@ function VaultSettings({ route }) {
       <Box position="absolute" bottom={hp(45)} marginX={5}>
         <InfoBox
           title="Note"
-          desciption="These settings are for your active wallet only and does not affect other wallets"
+          desciption="These settings are for your active vault only and does not affect other vaults"
           width={250}
         />
       </Box>
