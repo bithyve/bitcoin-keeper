@@ -66,13 +66,50 @@ import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 
-function* updateAppImageWorker({ payload }) {
+const generateCombinations = (sourceArray, comboLength) => {
+  const sourceLength = sourceArray.length;
+  if (comboLength > sourceLength) return [];
+  const combos = [];
+  const makeNextCombos = (workingCombo, currentIndex, remainingCount) => {
+    const oneAwayFromComboLength = remainingCount == 1;
+    for (let sourceIndex = currentIndex; sourceIndex < sourceLength; sourceIndex++) {
+      const next = [...workingCombo, sourceArray[sourceIndex]];
+      if (oneAwayFromComboLength) {
+        combos.push(next);
+      } else {
+        makeNextCombos(next, sourceIndex + 1, remainingCount - 1);
+      }
+    }
+  };
+
+  makeNextCombos([], 0, comboLength);
+  return combos;
+};
+
+const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
+  const vacMap: any = {};
+  const allcombination = generateCombinations(signerIds, m);
+
+  allcombination.forEach((signerIdsCombination) => {
+    const xpubs = signerIdsCombination.map((signerId) => signerIdXpubMap[signerId]);
+    const key = signerIdsCombination.sort().toString();
+    const hashKey = generateIDForVAC(key);
+    const encryptyVAC = encryptVAC(vac, xpubs);
+    vacMap[hashKey] = encryptyVAC;
+  });
+
+  return vacMap;
+};
+
+export function* updateAppImageWorker({ payload }) {
+  //
+  //Read from Params not from DB.
   const { walletId } = payload;
   const {
     primarySeed,
     appID,
     walletShellInstances,
-    primaryMnemonic,
+    // primaryMnemonic,
     subscription,
     networkType,
   }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
@@ -83,7 +120,6 @@ function* updateAppImageWorker({ payload }) {
     0,
     true
   );
-
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (walletId) {
@@ -99,7 +135,7 @@ function* updateAppImageWorker({ payload }) {
     }
   }
   try {
-    Relay.updateAppImage({
+    const response = yield call(Relay.updateAppImage, {
       appID,
       walletObject,
       networkType,
@@ -107,36 +143,12 @@ function* updateAppImageWorker({ payload }) {
       walletShells: JSON.stringify(walletShells[0]),
       subscription: JSON.stringify(subscription),
     });
+    return response;
   } catch (err) {
-    console.error('app image update failed', err);
+    console.log({ err });
+    console.error('App image update failed', err);
   }
 }
-
-const getPermutations = (a, n, s = [], t = []) =>
-  a.reduce((p, c, i, a) => {
-    n > 1
-      ? getPermutations(a.slice(0, i).concat(a.slice(i + 1)), n - 1, p, (t.push(c), t))
-      : p.push((t.push(c), t).slice(0));
-    t.pop();
-    return p;
-  }, s);
-
-const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
-  const vacMap: any = {};
-  const allPermutations = getPermutations(signerIds, m);
-  for (const index in allPermutations) {
-    const signerIdsPermutaions = allPermutations[index];
-    const xpubs = [];
-    signerIdsPermutaions.forEach((signerId) => {
-      xpubs.push(signerIdXpubMap[signerId]);
-    });
-    const key = signerIdsPermutaions.sort().toString();
-    const encryptyVAC = encryptVAC(vac, xpubs);
-    const hashKey = generateIDForVAC(key);
-    vacMap[hashKey] = encryptyVAC;
-  }
-  return vacMap;
-};
 
 function* updateVaultImageWorker({
   payload,
@@ -166,6 +178,7 @@ function* updateVaultImageWorker({
   }
 
   const { m } = vault.scheme;
+
   let signersData: Array<{
     signerId: String;
     xfpHash: String;
@@ -430,6 +443,7 @@ function* getAppImageWorker({ payload }) {
         primaryMnemonic
       );
       const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+
       const app: KeeperApp = {
         id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
         appID: appImage.appId,
@@ -437,7 +451,7 @@ function* getAppImageWorker({ payload }) {
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic,
         imageEncryptionKey,
-        subscription: JSON.parse(appImage.subscription),
+        subscription: appImage.subscription,
         version: DeviceInfo.getVersion(),
         vaultShellInstances: appImage.vaultShellInstances
           ? JSON.parse(appImage.vaultShellInstances)
