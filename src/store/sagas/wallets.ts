@@ -64,6 +64,7 @@ import {
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
   UPDATE_SIGNER_DETAILS,
+  UPDATE_WALLET_PROPERTY,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -72,6 +73,12 @@ import {
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
+import { updateAppImageWorker } from './bhr';
+import {
+  relayWalletUpdateFail,
+  relayWalletUpdateSuccess,
+  setRelayWalletUpdateLoading,
+} from '../reducers/bhr';
 
 export interface NewWalletDetails {
   name?: string;
@@ -354,6 +361,7 @@ export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAU
 function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
   try {
     const { vaultId } = payload;
+
     yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, {
       archived: true,
     });
@@ -361,6 +369,7 @@ function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string
     yield call(addNewVaultWorker, {
       payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
     });
+
     yield put(
       vaultMigrationCompleted({
         isMigratingNewVault: false,
@@ -720,14 +729,26 @@ function* updateWalletDetailsWorker({ payload }) {
       description: string;
     };
   } = payload;
-  const presentationData: WalletPresentationData = {
-    name: details.name,
-    description: details.description,
-    visibility: wallet.presentationData.visibility,
-  };
-  yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-    presentationData,
-  });
+  try {
+    const presentationData: WalletPresentationData = {
+      name: details.name,
+      description: details.description,
+      visibility: wallet.presentationData.visibility,
+    };
+    yield put(setRelayWalletUpdateLoading(true));
+    //API-TO-DO: based on response call the DB
+    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+    if (response.updated) {
+      yield put(relayWalletUpdateSuccess());
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+        presentationData,
+      });
+    } else {
+      yield put(relayWalletUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayWalletUpdateFail('Something went wrong!'));
+  }
 }
 
 export const updateWalletDetailWatcher = createWatcher(
@@ -764,3 +785,30 @@ function* updateSignerDetailsWorker({ payload }) {
 }
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
+
+function* updateWalletsPropertyWorker({ payload }) {
+  const {
+    wallet,
+    updateProps,
+  }: {
+    wallet: Wallet;
+    updateProps: any;
+  } = payload;
+  console.log({ updateProps });
+  try {
+    yield put(setRelayWalletUpdateLoading(true));
+    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+    if (response.updated) {
+      yield put(relayWalletUpdateSuccess());
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, updateProps);
+    } else {
+      yield put(relayWalletUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayWalletUpdateFail('Something went wrong!'));
+  }
+}
+export const updateWalletsPropertyWatcher = createWatcher(
+  updateWalletsPropertyWorker,
+  UPDATE_WALLET_PROPERTY
+);
