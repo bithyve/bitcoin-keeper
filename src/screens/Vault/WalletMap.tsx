@@ -33,6 +33,9 @@ import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';
 import TREZORICONLIGHT from 'src/assets/images/trezor_light.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
+import BITBOXICON from 'src/assets/images/bitbox_icon.svg';
+import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
+
 import Text from 'src/components/KeeperText';
 
 const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
@@ -119,6 +122,12 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light),
         Logo: <SEEDSIGNERLOGO />,
+        type: SignerStorage.COLD,
+      };
+    case SignerType.BITBOX:
+      return {
+        Icon: getColouredIcon(<BITBOXICON />, <BITBOXICON />, light),
+        Logo: <BITBOXLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEED_WORDS:

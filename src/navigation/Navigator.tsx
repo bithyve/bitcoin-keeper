@@ -38,6 +38,7 @@ import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
+import SetupBitBox from 'src/screens/BitBox/SetupBitBox';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
@@ -174,6 +175,7 @@ function AppStack() {
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
+        <Stack.Screen name="AddBitBox" component={SetupBitBox} />
       </Stack.Navigator>
     </RealmProvider>
   );

@@ -147,6 +147,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
     SignerType.SEEDSIGNER,
+    SignerType.BITBOX,
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
@@ -320,6 +321,7 @@ const styles = StyleSheet.create({
   },
   walletMapWrapper: {
     marginRight: wp(20),
+    alignItems: 'center',
     width: wp(15),
   },
   walletMapLogoWrapper: {
