@@ -5,7 +5,7 @@ import Text from 'src/components/KeeperText';
 import { Pressable } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
-import { updateUaiStack } from 'src/store/sagaActions/uai';
+import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { StyleSheet } from 'react-native';
 import { TransferType } from 'src/common/data/enums/TransferType';
@@ -30,17 +30,6 @@ function UaiDisplay({ uaiStack }) {
           cta: () => {
             setShowModal(false);
             uaiSetActionFalse();
-          },
-        };
-      case uaiType.ALERT:
-        return {
-          modalDetails: {
-            heading: 'Details',
-            btnText: 'Okay',
-          },
-          cta: () => {
-            uaiSetActionFalse();
-            setShowModal(false);
           },
         };
       case uaiType.VAULT_TRANSFER:
@@ -72,6 +61,12 @@ function UaiDisplay({ uaiStack }) {
             navigtaion.navigate('VaultDetails');
           },
         };
+      case uaiType.VAULT_MIGRATION:
+        return {
+          cta: () => {
+            navigtaion.navigate('AddSigningDevice');
+          },
+        };
       case uaiType.DEFAULT:
         return {
           cta: () => {
@@ -90,9 +85,7 @@ function UaiDisplay({ uaiStack }) {
   }, [uaiStack]);
 
   const uaiSetActionFalse = () => {
-    let updatedUai: UAI = JSON.parse(JSON.stringify(uai)); // Need to get a better way
-    updatedUai = { ...updatedUai, isActioned: true };
-    dispatch(updateUaiStack(updatedUai));
+    dispatch(uaiActioned(uai.id));
   };
 
   const pressHandler = () => {
