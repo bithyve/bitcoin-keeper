@@ -15,8 +15,10 @@ import KeyPadView from '../AppNumPad/KeyPadView';
 import Buttons from '../Buttons';
 import { useDispatch } from 'react-redux';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
+  const { showToast } = useToastMessage();
   const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -42,9 +44,9 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs });
       dispatch(updateAppImage(wallet.id));
       close();
-      Alert.alert('Transfer Policy Changed');
+      showToast('Transfer Policy Changed');
     } else {
-      Alert.alert('Transfer Policy cannot be zero');
+      showToast('Transfer Policy cannot be zero');
     }
   };
 
