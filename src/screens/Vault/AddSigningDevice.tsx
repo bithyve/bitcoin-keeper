@@ -215,6 +215,7 @@ function AddSigningDevice() {
   const { subscriptionScheme, plan } = usePlan();
   const currentSignerLimit = subscriptionScheme.n;
   const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const [signersState, setSignersState] = useState(vaultSigners);
   const [vaultCreating, setCreating] = useState(false);
   const navigation = useNavigation();
@@ -250,7 +251,7 @@ function AddSigningDevice() {
   }, [vaultSigners]);
 
   const triggerVaultCreation = () => {
-    setCreating(true);
+    setCreating(!vaultCreating);
   };
   const validateSigners = () =>
     signersState.every((signer) => !signer) ||
@@ -333,7 +334,7 @@ function AddSigningDevice() {
         ) : null}
         <Buttons
           primaryDisable={validateSigners()}
-          primaryLoading={vaultCreating}
+          primaryLoading={relayVaultUpdateLoading}
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
           secondaryText="Cancel"

@@ -73,10 +73,13 @@ import {
   MIGRATE_VAULT,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
-import { updateAppImageWorker } from './bhr';
+import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
 import {
+  relayVaultUpdateFail,
+  relayVaultUpdateSuccess,
   relayWalletUpdateFail,
   relayWalletUpdateSuccess,
+  setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
 
@@ -238,7 +241,6 @@ function* addNewVaultWorker({
       RealmSchema.VaultShell,
       vaultShellInstances.activeShell
     );
-
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
       const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
@@ -269,32 +271,44 @@ function* addNewVaultWorker({
         networkType,
       });
     }
+    yield put(setRelayVaultUpdateLoading(true));
+    const response = isMigrated
+      ? yield call(updateVaultImageWorker, { payload: { vault } })
+      : yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } });
 
-    yield call(dbManager.createObject, RealmSchema.Vault, vault);
-    yield put(uaiChecks([uaiType.SECURE_VAULT]));
+    if (response.updated) {
+      if (isMigrated) {
+        yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, {
+          archived: true,
+        });
+      }
+      yield call(dbManager.createObject, RealmSchema.Vault, vault);
+      yield put(uaiChecks([uaiType.SECURE_VAULT]));
 
-    if (!newVaultShell) {
-      const presentVaultInstances = { ...vaultShell.vaultInstances };
-      presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;
-
-      yield call(dbManager.updateObjectById, RealmSchema.VaultShell, vaultShell.id, {
-        vaultInstances: presentVaultInstances,
-      });
+      if (!newVaultShell) {
+        const presentVaultInstances = { ...vaultShell.vaultInstances };
+        presentVaultInstances[vault.type] = (presentVaultInstances[vault.type] || 0) + 1;
+        yield call(dbManager.updateObjectById, RealmSchema.VaultShell, vaultShell.id, {
+          vaultInstances: presentVaultInstances,
+        });
+        yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
+      } else {
+        vaultShell.vaultInstances[vault.type] = 1;
+        yield call(dbManager.createObject, RealmSchema.VaultShell, vaultShell);
+        yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
+          vaultShellInstances: {
+            shells: [vaultShell.id],
+            activeShell: vaultShell.id,
+          },
+        });
+      }
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
+      yield put(relayVaultUpdateSuccess());
+      return true;
     } else {
-      vaultShell.vaultInstances[vault.type] = 1;
-      yield call(dbManager.createObject, RealmSchema.VaultShell, vaultShell);
-      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-        vaultShellInstances: {
-          shells: [vaultShell.id],
-          activeShell: vaultShell.id,
-        },
-      });
+      yield put(relayVaultUpdateFail(response.error));
+      return false;
     }
-    yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
-    isMigrated
-      ? yield put(updateVaultImage({ archiveVaultId: oldVaultId }))
-      : yield put(updateVaultImage());
   } catch (err) {
     yield put(
       vaultCreated({
@@ -303,6 +317,8 @@ function* addNewVaultWorker({
         error: err.toString(),
       })
     );
+    yield put(relayVaultUpdateFail(err));
+    return false;
   }
 }
 
@@ -361,24 +377,21 @@ export const migrateVaultWatcher = createWatcher(migrateVaultWorker, MIGRATE_VAU
 function* finaliseVaultMigrationWorker({ payload }: { payload: { vaultId: string } }) {
   try {
     const { vaultId } = payload;
-
-    yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, {
-      archived: true,
-    });
     const migratedVault = yield select((state: RootState) => state.vault.intrimVault);
-    yield call(addNewVaultWorker, {
+    const migrated = yield call(addNewVaultWorker, {
       payload: { vault: migratedVault, isMigrated: true, oldVaultId: vaultId },
     });
-
-    yield put(
-      vaultMigrationCompleted({
-        isMigratingNewVault: false,
-        hasMigrationSucceeded: true,
-        hasMigrationFailed: false,
-        error: null,
-      })
-    );
-    yield put(uaiChecks([uaiType.VAULT_MIGRATION]));
+    if (migrated) {
+      yield put(
+        vaultMigrationCompleted({
+          isMigratingNewVault: false,
+          hasMigrationSucceeded: true,
+          hasMigrationFailed: false,
+          error: null,
+        })
+      );
+      yield put(uaiChecks([uaiType.VAULT_MIGRATION]));
+    }
   } catch (error) {
     yield put(
       vaultMigrationCompleted({
@@ -671,7 +684,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
       exceptions?: SignerException;
     };
   } = payload;
-
+  //TO_DO_VAULT_API
   const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
 
   if (!updated) {
@@ -766,7 +779,7 @@ function* updateSignerDetailsWorker({ payload }) {
     key: string;
     value: any;
   } = payload;
-
+  //TO_DO_VAULT_API
   const activeVault: Vault = dbManager
     .getCollection(RealmSchema.Vault)
     .filter((vault: Vault) => !vault.archived)[0];

@@ -16,6 +16,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { Alert } from 'react-native';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
 
 function VaultMigrationController({ vaultCreating, signersState, planStatus }: any) {
   const navigation = useNavigation();
@@ -29,6 +30,10 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
     unconfirmed: 0,
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
+
   const [recipients, setRecepients] = useState<any[]>();
 
   useEffect(() => {
@@ -36,6 +41,27 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
       initiateNewVault();
     }
   }, [vaultCreating]);
+
+  useEffect(() => {
+    if (relayVaultUpdate) {
+      console.log('Successs!');
+      dispatch(resetRealyVaultState());
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+    }
+
+    if (relayVaultError) {
+      Alert.alert('Vault Creation Failed', realyVaultErrorMessage, [
+        { text: 'OK', onPress: () => dispatch(resetRealyVaultState()) },
+      ]);
+    }
+  }, [relayVaultUpdate, relayVaultError]);
 
   useEffect(() => {
     if (temporaryVault) {
@@ -101,14 +127,6 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
     const netBanalce = confirmed + unconfirmed;
     if (netBanalce === 0) {
       dispatch(finaliseVaultMigration(activeVault.id));
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'NewHome' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
     } else {
       initiateSweep();
     }
@@ -159,17 +177,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
       };
       dispatch(migrateVault(vaultInfo, planStatus));
     } else {
-      const freshVault = createVault(signersState, subscriptionScheme);
-      if (freshVault && !activeVault) {
-        const navigationState = {
-          index: 1,
-          routes: [
-            { name: 'NewHome' },
-            { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
-          ],
-        };
-        navigation.dispatch(CommonActions.reset(navigationState));
-      }
+      createVault(signersState, subscriptionScheme);
     }
   };
   return null;
