@@ -21,6 +21,7 @@ import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 function Tile({ title, subTitle, onPress, Icon, loading = false }) {
@@ -161,7 +162,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }
 
   const getSignUpModalContent = () => {
-    if (config.NETWORK_TYPE === NetworkType.MAINNET) {
+    if (!isTestnet() && false) {
       return {
         title: 'Multisig security for your sats',
         subTitle: 'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
@@ -179,9 +180,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
         loader: require('src/assets/video/test-net.gif'),
         height: 200
       },
-      message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+      message: 'This feature is *only* for the beta app. The developers will get your message along with other information from the app.'
     }
-
   }
 
   function SignUpModalContent() {

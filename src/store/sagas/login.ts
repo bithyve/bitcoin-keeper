@@ -15,6 +15,7 @@ import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import ElectrumClient from 'src/core/services/electrum/client';
 import Relay from 'src/core/services/operations/Relay';
+import semver from 'semver';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import * as SecureStore from '../../storage/secure-store';
 
@@ -141,7 +142,7 @@ function* credentialsAuthWorker({ payload }) {
 
     const previousVersion = yield select((state) => state.storage.appVersion);
     const newVersion = DeviceInfo.getVersion();
-    if (previousVersion !== newVersion)
+    if (semver.lt(previousVersion, newVersion))
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
   } catch (err) {
     if (payload.reLogin) {
