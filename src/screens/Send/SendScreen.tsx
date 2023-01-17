@@ -8,7 +8,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Image,
 } from 'react-native';
 // libraries
 import { Box, View } from 'native-base';
@@ -16,6 +15,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Permissions from 'react-native-permissions';
+// import LocalQRCode from '@remobile/react-native-qrcode-local-image'
+import { QRreader } from "react-native-qr-decode-image-camera";
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
@@ -55,7 +56,6 @@ function SendScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
-  const [image, setImage] = useState(null);
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
   const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
@@ -110,7 +110,13 @@ function SendScreen({ route }) {
         showToast(response.errorMessage);
         return;
       } else {
-        setImage(response.assets[0].uri)
+        QRreader(response.assets[0].uri)
+          .then(data => {
+            handleTextChange(data)
+          })
+          .catch(err => {
+            showToast(err)
+          });
       }
     });
   };
