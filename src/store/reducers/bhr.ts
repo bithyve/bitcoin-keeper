@@ -28,6 +28,11 @@ const initialState: {
   relayWalletUpdate: boolean;
   relayWalletError: boolean;
   realyWalletErrorMessage: string;
+
+  relayVaultUpdateLoading: boolean;
+  relayVaultUpdate: boolean;
+  relayVaultError: boolean;
+  realyVaultErrorMessage: string;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -52,6 +57,10 @@ const initialState: {
   relayWalletUpdate: false,
   relayWalletError: false,
   realyWalletErrorMessage: null,
+  relayVaultUpdateLoading: false,
+  relayVaultUpdate: false,
+  relayVaultError: false,
+  realyVaultErrorMessage: null,
 };
 
 const bhrSlice = createSlice({
@@ -139,6 +148,25 @@ const bhrSlice = createSlice({
       state.relayWalletUpdate = false;
       state.relayWalletUpdateLoading = false;
     },
+
+    setRelayVaultUpdateLoading: (state, action: PayloadAction<boolean>) => {
+      state.relayVaultUpdateLoading = action.payload;
+    },
+    relayVaultUpdateSuccess: (state) => {
+      state.relayVaultUpdate = true;
+      state.relayVaultUpdateLoading = false;
+    },
+    relayVaultUpdateFail: (state, action: PayloadAction<string>) => {
+      state.relayVaultError = true;
+      state.realyVaultErrorMessage = action.payload;
+      state.relayVaultUpdateLoading = false;
+    },
+    resetRealyVaultState: (state) => {
+      state.relayVaultError = false;
+      state.relayVaultUpdate = false;
+      state.relayVaultUpdateLoading = false;
+      state.realyVaultErrorMessage = null;
+    },
   },
 });
 
@@ -161,10 +189,16 @@ export const {
   setBackupWarning,
   setSigningDevices,
   setVaultMetaData,
+
   setRelayWalletUpdateLoading,
   relayWalletUpdateSuccess,
   relayWalletUpdateFail,
   resetRealyWalletState,
+
+  setRelayVaultUpdateLoading,
+  relayVaultUpdateSuccess,
+  relayVaultUpdateFail,
+  resetRealyVaultState,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -190,6 +224,10 @@ const bhrPersistConfig = {
     'relayWalletUpdate',
     'relayWalletError',
     'realyWalletErrorMessage',
+    'relayVaultUpdateLoading',
+    'relayVaultUpdate',
+    'relayVaultError',
+    'realyVaultErrorMessage',
   ],
 };
 
