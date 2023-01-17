@@ -177,7 +177,9 @@ function* uaiChecksWorker({ payload }) {
         yield put(uaiActioned(migrationUai.id, false));
       }
     } else {
-      yield put(uaiActioned(migrationUai.id));
+      if (migrationUai) {
+        yield put(uaiActioned(migrationUai.id));
+      }
     }
   }
 }

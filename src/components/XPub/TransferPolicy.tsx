@@ -52,7 +52,14 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
   const presshandler = () => {
     if (Number(policyText) > 0) {
       specs.transferPolicy = Number(policyText);
-      dispatch(updateWalletProperty({ wallet, updateProps: specs }));
+      dispatch(
+        updateWalletProperty({
+          wallet,
+          updateProps: {
+            specs,
+          },
+        })
+      );
     } else {
       Alert.alert('Transfer Policy cannot be zero');
     }
