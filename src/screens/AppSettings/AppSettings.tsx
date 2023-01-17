@@ -192,7 +192,7 @@ function AppSettings({ navigation }) {
             title="App Backup"
             subTitle={
               backupMethod === null
-                ? 'Recovery Phrases health check is due'
+                ? 'Backup Phrases health check is due'
                 : backupWalletStrings[backupHistory[0].title]
             }
             onPress={() => {

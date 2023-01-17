@@ -3,9 +3,12 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
-import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { useAppSelector } from 'src/store/hooks';
 
 import IconRecieve from 'src/assets/images/icon_received.svg';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
@@ -15,7 +18,7 @@ import Text from 'src/components/KeeperText';
 
 function TransactionElement({
   transaction,
-  onPress = () => {},
+  onPress = () => { },
 }: {
   transaction: Transaction;
   onPress?: () => void;
@@ -23,6 +26,10 @@ function TransactionElement({
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date).format('DD MMM YY  •  hh:mma');
   console.log({ status: transaction.status, confirmations: transaction.confirmations });
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+
   const { status } = transaction;
   return (
     <TouchableOpacity onPress={onPress}>
@@ -49,12 +56,12 @@ function TransactionElement({
             </Box>
           ) : null}
           <Box>
-            <BtcBlack />
+            {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
           </Box>
           <Text style={styles.amountText}>
-            {getAmount(transaction.amount)}
+            {getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getUnit()}
+              {getUnit(currentCurrency)}
             </Text>
           </Text>
         </Box>

@@ -2,7 +2,7 @@
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
@@ -42,6 +42,8 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -52,6 +54,9 @@ function WalletDetails({ route }) {
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const vaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
   const vaultExsist = Boolean(vaults.length);
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const introModal = useAppSelector((state) => state.wallet.introModal);
@@ -134,7 +139,7 @@ function WalletDetails({ route }) {
                     marginRight: 3,
                   }}
                 >
-                  <BtcWallet />
+                  {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                 </Box>
                 <Text
                   color="light.white"
@@ -144,9 +149,9 @@ function WalletDetails({ route }) {
                     lineHeight: hp(34),
                   }}
                 >
-                  {getAmount(walletBalance)}
+                  {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency)}
                   <Text color="light.textColor" style={styles.balanceUnit}>
-                    {getUnit()}
+                    {getUnit(currentCurrency)}
                   </Text>
                 </Text>
               </Box>
@@ -221,12 +226,13 @@ function WalletDetails({ route }) {
 
         <Box style={styles.headerBalanceContainer}>
           <Box style={styles.headerBTCIcon}>
-            <BTC />
+            {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTC)}
+
           </Box>
           <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
-            {getAmount(netBalance)}
+            {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
             <Text color="light.textColorDark" style={styles.balanceUnit}>
-              {getUnit()}
+              {getUnit(currentCurrency)}
             </Text>
           </Text>
         </Box>

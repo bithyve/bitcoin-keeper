@@ -13,14 +13,20 @@ import openLink from 'src/utils/OpenLink';
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
 import IconSend from 'src/assets/images/icon_send_lg.svg';
 import Link from 'src/assets/images/link.svg';
-import { getAmount, getUnit } from 'src/common/constants/Bitcoin';
+import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { useAppSelector } from 'src/store/hooks';
 
 function TransactionDetails({ route }) {
   const navigation = useNavigation();
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
   const { transaction } = route.params;
@@ -74,8 +80,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${transaction.txid}`
     );
   };
@@ -103,9 +108,9 @@ function TransactionDetails({ route }) {
           </Box>
           <Box>
             <Text style={styles.amountText}>
-              {`${getAmount(transaction.amount)} `}
+              {`${getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency)} `}
               <Text color="light.dateText" style={styles.unitText}>
-                {getUnit()}
+                {getUnit(currentCurrency)}
               </Text>
             </Text>
           </Box>
