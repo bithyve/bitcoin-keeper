@@ -9,13 +9,13 @@ import Text from 'src/components/KeeperText';
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => {},
-  secondaryCallback = () => {},
+  primaryCallback = () => { },
+  secondaryCallback = () => { },
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
   paddingHorizontal = wp(40),
-  activeOpacity = 0,
+  activeOpacity = 0.5,
 }) {
   const getPrimaryButton = () => {
     if (primaryLoading) {
