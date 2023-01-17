@@ -119,7 +119,9 @@ function AddSendAmount({ route }) {
         }}
       />
 
-      <Box marginX={3}>
+      <Box style={{
+        paddingHorizontal: 10
+      }}>
         {error && <Text
           color='light.indicator'
           style={{
@@ -134,7 +136,7 @@ function AddSendAmount({ route }) {
         <Box backgroundColor="light.primaryBackground"
           borderColor={error ? 'light.indicator' : 'transparent'}
           style={styles.inputWrapper}>
-          <Box flexDirection="row" alignItems="center">
+          <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
             <Box marginRight={2}>
               <BitcoinInput />
             </Box>
@@ -150,7 +152,7 @@ function AddSendAmount({ route }) {
               placeholderTextColor="light.greenText"
               color="light.greenText"
               opacity={1}
-              width="68%"
+              width="90%"
               fontSize={14}
               fontWeight={300}
               letterSpacing={1.04}
