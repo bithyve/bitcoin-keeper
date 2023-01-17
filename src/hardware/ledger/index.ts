@@ -56,14 +56,14 @@ const getPSBTv2Fromv0 = (psbtv0: bitcoinJS.Psbt) => {
   psbtv2.deserialize(psbtv0.toBuffer());
   psbtv2.setGlobalPsbtVersion(2);
   psbtv2.setGlobalTxVersion(psbtv0.version);
-  psbtv0.txInputs.forEach((input) => {
-    psbtv2.setInputPreviousTxId(input.index, input.hash);
-    psbtv2.setInputSequence(input.index, input.sequence);
-    psbtv2.setInputOutputIndex(input.index, input.index);
+  psbtv0.txInputs.forEach((input, index) => {
+    psbtv2.setInputPreviousTxId(index, input.hash);
+    psbtv2.setInputSequence(index, input.sequence);
+    psbtv2.setInputOutputIndex(index, input.index);
   });
-  psbtv0.txOutputs.forEach((o, i) => {
-    psbtv2.setOutputAmount(i, o.value);
-    psbtv2.setOutputScript(i, o.script);
+  psbtv0.txOutputs.forEach((output, i) => {
+    psbtv2.setOutputAmount(i, output.value);
+    psbtv2.setOutputScript(i, output.script);
   });
   return psbtv2;
 };
