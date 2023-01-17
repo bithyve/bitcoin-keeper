@@ -84,13 +84,7 @@ function WalletSettings({ route }) {
   function WalletCard({ walletName, walletBalance, walletDescription }) {
     return (
       <Box
-        backgroundColor={{
-          linearGradient: {
-            colors: ['light.gradientStart', 'light.gradientEnd'],
-            start: [0, 0],
-            end: [1, 1],
-          },
-        }}
+        variant="linearGradient"
         style={styles.walletCardContainer}
       >
         <Box style={styles.walletCard}>
@@ -324,6 +318,7 @@ function WalletSettings({ route }) {
               subText="Cosigner Details"
               noteSubText="The cosigner details are only for the selected wallet and not other wallets in the app"
               copyable={false}
+              close={() => setCosignerVisible(false)}
             />
           )}
         />
