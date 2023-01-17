@@ -2,7 +2,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack } from 'native-base';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import moment from 'moment';
@@ -89,7 +89,7 @@ export default DescriptionModal;
 const styles = ScaledSheet.create({
   descriptionEdit: {
     height: 45,
-    backgroundColor: '#FDF7F0',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
     alignItems: 'center',
     paddingHorizontal: 10,
     marginVertical: 10,
@@ -98,7 +98,7 @@ const styles = ScaledSheet.create({
     fontSize: 13,
     fontFamily: Fonts.RobotoCondensedBold,
     letterSpacing: 1,
-    opacity: 0.5
+    opacity: 0.5,
   },
   descriptionContainer: {
     width: windowWidth * 0.8,

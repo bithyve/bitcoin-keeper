@@ -8,6 +8,7 @@ import {
 } from 'react-native-responsive-screen';
 
 import DotView from 'src/components/DotView';
+import Colors from 'src/theme/Colors';
 
 export interface Props {
   passCode?: string;
@@ -30,7 +31,7 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
   }, [passCode]);
 
   const getBackgroundColor = () =>
-    backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)';
+    backgroundColor ? Colors.White : 'rgba(253,247,240, 0.2)';
 
   const getTextColor = () => (textColor ? 'light.textBlack' : 'light.white');
 
@@ -54,11 +55,14 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
   };
 
   return (
-    <Box alignSelf="baseline">
+    <Box alignSelf="baseline"
+      style={{
+        marginLeft: -25
+      }}>
       <Box flexDirection="row" mt={hp('2%')} marginBottom={hp('2.5%')} width="auto">
         <Box
-          height={wp('9%')}
-          width={wp('9%')}
+          height={wp('8%')}
+          width={wp('8%')}
           borderRadius={7}
           ml={4}
           alignItems="center"
@@ -68,8 +72,8 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
           <Box>{getPin(1)}</Box>
         </Box>
         <Box
-          height={wp('9%')}
-          width={wp('9%')}
+          height={wp('8%')}
+          width={wp('8%')}
           borderRadius={7}
           ml={4}
           alignItems="center"
@@ -79,8 +83,8 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
           <Box>{getPin(2)}</Box>
         </Box>
         <Box
-          height={wp('9%')}
-          width={wp('9%')}
+          height={wp('8%')}
+          width={wp('8%')}
           borderRadius={7}
           ml={4}
           alignItems="center"
@@ -90,8 +94,8 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
           <Box>{getPin(3)}</Box>
         </Box>
         <Box
-          height={wp('9%')}
-          width={wp('9%')}
+          height={wp('8%')}
+          width={wp('8%')}
           borderRadius={7}
           ml={4}
           alignItems="center"
@@ -103,8 +107,8 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
         {length === 6 && (
           <>
             <Box
-              height={wp('9%')}
-              width={wp('9%')}
+              height={wp('8%')}
+              width={wp('8%')}
               borderRadius={7}
               ml={4}
               alignItems="center"
@@ -114,8 +118,8 @@ function CVVInputsView({ passCode, passcodeFlag, backgroundColor, textColor, len
               <Box>{getPin(5)}</Box>
             </Box>
             <Box
-              height={wp('9%')}
-              width={wp('9%')}
+              height={wp('8%')}
+              width={wp('8%')}
               borderRadius={7}
               ml={4}
               alignItems="center"

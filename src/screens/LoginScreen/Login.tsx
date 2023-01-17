@@ -290,18 +290,20 @@ function LoginScreen({ navigation, route }) {
                 {errMessage}
               </Text>
             )}
-            <HStack justifyContent="space-between" mr={10} paddingTop="2">
-              <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
-                Use bitcoin testnet
-              </Text>
-              <Switch
-                defaultIsChecked
-                disabled
-                trackColor={{ true: '#FFFA' }}
-                thumbColor="#358475"
-                onChange={() => { }}
-              />
-            </HStack>
+            {isTestnet() &&
+              <HStack justifyContent="space-between" mr={10} paddingTop="2">
+                <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
+                  Use bitcoin testnet
+                </Text>
+                <Switch
+                  defaultIsChecked
+                  disabled
+                  trackColor={{ true: '#FFFA' }}
+                  thumbColor="#358475"
+                  onChange={() => { }}
+                />
+              </HStack>
+            }
             <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length === 4 && (
                 <Box>
