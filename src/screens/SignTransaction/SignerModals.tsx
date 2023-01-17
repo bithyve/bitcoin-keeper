@@ -45,9 +45,6 @@ function LedgerSigningModal({
   setVisible;
   signer: VaultSigner;
 }) {
-  if (!visible) {
-    return null;
-  }
   const dispatch = useDispatch();
   const { activeVault } = useVault();
   const { showToast } = useToastMessage();
@@ -55,10 +52,9 @@ function LedgerSigningModal({
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
+  const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.find(
     (envelop) => signer.signerId === envelop.signerId
-  )[0];
-
+  );
   const callback = async (transport) => {
     try {
       const { signedSerializedPSBT } = await signWithLedger(
@@ -79,6 +75,10 @@ function LedgerSigningModal({
       showToast(error.toString());
     }
   };
+
+  if (!visible) {
+    return null;
+  }
 
   return (
     <LedgerScanningModal
