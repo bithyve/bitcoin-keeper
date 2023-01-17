@@ -5,9 +5,15 @@ import Text from 'src/components/KeeperText';
 
 const useToastMessage = () => {
   const Toast = useToast();
+  const id = 'keeper-toast';
 
-  function showToast(title, image?, duration = 1000, error = false, width = '100%',
-    ToastBody =
+  function showToast(
+    title,
+    image?,
+    duration = 1000,
+    error = false,
+    width = '100%',
+    ToastBody = (
       <Text
         color={error ? 'error.200' : null}
         style={{ marginLeft: image ? 5 : 0, width }}
@@ -15,17 +21,15 @@ const useToastMessage = () => {
       >
         {title}
       </Text>
+    )
   ) {
-
-    Toast.show({
-      render: () =>
-        <HexaToastMessages
-          Image={image}
-          error={error}
-          ToastBody={ToastBody}
-        />,
-      duration,
-    });
+    if (!Toast.isActive(id)) {
+      Toast.show({
+        render: () => <HexaToastMessages Image={image} error={error} ToastBody={ToastBody} />,
+        duration,
+        id,
+      });
+    }
   }
 
   return { showToast };

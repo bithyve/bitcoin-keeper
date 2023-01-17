@@ -30,7 +30,6 @@ function ExportSeedScreen({ route, navigation }) {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
 
-
   useEffect(() => {
     if (backupMethod !== null) {
       setBackupSuccessModal(true);
@@ -75,7 +74,7 @@ function ExportSeedScreen({ route, navigation }) {
   );
 
   return (
-    <Box style={styles.container} background="light.secondaryBackground">
+    <Box style={styles.container} background="light.mainBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
         title={seedText.recoveryPhrase}
