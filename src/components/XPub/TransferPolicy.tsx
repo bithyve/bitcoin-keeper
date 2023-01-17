@@ -20,7 +20,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
   const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const [policyText, setPolicyText] = useState(specs.transferPolicy);
+  const [policyText, setPolicyText] = useState(specs.transferPolicy.toString());
   const dispatch = useDispatch();
   const onPressNumber = (digit) => {
     let temp = policyText;

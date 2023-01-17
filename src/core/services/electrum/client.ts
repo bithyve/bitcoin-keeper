@@ -86,6 +86,17 @@ export default class ElectrumClient {
     return await ElectrumClient.connect();
   }
 
+  public static forceDisconnect() {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
+    ELECTRUM_CLIENT.isClientConnected = false;
+  }
+
+  public static async serverFeatures() {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    return  await ELECTRUM_CLIENT.electrumClient.server_features();
+  }
+
   public static getActivePrivateNodeToUse(peers: NodeDetail[]) {
     const node = peers?.filter((node) => node.isConnected)[0];
     let peer = null;
@@ -100,8 +111,10 @@ export default class ElectrumClient {
   }
 
   public static async ping() {
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+
     try {
-      await ELECTRUM_CLIENT.electrumClient?.server_ping();
+      await ELECTRUM_CLIENT.electrumClient.server_ping();
     } catch (_) {
       return false;
     }

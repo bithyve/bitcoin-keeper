@@ -85,13 +85,13 @@ export function* getMessageWorker() {
 
   for (let i = 0; i < storedNotifications.length; i++) {
     yield put(
-      addToUaiStack(
-        storedNotifications[i].title,
-        false,
-        storedNotifications[i].type,
-        20,
-        storedNotifications[i].additionalInfo.notes
-      )
+      addToUaiStack({
+        title: storedNotifications[i].title,
+        isDisplay: true,
+        uaiType: storedNotifications[i].type,
+        prirority: 20,
+        displayText: storedNotifications[i].additionalInfo.notes,
+      })
     );
   }
 

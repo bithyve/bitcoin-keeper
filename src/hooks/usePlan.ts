@@ -7,7 +7,7 @@ import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 
-const SUBSCRIPTION_SCHEME_MAP = {
+export const SUBSCRIPTION_SCHEME_MAP = {
   [SubscriptionTier.L1.toUpperCase()]: {
     m: 1,
     n: 1,

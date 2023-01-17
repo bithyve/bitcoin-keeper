@@ -14,6 +14,7 @@ import storageReducer from './reducers/storage';
 import vaultReducer from './reducers/vaults';
 import walletReducer from './reducers/wallets';
 import networkReducer from './reducers/network';
+import uaiReducer from './reducers/uai';
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 
 const appReducer = combineReducers({
@@ -26,6 +27,7 @@ const appReducer = combineReducers({
   bhr: bhrReducer,
   vault: vaultReducer,
   network: networkReducer,
+  uai: uaiReducer,
 });
 
 const rootReducer = (state, action) => {

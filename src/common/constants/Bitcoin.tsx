@@ -5,6 +5,11 @@ import BTC from 'src/assets/images/btc_white.svg';
 import { HStack } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
+import CurrencyKind from '../data/enums/CurrencyKind';
+// asserts
+import DolarWhite from 'src/assets/images/icon_dollar_white.svg'
+import DolarGreen from 'src/assets/images/icon_dollar_green.svg'
+import Dolar from 'src/assets/images/icon_dollar.svg'
 
 export const SATOSHIS_IN_BTC = 1e8;
 
@@ -12,36 +17,57 @@ export const getAmount = (amountInSats: number) => {
   if (config.NETWORK_TYPE === NetworkType.MAINNET) {
     return (amountInSats / SATOSHIS_IN_BTC).toFixed(4);
   }
-  return amountInSats;
+  return numberWithCommas(amountInSats);
 };
 
-export const getNetworkAmount = (amountInSats: number, textStyles = [{}], scale = 1) => {
+const numberWithCommas = (x) => {
+  return x ? x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 0
+}
+
+export const getAmt = (amountInSats: number, exchangeRates, currencyCode, currentCurrency) => {
+  if (currentCurrency === CurrencyKind.BITCOIN) {
+    return getAmount(amountInSats)
+  } else {
+    if (exchangeRates && exchangeRates[currencyCode]) {
+
+      return (exchangeRates[currencyCode].last / SATOSHIS_IN_BTC * amountInSats).toFixed(2)
+    } else {
+      return numberWithCommas(amountInSats)
+    }
+  }
+}
+
+export const getNetworkAmount = (amountInSats: number, textStyles = [{}], scale = 1,
+  exchangeRates, currencyCode, currentCurrency) => {
   let text: string;
   if (isTestnet()) {
     text = `${amountInSats}`;
   } else {
     text = (amountInSats / SATOSHIS_IN_BTC).toFixed(4);
   }
+  text = getAmt(amountInSats, exchangeRates, currencyCode, currentCurrency)
   return (
     <HStack alignItems="center">
       {!isTestnet() ? (
         <Scale scale={scale}>
-          <BTC />
+          {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
         </Scale>
       ) : null}
       <Text color="light.white" style={textStyles}>
         {text}
-        <Text style={{ fontSize: 12 }}> sats</Text>
+        <Text style={{ fontSize: 12 }}> {getUnit(currentCurrency)}</Text>
       </Text>
     </HStack>
   );
 };
 
-export const getUnit = () => {
-  if (config.NETWORK_TYPE === NetworkType.MAINNET) {
-    return '';
+export const getUnit = (currentCurrency) => {
+  const isBitcoin = currentCurrency === CurrencyKind.BITCOIN
+
+  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET) {
+    return 'sats'
   }
-  return 'sats';
+  return '';
 };
 
 export const isTestnet = () => {
@@ -50,3 +76,94 @@ export const isTestnet = () => {
   }
   return false;
 };
+
+export const getCurrencyImageByRegion = (
+  currencyCode: string,
+  type: 'light' | 'green' | 'dark',
+  currentCurrency: CurrencyKind,
+  BTCIcon: any
+) => {
+  const dollarCurrency = ['USD', 'AUD', 'BBD', 'BSD', 'BZD', 'BMD', 'BND', 'KHR', 'CAD', 'KYD', 'XCD', 'FJD', 'GYD', 'HKD', 'JMD', 'LRD', 'NAD', 'NZD', 'SGD', 'SBD', 'SRD', 'TWD', 'USH', 'TTD', 'TVD', 'ZWD', 'MXN', 'COP', 'CLP', 'UYU', 'DOP', 'ARS']
+  // These currencies also use the $ symbol although the currency is Peso 'MXN', 'COP', 'CLP', 'UYU', 'DOP', 'ARS'
+
+  const poundCurrency = ['EGP', 'FKP', 'GIP', 'GGP', 'IMP', 'JEP', 'SHP', 'SYP', 'GBP']
+
+  if (currentCurrency !== CurrencyKind.BITCOIN && dollarCurrency.includes(currencyCode)) {
+    if (type == 'light') {
+      return <DolarWhite />
+    } else if (type == 'green') {
+      return <DolarGreen />
+    } else if (type == 'dark') {
+      return <Dolar />
+    }
+  } else {
+    return <BTCIcon />
+  }
+
+  // using Dolar for now
+
+  // if (poundCurrency.includes(currencyCode)) {
+  //   if (type == 'light') {
+  //     return require('../../assets/images/currencySymbols/icon_pound_white.png')
+  //   } else if (type == 'dark') {
+  //     return require('../../assets/images/currencySymbols/icon_pound_dark.png')
+  //   } else if (type == 'gray') {
+  //     return require('../../assets/images/currencySymbols/icon_pound_gray.png')
+  //   } else if (type == 'light_blue') {
+  //     return require('../../assets/images/currencySymbols/icon_pound_lightblue.png')
+  //   }
+  //   return require('../../assets/images/currencySymbols/icon_pound_white.png')
+  // }
+
+  // if (currencyCode == 'DKK' || currencyCode == 'ISK' || currencyCode == 'SEK') {
+  //   if (type == 'light') {
+  //     return require('../../assets/images/currencySymbols/icon_kr_white.png')
+  //   } else if (type == 'dark') {
+  //     return require('../../assets/images/currencySymbols/icon_kr_dark.png')
+  //   } else if (type == 'gray') {
+  //     return require('../../assets/images/currencySymbols/icon_kr_gray.png')
+  //   } else if (type == 'light_blue') {
+  //     return require('../../assets/images/currencySymbols/icon_kr_lightblue.png')
+  //   }
+  //   return require('../../assets/images/currencySymbols/icon_kr_gray.png')
+  // }
+
+  // if (currencyCode == 'PLN') {
+  //   if (type == 'light') {
+  //     return require('../../assets/images/currencySymbols/icon_pln_white.png')
+  //   } else if (type == 'dark') {
+  //     return require('../../assets/images/currencySymbols/icon_pln_dark.png')
+  //   } else if (type == 'gray') {
+  //     return require('../../assets/images/currencySymbols/icon_pln_gray.png')
+  //   } else if (type == 'light_blue') {
+  //     return require('../../assets/images/currencySymbols/icon_pln_lightblue.png')
+  //   }
+  //   return require('../../assets/images/currencySymbols/icon_pln_gray.png')
+  // }
+
+  // if (currencyCode == 'THB') {
+  //   if (type == 'light') {
+  //     return require('../../assets/images/currencySymbols/icon_thb_white.png')
+  //   } else if (type == 'dark') {
+  //     return require('../../assets/images/currencySymbols/icon_thb_dark.png')
+  //   } else if (type == 'gray') {
+  //     return require('../../assets/images/currencySymbols/icon_thb_gray.png')
+  //   } else if (type == 'light_blue') {
+  //     return require('../../assets/images/currencySymbols/icon_thb_lightblue.png')
+  //   }
+  //   return require('../../assets/images/currencySymbols/icon_thb_gray.png')
+  // }
+
+  // if (currencyCode == 'CHF') {
+  //   if (type == 'light') {
+  //     return require('../../assets/images/currencySymbols/icon_chf_white.png')
+  //   } else if (type == 'dark') {
+  //     return require('../../assets/images/currencySymbols/icon_chf_dark.png')
+  //   } else if (type == 'gray') {
+  //     return require('../../assets/images/currencySymbols/icon_chf_gray.png')
+  //   } else if (type == 'light_blue') {
+  //     return require('../../assets/images/currencySymbols/icon_chf_lightblue.png')
+  //   }
+  //   return require('../../assets/images/currencySymbols/icon_chf_gray.png')
+  // }
+}

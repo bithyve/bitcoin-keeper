@@ -14,6 +14,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import ElectrumClient from 'src/core/services/electrum/client';
+import semver from 'semver';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -91,6 +93,9 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
 
+    // uaiChecks
+    yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT]));
+
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
 
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
@@ -134,7 +139,7 @@ function* credentialsAuthWorker({ payload }) {
 
     const previousVersion = yield select((state) => state.storage.appVersion);
     const newVersion = DeviceInfo.getVersion();
-    if (previousVersion !== newVersion)
+    if (semver.lt(previousVersion, newVersion))
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
   } catch (err) {
     if (payload.reLogin) {
@@ -159,10 +164,15 @@ function* credentialsAuthWorker({ payload }) {
     // fetch fee and exchange rates
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
-
     yield put(setWarning(history));
     yield put(getMessages());
-    yield put(uaiChecks());
+    yield put(
+      uaiChecks([
+        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+        uaiType.SECURE_VAULT,
+        uaiType.VAULT_MIGRATION,
+      ])
+    );
   }
   yield put(credsAuthenticated(true));
 }
