@@ -168,6 +168,7 @@ function SendConfirmation({ route }) {
           }}
           primaryText="Transfer Now"
           primaryCallback={() => onTransferNow()}
+          paddingHorizontal={wp(20)}
         />
       </>
     );

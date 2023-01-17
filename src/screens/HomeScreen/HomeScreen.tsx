@@ -25,7 +25,9 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { getAmount, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
+import { getAmt, getUnit, isTestnet, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 // asserts (svgs, pngs)
 import Arrow from 'src/assets/images/arrow.svg';
 import BTC from 'src/assets/images/btc.svg';
@@ -120,6 +122,9 @@ function LinkedWallets(props) {
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
 
   return (
     <Pressable
@@ -175,7 +180,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                <BTC />
+                {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
               </Box>
               <Text
                 color="light.white"
@@ -184,7 +189,7 @@ function LinkedWallets(props) {
                   letterSpacing: 0.6,
                 }}
               >
-                {getAmount(netBalance)}
+                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
               </Text>
               <Text
                 color="light.white"
@@ -194,7 +199,7 @@ function LinkedWallets(props) {
                   fontSize: hp(12),
                 }}
               >
-                {getUnit()}
+                {getUnit(currentCurrency)}
               </Text>
             </Box>
           ) : (
@@ -204,7 +209,7 @@ function LinkedWallets(props) {
                 alignItems: 'center',
               }}
             >
-              <BTC />
+              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
               &nbsp;
               <Hidden />
             </Box>
@@ -220,6 +225,9 @@ function VaultStatus(props) {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
@@ -331,15 +339,15 @@ function VaultStatus(props) {
             </Box>
 
             <HStack style={styles.vaultBalanceContainer}>
-              <BTC style={{ height: '20%' }} />
+              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
               <Pressable>
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
                     <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getAmount(vaultBalance)}
+                      {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency)}
                     </Text>
                     <Text color="light.white" style={styles.vaultBalanceUnit}>
-                      {getUnit()}
+                      {getUnit(currentCurrency)}
                     </Text>
                   </Box>
                 ) : (
@@ -483,7 +491,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

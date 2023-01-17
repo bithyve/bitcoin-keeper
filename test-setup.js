@@ -5,6 +5,9 @@ import {
 } from "react-native";
 import mockRNDeviceInfo from 'react-native-device-info/jest/react-native-device-info-mock';
 
+global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
+
 jest.mock('react-native-device-info', () => mockRNDeviceInfo);
 
 jest.mock("react-native/Libraries/Utilities/Dimensions");
@@ -25,7 +28,7 @@ jest.mock('react-native-reanimated', () => {
     const Reanimated = require('react-native-reanimated/mock');
     // The mock for `call` immediately calls the callback which is incorrect
     // So we override it with a no-op
-    Reanimated.default.call = () => {};
+    Reanimated.default.call = () => { };
     return Reanimated;
 });
 

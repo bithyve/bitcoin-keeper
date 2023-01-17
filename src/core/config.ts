@@ -8,7 +8,6 @@ import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
 import _ from 'lodash';
 import config from 'react-native-config';
-import PersonalNode from '../common/data/models/PersonalNode';
 import { NetworkType, WalletType } from './wallets/enums';
 
 export enum APP_STAGE {
@@ -24,8 +23,6 @@ export enum BITCOIN_NETWORK {
 // defaults to development environment
 const DEFAULT_CONFIG = {
   BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
-  TESTNET_WRAPPER: 'https://test-wrapper.bithyve.com',
-  MAINNET_WRAPPER: 'https://api.bithyve.com',
   RELAY: 'https://bithyve-dev-relay.el.r.appspot.com/',
   SIGNING_SERVER: 'https://dev-sign.bithyve.com/',
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
@@ -36,14 +33,6 @@ const DEFAULT_CONFIG = {
 };
 
 class Configuration {
-  public TESTNET_WRAPPER: string = config.TESTNET_WRAPPER?.trim()
-    ? config.TESTNET_WRAPPER.trim()
-    : DEFAULT_CONFIG.TESTNET_WRAPPER;
-
-  public MAINNET_WRAPPER: string = config.MAINNET_WRAPPER?.trim()
-    ? config.MAINNET_WRAPPER.trim()
-    : DEFAULT_CONFIG.MAINNET_WRAPPER;
-
   public RELAY = config.RELAY?.trim() ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
 
   public SIGNING_SERVER = config.SIGNING_SERVER?.trim()
@@ -124,68 +113,6 @@ class Configuration {
     this.NETWORK_TYPE =
       this.ENVIRONMENT === APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
   }
-
-  public BITHYVE_ESPLORA_API_ENDPOINTS = {
-    TESTNET: {
-      MULTIBALANCE: `${this.TESTNET_WRAPPER}/balances`,
-      MULTIUTXO: `${this.TESTNET_WRAPPER}/utxos`,
-      MULTITXN: `${this.TESTNET_WRAPPER}/data`,
-      MULTIBALANCETXN: `${this.TESTNET_WRAPPER}/baltxs`,
-      NEWMULTIUTXOTXN: `${this.TESTNET_WRAPPER}/nutxotxs`,
-      TXN_FEE: `${this.TESTNET_WRAPPER}/fee-estimates`,
-      TXNDETAILS: `${this.TESTNET_WRAPPER}/tx`,
-      BROADCAST_TX: `${this.TESTNET_WRAPPER}/tx`,
-    },
-    MAINNET: {
-      MULTIBALANCE: `${this.MAINNET_WRAPPER}/balances`,
-      MULTIUTXO: `${this.MAINNET_WRAPPER}/utxos`,
-      MULTITXN: `${this.MAINNET_WRAPPER}/data`,
-      MULTIBALANCETXN: `${this.MAINNET_WRAPPER}/baltxs`,
-      NEWMULTIUTXOTXN: `${this.MAINNET_WRAPPER}/nutxotxs`,
-      TXN_FEE: `${this.MAINNET_WRAPPER}/fee-estimates`,
-      TXNDETAILS: `${this.MAINNET_WRAPPER}/tx`,
-      BROADCAST_TX: `${this.MAINNET_WRAPPER}/tx`,
-    },
-  };
-
-  public ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS); // current API-endpoints being used
-
-  public USE_ESPLORA_FALLBACK = false; // BITHYVE_ESPLORA_API_ENDPOINT acts as the fallback(when true)
-
-  public connectToPersonalNode = async (personalNode: PersonalNode) => {
-    const personalNodeURL = personalNode.urlPath;
-    if (personalNodeURL && personalNode.isConnectionActive) {
-      const personalNodeEPs = {
-        MULTIBALANCE: `${personalNodeURL}/balances`,
-        MULTIUTXO: `${personalNodeURL}/utxos`,
-        MULTITXN: `${personalNodeURL}/data`,
-        MULTIBALANCETXN: `${personalNodeURL}/baltxs`,
-        MULTIUTXOTXN: `${personalNodeURL}/utxotxs`,
-        NEWMULTIUTXOTXN: `${personalNodeURL}/nutxotxs`,
-        TXN_FEE: `${personalNodeURL}fee-estimates`,
-        TXNDETAILS: `${personalNodeURL}/tx`,
-        BROADCAST_TX: `${personalNodeURL}/tx`,
-      };
-
-      if (this.NETWORK === bitcoinJS.networks.bitcoin)
-        this.ESPLORA_API_ENDPOINTS = {
-          ...this.ESPLORA_API_ENDPOINTS,
-          MAINNET: personalNodeEPs,
-        };
-      else
-        this.ESPLORA_API_ENDPOINTS = {
-          ...this.ESPLORA_API_ENDPOINTS,
-          TESTNET: personalNodeEPs,
-        };
-
-      this.USE_ESPLORA_FALLBACK = personalNode.useFallback;
-    }
-  };
-
-  public connectToBitHyveNode = async () => {
-    this.ESPLORA_API_ENDPOINTS = _.cloneDeep(this.BITHYVE_ESPLORA_API_ENDPOINTS);
-    this.USE_ESPLORA_FALLBACK = false;
-  };
 
   public setNetwork = (network: NetworkType) => {
     const isTestnet = network === NetworkType.TESTNET;
