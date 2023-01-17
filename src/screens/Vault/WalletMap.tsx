@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
@@ -19,7 +21,6 @@ import MOBILEKEYLIGHT from 'src/assets/images/mobile_key_light.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTICONLIGHT from 'src/assets/images/passport_light.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
-import React from 'react';
 import SEEDSIGNERICON from 'src/assets/images/seedsigner_icon.svg';
 import SEEDSIGNERICONLIGHT from 'src/assets/images/seedsigner_light.svg';
 import SEEDSIGNERLOGO from 'src/assets/images/seedsignerlogo.svg';
@@ -124,7 +125,7 @@ export const WalletMap = (type: SignerType, light = false) => {
         Logo: <SEEDSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
-    case SignerType.BITBOX:
+    case SignerType.BITBOX02:
       return {
         Icon: getColouredIcon(<BITBOXICON />, <BITBOXICON />, light),
         Logo: <BITBOXLOGO />,

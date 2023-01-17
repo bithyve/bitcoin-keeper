@@ -104,7 +104,7 @@ export enum SignerType {
   MOBILE_KEY = 'MOBILE_KEY',
   SEED_WORDS = 'SEED_WORDS',
   SEEDSIGNER = 'SEEDSIGNER',
-  BITBOX = 'BITBOX',
+  BITBOX02 = 'BITBOX02',
 }
 
 export enum PaymentInfoKind {

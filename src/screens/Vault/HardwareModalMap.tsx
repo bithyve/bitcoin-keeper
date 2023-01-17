@@ -171,7 +171,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         title: 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
       };
-    case SignerType.BITBOX:
+    case SignerType.BITBOX02:
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: [
@@ -461,10 +461,6 @@ function HardwareModalMap({
     navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: {} }));
   };
 
-  const navigateToBitBoxSetup = () => {
-    navigation.dispatch(CommonActions.navigate({ name: 'AddBitBox', params: {} }));
-  };
-
   const navigateToAddQrBasedSigner = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -589,8 +585,7 @@ function HardwareModalMap({
         return biometricAuth();
       case SignerType.SEED_WORDS:
         return navigateToSeedWordSetup();
-      case SignerType.BITBOX:
-        return navigateToBitBoxSetup();
+      case SignerType.BITBOX02:
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
       case SignerType.KEYSTONE:

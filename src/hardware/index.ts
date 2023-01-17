@@ -11,6 +11,7 @@ export const UNVERIFYING_SIGNERS = [
   SignerType.POLICY_SERVER,
   SignerType.SEED_WORDS,
   SignerType.TAPSIGNER,
+  SignerType.BITBOX02
 ];
 export const generateSignerFromMetaData = ({
   xpub,
@@ -80,6 +81,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       break;
     case SignerType.SEEDSIGNER:
       name = 'SeedSigner';
+      break;
+    case SignerType.BITBOX02:
+      name = 'BitBox02';
       break;
     default:
       name = type;
