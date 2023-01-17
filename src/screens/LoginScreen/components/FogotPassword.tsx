@@ -59,7 +59,7 @@ function FogotPassword(props) {
   }
 
   return (
-    <Box backgroundColor="light.secondaryBackground" padding={5}>
+    <Box backgroundColor="light.mainBackground" padding={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           backgroundColor="light.lightAccent"
