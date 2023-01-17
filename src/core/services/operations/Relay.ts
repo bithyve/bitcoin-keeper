@@ -295,17 +295,11 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      let res;
-
-      res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
-
-      res = res.json || res.data;
-      return {
-        status: res.status,
-      };
+      let { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      return response;
     } catch (err) {
       captureError(err);
-      throw new Error('Failed to update Vault Image');
+      throw new Error('Failed to update App Image');
     }
   };
 

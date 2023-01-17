@@ -150,21 +150,20 @@ export function* updateAppImageWorker({ payload }) {
   }
 }
 
-function* updateVaultImageWorker({
+export function* updateVaultImageWorker({
   payload,
 }: {
   payload: {
+    vault: Vault;
     archiveVaultId?: String;
     isUpdate?: Boolean;
   };
 }) {
-  const { archiveVaultId, isUpdate } = payload;
+  const { vault, archiveVaultId, isUpdate } = payload;
   const { primarySeed, appID, vaultShellInstances, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
-  const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, 0, true);
-  const vault: Vault = vaults.filter((vault) => !vault.archived)[0];
 
   //Vault Encrypted with VAC
   const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
@@ -176,7 +175,7 @@ function* updateVaultImageWorker({
       vaultEncryptedVAC,
     });
   }
-
+  console.log({ vault });
   const { m } = vault.scheme;
 
   let signersData: Array<{
@@ -210,8 +209,8 @@ function* updateVaultImageWorker({
   const vacMap = createVACMap(signerIds, signerIdXpubMap, m, vault.VAC);
 
   try {
-    if (archiveVaultId)
-      Relay.updateVaultImage({
+    if (archiveVaultId) {
+      const response = yield call(Relay.updateVaultImage, {
         appID,
         vaultId: vault.id,
         m,
@@ -223,8 +222,9 @@ function* updateVaultImageWorker({
         subscription: subscriptionStrings,
         archiveVaultId,
       });
-    else {
-      Relay.updateVaultImage({
+      return response;
+    } else {
+      const response = yield call(Relay.updateVaultImage, {
         appID,
         vaultId: vault.id,
         m,
@@ -235,6 +235,7 @@ function* updateVaultImageWorker({
         vacMap,
         subscription: subscriptionStrings,
       });
+      return response;
     }
   } catch (err) {
     captureError(err);
