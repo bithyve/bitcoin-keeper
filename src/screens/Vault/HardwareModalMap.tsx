@@ -1,13 +1,14 @@
 /* eslint-disable no-case-declarations */
 import React, { useCallback, useContext, useState } from 'react';
 import * as bip39 from 'bip39';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, Center, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -356,6 +357,7 @@ const setupSeedWordsBasedKey = (mnemonic) => {
 
 function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
   const [password, setPassword] = useState('');
+  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -397,7 +399,7 @@ function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
                   dispatch(addSigningDevice(mobileKey));
                   navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
                   showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
-                } else Alert.alert('Incorrect password. Try again!');
+                } else showToast('Incorrect password. Try again!', <ToastErrorIcon />);
               }}
               value="Confirm"
             />
@@ -514,11 +516,11 @@ function HardwareModalMap({
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, null, 3000, true);
+        showToast(error.message, <ToastErrorIcon />, 3000);
         resetQR();
       } else {
         captureError(error);
-        Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+        showToast(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     }
@@ -541,7 +543,7 @@ function HardwareModalMap({
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
               showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
             } else {
-              Alert.alert('Incorrect password. Try again!');
+              showToast('Incorrect password. Try again!', <ToastErrorIcon />);
             }
           }
         }, 200);
