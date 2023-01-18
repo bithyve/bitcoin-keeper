@@ -16,7 +16,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getAmt } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -31,6 +31,8 @@ import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 
 type Props = {
   title: string;
@@ -73,20 +75,16 @@ function WalletSettings({ route }) {
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
   function WalletCard({ walletName, walletBalance, walletDescription }) {
     return (
       <Box
-        backgroundColor={{
-          linearGradient: {
-            colors: ['light.gradientStart', 'light.gradientEnd'],
-            start: [0, 0],
-            end: [1, 1],
-          },
-        }}
+        variant="linearGradient"
         style={styles.walletCardContainer}
       >
         <Box style={styles.walletCard}>
@@ -178,8 +176,9 @@ function WalletSettings({ route }) {
         <WalletCard
           walletName={wallet.presentationData?.name}
           walletDescription={wallet?.presentationData?.description}
-          walletBalance={getAmount(
-            wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed
+          walletBalance={getAmt(
+            wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed,
+            exchangeRates, currencyCode, currentCurrency
           )}
         />
       </Box>
@@ -310,6 +309,8 @@ function WalletSettings({ route }) {
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
+          buttonText='Done'
+          buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
               data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
@@ -317,8 +318,9 @@ function WalletSettings({ route }) {
                 showToast('Cosigner Details Copied Successfully', <TickIcon />);
               }}
               subText="Cosigner Details"
-              noteSubText="The cosigner details are only for the selected wallet and not other wallets in the app"
+              noteSubText="The cosigner details are for the selected wallet only"
               copyable={false}
+              close={() => setCosignerVisible(false)}
             />
           )}
         />

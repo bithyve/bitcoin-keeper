@@ -2,14 +2,14 @@ import React, { useContext, useState } from 'react';
 import { Box, Text, Pressable, View } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import { Alert, Clipboard } from 'react-native';
+import { Share } from 'react-native';
 // components and functions
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 // icons
-import IconCopy from 'src/assets/images/icon_copy.svg';
+import IconShare from 'src/assets/images/icon_share.svg';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/images/backup.svg';
 import LinearGradient from 'react-native-linear-gradient';
@@ -17,12 +17,15 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getAmount } from 'src/common/constants/Bitcoin';
+import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
 import KeeperModal from 'src/components/KeeperModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import Colors from 'src/theme/Colors';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { useAppSelector } from 'src/store/hooks';
 
 type Props = {
   title: string;
@@ -32,15 +35,24 @@ type Props = {
 };
 
 const DescritporsModalContent = ({ descriptorString }) => {
-  const copyDescriptor = () => {
-    Clipboard.setString(descriptorString);
-    Alert.alert('Decriptor Copied Successfully');
+  const onShare = async () => {
+    try {
+      await Share.share({
+        message: descriptorString,
+      });
+    } catch (error: any) {
+      console.log(error.message);
+    }
   };
 
   return (
     <View width={'80%'}>
-      <TouchableOpacity onPress={copyDescriptor}>
-        <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+      <TouchableOpacity
+        onPress={async () => {
+          await onShare();
+        }}
+      >
+        <Box style={styles.inputWrapper} backgroundColor="light.primaryBackground">
           <Text width="100%" padding={10} noOfLines={4}>
             {descriptorString}
           </Text>
@@ -55,12 +67,17 @@ const DescritporsModalContent = ({ descriptorString }) => {
         alignItems="center"
         style={styles.buttonContainer}
       >
-        <TouchableOpacity style={styles.IconText} onPress={copyDescriptor}>
+        <TouchableOpacity
+          style={styles.IconText}
+          onPress={async () => {
+            await onShare();
+          }}
+        >
           <Box>
-            <IconCopy />
+            <IconShare />
           </Box>
           <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
-            Copy
+            Share
           </Text>
         </TouchableOpacity>
       </Box>
@@ -101,6 +118,9 @@ function VaultSettings({ route }) {
   const navigtaion = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const [genratorModalVisible, setGenratorModalVisible] = useState(false);
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
@@ -115,8 +135,8 @@ function VaultSettings({ route }) {
     return (
       <LinearGradient
         colors={['#B17F44', '#6E4A35']}
-        start={[0, 0]}
-        end={[1, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -144,7 +164,7 @@ function VaultSettings({ route }) {
             </Text>
           </Box>
           <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
-            {vaultBalance}sats
+            {vaultBalance}{getUnit(currentCurrency)}
           </Text>
         </Box>
       </LinearGradient>
@@ -156,7 +176,7 @@ function VaultSettings({ route }) {
       <Box>
         <HeaderTitle
           title="Vault Settings"
-          subtitle="See the app settings screen and the items that will go in here."
+          subtitle="Settings specific to the Vault"
           onPressHandler={() => navigtaion.goBack()}
           headerTitleColor="light.textBlack"
           titleFontSize={20}
@@ -172,13 +192,13 @@ function VaultSettings({ route }) {
         <VaultCard
           vaultName={name}
           vaultDescription={description}
-          vaultBalance={getAmount(confirmed + unconfirmed)}
+          vaultBalance={getAmt(confirmed + unconfirmed, exchangeRates, currencyCode, currentCurrency)}
         />
       </Box>
       <Box alignItems="center" paddingX={wp(25)}>
         <Option
           title="Generate Descriptors"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
+          subTitle="Vault configuration that needs to be stored privately"
           onPress={() => setGenratorModalVisible(true)}
           Icon={false}
         />
@@ -188,7 +208,7 @@ function VaultSettings({ route }) {
       <Box position="absolute" bottom={hp(45)} marginX={5}>
         <InfoBox
           title="Note"
-          desciption="These settings are for your active wallet only and does not affect other wallets"
+          desciption="These settings are for your active vault only and does not affect other vaults"
           width={250}
         />
       </Box>

@@ -41,13 +41,12 @@ export default function CreatePin(props) {
   useEffect(() => {
     if (hasCreds) {
       dispatch(
-        addToUaiStack(
-          'Make sure your signing devices are safe and accessible',
-          false,
-          uaiType.DEFAULT,
-          10,
-          null
-        )
+        addToUaiStack({
+          title: 'Make sure your signing devices are safe and accessible',
+          isDisplay: false,
+          uaiType: uaiType.DEFAULT,
+          prirority: 10,
+        })
       );
       props.navigation.navigate('OnBoardingSlides');
     }
@@ -175,7 +174,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                      `light.error`
+                    `light.error`
                     : 'transparent'
                 }
               />
@@ -209,7 +208,7 @@ export default function CreatePin(props) {
                     </Text>
                   )}
                 </Box>
-                <HStack justifyContent="space-between" paddingTop="7">
+                {isTestnet && <HStack justifyContent="space-between" paddingTop="7">
                   <Text color="light.white" style={styles.bitcoinTestnetText}>
                     Use bitcoin testnet
                   </Text>
@@ -221,7 +220,7 @@ export default function CreatePin(props) {
                     onChange={switchConfig}
                     disabled
                   />
-                </HStack>
+                </HStack>}
                 <Box alignSelf="flex-end" mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}

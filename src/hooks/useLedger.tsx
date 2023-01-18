@@ -88,6 +88,7 @@ function useBLE(): BluetoothLowEnergyApi {
       setScanning(false);
       const ledgerTransport = await TransportBLE.open(device);
       setTransport(ledgerTransport);
+      return ledgerTransport;
     } catch (e) {
       console.log('FAILED TO CONNECT', e);
     }

@@ -108,7 +108,7 @@ function SetupSigningServer({ route }: { route }) {
     };
 
     return (
-      <Box width={hp(280)}>
+      <Box width={hp(300)}>
         <Box>
           <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           <Text

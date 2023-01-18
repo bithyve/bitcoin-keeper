@@ -21,7 +21,6 @@ import { parseInt } from 'lodash';
 import ElectrumClient from 'src/core/services/electrum/client';
 import {
   ActiveAddressAssignee,
-  ActiveAddresses,
   AverageTxFees,
   AverageTxFeesByNetwork,
   Balances,
@@ -31,8 +30,6 @@ import {
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
-  TransactionToAddressMapping,
-  UTXO,
 } from '../interfaces';
 import {
   BIP48ScriptTypes,
@@ -89,72 +86,6 @@ export default class WalletOperations {
     };
   };
 
-  static syncGapLimit = async (wallet: Wallet | Vault) => {
-    let tryAgain = false;
-    const hardGapLimit = 10;
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-
-    let externalAddress: string;
-    if ((wallet as Vault).isMultiSig) {
-      externalAddress = WalletUtilities.createMultiSig(
-        (wallet as Vault).specs.xpubs,
-        (wallet as Vault).scheme.m,
-        network,
-        wallet.specs.nextFreeAddressIndex + hardGapLimit - 1,
-        false
-      ).address;
-    } else {
-      let xpub = null;
-      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-      else xpub = (wallet as Wallet).specs.xpub;
-
-      externalAddress = WalletUtilities.getAddressByIndex(
-        xpub,
-        false,
-        wallet.specs.nextFreeAddressIndex + hardGapLimit - 1,
-        network
-      );
-    }
-
-    let internalAddress: string;
-    if ((wallet as Vault).isMultiSig) {
-      internalAddress = WalletUtilities.createMultiSig(
-        (wallet as Vault).specs.xpubs,
-        (wallet as Vault).scheme.m,
-        network,
-        wallet.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
-        true
-      ).address;
-    } else {
-      let xpub = null;
-      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-      else xpub = (wallet as Wallet).specs.xpub;
-
-      internalAddress = WalletUtilities.getAddressByIndex(
-        xpub,
-        true,
-        wallet.specs.nextFreeChangeAddressIndex + hardGapLimit - 1,
-        network
-      );
-    }
-
-    const txCounts = await WalletUtilities.getTxCounts([externalAddress, internalAddress], network);
-
-    if (txCounts[externalAddress] > 0) {
-      wallet.specs.nextFreeAddressIndex += hardGapLimit;
-      tryAgain = true;
-    }
-
-    if (txCounts[internalAddress] > 0) {
-      wallet.specs.nextFreeChangeAddressIndex += hardGapLimit;
-      tryAgain = true;
-    }
-
-    if (tryAgain) {
-      return WalletOperations.syncGapLimit(wallet);
-    }
-  };
-
   static importAddress = async (
     wallet: Wallet | Vault,
     privateKey: string,
@@ -167,217 +98,6 @@ export default class WalletOperations {
       privateKey,
     };
     wallet.specs.activeAddresses.external[address] = -1;
-  };
-
-  static syncWallets = async (
-    wallets: (Wallet | Vault)[],
-    network: bitcoinJS.networks.Network,
-    hardRefresh?: boolean
-  ): Promise<{
-    synchedWallets: (Wallet | Vault)[];
-    txsFound: Transaction[];
-    activeAddressesWithNewTxsMap: {
-      [walletId: string]: ActiveAddresses;
-    };
-  }> => {
-    const walletInstances: {
-      [id: string]: {
-        activeAddresses: ActiveAddresses;
-        externalAddresses: { [address: string]: number }; // all external addresses(till nextFreeAddressIndex)
-        internalAddresses: { [address: string]: number }; // all internal addresses(till nextFreeChangeAddressIndex)
-        ownedAddresses: string[];
-        cachedUTXOs: Array<{
-          txId: string;
-          vout: number;
-          value: number;
-          address: string;
-          status?: any;
-        }>;
-        cachedTxs: Transaction[];
-        txIdCache: { [txid: string]: boolean };
-        cachedTransactionMapping: TransactionToAddressMapping[];
-        lastUsedAddressIndex: number;
-        lastUsedChangeAddressIndex: number;
-        walletType: string;
-        transactionNote: {
-          [txId: string]: string;
-        };
-        contactName?: string;
-        walletName?: string;
-        hardRefresh?: boolean;
-      };
-    } = {};
-    const walletsInternals: {
-      [walletId: string]: {
-        internalAddresses: { [address: string]: number };
-      };
-    } = {};
-    for (const wallet of wallets) {
-      const ownedAddresses = []; // owned address mapping
-      // owned addresses are used for apt tx categorization and transfer amount calculation
-
-      const hardGapLimit = 5; // hard refresh gap limit
-      const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
-        let address: string;
-        if ((wallet as Vault).isMultiSig) {
-          const { xpubs } = (wallet as Vault).specs;
-          address = WalletUtilities.createMultiSig(
-            xpubs,
-            (wallet as Vault).scheme.m,
-            network,
-            itr,
-            false
-          ).address;
-        } else {
-          let xpub = null;
-          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-          else xpub = (wallet as Wallet).specs.xpub;
-
-          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
-        }
-
-        externalAddresses[address] = itr;
-        ownedAddresses.push(address);
-      }
-
-      // include imported external addresses
-      if (!wallet.specs.importedAddresses) wallet.specs.importedAddresses = {};
-      Object.keys(wallet.specs.importedAddresses).forEach((address) => {
-        externalAddresses[address] = -1;
-        ownedAddresses.push(address);
-      });
-
-      const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
-        let address: string;
-        if ((wallet as Vault).isMultiSig) {
-          const { xpubs } = (wallet as Vault).specs;
-          address = WalletUtilities.createMultiSig(
-            xpubs,
-            (wallet as Vault).scheme.m,
-            network,
-            itr,
-            true
-          ).address;
-        } else {
-          let xpub = null;
-          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-          else xpub = (wallet as Wallet).specs.xpub;
-
-          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
-        }
-
-        internalAddresses[address] = itr;
-        ownedAddresses.push(address);
-      }
-
-      // garner cached params for bal-tx sync
-      const cachedUTXOs: UTXO[] = hardRefresh
-        ? []
-        : [...wallet.specs.confirmedUTXOs, ...wallet.specs.unconfirmedUTXOs];
-      const txIdCache = hardRefresh ? {} : wallet.specs.txIdCache;
-      const cachedTransactionMapping: TransactionToAddressMapping[] = hardRefresh
-        ? []
-        : wallet.specs.transactionMapping;
-      const cachedTxs: Transaction[] = hardRefresh ? [] : wallet.specs.transactions;
-
-      let shouldHardRefresh = hardRefresh;
-      if (!shouldHardRefresh) {
-        // hard-refresh SWAN wallet(default)
-        if (wallet.type === WalletType.SWAN) shouldHardRefresh = true;
-      }
-
-      walletInstances[wallet.id] = {
-        activeAddresses: wallet.specs.activeAddresses,
-        externalAddresses,
-        internalAddresses,
-        ownedAddresses,
-        cachedUTXOs,
-        cachedTxs,
-        txIdCache,
-        cachedTransactionMapping,
-        lastUsedAddressIndex: wallet.specs.nextFreeAddressIndex - 1,
-        lastUsedChangeAddressIndex: wallet.specs.nextFreeChangeAddressIndex - 1,
-        transactionNote: wallet.specs.transactionNote,
-        walletType: wallet.type,
-        walletName: wallet.presentationData.name,
-        hardRefresh: shouldHardRefresh,
-      };
-
-      walletsInternals[wallet.id] = {
-        internalAddresses,
-      };
-    }
-
-    const { synchedWallets } = await WalletUtilities.fetchBalanceTransactionsByWallets(
-      walletInstances,
-      network
-    );
-
-    const txsFound: Transaction[] = [];
-    const activeAddressesWithNewTxsMap: { [walletId: string]: ActiveAddresses } = {};
-    for (const wallet of wallets) {
-      const {
-        UTXOs,
-        transactions,
-        txIdCache,
-        transactionMapping,
-        nextFreeAddressIndex,
-        nextFreeChangeAddressIndex,
-        activeAddresses,
-        activeAddressesWithNewTxs,
-        hasNewTxn,
-      } = synchedWallets[wallet.id];
-      const { internalAddresses } = walletsInternals[wallet.id];
-
-      // update utxo sets and balances
-      const balances: Balances = {
-        confirmed: 0,
-        unconfirmed: 0,
-      };
-      const confirmedUTXOs = [];
-      const unconfirmedUTXOs = [];
-      for (const utxo of UTXOs) {
-        if (utxo.status.confirmed) {
-          confirmedUTXOs.push(utxo);
-          balances.confirmed += utxo.value;
-        } else if (internalAddresses[utxo.address] !== undefined) {
-          // defaulting utxo's on the change branch to confirmed
-          confirmedUTXOs.push(utxo);
-          balances.confirmed += utxo.value;
-        } else {
-          unconfirmedUTXOs.push(utxo);
-          balances.unconfirmed += utxo.value;
-        }
-      }
-
-      wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
-      wallet.specs.confirmedUTXOs = confirmedUTXOs;
-      wallet.specs.balances = balances;
-      wallet.specs.nextFreeAddressIndex = nextFreeAddressIndex;
-      wallet.specs.nextFreeChangeAddressIndex = nextFreeChangeAddressIndex;
-      wallet.specs.activeAddresses = activeAddresses;
-      wallet.specs.hasNewTxn = hasNewTxn;
-
-      const { newTransactions, lastSynched } = WalletUtilities.setNewTransactions(
-        transactions,
-        wallet.specs.lastSynched
-      );
-
-      wallet.specs.transactions = transactions;
-      wallet.specs.txIdCache = txIdCache;
-      wallet.specs.transactionMapping = transactionMapping;
-      wallet.specs.newTransactions = newTransactions;
-      wallet.specs.lastSynched = lastSynched;
-      activeAddressesWithNewTxsMap[wallet.id] = activeAddressesWithNewTxs;
-      wallet.specs.hasNewTxn = hasNewTxn;
-    }
-    return {
-      synchedWallets: wallets,
-      txsFound,
-      activeAddressesWithNewTxsMap,
-    };
   };
 
   static fetchTransactions = async (
@@ -1254,14 +974,33 @@ export default class WalletOperations {
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
-    } else if (signer.type === SignerType.TAPSIGNER && !(signer.amfData && signer.amfData.xpub)) {
+    } else if (
+      (signer.type === SignerType.TAPSIGNER && !(signer.amfData && signer.amfData.xpub)) ||
+      signer.type === SignerType.LEDGER
+    ) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
-        const { subPath, signerPubkeyMap } = WalletUtilities.addressToMultiSig(
-          inputs[inputIndex].address,
-          wallet
-        );
-        const publicKey = signerPubkeyMap.get(signer.xpub);
+        let publicKey;
+        let subPath;
+        if (wallet.isMultiSig) {
+          const multisigAddress = WalletUtilities.addressToMultiSig(
+            inputs[inputIndex].address,
+            wallet
+          );
+          publicKey = multisigAddress.signerPubkeyMap.get(signer.xpub);
+          subPath = multisigAddress.subPath;
+        } else {
+          const singlesigAddress = WalletUtilities.addressToKey(
+            inputs[inputIndex].address,
+            wallet,
+            true
+          ) as {
+            publicKey: Buffer;
+            subPath: number[];
+          };
+          publicKey = singlesigAddress.publicKey;
+          subPath = singlesigAddress.subPath;
+        }
         const { hash, sighashType } = PSBT.getDigestToSign(inputIndex, publicKey);
         inputsToSign.push({
           digest: hash.toString('hex'),
@@ -1436,7 +1175,7 @@ export default class WalletOperations {
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-    const txid = await this.broadcastTransaction(wallet, txHex, inputs, recipients, network);
+    const txid = await this.broadcastTransaction(wallet, txHex, inputs);
     return {
       txid,
     };
