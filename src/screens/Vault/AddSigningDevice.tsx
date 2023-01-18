@@ -251,7 +251,7 @@ function AddSigningDevice() {
   }, [vaultSigners]);
 
   const triggerVaultCreation = () => {
-    setCreating(!vaultCreating);
+    setCreating(true);
   };
   const validateSigners = () =>
     signersState.every((signer) => !signer) ||
@@ -296,6 +296,7 @@ function AddSigningDevice() {
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}
+        setCreating={setCreating}
         signersState={signersState}
         planStatus={planStatus}
       />

@@ -103,7 +103,7 @@ const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
 
 export function* updateAppImageWorker({ payload }) {
   //
-  //Read from Params not from DB.
+  // Read from Params not from DB.
   const { walletId } = payload;
   const {
     primarySeed,
@@ -165,7 +165,7 @@ export function* updateVaultImageWorker({
     RealmSchema.KeeperApp
   );
 
-  //Vault Encrypted with VAC
+  // Vault Encrypted with VAC
   const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
 
   if (isUpdate) {
@@ -175,7 +175,6 @@ export function* updateVaultImageWorker({
       vaultEncryptedVAC,
     });
   }
-  console.log({ vault });
   const { m } = vault.scheme;
 
   let signersData: Array<{
@@ -223,20 +222,19 @@ export function* updateVaultImageWorker({
         archiveVaultId,
       });
       return response;
-    } else {
-      const response = yield call(Relay.updateVaultImage, {
-        appID,
-        vaultId: vault.id,
-        m,
-        vacEncryptedApp,
-        signersData,
-        vaultEncryptedVAC,
-        vaultShellInstances: vaultShellInstancesString,
-        vacMap,
-        subscription: subscriptionStrings,
-      });
-      return response;
     }
+    const response = yield call(Relay.updateVaultImage, {
+      appID,
+      vaultId: vault.id,
+      m,
+      vacEncryptedApp,
+      signersData,
+      vaultEncryptedVAC,
+      vaultShellInstances: vaultShellInstancesString,
+      vacMap,
+      subscription: subscriptionStrings,
+    });
+    return response;
   } catch (err) {
     captureError(err);
   }

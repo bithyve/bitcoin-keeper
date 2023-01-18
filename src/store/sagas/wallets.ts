@@ -305,10 +305,8 @@ function* addNewVaultWorker({
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
       return true;
-    } else {
-      yield put(relayVaultUpdateFail(response.error));
-      return false;
     }
+    throw new Error('Relay updation failed');
   } catch (err) {
     yield put(
       vaultCreated({
@@ -684,7 +682,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
       exceptions?: SignerException;
     };
   } = payload;
-  //TO_DO_VAULT_API
+  // TO_DO_VAULT_API
   const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
 
   if (!updated) {
@@ -749,7 +747,7 @@ function* updateWalletDetailsWorker({ payload }) {
       visibility: wallet.presentationData.visibility,
     };
     yield put(setRelayWalletUpdateLoading(true));
-    //API-TO-DO: based on response call the DB
+    // API-TO-DO: based on response call the DB
     const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
     if (response.updated) {
       yield put(relayWalletUpdateSuccess());
@@ -779,7 +777,7 @@ function* updateSignerDetailsWorker({ payload }) {
     key: string;
     value: any;
   } = payload;
-  //TO_DO_VAULT_API
+  // TO_DO_VAULT_API
   const activeVault: Vault = dbManager
     .getCollection(RealmSchema.Vault)
     .filter((vault: Vault) => !vault.archived)[0];

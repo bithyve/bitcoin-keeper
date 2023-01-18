@@ -71,6 +71,9 @@ const vaultSlice = createSlice({
         );
       }
     },
+    clearSigningDevice: (state) => {
+      state.signers = [];
+    },
     updateSigningDevice: (state, action: PayloadAction<SignerUpdatePayload>) => {
       const { signer, key, value } = action.payload;
       state.signers = state.signers.map((item) => {
@@ -121,7 +124,6 @@ const vaultSlice = createSlice({
     });
     builder.addCase(ADD_NEW_VAULT, (state) => {
       state.isGeneratingNewVault = false;
-      state.signers = [];
     });
   },
 });
@@ -136,6 +138,7 @@ export const {
   setIntroModal,
   setSdIntroModal,
   updateSigningDevice,
+  clearSigningDevice,
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;

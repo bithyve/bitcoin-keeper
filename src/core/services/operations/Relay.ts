@@ -276,7 +276,7 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      let { data: response } = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      const { data: response } = await RestClient.post(`${RELAY}updateAppImage`, appImage);
       return response;
     } catch (err) {
       captureError(err);
@@ -295,7 +295,7 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      let { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      const { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
       return response;
     } catch (err) {
       captureError(err);

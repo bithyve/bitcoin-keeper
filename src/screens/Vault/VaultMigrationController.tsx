@@ -4,7 +4,7 @@ import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vau
 import { VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { updateIntrimVault } from 'src/store/reducers/vaults';
+import { clearSigningDevice, updateIntrimVault } from 'src/store/reducers/vaults';
 import { TransferType } from 'src/common/data/enums/TransferType';
 
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -17,10 +17,12 @@ import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_an
 import { Alert } from 'react-native';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import useToastMessage from 'src/hooks/useToastMessage';
 
-function VaultMigrationController({ vaultCreating, signersState, planStatus }: any) {
+function VaultMigrationController({ vaultCreating, signersState, planStatus, setCreating }: any) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const { activeVault } = useVault();
   const { subscriptionScheme } = usePlan();
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
@@ -44,8 +46,6 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
 
   useEffect(() => {
     if (relayVaultUpdate) {
-      console.log('Successs!');
-      dispatch(resetRealyVaultState());
       const navigationState = {
         index: 1,
         routes: [
@@ -54,12 +54,16 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
+      dispatch(resetRealyVaultState());
+      dispatch(clearSigningDevice());
+      setCreating(false);
     }
 
     if (relayVaultError) {
-      Alert.alert('Vault Creation Failed', realyVaultErrorMessage, [
-        { text: 'OK', onPress: () => dispatch(resetRealyVaultState()) },
-      ]);
+      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
+      dispatch(resetRealyVaultState());
+      dispatch(clearSigningDevice());
+      setCreating(false);
     }
   }, [relayVaultUpdate, relayVaultError]);
 
@@ -151,6 +155,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
     }
   }, []);
 
+  // TODO: rewrite this to keep the old signer state intact
   const updateSignerRegistrationIndication = () =>
     signersState.map((signer: VaultSigner) => {
       if (
