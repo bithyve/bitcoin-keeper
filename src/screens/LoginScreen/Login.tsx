@@ -181,25 +181,25 @@ function LoginScreen({ navigation, route }) {
   };
 
   const getLoginModalContent = () => {
-    if (config.NETWORK_TYPE === NetworkType.MAINNET) {
+    if (!isTestnet() && false) {
       return {
         title: 'Secure your bitcoin',
         subTitle: 'The Vault can be used in multiple configurations and with different signing devices',
         assert: {
-          loader: require('src/assets/video/Loader.gif'),
-          height: 180
+          loader: require('src/assets/video/test-net.gif'),
+          height: 200
         },
         message: 'Make sure you understand the tradeoffs and the security guarantees different combinations offer.'
       }
     } else {
       return {
         title: 'Share Feedback',
-        subTitle: '(Testnet only)\nShake your device to send us a bug report or a feature request',
+        subTitle: '(Beta app only)\nShake your device to send us a bug report or a feature request',
         assert: {
           loader: require('src/assets/video/test-net.gif'),
           height: 200
         },
-        message: 'This feature is *only* for the testnet version of the app. The developers will get your message along with other information from the app.'
+        message: 'This feature is *only* for the beta app. The developers will get your message along with other information from the app.'
       }
     }
   }
@@ -279,18 +279,20 @@ function LoginScreen({ navigation, route }) {
                 {errMessage}
               </Text>
             )}
-            <HStack justifyContent="space-between" mr={10} paddingTop="2">
-              <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
-                Use bitcoin testnet
-              </Text>
-              <Switch
-                defaultIsChecked
-                disabled
-                trackColor={{ true: '#FFFA' }}
-                thumbColor="#358475"
-                onChange={() => { }}
-              />
-            </HStack>
+            {isTestnet() &&
+              <HStack justifyContent="space-between" mr={10} paddingTop="2">
+                <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
+                  Use bitcoin testnet
+                </Text>
+                <Switch
+                  defaultIsChecked
+                  disabled
+                  trackColor={{ true: '#FFFA' }}
+                  thumbColor="#358475"
+                  onChange={() => { }}
+                />
+              </HStack>
+            }
             <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length === 4 && (
                 <Box>

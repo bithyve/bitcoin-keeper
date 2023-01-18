@@ -10,19 +10,22 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import Note from '../Note/Note';
+import Buttons from '../Buttons';
 
 function ShowXPub({
   data,
-  copy = () => {},
+  copy = () => { },
   subText,
   noteSubText,
   copyable = true,
+  close
 }: {
   data: string;
   copy: Function;
   subText: string;
   noteSubText: string;
   copyable: boolean;
+  close: () => void
 }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -84,8 +87,9 @@ function ShowXPub({
           ) : null}
         </Box>
       </Box>
-      <Box width="85%">
+      <Box width={wp(280)}>
         <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
+        <Buttons primaryText='Done' primaryCallback={close} />
       </Box>
     </>
   );
