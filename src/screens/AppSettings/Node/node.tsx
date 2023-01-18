@@ -6,8 +6,7 @@ export default class Node {
         const node = { ...selectedNode };
         let isElectrumClientConnected = false;
         let activePeer = null;
-
-        const isValidNode = await ElectrumClient.testConnection(node.host, node.port, node.port);
+        const isValidNode = await ElectrumClient.testConnection(node.host, node.useSSL ? null : node.port, node.useSSL ? node.port : null);
         if (isValidNode) {
             node.isConnected = true;
             ElectrumClient.setActivePeer(nodeList, node);
