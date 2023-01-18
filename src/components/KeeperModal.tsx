@@ -38,7 +38,7 @@ KeeperModal.defaultProps = {
   title: 'Title',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: ['light.secondaryBackground', 'light.secondaryBackground'],
+  modalBackground: ['light.mainBackground', 'light.mainBackground'],
   buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
   buttonText: null,
   buttonTextColor: 'white',

@@ -97,6 +97,23 @@ export const customTheme = extendTheme({
       black: Colors.Black,
     },
   },
+  components: {
+    Box: {
+      variants: {
+        linearGradient: () => {
+          return {
+            backgroundColor: {
+              linearGradient: {
+                colors: ['light.gradientStart', 'light.gradientEnd'],
+                start: [0, 0],
+                end: [1, 1],
+              },
+            },
+          };
+        }
+      }
+    },
+  },
   config: {
     initialColorMode: 'light',
   },
