@@ -77,16 +77,13 @@ function WalletSettings({ route }) {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
   function WalletCard({ walletName, walletBalance, walletDescription }) {
     return (
-      <Box
-        variant="linearGradient"
-        style={styles.walletCardContainer}
-      >
+      <Box variant="linearGradient" style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
           <Box>
             <Text color="light.white" style={styles.walletName}>
@@ -178,7 +175,9 @@ function WalletSettings({ route }) {
           walletDescription={wallet?.presentationData?.description}
           walletBalance={getAmt(
             wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed,
-            exchangeRates, currencyCode, currentCurrency
+            exchangeRates,
+            currencyCode,
+            currentCurrency
           )}
         />
       </Box>
@@ -309,8 +308,6 @@ function WalletSettings({ route }) {
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
-          buttonText='Done'
-          buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
               data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
