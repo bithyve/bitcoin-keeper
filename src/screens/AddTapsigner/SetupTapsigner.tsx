@@ -87,6 +87,9 @@ function SetupTapsigner() {
         message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
       } else if (err.toString().includes('205')) {
         message = 'Something went wrong, please try again!';
+      } else if (err.toString() === 'Error') {
+        // do nothing when nfc is dismissed
+        return;
       } else {
         message = err.toString();
       }
@@ -140,7 +143,7 @@ function SetupTapsigner() {
           keyColor="#041513"
           onDeletePressed={onDeletePressed}
         />
-        <NfcPrompt visible={nfcVisible} />
+        <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </Box>
     </ScreenWrapper>
   );

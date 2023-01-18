@@ -27,7 +27,7 @@ function SetupColdCard() {
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
 
-  const { nfcVisible, withNfcModal } = useNfcModal();
+  const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
 
   const addColdCard = async () => {
@@ -53,6 +53,8 @@ function SetupColdCard() {
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, null, 3000, true);
+      } else if (error.toString() === 'Error') {
+        // do nothing when nfc is dismissed
       } else {
         captureError(error);
       }
@@ -89,7 +91,7 @@ function SetupColdCard() {
               <Buttons activeOpacity={0.7} primaryText="Proceed" primaryCallback={addColdCard} />
             </Box>
           </Box>
-          <NfcPrompt visible={nfcVisible} />
+          <NfcPrompt visible={nfcVisible} close={closeNfc} />
         </Box>
       </TapGestureHandler>
     </ScreenWrapper>

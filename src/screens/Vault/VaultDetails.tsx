@@ -46,10 +46,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
-import { WalletMap } from './WalletMap';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { WalletMap } from './WalletMap';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -137,7 +137,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
   } = vault;
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
   const styles = getStyles(0);
   return (
@@ -160,13 +160,25 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
             Unconfirmed
           </Text>
-          {getNetworkAmount(unconfirmed, [styles.vaultInfoText, { fontSize: 12 }], 0.9,
-            exchangeRates, currencyCode, currentCurrency)}
+          {getNetworkAmount(
+            unconfirmed,
+            [styles.vaultInfoText, { fontSize: 12 }],
+            0.9,
+            exchangeRates,
+            currencyCode,
+            currentCurrency
+          )}
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(confirmed, [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 },
-          2], 1, exchangeRates, currencyCode, currentCurrency)}
+        {getNetworkAmount(
+          confirmed,
+          [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2],
+          1,
+          exchangeRates,
+          currencyCode,
+          currentCurrency
+        )}
         <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>
@@ -235,8 +247,8 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         ListEmptyComponent={
           <EmptyStateView
             IllustartionImage={NoVaultTransactionIcon}
-            title={'No transactions yet.'}
-            subTitle={'Pull down to refresh'}
+            title="No transactions yet."
+            subTitle="Pull down to refresh"
           />
         }
       />
