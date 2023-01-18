@@ -84,13 +84,7 @@ function WalletSettings({ route }) {
   function WalletCard({ walletName, walletBalance, walletDescription }) {
     return (
       <Box
-        backgroundColor={{
-          linearGradient: {
-            colors: ['light.gradientStart', 'light.gradientEnd'],
-            start: [0, 0],
-            end: [1, 1],
-          },
-        }}
+        variant="linearGradient"
         style={styles.walletCardContainer}
       >
         <Box style={styles.walletCard}>
@@ -315,6 +309,8 @@ function WalletSettings({ route }) {
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
+          buttonText='Done'
+          buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
               data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
@@ -322,8 +318,9 @@ function WalletSettings({ route }) {
                 showToast('Cosigner Details Copied Successfully', <TickIcon />);
               }}
               subText="Cosigner Details"
-              noteSubText="The cosigner details are only for the selected wallet and not other wallets in the app"
+              noteSubText="The cosigner details are for the selected wallet only"
               copyable={false}
+              close={() => setCosignerVisible(false)}
             />
           )}
         />
