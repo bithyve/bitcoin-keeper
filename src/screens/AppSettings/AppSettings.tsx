@@ -178,15 +178,12 @@ function AppSettings({ navigation }) {
           <CurrencyTypeSwitch />
         </Box>
       </Box>
-      <Box flex={1} position="relative">
+      <Box flex={1} position="relative" py={3}>
         <ScrollView
-          overScrollMode="never"
-          bounces={false}
-          flex={1}
-          pb={20}
+          style={{
+            marginBottom: hp(75),
+          }}
           showsVerticalScrollIndicator={false}
-          py={3}
-          marginBottom={hp(20)}
         >
           <Option
             title="App Backup"
@@ -200,7 +197,6 @@ function AppSettings({ navigation }) {
             }}
             Icon
           />
-
           <SettingsSwitchCard
             title={sensorType}
             description={formatString(settings.UseBiometricSubTitle, sensorType)}
