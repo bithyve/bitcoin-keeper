@@ -120,7 +120,7 @@ function VaultSettings({ route }) {
   const [genratorModalVisible, setGenratorModalVisible] = useState(false);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
@@ -164,7 +164,8 @@ function VaultSettings({ route }) {
             </Text>
           </Box>
           <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
-            {vaultBalance}{getUnit(currentCurrency)}
+            {vaultBalance}
+            {getUnit(currentCurrency)}
           </Text>
         </Box>
       </LinearGradient>
@@ -192,7 +193,12 @@ function VaultSettings({ route }) {
         <VaultCard
           vaultName={name}
           vaultDescription={description}
-          vaultBalance={getAmt(confirmed + unconfirmed, exchangeRates, currencyCode, currentCurrency)}
+          vaultBalance={getAmt(
+            confirmed + unconfirmed,
+            exchangeRates,
+            currencyCode,
+            currentCurrency
+          )}
         />
       </Box>
       <Box alignItems="center" paddingX={wp(25)}>
