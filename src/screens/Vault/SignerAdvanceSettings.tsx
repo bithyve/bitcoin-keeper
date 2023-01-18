@@ -1,18 +1,16 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
@@ -21,8 +19,12 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { globalStyles } from 'src/common/globalStyles';
+import { regsiterWithLedger } from 'src/hardware/ledger';
+import useVault from 'src/hooks/useVault';
+import { captureError } from 'src/core/services/sentry';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
+import LedgerScanningModal from './components/LedgerScanningModal';
 
 const { width } = Dimensions.get('screen');
 
@@ -44,32 +46,54 @@ function SignerAdvanceSettings({ route }: any) {
   );
   const [nfcModal, setNfcModal] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [ledgerModal, setLedgerModal] = useState(false);
+
   const openNfc = () => setNfcModal(true);
   const closeNfc = () => setNfcModal(false);
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
-  const { useQuery } = useContext(RealmWrapperContext);
 
-  const Vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault } = useVault();
 
-  const register = async () => {
+  const registerColdCard = async () => {
     if (signer.type === SignerType.COLDCARD) {
       openNfc();
-      await registerToColcard({ vault: Vault });
+      await registerToColcard({ vault: activeVault });
       closeNfc();
+    }
+  };
+
+  const registerLedger = async (transport) => {
+    try {
+      const { policyId } = await regsiterWithLedger(activeVault, transport);
+      setLedgerModal(false);
+      if (policyId) {
+        dispatch(updateSignerDetails(signer, 'registered', true));
+      }
+    } catch (err) {
+      if (
+        err.toString() ===
+        'TransportStatusError: Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)'
+      ) {
+        showToast('Registration was denied by the user', <ToastErrorIcon />, 1000, true);
+        return;
+      }
+      setLedgerModal(false);
+      captureError(err);
     }
   };
 
   const navigation: any = useNavigation();
   const dispatch = useDispatch();
 
-  const registerSigner = () => {
+  const registerSigner = async () => {
     switch (signer.type) {
       case SignerType.COLDCARD:
-        register();
+        registerColdCard();
         dispatch(updateSignerDetails(signer, 'registered', true));
+        return;
+      case SignerType.LEDGER:
+        setLedgerModal(true);
         return;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
@@ -101,6 +125,7 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
+  const isLedger = signer.type === SignerType.LEDGER;
 
   const changePolicy = () => {
     if (isPolicyServer) navigateToPolicyChange(signer);
@@ -168,6 +193,15 @@ function SignerAdvanceSettings({ route }: any) {
             <RightArrowIcon />
           </HStack>
         </TouchableOpacity>
+      )}
+      {ledgerModal && isLedger && (
+        <LedgerScanningModal
+          visible={ledgerModal}
+          setVisible={setLedgerModal}
+          callback={registerLedger}
+          infoText="Select to register the vault with this device"
+          interactionText="Registering..."
+        />
       )}
       <NfcPrompt visible={nfcModal} />
       <DescriptionModal
