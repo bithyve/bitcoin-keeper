@@ -1,4 +1,4 @@
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';

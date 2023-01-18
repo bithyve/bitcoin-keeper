@@ -520,7 +520,10 @@ function HardwareModalMap({
         resetQR();
       } else {
         captureError(error);
-        showToast(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+        showToast(
+          `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
+          <ToastErrorIcon />
+        );
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     }
