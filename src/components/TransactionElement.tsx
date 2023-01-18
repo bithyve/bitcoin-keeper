@@ -18,17 +18,16 @@ import Text from 'src/components/KeeperText';
 
 function TransactionElement({
   transaction,
-  onPress = () => { },
+  onPress = () => {},
 }: {
   transaction: Transaction;
   onPress?: () => void;
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date).format('DD MMM YY  •  hh:mma');
-  console.log({ status: transaction.status, confirmations: transaction.confirmations });
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
   const { status } = transaction;
   return (
@@ -55,9 +54,7 @@ function TransactionElement({
               <UnconfirmedIcon />
             </Box>
           ) : null}
-          <Box>
-            {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
-          </Box>
+          <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
           <Text style={styles.amountText}>
             {getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
