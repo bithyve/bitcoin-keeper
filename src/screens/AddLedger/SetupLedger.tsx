@@ -16,6 +16,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import usePlan from 'src/hooks/usePlan';
 import { checkSigningDevice } from 'src/screens/Vault/AddSigningDevice';
 import LedgerScanningModal from 'src/screens/Vault/components/LedgerScanningModal';
+import HWError from 'src/hardware/HWErrorState';
 
 function AddLedger() {
   const [visible, setVisible] = useState(true);
@@ -51,8 +52,12 @@ function AddLedger() {
       const exsists = await checkSigningDevice(ledger.signerId);
       if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {
-      captureError(error);
-      Alert.alert(error.toString());
+      if (error instanceof HWError) {
+        showToast(error.message, null, 3000, true);
+      } else {
+        captureError(error);
+        showToast('Something went wrong, please try again!', null, 3000, true);
+      }
     }
   };
 
