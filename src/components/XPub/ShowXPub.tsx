@@ -89,7 +89,6 @@ function ShowXPub({
       </Box>
       <Box width={wp(280)}>
         <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
-        <Buttons primaryText='Done' primaryCallback={close} />
       </Box>
     </>
   );
