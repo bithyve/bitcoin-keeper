@@ -37,6 +37,8 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { clearSigningDevice } from 'src/store/reducers/vaults';
 
 function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -65,6 +67,9 @@ function SignTransactionScreen() {
   const serializedPSBTEnvelops = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
   const [broadcasting, setBroadcasting] = useState(false);
@@ -74,17 +79,29 @@ function SignTransactionScreen() {
   const card = useRef(new CKTapCard()).current;
 
   useEffect(() => {
-    const navigationState = {
-      index: 1,
-      routes: [
-        { name: 'NewHome' },
-        { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
-      ],
-    };
+    if (relayVaultUpdate) {
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+      dispatch(resetRealyVaultState());
+      dispatch(clearSigningDevice());
+    }
+    if (relayVaultError) {
+      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
+      dispatch(resetRealyVaultState());
+      dispatch(clearSigningDevice());
+    }
+  }, [relayVaultUpdate, relayVaultError]);
+
+  useEffect(() => {
     if (isMigratingNewVault) {
       if (sendSuccessful) {
         dispatch(finaliseVaultMigration(vaultId));
-        navigation.dispatch(CommonActions.reset(navigationState));
       }
     } else if (sendSuccessful) {
       navigation.dispatch(
