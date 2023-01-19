@@ -58,15 +58,10 @@ const DescritporsModalContent = ({ descriptorString }) => {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Box>
+      <Box style={styles.modalNoteWrapper}>
         <Note subtitle="The above contains xPub, address type, path and script type, for the vault" />
       </Box>
-      <Box
-        flexDirection="row"
-        justifyContent="space-around"
-        alignItems="center"
-        style={styles.buttonContainer}
-      >
+      <Box style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.IconText}
           onPress={async () => {
@@ -184,12 +179,7 @@ function VaultSettings({ route }) {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box
-        borderBottomColor="light.divider"
-        borderBottomWidth={0.2}
-        marginTop={hp(30)}
-        paddingX={wp(25)}
-      >
+      <Box borderBottomColor="light.divider" style={styles.vaultCardWrapper}>
         <VaultCard
           vaultName={name}
           vaultDescription={description}
@@ -201,7 +191,7 @@ function VaultSettings({ route }) {
           )}
         />
       </Box>
-      <Box alignItems="center" paddingX={wp(25)}>
+      <Box style={styles.optionViewWrapper}>
         <Option
           title="Generate Descriptors"
           subTitle="Vault configuration that needs to be stored privately"
@@ -211,7 +201,7 @@ function VaultSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position="absolute" bottom={hp(45)} marginX={5}>
+      <Box style={styles.bottomNoteWrapper}>
         <InfoBox
           title="Note"
           desciption="These settings are for your active vault only and does not affect other vaults"
@@ -252,6 +242,26 @@ const styles = ScaledSheet.create({
     marginTop: 10,
     paddingTop: 20,
     borderTopWidth: 0.5,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  vaultCardWrapper: {
+    borderBottomWidth: 0.2,
+    marginTop: hp(30),
+    paddingHorizontal: wp(25),
+  },
+  optionViewWrapper: {
+    alignItems: 'center',
+    paddingHorizontal: wp(25),
+  },
+  bottomNoteWrapper: {
+    position: 'absolute',
+    bottom: hp(45),
+    marginHorizontal: 5,
+  },
+  modalNoteWrapper: {
+    width: '90%',
   },
 });
 export default VaultSettings;
