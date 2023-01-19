@@ -34,7 +34,7 @@ import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';
 import TREZORICONLIGHT from 'src/assets/images/trezor_light.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
-import BITBOXICON from 'src/assets/images/bitbox_icon.svg';
+import BITBOXICON from 'src/assets/images/BitBox.svg';
 import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
 
 import Text from 'src/components/KeeperText';
