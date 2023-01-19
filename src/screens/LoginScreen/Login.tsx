@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Image, Switch } from 'native-base';
+import { Box, Image } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -26,8 +26,6 @@ import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
-import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -280,20 +278,6 @@ function LoginScreen({ navigation, route }) {
                 {errMessage}
               </Text>
             )}
-            {/* {isTestnet() && (
-              <HStack justifyContent="space-between" mr={10} paddingTop="2">
-                <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
-                  Use bitcoin testnet
-                </Text>
-                <Switch
-                  defaultIsChecked
-                  disabled
-                  trackColor={{ true: '#FFFA' }}
-                  thumbColor="#358475"
-                  onChange={() => {}}
-                />
-              </HStack>
-            )} */}
             <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length === 4 && (
                 <Box>
