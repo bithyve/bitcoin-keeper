@@ -2,13 +2,11 @@ import { Alert, SafeAreaView } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useState } from 'react';
-import { getLedgerDetails, getMockLedgerDetails } from 'src/hardware/ledger';
+import { getLedgerDetails } from 'src/hardware/ledger';
 
-import { TapGestureHandler } from 'react-native-gesture-handler';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
-import config, { APP_STAGE } from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -24,15 +22,6 @@ function AddLedger() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-
-  // const addMockLedger = (amfData = null) => {
-  //   if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-  //     const ledger = getMockLedgerDetails(amfData);
-  //     dispatch(addSigningDevice(ledger));
-  //     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-  //     showToast(`${ledger.signerName} added successfully`, <TickIcon />);
-  //   }
-  // };
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
 

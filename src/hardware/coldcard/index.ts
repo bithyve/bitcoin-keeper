@@ -1,12 +1,9 @@
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import config, { APP_STAGE } from 'src/core/config';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
-import { generateSignerFromMetaData, getWalletConfig } from '..';
+import { getWalletConfig } from '..';
 import HWError from '../HWErrorState';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
@@ -39,29 +36,6 @@ export const extractColdCardExport = (data, rtdName) => {
 export const getColdcardDetails = async () => {
   const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
   return extractColdCardExport(data, rtdName);
-};
-
-export const getMockColdcardDetails = () => {
-  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-    const networkType = config.NETWORK_TYPE;
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.COLDCARD,
-      networkType
-    );
-
-    const cc: VaultSigner = generateSignerFromMetaData({
-      xpub,
-      xpriv,
-      derivationPath,
-      xfp: masterFingerprint,
-      signerType: SignerType.COLDCARD,
-      storageType: SignerStorage.COLD,
-      isMock: true,
-    });
-    return cc;
-  }
-  return null;
 };
 
 export const signWithColdCard = async (message) => {

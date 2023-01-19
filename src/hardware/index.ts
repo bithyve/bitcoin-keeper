@@ -1,9 +1,10 @@
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
-import { DerivationPurpose, SignerType } from 'src/core/wallets/enums';
+import { DerivationPurpose, EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
@@ -125,4 +126,26 @@ export const getSignerSigTypeInfo = (signer: VaultSigner) => {
     return { isSingleSig: false, isMultiSig: true, purpose };
   }
   return { isSingleSig: true, isMultiSig: false, purpose };
+};
+
+export const getMockSigner = (signerType: SignerType) => {
+  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
+    const networkType = config.NETWORK_TYPE;
+    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+      EntityKind.VAULT,
+      signerType,
+      networkType
+    );
+    const signer: VaultSigner = generateSignerFromMetaData({
+      xpub,
+      xpriv,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType,
+      storageType: SignerStorage.COLD,
+      isMock: true,
+    });
+    return signer;
+  }
+  return null;
 };

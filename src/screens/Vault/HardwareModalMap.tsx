@@ -460,9 +460,11 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Setting up ${type}`,
+          title: `Setting up ${getSignerNameFromType(type)}`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: onQRScan,
+          setup: true,
+          type,
         },
       })
     );
