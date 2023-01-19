@@ -192,7 +192,7 @@ export const updateWalletSettings = (payload: {
   payload,
 });
 
-export const updateWalletProperty = (payload: { wallet: Wallet; updateProps }) => ({
+export const updateWalletProperty = (payload: { wallet: Wallet; key: string; value: any }) => ({
   type: UPDATE_WALLET_PROPERTY,
   payload,
 });

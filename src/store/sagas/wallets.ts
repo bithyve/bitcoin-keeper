@@ -748,6 +748,7 @@ function* updateWalletDetailsWorker({ payload }) {
     };
     yield put(setRelayWalletUpdateLoading(true));
     // API-TO-DO: based on response call the DB
+    wallet.presentationData = presentationData;
     const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
     if (response.updated) {
       yield put(relayWalletUpdateSuccess());
@@ -800,18 +801,20 @@ export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDA
 function* updateWalletsPropertyWorker({ payload }) {
   const {
     wallet,
-    updateProps,
+    key,
+    value,
   }: {
     wallet: Wallet;
-    updateProps: any;
+    key: string;
+    value: any;
   } = payload;
-  console.log({ updateProps });
   try {
+    wallet[key] = value;
     yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+    const response = yield call(updateAppImageWorker, { payload: { wallet } });
     if (response.updated) {
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, { [key]: value });
       yield put(relayWalletUpdateSuccess());
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, updateProps);
     } else {
       yield put(relayWalletUpdateFail(response.error));
     }

@@ -102,17 +102,9 @@ const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
 };
 
 export function* updateAppImageWorker({ payload }) {
-  //
-  // Read from Params not from DB.
-  const { walletId } = payload;
-  const {
-    primarySeed,
-    appID,
-    walletShellInstances,
-    // primaryMnemonic,
-    subscription,
-    networkType,
-  }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const { wallet } = payload;
+  const { primarySeed, appID, walletShellInstances, subscription, networkType }: KeeperApp =
+    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   const walletShells: WalletShell[] = yield call(
     dbManager.getObjectByIndex,
@@ -122,8 +114,7 @@ export function* updateAppImageWorker({ payload }) {
   );
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
-  if (walletId) {
-    const wallet: Wallet = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
+  if (wallet) {
     const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
     walletObject[wallet.id] = encrytedWallet;
   } else {

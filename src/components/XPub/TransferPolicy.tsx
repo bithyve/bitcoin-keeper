@@ -55,9 +55,8 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       dispatch(
         updateWalletProperty({
           wallet,
-          updateProps: {
-            specs,
-          },
+          key: 'specs',
+          value: specs,
         })
       );
     } else {
