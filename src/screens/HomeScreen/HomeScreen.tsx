@@ -163,9 +163,6 @@ function LinkedWallets(props) {
         </Box>
         <Pressable
           onPress={() => props.onAmountPress()}
-          style={{
-            marginRight: wp(15),
-          }}
         >
           {props.showHideAmounts ? (
             <Box
@@ -184,7 +181,7 @@ function LinkedWallets(props) {
               </Box>
               <Text
                 color="light.white"
-                fontSize={hp(30)}
+                fontSize={hp(21)}
                 style={{
                   letterSpacing: 0.6,
                 }}
@@ -666,7 +663,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(5),
     flexDirection: 'row',
     alignItems: 'center',
-    fontSize: 16,
+    fontSize: 14,
   },
   linkedWalletContent: {
     marginLeft: wp(18),

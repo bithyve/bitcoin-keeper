@@ -14,8 +14,14 @@ import Dolar from 'src/assets/images/icon_dollar.svg'
 export const SATOSHIS_IN_BTC = 1e8;
 
 export const getAmount = (amountInSats: number) => {
-  if (config.NETWORK_TYPE === NetworkType.MAINNET) {
-    return (amountInSats / SATOSHIS_IN_BTC).toFixed(4);
+  //config.NETWORK_TYPE === NetworkType.MAINNET    disable sats mode
+
+  if (amountInSats !== 0) {
+    if (amountInSats > 99) {
+      return (amountInSats / SATOSHIS_IN_BTC);
+    } else {
+      return (amountInSats / SATOSHIS_IN_BTC).toFixed(8);
+    }
   }
   return numberWithCommas(amountInSats);
 };
@@ -29,7 +35,6 @@ export const getAmt = (amountInSats: number, exchangeRates, currencyCode, curren
     return getAmount(amountInSats)
   } else {
     if (exchangeRates && exchangeRates[currencyCode]) {
-
       return (exchangeRates[currencyCode].last / SATOSHIS_IN_BTC * amountInSats).toFixed(2)
     } else {
       return numberWithCommas(amountInSats)
@@ -64,9 +69,10 @@ export const getNetworkAmount = (amountInSats: number, textStyles = [{}], scale 
 export const getUnit = (currentCurrency) => {
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN
 
-  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET) {
-    return 'sats'
-  }
+  // disable sats mode
+  // if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET) {
+  //   return 'sats'
+  // }
   return '';
 };
 
