@@ -124,7 +124,6 @@ PODS:
     - GoogleUtilities/Logger
   - GoogleUtilities/UserDefaults (7.10.0):
     - GoogleUtilities/Logger
-  - hermes-engine (0.11.0)
   - libevent (2.1.12)
   - MMKV (1.2.14):
     - MMKVCore (~> 1.2.14)
@@ -150,12 +149,6 @@ PODS:
     - DoubleConversion
     - fmt (~> 6.2.1)
     - glog
-  - RCT-Folly/Futures (2021.06.28.00-v2):
-    - boost
-    - DoubleConversion
-    - fmt (~> 6.2.1)
-    - glog
-    - libevent
   - RCTRequired (0.68.2)
   - RCTTypeSafety (0.68.2):
     - FBLazyVector (= 0.68.2)
@@ -331,17 +324,6 @@ PODS:
     - React-logger (= 0.68.2)
     - React-perflogger (= 0.68.2)
     - React-runtimeexecutor (= 0.68.2)
-  - React-hermes (0.68.2):
-    - DoubleConversion
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2021.06.28.00-v2)
-    - RCT-Folly/Futures (= 2021.06.28.00-v2)
-    - React-cxxreact (= 0.68.2)
-    - React-jsi (= 0.68.2)
-    - React-jsiexecutor (= 0.68.2)
-    - React-jsinspector (= 0.68.2)
-    - React-perflogger (= 0.68.2)
   - React-jsi (0.68.2):
     - boost (= 1.76.0)
     - DoubleConversion
@@ -568,8 +550,6 @@ DEPENDENCIES:
   - FlipperKit/FlipperKitUserDefaultsPlugin (= 0.125.0)
   - FlipperKit/SKIOSNetworkPlugin (= 0.125.0)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - hermes-engine (~> 0.11.0)
-  - libevent (~> 2.1.12)
   - OpenSSL-Universal (= 1.1.1100)
   - Permission-BluetoothPeripheral (from `../node_modules/react-native-permissions/ios/BluetoothPeripheral`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
@@ -583,7 +563,6 @@ DEPENDENCIES:
   - React-Core/RCTWebSocket (from `../node_modules/react-native/`)
   - React-CoreModules (from `../node_modules/react-native/React/CoreModules`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
-  - React-hermes (from `../node_modules/react-native/ReactCommon/hermes`)
   - React-jsi (from `../node_modules/react-native/ReactCommon/jsi`)
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
@@ -650,7 +629,6 @@ SPEC REPOS:
     - fmt
     - GoogleDataTransport
     - GoogleUtilities
-    - hermes-engine
     - libevent
     - MMKV
     - MMKVCore
@@ -695,8 +673,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/CoreModules"
   React-cxxreact:
     :path: "../node_modules/react-native/ReactCommon/cxxreact"
-  React-hermes:
-    :path: "../node_modules/react-native/ReactCommon/hermes"
   React-jsi:
     :path: "../node_modules/react-native/ReactCommon/jsi"
   React-jsiexecutor:
@@ -813,7 +789,6 @@ SPEC CHECKSUMS:
   glog: 476ee3e89abb49e07f822b48323c51c57124b572
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
   GoogleUtilities: bad72cb363809015b1f7f19beb1f1cd23c589f95
-  hermes-engine: 84e3af1ea01dd7351ac5d8689cbbea1f9903ffc3
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   MMKV: 9c4663aa7ca255d478ff10f2f5cb7d17c1651ccd
   MMKVCore: 89f5c8a66bba2dcd551779dea4d412eeec8ff5bb
@@ -831,7 +806,6 @@ SPEC CHECKSUMS:
   React-Core: fdaa2916b1c893f39f02cff0476d1fb0cab1e352
   React-CoreModules: fd8705b80699ec36c2cdd635c2ce9d874b9cfdfc
   React-cxxreact: 1832d971f7b0cb2c7b943dc0ec962762c90c906e
-  React-hermes: 14e0ea3ce4b44bb3ac7663d96d0e3e28857f7b62
   React-jsi: 72af715135abe8c3f0dcf3b2548b71d048b69a7e
   React-jsiexecutor: b7b553412f2ec768fe6c8f27cd6bafdb9d8719e6
   React-jsinspector: c5989c77cb89ae6a69561095a61cce56a44ae8e8
@@ -881,6 +855,6 @@ SPEC CHECKSUMS:
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 70ce8ca0936656316e1be8ba26e21bc2ea425afc
+PODFILE CHECKSUM: 4b291126e8f4983429514cc463711dc4af7dda9c
 
 COCOAPODS: 1.11.3

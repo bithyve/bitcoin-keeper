@@ -365,7 +365,7 @@ const styles = ScaledSheet.create({
     borderRadius: 10,
   },
   input: {
-    backgroundColor: '#FDF7F0',
+    backgroundColor: 'rgba(247,242,236,1)',
     color: '#073E39',
     shadowOpacity: 0.4,
     shadowColor: 'rgba(0, 0, 0, 0.05)',

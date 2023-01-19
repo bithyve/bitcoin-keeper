@@ -1,4 +1,5 @@
-import { ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+/* eslint-disable react-hooks/rules-of-hooks */
+import { Alert, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -6,7 +7,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -23,65 +23,75 @@ import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
-import useBLE from 'src/hooks/useLedger';
 import useVault from 'src/hooks/useVault';
+import { signWithLedger } from 'src/hardware/ledger';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { useDispatch } from 'react-redux';
+import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+import { captureError } from 'src/core/services/sentry';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
+import LedgerScanningModal from '../Vault/components/LedgerScanningModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function DeviceItem({ device, onSelectDevice }) {
-  const [pending, setPending] = useState(false);
-  const onPress = async () => {
-    setPending(true);
+function LedgerSigningModal({
+  visible,
+  setVisible,
+  signer,
+}: {
+  visible;
+  setVisible;
+  signer: VaultSigner;
+}) {
+  const dispatch = useDispatch();
+  const { activeVault } = useVault();
+  const { showToast } = useToastMessage();
+
+  const serializedPSBTEnvelops = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+  );
+  const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.find(
+    (envelop) => signer.signerId === envelop.signerId
+  );
+  const callback = async (transport) => {
     try {
-      await onSelectDevice(device);
+      const { signedSerializedPSBT } = await signWithLedger(
+        transport,
+        serializedPSBT,
+        signingPayload,
+        activeVault
+      );
+      dispatch(
+        updatePSBTEnvelops({
+          signerId: signer.signerId,
+          signedSerializedPSBT,
+        })
+      );
+      setVisible(false);
     } catch (error) {
-      console.log(error);
-    } finally {
-      setPending(false);
+      captureError(error);
+      showToast(error.toString());
     }
   };
+
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <TouchableOpacity onPress={() => onPress()} style={{ flexDirection: 'row' }}>
-      <Text color="light.white" fontSize={14} letterSpacing={1.12}>
-        {device.name}
-      </Text>
-      {pending ? <ActivityIndicator /> : null}
-    </TouchableOpacity>
+    <LedgerScanningModal
+      visible={visible}
+      setVisible={setVisible}
+      interactionText="Signing..."
+      infoText="Select to sign with this device"
+      callback={callback}
+    />
   );
 }
 
-function LedgerContent({ signTransaction }) {
-  const { scanForPeripherals, requestPermissions, allDevices, disconnectFromDevice, isScanning } =
-    useBLE();
-
-  const scanForDevices = () => {
-    requestPermissions((isGranted) => {
-      if (isGranted) {
-        scanForPeripherals();
-      }
-    });
-  };
-
-  useEffect(() => {
-    scanForDevices();
-    return () => {
-      disconnectFromDevice();
-    };
-  }, []);
-
-  return (
-    <>
-      {isScanning ? <ActivityIndicator /> : null}
-      {allDevices.map((device) => (
-        <DeviceItem device={device} onSelectDevice={signTransaction} key={device.id} />
-      ))}
-    </>
-  );
-}
-
-function ColdCardContent({ register, isMultisig }) {
+function ColdCardContent({ register, isMultisig }: { register: boolean; isMultisig: boolean }) {
   return (
     <Box>
       <ColdCardSVG />
@@ -365,7 +375,6 @@ function SignerModals({
   setLedgerModal,
   setPasswordModal,
   showOTPModal,
-  LedgerCom,
   signTransaction,
   textRef,
   signers,
@@ -428,18 +437,10 @@ function SignerModals({
             );
           case SignerType.LEDGER:
             return (
-              <KeeperModal
+              <LedgerSigningModal
                 visible={currentSigner && ledgerModal}
-                close={() => setLedgerModal(false)}
-                title="Looking for Nano X"
-                subTitle="Power up your Ledger Nano X and open the BTC app"
-                modalBackground={['light.gradientStart', 'light.gradientEnd']}
-                buttonBackground={['#FFFFFF', '#80A8A1']}
-                buttonText={LedgerCom.current ? 'SIGN' : null}
-                buttonTextColor="light.greenText"
-                textColor="light.white"
-                DarkCloseIcon
-                Content={() => <LedgerContent signTransaction={signTransaction} />}
+                setVisible={setLedgerModal}
+                signer={signer}
               />
             );
           case SignerType.MOBILE_KEY:
@@ -550,5 +551,16 @@ function SignerModals({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  icon: {
+    height: 30,
+    width: 30,
+    borderRadius: 30,
+    backgroundColor: '#725436',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 export default SignerModals;

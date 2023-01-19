@@ -15,8 +15,10 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { updateWalletProperty } from 'src/store/sagaActions/wallets';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
+  const { showToast } = useToastMessage();
   const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -60,7 +62,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
         })
       );
     } else {
-      Alert.alert('Transfer Policy cannot be zero');
+      showToast('Transfer Policy cannot be zero');
     }
   };
 

@@ -54,7 +54,7 @@ function EditWalletSettings({ route }) {
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
   return (
-    <View style={styles.Container} background="light.secondaryBackground">
+    <View style={styles.Container} background="light.mainBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={walletText.WalletDetails}

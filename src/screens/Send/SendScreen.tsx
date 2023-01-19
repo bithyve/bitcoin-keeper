@@ -12,8 +12,11 @@ import {
 // libraries
 import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Permissions from 'react-native-permissions';
+// import LocalQRCode from '@remobile/react-native-qrcode-local-image'
+import { QRreader } from "react-native-qr-decode-image-camera";
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
@@ -39,9 +42,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import UploadImage from 'src/components/UploadImage';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
 
@@ -80,6 +86,41 @@ function SendScreen({ route }) {
   const requestPermission = () => {
     Permissions.openSettings();
   }
+  const handleChooseImage = () => {
+    const options = {
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: {
+        skipBackup: true,
+      },
+      mediaType: 'photo',
+    } as ImageLibraryOptions;
+
+    launchImageLibrary(options, async response => {
+      if (response.didCancel) {
+        return;
+      } else if (response.errorCode === 'camera_unavailable') {
+        showToast('Camera not available on device');
+        return;
+      } else if (response.errorCode === 'permission') {
+        showToast('Permission not satisfied');
+        return;
+      } else if (response.errorCode === 'others') {
+        showToast(response.errorMessage);
+        return;
+      } else {
+        QRreader(response.assets[0].uri)
+          .then(data => {
+            handleTextChange(data)
+          })
+          .catch(err => {
+            showToast(err)
+          });
+      }
+    });
+  };
+
 
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
@@ -189,6 +230,10 @@ function SendScreen({ route }) {
                 }
               />
             </Box>
+            {/* Upload Image */}
+
+            <UploadImage onPress={handleChooseImage} />
+
             {/* send manually option */}
             <Box style={styles.inputWrapper}>
               <TextInput
