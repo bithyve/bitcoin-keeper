@@ -33,6 +33,7 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { Alert } from 'react-native';
 
 type Props = {
   title: string;
@@ -293,8 +294,11 @@ function WalletSettings({ route }) {
             <ShowXPub
               data={wallet.specs.xpub}
               copy={() => {
+                setXPubVisible(false);
                 showToast('Xpub Copied Successfully', <TickIcon />);
               }}
+              copyable={true}
+              close={() => setXPubVisible(false)}
               subText={walletTranslation.AccountXpub}
               noteSubText={walletTranslation.AccountXpubNote}
             />
@@ -311,9 +315,7 @@ function WalletSettings({ route }) {
           Content={() => (
             <ShowXPub
               data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
-              copy={() => {
-                showToast('Cosigner Details Copied Successfully', <TickIcon />);
-              }}
+              copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
               copyable={false}
