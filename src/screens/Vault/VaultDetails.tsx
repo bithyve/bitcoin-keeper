@@ -338,7 +338,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 {WalletMap(signer.type, true).Icon}
               </Box>
               <Text bold style={styles.unregistered}>
-                {indicate ? 'Not registered' : ''}
+                {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack pb={2}>
                 <Text
@@ -595,6 +595,7 @@ const getStyles = (top) =>
       letterSpacing: 0.6,
       textAlign: 'center',
       numberOfLines: 1,
+      lineHeight: 16,
     },
   });
 export default VaultDetails;
