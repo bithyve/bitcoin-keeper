@@ -132,7 +132,7 @@ function SigningDeviceDetails({ route }) {
         return {
           title: 'LEDGER',
           subTitle:
-            "All Ledgers are powered by an industry-leading Secure Element chip, together with Ledger's proprietary OS that protects your crypto & NFTs from sophisticated hacks. Peace of mind is assured with every Ledger.",
+            "Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.",
           assert: <Ledger />,
           description: '',
           FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
