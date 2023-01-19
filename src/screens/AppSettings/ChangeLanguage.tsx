@@ -51,10 +51,19 @@ const styles = StyleSheet.create({
     margin: 15,
     position: 'absolute',
     width: '90%',
+    height: '70%',
     zIndex: 10,
     backgroundColor: '#FAF4ED',
-    height: '70%',
-    top: 50,
+    top: 40,
+  },
+  langScrollViewWrapper: {
+    borderWidth: 1,
+    borderColor: Colors.Platinum,
+    borderRadius: 10,
+    margin: 15,
+    width: '90%',
+    zIndex: 10,
+    backgroundColor: '#FAF4ED',
   },
   menuWrapper: {
     height: wp('13%'),
@@ -290,7 +299,7 @@ function ChangeLanguage() {
           value={`${selectedLanguage.country_code.toUpperCase()}- ${selectedLanguage.displayTitle}`}
         />
         {showLanguages && (
-          <ScrollView style={styles.scrollViewWrapper}>
+          <ScrollView style={styles.langScrollViewWrapper}>
             {availableLanguages.map((item) => (
               <TouchableOpacity
                 onPress={() => {
