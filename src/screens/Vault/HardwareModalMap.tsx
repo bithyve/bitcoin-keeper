@@ -30,6 +30,7 @@ import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -173,7 +174,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       };
     case SignerType.BITBOX02:
       return {
-        Illustration: <SeedSignerSetupImage />,
+        Illustration: <BitboxImage />,
         Instructions: [
           'Lorem Ipsum',
           `Lorem Ipsum`,
