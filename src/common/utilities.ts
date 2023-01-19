@@ -1,3 +1,5 @@
+import { Alert } from 'react-native';
+
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
   try {
     decimalCount = Math.abs(decimalCount);
@@ -101,4 +103,15 @@ export const getPlaceholder = (index: number) => {
   if (mainIndex === 2) return `${mainIndex}nd`;
   if (mainIndex === 3) return `${mainIndex}rd`;
   return `${mainIndex}th`;
+};
+
+/**
+ * handles inter-Keeper interactions
+ * @param  {} error
+ * @returns string
+ */
+export const crossInteractionHandler = (error): string => {
+  // TODO: check via UAI whether the app is on latest version or not and alert accordingly
+  Alert.alert('Something went wrong', 'Please ensure that you & KSD are on the latest version');
+  return error.message;
 };

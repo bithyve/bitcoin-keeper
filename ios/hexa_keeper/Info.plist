@@ -40,9 +40,9 @@
 		</dict>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to uses BLE communicate with Ledger. You can deny now if you are not using ledger as on of your signing devices and enable it later in settings.</string>
+	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to uses BLE communicate with Ledger. You can deny now if you are not using ledger as on of your signing devices and enable it later in settings.</string>
+	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
