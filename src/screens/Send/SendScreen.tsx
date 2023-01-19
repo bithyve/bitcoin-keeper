@@ -115,7 +115,7 @@ function SendScreen({ route }) {
             handleTextChange(data)
           })
           .catch(err => {
-            showToast(err)
+            showToast('Invalid or No related QR code')
           });
       }
     });
