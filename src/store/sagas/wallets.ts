@@ -277,13 +277,14 @@ function* addNewVaultWorker({
       : yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } });
 
     if (response.updated) {
+      yield call(dbManager.createObject, RealmSchema.Vault, vault);
+      yield put(uaiChecks([uaiType.SECURE_VAULT]));
+
       if (isMigrated) {
         yield call(dbManager.updateObjectById, RealmSchema.Vault, oldVaultId, {
           archived: true,
         });
       }
-      yield call(dbManager.createObject, RealmSchema.Vault, vault);
-      yield put(uaiChecks([uaiType.SECURE_VAULT]));
 
       if (!newVaultShell) {
         const presentVaultInstances = { ...vaultShell.vaultInstances };
@@ -291,7 +292,6 @@ function* addNewVaultWorker({
         yield call(dbManager.updateObjectById, RealmSchema.VaultShell, vaultShell.id, {
           vaultInstances: presentVaultInstances,
         });
-        yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       } else {
         vaultShell.vaultInstances[vault.type] = 1;
         yield call(dbManager.createObject, RealmSchema.VaultShell, vaultShell);
