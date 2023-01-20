@@ -167,8 +167,8 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
   const wallets: Wallet[] = [];
   const walletIds = [];
   const walletObject = {};
-  const encryptionKey = generateEncryptionKey(app.primarySeed);
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const encryptionKey = generateEncryptionKey(app.primarySeed);
 
   const { walletShellInstances } = app;
   const walletShell: WalletShell = yield call(
