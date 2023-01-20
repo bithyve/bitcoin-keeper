@@ -1,4 +1,4 @@
-appId: io.hexawallet.keeper.development
+appId: io.hexawallet.hexakeeper.dev
 ---
 - launchApp
 - extendedWaitUntil:
