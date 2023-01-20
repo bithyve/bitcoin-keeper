@@ -32,6 +32,7 @@ function Tile({ title, subTitle, onPress, Icon, loading = false }) {
       flexDirection="row"
       alignItems="center"
       width="90%"
+      testID='btn_startNew'
       style={{ marginTop: hp(10), height: hp(110) }}
       marginLeft="5%"
       paddingX={2}
