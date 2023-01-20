@@ -10,8 +10,16 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { useAppSelector } from 'src/store/hooks';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 
 function WalletDetails({ availableAmt, walletName, isEditable = false }) {
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+
   return (
     <Box style={styles.container} backgroundColor="light.primaryBackground">
       <Box flexDirection="row">
@@ -28,10 +36,10 @@ function WalletDetails({ availableAmt, walletName, isEditable = false }) {
           </Text>
           <Text fontSize={12} numberOfLines={1}>
             Available to spend &nbsp;
-            <BTCIcon />
+            {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)}
             &nbsp;
             <Text bold fontSize={14}>
-              {availableAmt && availableAmt} sats
+              {availableAmt && getAmt(availableAmt, exchangeRates, currencyCode, currentCurrency)} {getUnit(currencyCode)}
             </Text>
           </Text>
         </Box>
