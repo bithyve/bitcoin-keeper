@@ -20,7 +20,7 @@ import useNfcModal from 'src/hooks/useNfcModal';
 import { getColdcardDetails } from 'src/hardware/coldcard';
 
 function ColdCardReocvery() {
-  const { nfcVisible, withNfcModal } = useNfcModal();
+  const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -90,7 +90,7 @@ function ColdCardReocvery() {
               <Buttons primaryText="Verify" primaryCallback={verifyColdCard} />
             </Box>
           </Box>
-          <NfcPrompt visible={nfcVisible} />
+          <NfcPrompt visible={nfcVisible} close={closeNfc} />
         </Box>
       </TapGestureHandler>
     </SafeAreaView>

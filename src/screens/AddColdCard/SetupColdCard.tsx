@@ -1,14 +1,13 @@
 import { StyleSheet } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { getColdcardDetails, getMockColdcardDetails } from 'src/hardware/coldcard';
+import { getColdcardDetails } from 'src/hardware/coldcard';
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
-import { TapGestureHandler } from 'react-native-gesture-handler';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -21,6 +20,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import MockWrapper from '../Vault/MockWrapper';
 
 function SetupColdCard() {
   const dispatch = useDispatch();
@@ -28,7 +28,7 @@ function SetupColdCard() {
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
 
-  const { nfcVisible, withNfcModal } = useNfcModal();
+  const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
 
   const addColdCard = async () => {
@@ -60,25 +60,12 @@ function SetupColdCard() {
     }
   };
 
-  const addMockColdCard = () => {
-    try {
-      const cc = getMockColdcardDetails();
-      if (cc) {
-        dispatch(addSigningDevice(cc));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-        showToast(`${cc.signerName} added successfully`, <TickIcon />);
-      }
-    } catch (error) {
-      captureError(error);
-    }
-  };
-
   const instructions = isMultisig
     ? 'Go to Settings > Multisig wallets > Export xPub on your Coldcard'
     : 'Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
   return (
     <ScreenWrapper>
-      <TapGestureHandler numberOfTaps={3} onActivated={addMockColdCard}>
+      <MockWrapper signerType={SignerType.COLDCARD}>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
@@ -90,9 +77,9 @@ function SetupColdCard() {
               <Buttons activeOpacity={0.7} primaryText="Proceed" primaryCallback={addColdCard} />
             </Box>
           </Box>
-          <NfcPrompt visible={nfcVisible} />
+          <NfcPrompt visible={nfcVisible} close={closeNfc} />
         </Box>
-      </TapGestureHandler>
+      </MockWrapper>
     </ScreenWrapper>
   );
 }

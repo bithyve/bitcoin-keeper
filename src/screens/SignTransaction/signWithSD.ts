@@ -34,16 +34,12 @@ export const signTransactionWithTapsigner = async ({
     return { signedSerializedPSBT, signingPayload: null };
   }
   return withModal(async () => {
-    try {
-      const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
-      signingPayload.forEach((payload) => {
-        payload.inputsToSign = signedInput;
-      });
-      return { signingPayload, signedSerializedPSBT: null };
-    } catch (e) {
-      console.log(e);
-    }
-  })().catch(console.log);
+    const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
+    signingPayload.forEach((payload) => {
+      payload.inputsToSign = signedInput;
+    });
+    return { signingPayload, signedSerializedPSBT: null };
+  })();
 };
 
 export const signTransactionWithColdCard = async ({
@@ -56,8 +52,12 @@ export const signTransactionWithColdCard = async ({
     setColdCardModal(false);
     await withNfcModal(async () => signWithColdCard(serializedPSBTEnvelop.serializedPSBT));
   } catch (error) {
-    closeNfc();
-    captureError(error);
+    if (error.toString() === 'Error') {
+      // ignore if nfc modal is dismissed
+    } else {
+      closeNfc();
+      captureError(error);
+    }
   }
 };
 

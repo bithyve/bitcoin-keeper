@@ -46,10 +46,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
-import { WalletMap } from './WalletMap';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { WalletMap } from './WalletMap';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -251,8 +251,8 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         ListEmptyComponent={
           <EmptyStateView
             IllustartionImage={NoVaultTransactionIcon}
-            title={'No transactions yet.'}
-            subTitle={'Pull down to refresh'}
+            title="No transactions yet."
+            subTitle="Pull down to refresh"
           />
         }
       />
@@ -342,7 +342,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 {WalletMap(signer.type, true).Icon}
               </Box>
               <Text bold style={styles.unregistered}>
-                {indicate ? 'Not registered' : ''}
+                {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack pb={2}>
                 <Text
@@ -600,6 +600,7 @@ const getStyles = (top) =>
       letterSpacing: 0.6,
       textAlign: 'center',
       numberOfLines: 1,
+      lineHeight: 16,
     },
   });
 export default VaultDetails;

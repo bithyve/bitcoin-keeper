@@ -11,6 +11,7 @@ import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
+import MockWrapper from '../Vault/MockWrapper';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -18,7 +19,13 @@ function ScanQR() {
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
   const route = useRoute();
-  const { title = '', subtitle = '', onQrScan = () => {} } = route.params as any;
+  const {
+    title = '',
+    subtitle = '',
+    onQrScan = () => {},
+    setup = false,
+    type,
+  } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -56,29 +63,30 @@ function ScanQR() {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title={title === 'Setting up SEEDSIGNER' ? 'Setting up SeedSigner' : title}
-        subtitle={subtitle}
-      />
-      <Box style={styles.qrcontainer}>
-        <RNCamera
-          style={styles.cameraView}
-          captureAudio={false}
-          onBarCodeRead={onBarCodeRead}
-          useNativeZoom
-        />
-      </Box>
-      <HStack>
-        {qrPercent !== 100 && <ActivityIndicator />}
-        <Text>{`Scanned ${qrPercent}%`}</Text>
-      </HStack>
-      <Box style={styles.noteWrapper}>
-        <Note
-          title={common.note}
-          subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-          subtitleColor="GreyText"
-        />
-      </Box>
+      <MockWrapper signerType={type} enable={setup && type}>
+        <Box flex={1}>
+          <HeaderTitle title={title} subtitle={subtitle} />
+          <Box style={styles.qrcontainer}>
+            <RNCamera
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={onBarCodeRead}
+              useNativeZoom
+            />
+          </Box>
+          <HStack>
+            {qrPercent !== 100 && <ActivityIndicator />}
+            <Text>{`Scanned ${qrPercent}%`}</Text>
+          </HStack>
+          <Box style={styles.noteWrapper}>
+            <Note
+              title={common.note}
+              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+              subtitleColor="GreyText"
+            />
+          </Box>
+        </Box>
+      </MockWrapper>
     </ScreenWrapper>
   );
 }
