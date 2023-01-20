@@ -1,13 +1,9 @@
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import config, { APP_STAGE } from 'src/core/config';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
-import { generateSignerFromMetaData, getWalletConfig } from '..';
+import { getWalletConfig } from '..';
 import HWError from '../HWErrorState';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
@@ -18,9 +14,7 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
 
 export const extractColdCardExport = (data, rtdName) => {
   try {
-    let xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+    const xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
     const derivationPath = data?.p2wsh_deriv ?? '';
     const xfp = data?.xfp ?? '';
     return { xpub, derivationPath, xfp, forMultiSig: true, forSingleSig: false };
@@ -31,9 +25,7 @@ export const extractColdCardExport = (data, rtdName) => {
   try {
     const { bip84 } = data;
     const { deriv } = bip84;
-    let { xpub } = bip84;
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-    xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
+    const { xpub } = bip84;
     return { xpub, derivationPath: deriv, xfp: data.xfp, forMultiSig: false, forSingleSig: true };
   } catch (_) {
     console.log('Not exported for singlesig!');
@@ -44,29 +36,6 @@ export const extractColdCardExport = (data, rtdName) => {
 export const getColdcardDetails = async () => {
   const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
   return extractColdCardExport(data, rtdName);
-};
-
-export const getMockColdcardDetails = () => {
-  if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-    const networkType = config.NETWORK_TYPE;
-    const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.COLDCARD,
-      networkType
-    );
-
-    const cc: VaultSigner = generateSignerFromMetaData({
-      xpub,
-      xpriv,
-      derivationPath,
-      xfp: masterFingerprint,
-      signerType: SignerType.COLDCARD,
-      storageType: SignerStorage.COLD,
-      isMock: true,
-    });
-    return cc;
-  }
-  return null;
 };
 
 export const signWithColdCard = async (message) => {

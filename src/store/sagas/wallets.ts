@@ -48,6 +48,7 @@ import {
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { RootState } from '../store';
 import { updateVaultImage, updateAppImage } from '../sagaActions/bhr';
+
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -165,7 +166,8 @@ function* addNewWallet(
 export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewWalletInfo[] }) {
   const wallets: Wallet[] = [];
   const walletIds = [];
-
+  const walletObject = {};
+  const encryptionKey = generateEncryptionKey(app.primarySeed);
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   const { walletShellInstances } = app;
@@ -192,8 +194,11 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
     if (presentWalletInstances[wallet.type]) presentWalletInstances[wallet.type]++;
     else presentWalletInstances = { [wallet.type]: 1 };
   });
-  const walletObject = {};
-  const encryptionKey = generateEncryptionKey(app.primarySeed);
+
+  yield call(dbManager.updateObjectById, RealmSchema.WalletShell, walletShell.id, {
+    walletInstances: presentWalletInstances,
+  });
+
   for (const wallet of wallets) {
     const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
     walletObject[wallet.id] = encrytedWallet;
@@ -654,7 +659,9 @@ export function* registerWithSigningServerWorker({ payload }: { payload: { polic
   if (setupData.verification.method === VerificationType.TWO_FA)
     twoFADetails.twoFAKey = setupData.verification.verifier;
 
-  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
+    twoFADetails,
+  });
 }
 
 export const registerWithSigningServerWatcher = createWatcher(
@@ -671,7 +678,9 @@ function* validateSigningServerRegistrationWorker({ payload }: { payload: { veri
       yield put(signingServerRegistrationVerified(true));
       const twoFADetails = getJSONFromRealmObject(app.twoFADetails);
       twoFADetails.twoFAValidated = true;
-      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
+        twoFADetails,
+      });
     } else yield put(signingServerRegistrationVerified(false));
   } catch (error) {
     yield put(signingServerRegistrationVerified(false));

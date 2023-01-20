@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Image, Switch } from 'native-base';
+import { Box, Image } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -196,24 +196,28 @@ function LoginScreen({ navigation, route }) {
     if (!isTestnet() && false) {
       return {
         title: 'Secure your bitcoin',
-        subTitle: 'The Vault can be used in multiple configurations and with different signing devices',
+        subTitle:
+          'The Vault can be used in multiple configurations and with different signing devices',
         assert: {
           loader: require('src/assets/video/test-net.gif'),
-          height: 200
+          height: 200,
         },
-        message: 'Make sure you understand the tradeoffs and the security guarantees different combinations offer.'
-      }
+        message:
+          'Make sure you understand the tradeoffs and the security guarantees different combinations offer.',
+      };
     }
     return {
       title: 'Share Feedback',
       subTitle: '(Beta app only)\nShake your device to send us a bug report or a feature request',
       assert: {
         loader: require('src/assets/video/test-net.gif'),
-        height: 200
+        height: 200,
       },
-      message: 'This feature is *only* for the beta app. The developers will get your message along with other information from the app.'
-    }
-  }
+      message:
+        'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
+    };
+
+  };
 
   function LoginModalContent() {
     return (
@@ -227,9 +231,7 @@ function LoginScreen({ navigation, route }) {
           }}
         />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
-          {
-            getLoginModalContent().message
-          }
+          {getLoginModalContent().message}
         </Text>
       </Box>
     );
@@ -250,7 +252,7 @@ function LoginScreen({ navigation, route }) {
                 marginTop: hp(44),
               }}
             >
-              {isTestnet() && <TestnetIndicator />}
+              {isTestnet && <TestnetIndicator />}
             </Box>
             <Text
               ml={5}
@@ -290,20 +292,6 @@ function LoginScreen({ navigation, route }) {
                 {errMessage}
               </Text>
             )}
-            {isTestnet() &&
-              <HStack justifyContent="space-between" mr={10} paddingTop="2">
-                <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
-                  Use bitcoin testnet
-                </Text>
-                <Switch
-                  defaultIsChecked
-                  disabled
-                  trackColor={{ true: '#FFFA' }}
-                  thumbColor="#358475"
-                  onChange={() => { }}
-                />
-              </HStack>
-            }
             <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length === 4 && (
                 <Box>

@@ -4,7 +4,7 @@ import Text from 'src/components/KeeperText';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import { getMockTapsignerDetails, getTapsignerDetails } from 'src/hardware/tapsigner';
 
 import Buttons from 'src/components/Buttons';
@@ -16,7 +16,6 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import config, { APP_STAGE } from 'src/core/config';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
@@ -26,6 +25,7 @@ import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/re
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import MockWrapper from '../Vault/MockWrapper';
 
 function SetupTapsigner() {
   const [cvc, setCvc] = React.useState('');
@@ -87,6 +87,9 @@ function SetupTapsigner() {
         message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
       } else if (err.toString().includes('205')) {
         message = 'Something went wrong, please try again!';
+      } else if (err.toString() === 'Error') {
+        // do nothing when nfc is dismissed
+        return;
       } else {
         message = err.toString();
       }
@@ -97,19 +100,6 @@ function SetupTapsigner() {
     }
   }, [cvc]);
 
-  const addMockTapsigner = React.useCallback(async () => {
-    try {
-      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-        const mockTapsigner = getMockTapsignerDetails();
-        dispatch(addSigningDevice(mockTapsigner));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-        showToast(`${mockTapsigner.signerName} added successfully`, <TickIcon />);
-      }
-    } catch (err) {
-      Alert.alert(err.toString());
-    }
-  }, []);
-
   return (
     <ScreenWrapper>
       <Box flex={1}>
@@ -118,7 +108,7 @@ function SetupTapsigner() {
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
         />
-        <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
+        <MockWrapper signerType={SignerType.TAPSIGNER}>
           <ScrollView>
             <TextInput
               style={styles.input}
@@ -134,13 +124,13 @@ function SetupTapsigner() {
               <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>
-        </TapGestureHandler>
+        </MockWrapper>
         <KeyPadView
           onPressNumber={onPressHandler}
           keyColor="#041513"
           onDeletePressed={onDeletePressed}
         />
-        <NfcPrompt visible={nfcVisible} />
+        <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </Box>
     </ScreenWrapper>
   );

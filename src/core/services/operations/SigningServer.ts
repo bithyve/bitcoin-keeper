@@ -1,12 +1,12 @@
-import { AxiosResponse } from 'axios';
-import config from '../../config';
+import { AxiosResponse } from "axios";
+import config from "../../config";
 import {
   SignerException,
   SignerPolicy,
   SignerRestriction,
   SingerVerification,
-} from '../interfaces';
-import RestClient from '../rest/RestClient';
+} from "../interfaces";
+import RestClient from "../rest/RestClient";
 
 const { HEXA_ID, SIGNING_SERVER } = config;
 
@@ -35,7 +35,7 @@ export default class SigningServer {
     }
 
     const { setupSuccessful, setupData } = res.data;
-    if (!setupSuccessful) throw new Error('Signer setup failed');
+    if (!setupSuccessful) throw new Error("Signer setup failed");
     return {
       setupData,
     };
@@ -60,7 +60,7 @@ export default class SigningServer {
     }
 
     const { valid } = res.data;
-    if (!valid) throw new Error('Signer validation failed');
+    if (!valid) throw new Error("Signer validation failed");
 
     return {
       valid,
@@ -89,7 +89,7 @@ export default class SigningServer {
     }
 
     const { updated } = res.data;
-    if (!updated) throw new Error('Signer setup failed');
+    if (!updated) throw new Error("Signer setup failed");
     return {
       updated,
     };
