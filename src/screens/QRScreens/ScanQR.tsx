@@ -54,7 +54,7 @@ function ScanQR() {
   }, [qrData]);
 
   const onBarCodeRead = (data) => {
-    if (!qrData) {
+    if (!qrData && data.data) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
