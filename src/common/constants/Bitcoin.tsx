@@ -14,8 +14,14 @@ import CurrencyKind from '../data/enums/CurrencyKind';
 export const SATOSHIS_IN_BTC = 1e8;
 
 export const getAmount = (amountInSats: number) => {
-  if (config.NETWORK_TYPE === NetworkType.MAINNET) {
-    return (amountInSats / SATOSHIS_IN_BTC).toFixed(5);
+  //config.NETWORK_TYPE === NetworkType.MAINNET    disable sats mode
+
+  if (amountInSats !== 0) {
+    if (amountInSats > 99) {
+      return (amountInSats / SATOSHIS_IN_BTC);
+    } else {
+      return (amountInSats / SATOSHIS_IN_BTC).toFixed(6);
+    }
   }
   return numberWithCommas(amountInSats);
 };
@@ -64,8 +70,8 @@ export const getNetworkAmount = (
 
 export const getUnit = (currentCurrency) => {
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
-
-  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET) {
+  // disable sats mode
+  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET && false) {
     return 'sats';
   }
   return '';

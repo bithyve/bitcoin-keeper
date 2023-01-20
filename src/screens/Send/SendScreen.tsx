@@ -15,7 +15,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Permissions from 'react-native-permissions';
-// import LocalQRCode from '@remobile/react-native-qrcode-local-image'
 import { QRreader } from "react-native-qr-decode-image-camera";
 
 import Text from 'src/components/KeeperText';
@@ -115,7 +114,7 @@ function SendScreen({ route }) {
             handleTextChange(data)
           })
           .catch(err => {
-            showToast(err)
+            showToast('Invalid or No related QR code')
           });
       }
     });

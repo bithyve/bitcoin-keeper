@@ -14,7 +14,7 @@ import Buttons from '../Buttons';
 
 function ShowXPub({
   data,
-  copy = () => {},
+  copy = () => { },
   subText,
   noteSubText,
   copyable = true,
@@ -91,7 +91,6 @@ function ShowXPub({
       </Box>
       <Box width={wp(280)}>
         <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
-        <Buttons primaryText="Done" primaryCallback={close} />
       </Box>
     </>
   );
