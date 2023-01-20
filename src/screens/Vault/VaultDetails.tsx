@@ -114,16 +114,20 @@ function Header() {
   const dispatch = useDispatch();
   const styles = getStyles(0);
   return (
-    <Box flexDirection="row" justifyContent="space-between" px="2%">
+    <Box flexDirection="row" width="100%" px="2%">
       <StatusBar barStyle="light-content" />
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <BackIcon />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-        <Text color="light.white" style={styles.footerText} light>
-          Know More
-        </Text>
-      </TouchableOpacity>
+      <Box width={'50%'}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackIcon />
+        </TouchableOpacity>
+      </Box>
+      <Box width={'50%'}>
+        <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
+          <Text color="light.white" style={styles.footerText} light>
+            Know More
+          </Text>
+        </TouchableOpacity>
+      </Box>
     </Box>
   );
 }
@@ -568,6 +572,7 @@ const getStyles = (top) =>
       borderRadius: 8,
       borderWidth: 1,
       borderColor: '#FAFCFC',
+      alignSelf: 'flex-end',
     },
     footerText: {
       fontSize: 12,
