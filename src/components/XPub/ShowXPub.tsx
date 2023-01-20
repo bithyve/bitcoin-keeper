@@ -14,18 +14,18 @@ import Buttons from '../Buttons';
 
 function ShowXPub({
   data,
-  copy = () => { },
+  copy = () => {},
   subText,
   noteSubText,
   copyable = true,
-  close
+  close,
 }: {
   data: string;
   copy: Function;
   subText: string;
   noteSubText: string;
   copyable: boolean;
-  close: () => void
+  close: () => void;
 }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -49,14 +49,20 @@ function ShowXPub({
         </Box>
         <Box padding={2}>
           {copyable ? (
-            <Box
-              flexDirection="row"
-              backgroundColor="light.textInputBackground"
-              borderTopLeftRadius={10}
-              borderBottomLeftRadius={10}
-              width={wp(220)}
-              marginTop={hp(30)}
-              marginBottom={hp(30)}
+            <TouchableOpacity
+              onPress={() => {
+                Clipboard.setString(data);
+                copy();
+              }}
+              style={{
+                flexDirection: 'row',
+                backgroundColor: 'light.textInputBackground',
+                borderTopLeftRadius: 10,
+                borderBottomLeftRadius: 10,
+                width: wp(220),
+                marginTop: hp(30),
+                marginBottom: hp(30),
+              }}
             >
               <Box py={2} alignItems="center">
                 <Text fontSize={12} numberOfLines={1} px={3}>
@@ -64,7 +70,7 @@ function ShowXPub({
                 </Text>
               </Box>
 
-              <TouchableOpacity
+              <Box
                 style={{
                   width: '15%',
                   paddingVertical: 3,
@@ -74,22 +80,18 @@ function ShowXPub({
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
-                onPress={() => {
-                  Clipboard.setString(data);
-                  copy();
-                }}
               >
                 <Box>
                   <CopyIcon />
                 </Box>
-              </TouchableOpacity>
-            </Box>
+              </Box>
+            </TouchableOpacity>
           ) : null}
         </Box>
       </Box>
       <Box width={wp(280)}>
         <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
-        <Buttons primaryText='Done' primaryCallback={close} />
+        <Buttons primaryText="Done" primaryCallback={close} />
       </Box>
     </>
   );
