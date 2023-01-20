@@ -1,5 +1,5 @@
 /* eslint-disable prefer-destructuring */
-import { ActivityIndicator, Platform, ScrollView, Alert, Linking } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, Alert, Linking, TouchableOpacity, Image } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import RNIap, {
@@ -7,6 +7,8 @@ import RNIap, {
   purchaseErrorListener,
   purchaseUpdatedListener,
   requestSubscription,
+  getAvailablePurchases,
+  SubscriptionPurchase
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
@@ -20,21 +22,25 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Relay from 'src/core/services/operations/Relay';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment'
 import { getBundleId } from 'react-native-device-info';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useDispatch } from 'react-redux';
 import { uaiChecks } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import useToastMessage from 'src/hooks/useToastMessage';
+import KeeperModal from 'src/components/KeeperModal';
+import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan(props) {
-  const { translations } = useContext(LocalizationContext);
+  const { translations, formatString } = useContext(LocalizationContext);
   const { choosePlan } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [requesting, setRequesting] = useState(false)
+  const { showToast } = useToastMessage();
   const { id, appID, subscription: appSubscription }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -47,28 +53,7 @@ function ChoosePlan(props) {
 
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-      const receipt = purchase.transactionReceipt;
-      const plan = items.filter(item => item.productIds.includes(purchase.productId));
-      const response = await Relay.updateSubscription(id, appID, purchase)
-      if (response.updated) {
-        try {
-          const subscription: SubScription = {
-            productId: purchase.productId,
-            receipt,
-            name: plan[0].name,
-            level: response.level,
-            icon: plan[0].icon
-          };
-          setIsUpgrade(response.level > appSubscription.level)
-          dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
-            subscription,
-          });
-          setShowUpgradeModal(true)
-        } catch (error) {
-          console.log(error)
-        }
-      }
-      const finish = await RNIap.finishTransaction(purchase, false);
+      processPurchase(purchase)
     });
     const purchaseErrorSubscription = purchaseErrorListener((error) => {
       console.log('purchaseErrorListener', error);
@@ -141,6 +126,34 @@ function ChoosePlan(props) {
     }
   }
 
+  async function processPurchase(purchase: SubscriptionPurchase) {
+    setRequesting(true)
+    try {
+      const receipt = purchase.transactionReceipt;
+      const plan = items.filter(item => item.productIds.includes(purchase.productId));
+      const response = await Relay.updateSubscription(id, appID, purchase)
+      setRequesting(false)
+      if (response.updated) {
+        const subscription: SubScription = {
+          productId: purchase.productId,
+          receipt,
+          name: plan[0].name,
+          level: response.level,
+          icon: plan[0].icon
+        };
+        setIsUpgrade(response.level > appSubscription.level)
+        dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
+          subscription,
+        });
+        setShowUpgradeModal(true)
+      }
+      await RNIap.finishTransaction(purchase, false);
+    } catch (error) {
+      setRequesting(false)
+      console.log(error)
+    }
+  }
+
   function getPlanData(offers) {
     let offer
     if (offers.length > 1) {
@@ -206,7 +219,9 @@ function ChoosePlan(props) {
       setShowUpgradeModal(true);
       */
       if (subscription.productType === 'free') {
+        setRequesting(true)
         const response = await Relay.updateSubscription(id, appID, { productId: subscription.productIds[0] })
+        setRequesting(false)
         if (response.updated) {
           const updatedSubscription: SubScription = {
             productId: subscription.productIds[0],
@@ -260,6 +275,37 @@ function ChoosePlan(props) {
     return `A ${name} can`;
   };
 
+  const restorePurchases = async () => {
+    try {
+      const purchases = await getAvailablePurchases()
+      if (purchases.length === 0) {
+        showToast('No purchases found')
+      } else {
+        processPurchase(purchases[0])
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  function LoginModalContent() {
+    return (
+      <Box>
+        <Image
+          source={require('../../assets/video/Loader.gif')}
+          style={{
+            width: wp(270),
+            height: hp(200),
+            alignSelf: 'center',
+          }}
+        />
+        <Text color="light.greenText" fontSize={13}>
+          {choosePlan.youCanChange}
+        </Text>
+      </Box>
+    );
+  }
+
   return (
     <ScreenWrapper barStyle="dark-content">
       <Box position="relative" flex={1}>
@@ -275,6 +321,19 @@ function ChoosePlan(props) {
           />
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
         </Box>
+
+        <KeeperModal
+          visible={requesting}
+          close={() => { }}
+          title={choosePlan.confirming}
+          subTitle={choosePlan.pleaseStay}
+          subTitleColor="light.secondaryText"
+          showCloseIcon={false}
+          buttonText={null}
+          buttonCallback={() => { }}
+          Content={LoginModalContent}
+          subTitleWidth={wp(210)}
+        />
 
         <TierUpgradeModal
           visible={showUpgradeModal}
@@ -320,15 +379,29 @@ function ChoosePlan(props) {
 
         <Box
           backgroundColor="light.secondaryBackground"
-          position="absolute"
-          bottom={-10}
-          justifyContent="flex-end"
-          width={wp(340)}
+          bottom={2}
+          alignItems="center"
+          flexDirection="row"
+          justifyContent="space-between"
         >
-          <Note title="Note" subtitle={choosePlan.noteSubTitle} subtitleColor="GreyText" />
+          <Note title="Note" subtitle={formatString(choosePlan.noteSubTitle, Platform.select({ ios: 'App Store', android: 'PlayStore' }))} subtitleColor="GreyText" />
+
+          <TouchableOpacity onPress={restorePurchases}>
+            <Box
+              borderColor="light.learnMoreBorder"
+              backgroundColor="light.lightAccent"
+              p={1}
+              m={1}
+              borderRadius={8}
+            >
+              <Text color="light.learnMoreBorder">
+                Restore Purchases
+              </Text>
+            </Box>
+          </TouchableOpacity>
         </Box>
-      </Box>
-    </ScreenWrapper>
+      </Box >
+    </ScreenWrapper >
   );
 }
 export default ChoosePlan;

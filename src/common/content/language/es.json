@@ -466,7 +466,7 @@
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "The subscription should be confirmed on the Play/ App Store. After trial period the subscription auto renews monthly"
+    "noteSubTitle": "The subscription should be confirmed on the {0}. After trial period the subscription auto renews monthly/yearly"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup phrase",

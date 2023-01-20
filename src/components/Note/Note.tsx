@@ -32,6 +32,7 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'lightBlack', width = 
 const styles = StyleSheet.create({
   container: {
     padding: 4,
+    flex: 1
   },
   title: {
     fontSize: 14,
