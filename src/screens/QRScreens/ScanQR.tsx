@@ -107,7 +107,7 @@ function ScanQR() {
   };
 
   function enableImportImage(title: string): boolean {
-    if (title === 'Setting up SEEDSIGNER' || title === 'Setting up KEEPER') {
+    if (title === 'Setting up SeedSigner' || title === 'Setting up Keeper') {
       return true
     }
     return false
