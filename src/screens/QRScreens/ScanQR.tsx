@@ -16,6 +16,7 @@ import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-pick
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
 import MockWrapper from '../Vault/MockWrapper';
+import { SignerType } from 'src/core/wallets/enums';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -106,8 +107,8 @@ function ScanQR() {
     });
   };
 
-  function enableImportImage(title: string): boolean {
-    if (title === 'Setting up SeedSigner' || title === 'Setting up Keeper') {
+  function enableImportImage(): boolean {
+    if (type === SignerType.SEEDSIGNER || type === SignerType.KEEPER) {
       return true
     }
     return false
@@ -125,7 +126,7 @@ function ScanQR() {
               useNativeZoom
             />
           </Box>
-          {enableImportImage(title) && <UploadImage onPress={handleChooseImage} />}
+          {enableImportImage() && <UploadImage onPress={handleChooseImage} />}
           <HStack>
             {qrPercent !== 100 && <ActivityIndicator />}
             <Text>{`Scanned ${qrPercent}%`}</Text>
