@@ -196,9 +196,22 @@ export const generateMockExtendedKey = (
 };
 
 export const MOCK_SD_MNEMONIC_MAP = {
-  TAPSIGNER: 'result pink oyster iron journey social winter pattern cricket core leader behave',
-  COLDCARD: 'keen credit hold warfare nasty address poverty roast novel ranch system nasty',
-  LEDGER: 'hold address journey ranch result poverty cricket keen system core iron winter',
+  [SignerType.TAPSIGNER]:
+    'result pink oyster iron journey social winter pattern cricket core leader behave',
+  [SignerType.COLDCARD]:
+    'keen credit hold warfare nasty address poverty roast novel ranch system nasty',
+  [SignerType.LEDGER]:
+    'hold address journey ranch result poverty cricket keen system core iron winter',
+  [SignerType.JADE]:
+    'galaxy wealth badge cloud educate inquiry member timber shaft promote symptom sting',
+  [SignerType.KEYSTONE]:
+    'congress judge talent affair client lift dash canal utility among spin tube',
+  [SignerType.SEEDSIGNER]:
+    'rug shrug rebuild name normal way scrub permit keen enable sorry episode',
+  [SignerType.PASSPORT]:
+    'grass journey few toilet rhythm day provide decline position weapon pave monitor',
+  [SignerType.TREZOR]:
+    'equal gospel mirror humor early liberty finger breeze super celery invite proof',
 };
 
 export const generateMockExtendedKeyForSigner = (

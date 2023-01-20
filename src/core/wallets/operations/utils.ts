@@ -271,6 +271,25 @@ export default class WalletUtilities {
     }
   };
 
+  static getNetworkFromPrefix = (prefix) => {
+    switch (prefix) {
+      case 'xpub': // 0x0488b21e
+      case 'ypub': // 0x049d7cb2
+      case 'Ypub': // 0x0295b43f
+      case 'zpub': // 0x04b24746
+      case 'Zpub': // 0x02aa7ed3
+        return NetworkType.MAINNET;
+      case 'tpub': // 0x043587cf
+      case 'upub': // 0x044a5262
+      case 'Upub': // 0x024289ef
+      case 'vpub': // 0x045f1cf6
+      case 'Vpub': // 0x02575483
+        return NetworkType.TESTNET;
+      default:
+        return null;
+    }
+  };
+
   static generateYpub = (xpub: string, network: bitcoinJS.Network): string => {
     // generates ypub corresponding to supplied xpub || upub corresponding to tpub
     let data = bs58check.decode(xpub);

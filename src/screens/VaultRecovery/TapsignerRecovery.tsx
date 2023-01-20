@@ -147,7 +147,7 @@ function TapSignerRecovery() {
             keyColor="#041513"
             onDeletePressed={onDeletePressed}
           />
-          <NfcPrompt visible={nfcVisible} />
+          <NfcPrompt visible={nfcVisible} close={() => {}} />
         </Box>
       </TapGestureHandler>
     </SafeAreaView>

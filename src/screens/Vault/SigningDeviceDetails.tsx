@@ -23,8 +23,6 @@ import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { getSignerNameFromType } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { WalletMap } from './WalletMap';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
 import KeeperModal from 'src/components/KeeperModal';
 // asserts images and icons
 import SkipHealthCheckIcon from 'src/assets/images/skipHealthCheck.svg';
@@ -47,6 +45,8 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import { WalletMap } from './WalletMap';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -525,7 +525,7 @@ function SigningDeviceDetails({ route }) {
           close={closehealthCheckSkip}
           title={healthcheck.SkippingHealthCheck}
           subTitle="It is very important that you keep your signing devices secure and fairly accessible at all times."
-          textColor={'light.secondaryText'}
+          textColor="light.secondaryText"
           buttonText="Manual Confirm"
           buttonTextColor="light.white"
           cancelButtonText="Will Do Later"
