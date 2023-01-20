@@ -301,7 +301,7 @@ function VaultStatus(props) {
   return (
     <Box style={styles.vaultStatusContainder}>
       <ImageBackground resizeMode="contain" source={VaultImage}>
-        <TouchableOpacity onPress={open} activeOpacity={0.7}>
+        <TouchableOpacity testID='btn_vault' onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
             <Box backgroundColor={getTorStatusColor} style={styles.torContainer}>
               <Text color="light.primaryText" style={styles.torText} bold>
