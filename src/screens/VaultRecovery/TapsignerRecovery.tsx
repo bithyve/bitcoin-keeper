@@ -1,4 +1,4 @@
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
@@ -19,11 +19,13 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function TapSignerRecovery() {
   const [cvc, setCvc] = React.useState('');
   const [nfcVisible, setNfcVisible] = React.useState(false);
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
   const card = React.useRef(new CKTapCard()).current;
   const dispatch = useDispatch();
 
@@ -65,7 +67,7 @@ function TapSignerRecovery() {
       dispatch(setSigningDevices(sigingDeivceDetails));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert(err.toString());
+      showToast(err.toString());
     }
   }, [cvc]);
 
@@ -114,7 +116,7 @@ function TapSignerRecovery() {
         navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       }
     } catch (err) {
-      Alert.alert(err.toString());
+      showToast(err.toString());
     }
   }, [cvc]);
 

@@ -150,25 +150,28 @@ function NewKeeperApp({ navigation }: { navigation }) {
     if (!isTestnet() && false) {
       return {
         title: 'Multisig security for your sats',
-        subTitle: 'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
+        subTitle:
+          'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
         assert: {
           loader: require('src/assets/video/Loader.gif'),
-          height: 180
+          height: 180,
         },
-        message: 'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.'
-      }
+        message:
+          'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.',
+      };
     } else {
       return {
         title: 'Shake to send feedback',
         subTitle: 'Shake your device to send us a bug report or a feature request',
         assert: {
           loader: require('src/assets/video/test-net.gif'),
-          height: 200
+          height: 200,
         },
-        message: 'This feature is *only* for the beta app. The developers will get your message along with other information from the app.'
-      }
+        message:
+          'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
+      };
     }
-  }
+  };
 
   function SignUpModalContent() {
     return (
@@ -220,7 +223,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
             <Tile
               title="Recover for myself"
-              subTitle="Using Backup Phrase"
+              subTitle="Using Recovery Phrase"
               Icon={<Recover />}
               onPress={() => {
                 navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
@@ -277,7 +280,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </ModalWrapper>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
