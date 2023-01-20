@@ -115,7 +115,7 @@ function NodeSettings() {
       showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />);
     }
     else {
-      showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />, 1000, true);
+      showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />);
     }
 
     setLoading(false);
@@ -215,7 +215,7 @@ function NodeSettings() {
                   <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
                   <Box style={styles.nodeButtons}>
                     <TouchableOpacity onPress={() => onEdit(item)}>
-                      <Box style={[styles.actionArea, { paddingLeft: 15, paddingRight: 15 }]}>
+                      <Box style={[styles.actionArea, { paddingLeft: 14, paddingRight: 14 }]}>
                         <EditIcon />
                         <Text
                           style={[styles.actionText]}>{common.edit}</Text>
@@ -224,9 +224,9 @@ function NodeSettings() {
                     <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
 
                     <TouchableOpacity onPress={() => onConnectNode(item)}>
-                      <Box style={[styles.actionArea, { width: 70 }]}>
+                      <Box style={[styles.actionArea, { width: 70, paddingTop: Node.nodeConnectionStatus(item) ? 4 : 5 }]}>
                         {Node.nodeConnectionStatus(item) ? <DisconnectIcon /> : <ConnectIcon />}
-                        <Text style={[styles.actionText, { paddingTop: 0 }]}>
+                        <Text style={[styles.actionText, { paddingTop: Node.nodeConnectionStatus(item) ? 0 : 1 }]}>
                           {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
                         </Text>
                       </Box>
@@ -234,10 +234,10 @@ function NodeSettings() {
                     <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
 
                     <TouchableOpacity onPress={() => onDelete(item)}>
-                      <Box style={[styles.actionArea, { paddingLeft: 15 }]}>
+                      <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                         <DeleteIcon />
                         <Text
-                          style={[styles.actionText]}>{common.delete}</Text>
+                          style={[styles.actionText, { paddingTop: 2 }]}>{common.delete}</Text>
                       </Box>
                     </TouchableOpacity>
                   </Box>
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   },
   verticleSplitter: {
     opacity: 0.40,
-    borderWidth: 0.4,
+    borderWidth: 0.5,
     height: 45,
   },
   nodesListWrapper: {
@@ -376,6 +376,7 @@ const styles = StyleSheet.create({
   actionArea: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingTop: 5
   },
   delete: {
     alignItems: 'center',
