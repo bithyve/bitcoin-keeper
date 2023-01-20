@@ -5,11 +5,11 @@ import BTC from 'src/assets/images/btc_white.svg';
 import { HStack } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
-import CurrencyKind from '../data/enums/CurrencyKind';
 // asserts
-import DolarWhite from 'src/assets/images/icon_dollar_white.svg'
-import DolarGreen from 'src/assets/images/icon_dollar_green.svg'
-import Dolar from 'src/assets/images/icon_dollar.svg'
+import DolarWhite from 'src/assets/images/icon_dollar_white.svg';
+import DolarGreen from 'src/assets/images/icon_dollar_green.svg';
+import Dolar from 'src/assets/images/icon_dollar.svg';
+import CurrencyKind from '../data/enums/CurrencyKind';
 
 export const SATOSHIS_IN_BTC = 1e8;
 
@@ -20,37 +20,39 @@ export const getAmount = (amountInSats: number) => {
     if (amountInSats > 99) {
       return (amountInSats / SATOSHIS_IN_BTC);
     } else {
-      return (amountInSats / SATOSHIS_IN_BTC).toFixed(8);
+      return (amountInSats / SATOSHIS_IN_BTC).toFixed(6);
     }
   }
   return numberWithCommas(amountInSats);
 };
 
-const numberWithCommas = (x) => {
-  return x ? x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 0
-}
+const numberWithCommas = (x) => (x ? x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 0);
 
 export const getAmt = (amountInSats: number, exchangeRates, currencyCode, currentCurrency) => {
   if (currentCurrency === CurrencyKind.BITCOIN) {
-    return getAmount(amountInSats)
-  } else {
-    if (exchangeRates && exchangeRates[currencyCode]) {
-      return (exchangeRates[currencyCode].last / SATOSHIS_IN_BTC * amountInSats).toFixed(2)
-    } else {
-      return numberWithCommas(amountInSats)
-    }
+    return getAmount(amountInSats);
   }
-}
+  if (exchangeRates && exchangeRates[currencyCode]) {
+    return ((exchangeRates[currencyCode].last / SATOSHIS_IN_BTC) * amountInSats).toFixed(2);
+  }
+  return numberWithCommas(amountInSats);
+};
 
-export const getNetworkAmount = (amountInSats: number, textStyles = [{}], scale = 1,
-  exchangeRates, currencyCode, currentCurrency) => {
+export const getNetworkAmount = (
+  amountInSats: number,
+  textStyles = [{}],
+  scale = 1,
+  exchangeRates,
+  currencyCode,
+  currentCurrency
+) => {
   let text: string;
   if (isTestnet()) {
     text = `${amountInSats}`;
   } else {
     text = (amountInSats / SATOSHIS_IN_BTC).toFixed(4);
   }
-  text = getAmt(amountInSats, exchangeRates, currencyCode, currentCurrency)
+  text = getAmt(amountInSats, exchangeRates, currencyCode, currentCurrency);
   return (
     <HStack alignItems="center">
       {!isTestnet() ? (
@@ -67,12 +69,11 @@ export const getNetworkAmount = (amountInSats: number, textStyles = [{}], scale 
 };
 
 export const getUnit = (currentCurrency) => {
-  const isBitcoin = currentCurrency === CurrencyKind.BITCOIN
-
+  const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   // disable sats mode
-  // if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET) {
-  //   return 'sats'
-  // }
+  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET && false) {
+    return 'sats';
+  }
   return '';
 };
 
@@ -89,21 +90,56 @@ export const getCurrencyImageByRegion = (
   currentCurrency: CurrencyKind,
   BTCIcon: any
 ) => {
-  const dollarCurrency = ['USD', 'AUD', 'BBD', 'BSD', 'BZD', 'BMD', 'BND', 'KHR', 'CAD', 'KYD', 'XCD', 'FJD', 'GYD', 'HKD', 'JMD', 'LRD', 'NAD', 'NZD', 'SGD', 'SBD', 'SRD', 'TWD', 'USH', 'TTD', 'TVD', 'ZWD', 'MXN', 'COP', 'CLP', 'UYU', 'DOP', 'ARS']
+  const dollarCurrency = [
+    'USD',
+    'AUD',
+    'BBD',
+    'BSD',
+    'BZD',
+    'BMD',
+    'BND',
+    'KHR',
+    'CAD',
+    'KYD',
+    'XCD',
+    'FJD',
+    'GYD',
+    'HKD',
+    'JMD',
+    'LRD',
+    'NAD',
+    'NZD',
+    'SGD',
+    'SBD',
+    'SRD',
+    'TWD',
+    'USH',
+    'TTD',
+    'TVD',
+    'ZWD',
+    'MXN',
+    'COP',
+    'CLP',
+    'UYU',
+    'DOP',
+    'ARS',
+  ];
   // These currencies also use the $ symbol although the currency is Peso 'MXN', 'COP', 'CLP', 'UYU', 'DOP', 'ARS'
 
-  const poundCurrency = ['EGP', 'FKP', 'GIP', 'GGP', 'IMP', 'JEP', 'SHP', 'SYP', 'GBP']
+  const poundCurrency = ['EGP', 'FKP', 'GIP', 'GGP', 'IMP', 'JEP', 'SHP', 'SYP', 'GBP'];
 
   if (currentCurrency !== CurrencyKind.BITCOIN && dollarCurrency.includes(currencyCode)) {
     if (type == 'light') {
-      return <DolarWhite />
-    } else if (type == 'green') {
-      return <DolarGreen />
-    } else if (type == 'dark') {
-      return <Dolar />
+      return <DolarWhite />;
+    }
+    if (type == 'green') {
+      return <DolarGreen />;
+    }
+    if (type == 'dark') {
+      return <Dolar />;
     }
   } else {
-    return <BTCIcon />
+    return <BTCIcon />;
   }
 
   // using Dolar for now
@@ -172,4 +208,4 @@ export const getCurrencyImageByRegion = (
   //   }
   //   return require('../../assets/images/currencySymbols/icon_chf_gray.png')
   // }
-}
+};

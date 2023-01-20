@@ -1,11 +1,8 @@
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
 import { DerivationPurpose } from 'src/core/wallets/enums';
 
 export const getJadeDetails = (qrData) => {
-  const { derivationPath, xPub, mfp } = qrData;
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  const xpub = WalletUtilities.generateXpubFromYpub(xPub, network);
+  const { derivationPath, xPub: xpub, mfp } = qrData;
   const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
   let forMultiSig = false;
   let forSingleSig = false;

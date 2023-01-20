@@ -15,6 +15,7 @@ import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
+import MockWrapper from '../Vault/MockWrapper';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -25,7 +26,13 @@ function ScanQR() {
   const [qrData, setData] = useState(0);
   const route = useRoute();
   const { showToast } = useToastMessage();
-  const { title = '', subtitle = '', onQrScan = () => { } } = route.params as any;
+  const {
+    title = '',
+    subtitle = '',
+    onQrScan = () => { },
+    setup = false,
+    type,
+  } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -107,30 +114,31 @@ function ScanQR() {
   }
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title={title === 'Setting up SEEDSIGNER' ? 'Setting up SeedSigner' : title}
-        subtitle={subtitle}
-      />
-      <Box style={styles.qrcontainer}>
-        <RNCamera
-          style={styles.cameraView}
-          captureAudio={false}
-          onBarCodeRead={onBarCodeRead}
-          useNativeZoom
-        />
-      </Box>
-      {enableImportImage(title) && <UploadImage onPress={handleChooseImage} />}
-      <HStack>
-        {qrPercent !== 100 && <ActivityIndicator />}
-        <Text>{`Scanned ${qrPercent}%`}</Text>
-      </HStack>
-      <Box style={styles.noteWrapper}>
-        <Note
-          title={common.note}
-          subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-          subtitleColor="GreyText"
-        />
-      </Box>
+      <MockWrapper signerType={type} enable={setup && type}>
+        <Box flex={1}>
+          <HeaderTitle title={title} subtitle={subtitle} />
+          <Box style={styles.qrcontainer}>
+            <RNCamera
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={onBarCodeRead}
+              useNativeZoom
+            />
+          </Box>
+          {enableImportImage(title) && <UploadImage onPress={handleChooseImage} />}
+          <HStack>
+            {qrPercent !== 100 && <ActivityIndicator />}
+            <Text>{`Scanned ${qrPercent}%`}</Text>
+          </HStack>
+          <Box style={styles.noteWrapper}>
+            <Note
+              title={common.note}
+              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+              subtitleColor="GreyText"
+            />
+          </Box>
+        </Box>
+      </MockWrapper>
     </ScreenWrapper>
   );
 }

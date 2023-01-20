@@ -50,6 +50,7 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import { crossInteractionHandler } from 'src/common/utilities';
 import * as SecureStore from '../../storage/secure-store';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 
@@ -285,24 +286,30 @@ const setupJade = (qrData, isMultisig) => {
 };
 
 const setupKeeperSigner = (qrData) => {
-  const { mfp, xpub, derivationPath } = JSON.parse(qrData);
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
+  try {
+    const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
 
-  const ksd: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.KEEPER,
-    signerName: 'Keeper Signing Device',
-    storageType: SignerStorage.WARM,
-    xpub,
-    xpubInfo: {
-      derivationPath,
-      xfp: mfp,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
+    const ksd: VaultSigner = {
+      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      type: SignerType.KEEPER,
+      registered: false,
+      signerName: 'Keeper Signing Device',
+      storageType: SignerStorage.WARM,
+      xpub,
+      xpubInfo: {
+        derivationPath,
+        xfp: mfp,
+      },
+      lastHealthCheck: new Date(),
+      addedOn: new Date(),
+    };
 
-  return ksd;
+    return ksd;
+  } catch (err) {
+    const message = crossInteractionHandler(err);
+    throw new Error(message);
+  }
 };
 
 const setupMobileKey = async ({ primaryMnemonic }) => {
@@ -353,6 +360,7 @@ const setupSeedWordsBasedKey = (mnemonic) => {
 };
 
 function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
+  const { showToast } = useToastMessage();
   const [password, setPassword] = useState('');
 
   const onPressNumber = (text) => {
@@ -457,9 +465,11 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Setting up ${type}`,
+          title: `Setting up ${getSignerNameFromType(type)}`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: onQRScan,
+          setup: true,
+          type,
         },
       })
     );
