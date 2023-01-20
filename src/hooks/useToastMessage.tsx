@@ -16,7 +16,7 @@ const useToastMessage = () => {
     ToastBody = (
       <Text
         color={error ? 'error.200' : null}
-        style={{ marginLeft: image ? 5 : 0, width }}
+        style={{ marginLeft: image ? 5 : 0, width, paddingRight: 25 }}
         numberOfLines={2}
       >
         {title}

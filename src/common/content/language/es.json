@@ -371,7 +371,7 @@
     "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
     "VersionHistorySubTitle": "View the apps version history",
-    "LanguageCountry": "Language & Country",
+    "LanguageCountry": "Language & Currency",
     "LanguageCountrySubTitle": "Select language and currency",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
     "Questionsfeedbackandmore": "Questions, feedback and more",
@@ -448,7 +448,7 @@
     "host": "Host",
     "useSSL": "Use SSL for this node",
     "nodeConnectionSuccess": "Node connected successfully",
-    "nodeConnectionFailure": "Node connection failed"
+    "nodeConnectionFailure": "Unable to connect to Electrum Server. Invalid node details or, not known"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",

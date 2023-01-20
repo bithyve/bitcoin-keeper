@@ -82,12 +82,10 @@ function ChoosePolicyNew({ navigation, route }) {
 
   function Field({ title, subTitle, value, onPress }) {
     return (
-      <Box flexDirection="row" alignItems="center" marginTop={hp(40)}>
+      <Box style={styles.fieldWrapper}>
         <Box width={wp(175)}>
-          <Text fontSize={13} letterSpacing={0.96}>
-            {title}
-          </Text>
-          <Text color="light.GreyText" fontSize={10} letterSpacing={0.5}>
+          <Text style={styles.titleText}>{title}</Text>
+          <Text color="light.GreyText" style={styles.subTitleText}>
             {subTitle}
           </Text>
         </Box>
@@ -149,13 +147,13 @@ function ChoosePolicyNew({ navigation, route }) {
             />
           </Box>
 
-          <Box marginTop={hp(windowHeight > 700 ? 40 : 0)}>
+          <Box style={styles.btnWrapper}>
             <Buttons primaryText="Next" primaryCallback={onNext} />
           </Box>
         </Box>
       </ScreenWrapper>
 
-      <Box position="absolute" bottom={0}>
+      <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
           clear={() => {}}
@@ -175,6 +173,26 @@ const styles = StyleSheet.create({
     fontSize: 20,
     letterSpacing: 0.23,
     fontFamily: Fonts.RobotoCondensedRegular,
+  },
+  fieldWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: hp(40),
+  },
+  titleText: {
+    fontSize: 13,
+    letterSpacing: 0.96,
+  },
+  subTitleText: {
+    fontSize: 10,
+    letterSpacing: 0.5,
+  },
+  btnWrapper: {
+    marginTop: hp(windowHeight > 700 ? 25 : 0),
+  },
+  keypadWrapper: {
+    position: 'absolute',
+    bottom: 0,
   },
 });
 export default ChoosePolicyNew;

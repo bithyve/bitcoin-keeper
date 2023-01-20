@@ -133,7 +133,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
     }
   }, []);
 
-  const updateSignerRegistrationIndication = () =>
+  const sanitizeSigners = () =>
     signersState.map((signer: VaultSigner) => {
       if (
         subscriptionScheme.n !== 1 &&
@@ -147,7 +147,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
 
   const initiateNewVault = () => {
     if (activeVault) {
-      const freshSignersState = updateSignerRegistrationIndication();
+      const freshSignersState = sanitizeSigners();
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
         vaultScheme: subscriptionScheme,

@@ -22,6 +22,7 @@ import { globalStyles } from 'src/common/globalStyles';
 import { regsiterWithLedger } from 'src/hardware/ledger';
 import useVault from 'src/hooks/useVault';
 import { captureError } from 'src/core/services/sentry';
+import useNfcModal from 'src/hooks/useNfcModal';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import LedgerScanningModal from './components/LedgerScanningModal';
@@ -44,12 +45,10 @@ function SignerAdvanceSettings({ route }: any) {
     signer.isMock,
     signer.amfData && signer.amfData.xpub
   );
-  const [nfcModal, setNfcModal] = useState(false);
+
   const [visible, setVisible] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
-
-  const openNfc = () => setNfcModal(true);
-  const closeNfc = () => setNfcModal(false);
+  const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
@@ -57,9 +56,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const registerColdCard = async () => {
     if (signer.type === SignerType.COLDCARD) {
-      openNfc();
-      await registerToColcard({ vault: activeVault });
-      closeNfc();
+      await withNfcModal(() => registerToColcard({ vault: activeVault }));
     }
   };
 
@@ -203,7 +200,7 @@ function SignerAdvanceSettings({ route }: any) {
           interactionText="Registering..."
         />
       )}
-      <NfcPrompt visible={nfcModal} />
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
         close={closeDescriptionModal}

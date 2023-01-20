@@ -44,13 +44,16 @@ export default class ElectrumClient {
       ); // tcp or tls
 
       ELECTRUM_CLIENT.electrumClient.onError = (error) => {
-        console.log('Electrum mainClient.onError():', error?.message);
+        if (ELECTRUM_CLIENT.isClientConnected) {
+          console.log('Electrum mainClient.onError():', error?.message);
 
-        if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
+          if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
-        ELECTRUM_CLIENT.isClientConnected = false;
-        console.log('Error: Close the connection');
-        setTimeout(ElectrumClient.connect, ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500);
+          ELECTRUM_CLIENT.isClientConnected = false;
+          console.log('Error: Close the connection');
+
+          setTimeout(ElectrumClient.connect, ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500);
+        }
       };
 
       console.log('Initiate electrum server');
@@ -97,7 +100,7 @@ export default class ElectrumClient {
 
   public static async serverFeatures() {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
-    return  await ELECTRUM_CLIENT.electrumClient.server_features();
+    return await ELECTRUM_CLIENT.electrumClient.server_features();
   }
 
   public static getActivePrivateNodeToUse(peers: NodeDetail[]) {
@@ -343,12 +346,13 @@ export default class ElectrumClient {
       sslPort ? 'tls' : 'tcp'
     );
 
-    client.onError = (ex) => {console.log(ex) }; // mute
+    client.onError = (ex) => { console.log(ex) }; // mute
     let timeoutId = null;
     try {
       const rez = await Promise.race([
         new Promise((resolve) => {
-          timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? 21000 : 5000);        }),
+          timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? 21000 : 5000);
+        }),
         client.connect(),
       ]);
       if (rez === 'timeout') return false;
