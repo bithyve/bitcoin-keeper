@@ -128,12 +128,7 @@ function* uaiChecksWorker({ payload }) {
         true
       );
       for (const wallet of wallets) {
-        const uai: UAI = yield call(
-          dbManager.getObjectByField,
-          RealmSchema.UAI,
-          wallet.id,
-          'entityId'
-        )[0];
+        const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
         if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
           if (uai) {
             if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
@@ -150,7 +145,9 @@ function* uaiChecksWorker({ payload }) {
               })
             );
           }
-        } else if (uai) yield put(uaiActionedEntity(uai.entityId, true));
+        } else if (uai) {
+          yield put(uaiActionedEntity(uai.entityId, true));
+        }
       }
     }
 
@@ -194,9 +191,8 @@ function* uaiChecksWorker({ payload }) {
 
 function* uaiActionedEntityWorker({ payload }) {
   const { entityId, action } = payload;
-  const uais = yield call(dbManager.getObjectByField, RealmSchema.UAI, entityId, 'entityId');
-  if (uais.length > 0) {
-    const uai = uais[0];
+  const uai: UAI | any = dbManager.getObjectByField(RealmSchema.UAI, entityId, 'entityId')[0];
+  if (uai) {
     yield call(dbManager.updateObjectById, RealmSchema.UAI, uai.id, { isActioned: action });
     yield put(setRefreshUai());
   }
