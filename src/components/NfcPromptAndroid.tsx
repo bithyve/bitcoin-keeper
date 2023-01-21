@@ -1,28 +1,37 @@
 import { Animated, Modal, Platform, StyleSheet } from 'react-native';
-import { View } from 'native-base';
+import { Pressable, View } from 'native-base';
 
-import NFC from 'src/assets/images/nfc.svg';
+import NFCSVG from 'src/assets/images/nfc.svg';
 import React from 'react';
 import Text from 'src/components/KeeperText';
+import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import NFC from 'src/core/services/nfc';
 
-function NfcPrompt({ visible }) {
+function NfcPrompt({ visible, close }: { visible: boolean; close }) {
   const animation = React.useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'ios') {
     return null;
   }
 
-  visible
-    ? Animated.timing(animation, {
-        duration: 500,
-        toValue: 1,
-        useNativeDriver: true,
-      }).start()
-    : Animated.timing(animation, {
-        duration: 400,
-        toValue: 0,
-        useNativeDriver: true,
-      }).start();
+  if (visible) {
+    Animated.timing(animation, {
+      duration: 500,
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  } else {
+    Animated.timing(animation, {
+      duration: 400,
+      toValue: 0,
+      useNativeDriver: true,
+    }).start();
+  }
+
+  const onCancel = async () => {
+    close();
+    await NFC.cancelRequest();
+  };
 
   const bgAnimStyle = {
     backgroundColor: 'rgba(0,0,0,0.3)',
@@ -45,15 +54,15 @@ function NfcPrompt({ visible }) {
         <View style={{ flex: 1 }} />
         <Animated.View style={[styles.prompt, promptAnimStyle]}>
           <View style={styles.center} backgroundColor="light.secondaryBackground">
-            <NFC />
-            <Text
-              color="light.greenText"
-              style={{
-                textAlign: 'center',
-              }}
-            >
+            <NFCSVG />
+            <Text color="light.greenText" style={{ textAlign: 'center' }}>
               Please hold until the scanning is complete...
             </Text>
+            <Pressable style={styles.cancel} onPress={onCancel}>
+              <Text color="light.greenText" style={{ textAlign: 'center' }}>
+                Cancel
+              </Text>
+            </Pressable>
           </View>
         </Animated.View>
         <Animated.View style={[styles.promptBg, bgAnimStyle]} />
@@ -89,6 +98,13 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     margin: 20,
+  },
+  cancel: {
+    width: windowWidth * 0.7,
+    paddingVertical: 10,
+    backgroundColor: 'rgba(0,0,0,.2)',
+    borderRadius: 10,
+    marginTop: 5,
   },
 });
 

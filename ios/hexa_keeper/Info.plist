@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to interact with nearby NFC devices</string>
+	<string>Allow Keeper to interact with nearby NFC devices</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSExceptionDomains</key>
@@ -40,13 +40,13 @@
 		</dict>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings.</string>
+	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings.</string>
+	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) requires FaceID access to allows you quick and secure access.</string>
+	<string>Allow Keeper requires FaceID access to allows you quick and secure access.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>

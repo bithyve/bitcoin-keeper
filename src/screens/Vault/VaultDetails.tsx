@@ -46,10 +46,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
-import { WalletMap } from './WalletMap';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { WalletMap } from './WalletMap';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {
   const navigation = useNavigation();
@@ -114,16 +114,20 @@ function Header() {
   const dispatch = useDispatch();
   const styles = getStyles(0);
   return (
-    <Box flexDirection="row" justifyContent="space-between" px="2%">
+    <Box flexDirection="row" width="100%" px="2%">
       <StatusBar barStyle="light-content" />
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <BackIcon />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-        <Text color="light.white" style={styles.footerText} light>
-          Know More
-        </Text>
-      </TouchableOpacity>
+      <Box width={'50%'}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <BackIcon />
+        </TouchableOpacity>
+      </Box>
+      <Box width={'50%'}>
+        <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
+          <Text color="light.white" style={styles.footerText} light>
+            Know More
+          </Text>
+        </TouchableOpacity>
+      </Box>
     </Box>
   );
 }
@@ -137,7 +141,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
   } = vault;
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
   const styles = getStyles(0);
   return (
@@ -160,13 +164,25 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
             Unconfirmed
           </Text>
-          {getNetworkAmount(unconfirmed, [styles.vaultInfoText, { fontSize: 12 }], 0.9,
-            exchangeRates, currencyCode, currentCurrency)}
+          {getNetworkAmount(
+            unconfirmed,
+            [styles.vaultInfoText, { fontSize: 12 }],
+            0.9,
+            exchangeRates,
+            currencyCode,
+            currentCurrency
+          )}
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(confirmed, [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 },
-          2], 1, exchangeRates, currencyCode, currentCurrency)}
+        {getNetworkAmount(
+          confirmed,
+          [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2],
+          1,
+          exchangeRates,
+          currencyCode,
+          currentCurrency
+        )}
         <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>
@@ -235,8 +251,8 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         ListEmptyComponent={
           <EmptyStateView
             IllustartionImage={NoVaultTransactionIcon}
-            title={'No transactions yet.'}
-            subTitle={'Pull down to refresh'}
+            title="No transactions yet."
+            subTitle="Pull down to refresh"
           />
         }
       />
@@ -326,7 +342,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 {WalletMap(signer.type, true).Icon}
               </Box>
               <Text bold style={styles.unregistered}>
-                {indicate ? 'Not registered' : ''}
+                {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack pb={2}>
                 <Text
@@ -556,6 +572,7 @@ const getStyles = (top) =>
       borderRadius: 8,
       borderWidth: 1,
       borderColor: '#FAFCFC',
+      alignSelf: 'flex-end',
     },
     footerText: {
       fontSize: 12,
@@ -583,6 +600,7 @@ const getStyles = (top) =>
       letterSpacing: 0.6,
       textAlign: 'center',
       numberOfLines: 1,
+      lineHeight: 16,
     },
   });
 export default VaultDetails;

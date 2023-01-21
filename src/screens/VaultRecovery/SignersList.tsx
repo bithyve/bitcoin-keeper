@@ -12,7 +12,7 @@ import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { Alert, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
@@ -23,9 +23,9 @@ import { useDispatch } from 'react-redux';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { getKeystoneDetails } from 'src/hardware/keystone';
-import { generateSignerFromMetaData } from 'src/hardware';
 import { getJadeDetails } from 'src/hardware/jade';
 import { WalletMap } from '../Vault/WalletMap';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function TapsignerSetupContent() {
   return (
@@ -207,6 +207,7 @@ function SignersList() {
   const { navigate } = useNavigation();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const verifyPassport = async (qrData) => {
     try {
@@ -220,7 +221,7 @@ function SignersList() {
       dispatch(setSigningDevices(sigingDeivceDetails));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Passport!');
+      showToast('Invalid QR, please scan the QR from Passport!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
@@ -238,7 +239,7 @@ function SignersList() {
       dispatch(setSigningDevices(sigingDeivceDetails));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from SeedSigner!');
+      showToast('Invalid QR, please scan the QR from SeedSigner!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
@@ -256,7 +257,7 @@ function SignersList() {
       dispatch(setSigningDevices(sigingDeivceDetails));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Keystone!');
+      showToast('Invalid QR, please scan the QR from Keystone!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
@@ -274,7 +275,7 @@ function SignersList() {
       dispatch(setSigningDevices(sigingDeivceDetails));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Jade!');
+      showToast('Invalid QR, please scan the QR from Jade!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }

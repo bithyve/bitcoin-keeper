@@ -640,7 +640,9 @@ export function* registerWithSigningServerWorker({ payload }: { payload: { polic
   if (setupData.verification.method === VerificationType.TWO_FA)
     twoFADetails.twoFAKey = setupData.verification.verifier;
 
-  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
+    twoFADetails,
+  });
 }
 
 export const registerWithSigningServerWatcher = createWatcher(
@@ -657,7 +659,9 @@ function* validateSigningServerRegistrationWorker({ payload }: { payload: { veri
       yield put(signingServerRegistrationVerified(true));
       const twoFADetails = getJSONFromRealmObject(app.twoFADetails);
       twoFADetails.twoFAValidated = true;
-      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, { twoFADetails });
+      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
+        twoFADetails,
+      });
     } else yield put(signingServerRegistrationVerified(false));
   } catch (error) {
     yield put(signingServerRegistrationVerified(false));

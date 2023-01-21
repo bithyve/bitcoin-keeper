@@ -110,7 +110,14 @@ function SetupSigningServer({ route }: { route }) {
     return (
       <Box width={hp(300)}>
         <Box>
-          <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+          <TouchableOpacity
+            onPress={async () => {
+              let data = await Clipboard.getString();
+              setOtp(data);
+            }}
+          >
+            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+          </TouchableOpacity>
           <Text
             fontSize={13}
             letterSpacing={0.65}

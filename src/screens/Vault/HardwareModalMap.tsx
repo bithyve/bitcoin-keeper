@@ -1,13 +1,14 @@
 /* eslint-disable no-case-declarations */
 import React, { useCallback, useContext, useState } from 'react';
 import * as bip39 from 'bip39';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, Center, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -51,6 +52,7 @@ import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { crossInteractionHandler } from 'src/common/utilities';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import * as SecureStore from '../../storage/secure-store';
 
 const RNBiometrics = new ReactNativeBiometrics();
@@ -75,10 +77,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
       return {
         Illustration: <ColdCardSetupImage />,
-        Instructions: [
-          ccInstructions,
-          `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              ccInstructions,
+              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+            ]
+          : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
@@ -88,10 +92,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
-        Instructions: [
-          jadeInstructions,
-          `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              jadeInstructions,
+              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+            ]
+          : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
       };
@@ -132,10 +138,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         : `Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet`;
       return {
         Illustration: <KeystoneSetupImage />,
-        Instructions: [
-          keystoneInstructions,
-          `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              keystoneInstructions,
+              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+            ]
+          : [keystoneInstructions],
         title: 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
@@ -145,10 +153,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
-        Instructions: [
-          passportInstructions,
-          `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              passportInstructions,
+              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+            ]
+          : [passportInstructions],
         title: 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
       };
@@ -168,10 +178,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
-        Instructions: [
-          seedSignerInstructions,
-          `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              seedSignerInstructions,
+              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
+            ]
+          : [seedSignerInstructions],
         title: 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
       };
@@ -363,6 +375,7 @@ const setupSeedWordsBasedKey = (mnemonic) => {
 
 function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
   const [password, setPassword] = useState('');
+  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -404,7 +417,7 @@ function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
                   dispatch(addSigningDevice(mobileKey));
                   navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
                   showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
-                } else Alert.alert('Incorrect password. Try again!');
+                } else showToast('Incorrect password. Try again!', <ToastErrorIcon />);
               }}
               value="Confirm"
             />
@@ -466,9 +479,11 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Setting up ${type}`,
+          title: `Setting up ${getSignerNameFromType(type)}`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: onQRScan,
+          setup: true,
+          type,
         },
       })
     );
@@ -521,11 +536,14 @@ function HardwareModalMap({
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, null, 3000, true);
+        showToast(error.message, <ToastErrorIcon />, 3000);
         resetQR();
       } else {
         captureError(error);
-        Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+        showToast(
+          `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
+          <ToastErrorIcon />
+        );
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     }
@@ -548,7 +566,7 @@ function HardwareModalMap({
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
               showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
             } else {
-              Alert.alert('Incorrect password. Try again!');
+              showToast('Incorrect password. Try again!', <ToastErrorIcon />);
             }
           }
         }, 200);

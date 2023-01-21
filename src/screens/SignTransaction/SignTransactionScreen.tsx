@@ -344,7 +344,7 @@ function SignTransactionScreen() {
         signTransaction={signTransaction}
         textRef={textRef}
       />
-      <NfcPrompt visible={nfcVisible || TSNfcVisible} />
+      <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
 }
