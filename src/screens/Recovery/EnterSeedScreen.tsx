@@ -307,6 +307,10 @@ function EnterSeedScreen() {
             <Buttons
               primaryCallback={onPressNext}
               primaryText="Next"
+              secondaryCallback={() => {
+                navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' });
+              }}
+              secondaryText="Other Methods"
               primaryLoading={recoveryLoading}
             />
           </View>
