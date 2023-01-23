@@ -1,4 +1,4 @@
-appId: io.hexawallet.keeper.development
+appId: io.hexawallet.hexakeeper.dev
 ---
 - launchApp
 - extendedWaitUntil:
@@ -28,3 +28,7 @@ appId: io.hexawallet.keeper.development
     visible: 'Next'
     timeout: 5000
 - tapOn: 'Next'
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible:
+    id: 'btn_vault'

@@ -1,0 +1,20 @@
+appId: io.hexawallet.keeper.development
+---
+- runFlow: setpin.yaml
+- runFlow: login.yaml
+- extendedWaitUntil:
+    visible: 'New Keeper App'
+    timeout: 15000
+- assertVisible:
+    id: 'btn_startNew'
+- tapOn:
+    id: 'btn_startNew'
+- extendedWaitUntil:
+    visible: 'Next'
+    timeout: 15000
+- tapOn: 'Next'
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible: 'Add a signing device to activate your vault'
+- assertVisible:
+    id: 'btn_vault'

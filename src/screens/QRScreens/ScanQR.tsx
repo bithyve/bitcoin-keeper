@@ -2,6 +2,7 @@ import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
@@ -11,14 +12,19 @@ import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
+import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
+import useToastMessage from 'src/hooks/useToastMessage';
+import UploadImage from 'src/components/UploadImage';
 import MockWrapper from '../Vault/MockWrapper';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
+
 function ScanQR() {
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
   const route = useRoute();
+  const { showToast } = useToastMessage();
   const {
     title = '',
     subtitle = '',
@@ -61,6 +67,36 @@ function ScanQR() {
       }
     }
   };
+
+  const handleChooseImage = () => {
+    const options = {
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: { skipBackup: true },
+      mediaType: 'photo',
+    } as ImageLibraryOptions;
+
+    launchImageLibrary(options, async (response) => {
+      try {
+        if (response.didCancel) {
+          // ignore if user canceled the process
+        } else if (response.errorCode === 'camera_unavailable') {
+          showToast('Camera not available on device');
+        } else if (response.errorCode === 'permission') {
+          showToast('Permission not satisfied');
+        } else if (response.errorCode === 'others') {
+          showToast(response.errorMessage);
+        } else {
+          const data = await QRreader(response.assets[0].uri);
+          onBarCodeRead({ data });
+        }
+      } catch (_) {
+        showToast('Invalid or No related QR code');
+      }
+    });
+  };
+
   return (
     <ScreenWrapper>
       <MockWrapper signerType={type} enable={setup && type}>
@@ -74,6 +110,7 @@ function ScanQR() {
               useNativeZoom
             />
           </Box>
+          <UploadImage onPress={handleChooseImage} />
           <HStack>
             {qrPercent !== 100 && <ActivityIndicator />}
             <Text>{`Scanned ${qrPercent}%`}</Text>

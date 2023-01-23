@@ -52,6 +52,7 @@ import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { crossInteractionHandler } from 'src/common/utilities';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import * as SecureStore from '../../storage/secure-store';
 
 const RNBiometrics = new ReactNativeBiometrics();
@@ -76,10 +77,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
       return {
         Illustration: <ColdCardSetupImage />,
-        Instructions: [
-          ccInstructions,
-          `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              ccInstructions,
+              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+            ]
+          : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
@@ -89,10 +92,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
-        Instructions: [
-          jadeInstructions,
-          `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              jadeInstructions,
+              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+            ]
+          : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
       };
@@ -133,10 +138,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         : `Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet`;
       return {
         Illustration: <KeystoneSetupImage />,
-        Instructions: [
-          keystoneInstructions,
-          `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              keystoneInstructions,
+              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+            ]
+          : [keystoneInstructions],
         title: 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
@@ -146,10 +153,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
-        Instructions: [
-          passportInstructions,
-          `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              passportInstructions,
+              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+            ]
+          : [passportInstructions],
         title: 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
       };
@@ -169,10 +178,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
-        Instructions: [
-          seedSignerInstructions,
-          `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              seedSignerInstructions,
+              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
+            ]
+          : [seedSignerInstructions],
         title: 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
       };
@@ -363,7 +374,6 @@ const setupSeedWordsBasedKey = (mnemonic) => {
 };
 
 function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
-  const { showToast } = useToastMessage();
   const [password, setPassword] = useState('');
 
   const onPressNumber = (text) => {

@@ -270,7 +270,7 @@ function WalletDetails({ route }) {
                   Available to spend
                   <Text bold>
                     {' '}
-                    {'\n'}฿ {wallets[walletIndex].specs.balances.confirmed}sats
+                    {'\n'}฿ {getAmt(wallets[walletIndex].specs.balances.confirmed, exchangeRates, currencyCode, currentCurrency)}{getUnit(currentCurrency)}
                   </Text>
                 </Text>
               </Box>
@@ -296,7 +296,9 @@ function WalletDetails({ route }) {
                   }}
                 >
                   Transfer Policy is set at{'  '}
-                  <Text bold>฿ {wallets[walletIndex].specs.transferPolicy}sats</Text>
+                  <Text bold>
+                    {'\n'}฿ {getAmt(wallets[walletIndex].specs.transferPolicy, exchangeRates, currencyCode, currentCurrency)}{getUnit(currentCurrency)}
+                  </Text>
                 </Text>
               </Box>
             </Pressable>
