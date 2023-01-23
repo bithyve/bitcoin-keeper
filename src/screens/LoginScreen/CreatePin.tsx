@@ -174,7 +174,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                    `light.error`
+                      `light.error`
                     : 'transparent'
                 }
               />
@@ -208,19 +208,6 @@ export default function CreatePin(props) {
                     </Text>
                   )}
                 </Box>
-                {isTestnet && <HStack justifyContent="space-between" paddingTop="7">
-                  <Text color="light.white" style={styles.bitcoinTestnetText}>
-                    Use bitcoin testnet
-                  </Text>
-                  <Switch
-                    defaultIsChecked
-                    trackColor={{ true: '#FFFA' }}
-                    thumbColor="#358475"
-                    style={{ marginRight: '5%' }}
-                    onChange={switchConfig}
-                    disabled
-                  />
-                </HStack>}
                 <Box alignSelf="flex-end" mr={5} mt={5}>
                   <CustomButton
                     disabled={isDisabled}
