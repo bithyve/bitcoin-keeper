@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, View } from 'native-base';
 import { Alert } from 'react-native';
 
@@ -7,19 +7,21 @@ import BtcInput from 'src/assets/images/btc_input.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { Wallet, WalletSpecs } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import Buttons from '../Buttons';
 import { useDispatch } from 'react-redux';
-import { updateAppImage } from 'src/store/sagaActions/bhr';
+import { useAppSelector } from 'src/store/hooks';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import { updateWalletProperty } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
   const { showToast } = useToastMessage();
   const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [policyText, setPolicyText] = useState(specs.transferPolicy.toString());
@@ -32,6 +34,18 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
     }
   };
 
+  useEffect(() => {
+    if (relayWalletError) {
+      Alert.alert(realyWalletErrorMessage);
+      dispatch(resetRealyWalletState());
+    }
+    if (relayWalletUpdate) {
+      close();
+      Alert.alert('Transfer Policy Changed');
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
+
   const onDeletePressed = () => {
     if (policyText) {
       setPolicyText(policyText.slice(0, -1));
@@ -40,11 +54,13 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
   const presshandler = () => {
     if (Number(policyText) > 0) {
       specs.transferPolicy = Number(policyText);
-      //To-Do: Remove DB calls from UI and API Calls biniding to saga
-      dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, { specs });
-      dispatch(updateAppImage(wallet.id));
-      close();
-      showToast('Transfer Policy Changed');
+      dispatch(
+        updateWalletProperty({
+          wallet,
+          key: 'specs',
+          value: specs,
+        })
+      );
     } else {
       showToast('Transfer Policy cannot be zero');
     }
@@ -88,6 +104,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
 
       <Buttons
         primaryCallback={presshandler}
+        primaryLoading={relayWalletUpdateLoading}
         primaryText={common.confirm}
         secondaryCallback={close}
         secondaryText={common.cancel}

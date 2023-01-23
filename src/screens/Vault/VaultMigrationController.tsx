@@ -4,7 +4,7 @@ import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vau
 import { VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { updateIntrimVault } from 'src/store/reducers/vaults';
+import { clearSigningDevice, updateIntrimVault } from 'src/store/reducers/vaults';
 import { TransferType } from 'src/common/data/enums/TransferType';
 
 import { NewVaultInfo } from 'src/store/sagas/wallets';
@@ -16,10 +16,13 @@ import WalletOperations from 'src/core/wallets/operations';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { Alert } from 'react-native';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import useToastMessage from 'src/hooks/useToastMessage';
 
-function VaultMigrationController({ vaultCreating, signersState, planStatus }: any) {
+function VaultMigrationController({ vaultCreating, signersState, planStatus, setCreating }: any) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const { activeVault } = useVault();
   const { subscriptionScheme } = usePlan();
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
@@ -29,6 +32,10 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
     unconfirmed: 0,
   };
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
+  const { relayVaultUpdate, relayVaultError, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
+
   const [recipients, setRecepients] = useState<any[]>();
 
   useEffect(() => {
@@ -36,6 +43,29 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
       initiateNewVault();
     }
   }, [vaultCreating]);
+
+  useEffect(() => {
+    if (relayVaultUpdate) {
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+      dispatch(resetRealyVaultState());
+      dispatch(clearSigningDevice());
+      setCreating(false);
+    }
+
+    if (relayVaultError) {
+      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
+      dispatch(resetRealyVaultState());
+      dispatch(clearSigningDevice());
+      setCreating(false);
+    }
+  }, [relayVaultUpdate, relayVaultError]);
 
   useEffect(() => {
     if (temporaryVault) {
@@ -101,14 +131,6 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
     const netBanalce = confirmed + unconfirmed;
     if (netBanalce === 0) {
       dispatch(finaliseVaultMigration(activeVault.id));
-      const navigationState = {
-        index: 1,
-        routes: [
-          { name: 'NewHome' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
-        ],
-      };
-      navigation.dispatch(CommonActions.reset(navigationState));
     } else {
       initiateSweep();
     }
@@ -159,17 +181,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus }: a
       };
       dispatch(migrateVault(vaultInfo, planStatus));
     } else {
-      const freshVault = createVault(signersState, subscriptionScheme);
-      if (freshVault && !activeVault) {
-        const navigationState = {
-          index: 1,
-          routes: [
-            { name: 'NewHome' },
-            { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
-          ],
-        };
-        navigation.dispatch(CommonActions.reset(navigationState));
-      }
+      createVault(signersState, subscriptionScheme);
     }
   };
   return null;
