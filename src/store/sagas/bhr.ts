@@ -66,45 +66,16 @@ import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 
-const generateCombinations = (sourceArray, comboLength) => {
-  const sourceLength = sourceArray.length;
-  if (comboLength > sourceLength) return [];
-  const combos = [];
-  const makeNextCombos = (workingCombo, currentIndex, remainingCount) => {
-    const oneAwayFromComboLength = remainingCount == 1;
-    for (let sourceIndex = currentIndex; sourceIndex < sourceLength; sourceIndex++) {
-      const next = [...workingCombo, sourceArray[sourceIndex]];
-      if (oneAwayFromComboLength) {
-        combos.push(next);
-      } else {
-        makeNextCombos(next, sourceIndex + 1, remainingCount - 1);
-      }
-    }
-  };
-
-  makeNextCombos([], 0, comboLength);
-  return combos;
-};
-
-const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
-  const vacMap: any = {};
-  const allcombination = generateCombinations(signerIds, m);
-
-  allcombination.forEach((signerIdsCombination) => {
-    const xpubs = signerIdsCombination.map((signerId) => signerIdXpubMap[signerId]);
-    const key = signerIdsCombination.sort().toString();
-    const hashKey = generateIDForVAC(key);
-    const encryptyVAC = encryptVAC(vac, xpubs);
-    vacMap[hashKey] = encryptyVAC;
-  });
-
-  return vacMap;
-};
-
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, appID, walletShellInstances, subscription, networkType }: KeeperApp =
-    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const {
+    primarySeed,
+    appID,
+    walletShellInstances,
+    subscription,
+    networkType,
+    primaryMnemonic,
+  }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   const walletShells: WalletShell[] = yield call(
     dbManager.getObjectByIndex,
@@ -151,22 +122,21 @@ export function* updateVaultImageWorker({
   };
 }) {
   const { vault, archiveVaultId, isUpdate } = payload;
-  const { primarySeed, appID, vaultShellInstances, subscription }: KeeperApp = yield call(
+  const { primarySeed, appID, subscription, vaultShellInstances }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
+  const encryptionKey = generateEncryptionKey(primarySeed);
 
-  // Vault Encrypted with VAC
-  const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
+  const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
     Relay.updateVaultImage({
       isUpdate,
       vaultId: vault.id,
-      vaultEncryptedVAC,
+      vault: vaultEncrypted,
     });
   }
-  const { m } = vault.scheme;
 
   let signersData: Array<{
     signerId: String;
@@ -191,24 +161,19 @@ export function* updateVaultImageWorker({
   }
   signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
-  const signerIds = signersData.map((signer) => signer.signerId);
-  const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
+  //TO-DO to be removed
   const subscriptionStrings = JSON.stringify(subscription);
-  const encryptionKey = generateEncryptionKey(primarySeed);
-  const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
-  const vacMap = createVACMap(signerIds, signerIdXpubMap, m, vault.VAC);
+  const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
 
   try {
     if (archiveVaultId) {
       const response = yield call(Relay.updateVaultImage, {
         appID,
         vaultId: vault.id,
-        m,
-        vacEncryptedApp,
+        scheme: vault.scheme,
         signersData,
-        vaultEncryptedVAC,
+        vault: vaultEncrypted,
         vaultShellInstances: vaultShellInstancesString,
-        vacMap,
         subscription: subscriptionStrings,
         archiveVaultId,
       });
@@ -217,12 +182,11 @@ export function* updateVaultImageWorker({
     const response = yield call(Relay.updateVaultImage, {
       appID,
       vaultId: vault.id,
-      m,
-      vacEncryptedApp,
+      scheme: vault.scheme,
       signersData,
-      vaultEncryptedVAC,
+      vault: vaultEncrypted,
       vaultShellInstances: vaultShellInstancesString,
-      vacMap,
+
       subscription: subscriptionStrings,
     });
     return response;
@@ -433,7 +397,6 @@ function* getAppImageWorker({ payload }) {
         primaryMnemonic
       );
       const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-
       const app: KeeperApp = {
         id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
         appID: appImage.appId,
@@ -441,14 +404,13 @@ function* getAppImageWorker({ payload }) {
         walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic,
         imageEncryptionKey,
-        subscription: appImage.subscription,
+        subscription: JSON.parse(appImage.subscription),
         version: DeviceInfo.getVersion(),
         vaultShellInstances: appImage.vaultShellInstances
           ? JSON.parse(appImage.vaultShellInstances)
           : null,
-        networkType: appImage.networkType,
+        networkType: config.NETWORK_TYPE,
       };
-      console.log({ app });
 
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
       yield call(
@@ -468,8 +430,7 @@ function* getAppImageWorker({ payload }) {
 
       // Vault recreation
       if (vaultImage) {
-        const vac = decrypt(encryptionKey, vaultImage.vac);
-        const vault = JSON.parse(decrypt(vac, vaultImage.vault));
+        const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
       yield put(setAppId(app.appID));

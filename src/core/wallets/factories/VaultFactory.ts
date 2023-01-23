@@ -21,6 +21,18 @@ import config from '../../config';
 
 const crypto = require('crypto');
 
+export const generateVaultId = (signers, networkType) => {
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const xpubs = signers.map((signer) => signer.xpub).sort();
+  const fingerprints = [];
+  xpubs.forEach((xpub) =>
+    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
+  );
+  const hashedFingerprints = hash256(fingerprints.join(''));
+  const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
+  return id;
+};
+
 export const generateVault = ({
   type,
   vaultShellId,
@@ -38,17 +50,8 @@ export const generateVault = ({
   signers: VaultSigner[];
   networkType: NetworkType;
 }): Vault => {
-  const network = WalletUtilities.getNetworkByType(networkType);
-
+  const id = generateVaultId(signers, networkType);
   const xpubs = signers.map((signer) => signer.xpub);
-  const fingerprints = [];
-  xpubs.forEach((xpub) =>
-    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
-  );
-
-  const hashedFingerprints = hash256(fingerprints.join(''));
-  const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
-
   const presentationData: VaultPresentationData = {
     name: vaultName,
     description: vaultDescription,

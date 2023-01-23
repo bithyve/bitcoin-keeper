@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BackupType, SigningDeviceRecovery } from 'src/common/data/enums/BHR';
+import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -126,7 +128,16 @@ const bhrSlice = createSlice({
       state.backupWarning = action.payload;
     },
     setSigningDevices: (state, action: PayloadAction<any>) => {
-      state.signingDevices = [...state.signingDevices, action.payload];
+      state.signingDevices = _.uniqBy([...state.signingDevices, action.payload], 'signerId');
+    },
+    removeSigningDeviceBhr: (state, action: PayloadAction<VaultSigner>) => {
+      const signerToRemove = action.payload;
+      console.log(state.signingDevices);
+      if (signerToRemove) {
+        state.signingDevices = state.signingDevices.filter(
+          (signer) => signer.signerId !== signerToRemove.signerId
+        );
+      }
     },
     setVaultMetaData: (state, action: PayloadAction<any>) => {
       state.vaultMetaData = action.payload;
@@ -187,6 +198,8 @@ export const {
   setCloudData,
   setInvalidPassword,
   setBackupWarning,
+
+  removeSigningDeviceBhr,
   setSigningDevices,
   setVaultMetaData,
 
