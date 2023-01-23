@@ -71,8 +71,8 @@ function WalletSettings({ route }) {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
   const walletRoute: Wallet = route?.params?.wallet;
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
-  const wallet = wallets.find((item) => item.id === walletRoute.id);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const exchangeRates = useExchangeRates();
@@ -171,10 +171,10 @@ function WalletSettings({ route }) {
         }}
       >
         <WalletCard
-          walletName={wallet.presentationData?.name}
+          walletName={wallet?.presentationData?.name}
           walletDescription={wallet?.presentationData?.description}
           walletBalance={getAmt(
-            wallet?.specs?.balances.confirmed + wallet?.specs?.balances?.unconfirmed,
+            wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed,
             exchangeRates,
             currencyCode,
             currentCurrency
@@ -218,7 +218,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Transfer Policy"
-            subTitle={`Secure to vault after ${wallet.specs.transferPolicy / 1e9} BTC`}
+            subTitle={`Secure to vault after ${wallet?.specs?.transferPolicy / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
             }}
@@ -266,9 +266,9 @@ function WalletSettings({ route }) {
         <KeeperModal
           visible={confirmPassVisible}
           close={() => setConfirmPassVisible(false)}
-          title={walletTranslation.confirmPassTitle}
+          title={walletTranslation?.confirmPassTitle}
           subTitleWidth={wp(240)}
-          subTitle={walletTranslation.confirmPassSubTitle}
+          subTitle={walletTranslation?.confirmPassSubTitle}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => (
@@ -291,15 +291,15 @@ function WalletSettings({ route }) {
           textColor="light.primaryText"
           Content={() => (
             <ShowXPub
-              data={wallet.specs.xpub}
+              data={wallet?.specs?.xpub}
               copy={() => {
                 setXPubVisible(false);
                 showToast('Xpub Copied Successfully', <TickIcon />);
               }}
               copyable={true}
               close={() => setXPubVisible(false)}
-              subText={walletTranslation.AccountXpub}
-              noteSubText={walletTranslation.AccountXpubNote}
+              subText={walletTranslation?.AccountXpub}
+              noteSubText={walletTranslation?.AccountXpubNote}
             />
           )}
         />
@@ -311,14 +311,15 @@ function WalletSettings({ route }) {
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
+          buttonText='Done'
+          buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
-              data={JSON.stringify(getCosignerDetails(wallet, keeper.appID))}
+              data={JSON.stringify(getCosignerDetails(wallet, keeper?.appID))}
               copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
               copyable={false}
-              close={() => setCosignerVisible(false)}
             />
           )}
         />

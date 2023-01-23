@@ -10,7 +10,6 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import Note from '../Note/Note';
-import Buttons from '../Buttons';
 
 function ShowXPub({
   data,
@@ -18,14 +17,12 @@ function ShowXPub({
   subText,
   noteSubText,
   copyable = true,
-  close,
 }: {
   data: string;
   copy: Function;
   subText: string;
   noteSubText: string;
   copyable: boolean;
-  close: () => void;
 }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
