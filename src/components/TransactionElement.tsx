@@ -18,13 +18,13 @@ import Text from 'src/components/KeeperText';
 
 function TransactionElement({
   transaction,
-  onPress = () => {},
+  onPress = () => { },
 }: {
   transaction: Transaction;
   onPress?: () => void;
 }) {
   const { colorMode } = useColorMode();
-  const date = moment(transaction?.date).format('DD MMM YY  •  hh:mma');
+  const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mma');
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -34,7 +34,7 @@ function TransactionElement({
     <TouchableOpacity onPress={onPress}>
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
-          {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
+          {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
           <Box style={styles.transactionContainer}>
             <Text
               color={`${colorMode}.GreyText`}
@@ -56,7 +56,7 @@ function TransactionElement({
           ) : null}
           <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
           <Text style={styles.amountText}>
-            {getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency)}
+            {getAmt(transaction?.amount, exchangeRates, currencyCode, currentCurrency)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
               {getUnit(currentCurrency)}
             </Text>
