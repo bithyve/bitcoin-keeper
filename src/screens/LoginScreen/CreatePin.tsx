@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Switch } from 'native-base';
+import { Box } from 'native-base';
 import { Dimensions, StatusBar, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -12,13 +12,10 @@ import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { NetworkType } from 'src/core/wallets/enums';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { addToUaiStack } from 'src/store/sagaActions/uai';
-import config from 'src/core/config';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
-import { isTestnet as isTestnetUtil } from 'src/common/constants/Bitcoin';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
@@ -32,7 +29,6 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isTestnet, setTestnet] = useState(isTestnetUtil());
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -51,11 +47,6 @@ export default function CreatePin(props) {
       props.navigation.navigate('OnBoardingSlides');
     }
   }, [hasCreds]);
-
-  const switchConfig = () => {
-    config.setNetwork(isTestnet ? NetworkType.MAINNET : NetworkType.TESTNET);
-    setTestnet(!isTestnet);
-  };
 
   function onPressNumber(text) {
     let tmpPasscode = passcode;
