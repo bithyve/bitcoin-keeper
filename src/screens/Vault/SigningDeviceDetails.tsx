@@ -58,7 +58,7 @@ function SigningDeviceDetails({ route }) {
   const { healthcheck } = translations;
   const { tapsigner } = translations;
   const { coldcard } = translations;
-  const { signerId, vaultId } = route.params;
+  const { signerId = null, vaultId } = route.params;
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
   const [healthCheckViewTapSigner, setHealthCheckViewTapsigner] = useState(false);
   const [healthCheckViewColdCard, setHealthCheckViewColdCard] = useState(false);
@@ -73,7 +73,7 @@ function SigningDeviceDetails({ route }) {
   const activeVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const signer = activeVault.signers.filter((signer) => signer.signerId === signerId)[0];
+  const signer = activeVault.signers.filter((signer) => signer?.signerId === signerId)[0];
 
   const modalHandler = (callback) =>
     Platform.select({
@@ -191,8 +191,8 @@ function SigningDeviceDetails({ route }) {
         const networkType = config.NETWORK_TYPE;
         const network = WalletUtilities.getNetworkByType(networkType);
         const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-        if (signerIdDerived === signer.signerId) {
-          dispatch(healthCheckSigner(vaultId, signer.signerId));
+        if (signerIdDerived === signer?.signerId) {
+          dispatch(healthCheckSigner(vaultId, signer?.signerId));
           setHealthCheckSuccess(true);
         } else {
           Alert.alert('verifivation failed');
@@ -209,9 +209,9 @@ function SigningDeviceDetails({ route }) {
       const network = WalletUtilities.getNetworkByType(networkType);
       xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
       const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-      if (signerIdDerived === signer.signerId) {
+      if (signerIdDerived === signer?.signerId) {
         console.log('verified');
-        dispatch(healthCheckSigner(vaultId, signer.signerId));
+        dispatch(healthCheckSigner(vaultId, signer?.signerId));
         setHealthCheckSuccess(true);
       } else {
         Alert.alert('verification failed');
@@ -235,7 +235,7 @@ function SigningDeviceDetails({ route }) {
   };
 
   const SkipHealthCheck = () => {
-    dispatch(healthCheckSigner(vaultId, signer.signerId));
+    dispatch(healthCheckSigner(vaultId, signer?.signerId));
     setHealthCheckSkipModal(false);
     navigation.goBack();
   };
@@ -389,7 +389,7 @@ function SigningDeviceDetails({ route }) {
   function SignerContent() {
     return (
       <Box>
-        <Center>{getSignerContent(signer.type).assert}</Center>
+        <Center>{getSignerContent(signer?.type).assert}</Center>
         <Text
           color="light.white"
           style={{
@@ -398,7 +398,7 @@ function SigningDeviceDetails({ route }) {
             marginTop: hp(25),
           }}
         >
-          {getSignerContent(signer.type).description}
+          {getSignerContent(signer?.type).description}
         </Text>
       </Box>
     );
@@ -407,7 +407,7 @@ function SigningDeviceDetails({ route }) {
     <ScreenWrapper>
       <HeaderTitle
         learnMore
-        learnMorePressed={() => setDetailModal(getSignerContent(signer.type).title)}
+        learnMorePressed={() => setDetailModal(getSignerContent(signer?.type).title)}
       />
       <Box
         style={{
@@ -426,18 +426,18 @@ function SigningDeviceDetails({ route }) {
             backgroundColor: '#725436',
           }}
         >
-          {WalletMap(signer.type, true).Icon}
+          {WalletMap(signer?.type, true).Icon}
         </Box>
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
             <Text fontSize={14} letterSpacing={1.15}>
               {getSignerNameFromType(
-                signer.type,
-                signer.isMock,
-                signer.amfData && signer.amfData.xpub
+                signer?.type,
+                signer?.isMock,
+                signer?.amfData && signer?.amfData.xpub
               )}
             </Text>
-            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer.addedOn)
+            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer?.addedOn)
               .format('DD MMM YYYY, hh:mmA')
               .toLowerCase()}`}</Text>
           </Box>
@@ -483,7 +483,7 @@ function SigningDeviceDetails({ route }) {
             Icon={HealthCheck}
             title="Health Check"
             onPress={() => {
-              openHealthCheckModal(signer.type);
+              openHealthCheckModal(signer?.type);
             }}
           />
           <FooterItem
@@ -565,11 +565,11 @@ function SigningDeviceDetails({ route }) {
         <KeeperModal
           visible={detailModal}
           close={() => setDetailModal(false)}
-          title={getSignerContent(signer.type).title}
-          subTitle={getSignerContent(signer.type).subTitle}
+          title={getSignerContent(signer?.type).title}
+          subTitle={getSignerContent(signer?.type).subTitle}
           modalBackground={['light.gradientStart', 'light.gradientEnd']}
           textColor="light.white"
-          learnMoreCallback={() => openLink(getSignerContent(signer.type).FAQ)}
+          learnMoreCallback={() => openLink(getSignerContent(signer?.type).FAQ)}
           Content={SignerContent}
           DarkCloseIcon
           learnMore
