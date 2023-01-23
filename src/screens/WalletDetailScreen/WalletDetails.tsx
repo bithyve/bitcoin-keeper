@@ -51,15 +51,15 @@ function WalletDetails({ route }) {
   const { showToast } = useToastMessage();
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
-  const vaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const vaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject) || [];
   const vaultExsist = Boolean(vaults.length);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
 
-  const netBalance = useAppSelector((state) => state.wallet.netBalance);
-  const introModal = useAppSelector((state) => state.wallet.introModal);
+  const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
+  const introModal = useAppSelector((state) => state.wallet.introModal) || false;
 
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
