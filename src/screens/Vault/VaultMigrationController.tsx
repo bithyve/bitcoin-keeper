@@ -62,7 +62,6 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
     if (relayVaultError) {
       showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
       dispatch(resetRealyVaultState());
-      dispatch(clearSigningDevice());
       setCreating(false);
     }
   }, [relayVaultUpdate, relayVaultError]);
