@@ -204,8 +204,13 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
   });
 
   for (const wallet of wallets) {
-    yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-    yield put(updateAppImage(wallet.id));
+    const response = yield call(updateAppImageWorker, { payload: { wallet: wallet } });
+    if (response.updated) {
+      yield put(relayWalletUpdateSuccess());
+      yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+    } else {
+      yield put(relayWalletUpdateFail(response.error));
+    }
   }
 }
 

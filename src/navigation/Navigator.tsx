@@ -68,6 +68,7 @@ import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import Login from '../screens/LoginScreen/Login';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
+import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -95,6 +96,11 @@ function LoginStack() {
         options={{ gestureEnabled: false }}
         name="ColdCardReocvery"
         component={ColdCardReocvery}
+      />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="LedgerRecovery"
+        component={LedgerRecovery}
       />
       <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
       <Stack.Screen
