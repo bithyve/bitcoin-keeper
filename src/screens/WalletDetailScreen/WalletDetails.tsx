@@ -73,11 +73,17 @@ function WalletDetails({ route }) {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
 
+  const flatListRef = useRef(null);
+
+  const handleScrollToIndex = (index) => {
+    flatListRef.current.scrollToIndex({ index });
+  }
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
-    setWalletIndex(index.index);
+    handleScrollToIndex(index?.index);
+    setWalletIndex(index?.index);
   });
-  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 20 });
 
   function _renderItem({ item, index }: { item; index }) {
     const walletName = item?.presentationData?.name;
@@ -258,6 +264,7 @@ function WalletDetails({ route }) {
 
       <Box style={styles.walletsContainer}>
         <FlatList
+          ref={flatListRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           data={[...wallets, { isEnd: true }]}
