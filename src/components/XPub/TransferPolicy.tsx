@@ -36,12 +36,11 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
 
   useEffect(() => {
     if (relayWalletError) {
-      Alert.alert(realyWalletErrorMessage);
+      showToast(realyWalletErrorMessage);
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
       close();
-      Alert.alert('Transfer Policy Changed');
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);

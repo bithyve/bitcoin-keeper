@@ -311,7 +311,7 @@ function WalletSettings({ route }) {
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
-          buttonText='Done'
+          buttonText="Done"
           buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
@@ -331,7 +331,13 @@ function WalletSettings({ route }) {
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => (
-            <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />
+            <TransferPolicy
+              wallet={wallet}
+              close={() => {
+                setTransferPolicyVisible(false);
+                showToast('Transfer Policy Changed', <TickIcon />);
+              }}
+            />
           )}
         />
       </Box>
