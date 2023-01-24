@@ -1,4 +1,5 @@
 import { BackupHistory } from 'src/common/data/enums/BHR';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
 export const GET_APP_IMAGE = 'GET_APP_IMAGE';
@@ -21,9 +22,11 @@ export const updateAppImage = (walletId?) => ({
   },
 });
 
-export const updateVaultImage = (
-  payload: { archiveVaultId?: String; isUpdate?: Boolean } = {}
-) => ({
+export const updateVaultImage = (payload: {
+  vault: Vault;
+  archiveVaultId?: String;
+  isUpdate?: Boolean;
+}) => ({
   type: UPDATE_VAULT_IMAGE,
   payload,
 });

@@ -17,7 +17,11 @@ export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig
   const networkType = config.NETWORK_TYPE;
   // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
   const coinType = networkType === NetworkType.TESTNET ? 1 : 0;
-  const derivationPath = isMultisig ? `m/48'/${coinType}'/0'/1'` : `m/84'/${coinType}'/0'`;
+  const isNativeSegwit = true;
+  const scriptType = isNativeSegwit ? 2 : 1;
+  const derivationPath = isMultisig
+    ? `m/48'/${coinType}'/0'/${scriptType}'`
+    : `m/84'/${coinType}'/0'`;
   const xpub = await app.getExtendedPubkey(derivationPath);
   const masterfp = await app.getMasterFingerprint();
   return { xpub, derivationPath, xfp: masterfp };

@@ -1,12 +1,12 @@
-import { AxiosResponse } from "axios";
-import config from "../../config";
+import { AxiosResponse } from 'axios';
+import config from '../../config';
 import {
   SignerException,
   SignerPolicy,
   SignerRestriction,
   SingerVerification,
-} from "../interfaces";
-import RestClient from "../rest/RestClient";
+} from '../interfaces';
+import RestClient from '../rest/RestClient';
 
 const { HEXA_ID, SIGNING_SERVER } = config;
 
@@ -35,7 +35,7 @@ export default class SigningServer {
     }
 
     const { setupSuccessful, setupData } = res.data;
-    if (!setupSuccessful) throw new Error("Signer setup failed");
+    if (!setupSuccessful) throw new Error('Signer setup failed');
     return {
       setupData,
     };
@@ -60,10 +60,39 @@ export default class SigningServer {
     }
 
     const { valid } = res.data;
-    if (!valid) throw new Error("Signer validation failed");
+    if (!valid) throw new Error('Signer validation failed');
 
     return {
       valid,
+    };
+  };
+
+  static fetchSignerSetup = async (
+    appId: string
+  ): Promise<{
+    xpub: string;
+    masterFingerprint: string;
+    derivationPath: string;
+    policy: SignerPolicy;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/fetchSignerSetup`, {
+        HEXA_ID,
+        appId,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { xpub, masterFingerprint, derivationPath, policy } = res.data;
+
+    return {
+      xpub,
+      masterFingerprint,
+      derivationPath,
+      policy,
     };
   };
 
@@ -89,7 +118,7 @@ export default class SigningServer {
     }
 
     const { updated } = res.data;
-    if (!updated) throw new Error("Signer setup failed");
+    if (!updated) throw new Error('Signer setup failed');
     return {
       updated,
     };
