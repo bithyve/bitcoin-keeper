@@ -92,7 +92,7 @@ function WalletDetails({ route }) {
         startColor="#e4e4e4"
         offset={[0, 14]}
         viewStyle={{
-          height: hp(130),
+          height: hp(120),
           marginRight: 15,
         }}
       >
@@ -115,7 +115,7 @@ function WalletDetails({ route }) {
           ) : (
             <Box>
               <Box style={styles.walletCard}>
-                <Box style={{ flexDirection: 'row' }}>
+                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <GradientIcon
                     Icon={WalletInsideGreen}
                     height={35}
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
   walletContainer: {
     borderRadius: hp(10),
     width: wp(310),
-    height: hp(140),
+    height: hp(windowHeight > 700 ? 130 : 150),
     padding: wp(15),
     position: 'relative',
     marginLeft: 0,
