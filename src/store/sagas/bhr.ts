@@ -10,7 +10,6 @@ import {
   generateEncryptionKey,
   hash256,
 } from 'src/core/services/operations/encryption';
-import { decryptVAC, encryptVAC, generateIDForVAC } from 'src/core/wallets/factories/VaultFactory';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 
 import BIP85 from 'src/core/wallets/operations/BIP85';
@@ -27,7 +26,6 @@ import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import { translations } from 'src/common/content/LocContext';
 import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
-import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
 import { createWatcher } from '../utilities';
 import { RootState } from '../store';
 import {
@@ -35,7 +33,6 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
-  setAppRecreated,
   setBackupError,
   setBackupLoading,
   setBackupType,
@@ -54,7 +51,6 @@ import {
   GET_CLOUD_DATA,
   INIT_CLOUD_BACKUP,
   RECOVER_BACKUP,
-  RECOVER_VAULT,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
   SET_BACKUP_WARNING,
@@ -67,48 +63,14 @@ import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 
-const generateCombinations = (sourceArray, comboLength) => {
-  const sourceLength = sourceArray.length;
-  if (comboLength > sourceLength) return [];
-  const combos = [];
-  const makeNextCombos = (workingCombo, currentIndex, remainingCount) => {
-    const oneAwayFromComboLength = remainingCount == 1;
-    for (let sourceIndex = currentIndex; sourceIndex < sourceLength; sourceIndex++) {
-      const next = [...workingCombo, sourceArray[sourceIndex]];
-      if (oneAwayFromComboLength) {
-        combos.push(next);
-      } else {
-        makeNextCombos(next, sourceIndex + 1, remainingCount - 1);
-      }
-    }
-  };
-
-  makeNextCombos([], 0, comboLength);
-  return combos;
-};
-
-const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
-  const vacMap: any = {};
-  const allcombination = generateCombinations(signerIds, m);
-
-  allcombination.forEach((signerIdsCombination) => {
-    const xpubs = signerIdsCombination.map((signerId) => signerIdXpubMap[signerId]);
-    const key = signerIdsCombination.sort().toString();
-    const hashKey = generateIDForVAC(key);
-    const encryptyVAC = encryptVAC(vac, xpubs);
-    vacMap[hashKey] = encryptyVAC;
-  });
-
-  return vacMap;
-};
-
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, appID, subscription, networkType }: KeeperApp = yield call(
+  const { primarySeed, appID, subscription, networkType, primaryMnemonic }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
 
+  console.log({ primaryMnemonic });
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallet) {
@@ -150,20 +112,19 @@ export function* updateVaultImageWorker({
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
+  const encryptionKey = generateEncryptionKey(primarySeed);
 
-  // Vault Encrypted with VAC
-  const vaultEncryptedVAC = encrypt(vault.VAC, JSON.stringify(vault));
+  const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
 
   if (isUpdate) {
     Relay.updateVaultImage({
       isUpdate,
       vaultId: vault.id,
-      vaultEncryptedVAC,
+      vault: vaultEncrypted,
     });
   }
-  const { m } = vault.scheme;
 
-  const signersData: Array<{
+  let signersData: Array<{
     signerId: String;
     xfpHash: String;
   }> = [];
@@ -172,36 +133,31 @@ export function* updateVaultImageWorker({
     signerIdXpubMap[signer.signerId] = signer.xpub;
     signersData.push({ signerId: signer.signerId, xfpHash: hash256(signer.masterFingerprint) });
   }
-  // // updating signerIdXpubMap if the signer was created through automated mock flow
+  // updating signerIdXpubMap if the signer was created through automated mock flow
   // const signerIdsToFilter = [];
   // for (const signer of vault.signers) {
   //   if (signer.amfData && signer.amfData.xpub) {
   //     signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
   //     signersData.push({
   //       signerId: signer.amfData.signerId,
-  //       xfpHash: hash256(signer.masterFingerprint),
+  //       xfpHash: hash256(signer.xpubInfo.xfp),
   //     });
   //     signerIdsToFilter.push(signer.signerId);
   //   }
   // }
   // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
-  const signerIds = signersData.map((signer) => signer.signerId);
+  //TO-DO to be removed
   const subscriptionStrings = JSON.stringify(subscription);
-  const encryptionKey = generateEncryptionKey(primarySeed);
-  const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
-  const vacMap = createVACMap(signerIds, signerIdXpubMap, m, vault.VAC);
 
   try {
     if (archiveVaultId) {
       const response = yield call(Relay.updateVaultImage, {
         appID,
         vaultId: vault.id,
-        m,
-        vacEncryptedApp,
+        scheme: vault.scheme,
         signersData,
-        vaultEncryptedVAC,
-        vacMap,
+        vault: vaultEncrypted,
         subscription: subscriptionStrings,
         archiveVaultId,
       });
@@ -210,11 +166,10 @@ export function* updateVaultImageWorker({
     const response = yield call(Relay.updateVaultImage, {
       appID,
       vaultId: vault.id,
-      m,
-      vacEncryptedApp,
+      scheme: vault.scheme,
       signersData,
-      vaultEncryptedVAC,
-      vacMap,
+      vault: vaultEncrypted,
+
       subscription: subscriptionStrings,
     });
     return response;
@@ -429,19 +384,22 @@ function* getAppImageWorker({ payload }) {
         primaryMnemonic
       );
       const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-
       const app: KeeperApp = {
         id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
         appID: appImage.appId,
         primarySeed: primarySeed.toString('hex'),
+
         primaryMnemonic,
         imageEncryptionKey,
+        subscription: JSON.parse(appImage.subscription),
         backup: {},
-        subscription: appImage.subscription,
+
         version: DeviceInfo.getVersion(),
-        networkType: appImage.networkType,
+        vaultShellInstances: appImage.vaultShellInstances
+          ? JSON.parse(appImage.vaultShellInstances)
+          : null,
+        networkType: config.NETWORK_TYPE,
       };
-      console.log({ app });
 
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
 
@@ -456,8 +414,7 @@ function* getAppImageWorker({ payload }) {
 
       // Vault recreation
       if (vaultImage) {
-        const vac = decrypt(encryptionKey, vaultImage.vac);
-        const vault = JSON.parse(decrypt(vac, vaultImage.vault));
+        const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
       yield put(setAppId(app.appID));
@@ -579,28 +536,6 @@ function* isBackedUP({
   yield put(setBackupWarning(false));
 }
 
-function* recoverVaultWorker() {
-  const signingDevices = yield select((state: RootState) => state.bhr.signingDevices); // UI m
-  const vaultMetaData = yield select((state: RootState) => state.bhr.vaultMetaData); // Api Call for 1st Vault
-  const signerIds = [];
-  const xpubs = [];
-  for (const signer of signingDevices) {
-    signerIds.push(signer.signerId);
-    xpubs.push(signer.xpub);
-  }
-  const key = signerIds.sort().toString();
-  const hashKey = generateIDForVAC(key);
-  const encrytedVac = yield call(Relay.getVac, hashKey); // API encryted of m combination
-
-  if (encrytedVac) {
-    console.log({ xpubs, encrytedVac });
-    const vac = decryptVAC(encrytedVac, xpubs);
-    const vault = decrypt(vac, vaultMetaData.vault);
-    yield put(setupKeeperAppVaultReovery(JSON.parse(vaultMetaData.subscription)));
-    yield call(dbManager.createObject, RealmSchema.Vault, JSON.parse(vault));
-  }
-}
-
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPDATE_VAULT_IMAGE);
 
@@ -608,7 +543,6 @@ export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 export const initCloudBackupWatcher = createWatcher(initCloudBackupWorked, INIT_CLOUD_BACKUP);
 export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
-export const recoverVaultWatcher = createWatcher(recoverVaultWorker, RECOVER_VAULT);
 
 export const cloudBackupSkippedWatcher = createWatcher(
   cloudBackupSkippedWorked,
