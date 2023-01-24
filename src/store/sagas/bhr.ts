@@ -395,9 +395,6 @@ function* getAppImageWorker({ payload }) {
         backup: {},
 
         version: DeviceInfo.getVersion(),
-        vaultShellInstances: appImage.vaultShellInstances
-          ? JSON.parse(appImage.vaultShellInstances)
-          : null,
         networkType: config.NETWORK_TYPE,
       };
 
