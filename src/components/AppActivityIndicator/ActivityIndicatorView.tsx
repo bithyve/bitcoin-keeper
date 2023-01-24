@@ -18,7 +18,7 @@ export default ActivityIndicatorView;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     position: 'absolute',
     flex: 1,
     left: 0,
