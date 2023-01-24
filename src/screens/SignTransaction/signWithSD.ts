@@ -6,7 +6,7 @@ import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
-import { XpubTypes } from 'src/core/wallets/enums';
+import { isSignerAMF } from 'src/hardware';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -21,7 +21,7 @@ export const signTransactionWithTapsigner = async ({
   setTapsignerModal(false);
   const { inputsToSign } = signingPayload[0];
   // AMF flow for signing
-  if (currentSigner.xpubDetails[XpubTypes.AMF]) {
+  if (isSignerAMF(currentSigner)) {
     await withModal(() => readTapsigner(card, cvc))();
     const { xpriv } = currentSigner;
     const inputs = idx(signingPayload, (_) => _[0].inputs);
@@ -71,7 +71,7 @@ export const signTransactionWithLedger = async ({
 }) => {
   try {
     setLedgerModal(false);
-    if (currentSigner.xpubDetails[XpubTypes.AMF]) {
+    if (isSignerAMF(currentSigner)) {
       const { xpriv } = currentSigner;
       const inputs = idx(signingPayload, (_) => _[0].inputs);
       if (!inputs) throw new Error('Invalid signing payload, inputs missing');

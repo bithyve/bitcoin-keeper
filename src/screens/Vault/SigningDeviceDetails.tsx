@@ -14,14 +14,14 @@ import NFC from 'src/core/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { SignerType } from 'src/core/wallets/enums';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import SkipHealthCheckIcon from 'src/assets/images/skipHealthCheck.svg';
@@ -71,7 +71,6 @@ function SigningDeviceDetails({ route }) {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
   const signer = activeVault.signers.filter((signer) => signer?.signerId === signerId)[0];
-
   const modalHandler = (callback) =>
     Platform.select({
       android: async () => {
@@ -428,11 +427,7 @@ function SigningDeviceDetails({ route }) {
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
             <Text fontSize={14} letterSpacing={1.15}>
-              {getSignerNameFromType(
-                signer?.type,
-                signer?.isMock,
-                !!signer.xpubDetails[XpubTypes.AMF]
-              )}
+              {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
             </Text>
             <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer?.addedOn)
               .format('DD MMM YYYY, hh:mmA')

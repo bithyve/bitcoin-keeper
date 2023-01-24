@@ -19,6 +19,7 @@ import coinselectSplit from 'coinselect/split';
 import config from 'src/core/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/core/services/electrum/client';
+import { isSignerAMF } from 'src/hardware';
 import {
   ActiveAddressAssignee,
   AverageTxFees,
@@ -972,7 +973,7 @@ export default class WalletOperations {
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
     } else if (
-      (signer.type === SignerType.TAPSIGNER && !signer.xpubDetails[XpubTypes.AMF]) ||
+      (signer.type === SignerType.TAPSIGNER && !isSignerAMF(signer)) ||
       signer.type === SignerType.LEDGER
     ) {
       const inputsToSign = [];
@@ -1031,7 +1032,7 @@ export default class WalletOperations {
       signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
     }
 
-    if (signer.xpubDetails[XpubTypes.AMF]) {
+    if (isSignerAMF(signer)) {
       signingPayload.push({ payloadTarget: signer.type, inputs });
     }
     const serializedPSBT = PSBT.toBase64();

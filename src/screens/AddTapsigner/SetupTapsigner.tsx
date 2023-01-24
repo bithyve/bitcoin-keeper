@@ -15,7 +15,7 @@ import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { generateSignerFromMetaData, isSignerAMF } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -93,7 +93,7 @@ function SetupTapsigner() {
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-      if (!tapsigner.xpubDetails[XpubTypes.AMF]) {
+      if (!isSignerAMF(tapsigner)) {
         const exsists = await checkSigningDevice(tapsigner.signerId);
         if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
       }

@@ -11,6 +11,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import config, { APP_STAGE } from 'src/core/config';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import idx from 'idx';
 import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
@@ -165,3 +166,6 @@ export const getMockSigner = (signerType: SignerType) => {
   }
   return null;
 };
+
+export const isSignerAMF = (signer: VaultSigner) =>
+  !!idx(signer, (_) => _.xpubDetails[XpubTypes.AMF].xpub);

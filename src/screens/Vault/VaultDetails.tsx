@@ -30,7 +30,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType, XpubTypes } from 'src/core/wallets/enums';
+import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -40,7 +40,7 @@ import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getSignerNameFromType, UNVERIFYING_SIGNERS } from 'src/hardware';
+import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
@@ -352,11 +352,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                   textAlign="center"
                   numberOfLines={1}
                 >
-                  {getSignerNameFromType(
-                    signer.type,
-                    signer.isMock,
-                    !!signer.xpubDetails[XpubTypes.AMF]
-                  )}
+                  {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
                 <Text
                   color="light.textBlack"
