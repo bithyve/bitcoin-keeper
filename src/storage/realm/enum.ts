@@ -15,6 +15,7 @@ export enum RealmSchema {
   VaultSpecs = 'VaultSpecs',
   VaultShell = 'VaultShell',
   VaultSigner = 'VaultSigner',
+  XpubDetails = 'XpubDetails',
   VaultPresentationData = 'VaultPresentationData',
   VaultShellInstances = 'VaultShellInstances',
   SignerPolicy = 'SignerPolicy',

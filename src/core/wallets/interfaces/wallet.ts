@@ -7,7 +7,7 @@ import {
   WalletImportedAddresses,
   Transaction,
 } from '.';
-import { NetworkType, WalletType, VisibilityType, EntityKind } from '../enums';
+import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType
@@ -55,6 +55,7 @@ export interface Wallet {
   derivationDetails?: WalletDerivationDetails;
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
+  scriptType: ScriptTypes;
 }
 
 export interface TriggerPolicy {

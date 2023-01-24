@@ -24,17 +24,15 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
-import config from 'src/core/config';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import idx from 'idx';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
+import { generateSignerFromMetaData } from 'src/hardware';
 
 function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
@@ -64,24 +62,16 @@ function SetupSigningServer({ route }: { route }) {
   }, [signingServerVerified, isTwoFAAlreadyVerified, settingSigningServerKey]);
 
   const setupSigningServerKey = async () => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-
     const { policy } = route.params;
-    const signingServerKey: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
-      type: SignerType.POLICY_SERVER,
-      signerName: 'Signing Server',
+    const signingServerKey = generateSignerFromMetaData({
       xpub: signingServerXpub,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
+      isMultisig: true,
       signerPolicy: policy,
-    };
+    });
     dispatch(addSigningDevice(signingServerKey));
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
@@ -112,7 +102,7 @@ function SetupSigningServer({ route }: { route }) {
         <Box>
           <TouchableOpacity
             onPress={async () => {
-              let data = await Clipboard.getString();
+              const data = await Clipboard.getString();
               setOtp(data);
             }}
           >

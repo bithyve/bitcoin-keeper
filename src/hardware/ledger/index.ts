@@ -1,14 +1,12 @@
-import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { NetworkType } from 'src/core/wallets/enums';
 import config from 'src/core/config';
 import BluetoothTransport from '@ledgerhq/react-native-hw-transport-ble';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/core/wallets/interfaces';
 import { PsbtV2 } from './client/psbtv2';
 import AppClient from './client/appClient';
 import { DefaultWalletPolicy, WalletPolicy } from './client/policy';
-import { generateSignerFromMetaData } from '..';
 
 const bscript = require('bitcoinjs-lib/src/script');
 
@@ -25,31 +23,6 @@ export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig
   const xpub = await app.getExtendedPubkey(derivationPath);
   const masterfp = await app.getMasterFingerprint();
   return { xpub, derivationPath, xfp: masterfp };
-};
-
-export const getMockLedgerDetails = (amfData = null) => {
-  const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-    EntityKind.VAULT,
-    SignerType.LEDGER,
-    config.NETWORK_TYPE
-  );
-
-  const ledger: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    xpriv,
-    derivationPath,
-    xfp: masterFingerprint,
-    signerType: SignerType.LEDGER,
-    storageType: SignerStorage.COLD,
-    isMock: true,
-  });
-
-  if (amfData) {
-    ledger.amfData = amfData;
-    ledger.signerName = 'Nano X*';
-    ledger.isMock = false;
-  }
-  return ledger;
 };
 
 const getPSBTv2Fromv0 = (psbtv0: bitcoinJS.Psbt) => {
@@ -81,8 +54,8 @@ export const regsiterWithLedger = async (vault: Vault, transport) => {
 
 const getWalletPolicy = async (vault: Vault) => {
   const { signers, isMultiSig, scheme } = vault;
-  const path = `${signers[0].xpubInfo.xfp}${signers[0].xpubInfo.derivationPath.slice(
-    signers[0].xpubInfo.derivationPath.indexOf('/')
+  const path = `${signers[0].masterFingerprint}${signers[0].derivationPath.slice(
+    signers[0].derivationPath.indexOf('/')
   )}`;
   const walletPolicy = !isMultiSig
     ? new DefaultWalletPolicy('wpkh(@0/**)', `[${path}]${signers[0].xpub}`)
@@ -90,8 +63,8 @@ const getWalletPolicy = async (vault: Vault) => {
         'Keeper Vault',
         `wsh(sortedmulti(${scheme.m},${signers.map((_, index) => `@${index}/**`).join(',')}))`,
         signers.map((signer) => {
-          const path = `${signer.xpubInfo.xfp.toLowerCase()}${signer.xpubInfo.derivationPath.slice(
-            signer.xpubInfo.derivationPath.indexOf('/')
+          const path = `${signer.masterFingerprint.toLowerCase()}${signer.derivationPath.slice(
+            signer.derivationPath.indexOf('/')
           )}`;
           return `[${path}]${signer.xpub}`;
         })

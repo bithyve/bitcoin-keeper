@@ -14,7 +14,7 @@ import NFC from 'src/core/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 import SuccessModal from 'src/components/HealthCheck/SuccessModal';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -24,10 +24,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { getSignerNameFromType } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-// asserts images and icons
 import SkipHealthCheckIcon from 'src/assets/images/skipHealthCheck.svg';
-import TapSigner from 'src/assets/images/TapsignerSetup.svg';
-import ColdCard from 'src/assets/images/ColdCardSetup.svg';
 import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
 import Keystone from 'src/assets/images/keystone_illustration.svg';
@@ -113,7 +110,7 @@ function SigningDeviceDetails({ route }) {
           title: 'Coldcard',
           subTitle:
             'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip. MicroPython software design allows you to make changes',
-          assert: <ColdCard />,
+          assert: <ColdCardSetupImage />,
           description:
             '\u2022 It provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
           FAQ: 'https://coldcard.com/docs/faq',
@@ -123,7 +120,7 @@ function SigningDeviceDetails({ route }) {
           title: 'TAPSIGNER',
           subTitle:
             "TAPSIGNER's lower cost makes hardware wallet features and security available to a wider market around the world.",
-          assert: <TapSigner />,
+          assert: <TapsignerSetupImage />,
           description:
             '\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s).\n\u2022 The card form factor makes it easy to carry and easy to conceal.',
           FAQ: 'https://tapsigner.com/faq',
@@ -132,7 +129,7 @@ function SigningDeviceDetails({ route }) {
         return {
           title: 'LEDGER',
           subTitle:
-            "Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.",
+            'Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.',
           assert: <Ledger />,
           description: '',
           FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
@@ -434,7 +431,7 @@ function SigningDeviceDetails({ route }) {
               {getSignerNameFromType(
                 signer?.type,
                 signer?.isMock,
-                signer?.amfData && signer?.amfData.xpub
+                !!signer.xpubDetails[XpubTypes.AMF]
               )}
             </Text>
             <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer?.addedOn)

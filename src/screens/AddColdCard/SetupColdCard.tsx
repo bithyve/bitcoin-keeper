@@ -40,6 +40,7 @@ function SetupColdCard() {
           xpub,
           derivationPath,
           xfp,
+          isMultisig,
           signerType: SignerType.COLDCARD,
           storageType: SignerStorage.COLD,
         });

@@ -1,6 +1,6 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
+import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
   Wallet,
   WalletDerivationDetails,
@@ -119,6 +119,7 @@ export const generateWallet = async ({
     derivationDetails,
     presentationData,
     specs,
+    scriptType: ScriptTypes.P2WPKH,
   };
   return wallet;
 };

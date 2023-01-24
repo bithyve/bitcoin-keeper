@@ -15,6 +15,7 @@ import {
   VaultSpecsSchema,
   VaultSignerSchema,
   SignerPolicy,
+  XpubDetailsSchema,
 } from './vault';
 import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
@@ -45,6 +46,7 @@ export default [
   WalletShellInstancesShcema,
   TriggerPolicySchema,
   VaultSchema,
+  XpubDetailsSchema,
   VaultPresentationDataSchema,
   SignerPolicy,
   VaultSpecsSchema,

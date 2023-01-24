@@ -8,7 +8,15 @@ import {
   UTXO,
   WalletImportedAddresses,
 } from '.';
-import { EntityKind, NetworkType, SignerStorage, SignerType, VaultType } from '../enums';
+import {
+  EntityKind,
+  NetworkType,
+  ScriptTypes,
+  SignerStorage,
+  SignerType,
+  VaultType,
+  XpubTypes,
+} from '../enums';
 
 import { WalletPresentationData } from './wallet';
 
@@ -40,6 +48,9 @@ export interface VaultScheme {
   n: number; // total number of xpubs
 }
 
+export type XpubDetailsType = {
+  [key in XpubTypes as string]: { xpub: string; derivationPath: string };
+};
 export interface VaultSigner {
   signerId: string;
   type: SignerType;
@@ -49,16 +60,14 @@ export interface VaultSigner {
   xpriv?: string;
   signerName?: string;
   signerDescription?: string;
-  xpubInfo: {
-    derivationPath: string;
-    xfp: string;
-  };
   bip85Config?: BIP85Config;
   lastHealthCheck: Date;
   addedOn: Date;
   registered: boolean;
-  amfData?: any;
   signerPolicy?: SignerPolicy;
+  masterFingerprint: string;
+  derivationPath: string;
+  xpubDetails: XpubDetailsType;
 }
 
 export interface Vault {
@@ -75,8 +84,8 @@ export interface Vault {
   specs: VaultSpecs;
   archived: boolean;
   VAC: string;
+  scriptType: ScriptTypes;
 }
-
 export interface InheritancePolicy {
   id: string;
   date: string;

@@ -7,7 +7,14 @@ import {
   generateEncryptionKey,
   hash256,
 } from 'src/core/services/operations/encryption';
-import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
+import {
+  EntityKind,
+  NetworkType,
+  ScriptTypes,
+  SignerType,
+  VaultType,
+  VisibilityType,
+} from '../enums';
 import {
   Vault,
   VaultPresentationData,
@@ -81,6 +88,7 @@ export const generateVault = ({
   if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
 
   const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+  const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
   const vault: Vault = {
     id,
     vaultShellId,
@@ -95,8 +103,8 @@ export const generateVault = ({
     specs,
     VAC: vac,
     archived: false,
+    scriptType,
   };
-
   return vault;
 };
 

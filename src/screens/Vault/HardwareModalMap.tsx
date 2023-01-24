@@ -32,7 +32,6 @@ import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
@@ -248,6 +247,7 @@ const setupPassport = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return passport;
   }
@@ -263,6 +263,7 @@ const setupSeedSigner = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return seedSigner;
   }
@@ -278,6 +279,7 @@ const setupKeystone = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return keystone;
   }
@@ -293,6 +295,7 @@ const setupJade = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return jade;
   }
@@ -302,23 +305,14 @@ const setupJade = (qrData, isMultisig) => {
 const setupKeeperSigner = (qrData) => {
   try {
     const { mfp, xpub, derivationPath } = JSON.parse(qrData);
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-
-    const ksd: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.KEEPER,
-      registered: false,
-      signerName: 'Keeper Signing Device',
-      storageType: SignerStorage.WARM,
+    const ksd = generateSignerFromMetaData({
       xpub,
-      xpubInfo: {
-        derivationPath,
-        xfp: mfp,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
-
+      derivationPath,
+      xfp: mfp,
+      signerType: SignerType.KEEPER,
+      storageType: SignerStorage.WARM,
+      isMultisig: true,
+    });
     return ksd;
   } catch (err) {
     const message = crossInteractionHandler(err);
@@ -328,52 +322,48 @@ const setupKeeperSigner = (qrData) => {
 
 const setupMobileKey = async ({ primaryMnemonic }) => {
   const networkType = config.NETWORK_TYPE;
-  const network = WalletUtilities.getNetworkByType(networkType);
   const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
     primaryMnemonic,
     networkType
   );
-
-  const mobileKey: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.MOBILE_KEY,
-    signerName: 'Mobile Key',
-    storageType: SignerStorage.WARM,
+  const mobileKey = generateSignerFromMetaData({
     xpub,
+    derivationPath,
+    xfp: masterFingerprint,
+    signerType: SignerType.MOBILE_KEY,
+    storageType: SignerStorage.WARM,
+    isMultisig: true,
     xpriv,
-    xpubInfo: {
-      derivationPath,
-      xfp: masterFingerprint,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
+  });
   return mobileKey;
 };
 
 const setupSeedWordsBasedKey = (mnemonic) => {
   const networkType = config.NETWORK_TYPE;
-  const network = WalletUtilities.getNetworkByType(networkType);
   const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
-
-  const softSigner: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.SEED_WORDS,
-    storageType: SignerStorage.WARM,
-    signerName: 'Seed Words',
+  const softSigner = generateSignerFromMetaData({
     xpub,
-    xpubInfo: {
-      derivationPath,
-      xfp: masterFingerprint,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
+    derivationPath,
+    xfp: masterFingerprint,
+    signerType: SignerType.SEED_WORDS,
+    storageType: SignerStorage.WARM,
+    isMultisig: true,
+  });
 
   return softSigner;
 };
 
-function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
+function PasswordEnter({
+  primaryMnemonic,
+  navigation,
+  dispatch,
+  pinHash,
+}: {
+  primaryMnemonic;
+  navigation;
+  dispatch;
+  pinHash;
+}) {
   const [password, setPassword] = useState('');
   const { showToast } = useToastMessage();
 

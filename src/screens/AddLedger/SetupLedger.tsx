@@ -34,6 +34,7 @@ function AddLedger() {
         derivationPath,
         storageType: SignerStorage.COLD,
         signerType: SignerType.LEDGER,
+        isMultisig,
       });
       dispatch(addSigningDevice(ledger));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));

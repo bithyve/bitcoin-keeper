@@ -10,7 +10,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { getSignerNameFromType } from 'src/hardware';
 import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
@@ -43,7 +43,7 @@ function SignerAdvanceSettings({ route }: any) {
   const signerName = getSignerNameFromType(
     signer.type,
     signer.isMock,
-    signer.amfData && signer.amfData.xpub
+    !!signer.xpubDetails[XpubTypes.AMF]
   );
 
   const [visible, setVisible] = useState(false);

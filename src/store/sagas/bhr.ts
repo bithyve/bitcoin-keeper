@@ -168,28 +168,28 @@ export function* updateVaultImageWorker({
   }
   const { m } = vault.scheme;
 
-  let signersData: Array<{
+  const signersData: Array<{
     signerId: String;
     xfpHash: String;
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
     signerIdXpubMap[signer.signerId] = signer.xpub;
-    signersData.push({ signerId: signer.signerId, xfpHash: hash256(signer.xpubInfo.xfp) });
+    signersData.push({ signerId: signer.signerId, xfpHash: hash256(signer.masterFingerprint) });
   }
-  // updating signerIdXpubMap if the signer was created through automated mock flow
-  const signerIdsToFilter = [];
-  for (const signer of vault.signers) {
-    if (signer.amfData && signer.amfData.xpub) {
-      signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
-      signersData.push({
-        signerId: signer.amfData.signerId,
-        xfpHash: hash256(signer.xpubInfo.xfp),
-      });
-      signerIdsToFilter.push(signer.signerId);
-    }
-  }
-  signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
+  // // updating signerIdXpubMap if the signer was created through automated mock flow
+  // const signerIdsToFilter = [];
+  // for (const signer of vault.signers) {
+  //   if (signer.amfData && signer.amfData.xpub) {
+  //     signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
+  //     signersData.push({
+  //       signerId: signer.amfData.signerId,
+  //       xfpHash: hash256(signer.masterFingerprint),
+  //     });
+  //     signerIdsToFilter.push(signer.signerId);
+  //   }
+  // }
+  // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
   const signerIds = signersData.map((signer) => signer.signerId);
   const vaultShellInstancesString = JSON.stringify(vaultShellInstances);

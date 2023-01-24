@@ -30,7 +30,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { VaultMigrationType, XpubTypes } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -116,12 +116,12 @@ function Header() {
   return (
     <Box flexDirection="row" width="100%" px="2%">
       <StatusBar barStyle="light-content" />
-      <Box width={'50%'}>
+      <Box width="50%">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
       </Box>
-      <Box width={'50%'}>
+      <Box width="50%">
         <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
           <Text color="light.white" style={styles.footerText} light>
             Know More
@@ -355,7 +355,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                   {getSignerNameFromType(
                     signer.type,
                     signer.isMock,
-                    signer.amfData && signer.amfData.xpub
+                    !!signer.xpubDetails[XpubTypes.AMF]
                   )}
                 </Text>
                 <Text

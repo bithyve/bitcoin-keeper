@@ -143,6 +143,7 @@ export const WalletSchema: ObjectSchema = {
     derivationDetails: `${RealmSchema.WalletDerivationDetails}?`,
     presentationData: RealmSchema.WalletPresentationData,
     specs: RealmSchema.WalletSpecs,
+    scriptType: 'string',
   },
   primaryKey: 'id',
 };
