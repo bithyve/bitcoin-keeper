@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, View } from 'native-base';
-import { Alert } from 'react-native';
 
 import BtcInput from 'src/assets/images/btc_input.svg';
 
@@ -36,12 +35,11 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
 
   useEffect(() => {
     if (relayWalletError) {
-      Alert.alert(realyWalletErrorMessage);
+      showToast(realyWalletErrorMessage);
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
       close();
-      Alert.alert('Transfer Policy Changed');
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);

@@ -375,7 +375,6 @@ const setupSeedWordsBasedKey = (mnemonic) => {
 
 function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
   const [password, setPassword] = useState('');
-  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
