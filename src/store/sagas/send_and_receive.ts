@@ -46,7 +46,6 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from "../sagaActions/send_and_receive";
-import { updateVaultImage } from "../sagaActions/bhr";
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
   if (!wallet.isUsable) return "";
