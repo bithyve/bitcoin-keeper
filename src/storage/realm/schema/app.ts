@@ -16,7 +16,7 @@ export const KeeperAppSchema: ObjectSchema = {
     vaultShellInstances: RealmSchema.VaultShellInstances,
     subscription: RealmSchema.StoreSubscription,
     backup: RealmSchema.Backup,
-    twoFADetails: `${RealmSchema.TwoFADetails}?`,
+    signingServerSetup: `${RealmSchema.SigningServerSetup}?`,
     uai: `${RealmSchema.UAI}?`,
     notification: `${RealmSchema.Notification}?`,
   },

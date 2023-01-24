@@ -20,10 +20,9 @@ import {
 import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
 import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
 
-import { InheritancePolicySchema } from './inheritancePolicy';
 import { KeeperAppSchema } from './app';
 import { TriggerPolicySchema } from './triggerPolicy';
-import { TwoFADetailsSchema } from './twoFADetails';
+import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
 import { NotificationSchema, additionalInfoSchema } from './notitfication';
 import { VersionHistorySchema } from './versionHistory';
@@ -53,8 +52,7 @@ export default [
   VaultSpecsSchema,
   VaultShellSchema,
   VaultShellInstancesShcema,
-  InheritancePolicySchema,
-  TwoFADetailsSchema,
+  SigningServerSetupSchema,
   BackupSchema,
   UAISchema,
   NotificationSchema,

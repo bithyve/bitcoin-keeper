@@ -1,4 +1,4 @@
-import { TwoFADetails } from 'src/core/wallets/interfaces';
+import { SigningServerSetup } from 'src/core/wallets/interfaces';
 import { NetworkType } from 'src/core/wallets/enums';
 import SubScription from './Subscription';
 import { BackupType } from '../../enums/BHR';
@@ -26,7 +26,7 @@ export interface KeeperApp {
     hint?: string;
   };
   subscription: SubScription;
-  twoFADetails?: TwoFADetails;
+  signingServerSetup?: SigningServerSetup;
   uai?: any;
   notification?: any;
 }
