@@ -300,10 +300,15 @@ function VaultStatus(props) {
       <ImageBackground resizeMode="contain" source={VaultImage}>
         <TouchableOpacity testID='btn_vault' onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
-            <Box backgroundColor={getTorStatusColor} style={styles.torContainer}>
-              <Text color="light.primaryText" style={styles.torText} bold>
-                {getTorStatusText}
-              </Text>
+            <Box style={styles.torContainer}>
+              {
+                getTorStatusText !== 'Tor disabled' &&
+                <Box backgroundColor={getTorStatusColor}>
+                  <Text color="light.primaryText" style={styles.torText} bold>
+                    {getTorStatusText}
+                  </Text>
+                </Box>
+              }
             </Box>
             <Box style={styles.vaultBody}>
               <Text color="light.white" style={styles.vaultHeading} bold>
