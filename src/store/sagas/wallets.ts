@@ -29,7 +29,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
 import SigningServer from 'src/core/services/operations/SigningServer';
-import { TwoFADetails } from 'src/core/wallets/interfaces/';
+import { SigningServerSetup } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -616,7 +616,7 @@ export const updateWalletSettingsWatcher = createWatcher(
 
 export function* registerWithSigningServerWorker({ payload }: { payload: { policy } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (app.twoFADetails && app.twoFADetails.signingServerXpub)
+  if (app.signingServerSetup && app.signingServerSetup.setupInfo?.xpub)
     throw new Error('registration already in progress');
 
   const { policy } = payload;
@@ -631,17 +631,24 @@ export function* registerWithSigningServerWorker({ payload }: { payload: { polic
     };
   } = yield call(SigningServer.register, app.id, policy);
 
-  const twoFADetails: TwoFADetails = {
-    signingServerXpub: setupData.bhXpub,
-    derivationPath: setupData.derivationPath,
-    masterFingerprint: setupData.masterFingerprint,
+  const signingServerSetup: SigningServerSetup = {
+    validation: {
+      validationType: setupData.verification.method,
+      validationKey:
+        setupData.verification.method === VerificationType.TWO_FA
+          ? setupData.verification.verifier
+          : null,
+      vaildated: false,
+    },
+    setupInfo: {
+      xpub: setupData.bhXpub,
+      derivationPath: setupData.derivationPath,
+      masterFingerprint: setupData.masterFingerprint,
+    },
   };
 
-  if (setupData.verification.method === VerificationType.TWO_FA)
-    twoFADetails.twoFAKey = setupData.verification.verifier;
-
   yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-    twoFADetails,
+    signingServerSetup,
   });
 }
 
@@ -657,10 +664,10 @@ function* validateSigningServerRegistrationWorker({ payload }: { payload: { veri
     const { valid } = yield call(SigningServer.validate, app.id, verificationToken);
     if (valid) {
       yield put(signingServerRegistrationVerified(true));
-      const twoFADetails = getJSONFromRealmObject(app.twoFADetails);
-      twoFADetails.twoFAValidated = true;
+      const signingServerSetup: SigningServerSetup = getJSONFromRealmObject(app.signingServerSetup);
+      signingServerSetup.validation.vaildated = true;
       yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-        twoFADetails,
+        signingServerSetup,
       });
     } else yield put(signingServerRegistrationVerified(false));
   } catch (error) {

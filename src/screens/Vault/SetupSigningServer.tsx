@@ -39,32 +39,32 @@ function SetupSigningServer({ route }: { route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [validationModal, showValidationModal] = useState(false);
-  const [twoFAKey, setTwoFAKey] = useState('');
+  const [validationKey, setValidationKey] = useState('');
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const key = idx(keeper, (_) => _.twoFADetails.twoFAKey);
-  const isTwoFAAlreadyVerified = idx(keeper, (_) => _.twoFADetails.twoFAValidated);
+  const key = idx(keeper, (_) => _.signingServerSetup.validation.validationKey);
+  const isAlreadyValidated = idx(keeper, (_) => _.signingServerSetup.validation.vaildated);
   const signingServerVerified = useAppSelector((state) => state.wallet.signingServer.verified);
-  const { signingServerXpub, derivationPath, masterFingerprint } =
-    idx(keeper, (_) => _.twoFADetails) || {};
+  const { xpub, derivationPath, masterFingerprint } =
+    idx(keeper, (_) => _.signingServerSetup.setupInfo) || {};
 
   const [settingSigningServerKey, setSettingSigningServerKey] = useState(false);
 
   useEffect(() => {
-    if (key) setTwoFAKey(key);
+    if (key) setValidationKey(key);
   }, [key]);
 
   useEffect(() => {
-    if ((signingServerVerified || isTwoFAAlreadyVerified) && !settingSigningServerKey) {
+    if ((signingServerVerified || isAlreadyValidated) && !settingSigningServerKey) {
       setSettingSigningServerKey(true);
       setupSigningServerKey();
     }
-  }, [signingServerVerified, isTwoFAAlreadyVerified, settingSigningServerKey]);
+  }, [signingServerVerified, isAlreadyValidated, settingSigningServerKey]);
 
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
     const signingServerKey = generateSignerFromMetaData({
-      xpub: signingServerXpub,
+      xpub,
       derivationPath,
       xfp: masterFingerprint,
       signerType: SignerType.POLICY_SERVER,
@@ -152,7 +152,7 @@ function SetupSigningServer({ route }: { route }) {
         />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
-        {twoFAKey === '' ? (
+        {validationKey === '' ? (
           <Box height={hp(250)} justifyContent="center">
             <ActivityIndicator animating size="small" />
           </Box>
@@ -166,7 +166,7 @@ function SetupSigningServer({ route }: { route }) {
             }}
           >
             <QRCode
-              value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', twoFAKey)}
+              value={authenticator.keyuri('bitcoin-keeper.io', 'Keeper', validationKey)}
               logoBackgroundColor="transparent"
               size={hp(200)}
             />
@@ -194,12 +194,12 @@ function SetupSigningServer({ route }: { route }) {
                 borderTopLeftRadius={10}
               >
                 <Text width="80%" marginLeft={4} numberOfLines={1}>
-                  {twoFAKey}
+                  {validationKey}
                 </Text>
                 <TouchableOpacity
                   activeOpacity={0.4}
                   onPress={() => {
-                    Clipboard.setString(twoFAKey);
+                    Clipboard.setString(validationKey);
                     showToast('Address Copied Successfully', <TickIcon />);
                   }}
                 >

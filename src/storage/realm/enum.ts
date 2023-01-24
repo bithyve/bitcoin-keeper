@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 export enum RealmSchema {
   KeeperApp = 'KeeperApp',
   Wallet = 'Wallet',
@@ -19,10 +20,9 @@ export enum RealmSchema {
   VaultPresentationData = 'VaultPresentationData',
   VaultShellInstances = 'VaultShellInstances',
   SignerPolicy = 'SignerPolicy',
-  InheritancePolicy = 'InheritancePolicy',
   TriggerPolicy = 'TriggerPolicy',
-  TwoFADetails = 'TwoFADetails',
-  NodeConnect = 'NodeConnect',
+  SigningServerSetup = 'SigningServerSetup',
+  Backup = 'Backup',
   UAI = 'UAI',
   Notification = 'Notification',
   AdditionalNotes = 'AdditionalNotes',
