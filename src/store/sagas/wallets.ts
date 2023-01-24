@@ -273,8 +273,8 @@ function* addNewVaultWorker({
     }
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
-      ? yield call(updateVaultImageWorker, { payload: { vault } })
-      : yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } });
+      ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
+      : yield call(updateVaultImageWorker, { payload: { vault } });
 
     if (response.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
