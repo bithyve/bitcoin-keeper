@@ -79,7 +79,7 @@ function WalletDetails({ route }) {
     if (flatListRef && flatListRef.current) {
       flatListRef.current.scrollToIndex({ index });
     }
-  }
+  };
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
     handleScrollToIndex(index?.index);
@@ -104,7 +104,10 @@ function WalletDetails({ route }) {
           marginRight: 15,
         }}
       >
-        <Box variant={isActive ? "linearGradient" : 'InactiveGradient'} style={styles.walletContainer}>
+        <Box
+          variant={isActive ? 'linearGradient' : 'InactiveGradient'}
+          style={styles.walletContainer}
+        >
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
               style={styles.addWalletContainer}
@@ -129,9 +132,11 @@ function WalletDetails({ route }) {
                     height={35}
                     gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
                   />
-                  <Box style={{
-                    marginLeft: 10
-                  }}>
+                  <Box
+                    style={{
+                      marginLeft: 10,
+                    }}
+                  >
                     <Text color="light.white" style={styles.walletName}>
                       {walletName}
                     </Text>
@@ -142,7 +147,7 @@ function WalletDetails({ route }) {
                 </Box>
                 <Box>
                   <Text color="light.white" style={styles.unconfirmedText}>
-                    {'Unconfirmed'}
+                    Unconfirmed
                   </Text>
                   <Text color="light.white" style={styles.unconfirmedBalance}>
                     <Box
@@ -159,7 +164,7 @@ function WalletDetails({ route }) {
 
               <Box style={styles.walletBalance}>
                 <Text color="light.white" style={styles.walletName}>
-                  {'Available Balance'}
+                  Available Balance
                 </Text>
                 <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Box
@@ -169,10 +174,7 @@ function WalletDetails({ route }) {
                   >
                     {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                   </Box>
-                  <Text
-                    color="light.white"
-                    style={styles.availableBalance}
-                  >
+                  <Text color="light.white" style={styles.availableBalance}>
                     {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency)}
                     <Text color="light.textColor" style={styles.balanceUnit}>
                       {getUnit(currentCurrency)}
@@ -180,7 +182,6 @@ function WalletDetails({ route }) {
                   </Text>
                 </Box>
               </Box>
-
             </Box>
           )}
         </Box>
@@ -272,7 +273,7 @@ function WalletDetails({ route }) {
           renderItem={_renderItem}
           onViewableItemsChanged={onViewRef.current}
           viewabilityConfig={viewConfigRef.current}
-          snapToAlignment={'start'}
+          snapToAlignment="start"
         />
       </Box>
 
@@ -293,10 +294,12 @@ function WalletDetails({ route }) {
               }}
             >
               <Box style={styles.transferPolicyContent}>
-                <Box style={{
-                  flexDirection: 'row',
-                  alignItems: 'center'
-                }}>
+                <Box
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
                   <Text
                     color="light.learnMoreBorder"
                     fontSize={12}
@@ -306,12 +309,22 @@ function WalletDetails({ route }) {
                   >
                     Transfer Policy is set at{'  '}
                   </Text>
-                  <Text bold color="light.learnMoreBorder"
+                  <Text
+                    bold
+                    color="light.learnMoreBorder"
                     style={{
                       fontSize: 14,
                       letterSpacing: 0.7,
-                    }}>
-                    ฿ {getAmt(wallets[walletIndex].specs.transferPolicy, exchangeRates, currencyCode, currentCurrency)}{getUnit(currentCurrency)}
+                    }}
+                  >
+                    ฿{' '}
+                    {getAmt(
+                      wallets[walletIndex].transferPolicy.threshold,
+                      exchangeRates,
+                      currencyCode,
+                      currentCurrency
+                    )}
+                    {getUnit(currentCurrency)}
                   </Text>
                 </Box>
                 <Box>
@@ -339,8 +352,8 @@ function WalletDetails({ route }) {
               ListEmptyComponent={
                 <EmptyStateView
                   IllustartionImage={NoTransactionIcon}
-                  title={'No transactions yet.'}
-                  subTitle={'Pull down to refresh'}
+                  title="No transactions yet."
+                  subTitle="Pull down to refresh"
                 />
               }
             />
@@ -446,7 +459,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     alignItems: 'center',
-    marginTop: hp(-20)
+    marginTop: hp(-20),
   },
   headerBalanceContainer: {
     flexDirection: 'row',
@@ -483,7 +496,7 @@ const styles = StyleSheet.create({
   },
   walletCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
   },
   walletDescription: {
     letterSpacing: 0.24,
@@ -495,7 +508,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   walletBalance: {
-    marginTop: hp(20)
+    marginTop: hp(20),
   },
   transferPolicyContainer: {
     flexDirection: 'row',
@@ -561,12 +574,12 @@ const styles = StyleSheet.create({
   unconfirmedText: {
     fontSize: 11,
     letterSpacing: 0.72,
-    textAlign: 'right'
+    textAlign: 'right',
   },
   unconfirmedBalance: {
     fontSize: 14,
     letterSpacing: 0.6,
-    alignSelf: 'flex-end'
+    alignSelf: 'flex-end',
   },
   availableBalance: {
     fontSize: hp(24),
@@ -578,7 +591,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%'
-  }
+    width: '100%',
+  },
 });
 export default WalletDetails;

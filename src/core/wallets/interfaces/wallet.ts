@@ -7,7 +7,7 @@ import {
   WalletImportedAddresses,
   Transaction,
 } from '.';
-import { NetworkType, WalletType, VisibilityType, EntityKind } from '../enums';
+import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType
@@ -20,6 +20,11 @@ export interface WalletPresentationData {
   name: string; // name of the wallet
   description: string; // description of the wallet
   visibility: VisibilityType; // visibility of the wallet
+  shell: number; // shell id
+}
+
+export interface TransferPolicy {
+  threshold: number;
 }
 
 export interface WalletSpecs {
@@ -41,13 +46,12 @@ export interface WalletSpecs {
   transactionNote: {
     [txId: string]: string;
   };
-  transferPolicy: number;
+
   // transactionsMeta?: TransactionMetaData[];
 }
 
 export interface Wallet {
   id: string; // wallet identifier(derived from xpub)
-  walletShellId: string; // identifier of the wallet shell that the wallet belongs
   entityKind: EntityKind; // Wallet vs Vault identifier
   type: WalletType; // type of wallet
   networkType: NetworkType; // testnet/mainnet
@@ -55,6 +59,8 @@ export interface Wallet {
   derivationDetails?: WalletDerivationDetails;
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
+  scriptType: ScriptTypes;
+  transferPolicy: TransferPolicy;
 }
 
 export interface TriggerPolicy {
@@ -62,10 +68,4 @@ export interface TriggerPolicy {
   date: string;
   specifications: {};
   version: string;
-}
-
-export interface WalletShell {
-  id: string;
-  walletInstances: { [walletType: string]: number }; // various wallet types mapped to corresponding number of instances
-  triggerPolicyId?: string;
 }

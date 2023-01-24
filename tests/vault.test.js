@@ -62,7 +62,6 @@ const connectToElectrumClient = async () => {
 
 describe('Vault: Single-sig(1-of-1)', () => {
   let primaryMnemonic;
-  let vaultShell;
   let vault;
   let mobileKey;
   let averageTxFees;
@@ -73,10 +72,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
   beforeAll(async () => {
     primaryMnemonic =
       'duty burger portion domain athlete sweet birth impact miss shield help peanut';
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
+
     connectToElectrumClient();
 
     const networkType = NetworkType.TESTNET;
@@ -113,7 +109,6 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,
@@ -207,7 +202,6 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
 describe('Vault: Multi-sig(2-of-3)', () => {
   let primaryMnemonic;
-  let vaultShell;
   let vault;
 
   let mobileKey; // Signer - 1
@@ -225,10 +219,6 @@ describe('Vault: Multi-sig(2-of-3)', () => {
   beforeAll(async () => {
     primaryMnemonic =
       'duty burger portion domain athlete sweet birth impact miss shield help peanut';
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
 
     // configure 1st singer: mobile-key
     const networkType = NetworkType.TESTNET;
@@ -317,7 +307,6 @@ describe('Vault: Multi-sig(2-of-3)', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,
@@ -462,17 +451,9 @@ describe('Vault: Multi-sig(2-of-3)', () => {
 });
 
 describe('Vault: AirGapping with Coldcard', () => {
-  let vaultShell;
   let vault;
   let extract;
   let coldcard; // Signer
-
-  beforeAll(async () => {
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
-  });
 
   test('coldcard: extract xpub, derivation and master fingerprint from coldcard export format', () => {
     extract = extractColdCardExport(COLDCARD_SS_EXPORT.data, COLDCARD_SS_EXPORT.rtdName);
@@ -513,7 +494,6 @@ describe('Vault: AirGapping with Coldcard', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,
@@ -532,17 +512,9 @@ describe('Vault: AirGapping with Coldcard', () => {
 });
 
 describe('Vault: AirGapping with SeedSigner', () => {
-  let vaultShell;
   let vault;
   let extract;
   let seedsigner; // Signer
-
-  beforeAll(async () => {
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
-  });
 
   test('seedsigner: extract xpub, derivation and master fingerprint from seedsigner export format', () => {
     extract = getSeedSignerDetails(SEEDSIGNER_SS_EXPORT.data);
@@ -583,7 +555,6 @@ describe('Vault: AirGapping with SeedSigner', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,
@@ -616,17 +587,9 @@ describe('Vault: AirGapping with SeedSigner', () => {
 });
 
 describe('Vault: AirGapping with Keystone', () => {
-  let vaultShell;
   let vault;
   let extract;
   let keystone; // Signer
-
-  beforeAll(async () => {
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
-  });
 
   test('keystone: extract xpub, derivation and master fingerprint from keystone export format', () => {
     const decoder = new URRegistryDecoder();
@@ -669,7 +632,6 @@ describe('Vault: AirGapping with Keystone', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,
@@ -699,17 +661,9 @@ describe('Vault: AirGapping with Keystone', () => {
 });
 
 describe('Vault: AirGapping with Passport', () => {
-  let vaultShell;
   let vault;
   let extract;
   let passport; // Signer
-
-  beforeAll(async () => {
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
-  });
 
   test('passport: extract xpub, derivation and master fingerprint from passport export format', () => {
     const decoder = new URRegistryDecoder();
@@ -758,7 +712,6 @@ describe('Vault: AirGapping with Passport', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,
@@ -777,17 +730,9 @@ describe('Vault: AirGapping with Passport', () => {
 });
 
 describe('Vault: AirGapping with Jade', () => {
-  let vaultShell;
   let vault;
   let extract;
   let jade; // Signer
-
-  beforeAll(async () => {
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
-  });
 
   test('jade: extract xpub, derivation and master fingerprint from jade export format', () => {
     const decoder = new URRegistryDecoder();
@@ -836,7 +781,6 @@ describe('Vault: AirGapping with Jade', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,
@@ -855,7 +799,6 @@ describe('Vault: AirGapping with Jade', () => {
 });
 
 describe('Vault: Multi-sig(3-of-5)', () => {
-  let vaultShell;
   let vault;
   let signers;
   let ccExtract;
@@ -863,13 +806,6 @@ describe('Vault: Multi-sig(3-of-5)', () => {
   let ksExtract;
   let psExtract;
   let jdExtract;
-
-  beforeAll(async () => {
-    vaultShell = {
-      id: getRandomBytes(12),
-      vaultInstances: {},
-    };
-  });
 
   test('signers: extract xpub, derivation and master fingerprint from thier export format', () => {
     ccExtract = extractColdCardExport(COLDCARD_MS_EXPORT.data, COLDCARD_MS_EXPORT.rtdName);
@@ -945,7 +881,6 @@ describe('Vault: Multi-sig(3-of-5)', () => {
 
     vault = generateVault({
       type: vaultType,
-      vaultShellId: vaultShell.id,
       vaultName: vaultDetails.name,
       vaultDescription: vaultDetails.description,
       scheme,

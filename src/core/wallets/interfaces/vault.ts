@@ -8,7 +8,15 @@ import {
   UTXO,
   WalletImportedAddresses,
 } from '.';
-import { EntityKind, NetworkType, SignerStorage, SignerType, VaultType } from '../enums';
+import {
+  EntityKind,
+  NetworkType,
+  ScriptTypes,
+  SignerStorage,
+  SignerType,
+  VaultType,
+  XpubTypes,
+} from '../enums';
 
 import { WalletPresentationData } from './wallet';
 
@@ -40,6 +48,9 @@ export interface VaultScheme {
   n: number; // total number of xpubs
 }
 
+export type XpubDetailsType = {
+  [key in XpubTypes as string]: { xpub: string; derivationPath: string };
+};
 export interface VaultSigner {
   signerId: string;
   type: SignerType;
@@ -49,21 +60,18 @@ export interface VaultSigner {
   xpriv?: string;
   signerName?: string;
   signerDescription?: string;
-  xpubInfo: {
-    derivationPath: string;
-    xfp: string;
-  };
   bip85Config?: BIP85Config;
   lastHealthCheck: Date;
   addedOn: Date;
   registered: boolean;
-  amfData?: any;
   signerPolicy?: SignerPolicy;
+  masterFingerprint: string;
+  derivationPath: string;
+  xpubDetails: XpubDetailsType;
 }
 
 export interface Vault {
   id: string; // vault identifier(derived from xpub)
-  vaultShellId: string; // identifier of the vault shell that the vault belongs
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
@@ -74,26 +82,5 @@ export interface Vault {
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
   archived: boolean;
-  VAC: string;
-}
-
-export interface InheritancePolicy {
-  id: string;
-  date: string;
-  heir: {
-    firstName: string;
-    lastName: string;
-    address: string;
-    email: string;
-  };
-  user: {
-    email: string;
-  };
-  version: string;
-}
-
-export interface VaultShell {
-  id: string;
-  vaultInstances: { [vaultType: string]: number }; // various vault types mapped to corresponding number of instances
-  inheritancePolicyId?: string;
+  scriptType: ScriptTypes;
 }

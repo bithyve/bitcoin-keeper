@@ -157,6 +157,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
   const sanitizeSigners = () =>
     signersState.map((signer: VaultSigner) => {
       if (
+        !signer.isMock &&
         subscriptionScheme.n !== 1 &&
         !UNVERIFYING_SIGNERS.includes(signer.type) &&
         signer.registered

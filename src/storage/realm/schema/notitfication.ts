@@ -10,20 +10,3 @@ export const additionalInfoSchema: ObjectSchema = {
     },
   },
 };
-
-export const NotificationSchema: ObjectSchema = {
-  name: RealmSchema.Notification,
-  properties: {
-    type: 'string',
-    status: 'string',
-    timeStamp: 'string',
-    _id: 'string',
-    title: 'string',
-    info: 'string',
-    additionalInfo: {
-      type: RealmSchema.AdditionalNotes,
-    },
-    notificationId: 'string?',
-  },
-  primaryKey: 'notificationId',
-};

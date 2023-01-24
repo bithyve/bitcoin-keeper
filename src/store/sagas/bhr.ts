@@ -1,6 +1,7 @@
+/* eslint-disable guard-for-in */
 import * as bip39 from 'bip39';
 
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
 import {
@@ -9,7 +10,6 @@ import {
   generateEncryptionKey,
   hash256,
 } from 'src/core/services/operations/encryption';
-import { decryptVAC, encryptVAC, generateIDForVAC } from 'src/core/wallets/factories/VaultFactory';
 import { getCloudBackupData, uploadData } from 'src/nativemodules/Cloud';
 
 import BIP85 from 'src/core/wallets/operations/BIP85';
@@ -26,7 +26,6 @@ import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import { translations } from 'src/common/content/LocContext';
 import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
-import { setupKeeperAppVaultReovery } from '../sagaActions/storage';
 import { createWatcher } from '../utilities';
 import { RootState } from '../store';
 import {
@@ -34,7 +33,6 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
-  setAppRecreated,
   setBackupError,
   setBackupLoading,
   setBackupType,
@@ -53,7 +51,6 @@ import {
   GET_CLOUD_DATA,
   INIT_CLOUD_BACKUP,
   RECOVER_BACKUP,
-  RECOVER_VAULT,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
   SET_BACKUP_WARNING,
@@ -68,21 +65,11 @@ import { setAppId } from '../reducers/storage';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const {
-    primarySeed,
-    appID,
-    walletShellInstances,
-    subscription,
-    networkType,
-    primaryMnemonic,
-  }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-
-  const walletShells: WalletShell[] = yield call(
+  const { primarySeed, appID, subscription, networkType }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
-    RealmSchema.WalletShell,
-    0,
-    true
+    RealmSchema.KeeperApp
   );
+
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallet) {
@@ -101,8 +88,6 @@ export function* updateAppImageWorker({ payload }) {
       appID,
       walletObject,
       networkType,
-      walletShellInstances: JSON.stringify(walletShellInstances),
-      walletShells: JSON.stringify(walletShells[0]),
       subscription: JSON.stringify(subscription),
     });
     return response;
@@ -122,7 +107,7 @@ export function* updateVaultImageWorker({
   };
 }) {
   const { vault, archiveVaultId, isUpdate } = payload;
-  const { primarySeed, appID, subscription, vaultShellInstances }: KeeperApp = yield call(
+  const { primarySeed, appID, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
@@ -138,32 +123,31 @@ export function* updateVaultImageWorker({
     });
   }
 
-  let signersData: Array<{
+  const signersData: Array<{
     signerId: String;
     xfpHash: String;
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
     signerIdXpubMap[signer.signerId] = signer.xpub;
-    signersData.push({ signerId: signer.signerId, xfpHash: hash256(signer.xpubInfo.xfp) });
+    signersData.push({ signerId: signer.signerId, xfpHash: hash256(signer.masterFingerprint) });
   }
   // updating signerIdXpubMap if the signer was created through automated mock flow
-  const signerIdsToFilter = [];
-  for (const signer of vault.signers) {
-    if (signer.amfData && signer.amfData.xpub) {
-      signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
-      signersData.push({
-        signerId: signer.amfData.signerId,
-        xfpHash: hash256(signer.xpubInfo.xfp),
-      });
-      signerIdsToFilter.push(signer.signerId);
-    }
-  }
-  signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
+  // const signerIdsToFilter = [];
+  // for (const signer of vault.signers) {
+  //   if (signer.amfData && signer.amfData.xpub) {
+  //     signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
+  //     signersData.push({
+  //       signerId: signer.amfData.signerId,
+  //       xfpHash: hash256(signer.xpubInfo.xfp),
+  //     });
+  //     signerIdsToFilter.push(signer.signerId);
+  //   }
+  // }
+  // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
-  //TO-DO to be removed
+  // TO-DO to be removed
   const subscriptionStrings = JSON.stringify(subscription);
-  const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
 
   try {
     if (archiveVaultId) {
@@ -173,7 +157,6 @@ export function* updateVaultImageWorker({
         scheme: vault.scheme,
         signersData,
         vault: vaultEncrypted,
-        vaultShellInstances: vaultShellInstancesString,
         subscription: subscriptionStrings,
         archiveVaultId,
       });
@@ -185,8 +168,6 @@ export function* updateVaultImageWorker({
       scheme: vault.scheme,
       signersData,
       vault: vaultEncrypted,
-      vaultShellInstances: vaultShellInstancesString,
-
       subscription: subscriptionStrings,
     });
     return response;
@@ -323,9 +304,11 @@ function* initCloudBackupWorked({
       RealmSchema.KeeperApp
     );
     yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, id, {
-      backupMethod: BackupType.CLOUD,
-      backupPassword: password,
-      backupPasswordHint: hint,
+      backup: {
+        method: BackupType.CLOUD,
+        password,
+        hint,
+      },
     });
     const data = {
       seed: primaryMnemonic,
@@ -372,7 +355,9 @@ function* seedBackedUpWorker() {
       subtitle: '',
     });
     yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, id, {
-      backupMethod: BackupType.SEED,
+      backup: {
+        method: BackupType.SEED,
+      },
     });
     yield put(setBackupType(BackupType.SEED));
   } catch (error) {
@@ -401,23 +386,15 @@ function* getAppImageWorker({ payload }) {
         id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
         appID: appImage.appId,
         primarySeed: primarySeed.toString('hex'),
-        walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic,
         imageEncryptionKey,
         subscription: JSON.parse(appImage.subscription),
+        backup: {},
         version: DeviceInfo.getVersion(),
-        vaultShellInstances: appImage.vaultShellInstances
-          ? JSON.parse(appImage.vaultShellInstances)
-          : null,
         networkType: config.NETWORK_TYPE,
       };
 
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-      yield call(
-        dbManager.createObject,
-        RealmSchema.WalletShell,
-        JSON.parse(appImage.walletShells)
-      );
 
       // Wallet recreation
       if (appImage.wallets) {
@@ -552,33 +529,6 @@ function* isBackedUP({
   yield put(setBackupWarning(false));
 }
 
-function* recoverVaultWorker() {
-  const signingDevices = yield select((state: RootState) => state.bhr.signingDevices); // UI m
-  const vaultMetaData = yield select((state: RootState) => state.bhr.vaultMetaData); // Api Call for 1st Vault
-  const signerIds = [];
-  const xpubs = [];
-  for (const signer of signingDevices) {
-    signerIds.push(signer.signerId);
-    xpubs.push(signer.xpub);
-  }
-  const key = signerIds.sort().toString();
-  const hashKey = generateIDForVAC(key);
-  const encrytedVac = yield call(Relay.getVac, hashKey); // API encryted of m combination
-
-  if (encrytedVac) {
-    console.log({ xpubs, encrytedVac });
-    const vac = decryptVAC(encrytedVac, xpubs);
-    const vault = decrypt(vac, vaultMetaData.vault);
-    yield put(
-      setupKeeperAppVaultReovery(
-        JSON.parse(vaultMetaData.vaultShellInstances),
-        JSON.parse(vaultMetaData.subscription)
-      )
-    );
-    yield call(dbManager.createObject, RealmSchema.Vault, JSON.parse(vault));
-  }
-}
-
 export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
 export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPDATE_VAULT_IMAGE);
 
@@ -586,7 +536,6 @@ export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE
 export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 export const initCloudBackupWatcher = createWatcher(initCloudBackupWorked, INIT_CLOUD_BACKUP);
 export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
-export const recoverVaultWatcher = createWatcher(recoverVaultWorker, RECOVER_VAULT);
 
 export const cloudBackupSkippedWatcher = createWatcher(
   cloudBackupSkippedWorked,

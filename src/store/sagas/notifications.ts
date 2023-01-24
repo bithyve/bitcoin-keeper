@@ -68,32 +68,30 @@ export function* getMessageWorker() {
       ({ notificationId }) => !storedMessages.find((f) => f.notificationId === notificationId)
     )
   );
+  //TO--DO: NOTIFICATION_UAI_BINDING without the notifaction schema
+  // for (let i = 0; i < messages.length; i++) {
+  //   yield call(dbManager.createObject, RealmSchema.Notification, {
+  //     ...messages[i],
+  //     additionalInfo: {
+  //       notes: Platform.select({
+  //         ios: messages[i].additionalInfo.notes.ios,
+  //         android: messages[i].additionalInfo.notes.android,
+  //       }),
+  //     },
+  //   });
+  // }
 
-  for (let i = 0; i < messages.length; i++) {
-    yield call(dbManager.createObject, RealmSchema.Notification, {
-      ...messages[i],
-      additionalInfo: {
-        notes: Platform.select({
-          ios: messages[i].additionalInfo.notes.ios,
-          android: messages[i].additionalInfo.notes.android,
-        }),
-      },
-    });
-  }
-
-  const storedNotifications = yield call(dbManager.getCollection, RealmSchema.Notification);
-
-  for (let i = 0; i < storedNotifications.length; i++) {
-    yield put(
-      addToUaiStack({
-        title: storedNotifications[i].title,
-        isDisplay: true,
-        uaiType: storedNotifications[i].type,
-        prirority: 20,
-        displayText: storedNotifications[i].additionalInfo.notes,
-      })
-    );
-  }
+  // for (let i = 0; i < storedNotifications.length; i++) {
+  //   yield put(
+  //     addToUaiStack({
+  //       title: storedNotifications[i].title,
+  //       isDisplay: true,
+  //       uaiType: storedNotifications[i].type,
+  //       prirority: 20,
+  //       displayText: storedNotifications[i].additionalInfo.notes,
+  //     })
+  //   );
+  // }
 
   yield put(messageFetched(newMessageArray));
   yield put(storeMessagesTimeStamp());
