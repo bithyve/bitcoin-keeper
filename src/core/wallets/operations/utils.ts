@@ -671,11 +671,23 @@ export default class WalletUtilities {
     return null;
   };
 
+  // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
   static getDerivationForScriptType = (scriptType: ScriptTypes, account = 0) => {
     const testnet = isTestnet();
     const networkType = testnet ? 1 : 0;
-    return scriptType === ScriptTypes.P2WSH
-      ? `m/48'/${networkType}'/${account}'/${scriptType}'` // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
-      : `m/84'/${networkType}'/${account}'`;
+    switch (scriptType) {
+      case ScriptTypes.P2WSH: // multisig native segwit
+        return `m/48'/${networkType}'/${account}'/2'`;
+      case ScriptTypes.P2WPKH: // singlesig native segwit
+        return `m/84'/${networkType}'/${account}'`;
+      case ScriptTypes['P2SH-P2WPKH']: // singlesig wrapped segwit
+        return `m/49'/${networkType}'/${account}'`;
+      case ScriptTypes['P2SH-P2WSH']: // multisig wrapped segwit
+        return `m/48'/${networkType}'/${account}'/1'`;
+      case ScriptTypes.P2TR: // Taproot
+        return `m/86'/${networkType}'/${account}'`;
+      default: // multisig wrapped segwit
+        return `m/48'/${networkType}'/${account}'/2'`;
+    }
   };
 }
