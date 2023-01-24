@@ -2,6 +2,7 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
+  TransferPolicy,
   Wallet,
   WalletDerivationDetails,
   WalletPresentationData,
@@ -31,7 +32,7 @@ export const generateWallet = async ({
   importedMnemonic?: string;
   importedXpub?: string;
   networkType: NetworkType;
-  transferPolicy: number;
+  transferPolicy: TransferPolicy;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
   let xpriv: string;
@@ -106,7 +107,6 @@ export const generateWallet = async ({
     txIdCache: {},
     transactionMapping: [],
     transactionNote: {},
-    transferPolicy,
   };
 
   const wallet: Wallet = {
@@ -119,6 +119,7 @@ export const generateWallet = async ({
     presentationData,
     specs,
     scriptType: ScriptTypes.P2WPKH,
+    transferPolicy,
   };
   return wallet;
 };

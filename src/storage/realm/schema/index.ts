@@ -8,6 +8,7 @@ import {
   WalletPresentationDataSchema,
   WalletSchema,
   WalletSpecsSchema,
+  TransferPolicySchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -38,6 +39,7 @@ export default [
   TransactionSchema,
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
+  TransferPolicySchema,
   TriggerPolicySchema,
   VaultSchema,
   XpubDetailsSchema,

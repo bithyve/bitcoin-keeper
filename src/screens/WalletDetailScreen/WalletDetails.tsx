@@ -305,7 +305,7 @@ function WalletDetails({ route }) {
                   <Text bold>
                     {'\n'}฿{' '}
                     {getAmt(
-                      wallets[walletIndex].specs.transferPolicy,
+                      wallets[walletIndex].transferPolicy.threshold,
                       exchangeRates,
                       currencyCode,
                       currentCurrency

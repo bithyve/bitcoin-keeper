@@ -15,7 +15,7 @@ import {
   VerificationType,
 } from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { Wallet, WalletPresentationData } from 'src/core/wallets/interfaces/wallet';
+import { TransferPolicy, Wallet, WalletPresentationData } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
@@ -85,7 +85,7 @@ import {
 export interface NewWalletDetails {
   name?: string;
   description?: string;
-  transferPolicy?: number;
+  transferPolicy: TransferPolicy;
 }
 export interface NewWalletInfo {
   walletType: WalletType;

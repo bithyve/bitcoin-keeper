@@ -232,7 +232,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Transfer Policy"
-            subTitle={`Secure to vault after ${wallet?.specs?.transferPolicy / 1e9} BTC`}
+            subTitle={`Secure to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
             }}

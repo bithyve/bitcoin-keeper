@@ -8,6 +8,7 @@ export enum RealmSchema {
   ActiveAddresses = 'ActiveAddresses',
   UTXO = 'UTXO',
   Transaction = 'Transaction',
+  TransferPolicy = 'TransferPolicy',
   TransactionToAddressMapping = 'TransactionToAddressMapping',
   WalletSpecs = 'WalletSpecs',
   Vault = 'Vault',

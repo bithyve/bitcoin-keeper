@@ -108,6 +108,14 @@ export const WalletPresentationDataSchema: ObjectSchema = {
   },
 };
 
+export const TransferPolicySchema: ObjectSchema = {
+  name: RealmSchema.TransferPolicy,
+  embedded: true,
+  properties: {
+    threshold: 'int',
+  },
+};
+
 export const WalletSpecsSchema: ObjectSchema = {
   name: RealmSchema.WalletSpecs,
   embedded: true,
@@ -128,7 +136,6 @@ export const WalletSpecsSchema: ObjectSchema = {
     txIdCache: '{}',
     transactionMapping: `${RealmSchema.TransactionToAddressMapping}[]`,
     transactionNote: '{}',
-    transferPolicy: 'int',
   },
 };
 
@@ -144,6 +151,7 @@ export const WalletSchema: ObjectSchema = {
     presentationData: RealmSchema.WalletPresentationData,
     specs: RealmSchema.WalletSpecs,
     scriptType: 'string',
+    transferPolicy: `${RealmSchema.TransferPolicy}`,
   },
   primaryKey: 'id',
 };

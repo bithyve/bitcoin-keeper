@@ -32,7 +32,9 @@ function EnterWalletDetailScreen({ route }) {
       walletDetails: {
         name: walletName,
         description: walletDescription,
-        transferPolicy: Number(transferPolicy),
+        transferPolicy: {
+          threshold: Number(transferPolicy),
+        },
       },
     };
     dispatch(addNewWallets([newWallet]));
