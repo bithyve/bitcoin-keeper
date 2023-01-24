@@ -450,7 +450,7 @@
     "host": "Host",
     "useSSL": "Use SSL for this node",
     "nodeConnectionSuccess": "Node connected successfully",
-    "nodeConnectionFailure": "Node connection failed"
+    "nodeConnectionFailure": "Unable to connect to Electrum Server. Invalid node details or, not known"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",

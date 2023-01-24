@@ -2,7 +2,7 @@ import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { QRreader } from "react-native-qr-decode-image-camera";
+import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
@@ -16,13 +16,11 @@ import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-pick
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
 import MockWrapper from '../Vault/MockWrapper';
-import { SignerType } from 'src/core/wallets/enums';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
 
 function ScanQR() {
-
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
   const route = useRoute();
@@ -30,7 +28,7 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => { },
+    onQrScan = () => {},
     setup = false,
     type,
   } = route.params as any;
@@ -56,7 +54,7 @@ function ScanQR() {
   }, [qrData]);
 
   const onBarCodeRead = (data) => {
-    if (!qrData) {
+    if (!qrData && data.data) {
       if (!data.data.startsWith('UR') && !data.data.startsWith('ur')) {
         setData(data.data);
         setQrPercent(100);
@@ -75,44 +73,30 @@ function ScanQR() {
       quality: 1.0,
       maxWidth: 500,
       maxHeight: 500,
-      storageOptions: {
-        skipBackup: true,
-      },
+      storageOptions: { skipBackup: true },
       mediaType: 'photo',
     } as ImageLibraryOptions;
 
-    launchImageLibrary(options, async response => {
-      if (response.didCancel) {
-        return;
-      } else if (response.errorCode === 'camera_unavailable') {
-        showToast('Camera not available on device');
-        return;
-      } else if (response.errorCode === 'permission') {
-        showToast('Permission not satisfied');
-        return;
-      } else if (response.errorCode === 'others') {
-        showToast(response.errorMessage);
-        return;
-      } else {
-        QRreader(response.assets[0].uri)
-          .then(data => {
-            onBarCodeRead({
-              data
-            })
-          })
-          .catch(err => {
-            showToast('Invalid or No related QR code')
-          });
+    launchImageLibrary(options, async (response) => {
+      try {
+        if (response.didCancel) {
+          // ignore if user canceled the process
+        } else if (response.errorCode === 'camera_unavailable') {
+          showToast('Camera not available on device');
+        } else if (response.errorCode === 'permission') {
+          showToast('Permission not satisfied');
+        } else if (response.errorCode === 'others') {
+          showToast(response.errorMessage);
+        } else {
+          const data = await QRreader(response.assets[0].uri);
+          onBarCodeRead({ data });
+        }
+      } catch (_) {
+        showToast('Invalid or No related QR code');
       }
     });
   };
 
-  function enableImportImage(): boolean {
-    if (type === SignerType.SEEDSIGNER || type === SignerType.KEEPER) {
-      return true
-    }
-    return false
-  }
   return (
     <ScreenWrapper>
       <MockWrapper signerType={type} enable={setup && type}>
@@ -126,7 +110,7 @@ function ScanQR() {
               useNativeZoom
             />
           </Box>
-          {enableImportImage() && <UploadImage onPress={handleChooseImage} />}
+          <UploadImage onPress={handleChooseImage} />
           <HStack>
             {qrPercent !== 100 && <ActivityIndicator />}
             <Text>{`Scanned ${qrPercent}%`}</Text>
@@ -164,4 +148,3 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-

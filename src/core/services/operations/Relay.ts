@@ -365,18 +365,11 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
-      return {
-        status: res.data.status,
-        updated: res.data.updated,
-        err: res.data.err,
-      };
+      const { data: response } = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      return response;
     } catch (err) {
-      return {
-        status: '',
-        err: `${err}`,
-        updated: false,
-      };
+      captureError(err);
+      throw new Error('Failed to update App Image');
     }
   };
 
@@ -391,17 +384,11 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      let res;
-
-      res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
-
-      res = res.json || res.data;
-      return {
-        status: res.status,
-      };
+      const { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      return response;
     } catch (err) {
       captureError(err);
-      throw new Error('Failed to update Vault Image');
+      throw new Error('Failed to update App Image');
     }
   };
 

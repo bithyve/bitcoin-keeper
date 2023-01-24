@@ -16,6 +16,7 @@ import {
   updateWalletSettingsWatcher,
   validateSigningServerRegistrationWatcher,
   updateSignerDetails,
+  updateWalletsPropertyWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -85,6 +86,7 @@ const rootSaga = function* () {
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
+    updateWalletsPropertyWatcher,
 
     // vaults
     addNewVaultWatcher,
