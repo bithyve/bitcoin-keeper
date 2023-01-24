@@ -1,8 +1,9 @@
-import { Alert, SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useState } from 'react';
 import { getLedgerDetails } from 'src/hardware/ledger';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -34,12 +35,14 @@ function AddLedger() {
         derivationPath,
         storageType: SignerStorage.COLD,
         signerType: SignerType.LEDGER,
+        isMultisig,
       });
       dispatch(addSigningDevice(ledger));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${ledger.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(ledger.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      if (exsists)
+        showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, null, 3000, true);

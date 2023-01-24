@@ -11,7 +11,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -40,11 +40,7 @@ const gradientStyles = {
 function SignerAdvanceSettings({ route }: any) {
   const { signer }: { signer: VaultSigner } = route.params;
   const { showToast } = useToastMessage();
-  const signerName = getSignerNameFromType(
-    signer.type,
-    signer.isMock,
-    signer.amfData && signer.amfData.xpub
-  );
+  const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
   const [visible, setVisible] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);

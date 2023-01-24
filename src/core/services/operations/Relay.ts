@@ -342,19 +342,6 @@ export default class Relay {
     }
   };
 
-  public static getVac = async (signerIdsHash): Promise<any> => {
-    try {
-      const res: any = await RestClient.post(`${RELAY}getVac`, {
-        signerIdsHash,
-      });
-      const data = res.data || res.json;
-      return data.encryptedVac;
-    } catch (err) {
-      captureError(err);
-      throw new Error('Failed get Vac');
-    }
-  };
-
   public static getTestcoins = async (
     recipientAddress: string,
     network: any

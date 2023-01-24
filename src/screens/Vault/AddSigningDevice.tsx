@@ -4,7 +4,7 @@ import { Box, FlatList, HStack, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType, XpubTypes } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -30,7 +30,7 @@ import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { getSignerSigTypeInfo } from 'src/hardware';
+import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
@@ -143,7 +143,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               maxWidth={width * 0.5}
             >
               {`${signer.signerName}`}
-              <Text fontSize={12}>{` (${signer.xpubInfo.xfp})`}</Text>
+              <Text fontSize={12}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
@@ -221,7 +221,6 @@ function AddSigningDevice() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
-
   const activeVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
@@ -266,14 +265,13 @@ function AddSigningDevice() {
   const misMatchedSigners = [];
   signersState.forEach((signer: VaultSigner) => {
     if (signer) {
-      if (signer.signerName.includes('*') && !signer.signerName.includes('**'))
-        amfSigners.push(signer.type);
+      if (isSignerAMF(signer)) amfSigners.push(signer.type);
       const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
       if (
         (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
         (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
       ) {
-        misMatchedSigners.push(signer.xpubInfo.xfp);
+        misMatchedSigners.push(signer.masterFingerprint);
       }
     }
   });
