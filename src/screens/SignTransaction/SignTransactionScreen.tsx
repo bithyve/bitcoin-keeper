@@ -27,6 +27,8 @@ import { useDispatch } from 'react-redux';
 import useNfcModal from 'src/hooks/useNfcModal';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import { clearSigningDevice } from 'src/store/reducers/vaults';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
@@ -36,8 +38,6 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { clearSigningDevice } from 'src/store/reducers/vaults';
 
 function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -93,7 +93,6 @@ function SignTransactionScreen() {
     if (relayVaultError) {
       showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
       dispatch(resetRealyVaultState());
-      dispatch(clearSigningDevice());
     }
   }, [relayVaultUpdate, relayVaultError]);
 
