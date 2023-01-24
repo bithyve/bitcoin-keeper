@@ -12,8 +12,6 @@ export const KeeperAppSchema: ObjectSchema = {
     imageEncryptionKey: 'string',
     networkType: 'string',
     version: 'string',
-    walletShellInstances: RealmSchema.WalletShellInstances,
-    vaultShellInstances: RealmSchema.VaultShellInstances,
     subscription: RealmSchema.StoreSubscription,
     backup: RealmSchema.Backup,
     signingServerSetup: `${RealmSchema.SigningServerSetup}?`,

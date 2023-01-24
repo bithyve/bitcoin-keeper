@@ -3,6 +3,12 @@ import { NetworkType } from 'src/core/wallets/enums';
 import SubScription from './Subscription';
 import { BackupType } from '../../enums/BHR';
 
+export interface AppBackup {
+  method?: BackupType;
+  password?: string;
+  hint?: string;
+}
+
 export interface KeeperApp {
   id: string;
   appID: string;
@@ -12,19 +18,7 @@ export interface KeeperApp {
   imageEncryptionKey: string;
   version: string;
   networkType: NetworkType;
-  walletShellInstances: {
-    shells: string[];
-    activeShell: string;
-  };
-  vaultShellInstances: {
-    shells: string[];
-    activeShell?: string;
-  };
-  backup: {
-    method?: BackupType;
-    password?: string;
-    hint?: string;
-  };
+  backup: AppBackup;
   subscription: SubScription;
   signingServerSetup?: SigningServerSetup;
   uai?: any;

@@ -73,12 +73,9 @@ export enum EntityKind {
 }
 
 export enum WalletType {
-  CHECKING = 'CHECKING',
+  DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
   READ_ONLY = 'READ_ONLY',
-  SWAN = 'SWAN',
-  LIGHTNING = 'LIGHTNING',
-  MOBILE_KEY = 'MOBILE_KEY',
 }
 
 export enum VaultType {

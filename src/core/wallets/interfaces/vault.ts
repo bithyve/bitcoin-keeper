@@ -72,7 +72,6 @@ export interface VaultSigner {
 
 export interface Vault {
   id: string; // vault identifier(derived from xpub)
-  vaultShellId: string; // identifier of the vault shell that the vault belongs
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
@@ -85,10 +84,4 @@ export interface Vault {
   archived: boolean;
   VAC: string;
   scriptType: ScriptTypes;
-}
-
-export interface VaultShell {
-  id: string;
-  vaultInstances: { [vaultType: string]: number }; // various vault types mapped to corresponding number of instances
-  inheritancePolicyId?: string;
 }
