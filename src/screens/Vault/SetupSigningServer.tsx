@@ -102,8 +102,12 @@ function SetupSigningServer({ route }: { route }) {
         <Box>
           <TouchableOpacity
             onPress={async () => {
-              const data = await Clipboard.getString();
-              setOtp(data);
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+              }
             }}
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />

@@ -15,7 +15,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Permissions from 'react-native-permissions';
-import { QRreader } from "react-native-qr-decode-image-camera";
+import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
@@ -84,7 +84,7 @@ function SendScreen({ route }) {
 
   const requestPermission = () => {
     Permissions.openSettings();
-  }
+  };
   const handleChooseImage = () => {
     const options = {
       quality: 1.0,
@@ -96,7 +96,7 @@ function SendScreen({ route }) {
       mediaType: 'photo',
     } as ImageLibraryOptions;
 
-    launchImageLibrary(options, async response => {
+    launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
         return;
       } else if (response.errorCode === 'camera_unavailable') {
@@ -110,16 +110,15 @@ function SendScreen({ route }) {
         return;
       } else {
         QRreader(response.assets[0].uri)
-          .then(data => {
-            handleTextChange(data)
+          .then((data) => {
+            handleTextChange(data);
           })
-          .catch(err => {
-            showToast('Invalid or No related QR code')
+          .catch((err) => {
+            showToast('Invalid or No related QR code');
           });
       }
     });
   };
-
 
   const avgFees = useAppSelector((state) => state.network.averageTxFees);
 
@@ -156,15 +155,15 @@ function SendScreen({ route }) {
       case PaymentInfoKind.PAYMENT_URI:
         sender.entityKind === 'VAULT'
           ? navigateToNext(
-            address,
-            TransferType.VAULT_TO_ADDRESS,
-            amount ? amount.toString() : null
-          )
+              address,
+              TransferType.VAULT_TO_ADDRESS,
+              amount ? amount.toString() : null
+            )
           : navigateToNext(
-            address,
-            TransferType.WALLET_TO_ADDRESS,
-            amount ? amount.toString() : null
-          );
+              address,
+              TransferType.WALLET_TO_ADDRESS,
+              amount ? amount.toString() : null
+            );
         break;
       default:
     }
@@ -199,12 +198,13 @@ function SendScreen({ route }) {
 
   return (
     <ScreenWrapper>
-      <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : null}
-          enabled
-          keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
-        >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        enabled
+        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+        style={styles.scrollViewWrapper}
+      >
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <HeaderTitle
             title={common.send}
             subtitle="Scan a bitcoin address"
@@ -220,7 +220,9 @@ function SendScreen({ route }) {
                   handleTextChange(data.data);
                 }}
                 notAuthorizedView={
-                  <View style={{ ...styles.cameraView, justifyContent: 'center', alignItems: 'center' }}>
+                  <View
+                    style={{ ...styles.cameraView, justifyContent: 'center', alignItems: 'center' }}
+                  >
                     <Text>Camera permission is denied</Text>
                     <TouchableOpacity onPress={requestPermission}>
                       <Text>Tap to go to settings</Text>
@@ -262,8 +264,9 @@ function SendScreen({ route }) {
               </View>
             </Box>
           </Box>
-        </KeyboardAvoidingView>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
       {/* {Bottom note} */}
       {showNote && (
         <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
