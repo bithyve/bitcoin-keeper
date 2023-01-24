@@ -25,6 +25,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 // icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
@@ -33,6 +34,7 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
 type Props = {
   title: string;
@@ -69,6 +71,7 @@ function WalletSettings({ route }) {
 
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
+  const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
   const walletRoute: Wallet = route?.params?.wallet;
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
@@ -104,6 +107,17 @@ function WalletSettings({ route }) {
   const getTestSats = () => {
     dispatch(testSatsRecieve(wallet));
   };
+
+  useEffect(() => {
+    setTransferPolicyVisible(false);
+  }, [relayWalletUpdateLoading]);
+
+  useEffect(() => {
+    if (relayWalletUpdate) {
+      showToast('Transfer Policy Changed', <TickIcon />);
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate]);
 
   useEffect(() => {
     setLoadingContent({
@@ -261,6 +275,8 @@ function WalletSettings({ route }) {
           subtitleColor="GreyText"
         />
       </Box>
+      {/* Indicator */}
+      <ActivityIndicatorView visible={relayWalletUpdateLoading} />
       {/* Modals */}
       <Box>
         <KeeperModal
@@ -311,7 +327,7 @@ function WalletSettings({ route }) {
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
-          buttonText='Done'
+          buttonText="Done"
           buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
@@ -331,7 +347,12 @@ function WalletSettings({ route }) {
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => (
-            <TransferPolicy wallet={wallet} close={() => setTransferPolicyVisible(false)} />
+            <TransferPolicy
+              wallet={wallet}
+              close={() => {
+                setTransferPolicyVisible(false);
+              }}
+            />
           )}
         />
       </Box>

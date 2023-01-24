@@ -55,7 +55,7 @@ function WalletDetails({ route }) {
   const vaultExsist = Boolean(vaults.length);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
@@ -253,7 +253,6 @@ function WalletDetails({ route }) {
         <Box style={styles.headerBalanceContainer}>
           <Box style={styles.headerBTCIcon}>
             {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTC)}
-
           </Box>
           <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
             {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
@@ -520,7 +519,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     marginTop: hp(10),
-    height: hp(250),
+    height: windowHeight > 800 ? hp(220) : hp(205),
     position: 'relative',
   },
   footerContainer: {
