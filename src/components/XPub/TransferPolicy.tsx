@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, View } from 'native-base';
-import { Alert } from 'react-native';
 
 import BtcInput from 'src/assets/images/btc_input.svg';
 
