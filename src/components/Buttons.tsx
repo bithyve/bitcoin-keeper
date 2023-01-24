@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import { View, Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -9,27 +9,31 @@ import Text from 'src/components/KeeperText';
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => { },
-  secondaryCallback = () => { },
+  primaryCallback = () => {},
+  secondaryCallback = () => {},
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
 }) {
+  const [pressed, setPressed] = useState(primaryDisable);
   const getPrimaryButton = () => {
-    if (primaryLoading) {
-      return <ActivityIndicator style={styles.createBtn} />;
-    }
+    // if (primaryLoading) {
+    //   return <ActivityIndicator style={styles.createBtn} />;
+    // }
     return (
       <TouchableOpacity
-        onPress={primaryCallback}
-        disabled={primaryDisable}
+        onPress={() => {
+          primaryCallback();
+          setPressed(true);
+        }}
+        disabled={pressed}
         activeOpacity={activeOpacity}
       >
         <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
           <Box
-            style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
+            style={[styles.createBtn, { opacity: pressed ? 0.5 : 1, paddingHorizontal }]}
             backgroundColor={{
               linearGradient: {
                 colors: ['light.gradientStart', 'light.gradientEnd'],
