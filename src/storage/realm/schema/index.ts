@@ -8,6 +8,7 @@ import {
   WalletPresentationDataSchema,
   WalletSchema,
   WalletSpecsSchema,
+  TransferPolicySchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -21,7 +22,6 @@ import { KeeperAppSchema } from './app';
 import { TriggerPolicySchema } from './triggerPolicy';
 import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
-import { NotificationSchema, additionalInfoSchema } from './notitfication';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
@@ -39,6 +39,7 @@ export default [
   TransactionSchema,
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
+  TransferPolicySchema,
   TriggerPolicySchema,
   VaultSchema,
   XpubDetailsSchema,
@@ -48,8 +49,6 @@ export default [
   SigningServerSetupSchema,
   BackupSchema,
   UAISchema,
-  NotificationSchema,
-  additionalInfoSchema,
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,

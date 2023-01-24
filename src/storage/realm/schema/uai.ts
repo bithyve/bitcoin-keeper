@@ -6,7 +6,6 @@ export const UAISchema: ObjectSchema = {
   properties: {
     id: 'string',
     title: 'string',
-    notificationId: 'string?',
     isActioned: 'bool',
     isDisplay: 'bool',
     displayText: 'string?',

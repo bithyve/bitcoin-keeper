@@ -21,6 +21,4 @@ export interface KeeperApp {
   backup: AppBackup;
   subscription: SubScription;
   signingServerSetup?: SigningServerSetup;
-  uai?: any;
-  notification?: any;
 }

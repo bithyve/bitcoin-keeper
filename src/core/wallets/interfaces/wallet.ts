@@ -23,6 +23,10 @@ export interface WalletPresentationData {
   shell: number; // shell id
 }
 
+export interface TransferPolicy {
+  threshold: number;
+}
+
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub
   xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
@@ -42,7 +46,7 @@ export interface WalletSpecs {
   transactionNote: {
     [txId: string]: string;
   };
-  transferPolicy: number;
+
   // transactionsMeta?: TransactionMetaData[];
 }
 
@@ -56,6 +60,7 @@ export interface Wallet {
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
   scriptType: ScriptTypes;
+  transferPolicy: TransferPolicy;
 }
 
 export interface TriggerPolicy {
