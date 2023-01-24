@@ -1,25 +1,20 @@
-import { NetworkType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
+import { ScriptTypes } from 'src/core/wallets/enums';
 import BluetoothTransport from '@ledgerhq/react-native-hw-transport-ble';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/core/wallets/interfaces';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { PsbtV2 } from './client/psbtv2';
 import AppClient from './client/appClient';
 import { DefaultWalletPolicy, WalletPolicy } from './client/policy';
 
 const bscript = require('bitcoinjs-lib/src/script');
 
-export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig) => {
+export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig: boolean) => {
   const app = new AppClient(transport);
-  const networkType = config.NETWORK_TYPE;
-  // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
-  const coinType = networkType === NetworkType.TESTNET ? 1 : 0;
-  const isNativeSegwit = true;
-  const scriptType = isNativeSegwit ? 2 : 1;
-  const derivationPath = isMultisig
-    ? `m/48'/${coinType}'/0'/${scriptType}'`
-    : `m/84'/${coinType}'/0'`;
+  const derivationPath = WalletUtilities.getDerivationForScriptType(
+    isMultisig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH
+  );
   const xpub = await app.getExtendedPubkey(derivationPath);
   const masterfp = await app.getMasterFingerprint();
   return { xpub, derivationPath, xfp: masterfp };

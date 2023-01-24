@@ -16,6 +16,7 @@ import RestClient from 'src/core/services/rest/RestClient';
 import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import { Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
@@ -24,6 +25,7 @@ import {
   EntityKind,
   NetworkType,
   PaymentInfoKind,
+  ScriptTypes,
   TransactionType,
 } from '../enums';
 import { OutputUTXOs, Transaction } from '../interfaces';
@@ -667,5 +669,13 @@ export default class WalletUtilities {
       return purpose[0];
     }
     return null;
+  };
+
+  static getDerivationForScriptType = (scriptType: ScriptTypes, account = 0) => {
+    const testnet = isTestnet();
+    const networkType = testnet ? 1 : 0;
+    return scriptType === ScriptTypes.P2WSH
+      ? `m/48'/${networkType}'/${account}'/${scriptType}'` // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
+      : `m/84'/${networkType}'/${account}'`;
   };
 }
