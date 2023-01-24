@@ -82,6 +82,10 @@ import {
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
 
+export interface NewVaultDetails {
+  name?: string;
+  description?: string;
+}
 export interface NewWalletDetails {
   name?: string;
   description?: string;
@@ -182,7 +186,6 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
 
 export const addNewWalletsWatcher = createWatcher(addNewWalletsWorker, ADD_NEW_WALLETS);
 
-export type NewVaultDetails = NewWalletDetails;
 export interface NewVaultInfo {
   vaultType: VaultType;
   vaultScheme: VaultScheme;
