@@ -28,7 +28,7 @@ function EnterWalletDetailScreen({ route }) {
 
   const createNewWallet = useCallback(() => {
     const newWallet: NewWalletInfo = {
-      walletType: WalletType.CHECKING,
+      walletType: WalletType.DEFAULT,
       walletDetails: {
         name: walletName,
         description: walletDescription,

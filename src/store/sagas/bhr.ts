@@ -1,6 +1,7 @@
+/* eslint-disable guard-for-in */
 import * as bip39 from 'bip39';
 
-import { Wallet, WalletShell } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import config, { APP_STAGE } from 'src/core/config';
 import {
@@ -103,15 +104,11 @@ const createVACMap = (signerIds, signerIdXpubMap, m, vac) => {
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, appID, walletShellInstances, subscription, networkType }: KeeperApp =
-    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-
-  const walletShells: WalletShell[] = yield call(
+  const { primarySeed, appID, subscription, networkType }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
-    RealmSchema.WalletShell,
-    0,
-    true
+    RealmSchema.KeeperApp
   );
+
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallet) {
@@ -130,8 +127,6 @@ export function* updateAppImageWorker({ payload }) {
       appID,
       walletObject,
       networkType,
-      walletShellInstances: JSON.stringify(walletShellInstances),
-      walletShells: JSON.stringify(walletShells[0]),
       subscription: JSON.stringify(subscription),
     });
     return response;
@@ -151,7 +146,7 @@ export function* updateVaultImageWorker({
   };
 }) {
   const { vault, archiveVaultId, isUpdate } = payload;
-  const { primarySeed, appID, vaultShellInstances, subscription }: KeeperApp = yield call(
+  const { primarySeed, appID, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
@@ -192,7 +187,6 @@ export function* updateVaultImageWorker({
   // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
   const signerIds = signersData.map((signer) => signer.signerId);
-  const vaultShellInstancesString = JSON.stringify(vaultShellInstances);
   const subscriptionStrings = JSON.stringify(subscription);
   const encryptionKey = generateEncryptionKey(primarySeed);
   const vacEncryptedApp = encrypt(encryptionKey, vault.VAC);
@@ -207,7 +201,6 @@ export function* updateVaultImageWorker({
         vacEncryptedApp,
         signersData,
         vaultEncryptedVAC,
-        vaultShellInstances: vaultShellInstancesString,
         vacMap,
         subscription: subscriptionStrings,
         archiveVaultId,
@@ -221,7 +214,6 @@ export function* updateVaultImageWorker({
       vacEncryptedApp,
       signersData,
       vaultEncryptedVAC,
-      vaultShellInstances: vaultShellInstancesString,
       vacMap,
       subscription: subscriptionStrings,
     });
@@ -442,24 +434,16 @@ function* getAppImageWorker({ payload }) {
         id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
         appID: appImage.appId,
         primarySeed: primarySeed.toString('hex'),
-        walletShellInstances: JSON.parse(appImage.walletShellInstances),
         primaryMnemonic,
         imageEncryptionKey,
+        backup: {},
         subscription: appImage.subscription,
         version: DeviceInfo.getVersion(),
-        vaultShellInstances: appImage.vaultShellInstances
-          ? JSON.parse(appImage.vaultShellInstances)
-          : null,
         networkType: appImage.networkType,
       };
       console.log({ app });
 
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-      yield call(
-        dbManager.createObject,
-        RealmSchema.WalletShell,
-        JSON.parse(appImage.walletShells)
-      );
 
       // Wallet recreation
       if (appImage.wallets) {
@@ -612,12 +596,7 @@ function* recoverVaultWorker() {
     console.log({ xpubs, encrytedVac });
     const vac = decryptVAC(encrytedVac, xpubs);
     const vault = decrypt(vac, vaultMetaData.vault);
-    yield put(
-      setupKeeperAppVaultReovery(
-        JSON.parse(vaultMetaData.vaultShellInstances),
-        JSON.parse(vaultMetaData.subscription)
-      )
-    );
+    yield put(setupKeeperAppVaultReovery(JSON.parse(vaultMetaData.subscription)));
     yield call(dbManager.createObject, RealmSchema.Vault, JSON.parse(vault));
   }
 }

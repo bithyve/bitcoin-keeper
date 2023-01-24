@@ -30,7 +30,6 @@ const crypto = require('crypto');
 
 export const generateVault = ({
   type,
-  vaultShellId,
   vaultName,
   vaultDescription,
   scheme,
@@ -38,7 +37,6 @@ export const generateVault = ({
   networkType,
 }: {
   type: VaultType;
-  vaultShellId: string;
   vaultName: string;
   vaultDescription: string;
   scheme: VaultScheme;
@@ -56,10 +54,12 @@ export const generateVault = ({
   const hashedFingerprints = hash256(fingerprints.join(''));
   const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
 
+  const defaultShell = 1;
   const presentationData: VaultPresentationData = {
     name: vaultName,
     description: vaultDescription,
     visibility: VisibilityType.DEFAULT,
+    shell: defaultShell,
   };
   const { vac } = generateVAC();
 
@@ -91,7 +91,6 @@ export const generateVault = ({
   const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
   const vault: Vault = {
     id,
-    vaultShellId,
     entityKind: EntityKind.VAULT,
     type,
     networkType,

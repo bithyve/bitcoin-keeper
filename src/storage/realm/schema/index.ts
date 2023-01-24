@@ -17,9 +17,6 @@ import {
   SignerPolicy,
   XpubDetailsSchema,
 } from './vault';
-import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
-import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
-
 import { KeeperAppSchema } from './app';
 import { TriggerPolicySchema } from './triggerPolicy';
 import { SigningServerSetupSchema } from './signingServerSetup';
@@ -42,16 +39,12 @@ export default [
   TransactionSchema,
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
-  WalletShellShcema,
-  WalletShellInstancesShcema,
   TriggerPolicySchema,
   VaultSchema,
   XpubDetailsSchema,
   VaultPresentationDataSchema,
   SignerPolicy,
   VaultSpecsSchema,
-  VaultShellSchema,
-  VaultShellInstancesShcema,
   SigningServerSetupSchema,
   BackupSchema,
   UAISchema,
