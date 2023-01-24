@@ -1,45 +1,36 @@
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
-import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
-import config, { APP_STAGE } from 'src/core/config';
 
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
+import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
+import useTapsignerModal from 'src/hooks/useTapsignerModal';
+import { isTestnet } from 'src/common/constants/Bitcoin';
+import { getMockTapsignerDetails, getTapsignerDetails } from 'src/hardware/tapsigner';
+import { generateSignerFromMetaData } from 'src/hardware';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import NFC from 'src/core/services/nfc';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import MockWrapper from '../Vault/MockWrapper';
+import { Box } from 'native-base';
 
 function TapSignerRecovery() {
   const [cvc, setCvc] = React.useState('');
-  const [nfcVisible, setNfcVisible] = React.useState(false);
   const navigation = useNavigation();
-  const { showToast } = useToastMessage();
   const card = React.useRef(new CKTapCard()).current;
-  const dispatch = useDispatch();
-
-  const withModal = (callback) =>
-    Platform.select({
-      android: async () => {
-        setNfcVisible(true);
-        const resp = await card.nfcWrapper(callback);
-        setNfcVisible(false);
-        await card.endNfcSession();
-        return resp;
-      },
-      ios: async () => card.nfcWrapper(callback),
-    });
+  const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
 
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -51,86 +42,72 @@ function TapSignerRecovery() {
       setCvc(cvc.slice(0, -1));
     }
   };
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const onDeletePressed = () => {
     setCvc(cvc.slice(0, cvc.length - 1));
   };
-  const verifyTapsigner = React.useCallback(async () => {
+
+  const isAMF = isTestnet();
+
+  const addTapsigner = React.useCallback(async () => {
     try {
-      const tapsigner = await getTapsignerDetails();
-      const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
-      const sigingDeivceDetails: SigningDeviceRecovery = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(tapsigner.xpub, network),
-        xpub: tapsigner.xpub,
-        type: SignerType.TAPSIGNER,
-      };
-      dispatch(setSigningDevices(sigingDeivceDetails));
-      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-    } catch (err) {
-      showToast(err.toString());
-    }
-  }, [cvc]);
-
-  const getTapsignerDetails = async () => {
-    const signerDetails = await withModal(async () => {
-      const status = await card.first_look();
-      const isLegit = await card.certificate_check();
-      if (isLegit) {
-        if (status.path) {
-          const xpub = await card.get_xpub(cvc);
-          const xfp = await card.get_xfp(cvc);
-          return { xpub, status, xfp: xfp.toString('hex') };
-        }
-        await card.setup(cvc);
-        const newCard = await card.first_look();
-        const xpub = await card.get_xpub(cvc);
-        const xfp = await card.get_xfp(cvc);
-        return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
+      const { xpub, derivationPath, xfp } = await withModal(async () =>
+        getTapsignerDetails(card, cvc)
+      )();
+      // AMF flow
+      if (isAMF) {
+        const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
+        const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+        const tapsigner = getMockTapsignerDetails({ signerId, xpub });
+        dispatch(setSigningDevices(tapsigner));
+        navigation.navigate('LoginStack', { screen: 'VaultRecovery' });
+        showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
+        return;
       }
-    })();
-    return signerDetails;
-  };
-
-  const getMockTapsignerDetails = () => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.TAPSIGNER,
-      networkType
-    );
-    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-    const tapsigner: SigningDeviceRecovery = {
-      signerId,
-      type: SignerType.TAPSIGNER,
-      xpub,
-    };
-    return tapsigner;
-  };
-
-  const addMockTapsigner = React.useCallback(async () => {
-    try {
-      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-        const mockTapsigner: SigningDeviceRecovery = getMockTapsignerDetails();
-        dispatch(setSigningDevices(mockTapsigner));
-        navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-      }
+      const tapsigner = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        signerType: SignerType.TAPSIGNER,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(setSigningDevices(tapsigner));
+      CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
+      const exsists = await checkSigningDevice(tapsigner.signerId);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (err) {
-      showToast(err.toString());
+      let message: string;
+      if (err.toString().includes('401')) {
+        message = 'Please check the cvc entered and try again!';
+      } else if (err.toString().includes('429')) {
+        message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
+      } else if (err.toString().includes('205')) {
+        message = 'Something went wrong, please try again!';
+      } else if (err.toString() === 'Error') {
+        // do nothing when nfc is dismissed
+        return;
+      } else {
+        message = err.toString();
+      }
+      if (Platform.OS === 'ios') NFC.showiOSMessage(message);
+      showToast(message, null, 2000, true);
+      closeNfc();
+      card.endNfcSession();
     }
   }, [cvc]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <TapGestureHandler numberOfTaps={3} onActivated={addMockTapsigner}>
-        <Box flex={1}>
-          <Box style={styles.header}>
-            <HeaderTitle
-              title="Recover using Tapsigner"
-              subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
-              onPressHandler={() => navigation.goBack()}
-            />
-          </Box>
+    <ScreenWrapper>
+      <Box flex={1}>
+        <HeaderTitle
+          title="Setting up TAPSIGNER"
+          subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
+          onPressHandler={() => navigation.goBack()}
+        />
+        <MockWrapper signerType={SignerType.TAPSIGNER} isRecovery={true}>
           <ScrollView>
             <TextInput
               style={styles.input}
@@ -139,66 +116,37 @@ function TapSignerRecovery() {
               secureTextEntry
               showSoftInputOnFocus={false}
             />
-            <Text padding={5}>You will be scanning the TAPSIGNER after this step</Text>
-            <Box flex={1} justifyContent="flex-end" flexDirection="row" mr={wp(15)}>
-              <Buttons primaryText="Proceed" primaryCallback={verifyTapsigner} />
+            <Text style={styles.heading} color="light.greenText">
+              You will be scanning the TAPSIGNER after this step
+            </Text>
+            <Box style={styles.btnContainer}>
+              <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
             </Box>
           </ScrollView>
-          <KeyPadView
-            onPressNumber={onPressHandler}
-            keyColor="#041513"
-            onDeletePressed={onDeletePressed}
-          />
-          <NfcPrompt visible={nfcVisible} close={() => {}} />
-        </Box>
-      </TapGestureHandler>
-    </SafeAreaView>
+        </MockWrapper>
+        <KeyPadView
+          onPressNumber={onPressHandler}
+          keyColor="#041513"
+          onDeletePressed={onDeletePressed}
+        />
+        <NfcPrompt visible={nfcVisible} close={closeNfc} />
+      </Box>
+    </ScreenWrapper>
   );
 }
 
 export default TapSignerRecovery;
 
 const styles = StyleSheet.create({
-  container: {
-    height: '100%',
-    backgroundColor: '#F7F2EC',
-    flex: 1,
-    padding: 10,
-  },
   header: {
     flex: 1,
-    padding: '5%',
-  },
-  stepContainer: {
-    flexDirection: 'row',
-    marginBottom: '4%',
-    marginHorizontal: '4%',
-  },
-  stepBodyContainer: {
-    width: '80%',
-  },
-  circle: {
-    margin: '5%',
-    marginTop: 0,
-    width: 25,
-    height: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  doneCircle: {
-    backgroundColor: '#055146',
-  },
-  activeCircle: {
-    backgroundColor: '#FAC48B',
-  },
-  inactiveCircle: {
-    backgroundColor: '#E3E3E3',
+    paddingHorizontal: '5%',
+    marginBottom: windowHeight > 850 ? 0 : '25%',
   },
   input: {
-    paddingHorizontal: 20,
     margin: '5%',
-    width: '100%',
+    paddingHorizontal: 15,
+    width: wp(305),
     height: 50,
     borderRadius: 10,
     backgroundColor: '#f0e7dd',
@@ -206,5 +154,18 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     alignItems: 'flex-end',
+  },
+  heading: {
+    margin: '5%',
+    padding: 5,
+    width: windowWidth * 0.8,
+    fontSize: 13,
+    letterSpacing: 0.65,
+  },
+  btnContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    marginRight: wp(15),
   },
 });
