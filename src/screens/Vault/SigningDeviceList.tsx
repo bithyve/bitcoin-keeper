@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
@@ -24,6 +25,7 @@ import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
 import { WalletMap } from './WalletMap';
 import HardwareModalMap from './HardwareModalMap';
+import SDTag from './components/SDTag';
 
 type HWProps = {
   type: SignerType;
@@ -189,6 +191,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
                   {message}
                 </Text>
               </Box>
+              <SDTag type={type} />
             </Box>
             <Box backgroundColor="light.divider" style={styles.dividerStyle} />
           </Box>
