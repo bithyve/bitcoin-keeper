@@ -19,6 +19,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
+import { HWErrorType } from 'src/common/data/enums/Hardware';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -50,7 +51,7 @@ function SetupColdCard() {
         if (exsists)
           showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } else {
-        showToast(`Looks like you are scanning from the wrong section`, <ToastErrorIcon />, 3000);
+        throw new HWError(HWErrorType.INVALID_SIG);
       }
     } catch (error) {
       if (error instanceof HWError) {

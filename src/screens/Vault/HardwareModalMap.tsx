@@ -53,6 +53,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import { crossInteractionHandler } from 'src/common/utilities';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import * as SecureStore from '../../storage/secure-store';
+import { checkSigningDevice } from './AddSigningDevice';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -365,6 +366,7 @@ function PasswordEnter({
   pinHash;
 }) {
   const [password, setPassword] = useState('');
+  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -498,10 +500,10 @@ function HardwareModalMap({
     );
   };
 
-  const onQRScan = (qrData, resetQR) => {
+  const onQRScan = async (qrData, resetQR) => {
     let hw: VaultSigner;
     try {
-      switch (type as SignerType) {
+      switch (type) {
         case SignerType.PASSPORT:
           hw = setupPassport(qrData, isMultisig);
           break;
@@ -523,6 +525,9 @@ function HardwareModalMap({
       dispatch(addSigningDevice(hw));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
+      const exsists = await checkSigningDevice(hw.signerId);
+      if (exsists)
+        showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);

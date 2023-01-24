@@ -1,6 +1,7 @@
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
@@ -95,7 +96,8 @@ function SetupTapsigner() {
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
       if (!isSignerAMF(tapsigner)) {
         const exsists = await checkSigningDevice(tapsigner.signerId);
-        if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+        if (exsists)
+          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
       }
     } catch (err) {
       let message: string;
