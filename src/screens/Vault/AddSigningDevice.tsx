@@ -30,7 +30,7 @@ import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { getSignerSigTypeInfo } from 'src/hardware';
+import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
@@ -265,7 +265,7 @@ function AddSigningDevice() {
   const misMatchedSigners = [];
   signersState.forEach((signer: VaultSigner) => {
     if (signer) {
-      if (signer.xpubDetails[XpubTypes.AMF]) amfSigners.push(signer.type);
+      if (isSignerAMF(signer)) amfSigners.push(signer.type);
       const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
       if (
         (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
