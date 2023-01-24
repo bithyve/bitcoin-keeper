@@ -1,7 +1,6 @@
 export interface UAI {
   id: string;
   title: string;
-  notificationId?: string;
   isActioned: boolean;
   isDisplay: boolean;
   displayText?: string;

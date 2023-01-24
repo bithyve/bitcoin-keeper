@@ -15,8 +15,6 @@ export const KeeperAppSchema: ObjectSchema = {
     subscription: RealmSchema.StoreSubscription,
     backup: RealmSchema.Backup,
     signingServerSetup: `${RealmSchema.SigningServerSetup}?`,
-    uai: `${RealmSchema.UAI}?`,
-    notification: `${RealmSchema.Notification}?`,
   },
   primaryKey: 'id',
 };

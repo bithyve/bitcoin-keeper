@@ -20,7 +20,6 @@ export enum RealmSchema {
   SigningServerSetup = 'SigningServerSetup',
   Backup = 'Backup',
   UAI = 'UAI',
-  Notification = 'Notification',
   AdditionalNotes = 'AdditionalNotes',
   VersionHistory = 'VersionHistory',
   BackupHistory = 'BackupHistory',
