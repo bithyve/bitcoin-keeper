@@ -65,12 +65,11 @@ import { setAppId } from '../reducers/storage';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, appID, subscription, networkType, primaryMnemonic }: KeeperApp = yield call(
+  const { primarySeed, appID, subscription, networkType }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
 
-  console.log({ primaryMnemonic });
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallet) {
@@ -124,7 +123,7 @@ export function* updateVaultImageWorker({
     });
   }
 
-  let signersData: Array<{
+  const signersData: Array<{
     signerId: String;
     xfpHash: String;
   }> = [];
@@ -147,7 +146,7 @@ export function* updateVaultImageWorker({
   // }
   // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
-  //TO-DO to be removed
+  // TO-DO to be removed
   const subscriptionStrings = JSON.stringify(subscription);
 
   try {
