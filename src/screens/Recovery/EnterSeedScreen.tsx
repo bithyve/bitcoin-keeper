@@ -1,14 +1,20 @@
 import * as bip39 from 'bip39';
 
 import { Box, View } from 'native-base';
-import { FlatList, KeyboardAvoidingView, Platform, SafeAreaView, TextInput } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  TextInput,
+} from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/common/Fonts';
-import Check from 'src/assets/images/checkIcon.svg';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -19,14 +25,27 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getAppImage } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/common/utilities';
+import config from 'src/core/config';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import { captureError } from 'src/core/services/sentry';
 
-function EnterSeedScreen() {
+function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
+  const isSoftKeyRecovery = route?.params?.isSoftKeyRecovery;
+
+  const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
+  const { appId } = useAppSelector((state) => state.storage);
 
   const ref = useRef<FlatList>(null);
   const [seedData, setSeedData] = useState([
@@ -91,11 +110,8 @@ function EnterSeedScreen() {
       invalid: true,
     },
   ]);
-
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
-  const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
-  const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
-
+  const [recoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
 
   const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
@@ -104,39 +120,23 @@ function EnterSeedScreen() {
     setInvalidSeedsModal(false);
   };
 
-  const openLoaderModal = () => setCreateCloudBackupModal(true);
-  const closeLoaderModal = () => setCreateCloudBackupModal(false);
-  const closeRecovery = () => setWalletRecoverySuccessModal(false);
-
-  const closeWalletSuccessModal = () => {
-    setWalletRecoverySuccessModal(false);
-  };
-
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
-  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
 
   useEffect(() => {
     if (appImageError) openInvalidSeedsModal();
-
     if (appRecoveryLoading) {
       setRecoveryLoading(true);
-      openLoaderModal();
     }
   }, [appRecoveryLoading, appImageError, appImageRecoverd]);
 
   useEffect(() => {
-    if (appRecreated) {
-      setTimeout(() => {
-        closeLoaderModal();
-        setRecoveryLoading(false);
-        navigation.navigate('App', { screen: 'NewHome' });
-      }, 3000);
+    if (appId) {
+      setRecoveryLoading(false);
+      navigation.navigate('App', { screen: 'NewHome' });
     }
-  }, [appRecreated]);
+  }, [appId]);
 
   const isSeedFilled = (index: number) => {
     for (let i = 0; i < index; i++) {
@@ -155,7 +155,7 @@ function EnterSeedScreen() {
     return seedWord.trim();
   };
 
-  const onPressNext = async () => {
+  const onPressNextSeedReocvery = async () => {
     if (isSeedFilled(6)) {
       if (isSeedFilled(12)) {
         const seedWord = getSeedWord();
@@ -168,36 +168,49 @@ function EnterSeedScreen() {
     }
   };
 
-  function RecoverWalletScreen() {
-    return (
-      <Box>
-        <Box style={styles.checkWrapper}>
-          <Check />
-          <Box marginLeft={5}>
-            <Text color={'#00715B'} style={styles.checkText}>
-              Valid Seed Words
-            </Text>
-          </Box>
-        </Box>
-        <Box style={styles.checkWrapper}>
-          <Check />
-          <Box marginLeft={5}>
-            <Text color={'#00715B'} style={styles.checkText}>
-              Wallets created
-            </Text>
-          </Box>
-        </Box>
-        <Box style={styles.checkWrapper}>
-          <Check />
-          <Box marginLeft={5}>
-            <Text color={'#00715B'} style={styles.checkText}>
-              Vault restored with app meta-data
-            </Text>
-          </Box>
-        </Box>
-      </Box>
-    );
-  }
+  const setupSeedWordsBasedKey = (mnemonic) => {
+    try {
+      const networkType = config.NETWORK_TYPE;
+      const network = WalletUtilities.getNetworkByType(networkType);
+      const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
+        mnemonic,
+        networkType
+      );
+      const softSigner: VaultSigner = {
+        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+        type: SignerType.SEED_WORDS,
+        storageType: SignerStorage.WARM,
+        signerName: 'Seed Words',
+        xpub,
+        xpubInfo: {
+          derivationPath,
+          xfp: masterFingerprint,
+        },
+        registered: false,
+        lastHealthCheck: new Date(),
+        addedOn: new Date(),
+      };
+      dispatch(setSigningDevices(softSigner));
+      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+    } catch (err) {
+      showToast('Invalid QR, please scan the QR from Passport!');
+      navigation.dispatch(CommonActions.navigate('SignersList'));
+      captureError(err);
+    }
+  };
+
+  const onPressNextSoftReocvery = () => {
+    if (isSeedFilled(6)) {
+      if (isSeedFilled(12)) {
+        const seedWord = getSeedWord();
+        setupSeedWordsBasedKey(seedWord);
+      } else {
+        ref.current.scrollToIndex({ index: 5, animated: true });
+      }
+    } else {
+      showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+  };
 
   function InValidSeedsScreen() {
     return (
@@ -226,13 +239,21 @@ function EnterSeedScreen() {
       >
         <StatusBarComponent />
         <Box marginX={10} mt={25}>
-          <SeedWordsView
-            title={seed?.enterRecoveryPhrase}
-            subtitle={seed.recoverWallet}
-            onPressHandler={() =>
-              navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
-            }
-          />
+          {isSoftKeyRecovery ? (
+            <SeedWordsView
+              title={'Enter Seed Words'}
+              subtitle={'Enter the seed in order'}
+              onPressHandler={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
+            />
+          ) : (
+            <SeedWordsView
+              title={seed?.enterRecoveryPhrase}
+              subtitle={seed.recoverWallet}
+              onPressHandler={() =>
+                navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+              }
+            />
+          )}
         </Box>
         <View>
           <FlatList
@@ -304,15 +325,19 @@ function EnterSeedScreen() {
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
-            <Buttons
-              primaryCallback={onPressNext}
-              primaryText="Next"
-              secondaryCallback={() => {
-                navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' });
-              }}
-              secondaryText="Other Methods"
-              primaryLoading={recoveryLoading}
-            />
+            {isSoftKeyRecovery ? (
+              <Buttons primaryCallback={onPressNextSoftReocvery} primaryText="Next" />
+            ) : (
+              <Buttons
+                primaryCallback={onPressNextSeedReocvery}
+                primaryText="Next"
+                secondaryCallback={() => {
+                  navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' });
+                }}
+                secondaryText="Other Methods"
+                primaryLoading={recoveryLoading}
+              />
+            )}
           </View>
         </View>
         <KeeperModal
@@ -325,14 +350,6 @@ function EnterSeedScreen() {
           buttonCallback={closeInvalidSeedsModal}
           textColor="light.primaryText"
           Content={InValidSeedsScreen}
-        />
-        <KeeperModal
-          visible={recoveryLoading}
-          close={() => setRecoveryLoading(false)}
-          title={seed.recoverYourKeeperApp}
-          subTitle={seed.recoverYourKeeperAppSubTitle}
-          textColor="light.primaryText"
-          Content={RecoverWalletScreen}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>
