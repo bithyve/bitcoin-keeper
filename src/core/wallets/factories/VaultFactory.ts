@@ -61,7 +61,6 @@ export const generateVault = ({
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
-  const { vac } = generateVAC();
 
   const specs: VaultSpecs = {
     xpubs,
@@ -100,7 +99,6 @@ export const generateVault = ({
     signers,
     presentationData,
     specs,
-    VAC: vac,
     archived: false,
     scriptType,
   };
@@ -239,14 +237,6 @@ export const generateMockExtendedKeyForSigner = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateIDForVAC = (str: string) => hash256(str);
-
-export const generateVAC = (entropy?: string): { vac: string; vacId: string } => {
-  const vac = generateEncryptionKey(entropy);
-  const vacId = generateIDForVAC(vac);
-  return { vac, vacId };
-};
-
 export const generateKeyFromXpub = (
   xpub: string,
   network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
@@ -258,28 +248,4 @@ export const generateKeyFromXpub = (
     true
   );
   return generateEncryptionKey(child);
-};
-
-export const encryptVAC = (vac: string, xpubs: string[]) => {
-  let encrytedVac = vac;
-  xpubs = xpubs.sort();
-  xpubs.forEach((xpub) => {
-    const networkType = WalletUtilities.getNetworkFromXpub(xpub);
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const key = generateKeyFromXpub(xpub, network);
-    encrytedVac = encrypt(key, encrytedVac);
-  });
-  return encrytedVac;
-};
-
-export const decryptVAC = (encryptedVac: string, xpubs: string[]) => {
-  let decryptedVAC = encryptedVac;
-  xpubs = xpubs.sort().reverse();
-  xpubs.forEach((xpub) => {
-    const networkType = WalletUtilities.getNetworkFromXpub(xpub);
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const key = generateKeyFromXpub(xpub, network);
-    decryptedVAC = decrypt(key, decryptedVAC);
-  });
-  return decryptedVAC;
 };
