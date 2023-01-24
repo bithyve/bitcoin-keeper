@@ -76,7 +76,9 @@ function WalletDetails({ route }) {
   const flatListRef = useRef(null);
 
   const handleScrollToIndex = (index) => {
-    flatListRef.current.scrollToIndex({ index });
+    if (flatListRef) {
+      flatListRef.current.scrollToIndex({ index });
+    }
   }
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
