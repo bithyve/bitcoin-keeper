@@ -180,14 +180,6 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
-export interface NodeConnect {
-  nodeId: string;
-  type: NodeType;
-  networkType: NetworkType;
-  config: {};
-  isActive: boolean;
-}
-
 export interface TwoFADetails {
   signingServerXpub?: string;
   derivationPath?: string;
@@ -235,4 +227,3 @@ export interface NodeDetail {
   useKeeperNode: boolean;
   useSSL: boolean;
 }
-

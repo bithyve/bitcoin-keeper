@@ -1,8 +1,7 @@
-import { NodeConnect, TwoFADetails } from 'src/core/wallets/interfaces';
-
+import { TwoFADetails } from 'src/core/wallets/interfaces';
 import { NetworkType } from 'src/core/wallets/enums';
-import { BackupType } from '../../enums/BHR';
 import SubScription from './Subscription';
+import { BackupType } from '../../enums/BHR';
 
 export interface KeeperApp {
   id: string;
@@ -11,6 +10,8 @@ export interface KeeperApp {
   primaryMnemonic: string;
   primarySeed: string;
   imageEncryptionKey: string;
+  version: string;
+  networkType: NetworkType;
   walletShellInstances: {
     shells: string[];
     activeShell: string;
@@ -19,15 +20,13 @@ export interface KeeperApp {
     shells: string[];
     activeShell?: string;
   };
+  backup: {
+    method?: BackupType;
+    password?: string;
+    hint?: string;
+  };
+  subscription: SubScription;
   twoFADetails?: TwoFADetails;
-  nodeConnect?: NodeConnect;
   uai?: any;
   notification?: any;
-  version: string;
-  agsp?: string;
-  backupMethod?: BackupType;
-  backupPasswordHint?: string;
-  backupPassword?: string;
-  subscription: SubScription;
-  networkType: NetworkType;
 }

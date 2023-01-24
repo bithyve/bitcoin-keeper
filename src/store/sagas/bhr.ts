@@ -359,9 +359,11 @@ function* initCloudBackupWorked({
       RealmSchema.KeeperApp
     );
     yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, id, {
-      backupMethod: BackupType.CLOUD,
-      backupPassword: password,
-      backupPasswordHint: hint,
+      backup: {
+        method: BackupType.CLOUD,
+        password,
+        hint,
+      },
     });
     const data = {
       seed: primaryMnemonic,
@@ -408,7 +410,9 @@ function* seedBackedUpWorker() {
       subtitle: '',
     });
     yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, id, {
-      backupMethod: BackupType.SEED,
+      backup: {
+        method: BackupType.SEED,
+      },
     });
     yield put(setBackupType(BackupType.SEED));
   } catch (error) {

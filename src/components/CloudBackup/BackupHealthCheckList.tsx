@@ -33,9 +33,9 @@ function BackupHealthCheckList() {
   const strings = translations.BackupWallet;
   const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
-  const { primaryMnemonic, backupPassword, backupPasswordHint }: KeeperApp = useQuery(
-    RealmSchema.KeeperApp
-  ).map(getJSONFromRealmObject)[0];
+  const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
   const { backupMethod, seedConfirmed, cloudBackedConfirmed } = useAppSelector(
     (state) => state.bhr
   );
@@ -133,8 +133,8 @@ function BackupHealthCheckList() {
             }
           }}
           type={backupMethod}
-          password={backupPassword}
-          hint={backupPasswordHint}
+          password={backup.password}
+          hint={backup.hint}
           words={primaryMnemonic.split(' ')}
           onConfirmed={(password) => {
             if (backupMethod === BackupType.SEED) {

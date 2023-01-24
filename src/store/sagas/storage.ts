@@ -61,6 +61,7 @@ function* setupKeeperAppWorker({ payload }) {
         name: SubscriptionTier.L1,
         level: 0,
       },
+      backup: {},
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,
     };
