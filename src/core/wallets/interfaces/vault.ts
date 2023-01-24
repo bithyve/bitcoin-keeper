@@ -86,20 +86,6 @@ export interface Vault {
   VAC: string;
   scriptType: ScriptTypes;
 }
-export interface InheritancePolicy {
-  id: string;
-  date: string;
-  heir: {
-    firstName: string;
-    lastName: string;
-    address: string;
-    email: string;
-  };
-  user: {
-    email: string;
-  };
-  version: string;
-}
 
 export interface VaultShell {
   id: string;
