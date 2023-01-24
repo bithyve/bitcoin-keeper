@@ -46,7 +46,7 @@ const DescritporsModalContent = ({ descriptorString }) => {
   };
 
   return (
-    <View width={'80%'}>
+    <View width={'100%'}>
       <TouchableOpacity
         onPress={async () => {
           await onShare();
@@ -59,7 +59,7 @@ const DescritporsModalContent = ({ descriptorString }) => {
         </Box>
       </TouchableOpacity>
       <Box style={styles.modalNoteWrapper}>
-        <Note subtitle="The above contains xPub, address type, path and script type, for the vault" />
+        <Note subtitle="Save the file with .bsms extension to import it in other cordinating apps" />
       </Box>
       <Box style={styles.buttonContainer}>
         <TouchableOpacity
@@ -119,7 +119,12 @@ function VaultSettings({ route }) {
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const descriptorString = genrateOutputDescriptors(vault.isMultiSig, vault.signers, vault.scheme);
+  const descriptorString = genrateOutputDescriptors(
+    vault.isMultiSig,
+    vault.signers,
+    vault.scheme,
+    vault
+  );
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
