@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { NavigationRouteContext, useNavigation } from '@react-navigation/native';
+import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import AddIcon from 'src/assets/images/green_add.svg';
@@ -9,51 +9,75 @@ import AddSignerIcon from 'src/assets/images/addSigner.svg';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
-import Relay from 'src/core/services/operations/Relay';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
-import { reoverVault } from 'src/store/sagaActions/bhr';
-import { setVaultMetaData } from 'src/store/reducers/bhr';
+import { removeSigningDeviceBhr, setRelayVaultRecoveryAppId } from 'src/store/reducers/bhr';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { WalletMap } from '../Vault/WalletMap';
+import { setupKeeperApp } from 'src/store/sagaActions/storage';
+import { NewVaultInfo } from 'src/store/sagas/wallets';
+import { captureError } from 'src/core/services/sentry';
+import { addNewVault } from 'src/store/sagaActions/vaults';
+import { VaultType } from 'src/core/wallets/enums';
+import Relay from 'src/core/services/operations/Relay';
+import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import config from 'src/core/config';
+import useToastMessage from 'src/hooks/useToastMessage';
+
+const allowedSignerLength = [1, 3, 5];
+
+const AddSigningDevice = ({ error }) => {
+  const navigation = useNavigation();
+  console.log({ error });
+  return (
+    <Pressable
+      onPress={
+        error
+          ? () =>
+              Alert.alert(
+                'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
+              )
+          : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
+      }
+    >
+      <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
+        <HStack style={styles.signerItem}>
+          <HStack alignItems="center">
+            <AddIcon />
+            <VStack marginX="4" maxWidth="64">
+              <Text
+                color="light.primaryText"
+                fontSize={15}
+                numberOfLines={2}
+                alignItems="center"
+                letterSpacing={1.12}
+              >
+                {`Add Another`}
+              </Text>
+              <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
+                Select signing device
+              </Text>
+            </VStack>
+          </HStack>
+          <Box width="15%" alignItems="center">
+            <IconArrowBlack />
+          </Box>
+        </HStack>
+      </Box>
+    </Pressable>
+  );
+};
 
 function SignerItem({ signer, index }: { signer: any | undefined; index: number }) {
-  const { navigate } = useNavigation();
-  if (!signer) {
-    return (
-      <Pressable onPress={() => navigate('LoginStack', { screen: 'SignersList' })}>
-        <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
-          <HStack style={styles.signerItem}>
-            <HStack alignItems="center">
-              <AddIcon />
-              <VStack marginX="4" maxWidth="64">
-                <Text
-                  color="light.primaryText"
-                  fontSize={15}
-                  numberOfLines={2}
-                  alignItems="center"
-                  letterSpacing={1.12}
-                >
-                  {`Verify Signer ${index + 1}`}
-                </Text>
-                <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
-                  Lorem ipsum dolor sit amet, consectetur
-                </Text>
-              </VStack>
-            </HStack>
-            <Box width="15%" alignItems="center">
-              <IconArrowBlack />
-            </Box>
-          </HStack>
-        </Box>
-      </Pressable>
-    );
-  }
+  const dispatch = useDispatch();
+  const removeSigningDevice = () => {
+    dispatch(removeSigningDeviceBhr(signer));
+  };
   return (
     <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
       <HStack style={styles.signerItem}>
@@ -81,7 +105,7 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
             </Text>
           </VStack>
         </HStack>
-        <Pressable style={styles.remove}>
+        <Pressable style={styles.remove} onPress={removeSigningDevice}>
           <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
             Remove
           </Text>
@@ -91,38 +115,92 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
   );
 }
 
-function VaultRecovery() {
-  const { navigate } = useNavigation();
+function VaultRecovery({ navigation }) {
   const dispatch = useDispatch();
-  const { vaultMetaData, signingDevices } = useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultUpdate } = useAppSelector((state) => state.bhr);
+  const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState([]);
-  const [disable, setDisable] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
+  const { showToast } = useToastMessage();
+  const [error, setError] = useState(false);
 
-  const getVaultMetaDataRelay = async (signerId) => {
-    const data = await Relay.getVaultMetaData(signerId);
-    if (data.vaultMetaData) {
-      dispatch(setVaultMetaData(data.vaultMetaData));
+  const getMetaData = async () => {
+    const response = await Relay.getVaultMetaData(signingDevices[0].signerId);
+    if (response.vaultMetaData) {
+      dispatch(setRelayVaultRecoveryAppId(response.vaultMetdata.appId));
+      setError(false);
+    } else {
+      if (response.error) {
+        setError(true);
+        Alert.alert(
+          'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
+        );
+        // showToast('Warning: No Vault Exisits for this Signer', <ToastErrorIcon />);
+      } else {
+        setError(true);
+        Alert.alert('Warning: Something Went Wrong!');
+        // showToast('Warning: Something Went Wrong!', <ToastErrorIcon />);
+      }
     }
-  };
-  const startRecovery = () => {
-    setDisable(true);
-    dispatch(reoverVault());
   };
 
   useEffect(() => {
-    if (signingDevices && signingDevices.length === 1) {
-      getVaultMetaDataRelay(signingDevices[0].signerId);
+    if (signingDevices.length === 1) {
+      getMetaData();
     }
   }, [signingDevices]);
 
-  useEffect(() => {
-    if (vaultMetaData.m && signingDevices) {
-      const fills = new Array(vaultMetaData.m - signingDevices.length).fill(null);
-      setsignersList(signingDevices.concat(fills));
+  const vaultCheck = async () => {
+    const vaultId = generateVaultId(signingDevices, config.NETWORK_TYPE);
+    const response = await Relay.vaultCheck({ vaultId });
+    if (response.isVault) {
+      setScheme(response.scheme);
+    } else {
+      Alert.alert('Vault does not exist with this signer comnination');
     }
-  }, [vaultMetaData, signingDevices]);
+  };
+
+  useEffect(() => {
+    if (scheme && !appId) dispatch(setupKeeperApp());
+  }, [scheme]);
+
+  const startRecovery = () => {
+    if (allowedSignerLength.includes(signingDevices.length)) {
+      vaultCheck();
+    } else {
+      Alert.alert("Vault can't be recreated in this scheme");
+    }
+  };
+
+  useEffect(() => {
+    if (appId) {
+      try {
+        const vaultInfo: NewVaultInfo = {
+          vaultType: VaultType.DEFAULT,
+          vaultScheme: scheme,
+          vaultSigners: signingDevices,
+          vaultDetails: {
+            name: 'Vault',
+            description: 'Secure your sats',
+          },
+        };
+        dispatch(addNewVault({ newVaultInfo: vaultInfo, isRecovery: true }));
+      } catch (err) {
+        captureError(err);
+      }
+    }
+  }, [appId]);
+
+  useEffect(() => {
+    if (relayVaultUpdate) {
+      navigation.replace('App', { screen: 'NewHome' });
+    }
+  }, [relayVaultUpdate]);
+
+  useEffect(() => {
+    setsignersList(signingDevices);
+  }, [signingDevices]);
 
   useEffect(() => {
     if (appId) {
@@ -144,7 +222,6 @@ function VaultRecovery() {
   }
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
-  const navigation = useNavigation();
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -154,18 +231,23 @@ function VaultRecovery() {
         paddingTop={hp(5)}
       />
       <View style={{ flex: 1, justifyContent: 'space-between' }}>
-        {vaultMetaData.m ? (
-          <FlatList
-            data={signersList}
-            keyExtractor={(item, index) => item?.signerId ?? index}
-            renderItem={renderSigner}
-            style={{
-              marginTop: hp(52),
-            }}
-          />
+        {signersList.length > 0 ? (
+          <Box>
+            <FlatList
+              data={signersList}
+              keyExtractor={(item, index) => item?.signerId ?? index}
+              renderItem={renderSigner}
+              style={{
+                marginTop: hp(52),
+              }}
+            />
+            <AddSigningDevice error={error} />
+          </Box>
         ) : (
           <Box alignItems="center" style={{ flex: 1, justifyContent: 'center' }}>
-            <TouchableOpacity onPress={() => navigate('LoginStack', { screen: 'SignersList' })}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
+            >
               <Box alignItems="center">
                 <AddSignerIcon />
               </Box>
@@ -175,13 +257,9 @@ function VaultRecovery() {
             </Text>
           </Box>
         )}
-        {signingDevices && signingDevices.length === vaultMetaData.m && (
+        {signingDevices.length > 0 && (
           <Box position="absolute" bottom={10} width="100%" marginBottom={10}>
-            <Buttons
-              primaryText="Recover Vault"
-              primaryDisable={disable}
-              primaryCallback={startRecovery}
-            />
+            <Buttons primaryText="Recover Vault" primaryCallback={startRecovery} />
           </Box>
         )}
         <Note
@@ -189,7 +267,7 @@ function VaultRecovery() {
           subtitle="Signing Server cannot be used as the first signing device while recovering"
         />
       </View>
-      <KeeperModal
+      {/* <KeeperModal
         visible={successModal}
         title="Vault Recovered!"
         subTitle="Your Keeper vault has successfully been recovered."
@@ -199,7 +277,7 @@ function VaultRecovery() {
         buttonCallback={() =>
           navigation.dispatch(CommonActions.navigate('App', { name: 'VaultDetails', params: {} }))
         }
-      />
+      /> */}
     </ScreenWrapper>
   );
 }
