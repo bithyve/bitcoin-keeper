@@ -128,11 +128,9 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   return line;
 };
 
-const PATH_INSENSITIVE_SIGNERS = [SignerType.TAPSIGNER];
-
 export const getSignerSigTypeInfo = (signer: VaultSigner) => {
   const purpose = WalletUtilities.getSignerPurposeFromPath(signer.derivationPath);
-  if (PATH_INSENSITIVE_SIGNERS.includes(signer.type) || signer.isMock) {
+  if (signer.isMock) {
     return { isSingleSig: true, isMultiSig: true, purpose };
   }
   if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
