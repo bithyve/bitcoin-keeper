@@ -40,7 +40,7 @@ import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getSignerNameFromType, UNVERIFYING_SIGNERS } from 'src/hardware';
+import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
@@ -116,12 +116,12 @@ function Header() {
   return (
     <Box flexDirection="row" width="100%" px="2%">
       <StatusBar barStyle="light-content" />
-      <Box width={'50%'}>
+      <Box width="50%">
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
       </Box>
-      <Box width={'50%'}>
+      <Box width="50%">
         <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
           <Text color="light.white" style={styles.footerText} light>
             Know More
@@ -352,11 +352,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                   textAlign="center"
                   numberOfLines={1}
                 >
-                  {getSignerNameFromType(
-                    signer.type,
-                    signer.isMock,
-                    signer.amfData && signer.amfData.xpub
-                  )}
+                  {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
                 <Text
                   color="light.textBlack"

@@ -1,13 +1,15 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
+import { generateEncryptionKey, hash256 } from 'src/core/services/operations/encryption';
 import {
-  decrypt,
-  encrypt,
-  generateEncryptionKey,
-  hash256,
-} from 'src/core/services/operations/encryption';
-import { EntityKind, NetworkType, SignerType, VaultType, VisibilityType } from '../enums';
+  EntityKind,
+  NetworkType,
+  ScriptTypes,
+  SignerType,
+  VaultType,
+  VisibilityType,
+} from '../enums';
 import {
   Vault,
   VaultPresentationData,
@@ -21,9 +23,20 @@ import config from '../../config';
 
 const crypto = require('crypto');
 
+export const generateVaultId = (signers, networkType) => {
+  const network = WalletUtilities.getNetworkByType(networkType);
+  const xpubs = signers.map((signer) => signer.xpub).sort();
+  const fingerprints = [];
+  xpubs.forEach((xpub) =>
+    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
+  );
+  const hashedFingerprints = hash256(fingerprints.join(''));
+  const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
+  return id;
+};
+
 export const generateVault = ({
   type,
-  vaultShellId,
   vaultName,
   vaultDescription,
   scheme,
@@ -31,30 +44,21 @@ export const generateVault = ({
   networkType,
 }: {
   type: VaultType;
-  vaultShellId: string;
   vaultName: string;
   vaultDescription: string;
   scheme: VaultScheme;
   signers: VaultSigner[];
   networkType: NetworkType;
 }): Vault => {
-  const network = WalletUtilities.getNetworkByType(networkType);
-
+  const id = generateVaultId(signers, networkType);
   const xpubs = signers.map((signer) => signer.xpub);
-  const fingerprints = [];
-  xpubs.forEach((xpub) =>
-    fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
-  );
-
-  const hashedFingerprints = hash256(fingerprints.join(''));
-  const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
-
+  const defaultShell = 1;
   const presentationData: VaultPresentationData = {
     name: vaultName,
     description: vaultDescription,
     visibility: VisibilityType.DEFAULT,
+    shell: defaultShell,
   };
-  const { vac } = generateVAC();
 
   const specs: VaultSpecs = {
     xpubs,
@@ -81,9 +85,9 @@ export const generateVault = ({
   if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
 
   const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+  const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
   const vault: Vault = {
     id,
-    vaultShellId,
     entityKind: EntityKind.VAULT,
     type,
     networkType,
@@ -93,10 +97,9 @@ export const generateVault = ({
     signers,
     presentationData,
     specs,
-    VAC: vac,
     archived: false,
+    scriptType,
   };
-
   return vault;
 };
 
@@ -232,14 +235,6 @@ export const generateMockExtendedKeyForSigner = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateIDForVAC = (str: string) => hash256(str);
-
-export const generateVAC = (entropy?: string): { vac: string; vacId: string } => {
-  const vac = generateEncryptionKey(entropy);
-  const vacId = generateIDForVAC(vac);
-  return { vac, vacId };
-};
-
 export const generateKeyFromXpub = (
   xpub: string,
   network: bitcoinJS.networks.Network = bitcoinJS.networks.bitcoin
@@ -251,28 +246,4 @@ export const generateKeyFromXpub = (
     true
   );
   return generateEncryptionKey(child);
-};
-
-export const encryptVAC = (vac: string, xpubs: string[]) => {
-  let encrytedVac = vac;
-  xpubs = xpubs.sort();
-  xpubs.forEach((xpub) => {
-    const networkType = WalletUtilities.getNetworkFromXpub(xpub);
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const key = generateKeyFromXpub(xpub, network);
-    encrytedVac = encrypt(key, encrytedVac);
-  });
-  return encrytedVac;
-};
-
-export const decryptVAC = (encryptedVac: string, xpubs: string[]) => {
-  let decryptedVAC = encryptedVac;
-  xpubs = xpubs.sort().reverse();
-  xpubs.forEach((xpub) => {
-    const networkType = WalletUtilities.getNetworkFromXpub(xpub);
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const key = generateKeyFromXpub(xpub, network);
-    decryptedVAC = decrypt(key, decryptedVAC);
-  });
-  return decryptedVAC;
 };

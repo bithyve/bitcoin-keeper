@@ -201,7 +201,7 @@ function SendConfirmation({ route }) {
 
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
-      if (sourceWallet.specs.balances.confirmed < sourceWallet.specs.transferPolicy) {
+      if (sourceWallet.specs.balances.confirmed < sourceWallet.transferPolicy.threshold) {
         showToast('Not enough Balance', <ToastErrorIcon />);
         return;
       }

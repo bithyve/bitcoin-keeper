@@ -110,6 +110,17 @@ export const customTheme = extendTheme({
               },
             },
           };
+        },
+        InactiveGradient: () => {
+          return {
+            backgroundColor: {
+              linearGradient: {
+                colors: ['light.gradientEnd', 'light.gradientEnd'],
+                start: [0, 0],
+                end: [1, 1],
+              },
+            },
+          };
         }
       }
     },

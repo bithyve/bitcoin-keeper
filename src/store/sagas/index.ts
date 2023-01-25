@@ -40,7 +40,6 @@ import {
   healthCheckSignerWatcher,
   initCloudBackupWatcher,
   recoverBackupWatcher,
-  recoverVaultWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
@@ -124,7 +123,6 @@ const rootSaga = function* () {
     recoverBackupWatcher,
     healthCheckSignerWatcher,
     backupWarningWatcher,
-    recoverVaultWatcher,
     setupKeeperVaultRecoveryAppWatcher,
 
     // upgrade

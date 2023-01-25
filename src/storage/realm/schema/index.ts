@@ -8,6 +8,7 @@ import {
   WalletPresentationDataSchema,
   WalletSchema,
   WalletSpecsSchema,
+  TransferPolicySchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -15,19 +16,16 @@ import {
   VaultSpecsSchema,
   VaultSignerSchema,
   SignerPolicy,
+  XpubDetailsSchema,
 } from './vault';
-import { VaultShellInstancesShcema, VaultShellSchema } from './vaultShell';
-import { WalletShellInstancesShcema, WalletShellShcema } from './walletShell';
-
-import { InheritancePolicySchema } from './inheritancePolicy';
-import { KeeperAppSchema, StoreSubscriptionSchema } from './app';
-import { NodeConnectSchema } from './nodeConnect';
+import { KeeperAppSchema } from './app';
 import { TriggerPolicySchema } from './triggerPolicy';
-import { TwoFADetailsSchema } from './twoFADetails';
+import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
-import { NotificationSchema, additionalInfoSchema } from './notitfication';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
+import { StoreSubscriptionSchema } from './subscription';
+import { BackupSchema } from './backup';
 
 export default [
   KeeperAppSchema,
@@ -41,21 +39,16 @@ export default [
   TransactionSchema,
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
-  WalletShellShcema,
-  WalletShellInstancesShcema,
+  TransferPolicySchema,
   TriggerPolicySchema,
   VaultSchema,
+  XpubDetailsSchema,
   VaultPresentationDataSchema,
   SignerPolicy,
   VaultSpecsSchema,
-  VaultShellSchema,
-  VaultShellInstancesShcema,
-  InheritancePolicySchema,
-  TwoFADetailsSchema,
-  NodeConnectSchema,
+  SigningServerSetupSchema,
+  BackupSchema,
   UAISchema,
-  NotificationSchema,
-  additionalInfoSchema,
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,

@@ -1,11 +1,12 @@
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { ScrollView } from 'react-native-gesture-handler';
-import { getMockTapsignerDetails, getTapsignerDetails } from 'src/hardware/tapsigner';
+import { getTapsignerDetails } from 'src/hardware/tapsigner';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -14,9 +15,8 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { generateSignerFromMetaData, isSignerAMF } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -24,6 +24,10 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import usePlan from 'src/hooks/usePlan';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import config from 'src/core/config';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -51,34 +55,50 @@ function SetupTapsigner() {
   };
 
   const isAMF = isTestnet();
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
   const addTapsigner = React.useCallback(async () => {
     try {
       const { xpub, derivationPath, xfp } = await withModal(async () =>
         getTapsignerDetails(card, cvc)
       )();
-      // AMF flow
+      let tapsigner: VaultSigner;
       if (isAMF) {
-        const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
-        const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-        const tapsigner = getMockTapsignerDetails({ signerId, xpub });
-        dispatch(addSigningDevice(tapsigner));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-        showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-        return;
+        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+          EntityKind.VAULT,
+          SignerType.TAPSIGNER,
+          config.NETWORK_TYPE
+        );
+        tapsigner = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp: masterFingerprint,
+          signerType: SignerType.TAPSIGNER,
+          storageType: SignerStorage.COLD,
+          isMultisig,
+          xpriv,
+          isMock: false,
+          xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
+        });
+      } else {
+        tapsigner = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp,
+          signerType: SignerType.TAPSIGNER,
+          storageType: SignerStorage.COLD,
+          isMultisig,
+        });
       }
-      const tapsigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp,
-        signerType: SignerType.TAPSIGNER,
-        storageType: SignerStorage.COLD,
-      });
       dispatch(addSigningDevice(tapsigner));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-      const exsists = await checkSigningDevice(tapsigner.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      if (!isSignerAMF(tapsigner)) {
+        const exsists = await checkSigningDevice(tapsigner.signerId);
+        if (exsists)
+          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
+      }
     } catch (err) {
       let message: string;
       if (err.toString().includes('401')) {

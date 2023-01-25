@@ -13,10 +13,9 @@ export const setupKeeperApp = (appName?: string) => ({
   },
 });
 
-export const setupKeeperAppVaultReovery = (vaultShellInstances, subscription, appName?) => ({
+export const setupKeeperAppVaultReovery = (subscription, appName?) => ({
   type: SETUP_KEEPER_APP_VAULT_RECOVERY,
   payload: {
-    vaultShellInstances,
     subscription,
     appName,
   },

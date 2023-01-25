@@ -19,6 +19,7 @@ import coinselectSplit from 'coinselect/split';
 import config from 'src/core/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/core/services/electrum/client';
+import { isSignerAMF } from 'src/hardware';
 import {
   ActiveAddressAssignee,
   AverageTxFees,
@@ -39,7 +40,7 @@ import {
   SignerType,
   TransactionType,
   TxPriority,
-  WalletType,
+  XpubTypes,
 } from '../enums';
 import { Vault, VaultSigner } from '../interfaces/vault';
 
@@ -664,9 +665,9 @@ export default class WalletOperations {
       let masterFingerprint;
       if (wallet.entityKind === EntityKind.VAULT) {
         const signer = (wallet as Vault).signers[0];
-        const { derivationPath } = signer.xpubInfo;
+        const { derivationPath, masterFingerprint: mfp } = signer;
         path = `${derivationPath}/${subPath.join('/')}`;
-        masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
+        masterFingerprint = mfp;
       } else {
         path = `${(wallet as Wallet).derivationDetails.xDerivationPath}/${subPath.join('/')}`;
         masterFingerprint = WalletUtilities.getFingerprintFromMnemonic(
@@ -712,9 +713,8 @@ export default class WalletOperations {
 
       const bip32Derivation = [];
       for (const signer of (wallet as Vault).signers) {
-        const derivationPath = signer.xpubInfo?.derivationPath;
-        const masterFingerprint = Buffer.from(signer.xpubInfo?.xfp, 'hex');
-        const path = `${derivationPath}/${subPath.join('/')}`;
+        const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
+        const path = `${signer.derivationPath}/${subPath.join('/')}`;
         bip32Derivation.push({
           masterFingerprint,
           path,
@@ -768,9 +768,8 @@ export default class WalletOperations {
     const bip32Derivation = []; // array per each pubkey thats gona be used
     const { subPath, p2wsh, p2ms, signerPubkeyMap } = changeMultiSig;
     for (const signer of wallet.signers) {
-      const { derivationPath } = signer.xpubInfo;
-      const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
-      const path = `${derivationPath}/${subPath.join('/')}`;
+      const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
+      const path = `${signer.derivationPath}/${subPath.join('/')}`;
       bip32Derivation.push({
         masterFingerprint,
         path,
@@ -851,9 +850,8 @@ export default class WalletOperations {
             subPath: number[];
           };
           const signer = (wallet as Vault).signers[0];
-          const { derivationPath } = signer.xpubInfo;
-          const masterFingerprint = Buffer.from(signer.xpubInfo.xfp, 'hex');
-          const path = `${derivationPath}/${subPath.join('/')}`;
+          const masterFingerprint = Buffer.from(signer.masterFingerprint, 'hex');
+          const path = `${signer.derivationPath}/${subPath.join('/')}`;
           const bip32Derivation = [
             {
               masterFingerprint,
@@ -975,7 +973,7 @@ export default class WalletOperations {
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
       isSigned = true;
     } else if (
-      (signer.type === SignerType.TAPSIGNER && !(signer.amfData && signer.amfData.xpub)) ||
+      (signer.type === SignerType.TAPSIGNER && !isSignerAMF(signer)) ||
       signer.type === SignerType.LEDGER
     ) {
       const inputsToSign = [];
@@ -1034,7 +1032,7 @@ export default class WalletOperations {
       signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
     }
 
-    if (signer.amfData && signer.amfData.xpub) {
+    if (isSignerAMF(signer)) {
       signingPayload.push({ payloadTarget: signer.type, inputs });
     }
     const serializedPSBT = PSBT.toBase64();
