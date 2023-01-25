@@ -1,9 +1,10 @@
+/* eslint-disable no-await-in-loop */
 import { Alert } from 'react-native';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import { captureError } from 'src/core/services/sentry';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { ScriptTypes, XpubTypes } from 'src/core/wallets/enums';
-import { XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 
 const getScriptSpecificDetails = async (card, cvc, isMultisig) => {
   const xpubDetails: XpubDetailsType = {};
@@ -61,16 +62,17 @@ export const signWithTapsigner = async (
     publicKey: string;
     signature?: string;
   }[],
-  cvc
+  cvc,
+  signer: VaultSigner
 ) => {
+  const status = await card.first_look();
   try {
-    const status = await card.first_look();
     if (status.path) {
       // eslint-disable-next-line no-restricted-syntax
       for (const input of inputsToSign) {
         const digest = Buffer.from(input.digest, 'hex');
         const subpath = input.subPath;
-        // eslint-disable-next-line no-await-in-loop
+        await card.set_derivation(signer.derivationPath.split("'").join('h'), cvc);
         const signature = await card.sign_digest(cvc, 0, digest, subpath);
         input.signature = signature.slice(1).toString('hex');
       }
@@ -79,6 +81,8 @@ export const signWithTapsigner = async (
     Alert.alert('Please setup card before signing!');
   } catch (e) {
     captureError(e);
+  } finally {
+    await card.set_derivation(status.path, cvc);
   }
 };
 
