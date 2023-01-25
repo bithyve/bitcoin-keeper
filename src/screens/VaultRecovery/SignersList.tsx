@@ -1,6 +1,6 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
@@ -12,7 +12,7 @@ import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from 'src/core/services/sentry';
 import config, { APP_STAGE } from 'src/core/config';
@@ -33,6 +33,11 @@ import SigningServer from 'src/core/services/operations/SigningServer';
 import NFC from 'src/core/services/nfc';
 import { BleManager } from 'react-native-ble-plx';
 import { useAppSelector } from 'src/store/hooks';
+import Clipboard from '@react-native-community/clipboard';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 
 const getnavigationState = (type) => {
   return {
@@ -265,7 +270,7 @@ function SignersList() {
     first?: boolean;
     last?: boolean;
   };
-  const { signingDevices } = useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultReoveryAppId } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [isBLESupported, setBLESupport] = useState(false);
 
@@ -311,6 +316,71 @@ function SignersList() {
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
+  };
+
+  const otpContent = () => {
+    const [otp, setOtp] = useState('');
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(300)}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+              }
+            }}
+          >
+            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+          </TouchableOpacity>
+          <Text
+            fontSize={13}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color="light.greenText"
+            marginTop={2}
+          >
+            If you lose your authenticator app, use the other Signing Devices to reset the Signing
+            Server
+          </Text>
+          <Box mt={10} alignSelf="flex-end" mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  verifySigningServer(otp);
+                }}
+                value="Confirm"
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor="light.primaryText"
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
   };
 
   const verifySeedSigner = async (qrData) => {
@@ -393,31 +463,23 @@ function SignersList() {
     }
   };
 
-  const verifySigningServer = async () => {
-    const response = await SigningServer.fetchSignerSetup('asdfasdf');
-    if (response) {
-      const setupSigningServerKey = async () => {
-        const networkType = config.NETWORK_TYPE;
-        const network = WalletUtilities.getNetworkByType(networkType);
-        const signingServerKey: VaultSigner = {
-          signerId: WalletUtilities.getFingerprintFromExtendedKey(response.xpub, network),
-          type: SignerType.POLICY_SERVER,
-          signerName: 'Signing Server',
-          xpub: response.xpub,
-          xpubInfo: {
-            derivationPath: response.derivationPath,
-            xfp: response.masterFingerprint,
-          },
-          lastHealthCheck: new Date(),
-          addedOn: new Date(),
-          storageType: SignerStorage.WARM,
-          signerPolicy: response.policy,
-          registered: false,
-        };
-        dispatch(setSigningDevices(signingServerKey));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-        showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
-      };
+  const verifySigningServer = async (otp) => {
+    const response = await SigningServer.fetchSignerSetup(relayVaultReoveryAppId, otp);
+    if (response.xpub) {
+      const signingServerKey = generateSignerFromMetaData({
+        xpub: response.xpub,
+        derivationPath: response.xpub,
+        xfp: response.masterFingerprint,
+        signerType: SignerType.POLICY_SERVER,
+        storageType: SignerStorage.WARM,
+        isMultisig: true,
+        signerPolicy: response.policy,
+      });
+      dispatch(setSigningDevices(signingServerKey));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
+    } else {
+      Alert.alert('Invalid OTP');
     }
   };
 
@@ -627,16 +689,11 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.POLICY_SERVER}
           close={close}
-          title="Setting up Policy"
-          subTitle="Keep your Jade ready and unlocked before proceeding"
+          title="Confirm OTP to setup 2FA"
+          subTitle="To complete setting up the signing server"
           subTitleColor="light.secondaryText"
-          buttonText="Continue"
-          buttonTextColor="light.white"
-          buttonCallback={() => {
-            verifySigningServer();
-          }}
           textColor="light.primaryText"
-          Content={JadeSetupContent}
+          Content={otpContent}
         />
       </>
     );
