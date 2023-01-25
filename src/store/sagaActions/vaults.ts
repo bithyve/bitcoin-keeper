@@ -14,7 +14,6 @@ export const addNewVault = (payload: {
   payload?: Vault;
   isMigrated?: Boolean;
   oldVaultId?: String;
-  isRecovery?: Boolean;
 }) => ({
   type: ADD_NEW_VAULT,
   payload,

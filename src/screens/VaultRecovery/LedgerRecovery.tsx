@@ -14,9 +14,12 @@ import { checkSigningDevice } from 'src/screens/Vault/AddSigningDevice';
 import LedgerScanningModal from 'src/screens/Vault/components/LedgerScanningModal';
 import HWError from 'src/hardware/HWErrorState';
 import { setSigningDevices } from 'src/store/reducers/bhr';
+import { useAppSelector } from 'src/store/hooks';
 
 function LedgerRecovery() {
   const [visible, setVisible] = useState(true);
+  const { signingDevices } = useAppSelector((state) => state.bhr);
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -30,6 +33,7 @@ function LedgerRecovery() {
         derivationPath,
         storageType: SignerStorage.COLD,
         signerType: SignerType.LEDGER,
+        isMultisig: signingDevices.length > 1 ? true : false,
       });
       dispatch(setSigningDevices(ledger));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });

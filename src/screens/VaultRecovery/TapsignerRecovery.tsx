@@ -1,9 +1,10 @@
-import { Alert, Platform, StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
 
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { ScrollView, TapGestureHandler } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { ScrollView } from 'react-native-gesture-handler';
 import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -11,25 +12,29 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { isTestnet } from 'src/common/constants/Bitcoin';
-import { getMockTapsignerDetails, getTapsignerDetails } from 'src/hardware/tapsigner';
+import { getTapsignerDetails } from 'src/hardware/tapsigner';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import NFC from 'src/core/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import MockWrapper from '../Vault/MockWrapper';
 import { Box } from 'native-base';
+import { useAppSelector } from 'src/store/hooks';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import config from 'src/core/config';
+import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 
 function TapSignerRecovery() {
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
+  const { signingDevices } = useAppSelector((state) => state.bhr);
+
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
 
   const onPressHandler = (digit) => {
@@ -56,28 +61,38 @@ function TapSignerRecovery() {
       const { xpub, derivationPath, xfp } = await withModal(async () =>
         getTapsignerDetails(card, cvc)
       )();
-      // AMF flow
+      let tapsigner: VaultSigner;
       if (isAMF) {
-        const network = WalletUtilities.getNetworkByType(NetworkType.MAINNET);
-        const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-        const tapsigner = getMockTapsignerDetails({ signerId, xpub });
-        dispatch(setSigningDevices(tapsigner));
-        navigation.navigate('LoginStack', { screen: 'VaultRecovery' });
-        showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-        return;
+        const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
+          EntityKind.VAULT,
+          SignerType.TAPSIGNER,
+          config.NETWORK_TYPE
+        );
+        tapsigner = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp: masterFingerprint,
+          signerType: SignerType.TAPSIGNER,
+          storageType: SignerStorage.COLD,
+          isMultisig: signingDevices.length > 1 ? true : false,
+          xpriv,
+          isMock: false,
+          xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
+        });
+      } else {
+        tapsigner = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp,
+          signerType: SignerType.TAPSIGNER,
+          storageType: SignerStorage.COLD,
+          isMultisig: signingDevices.length > 1 ? true : false,
+        });
       }
-      const tapsigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
-        xfp,
-        signerType: SignerType.TAPSIGNER,
-        storageType: SignerStorage.COLD,
-      });
       dispatch(setSigningDevices(tapsigner));
-      CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      navigation.navigate('LoginStack', { screen: 'VaultRecovery' });
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-      const exsists = await checkSigningDevice(tapsigner.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
+      return;
     } catch (err) {
       let message: string;
       if (err.toString().includes('401')) {

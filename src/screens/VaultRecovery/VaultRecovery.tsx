@@ -15,7 +15,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { removeSigningDeviceBhr, setRelayVaultRecoveryAppId } from 'src/store/reducers/bhr';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { WalletMap } from '../Vault/WalletMap';
@@ -127,8 +126,8 @@ function VaultRecovery({ navigation }) {
 
   const getMetaData = async () => {
     const response = await Relay.getVaultMetaData(signingDevices[0].signerId);
-    if (response.vaultMetaData) {
-      dispatch(setRelayVaultRecoveryAppId(response.vaultMetdata.appId));
+    if (response?.appId) {
+      dispatch(setRelayVaultRecoveryAppId(response.appId));
       setError(false);
     } else {
       if (response.error) {
@@ -185,18 +184,12 @@ function VaultRecovery({ navigation }) {
             description: 'Secure your sats',
           },
         };
-        dispatch(addNewVault({ newVaultInfo: vaultInfo, isRecovery: true }));
+        dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       } catch (err) {
         captureError(err);
       }
     }
   }, [appId]);
-
-  useEffect(() => {
-    if (relayVaultUpdate) {
-      navigation.replace('App', { screen: 'NewHome' });
-    }
-  }, [relayVaultUpdate]);
 
   useEffect(() => {
     setsignersList(signingDevices);

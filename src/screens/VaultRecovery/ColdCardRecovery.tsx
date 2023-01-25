@@ -29,11 +29,12 @@ function ColdCardReocvery() {
   const addColdCard = async () => {
     try {
       const ccDetails = await withNfcModal(getColdcardDetails);
-      const { xpub, derivationPath, xfp } = ccDetails;
+      const { xpub, derivationPath, xfp, forMultiSig } = ccDetails;
       const coldcard = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
+        isMultisig: forMultiSig,
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,
       });

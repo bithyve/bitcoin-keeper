@@ -34,16 +34,18 @@ import NFC from 'src/core/services/nfc';
 import { BleManager } from 'react-native-ble-plx';
 import { useAppSelector } from 'src/store/hooks';
 
-const navigationState = {
-  index: 1,
-  routes: [
-    { name: 'NewKeeperApp' },
-    { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false } },
-    { name: 'OtherRecoveryMethods' },
-    { name: 'VaultRecoveryAddSigner' },
-    { name: 'SignersList' },
-    { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: true } },
-  ],
+const getnavigationState = (type) => {
+  return {
+    index: 1,
+    routes: [
+      { name: 'NewKeeperApp' },
+      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false } },
+      { name: 'OtherRecoveryMethods' },
+      { name: 'VaultRecoveryAddSigner' },
+      { name: 'SignersList' },
+      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: true, type } },
+    ],
+  };
 };
 
 export const getDeviceStatus = (
@@ -300,6 +302,7 @@ function SignersList() {
         xfp,
         signerType: SignerType.PASSPORT,
         storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
       });
       dispatch(setSigningDevices(passport));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -319,6 +322,7 @@ function SignersList() {
         xfp,
         signerType: SignerType.SEEDSIGNER,
         storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
       });
       dispatch(setSigningDevices(seedSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -339,6 +343,7 @@ function SignersList() {
         xfp,
         signerType: SignerType.KEYSTONE,
         storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
       });
       dispatch(setSigningDevices(keystone));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -358,6 +363,7 @@ function SignersList() {
         xfp,
         signerType: SignerType.JADE,
         storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
       });
       dispatch(setSigningDevices(jade));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -371,22 +377,14 @@ function SignersList() {
   const verifyKeeperSigner = (qrData) => {
     try {
       const { mfp, xpub, derivationPath } = JSON.parse(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-
-      const ksd: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.KEEPER,
-        registered: false,
-        signerName: 'Keeper Signing Device',
-        storageType: SignerStorage.WARM,
+      const ksd = generateSignerFromMetaData({
         xpub,
-        xpubInfo: {
-          derivationPath,
-          xfp: mfp,
-        },
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
-      };
+        derivationPath,
+        xfp: mfp,
+        signerType: SignerType.KEEPER,
+        storageType: SignerStorage.WARM,
+        isMultisig: true,
+      });
       dispatch(setSigningDevices(ksd));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
@@ -581,6 +579,7 @@ function SignersList() {
           textColor="light.primaryText"
           Content={JadeSetupContent}
         />
+
         <KeeperModal
           visible={visible && type === SignerType.KEEPER}
           close={close}
@@ -602,6 +601,7 @@ function SignersList() {
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={() => {
+            const navigationState = getnavigationState(SignerType.SEED_WORDS);
             navigation.dispatch(CommonActions.reset(navigationState));
             close();
           }}
@@ -617,6 +617,7 @@ function SignersList() {
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={() => {
+            const navigationState = getnavigationState(SignerType.MOBILE_KEY);
             navigation.dispatch(CommonActions.reset(navigationState));
             close();
           }}
