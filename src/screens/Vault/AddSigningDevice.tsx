@@ -3,8 +3,8 @@ import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, VaultMigrationType, XpubTypes } from 'src/core/wallets/enums';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultMigrationType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -17,12 +17,9 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Relay from 'src/core/services/operations/Relay';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import moment from 'moment';
 import { useAppSelector } from 'src/store/hooks';
@@ -30,26 +27,15 @@ import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
+import { getSignerSigTypeInfo } from 'src/hardware';
+import useVault from 'src/hooks/useVault';
+import useSignerIntel from 'src/hooks/useSignerIntel';
+import { globalStyles } from 'src/common/globalStyles';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
 
 const { width } = Dimensions.get('screen');
-
-const hasPlanChanged = (vault: Vault, subscriptionScheme): VaultMigrationType => {
-  if (vault) {
-    const currentScheme = vault.scheme;
-    if (currentScheme.m > subscriptionScheme.m) {
-      return VaultMigrationType.DOWNGRADE;
-    }
-    if (currentScheme.m < subscriptionScheme.m) {
-      return VaultMigrationType.UPGRADE;
-    }
-    return VaultMigrationType.CHANGE;
-  }
-  return VaultMigrationType.CHANGE;
-};
 
 export const checkSigningDevice = async (id) => {
   try {
@@ -83,14 +69,12 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               <VStack marginX="4" maxWidth="64">
                 <Text
                   color="light.primaryText"
-                  fontSize={15}
                   numberOfLines={2}
-                  alignItems="center"
-                  letterSpacing={1.12}
+                  style={[globalStyles.font15, { letterSpacing: 1.12, alignItems: 'center' }]}
                 >
                   {`Add ${getPlaceholder(index)} Signing Device`}
                 </Text>
-                <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
+                <Text color="light.GreyText" style={[globalStyles.font13, { letterSpacing: 0.06 }]}>
                   Select signing device
                 </Text>
               </VStack>
@@ -136,16 +120,16 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           <VStack marginX="4" maxWidth="80%">
             <Text
               color="light.primaryText"
-              fontSize={15}
               numberOfLines={1}
-              alignItems="center"
-              letterSpacing={1.12}
-              maxWidth={width * 0.5}
+              style={[
+                globalStyles.font15,
+                { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
+              ]}
             >
               {`${signer.signerName}`}
-              <Text fontSize={12}>{` (${signer.masterFingerprint})`}</Text>
+              <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
-            <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+            <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
               {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
@@ -153,10 +137,11 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                 <Text
                   numberOfLines={1}
                   color={signer.signerDescription ? '#6A7772' : '#387F6A'}
-                  fontSize={12}
+                  style={[
+                    globalStyles.font12,
+                    { letterSpacing: 0.6, fontStyle: signer.signerDescription ? null : 'italic' },
+                  ]}
                   bold={!signer.signerDescription}
-                  letterSpacing={0.6}
-                  fontStyle={signer.signerDescription ? null : 'italic'}
                 >
                   {signer.signerDescription ? signer.signerDescription : 'Add Description'}
                 </Text>
@@ -165,7 +150,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
-          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+          <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
             {shouldReconfigure ? 'Re-configure' : 'Remove'}
           </Text>
         </Pressable>
@@ -182,50 +167,18 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   );
 }
 
-const areSignersSame = ({ activeVault, signersState }) => {
-  if (!activeVault) {
-    return false;
-  }
-  const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
-  const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
-  return currentSignerIds.sort().join() === activeSignerIds.sort().join();
-};
-
-const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
-  if (plan !== SubscriptionTier.L1.toUpperCase()) {
-    return true;
-  }
-  return signersState.every(
-    (signer) =>
-      signer &&
-      ![
-        SignerType.MOBILE_KEY,
-        SignerType.POLICY_SERVER,
-        SignerType.KEEPER,
-        SignerType.SEED_WORDS,
-      ].includes(signer.type)
-  );
-};
-
-const signerLimitMatchesSubscriptionScheme = ({ vaultSigners, currentSignerLimit }) =>
-  vaultSigners && vaultSigners.length !== currentSignerLimit;
-
 function AddSigningDevice() {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const { subscriptionScheme, plan } = usePlan();
-  const currentSignerLimit = subscriptionScheme.n;
-  const vaultSigners = useAppSelector((state) => state.vault.signers);
-  const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
-  const [signersState, setSignersState] = useState(vaultSigners);
   const [vaultCreating, setCreating] = useState(false);
+  const { activeVault } = useVault();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { subscriptionScheme, plan } = usePlan();
+  const vaultSigners = useAppSelector((state) => state.vault.signers);
+  const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const activeVault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-
-  const planStatus = hasPlanChanged(activeVault, subscriptionScheme);
+  const { common } = translations;
+  const { planStatus, signersState, areSignersValid, amfSigners, misMatchedSigners } =
+    useSignerIntel();
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {
@@ -233,48 +186,11 @@ function AddSigningDevice() {
     }
   }, []);
 
-  useEffect(() => {
-    let fills;
-    if (planStatus === VaultMigrationType.DOWNGRADE) {
-      if (vaultSigners.length < currentSignerLimit) {
-        fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
-      } else {
-        fills = [];
-      }
-    } else if (vaultSigners.length > currentSignerLimit) {
-      fills = []; // if signers are added but no vault is created
-    } else {
-      fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
-    }
-    setSignersState(vaultSigners.concat(fills));
-  }, [vaultSigners]);
-
   const triggerVaultCreation = () => {
     setCreating(true);
   };
-  const validateSigners = () =>
-    signersState.every((signer) => !signer) ||
-    signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit }) ||
-    areSignersSame({ activeVault, signersState }) ||
-    !areSignersValidInCurrentScheme({ plan, signersState });
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
-  const { common } = translations;
-
-  const amfSigners = [];
-  const misMatchedSigners = [];
-  signersState.forEach((signer: VaultSigner) => {
-    if (signer) {
-      if (isSignerAMF(signer)) amfSigners.push(signer.type);
-      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
-      if (
-        (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
-        (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
-      ) {
-        misMatchedSigners.push(signer.masterFingerprint);
-      }
-    }
-  });
 
   let preTitle: string;
   if (planStatus === VaultMigrationType.DOWNGRADE) {
@@ -284,14 +200,11 @@ function AddSigningDevice() {
   } else {
     preTitle = 'Signing Devices';
   }
+  const subtitle = `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`;
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title={`${preTitle}`}
-        subtitle={`Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`}
-        headerTitleColor="light.textBlack"
-      />
+      <HeaderTitle title={`${preTitle}`} subtitle={subtitle} headerTitleColor="light.textBlack" />
       <VaultMigrationController
         vaultCreating={vaultCreating}
         setCreating={setCreating}
@@ -332,7 +245,7 @@ function AddSigningDevice() {
           </Box>
         ) : null}
         <Buttons
-          primaryDisable={validateSigners()}
+          primaryDisable={areSignersValid}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
