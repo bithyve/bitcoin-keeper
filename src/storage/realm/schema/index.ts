@@ -19,7 +19,6 @@ import {
   XpubDetailsSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
-import { TriggerPolicySchema } from './triggerPolicy';
 import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
@@ -40,7 +39,6 @@ export default [
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
   TransferPolicySchema,
-  TriggerPolicySchema,
   VaultSchema,
   XpubDetailsSchema,
   VaultPresentationDataSchema,
