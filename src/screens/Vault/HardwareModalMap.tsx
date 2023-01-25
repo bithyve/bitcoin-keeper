@@ -72,9 +72,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
   const { tapsigner, coldcard, ledger } = translations;
   switch (type) {
     case SignerType.COLDCARD:
-      const ccInstructions = isMultisig
-        ? `Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`
-        : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
+      const ccInstructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
       return {
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
