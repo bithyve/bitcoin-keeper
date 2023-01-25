@@ -3,12 +3,13 @@ import {
   SigningPayload,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
-} from "src/core/wallets/interfaces/";
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+} from 'src/core/wallets/interfaces/';
+import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { Satoshis } from "src/common/data/typealiases/UnitAliases";
-import TransactionFeeSnapshot from "src/common/data/models/TransactionFeeSnapshot";
-import { TxPriority } from "src/core/wallets/enums";
+import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
+import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
+import { TxPriority } from 'src/core/wallets/enums';
+import idx from 'idx';
 
 export interface SendPhaseOneExecutedPayload {
   successful: boolean;
@@ -142,17 +143,14 @@ const initialState: {
 };
 
 const sendAndReceiveSlice = createSlice({
-  name: "sendAndReceive",
+  name: 'sendAndReceive',
   initialState,
   reducers: {
     setSendMaxFee: (state, action: PayloadAction<Satoshis>) => {
       state.sendMaxFee = action.payload;
     },
 
-    sendPhaseOneExecuted: (
-      state,
-      action: PayloadAction<SendPhaseOneExecutedPayload>
-    ) => {
+    sendPhaseOneExecuted: (state, action: PayloadAction<SendPhaseOneExecutedPayload>) => {
       const { transactionFeeInfo } = state;
       let txPrerequisites: TransactionPrerequisite;
       let recipients;
@@ -180,10 +178,7 @@ const sendAndReceiveSlice = createSlice({
       state.transactionFeeInfo = transactionFeeInfo;
     },
 
-    sendPhaseTwoExecuted: (
-      state,
-      action: PayloadAction<SendPhaseTwoExecutedPayload>
-    ) => {
+    sendPhaseTwoExecuted: (state, action: PayloadAction<SendPhaseTwoExecutedPayload>) => {
       const { successful, txid, serializedPSBTEnvelops, err } = action.payload;
       state.sendPhaseTwo = {
         inProgress: false,
@@ -196,30 +191,27 @@ const sendAndReceiveSlice = createSlice({
     },
 
     updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
-      const { signerId, signingPayload, signedSerializedPSBT, txHex } =
-        action.payload;
+      const { signerId, signingPayload, signedSerializedPSBT, txHex } = action.payload;
       state.sendPhaseTwo = {
         ...state.sendPhaseTwo,
-        serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map(
-          (envelop) => {
-            if (envelop.signerId === signerId) {
-              envelop.serializedPSBT =
-                signedSerializedPSBT || envelop.serializedPSBT;
-              envelop.isSigned =
-                signedSerializedPSBT || txHex ? true : envelop.isSigned;
-              envelop.signingPayload = signingPayload || envelop.signingPayload;
-              envelop.txHex = txHex || envelop.txHex;
-            }
-            return envelop;
+        serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
+          if (envelop.signerId === signerId) {
+            envelop.serializedPSBT = signedSerializedPSBT || envelop.serializedPSBT;
+            envelop.isSigned =
+              signedSerializedPSBT ||
+              txHex || // for coldcard and keystone
+              !!idx(signingPayload, (_) => _[0].inputsToSign[0].signature) // for tapsigner
+                ? true
+                : envelop.isSigned;
+            envelop.signingPayload = signingPayload || envelop.signingPayload;
+            envelop.txHex = txHex || envelop.txHex;
           }
-        ),
+          return envelop;
+        }),
       };
     },
 
-    sendPhaseThreeExecuted: (
-      state,
-      action: PayloadAction<SendPhaseThreeExecutedPayload>
-    ) => {
+    sendPhaseThreeExecuted: (state, action: PayloadAction<SendPhaseThreeExecutedPayload>) => {
       const { successful, txid, err } = action.payload;
       state.sendPhaseThree = {
         inProgress: false,
