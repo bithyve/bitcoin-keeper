@@ -168,7 +168,6 @@ export function* updateVaultImageWorker({
       scheme: vault.scheme,
       signersData,
       vault: vaultEncrypted,
-
       subscription: subscriptionStrings,
     });
     return response;
@@ -387,12 +386,10 @@ function* getAppImageWorker({ payload }) {
         id: crypto.createHash('sha256').update(primarySeed).digest('hex'),
         appID: appImage.appId,
         primarySeed: primarySeed.toString('hex'),
-
         primaryMnemonic,
         imageEncryptionKey,
         subscription: JSON.parse(appImage.subscription),
         backup: {},
-
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
       };
