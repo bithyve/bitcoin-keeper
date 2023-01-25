@@ -26,7 +26,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       alignItems="center"
       width="90%"
       testID="btn_startNew"
-      style={{ marginTop: hp(10), height: hp(110) }}
+      style={{ marginTop: hp(20), height: hp(110) }}
       marginLeft="5%"
       paddingX={2}
     >
