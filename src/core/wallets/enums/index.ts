@@ -73,12 +73,9 @@ export enum EntityKind {
 }
 
 export enum WalletType {
-  CHECKING = 'CHECKING',
+  DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
   READ_ONLY = 'READ_ONLY',
-  SWAN = 'SWAN',
-  LIGHTNING = 'LIGHTNING',
-  MOBILE_KEY = 'MOBILE_KEY',
 }
 
 export enum VaultType {
@@ -115,4 +112,23 @@ export enum SignerStorage {
   HOT = 'HOT',
   COLD = 'COLD',
   WARM = 'WARM',
+}
+
+export enum ScriptTypes {
+  'P2PKH' = 'P2PKH', // legacy
+  'P2SH-P2WSH' = 'P2SH-P2WSH', // multisig wrapped segwit
+  'P2WSH' = 'P2WSH', // multisig native segwit
+  'P2SH-P2WPKH' = 'P2SH-P2WPKH', // singlesig wrapped segwit
+  'P2WPKH' = 'P2WPKH', // singlesig native segwit
+  'P2TR' = 'P2TR', // Taproot
+}
+
+export enum XpubTypes {
+  'P2PKH' = 'P2PKH',
+  'P2SH-P2WSH' = 'P2SH-P2WSH',
+  'P2WSH' = 'P2WSH',
+  'P2SH-P2WPKH' = 'P2SH-P2WPKH',
+  'P2WPKH' = 'P2WPKH',
+  'P2TR' = 'P2TR',
+  'AMF' = 'AMF',
 }

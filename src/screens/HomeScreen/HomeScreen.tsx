@@ -163,9 +163,6 @@ function LinkedWallets(props) {
         </Box>
         <Pressable
           onPress={() => props.onAmountPress()}
-          style={{
-            marginRight: wp(15),
-          }}
         >
           {props.showHideAmounts ? (
             <Box
@@ -184,7 +181,7 @@ function LinkedWallets(props) {
               </Box>
               <Text
                 color="light.white"
-                fontSize={hp(30)}
+                fontSize={hp(21)}
                 style={{
                   letterSpacing: 0.6,
                 }}
@@ -301,12 +298,17 @@ function VaultStatus(props) {
   return (
     <Box style={styles.vaultStatusContainder}>
       <ImageBackground resizeMode="contain" source={VaultImage}>
-        <TouchableOpacity onPress={open} activeOpacity={0.7}>
+        <TouchableOpacity testID='btn_vault' onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
-            <Box backgroundColor={getTorStatusColor} style={styles.torContainer}>
-              <Text color="light.primaryText" style={styles.torText} bold>
-                {getTorStatusText}
-              </Text>
+            <Box style={styles.torContainer}>
+              {
+                getTorStatusText !== 'Tor disabled' &&
+                <Box backgroundColor={getTorStatusColor}>
+                  <Text color="light.primaryText" style={styles.torText} bold>
+                    {getTorStatusText}
+                  </Text>
+                </Box>
+              }
             </Box>
             <Box style={styles.vaultBody}>
               <Text color="light.white" style={styles.vaultHeading} bold>
@@ -666,7 +668,7 @@ const styles = StyleSheet.create({
     marginLeft: wp(5),
     flexDirection: 'row',
     alignItems: 'center',
-    fontSize: 16,
+    fontSize: 14,
   },
   linkedWalletContent: {
     marginLeft: wp(18),

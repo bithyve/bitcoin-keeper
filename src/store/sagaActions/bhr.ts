@@ -1,4 +1,5 @@
 import { BackupHistory } from 'src/common/data/enums/BHR';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
 export const GET_APP_IMAGE = 'GET_APP_IMAGE';
@@ -12,7 +13,6 @@ export const RECOVER_BACKUP = 'RECOVER_BACKUP';
 export const UPADTE_HEALTH_CHECK_SIGNER = 'UPADTE_HEALTH_CHECK_SIGNER';
 export const SET_BACKUP_WARNING = 'SET_BACKUP_WARNING';
 export const UPDATE_VAULT_IMAGE = 'UPDATE_VAULT_IMAGE';
-export const RECOVER_VAULT = 'RECOVER_VAULT';
 
 export const updateAppImage = (walletId?) => ({
   type: UPDATE_APP_IMAGE,
@@ -21,9 +21,11 @@ export const updateAppImage = (walletId?) => ({
   },
 });
 
-export const updateVaultImage = (
-  payload: { archiveVaultId?: String; isUpdate?: Boolean } = {}
-) => ({
+export const updateVaultImage = (payload: {
+  vault: Vault;
+  archiveVaultId?: String;
+  isUpdate?: Boolean;
+}) => ({
   type: UPDATE_VAULT_IMAGE,
   payload,
 });
@@ -33,10 +35,6 @@ export const getAppImage = (primaryMnemonic: string) => ({
   payload: {
     primaryMnemonic,
   },
-});
-
-export const reoverVault = () => ({
-  type: RECOVER_VAULT,
 });
 
 export const seedBackedUp = () => ({

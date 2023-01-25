@@ -55,23 +55,13 @@ class Configuration {
     ? config.SENTRY_DNS.trim()
     : DEFAULT_CONFIG.SENTRY_DNS;
 
-  public WALLET_INSTANCES = {
-    [WalletType.CHECKING]: {
+  public WALLET_INSTANCE_SERIES = {
+    [WalletType.DEFAULT]: {
       series: 0,
       upperBound: 10,
     },
-    [WalletType.IMPORTED]: {
-      series: 0,
-      upperBound: 10,
-    },
-    [WalletType.SWAN]: {
-      series: 30,
-      upperBound: 10,
-    },
-    [WalletType.LIGHTNING]: {
-      series: 50,
-      upperBound: 1,
-    },
+
+    // exception: Read-only and Imported(non-bip85 wallets)
   };
 
   public REQUEST_TIMEOUT: number = 15000;

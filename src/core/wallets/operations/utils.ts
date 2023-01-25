@@ -16,6 +16,7 @@ import RestClient from 'src/core/services/rest/RestClient';
 import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import { Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
@@ -24,6 +25,7 @@ import {
   EntityKind,
   NetworkType,
   PaymentInfoKind,
+  ScriptTypes,
   TransactionType,
 } from '../enums';
 import { OutputUTXOs, Transaction } from '../interfaces';
@@ -268,6 +270,25 @@ export default class WalletUtilities {
       return xpub.startsWith('xpub') || xpub.startsWith('ypub') || xpub.startsWith('zpub')
         ? NetworkType.MAINNET
         : NetworkType.TESTNET;
+    }
+  };
+
+  static getNetworkFromPrefix = (prefix) => {
+    switch (prefix) {
+      case 'xpub': // 0x0488b21e
+      case 'ypub': // 0x049d7cb2
+      case 'Ypub': // 0x0295b43f
+      case 'zpub': // 0x04b24746
+      case 'Zpub': // 0x02aa7ed3
+        return NetworkType.MAINNET;
+      case 'tpub': // 0x043587cf
+      case 'upub': // 0x044a5262
+      case 'Upub': // 0x024289ef
+      case 'vpub': // 0x045f1cf6
+      case 'Vpub': // 0x02575483
+        return NetworkType.TESTNET;
+      default:
+        return null;
     }
   };
 
@@ -648,5 +669,25 @@ export default class WalletUtilities {
       return purpose[0];
     }
     return null;
+  };
+
+  // bip48 m/purpose'/coin_type'/account'/script_type'/change/address_index
+  static getDerivationForScriptType = (scriptType: ScriptTypes, account = 0) => {
+    const testnet = isTestnet();
+    const networkType = testnet ? 1 : 0;
+    switch (scriptType) {
+      case ScriptTypes.P2WSH: // multisig native segwit
+        return `m/48'/${networkType}'/${account}'/2'`;
+      case ScriptTypes.P2WPKH: // singlesig native segwit
+        return `m/84'/${networkType}'/${account}'`;
+      case ScriptTypes['P2SH-P2WPKH']: // singlesig wrapped segwit
+        return `m/49'/${networkType}'/${account}'`;
+      case ScriptTypes['P2SH-P2WSH']: // multisig wrapped segwit
+        return `m/48'/${networkType}'/${account}'/1'`;
+      case ScriptTypes.P2TR: // Taproot
+        return `m/86'/${networkType}'/${account}'`;
+      default: // multisig wrapped segwit
+        return `m/48'/${networkType}'/${account}'/2'`;
+    }
   };
 }

@@ -1,6 +1,6 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
@@ -9,13 +9,12 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
-import { SignerType } from 'src/core/wallets/enums';
-import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import { Alert, TouchableOpacity } from 'react-native';
+import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from 'src/core/services/sentry';
-import config from 'src/core/config';
+import config, { APP_STAGE } from 'src/core/config';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
 import { setSigningDevices } from 'src/store/reducers/bhr';
@@ -23,9 +22,74 @@ import { useDispatch } from 'react-redux';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { getKeystoneDetails } from 'src/hardware/keystone';
-import { generateSignerFromMetaData } from 'src/hardware';
 import { getJadeDetails } from 'src/hardware/jade';
 import { WalletMap } from '../Vault/WalletMap';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { generateSignerFromMetaData } from 'src/hardware';
+import { crossInteractionHandler } from 'src/common/utilities';
+import SigningServer from 'src/core/services/operations/SigningServer';
+import NFC from 'src/core/services/nfc';
+import { BleManager } from 'react-native-ble-plx';
+import { useAppSelector } from 'src/store/hooks';
+import Clipboard from '@react-native-community/clipboard';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+
+const getnavigationState = (type) => {
+  return {
+    index: 1,
+    routes: [
+      { name: 'NewKeeperApp' },
+      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false } },
+      { name: 'OtherRecoveryMethods' },
+      { name: 'VaultRecoveryAddSigner' },
+      { name: 'SignersList' },
+      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: true, type } },
+    ],
+  };
+};
+
+export const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  isBLESupported,
+  signingDevices
+) => {
+  switch (type) {
+    case SignerType.COLDCARD:
+    case SignerType.TAPSIGNER:
+      return {
+        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+      };
+    case SignerType.LEDGER:
+      return {
+        message: !isBLESupported ? 'Start/Enable Bluetooth to use' : '',
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
+      };
+    case SignerType.POLICY_SERVER:
+      if (signingDevices.length < 1)
+        return {
+          message: 'Add anyother device to recover',
+          disabled: true,
+        };
+    case SignerType.SEED_WORDS:
+    case SignerType.MOBILE_KEY:
+    case SignerType.KEEPER:
+    case SignerType.JADE:
+    case SignerType.PASSPORT:
+    case SignerType.SEEDSIGNER:
+    case SignerType.KEYSTONE:
+    default:
+      return {
+        message: '',
+        disabled: false,
+      };
+  }
+};
 
 function TapsignerSetupContent() {
   return (
@@ -199,46 +263,140 @@ function JadeSetupContent() {
 
 function SignersList() {
   type HWProps = {
+    disabled: boolean;
+    message: string;
     type: SignerType;
     first?: boolean;
     last?: boolean;
   };
+  const { signingDevices, relayVaultReoveryAppId } = useAppSelector((state) => state.bhr);
+  const [isNfcSupported, setNfcSupport] = useState(true);
+  const [isBLESupported, setBLESupport] = useState(false);
+
+  const getNfcSupport = async () => {
+    const isSupported = await NFC.isNFCSupported();
+    setNfcSupport(isSupported);
+  };
+  const getBluetoothSupport = () => {
+    new BleManager().onStateChange((state) => {
+      if (state === 'PoweredOn') {
+        setBLESupport(true);
+      } else {
+        setBLESupport(false);
+      }
+    }, true);
+  };
+
+  useEffect(() => {
+    getBluetoothSupport();
+    getNfcSupport();
+  }, []);
 
   const { navigate } = useNavigation();
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const verifyPassport = async (qrData) => {
     try {
-      const { xpub } = getPassportDetails(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      const sigingDeivceDetails: SigningDeviceRecovery = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
+      const passport: VaultSigner = generateSignerFromMetaData({
         xpub,
-        type: SignerType.PASSPORT,
-      };
-      dispatch(setSigningDevices(sigingDeivceDetails));
+        derivationPath,
+        xfp,
+        signerType: SignerType.PASSPORT,
+        storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
+      });
+      dispatch(setSigningDevices(passport));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Passport!');
+      showToast('Invalid QR, please scan the QR from Passport!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
+  const otpContent = () => {
+    const [otp, setOtp] = useState('');
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(300)}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+              }
+            }}
+          >
+            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+          </TouchableOpacity>
+          <Text
+            fontSize={13}
+            letterSpacing={0.65}
+            width={wp(290)}
+            color="light.greenText"
+            marginTop={2}
+          >
+            If you lose your authenticator app, use the other Signing Devices to reset the Signing
+            Server
+          </Text>
+          <Box mt={10} alignSelf="flex-end" mr={2}>
+            <Box>
+              <CustomGreenButton
+                onPress={() => {
+                  verifySigningServer(otp);
+                }}
+                value="Confirm"
+              />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor="light.primaryText"
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  };
+
   const verifySeedSigner = async (qrData) => {
     try {
-      const { xpub } = getSeedSignerDetails(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      const sigingDeivceDetails: SigningDeviceRecovery = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
+      const seedSigner: VaultSigner = generateSignerFromMetaData({
         xpub,
-        type: SignerType.SEEDSIGNER,
-      };
-      dispatch(setSigningDevices(sigingDeivceDetails));
+        derivationPath,
+        xfp,
+        signerType: SignerType.SEEDSIGNER,
+        storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
+      });
+      dispatch(setSigningDevices(seedSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from SeedSigner!');
+      showToast('Invalid QR, please scan the QR from SeedSigner!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
@@ -248,15 +406,18 @@ function SignersList() {
     try {
       const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
       const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      const sigingDeivceDetails: SigningDeviceRecovery = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      const keystone: VaultSigner = generateSignerFromMetaData({
         xpub,
-        type: SignerType.KEYSTONE,
-      };
-      dispatch(setSigningDevices(sigingDeivceDetails));
+        derivationPath,
+        xfp,
+        signerType: SignerType.KEYSTONE,
+        storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
+      });
+      dispatch(setSigningDevices(keystone));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Keystone!');
+      showToast('Invalid QR, please scan the QR from Keystone!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
@@ -265,22 +426,63 @@ function SignersList() {
   const verifyJade = async (qrData) => {
     try {
       const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-      const sigingDeivceDetails: SigningDeviceRecovery = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      const jade: VaultSigner = generateSignerFromMetaData({
         xpub,
-        type: SignerType.JADE,
-      };
-      dispatch(setSigningDevices(sigingDeivceDetails));
+        derivationPath,
+        xfp,
+        signerType: SignerType.JADE,
+        storageType: SignerStorage.COLD,
+        isMultisig: signingDevices.length > 1 ? true : false,
+      });
+      dispatch(setSigningDevices(jade));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      Alert.alert('Invalid QR, please scan the QR from Jade!');
+      showToast('Invalid QR, please scan the QR from Jade!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
-  function HardWareWallet({ type, first = false, last = false }: HWProps) {
+  const verifyKeeperSigner = (qrData) => {
+    try {
+      const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+      const ksd = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp: mfp,
+        signerType: SignerType.KEEPER,
+        storageType: SignerStorage.WARM,
+        isMultisig: true,
+      });
+      dispatch(setSigningDevices(ksd));
+      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+    } catch (err) {
+      const message = crossInteractionHandler(err);
+      throw new Error(message);
+    }
+  };
+
+  const verifySigningServer = async (otp) => {
+    const response = await SigningServer.fetchSignerSetup(relayVaultReoveryAppId, otp);
+    if (response.xpub) {
+      const signingServerKey = generateSignerFromMetaData({
+        xpub: response.xpub,
+        derivationPath: response.xpub,
+        xfp: response.masterFingerprint,
+        signerType: SignerType.POLICY_SERVER,
+        storageType: SignerStorage.WARM,
+        isMultisig: true,
+        signerPolicy: response.policy,
+      });
+      dispatch(setSigningDevices(signingServerKey));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
+    } else {
+      Alert.alert('Invalid OTP');
+    }
+  };
+
+  function HardWareWallet({ disabled, message, type, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
     const onPress = () => {
       open();
@@ -299,6 +501,8 @@ function SignersList() {
           return verifyKeystone(qrData);
         case SignerType.JADE:
           return verifyJade(qrData);
+        case SignerType.KEEPER:
+          return verifyKeeperSigner(qrData);
         default:
       }
     };
@@ -312,6 +516,7 @@ function SignersList() {
             title: `Setting up ${type}`,
             subtitle: 'Please scan until all the QR data has been retrieved',
             onQrScan: onQRScan,
+            type,
           },
         })
       );
@@ -319,44 +524,30 @@ function SignersList() {
 
     return (
       <>
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress}>
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={onPress}
+          disabled={disabled}
+          style={{
+            opacity: disabled ? 0.4 : 1,
+          }}
+        >
           <Box
             backgroundColor="light.primaryBackground"
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
-            <Box
-              alignItems="center"
-              height={windowHeight * 0.08}
-              flexDirection="row"
-              style={{
-                paddingVertical: hp(25),
-                paddingLeft: wp(40),
-              }}
-            >
-              <Box
-                style={{
-                  marginRight: wp(20),
-                  width: wp(15),
-                }}
-              >
-                {WalletMap(type).Icon}
-              </Box>
-              <Box opacity={0.3} backgroundColor="light.divider" height={hp(24)} width={0.5} />
-              <Box
-                style={{
-                  marginLeft: wp(23),
-                }}
-              >
+            <Box style={styles.walletMapContainer}>
+              <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
+              <Box backgroundColor="light.divider" style={styles.divider} />
+              <Box style={styles.walletMapLogoWrapper}>
                 {WalletMap(type).Logo}
+                <Text color="light.inActiveMsg" style={styles.messageText}>
+                  {message}
+                </Text>
               </Box>
             </Box>
-            <Box
-              opacity={0.1}
-              backgroundColor="light.divider"
-              width={windowWidth * 0.8}
-              height={0.5}
-            />
+            <Box backgroundColor="light.divider" style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
         <KeeperModal
@@ -388,9 +579,23 @@ function SignersList() {
           Content={ColdCardSetupContent}
         />
         <KeeperModal
+          visible={visible && type === SignerType.LEDGER}
+          close={close}
+          title="Verify Ledger"
+          subTitle="Keep your Ledger ready"
+          buttonText="Proceed"
+          buttonTextColor="light.white"
+          buttonCallback={() => {
+            navigate('LedgerRecovery');
+            close();
+          }}
+          textColor="light.primaryText"
+          Content={ColdCardSetupContent}
+        />
+        <KeeperModal
           visible={visible && type === SignerType.PASSPORT}
           close={close}
-          title="Setting up Passport (Batch 2)"
+          title="Verify Passport (Batch 2)"
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -402,7 +607,7 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.SEEDSIGNER}
           close={close}
-          title="Setting up SeedSigner"
+          title="Verify SeedSigner"
           subTitle="Keep your SeedSigner ready and powered before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -414,7 +619,7 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.KEYSTONE}
           close={close}
-          title="Setting up Keystone"
+          title="Verify  up Keystone"
           subTitle="Keep your Keystone ready before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -426,7 +631,7 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.JADE}
           close={close}
-          title="Setting up Blockstream Jade"
+          title="Verify  up Blockstream Jade"
           subTitle="Keep your Jade ready and unlocked before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -434,6 +639,57 @@ function SignersList() {
           buttonCallback={navigateToAddQrBasedSigner}
           textColor="light.primaryText"
           Content={JadeSetupContent}
+        />
+
+        <KeeperModal
+          visible={visible && type === SignerType.KEEPER}
+          close={close}
+          title="Verify another KSD"
+          subTitle="Recover using KSD"
+          subTitleColor="light.secondaryText"
+          buttonText="Continue"
+          buttonTextColor="light.white"
+          buttonCallback={navigateToAddQrBasedSigner}
+          textColor="light.primaryText"
+        />
+        <KeeperModal
+          visible={visible && type === SignerType.SEED_WORDS}
+          close={close}
+          title="Recover through Soft Key"
+          subTitle="Reocver through a stored soft key"
+          subTitleColor="light.secondaryText"
+          buttonText="Continue"
+          buttonTextColor="light.white"
+          buttonCallback={() => {
+            const navigationState = getnavigationState(SignerType.SEED_WORDS);
+            navigation.dispatch(CommonActions.reset(navigationState));
+            close();
+          }}
+          textColor="light.primaryText"
+        />
+        <KeeperModal
+          visible={visible && type === SignerType.MOBILE_KEY}
+          close={close}
+          title="Recover using Mobile Key (Seed)"
+          subTitle="Recover entire app using Seed"
+          subTitleColor="light.secondaryText"
+          buttonText="Continue"
+          buttonTextColor="light.white"
+          buttonCallback={() => {
+            const navigationState = getnavigationState(SignerType.MOBILE_KEY);
+            navigation.dispatch(CommonActions.reset(navigationState));
+            close();
+          }}
+          textColor="light.primaryText"
+        />
+        <KeeperModal
+          visible={visible && type === SignerType.POLICY_SERVER}
+          close={close}
+          title="Confirm OTP to setup 2FA"
+          subTitle="To complete setting up the signing server"
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
+          Content={otpContent}
         />
       </>
     );
@@ -445,6 +701,9 @@ function SignersList() {
         title="Select Signing Device"
         subtitle="To recover your vault"
         headerTitleColor="light.textBlack"
+        onPressHandler={() =>
+          navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        }
         paddingTop={hp(5)}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
@@ -456,13 +715,90 @@ function SignersList() {
             SignerType.PASSPORT,
             SignerType.JADE,
             SignerType.KEYSTONE,
-          ].map((type: SignerType, index: number) => (
-            <HardWareWallet type={type} first={index === 0} last={index === 3} />
-          ))}
+            SignerType.LEDGER,
+            SignerType.KEEPER,
+            SignerType.SEED_WORDS,
+            SignerType.MOBILE_KEY,
+            SignerType.POLICY_SERVER,
+          ].map((type: SignerType, index: number) => {
+            const { disabled, message } = getDeviceStatus(
+              type,
+              isNfcSupported,
+              isBLESupported,
+              signingDevices
+            );
+            return (
+              <HardWareWallet
+                type={type}
+                first={index === 0}
+                last={index === 3}
+                disabled={disabled}
+                message={message}
+              />
+            );
+          })}
         </Box>
       </ScrollView>
     </ScreenWrapper>
   );
 }
+
+const styles = StyleSheet.create({
+  modalText: {
+    letterSpacing: 0.65,
+    fontSize: 13,
+    marginTop: 5,
+    padding: 1,
+  },
+  scrollViewContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scrollViewWrapper: {
+    height: windowHeight > 800 ? '90%' : '85%',
+  },
+  contactUsText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    fontWeight: '200',
+    width: wp(300),
+    lineHeight: 20,
+    marginTop: hp(20),
+  },
+  walletMapContainer: {
+    alignItems: 'center',
+    height: windowHeight * 0.08,
+    flexDirection: 'row',
+    paddingLeft: wp(40),
+  },
+  walletMapWrapper: {
+    marginRight: wp(20),
+    width: wp(15),
+  },
+  walletMapLogoWrapper: {
+    marginLeft: wp(23),
+    justifyContent: 'flex-end',
+    marginTop: hp(20),
+  },
+  messageText: {
+    fontSize: 10,
+    fontWeight: '400',
+    letterSpacing: 1.3,
+    marginTop: hp(5),
+  },
+  dividerStyle: {
+    opacity: 0.1,
+    width: windowWidth * 0.8,
+    height: 0.5,
+  },
+  divider: {
+    opacity: 0.5,
+    height: hp(26),
+    width: 1.5,
+  },
+  italics: {
+    fontStyle: 'italic',
+  },
+});
 
 export default SignersList;

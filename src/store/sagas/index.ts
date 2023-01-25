@@ -16,6 +16,7 @@ import {
   updateWalletSettingsWatcher,
   validateSigningServerRegistrationWatcher,
   updateSignerDetails,
+  updateWalletsPropertyWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -39,7 +40,6 @@ import {
   healthCheckSignerWatcher,
   initCloudBackupWatcher,
   recoverBackupWatcher,
-  recoverVaultWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
   updateAppImageWatcher,
@@ -85,6 +85,7 @@ const rootSaga = function* () {
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
+    updateWalletsPropertyWatcher,
 
     // vaults
     addNewVaultWatcher,
@@ -122,7 +123,6 @@ const rootSaga = function* () {
     recoverBackupWatcher,
     healthCheckSignerWatcher,
     backupWarningWatcher,
-    recoverVaultWatcher,
     setupKeeperVaultRecoveryAppWatcher,
 
     // upgrade

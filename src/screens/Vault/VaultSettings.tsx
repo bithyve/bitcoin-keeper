@@ -46,7 +46,7 @@ const DescritporsModalContent = ({ descriptorString }) => {
   };
 
   return (
-    <View width={'80%'}>
+    <View width={'100%'}>
       <TouchableOpacity
         onPress={async () => {
           await onShare();
@@ -58,15 +58,10 @@ const DescritporsModalContent = ({ descriptorString }) => {
           </Text>
         </Box>
       </TouchableOpacity>
-      <Box>
-        <Note subtitle="The above contains xPub, address type, path and script type, for the vault" />
+      <Box style={styles.modalNoteWrapper}>
+        <Note subtitle="Save the file with .bsms extension to import it in other cordinating apps" />
       </Box>
-      <Box
-        flexDirection="row"
-        justifyContent="space-around"
-        alignItems="center"
-        style={styles.buttonContainer}
-      >
+      <Box style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.IconText}
           onPress={async () => {
@@ -120,11 +115,16 @@ function VaultSettings({ route }) {
   const [genratorModalVisible, setGenratorModalVisible] = useState(false);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const descriptorString = genrateOutputDescriptors(vault.isMultiSig, vault.signers, vault.scheme);
+  const descriptorString = genrateOutputDescriptors(
+    vault.isMultiSig,
+    vault.signers,
+    vault.scheme,
+    vault
+  );
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -164,7 +164,8 @@ function VaultSettings({ route }) {
             </Text>
           </Box>
           <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
-            {vaultBalance}{getUnit(currentCurrency)}
+            {vaultBalance}
+            {getUnit(currentCurrency)}
           </Text>
         </Box>
       </LinearGradient>
@@ -183,19 +184,19 @@ function VaultSettings({ route }) {
           paddingTop={hp(5)}
         />
       </Box>
-      <Box
-        borderBottomColor="light.divider"
-        borderBottomWidth={0.2}
-        marginTop={hp(30)}
-        paddingX={wp(25)}
-      >
+      <Box borderBottomColor="light.divider" style={styles.vaultCardWrapper}>
         <VaultCard
           vaultName={name}
           vaultDescription={description}
-          vaultBalance={getAmt(confirmed + unconfirmed, exchangeRates, currencyCode, currentCurrency)}
+          vaultBalance={getAmt(
+            confirmed + unconfirmed,
+            exchangeRates,
+            currencyCode,
+            currentCurrency
+          )}
         />
       </Box>
-      <Box alignItems="center" paddingX={wp(25)}>
+      <Box style={styles.optionViewWrapper}>
         <Option
           title="Generate Descriptors"
           subTitle="Vault configuration that needs to be stored privately"
@@ -205,7 +206,7 @@ function VaultSettings({ route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position="absolute" bottom={hp(45)} marginX={5}>
+      <Box style={styles.bottomNoteWrapper}>
         <InfoBox
           title="Note"
           desciption="These settings are for your active vault only and does not affect other vaults"
@@ -246,6 +247,26 @@ const styles = ScaledSheet.create({
     marginTop: 10,
     paddingTop: 20,
     borderTopWidth: 0.5,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  vaultCardWrapper: {
+    borderBottomWidth: 0.2,
+    marginTop: hp(30),
+    paddingHorizontal: wp(25),
+  },
+  optionViewWrapper: {
+    alignItems: 'center',
+    paddingHorizontal: wp(25),
+  },
+  bottomNoteWrapper: {
+    position: 'absolute',
+    bottom: hp(45),
+    marginHorizontal: 5,
+  },
+  modalNoteWrapper: {
+    width: '90%',
   },
 });
 export default VaultSettings;

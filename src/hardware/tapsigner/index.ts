@@ -1,12 +1,6 @@
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
-
 import { Alert } from 'react-native';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { captureError } from 'src/core/services/sentry';
-import { generateSignerFromMetaData } from '..';
 
 export const getTapsignerDetails = async (card: CKTapCard, cvc: string) => {
   const status = await card.first_look();
@@ -23,31 +17,6 @@ export const getTapsignerDetails = async (card: CKTapCard, cvc: string) => {
     const xfp = await card.get_xfp(cvc);
     return { xpub, derivationPath: newCard.path, xfp: xfp.toString('hex') };
   }
-};
-
-export const getMockTapsignerDetails = (amfData = null) => {
-  const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-    EntityKind.VAULT,
-    SignerType.TAPSIGNER,
-    config.NETWORK_TYPE
-  );
-
-  const tapsigner: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    xpriv,
-    derivationPath,
-    xfp: masterFingerprint,
-    signerType: SignerType.TAPSIGNER,
-    storageType: SignerStorage.COLD,
-    isMock: true,
-  });
-
-  if (amfData) {
-    tapsigner.amfData = amfData;
-    tapsigner.signerName = 'TAPSIGNER*';
-    tapsigner.isMock = false;
-  }
-  return tapsigner;
 };
 
 export const signWithTapsigner = async (

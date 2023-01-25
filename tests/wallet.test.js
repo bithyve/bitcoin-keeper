@@ -8,7 +8,6 @@ import ElectrumClient from 'src/core/services/electrum/client';
 
 describe('Wallet primitives', () => {
   let primaryMnemonic;
-  let walletShell;
   let wallet;
   let averageTxFees;
   let txPrerequisites;
@@ -18,10 +17,6 @@ describe('Wallet primitives', () => {
   beforeAll(async () => {
     primaryMnemonic =
       'duty burger portion domain athlete sweet birth impact miss shield help peanut';
-    walletShell = {
-      id: getRandomBytes(12),
-      walletInstances: {},
-    };
 
     try {
       ElectrumClient.setActivePeer([]);
@@ -37,9 +32,8 @@ describe('Wallet primitives', () => {
     const walletName = 'Checking Wallet';
     const walletDescription = 'Bitcoin Wallet';
     wallet = await generateWallet({
-      type: WalletType.CHECKING,
-      instanceNum: walletShell.walletInstances[WalletType.CHECKING] || 0,
-      walletShellId: walletShell.id,
+      type: WalletType.DEFAULT,
+      instanceNum: 0,
       walletName,
       walletDescription,
       primaryMnemonic,
@@ -48,7 +42,6 @@ describe('Wallet primitives', () => {
     expect(wallet.derivationDetails.mnemonic).toEqual(
       'trumpet access minor basic rule rifle wife summer brown deny used very'
     );
-    expect(wallet.walletShellId).toEqual(walletShell.id);
   });
 
   test('wallet operations: generating a receive address', () => {

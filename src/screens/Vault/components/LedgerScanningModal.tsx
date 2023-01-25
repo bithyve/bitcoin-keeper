@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -11,6 +11,7 @@ import { SignerType } from 'src/core/wallets/enums';
 import Text from 'src/components/KeeperText';
 import { useNavigation } from '@react-navigation/native';
 import { WalletMap } from '../WalletMap';
+import MockWrapper from '../MockWrapper';
 
 function LedgerContent({
   isScanning,
@@ -22,43 +23,45 @@ function LedgerContent({
   infoText,
 }: any) {
   return (
-    <View>
-      {isScanning && !allDevices.length ? (
-        <Image source={require('src/assets/video/Loader.gif')} style={styles.loader} />
-      ) : null}
-      {allDevices.map((device) => (
-        <TouchableOpacity
-          style={{ marginBottom: 30 }}
-          onPress={() => {
-            setInteracting(true);
-            connectToDevice(device);
-          }}
-        >
-          <HStack
-            style={[
-              globalStyles.centerRow,
-              { justifyContent: 'space-between', width: windowWidth * 0.7 },
-            ]}
-          >
-            <HStack style={[globalStyles.centerRow]}>
-              <Box style={styles.icon}>{WalletMap(SignerType.LEDGER, true).Icon}</Box>
-              <VStack style={{ paddingLeft: 20 }}>
-                <Text style={[globalStyles.font14, { letterSpacing: 1.12 }]}>{device.name}</Text>
-                <Text style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
-                  {interacting ? interactionText : infoText}
-                </Text>
-              </VStack>
-            </HStack>
-            <Box>{interacting ? <ActivityIndicator /> : <RightArrowIcon />}</Box>
-          </HStack>
-        </TouchableOpacity>
-      ))}
+    <MockWrapper signerType={SignerType.LEDGER}>
       <Box>
-        <Text color="light.greenText" light style={styles.instruct}>
-          Please open on the BTC app before connecting to the deivce
-        </Text>
+        {isScanning && !allDevices.length ? (
+          <Image source={require('src/assets/video/Loader.gif')} style={styles.loader} />
+        ) : null}
+        {allDevices.map((device) => (
+          <TouchableOpacity
+            style={{ marginBottom: 30 }}
+            onPress={() => {
+              setInteracting(true);
+              connectToDevice(device);
+            }}
+          >
+            <HStack
+              style={[
+                globalStyles.centerRow,
+                { justifyContent: 'space-between', width: windowWidth * 0.7 },
+              ]}
+            >
+              <HStack style={[globalStyles.centerRow]}>
+                <Box style={styles.icon}>{WalletMap(SignerType.LEDGER, true).Icon}</Box>
+                <VStack style={{ paddingLeft: 20 }}>
+                  <Text style={[globalStyles.font14, { letterSpacing: 1.12 }]}>{device.name}</Text>
+                  <Text style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+                    {interacting ? interactionText : infoText}
+                  </Text>
+                </VStack>
+              </HStack>
+              <Box>{interacting ? <ActivityIndicator /> : <RightArrowIcon />}</Box>
+            </HStack>
+          </TouchableOpacity>
+        ))}
+        <Box>
+          <Text color="light.greenText" light style={styles.instruct}>
+            Please open on the BTC app before connecting to the deivce
+          </Text>
+        </Box>
       </Box>
-    </View>
+    </MockWrapper>
   );
 }
 

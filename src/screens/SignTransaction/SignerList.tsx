@@ -49,7 +49,7 @@ function SignerList({
                 letterSpacing={1.12}
                 maxWidth={width * 0.6}
               >
-                {`${signer.signerName} (${signer.xpubInfo.xfp})`}
+                {`${signer.signerName} (${signer.masterFingerprint})`}
               </Text>
               <Text color="light.GreyText" fontSize={12} marginRight={10} letterSpacing={0.6}>
                 {`Added on ${moment(signer.addedOn).calendar().toLowerCase()}`}

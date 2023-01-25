@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import { VerificationType } from 'src/core/services/interfaces';
 import {
   NetworkType,
   NodeType,
@@ -180,20 +181,17 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
-export interface NodeConnect {
-  nodeId: string;
-  type: NodeType;
-  networkType: NetworkType;
-  config: {};
-  isActive: boolean;
-}
-
-export interface TwoFADetails {
-  signingServerXpub?: string;
-  derivationPath?: string;
-  masterFingerprint?: string;
-  twoFAKey?: string;
-  twoFAValidated?: boolean;
+export interface SigningServerSetup {
+  validation?: {
+    validationType: VerificationType;
+    validationKey?: string;
+    vaildated?: boolean;
+  };
+  setupInfo?: {
+    xpub: string;
+    derivationPath: string;
+    masterFingerprint: string;
+  };
 }
 
 export interface SigningPayload {
@@ -235,4 +233,3 @@ export interface NodeDetail {
   useKeeperNode: boolean;
   useSSL: boolean;
 }
-
