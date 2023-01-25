@@ -1,30 +1,28 @@
-import { SafeAreaView } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Alert, SafeAreaView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useState } from 'react';
 import { getLedgerDetails } from 'src/hardware/ledger';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import usePlan from 'src/hooks/usePlan';
 import { checkSigningDevice } from 'src/screens/Vault/AddSigningDevice';
 import LedgerScanningModal from 'src/screens/Vault/components/LedgerScanningModal';
 import HWError from 'src/hardware/HWErrorState';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import { useAppSelector } from 'src/store/hooks';
 
-function AddLedger() {
+function LedgerRecovery() {
   const [visible, setVisible] = useState(true);
+  const { signingDevices } = useAppSelector((state) => state.bhr);
 
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
 
   const addLedger = async (transport) => {
     try {
@@ -35,14 +33,13 @@ function AddLedger() {
         derivationPath,
         storageType: SignerStorage.COLD,
         signerType: SignerType.LEDGER,
-        isMultisig,
+        isMultisig: signingDevices.length > 1 ? true : false,
       });
-      dispatch(addSigningDevice(ledger));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      dispatch(setSigningDevices(ledger));
+      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       showToast(`${ledger.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(ledger.signerId);
-      if (exsists)
-        showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
+      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, null, 3000, true);
@@ -67,4 +64,4 @@ function AddLedger() {
   );
 }
 
-export default AddLedger;
+export default LedgerRecovery;

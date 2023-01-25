@@ -1,4 +1,5 @@
 import { ObjectSchema } from 'realm';
+import { XpubTypes } from 'src/core/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
@@ -8,6 +9,11 @@ export const Scheme = {
     m: 'int',
     n: 'int',
   },
+};
+
+const propertyType = {
+  type: '{}?',
+  properties: { xpub: 'string', derivationPath: 'string' },
 };
 
 export const SignerPolicy: ObjectSchema = {
@@ -38,6 +44,20 @@ export const SignerPolicy: ObjectSchema = {
   },
 };
 
+export const XpubDetailsSchema: ObjectSchema = {
+  embedded: true,
+  name: RealmSchema.XpubDetails,
+  properties: {
+    [XpubTypes.AMF]: propertyType,
+    [XpubTypes.P2PKH]: propertyType,
+    [XpubTypes['P2SH-P2WPKH']]: propertyType,
+    [XpubTypes['P2SH-P2WSH']]: propertyType,
+    [XpubTypes.P2TR]: propertyType,
+    [XpubTypes.P2WPKH]: propertyType,
+    [XpubTypes.P2WSH]: propertyType,
+  },
+};
+
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
   embedded: true,
@@ -48,20 +68,15 @@ export const VaultSignerSchema: ObjectSchema = {
     xpriv: 'string?',
     signerName: 'string?',
     signerDescription: 'string?',
-    xpubInfo: {
-      type: '{}',
-      properties: {
-        derivationPath: 'string',
-        xfp: 'string',
-      },
-    },
     lastHealthCheck: 'date',
     addedOn: 'date',
     isMock: 'bool?',
     registered: { type: 'bool?', default: false },
     storageType: 'string',
-    amfData: '{}?',
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
+    derivationPath: 'string',
+    masterFingerprint: 'string',
+    xpubDetails: RealmSchema.XpubDetails,
   },
 };
 
@@ -72,6 +87,7 @@ export const VaultPresentationDataSchema: ObjectSchema = {
     name: 'string',
     description: 'string',
     visibility: 'string',
+    shell: 'int',
   },
 };
 
@@ -101,7 +117,6 @@ export const VaultSchema: ObjectSchema = {
   name: RealmSchema.Vault,
   properties: {
     id: 'string',
-    vaultShellId: 'string',
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
@@ -111,8 +126,8 @@ export const VaultSchema: ObjectSchema = {
     signers: `${RealmSchema.VaultSigner}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
-    VAC: 'string',
     archived: 'bool',
+    scriptType: 'string',
   },
   primaryKey: 'id',
 };

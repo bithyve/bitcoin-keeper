@@ -405,6 +405,18 @@ export default class Relay {
     }
   };
 
+  public static vaultCheck = async (vaultId): Promise<any> => {
+    try {
+      const { data: response } = await RestClient.post(`${RELAY}vaultCheck`, {
+        vaultId,
+      });
+      return response;
+    } catch (err) {
+      captureError(err);
+      throw new Error('VaultCheckAPI Failed');
+    }
+  };
+
   public static getVaultMetaData = async (signerId): Promise<any> => {
     try {
       const res: any = await RestClient.post(`${RELAY}getVaultMetaData`, {
@@ -428,19 +440,6 @@ export default class Relay {
     } catch (err) {
       captureError(err);
       throw new Error('Failed get SignerId Info');
-    }
-  };
-
-  public static getVac = async (signerIdsHash): Promise<any> => {
-    try {
-      const res: any = await RestClient.post(`${RELAY}getVac`, {
-        signerIdsHash,
-      });
-      const data = res.data || res.json;
-      return data.encryptedVac;
-    } catch (err) {
-      captureError(err);
-      throw new Error('Failed get Vac');
     }
   };
 

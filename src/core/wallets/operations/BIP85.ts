@@ -124,7 +124,7 @@ export default class BIP85 {
     words: number = BIP85Words.TWELVE,
     language: string = BIP85Languages.ENGLISH
   ): BIP85Config => {
-    const { series, upperBound } = config.WALLET_INSTANCES[walletType];
+    const { series, upperBound } = config.WALLET_INSTANCE_SERIES[walletType];
     if (instanceNumber > upperBound - 1)
       throw new Error(
         `Cannot create new instance of type ${walletType}, exceeds instance upper bound`

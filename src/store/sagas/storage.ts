@@ -1,14 +1,13 @@
 import * as bip39 from 'bip39';
 
 import { call, put } from 'redux-saga/effects';
-import { generateEncryptionKey, getRandomBytes } from 'src/core/services/operations/encryption';
+import { generateEncryptionKey } from 'src/core/services/operations/encryption';
 
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { WalletShell } from 'src/core/wallets/interfaces/wallet';
 import { WalletType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import crypto from 'crypto';
@@ -27,7 +26,6 @@ function* setupKeeperAppWorker({ payload }) {
     yield put(setAppCreationError(false));
     let primaryMnemonic;
     let primarySeed;
-    let defaultWalletShell: WalletShell;
     let appID;
     let id;
     let imageEncryptionKey;
@@ -42,10 +40,6 @@ function* setupKeeperAppWorker({ payload }) {
     } else {
       primaryMnemonic = bip39.generateMnemonic();
       primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-      defaultWalletShell = {
-        id: getRandomBytes(12),
-        walletInstances: {},
-      };
       appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
       id = crypto.createHash('sha256').update(primarySeed).digest('hex');
       const entropy = yield call(
@@ -65,16 +59,6 @@ function* setupKeeperAppWorker({ payload }) {
         primaryMnemonic,
         primarySeed: primarySeed.toString('hex'),
         imageEncryptionKey,
-        walletShellInstances: app
-          ? app.walletShellInstances
-          : {
-              shells: [defaultWalletShell.id],
-              activeShell: defaultWalletShell.id,
-            },
-        vaultShellInstances: {
-          shells: [],
-          activeShell: null,
-        },
         subscription: {
           productId: SubscriptionTier.L1,
           name: SubscriptionTier.L1,
@@ -85,15 +69,16 @@ function* setupKeeperAppWorker({ payload }) {
         networkType: config.NETWORK_TYPE,
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newApp);
-      yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 
       // create default wallet
       const defaultWallet: NewWalletInfo = {
-        walletType: WalletType.CHECKING,
+        walletType: WalletType.DEFAULT,
         walletDetails: {
           name: 'Wallet 1',
           description: 'Single-sig bitcoin wallet',
-          transferPolicy: 5000,
+          transferPolicy: {
+            threshold: 5000,
+          },
         },
       };
       const { created, err } = yield call(addNewWalletsWorker, { payload: [defaultWallet] });
@@ -116,15 +101,9 @@ export const setupKeeperAppWatcher = createWatcher(setupKeeperAppWorker, SETUP_K
 
 function* setupKeeperVaultRecoveryAppWorker({ payload }) {
   try {
-    const { appName, vaultShellInstances, subscription } = payload;
-    console.log({ appName, vaultShellInstances, subscription });
+    const { appName, subscription } = payload;
     const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-
-    const defaultWalletShell: WalletShell = {
-      id: getRandomBytes(12),
-      walletInstances: {},
-    };
 
     const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
     const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
@@ -143,11 +122,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       primaryMnemonic,
       primarySeed: primarySeed.toString('hex'),
       imageEncryptionKey,
-      walletShellInstances: {
-        shells: [defaultWalletShell.id],
-        activeShell: defaultWalletShell.id,
-      },
-      vaultShellInstances,
+      backup: {},
       subscription: {
         productId: subscription.productId,
         name: subscription.name,
@@ -157,15 +132,16 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       networkType: config.NETWORK_TYPE,
     };
     yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-    yield call(dbManager.createObject, RealmSchema.WalletShell, defaultWalletShell);
 
     // create default wallet
     const defaultWallet: NewWalletInfo = {
-      walletType: WalletType.CHECKING,
+      walletType: WalletType.DEFAULT,
       walletDetails: {
         name: 'Mobile Wallet',
         description: 'Single-sig bitcoin wallet',
-        transferPolicy: 5000,
+        transferPolicy: {
+          threshold: 5000,
+        },
       },
     };
     yield put(addNewWallets([defaultWallet]));

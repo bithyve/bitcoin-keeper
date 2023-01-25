@@ -1,99 +1,75 @@
-import { Alert, SafeAreaView, StyleSheet } from 'react-native';
-import { EntityKind, SignerType } from 'src/core/wallets/enums';
-import config, { APP_STAGE } from 'src/core/config';
-
+import { StyleSheet } from 'react-native';
+import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
-import NFC from 'src/core/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { NfcTech } from 'react-native-nfc-manager';
 import React from 'react';
-import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
-import { TapGestureHandler } from 'react-native-gesture-handler';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { getColdcardDetails } from 'src/hardware/coldcard';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { generateSignerFromMetaData } from 'src/hardware';
+import { captureError } from 'src/core/services/sentry';
+import ScreenWrapper from 'src/components/ScreenWrapper';
+import MockWrapper from '../Vault/MockWrapper';
+import HWError from 'src/hardware/HWErrorState';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function ColdCardReocvery() {
-  const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
-  const navigation = useNavigation();
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
-  const getColdCardDetails = async () => {
-    const { xpub, path: derivationPath, xfp } = await withNfcModal(getColdcardDetails);
-    return { xpub, derivationPath, xfp };
-  };
+  const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
+  const { showToast } = useToastMessage();
 
-  const verifyColdCard = async () => {
+  const addColdCard = async () => {
     try {
-      const coldcard = await getColdCardDetails();
-      const networkType = config.NETWORK_TYPE;
-      const network = WalletUtilities.getNetworkByType(networkType);
-      const xpub = WalletUtilities.generateXpubFromYpub(coldcard.xpub, network);
-      const sigingDeivceDetails: SigningDeviceRecovery = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      const ccDetails = await withNfcModal(getColdcardDetails);
+      const { xpub, derivationPath, xfp, forMultiSig } = ccDetails;
+      const coldcard = generateSignerFromMetaData({
         xpub,
-        type: SignerType.COLDCARD,
-      };
-      dispatch(setSigningDevices(sigingDeivceDetails));
-      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const getMockColdCardDetails = () => {
-    const networkType = config.NETWORK_TYPE;
-    const network = WalletUtilities.getNetworkByType(networkType);
-    const { xpub } = generateMockExtendedKeyForSigner(
-      EntityKind.VAULT,
-      SignerType.COLDCARD,
-      networkType
-    );
-    const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-    const cc: SigningDeviceRecovery = {
-      signerId,
-      type: SignerType.COLDCARD,
-      xpub,
-    };
-    return cc;
-  };
-
-  const addMockColdCard = React.useCallback(async () => {
-    try {
-      if (config.ENVIRONMENT === APP_STAGE.DEVELOPMENT) {
-        const mockColdCard: SigningDeviceRecovery = getMockColdCardDetails();
-        dispatch(setSigningDevices(mockColdCard));
-        navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+        derivationPath,
+        xfp,
+        isMultisig: forMultiSig,
+        signerType: SignerType.COLDCARD,
+        storageType: SignerStorage.COLD,
+      });
+      dispatch(setSigningDevices(coldcard));
+      CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
+    } catch (error) {
+      if (error instanceof HWError) {
+        showToast(error.message, <ToastErrorIcon />, 3000);
+      } else {
+        captureError(error);
       }
-    } catch (err) {
-      Alert.alert(err.toString());
     }
-  }, []);
+  };
 
+  const instructions =
+    'Multi Sig: Go to Settings > Multisig wallets > Export xPub on your Coldcard /n Single-Sig: Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
   return (
-    <SafeAreaView style={styles.container}>
-      <TapGestureHandler numberOfTaps={3} onActivated={addMockColdCard}>
+    <ScreenWrapper>
+      <MockWrapper signerType={SignerType.COLDCARD} isRecovery={true}>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
               title="Setting up Coldcard"
-              subtitle="Go to Settings > Multisig wallets > Export xPub on your Coldcard"
+              subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
             />
-            <Box style={{ padding: 30 }}>
-              <Buttons primaryText="Verify" primaryCallback={verifyColdCard} />
+            <Box style={styles.buttonContainer}>
+              <Buttons activeOpacity={0.7} primaryText="Proceed" primaryCallback={addColdCard} />
             </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} close={closeNfc} />
         </Box>
-      </TapGestureHandler>
-    </SafeAreaView>
+      </MockWrapper>
+    </ScreenWrapper>
   );
 }
 
@@ -105,7 +81,11 @@ const styles = StyleSheet.create({
   },
   header: {
     flex: 1,
-    padding: '5%',
+  },
+  buttonContainer: {
+    bottom: 0,
+    position: 'absolute',
+    right: 0,
   },
 });
 
