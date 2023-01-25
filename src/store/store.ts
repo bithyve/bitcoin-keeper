@@ -1,4 +1,4 @@
-import { persistReducer, persistStore } from 'redux-persist';
+import { persistReducer, createMigrate, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { combineReducers } from 'redux';
 import { configureStore } from '@reduxjs/toolkit';
@@ -16,6 +16,7 @@ import walletReducer from './reducers/wallets';
 import networkReducer from './reducers/network';
 import uaiReducer from './reducers/uai';
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
+import reduxPersistMigrations from './migrations';
 
 const appReducer = combineReducers({
   settings: settingsReducer,
@@ -46,7 +47,10 @@ const persistConfig = {
   key: 'root',
   storage: reduxStorage,
   blacklist: ['login', 'bhr', 'sendAndReceive'],
-  version: 1,
+  version: 1, // redux persist migration version(initiate to the lateste migration version once the migration state is written)
+  migrate: createMigrate(reduxPersistMigrations, {
+    debug: false,
+  }),
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

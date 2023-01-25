@@ -21,15 +21,10 @@ import config from 'src/core/config';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { WalletMap } from './WalletMap';
-import SigningDeviceChecklist from './SigningDeviceChecklist';
 import KeeperModal from 'src/components/KeeperModal';
-// asserts images and icons
 import SkipHealthCheckIcon from 'src/assets/images/skipHealthCheck.svg';
-import TapSigner from 'src/assets/images/TapsignerSetup.svg';
-import ColdCard from 'src/assets/images/ColdCardSetup.svg';
 import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
 import Keystone from 'src/assets/images/keystone_illustration.svg';
@@ -47,6 +42,8 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import SigningDeviceChecklist from './SigningDeviceChecklist';
+import { WalletMap } from './WalletMap';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -58,7 +55,7 @@ function SigningDeviceDetails({ route }) {
   const { healthcheck } = translations;
   const { tapsigner } = translations;
   const { coldcard } = translations;
-  const { signerId, vaultId } = route.params;
+  const { signerId = null, vaultId } = route.params;
   const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
   const [healthCheckViewTapSigner, setHealthCheckViewTapsigner] = useState(false);
   const [healthCheckViewColdCard, setHealthCheckViewColdCard] = useState(false);
@@ -73,8 +70,7 @@ function SigningDeviceDetails({ route }) {
   const activeVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const signer = activeVault.signers.filter((signer) => signer.signerId === signerId)[0];
-
+  const signer = activeVault.signers.filter((signer) => signer?.signerId === signerId)[0];
   const modalHandler = (callback) =>
     Platform.select({
       android: async () => {
@@ -113,7 +109,7 @@ function SigningDeviceDetails({ route }) {
           title: 'Coldcard',
           subTitle:
             'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip. MicroPython software design allows you to make changes',
-          assert: <ColdCard />,
+          assert: <ColdCardSetupImage />,
           description:
             '\u2022 It provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
           FAQ: 'https://coldcard.com/docs/faq',
@@ -123,7 +119,7 @@ function SigningDeviceDetails({ route }) {
           title: 'TAPSIGNER',
           subTitle:
             "TAPSIGNER's lower cost makes hardware wallet features and security available to a wider market around the world.",
-          assert: <TapSigner />,
+          assert: <TapsignerSetupImage />,
           description:
             '\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s).\n\u2022 The card form factor makes it easy to carry and easy to conceal.',
           FAQ: 'https://tapsigner.com/faq',
@@ -132,7 +128,7 @@ function SigningDeviceDetails({ route }) {
         return {
           title: 'LEDGER',
           subTitle:
-            "All Ledgers are powered by an industry-leading Secure Element chip, together with Ledger's proprietary OS that protects your crypto & NFTs from sophisticated hacks. Peace of mind is assured with every Ledger.",
+            'Ledger has industry-leading security to keep your Bitcoin secure at all times. Buy, sell, exchange, and grow your assets with our partners easily and securely. With Ledger, you can secure, store and manage your Bitcoin.',
           assert: <Ledger />,
           description: '',
           FAQ: 'https://support.ledger.com/hc/en-us/categories/4404369571601?support=true',
@@ -191,8 +187,8 @@ function SigningDeviceDetails({ route }) {
         const networkType = config.NETWORK_TYPE;
         const network = WalletUtilities.getNetworkByType(networkType);
         const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-        if (signerIdDerived === signer.signerId) {
-          dispatch(healthCheckSigner(vaultId, signer.signerId));
+        if (signerIdDerived === signer?.signerId) {
+          dispatch(healthCheckSigner(vaultId, signer?.signerId));
           setHealthCheckSuccess(true);
         } else {
           Alert.alert('verifivation failed');
@@ -209,9 +205,9 @@ function SigningDeviceDetails({ route }) {
       const network = WalletUtilities.getNetworkByType(networkType);
       xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
       const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-      if (signerIdDerived === signer.signerId) {
+      if (signerIdDerived === signer?.signerId) {
         console.log('verified');
-        dispatch(healthCheckSigner(vaultId, signer.signerId));
+        dispatch(healthCheckSigner(vaultId, signer?.signerId));
         setHealthCheckSuccess(true);
       } else {
         Alert.alert('verification failed');
@@ -235,7 +231,7 @@ function SigningDeviceDetails({ route }) {
   };
 
   const SkipHealthCheck = () => {
-    dispatch(healthCheckSigner(vaultId, signer.signerId));
+    dispatch(healthCheckSigner(vaultId, signer?.signerId));
     setHealthCheckSkipModal(false);
     navigation.goBack();
   };
@@ -389,7 +385,7 @@ function SigningDeviceDetails({ route }) {
   function SignerContent() {
     return (
       <Box>
-        <Center>{getSignerContent(signer.type).assert}</Center>
+        <Center>{getSignerContent(signer?.type).assert}</Center>
         <Text
           color="light.white"
           style={{
@@ -398,7 +394,7 @@ function SigningDeviceDetails({ route }) {
             marginTop: hp(25),
           }}
         >
-          {getSignerContent(signer.type).description}
+          {getSignerContent(signer?.type).description}
         </Text>
       </Box>
     );
@@ -407,7 +403,7 @@ function SigningDeviceDetails({ route }) {
     <ScreenWrapper>
       <HeaderTitle
         learnMore
-        learnMorePressed={() => setDetailModal(getSignerContent(signer.type).title)}
+        learnMorePressed={() => setDetailModal(getSignerContent(signer?.type).title)}
       />
       <Box
         style={{
@@ -426,18 +422,14 @@ function SigningDeviceDetails({ route }) {
             backgroundColor: '#725436',
           }}
         >
-          {WalletMap(signer.type, true).Icon}
+          {WalletMap(signer?.type, true).Icon}
         </Box>
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
             <Text fontSize={14} letterSpacing={1.15}>
-              {getSignerNameFromType(
-                signer.type,
-                signer.isMock,
-                signer.amfData && signer.amfData.xpub
-              )}
+              {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
             </Text>
-            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer.addedOn)
+            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer?.addedOn)
               .format('DD MMM YYYY, hh:mmA')
               .toLowerCase()}`}</Text>
           </Box>
@@ -483,7 +475,7 @@ function SigningDeviceDetails({ route }) {
             Icon={HealthCheck}
             title="Health Check"
             onPress={() => {
-              openHealthCheckModal(signer.type);
+              openHealthCheckModal(signer?.type);
             }}
           />
           <FooterItem
@@ -525,7 +517,7 @@ function SigningDeviceDetails({ route }) {
           close={closehealthCheckSkip}
           title={healthcheck.SkippingHealthCheck}
           subTitle="It is very important that you keep your signing devices secure and fairly accessible at all times."
-          textColor={'light.secondaryText'}
+          textColor="light.secondaryText"
           buttonText="Manual Confirm"
           buttonTextColor="light.white"
           cancelButtonText="Will Do Later"
@@ -565,11 +557,11 @@ function SigningDeviceDetails({ route }) {
         <KeeperModal
           visible={detailModal}
           close={() => setDetailModal(false)}
-          title={getSignerContent(signer.type).title}
-          subTitle={getSignerContent(signer.type).subTitle}
+          title={getSignerContent(signer?.type).title}
+          subTitle={getSignerContent(signer?.type).subTitle}
           modalBackground={['light.gradientStart', 'light.gradientEnd']}
           textColor="light.white"
-          learnMoreCallback={() => openLink(getSignerContent(signer.type).FAQ)}
+          learnMoreCallback={() => openLink(getSignerContent(signer?.type).FAQ)}
           Content={SignerContent}
           DarkCloseIcon
           learnMore

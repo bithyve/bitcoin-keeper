@@ -1,11 +1,11 @@
 /* eslint-disable consistent-return */
-import { NetworkType } from "src/core/wallets/enums";
-import { SATOSHIS_IN_BTC } from "src/common/constants/Bitcoin";
-import { AverageTxFeesByNetwork } from "../../wallets/interfaces";
-import { INotification } from "../interfaces";
-import RestClient from "../rest/RestClient";
-import { captureError } from "../sentry";
-import config from "../../config";
+import { NetworkType } from 'src/core/wallets/enums';
+import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
+import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
+import { INotification } from '../interfaces';
+import RestClient from '../rest/RestClient';
+import { captureError } from '../sentry';
+import config from '../../config';
 
 const { AUTH_ID, HEXA_ID, RELAY } = config;
 export default class Relay {
@@ -67,8 +67,8 @@ export default class Relay {
       }
       return res.data || res.json;
     } catch (err) {
-      console.log("err", err);
-      throw new Error("Failed to update FCM token");
+      console.log('err', err);
+      throw new Error('Failed to update FCM token');
     }
   };
 
@@ -108,8 +108,7 @@ export default class Relay {
     try {
       let res;
 
-      if (!receivers.length)
-        throw new Error("Failed to deliver notification: receivers missing");
+      if (!receivers.length) throw new Error('Failed to deliver notification: receivers missing');
 
       try {
         res = await RestClient.post(`${RELAY}sendNotifications`, {
@@ -128,7 +127,7 @@ export default class Relay {
         sent,
       };
     } catch (err) {
-      throw new Error("Failed to deliver notification");
+      throw new Error('Failed to deliver notification');
     }
   };
 
@@ -153,7 +152,7 @@ export default class Relay {
         averageTxFees,
       };
     } catch (err) {
-      throw new Error("Failed fetch fee and exchange rates");
+      throw new Error('Failed fetch fee and exchange rates');
     }
   };
 
@@ -184,7 +183,7 @@ export default class Relay {
         if (err.code) throw new Error(err.code);
       }
     } catch (err) {
-      throw new Error("Failed to deliver notification");
+      throw new Error('Failed to deliver notification');
     }
   };
 
@@ -237,7 +236,7 @@ export default class Relay {
         updated,
       };
     } catch (err) {
-      throw new Error("Failed to fetch GetBittr Details");
+      throw new Error('Failed to fetch GetBittr Details');
     }
   };
 
@@ -262,7 +261,7 @@ export default class Relay {
         appImage,
       };
     } catch (err) {
-      throw new Error("Failed to fetch App Image");
+      throw new Error('Failed to fetch App Image');
     }
   };
 
@@ -277,14 +276,11 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      let res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
-      res = res.data;
-      return {
-        status: res.status,
-      };
+      const { data: response } = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      return response;
     } catch (err) {
       captureError(err);
-      throw new Error("Failed to update App Image");
+      throw new Error('Failed to update App Image');
     }
   };
 
@@ -299,17 +295,11 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      let res;
-
-      res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
-
-      res = res.json || res.data;
-      return {
-        status: res.status,
-      };
+      const { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      return response;
     } catch (err) {
       captureError(err);
-      throw new Error("Failed to update Vault Image");
+      throw new Error('Failed to update App Image');
     }
   };
 
@@ -322,7 +312,19 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
-      throw new Error("Failed get App Image");
+      throw new Error('Failed get App Image');
+    }
+  };
+
+  public static vaultCheck = async (vaultId): Promise<any> => {
+    try {
+      const { data: response } = await RestClient.post(`${RELAY}vaultCheck`, {
+        vaultId,
+      });
+      return response;
+    } catch (err) {
+      captureError(err);
+      throw new Error('VaultCheckAPI Failed');
     }
   };
 
@@ -335,7 +337,7 @@ export default class Relay {
       return data;
     } catch (err) {
       captureError(err);
-      throw new Error("Failed get Vault Meta Data");
+      throw new Error('Failed get Vault Meta Data');
     }
   };
 
@@ -348,20 +350,7 @@ export default class Relay {
       return data.exsists;
     } catch (err) {
       captureError(err);
-      throw new Error("Failed get SignerId Info");
-    }
-  };
-
-  public static getVac = async (signerIdsHash): Promise<any> => {
-    try {
-      const res: any = await RestClient.post(`${RELAY}getVac`, {
-        signerIdsHash,
-      });
-      const data = res.data || res.json;
-      return data.encryptedVac;
-    } catch (err) {
-      captureError(err);
-      throw new Error("Failed get Vac");
+      throw new Error('Failed get SignerId Info');
     }
   };
 
@@ -373,7 +362,7 @@ export default class Relay {
     funded: any;
   }> => {
     if (network === NetworkType.MAINNET) {
-      throw new Error("Invalid network: failed to fund via testnet");
+      throw new Error('Invalid network: failed to fund via testnet');
     }
     const amount = 5000 / SATOSHIS_IN_BTC;
     try {

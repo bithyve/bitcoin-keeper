@@ -21,6 +21,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import useNfcModal from 'src/hooks/useNfcModal';
 
 function Card({ message, buttonText, buttonCallBack }) {
   return (
@@ -61,7 +62,7 @@ function Card({ message, buttonText, buttonCallBack }) {
 }
 
 function SignWithColdCard({ route }: { route }) {
-  const [nfcVisible, setNfcVisible] = useState(false);
+  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
   const Vault: Vault = useQuery(RealmSchema.Vault)
@@ -76,24 +77,22 @@ function SignWithColdCard({ route }: { route }) {
 
   const dispatch = useDispatch();
 
-  const receiveFromColdCard = async () => {
-    setNfcVisible(true);
-    if (!isMultisig) {
-      const { txn } = await receiveTxHexFromColdCard();
-      setNfcVisible(false);
-      dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: txn }));
-    } else {
-      const { psbt } = await receivePSBTFromColdCard();
-      setNfcVisible(false);
-      dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
-    }
-  };
-  const registerCC = async () => {
-    setNfcVisible(true);
-    await registerToColcard({ vault: Vault });
-    dispatch(updateSignerDetails(signer, 'registered', true));
-    setNfcVisible(false);
-  };
+  const receiveFromColdCard = async () =>
+    withNfcModal(async () => {
+      if (!isMultisig) {
+        const { txn } = await receiveTxHexFromColdCard();
+        dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: txn }));
+      } else {
+        const { psbt } = await receivePSBTFromColdCard();
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+      }
+    });
+
+  const registerCC = async () =>
+    withNfcModal(async () => {
+      await registerToColcard({ vault: Vault });
+      dispatch(updateSignerDetails(signer, 'registered', true));
+    });
   const { colorMode } = useColorMode();
   return (
     <ScreenWrapper>
@@ -186,7 +185,7 @@ function SignWithColdCard({ route }: { route }) {
           </Box>
         )}
       />
-      <NfcPrompt visible={nfcVisible} />
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
 }

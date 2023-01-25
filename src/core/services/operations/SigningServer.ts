@@ -67,6 +67,42 @@ export default class SigningServer {
     };
   };
 
+  static fetchSignerSetup = async (
+    appId: string,
+    verificationToken
+  ): Promise<{
+    valid: boolean;
+    xpub: string;
+    masterFingerprint: string;
+    derivationPath: string;
+    policy: SignerPolicy;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/fetchSignerSetup`, {
+        HEXA_ID,
+        appId,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { valid } = res.data;
+    if (!valid) throw new Error('Signer validation failed');
+
+    const { xpub, masterFingerprint, derivationPath, policy } = res.data;
+
+    return {
+      valid,
+      xpub,
+      masterFingerprint,
+      derivationPath,
+      policy,
+    };
+  };
+
   static updatePolicy = async (
     appId: string,
     updates: {

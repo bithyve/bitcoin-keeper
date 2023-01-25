@@ -11,7 +11,7 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { getSignerNameFromType } from 'src/hardware';
+import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
@@ -22,6 +22,7 @@ import { globalStyles } from 'src/common/globalStyles';
 import { regsiterWithLedger } from 'src/hardware/ledger';
 import useVault from 'src/hooks/useVault';
 import { captureError } from 'src/core/services/sentry';
+import useNfcModal from 'src/hooks/useNfcModal';
 import { WalletMap } from './WalletMap';
 import DescriptionModal from './components/EditDescriptionModal';
 import LedgerScanningModal from './components/LedgerScanningModal';
@@ -39,17 +40,11 @@ const gradientStyles = {
 function SignerAdvanceSettings({ route }: any) {
   const { signer }: { signer: VaultSigner } = route.params;
   const { showToast } = useToastMessage();
-  const signerName = getSignerNameFromType(
-    signer.type,
-    signer.isMock,
-    signer.amfData && signer.amfData.xpub
-  );
-  const [nfcModal, setNfcModal] = useState(false);
+  const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
+
   const [visible, setVisible] = useState(false);
   const [ledgerModal, setLedgerModal] = useState(false);
-
-  const openNfc = () => setNfcModal(true);
-  const closeNfc = () => setNfcModal(false);
+  const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
@@ -57,9 +52,7 @@ function SignerAdvanceSettings({ route }: any) {
 
   const registerColdCard = async () => {
     if (signer.type === SignerType.COLDCARD) {
-      openNfc();
-      await registerToColcard({ vault: activeVault });
-      closeNfc();
+      await withNfcModal(() => registerToColcard({ vault: activeVault }));
     }
   };
 
@@ -203,7 +196,7 @@ function SignerAdvanceSettings({ route }: any) {
           interactionText="Registering..."
         />
       )}
-      <NfcPrompt visible={nfcModal} />
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
         close={closeDescriptionModal}

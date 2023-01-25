@@ -1,13 +1,14 @@
 export default [
   {
-    language: 'English',
-    displayTitle: 'English',
-    iso: 'en',
-    flag: '🇺🇸',
-    country: 'United States',
-    country_code: 'us',
+    language: "English",
+    displayTitle: "English",
+    iso: "en",
+    flag: "🇺🇸",
+    country: "United States",
+    country_code: "us",
   },
-  {
+  /* {
+    {
     language: 'Spanish',
     displayTitle: 'Español',
     iso: 'es',
@@ -55,7 +56,7 @@ export default [
     country: 'India',
     country_code: 'in',
   },
-  /* {
+  
     language: 'Marathi',
     displayTitle: 'मराठी',
     iso: 'mr',
@@ -78,5 +79,4 @@ export default [
     country: 'India',
     country_code: 'bn',
   }, */
-]
-
+];

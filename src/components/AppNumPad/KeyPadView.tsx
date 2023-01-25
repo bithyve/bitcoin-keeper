@@ -53,6 +53,7 @@ const KeyPadView: React.FC<Props> = ({
       <TouchableOpacity
         onPress={() => onDeletePressed()}
         activeOpacity={1}
+        testID="btn_clear"
         style={styles.keyPadElementTouchable}
       >
         {ClearIcon}

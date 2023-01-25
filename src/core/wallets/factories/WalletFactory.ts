@@ -1,7 +1,8 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { EntityKind, NetworkType, VisibilityType, WalletType } from '../enums';
+import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
+  TransferPolicy,
   Wallet,
   WalletDerivationDetails,
   WalletPresentationData,
@@ -15,7 +16,6 @@ import WalletUtilities from '../operations/utils';
 export const generateWallet = async ({
   type,
   instanceNum,
-  walletShellId,
   walletName,
   walletDescription,
   primaryMnemonic,
@@ -26,14 +26,13 @@ export const generateWallet = async ({
 }: {
   type: WalletType;
   instanceNum: number;
-  walletShellId: string;
   walletName: string;
   walletDescription: string;
   primaryMnemonic?: string;
   importedMnemonic?: string;
   importedXpub?: string;
   networkType: NetworkType;
-  transferPolicy: number;
+  transferPolicy: TransferPolicy;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
   let xpriv: string;
@@ -79,10 +78,12 @@ export const generateWallet = async ({
     };
   }
 
+  const defaultShell = 1;
   const presentationData: WalletPresentationData = {
     name: walletName,
     description: walletDescription,
     visibility: VisibilityType.DEFAULT,
+    shell: defaultShell,
   };
 
   const specs: WalletSpecs = {
@@ -106,12 +107,10 @@ export const generateWallet = async ({
     txIdCache: {},
     transactionMapping: [],
     transactionNote: {},
-    transferPolicy,
   };
 
   const wallet: Wallet = {
     id,
-    walletShellId,
     entityKind: EntityKind.WALLET,
     type,
     networkType,
@@ -119,6 +118,8 @@ export const generateWallet = async ({
     derivationDetails,
     presentationData,
     specs,
+    scriptType: ScriptTypes.P2WPKH,
+    transferPolicy,
   };
   return wallet;
 };

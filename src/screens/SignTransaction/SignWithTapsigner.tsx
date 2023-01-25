@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
-import { StyleSheet, TextInput } from 'react-native';
+import { Platform, StyleSheet, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 import Buttons from 'src/components/Buttons';
@@ -58,10 +58,15 @@ function SignWithTapsigner() {
         message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
       } else if (err.toString().includes('205')) {
         message = 'Something went wrong, please try again!';
+      } else if (err.toString() === 'Error') {
+        // ignore if nfc modal is dismissed
+        return;
       } else {
         message = err.toString();
       }
-      NFC.showiOSMessage(message);
+      if (Platform.OS === 'ios') {
+        NFC.showiOSMessage(message);
+      }
       showToast(message, null, 2000, true);
       setNfcVisible(false);
       card.endNfcSession();
@@ -96,7 +101,7 @@ function SignWithTapsigner() {
           keyColor="#041513"
           onDeletePressed={onDeletePressed}
         />
-        <NfcPrompt visible={nfcVisible} />
+        <NfcPrompt visible={nfcVisible} close={() => {}} />
       </Box>
     </ScreenWrapper>
   );

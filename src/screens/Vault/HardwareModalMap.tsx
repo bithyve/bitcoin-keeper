@@ -1,13 +1,14 @@
 /* eslint-disable no-case-declarations */
 import React, { useCallback, useContext, useState } from 'react';
 import * as bip39 from 'bip39';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, Center, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -31,7 +32,6 @@ import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
@@ -50,7 +50,10 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import { crossInteractionHandler } from 'src/common/utilities';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import * as SecureStore from '../../storage/secure-store';
+import { checkSigningDevice } from './AddSigningDevice';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -74,10 +77,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
       return {
         Illustration: <ColdCardSetupImage />,
-        Instructions: [
-          ccInstructions,
-          `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              ccInstructions,
+              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+            ]
+          : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
@@ -87,10 +92,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
-        Instructions: [
-          jadeInstructions,
-          `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              jadeInstructions,
+              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+            ]
+          : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
       };
@@ -131,10 +138,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         : `Make sure the BTC-only firmware is installed and export the xPub by going to the extended menu (three dots) in the Generic Wallet section > Export Wallet`;
       return {
         Illustration: <KeystoneSetupImage />,
-        Instructions: [
-          keystoneInstructions,
-          `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              keystoneInstructions,
+              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+            ]
+          : [keystoneInstructions],
         title: 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
@@ -144,10 +153,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
-        Instructions: [
-          passportInstructions,
-          `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              passportInstructions,
+              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+            ]
+          : [passportInstructions],
         title: 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
       };
@@ -167,10 +178,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
-        Instructions: [
-          seedSignerInstructions,
-          `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
-        ],
+        Instructions: isTestnet()
+          ? [
+              seedSignerInstructions,
+              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
+            ]
+          : [seedSignerInstructions],
         title: 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
       };
@@ -235,6 +248,7 @@ const setupPassport = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return passport;
   }
@@ -250,6 +264,7 @@ const setupSeedSigner = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return seedSigner;
   }
@@ -265,6 +280,7 @@ const setupKeystone = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return keystone;
   }
@@ -280,6 +296,7 @@ const setupJade = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return jade;
   }
@@ -287,75 +304,69 @@ const setupJade = (qrData, isMultisig) => {
 };
 
 const setupKeeperSigner = (qrData) => {
-  const { mfp, xpub, derivationPath } = JSON.parse(qrData);
-  const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-
-  const ksd: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.KEEPER,
-    signerName: 'Keeper Signing Device',
-    storageType: SignerStorage.WARM,
-    xpub,
-    xpubInfo: {
+  try {
+    const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+    const ksd = generateSignerFromMetaData({
+      xpub,
       derivationPath,
       xfp: mfp,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
-
-  return ksd;
+      signerType: SignerType.KEEPER,
+      storageType: SignerStorage.WARM,
+      isMultisig: true,
+    });
+    return ksd;
+  } catch (err) {
+    const message = crossInteractionHandler(err);
+    throw new Error(message);
+  }
 };
 
 const setupMobileKey = async ({ primaryMnemonic }) => {
   const networkType = config.NETWORK_TYPE;
-  const network = WalletUtilities.getNetworkByType(networkType);
   const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
     primaryMnemonic,
     networkType
   );
-
-  const mobileKey: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.MOBILE_KEY,
-    signerName: 'Mobile Key',
-    storageType: SignerStorage.WARM,
+  const mobileKey = generateSignerFromMetaData({
     xpub,
+    derivationPath,
+    xfp: masterFingerprint,
+    signerType: SignerType.MOBILE_KEY,
+    storageType: SignerStorage.WARM,
+    isMultisig: true,
     xpriv,
-    xpubInfo: {
-      derivationPath,
-      xfp: masterFingerprint,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
+  });
   return mobileKey;
 };
 
 const setupSeedWordsBasedKey = (mnemonic) => {
   const networkType = config.NETWORK_TYPE;
-  const network = WalletUtilities.getNetworkByType(networkType);
   const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
-
-  const softSigner: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.SEED_WORDS,
-    storageType: SignerStorage.WARM,
-    signerName: 'Seed Words',
+  const softSigner = generateSignerFromMetaData({
     xpub,
-    xpubInfo: {
-      derivationPath,
-      xfp: masterFingerprint,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
+    derivationPath,
+    xfp: masterFingerprint,
+    signerType: SignerType.SEED_WORDS,
+    storageType: SignerStorage.WARM,
+    isMultisig: true,
+  });
 
   return softSigner;
 };
 
-function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
+function PasswordEnter({
+  primaryMnemonic,
+  navigation,
+  dispatch,
+  pinHash,
+}: {
+  primaryMnemonic;
+  navigation;
+  dispatch;
+  pinHash;
+}) {
   const [password, setPassword] = useState('');
+  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -397,7 +408,7 @@ function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
                   dispatch(addSigningDevice(mobileKey));
                   navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
                   showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
-                } else Alert.alert('Incorrect password. Try again!');
+                } else showToast('Incorrect password. Try again!', <ToastErrorIcon />);
               }}
               value="Confirm"
             />
@@ -459,9 +470,11 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Setting up ${type}`,
+          title: `Setting up ${getSignerNameFromType(type)}`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: onQRScan,
+          setup: true,
+          type,
         },
       })
     );
@@ -487,10 +500,10 @@ function HardwareModalMap({
     );
   };
 
-  const onQRScan = (qrData, resetQR) => {
+  const onQRScan = async (qrData, resetQR) => {
     let hw: VaultSigner;
     try {
-      switch (type as SignerType) {
+      switch (type) {
         case SignerType.PASSPORT:
           hw = setupPassport(qrData, isMultisig);
           break;
@@ -512,13 +525,19 @@ function HardwareModalMap({
       dispatch(addSigningDevice(hw));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
+      const exsists = await checkSigningDevice(hw.signerId);
+      if (exsists)
+        showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, null, 3000, true);
+        showToast(error.message, <ToastErrorIcon />, 3000);
         resetQR();
       } else {
         captureError(error);
-        Alert.alert(`Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`);
+        showToast(
+          `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
+          <ToastErrorIcon />
+        );
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       }
     }
@@ -541,7 +560,7 @@ function HardwareModalMap({
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
               showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
             } else {
-              Alert.alert('Incorrect password. Try again!');
+              showToast('Incorrect password. Try again!', <ToastErrorIcon />);
             }
           }
         }, 200);

@@ -17,12 +17,14 @@ function SplashScreen({ navigation }) {
 
   const navigateToApp = async () => {
     const hasCreds = await SecureStore.hasPin();
-    Instabug.start(config.INSTABUG_TOKEN, [Instabug.invocationEvent.shake]);
-    BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
-    BugReporting.setInvocationEvents([Instabug.invocationEvent.shake]);
-    BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
-    BugReporting.setShakingThresholdForiPhone(1.0);
-    Instabug.setPrimaryColor('rgb(7, 62, 57)');
+    if (!__DEV__) {
+      Instabug.start(config.INSTABUG_TOKEN, [Instabug.invocationEvent.shake]);
+      BugReporting.setOptions([BugReporting.option.emailFieldHidden]);
+      BugReporting.setInvocationEvents([Instabug.invocationEvent.shake]);
+      BugReporting.setReportTypes([BugReporting.reportType.bug, BugReporting.reportType.feedback]);
+      BugReporting.setShakingThresholdForiPhone(1.0);
+      Instabug.setPrimaryColor('rgb(7, 62, 57)');
+    }
     if (hasCreds) {
       navigation.replace('Login', { relogin: false });
     } else {

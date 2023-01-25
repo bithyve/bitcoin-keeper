@@ -72,12 +72,17 @@ export default class NFC {
         return records;
       }
     } catch (error) {
-      captureError(error);
-      if (Platform.OS === 'ios') {
-        await NfcManager.setAlertMessageIOS('Something went wrong!');
+      if (error.toString() === 'Error') {
+        // ignore when nfc is dismissed
+        throw error;
+      } else {
+        captureError(error);
+        if (Platform.OS === 'ios') {
+          await NfcManager.setAlertMessageIOS('Something went wrong!');
+        }
+        await NfcManager.cancelTechnologyRequest();
+        throw error;
       }
-      await NfcManager.cancelTechnologyRequest();
-      throw error;
     }
   };
 
@@ -109,4 +114,6 @@ export default class NFC {
   public static isNFCSupported = async () => NfcManager.isSupported();
 
   public static showiOSMessage = async (message: string) => NfcManager.setAlertMessageIOS(message);
+
+  public static cancelRequest = async () => NfcManager.cancelTechnologyRequest();
 }
