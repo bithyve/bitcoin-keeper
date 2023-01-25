@@ -20,9 +20,6 @@ function Buttons({
 }) {
   const [pressed, setPressed] = useState(primaryDisable);
   const getPrimaryButton = () => {
-    // if (primaryLoading) {
-    //   return <ActivityIndicator style={styles.createBtn} />;
-    // }
     return (
       <TouchableOpacity
         onPress={() => {

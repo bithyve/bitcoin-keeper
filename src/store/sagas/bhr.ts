@@ -2,7 +2,7 @@
 import * as bip39 from "bip39";
 
 import { Wallet } from "src/core/wallets/interfaces/wallet";
-import { call, put, select } from "redux-saga/effects";
+import { call, put } from "redux-saga/effects";
 import config, { APP_STAGE } from "src/core/config";
 import {
   decrypt,
@@ -18,7 +18,7 @@ import { KeeperApp } from "src/common/data/models/interfaces/KeeperApp";
 import { Platform } from "react-native";
 import { RealmSchema } from "src/storage/realm/enum";
 import Relay from "src/core/services/operations/Relay";
-import { Vault, VaultSigner } from "src/core/wallets/interfaces/vault";
+import { Vault } from "src/core/wallets/interfaces/vault";
 import WalletUtilities from "src/core/wallets/operations/utils";
 import { captureError } from "src/core/services/sentry";
 import crypto from "crypto";
@@ -27,7 +27,6 @@ import moment from "moment";
 import { translations } from "src/common/content/LocContext";
 import { refreshWallets, updateSignerDetails } from "../sagaActions/wallets";
 import { createWatcher } from "../utilities";
-import { RootState } from "../store";
 import {
   appImagerecoveryRetry,
   setAppImageError,
