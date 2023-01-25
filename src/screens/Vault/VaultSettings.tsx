@@ -46,37 +46,33 @@ const DescritporsModalContent = ({ descriptorString }) => {
   };
 
   return (
-    <View width={'100%'}>
+    <Box style={styles.moadalContainer}>
       <TouchableOpacity
         onPress={async () => {
           await onShare();
         }}
       >
         <Box style={styles.inputWrapper} backgroundColor="light.primaryBackground">
-          <Text width="100%" padding={10} noOfLines={4}>
-            {descriptorString}
-          </Text>
+          <Text noOfLines={4}>{descriptorString}</Text>
         </Box>
       </TouchableOpacity>
       <Box style={styles.modalNoteWrapper}>
         <Note subtitle="Save the file with .bsms extension to import it in other cordinating apps" />
       </Box>
-      <Box style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={async () => {
-            await onShare();
-          }}
-        >
-          <Box>
-            <IconShare />
-          </Box>
-          <Text color="light.primaryText" fontSize={12} letterSpacing={0.84} marginY={2.5}>
-            Share
-          </Text>
-        </TouchableOpacity>
-      </Box>
-    </View>
+      <TouchableOpacity
+        onPress={async () => {
+          await onShare();
+        }}
+        style={styles.buttonContainer}
+      >
+        <Box>
+          <IconShare />
+        </Box>
+        <Text color="light.primaryText" style={styles.shareText}>
+          Share
+        </Text>
+      </TouchableOpacity>
+    </Box>
   );
 };
 
@@ -231,12 +227,17 @@ const styles = ScaledSheet.create({
     padding: '20@s',
     position: 'relative',
   },
+  moadalContainer: {
+    flex: 1,
+  },
   inputWrapper: {
     borderRadius: 10,
     flexDirection: 'row',
-    width: '100%',
+    height: 150,
+    maxWidth: '100%',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    padding: 15,
   },
   IconText: {
     justifyContent: 'center',
@@ -247,9 +248,13 @@ const styles = ScaledSheet.create({
     marginTop: 10,
     paddingTop: 20,
     borderTopWidth: 0.5,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
     alignItems: 'center',
+  },
+  shareText: {
+    fontSize: 12,
+    letterSpacing: 0.84,
+    marginVertical: 2.5,
+    paddingLeft: 3,
   },
   vaultCardWrapper: {
     borderBottomWidth: 0.2,
