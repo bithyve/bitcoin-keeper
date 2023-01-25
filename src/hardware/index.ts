@@ -40,12 +40,9 @@ export const generateSignerFromMetaData = ({
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
-  xpubDetails = xpubDetails[XpubTypes.AMF]
+  xpubDetails = Object.keys(xpubDetails).length
     ? xpubDetails
-    : {
-        [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath },
-        ...xpubDetails,
-      };
+    : { [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath } };
   const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
   const signer: VaultSigner = {
     signerId,
@@ -131,11 +128,9 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   return line;
 };
 
-const PATH_INSENSITIVE_SIGNERS = [SignerType.TAPSIGNER];
-
 export const getSignerSigTypeInfo = (signer: VaultSigner) => {
   const purpose = WalletUtilities.getSignerPurposeFromPath(signer.derivationPath);
-  if (PATH_INSENSITIVE_SIGNERS.includes(signer.type) || signer.isMock) {
+  if (signer.isMock) {
     return { isSingleSig: true, isMultiSig: true, purpose };
   }
   if (purpose && DerivationPurpose.BIP48.toString() === purpose) {

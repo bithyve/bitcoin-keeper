@@ -1,8 +1,9 @@
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { XpubTypes } from 'src/core/wallets/enums';
 import { getWalletConfig } from '..';
 import HWError from '../HWErrorState';
 
@@ -12,30 +13,23 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   await NFC.send(NfcTech.Ndef, enc);
 };
 
-export const extractColdCardExport = (data, rtdName) => {
+export const getColdcardDetails = async (isMultisig: boolean) => {
   try {
-    const xpub = rtdName === 'URI' || rtdName === 'TEXT' ? data : data.p2wsh;
-    const derivationPath = data?.p2wsh_deriv ?? '';
-    const xfp = data?.xfp ?? '';
-    return { xpub, derivationPath, xfp, forMultiSig: true, forSingleSig: false };
+    const { data } = (await NFC.read(NfcTech.NfcV))[0];
+    const xpubDetails: XpubDetailsType = {};
+    const { bip84, bip48_2: bip48 } = data;
+    const { deriv: singleSigPath } = bip84;
+    const { xpub: singleSigXpub } = bip84;
+    const { deriv: multiSigPath } = bip48;
+    const { xpub: multiSigXpub } = bip48;
+    xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+    xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+    const xpub = isMultisig ? multiSigXpub : singleSigXpub;
+    const derivationPath = isMultisig ? multiSigPath : singleSigPath;
+    return { xpub, derivationPath, xfp: data.xfp, xpubDetails };
   } catch (_) {
-    console.log('Not exported for multisig!');
-  }
-
-  try {
-    const { bip84 } = data;
-    const { deriv } = bip84;
-    const { xpub } = bip84;
-    return { xpub, derivationPath: deriv, xfp: data.xfp, forMultiSig: false, forSingleSig: true };
-  } catch (_) {
-    console.log('Not exported for singlesig!');
     throw new HWError(HWErrorType.INCORRECT_HW);
   }
-};
-
-export const getColdcardDetails = async () => {
-  const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-  return extractColdCardExport(data, rtdName);
 };
 
 export const signWithColdCard = async (message) => {

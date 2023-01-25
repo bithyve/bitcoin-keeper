@@ -28,7 +28,10 @@ function AddLedger() {
 
   const addLedger = async (transport) => {
     try {
-      const { xpub, xfp, derivationPath } = await getLedgerDetails(transport, isMultisig);
+      const { xpub, xfp, derivationPath, xpubDetails } = await getLedgerDetails(
+        transport,
+        isMultisig
+      );
       const ledger: VaultSigner = generateSignerFromMetaData({
         xpub,
         xfp,
@@ -36,6 +39,7 @@ function AddLedger() {
         storageType: SignerStorage.COLD,
         signerType: SignerType.LEDGER,
         isMultisig,
+        xpubDetails,
       });
       dispatch(addSigningDevice(ledger));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
