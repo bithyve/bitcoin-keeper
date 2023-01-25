@@ -140,7 +140,7 @@ function EnterSeedScreen({ route }) {
   const isSeedFilled = (index: number) => {
     for (let i = 0; i < index; i++) {
       if (seedData[i].invalid) {
-        return true;
+        return false;
       }
     }
     return true;
