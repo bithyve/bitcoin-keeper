@@ -97,6 +97,7 @@ function EnterSeedScreen() {
   const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [btnDisable, setBtnDisable] = useState(false);
 
   const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
   const closeInvalidSeedsModal = () => {
@@ -158,6 +159,7 @@ function EnterSeedScreen() {
   const onPressNext = async () => {
     if (isSeedFilled(6)) {
       if (isSeedFilled(12)) {
+        setBtnDisable(true);
         const seedWord = getSeedWord();
         dispatch(getAppImage(seedWord));
       } else {
@@ -308,6 +310,7 @@ function EnterSeedScreen() {
               primaryCallback={onPressNext}
               primaryText="Next"
               primaryLoading={recoveryLoading}
+              touchDisable={btnDisable}
             />
           </View>
         </View>

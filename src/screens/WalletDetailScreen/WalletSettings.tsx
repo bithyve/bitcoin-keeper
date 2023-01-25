@@ -34,7 +34,6 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
 type Props = {
   title: string;
@@ -71,7 +70,7 @@ function WalletSettings({ route }) {
 
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
-  const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
+  const { relayWalletUpdateLoading } = useAppSelector((state) => state.bhr);
   const walletRoute: Wallet = route?.params?.wallet;
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
@@ -111,13 +110,6 @@ function WalletSettings({ route }) {
   useEffect(() => {
     setTransferPolicyVisible(false);
   }, [relayWalletUpdateLoading]);
-
-  useEffect(() => {
-    if (relayWalletUpdate) {
-      showToast('Transfer Policy Changed', <TickIcon />);
-      dispatch(resetRealyWalletState());
-    }
-  }, [relayWalletUpdate]);
 
   useEffect(() => {
     setLoadingContent({

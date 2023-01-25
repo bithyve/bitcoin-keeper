@@ -88,6 +88,7 @@ function ReceiveScreen({ route }: { route }) {
                   setModalVisible(false);
                   // navigtaion.navigate('Receive', { amount, wallet });
                 }}
+                touchDisable={true}
               />
             </View>
           </View>

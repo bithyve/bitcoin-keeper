@@ -177,6 +177,7 @@ function SendConfirmation({ route }) {
           primaryText="Transfer Now"
           primaryCallback={() => onTransferNow()}
           paddingHorizontal={wp(20)}
+          touchDisable={true}
         />
       </>
     );
@@ -683,6 +684,7 @@ function SendConfirmation({ route }) {
             navigation.navigate('NewHome');
           }}
           primaryCallback={onProceed}
+          touchDisable={true}
         />
       </Box>
       {/* Indicator */}

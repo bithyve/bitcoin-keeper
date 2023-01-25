@@ -119,23 +119,30 @@ function AddSendAmount({ route }) {
         }}
       />
 
-      <Box style={{
-        paddingHorizontal: 10
-      }}>
-        {error && <Text
-          color='light.indicator'
-          style={{
-            fontSize: 10,
-            letterSpacing: 0.1,
-            fontStyle: 'italic',
-            textAlign: 'right',
-            marginRight: 10
-          }}>
-          Amount entered is more than available to spend
-        </Text>}
-        <Box backgroundColor="light.primaryBackground"
+      <Box
+        style={{
+          paddingHorizontal: 10,
+        }}
+      >
+        {error && (
+          <Text
+            color="light.indicator"
+            style={{
+              fontSize: 10,
+              letterSpacing: 0.1,
+              fontStyle: 'italic',
+              textAlign: 'right',
+              marginRight: 10,
+            }}
+          >
+            Amount entered is more than available to spend
+          </Text>
+        )}
+        <Box
+          backgroundColor="light.primaryBackground"
           borderColor={error ? 'light.indicator' : 'transparent'}
-          style={styles.inputWrapper}>
+          style={styles.inputWrapper}
+        >
           <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
             <Box marginRight={2}>
               <BitcoinInput />
@@ -170,7 +177,7 @@ function AddSendAmount({ route }) {
                   calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet: sender })
                 );
             }}
-            backgroundColor='light.accent'
+            backgroundColor="light.accent"
             style={styles.sendMaxWrapper}
           >
             <Text color="light.sendMax" style={styles.sendMaxText}>
@@ -192,6 +199,7 @@ function AddSendAmount({ route }) {
               primaryText="Send"
               primaryDisable={Boolean(!amount)}
               primaryCallback={executeSendPhaseOne}
+              touchDisable={true}
             />
           </Box>
         </Box>

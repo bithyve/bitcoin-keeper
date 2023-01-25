@@ -16,6 +16,7 @@ function Buttons({
   primaryLoading = false,
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
+  touchDisable = false,
 }) {
   const [pressed, setPressed] = useState(primaryDisable);
   const getPrimaryButton = () => {
@@ -28,12 +29,15 @@ function Buttons({
           primaryCallback();
           setPressed(true);
         }}
-        disabled={pressed}
+        disabled={touchDisable && pressed}
         activeOpacity={activeOpacity}
       >
         <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
           <Box
-            style={[styles.createBtn, { opacity: pressed ? 0.5 : 1, paddingHorizontal }]}
+            style={[
+              styles.createBtn,
+              { opacity: touchDisable && pressed ? 0.5 : 1, paddingHorizontal },
+            ]}
             backgroundColor={{
               linearGradient: {
                 colors: ['light.gradientStart', 'light.gradientEnd'],

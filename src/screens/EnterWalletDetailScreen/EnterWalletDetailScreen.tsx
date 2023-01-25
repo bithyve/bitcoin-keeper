@@ -122,6 +122,7 @@ function EnterWalletDetailScreen({ route }) {
             primaryText={common.create}
             primaryCallback={createNewWallet}
             primaryDisable={!walletName || !walletDescription}
+            touchDisable={true}
           />
         </View>
       </View>

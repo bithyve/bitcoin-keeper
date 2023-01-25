@@ -181,6 +181,7 @@ function VaultRecovery() {
               primaryText="Recover Vault"
               primaryDisable={disable}
               primaryCallback={startRecovery}
+              touchDisable={true}
             />
           </Box>
         )}
