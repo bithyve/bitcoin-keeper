@@ -29,19 +29,18 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/common/utilities';
 import config from 'src/core/config';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/core/services/sentry';
+import { generateSignerFromMetaData } from 'src/hardware';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
   const isSoftKeyRecovery = route?.params?.isSoftKeyRecovery;
-
+  const type = route?.params?.type;
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -141,7 +140,7 @@ function EnterSeedScreen({ route }) {
   const isSeedFilled = (index: number) => {
     for (let i = 0; i < index; i++) {
       if (seedData[i].invalid) {
-        return false;
+        return true;
       }
     }
     return true;
@@ -169,27 +168,22 @@ function EnterSeedScreen({ route }) {
   };
 
   const setupSeedWordsBasedKey = (mnemonic) => {
+    console.log(mnemonic);
     try {
       const networkType = config.NETWORK_TYPE;
-      const network = WalletUtilities.getNetworkByType(networkType);
       const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
         mnemonic,
         networkType
       );
-      const softSigner: VaultSigner = {
-        signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-        type: SignerType.SEED_WORDS,
-        storageType: SignerStorage.WARM,
-        signerName: 'Seed Words',
+      const softSigner = generateSignerFromMetaData({
         xpub,
-        xpubInfo: {
-          derivationPath,
-          xfp: masterFingerprint,
-        },
-        registered: false,
-        lastHealthCheck: new Date(),
-        addedOn: new Date(),
-      };
+        derivationPath,
+        xfp: masterFingerprint,
+        signerType: SignerType.SEED_WORDS,
+        storageType: SignerStorage.WARM,
+        isMultisig: true,
+      });
+      console.log();
       dispatch(setSigningDevices(softSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
@@ -203,7 +197,13 @@ function EnterSeedScreen({ route }) {
     if (isSeedFilled(6)) {
       if (isSeedFilled(12)) {
         const seedWord = getSeedWord();
-        setupSeedWordsBasedKey(seedWord);
+        if (type === SignerType.SEED_WORDS) {
+          setupSeedWordsBasedKey(seedWord);
+        } else if (type === SignerType.MOBILE_KEY) {
+          Alert.alert('Warning', 'Entire app will be restored', [
+            { text: 'OK', onPress: () => dispatch(getAppImage(seedWord)) },
+          ]);
+        }
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
       }
