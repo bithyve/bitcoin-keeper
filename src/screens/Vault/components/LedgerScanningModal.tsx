@@ -57,7 +57,7 @@ function LedgerContent({
         ))}
         <Box>
           <Text color="light.greenText" light style={styles.instruct}>
-            Please open on the BTC app before connecting to the deivce
+            Please open on the BTC app before connecting to the device
           </Text>
         </Box>
       </Box>
