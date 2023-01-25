@@ -10,7 +10,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
-import { SigningDeviceRecovery } from 'src/common/data/enums/BHR';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -596,7 +595,7 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.PASSPORT}
           close={close}
-          title="Setting up Passport (Batch 2)"
+          title="Verify Passport (Batch 2)"
           subTitle="Keep your Foundation Passport (Batch 2) ready before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -608,7 +607,7 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.SEEDSIGNER}
           close={close}
-          title="Setting up SeedSigner"
+          title="Verify SeedSigner"
           subTitle="Keep your SeedSigner ready and powered before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -620,7 +619,7 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.KEYSTONE}
           close={close}
-          title="Setting up Keystone"
+          title="Verify  up Keystone"
           subTitle="Keep your Keystone ready before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -632,7 +631,7 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.JADE}
           close={close}
-          title="Setting up Blockstream Jade"
+          title="Verify  up Blockstream Jade"
           subTitle="Keep your Jade ready and unlocked before proceeding"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
@@ -645,20 +644,19 @@ function SignersList() {
         <KeeperModal
           visible={visible && type === SignerType.KEEPER}
           close={close}
-          title="Setting up Mobile Keeper"
-          subTitle="Keep your Jade ready and unlocked before proceeding"
+          title="Verify another KSD"
+          subTitle="Recover using KSD"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={navigateToAddQrBasedSigner}
           textColor="light.primaryText"
-          Content={JadeSetupContent}
         />
         <KeeperModal
           visible={visible && type === SignerType.SEED_WORDS}
           close={close}
-          title="Setting up Mobile Keeper"
-          subTitle="Keep your Jade ready and unlocked before proceeding"
+          title="Recover through Soft Key"
+          subTitle="Reocver through a stored soft key"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
           buttonTextColor="light.white"
@@ -668,13 +666,12 @@ function SignersList() {
             close();
           }}
           textColor="light.primaryText"
-          Content={JadeSetupContent}
         />
         <KeeperModal
           visible={visible && type === SignerType.MOBILE_KEY}
           close={close}
-          title="Setting up Mobile Key"
-          subTitle="Keep your Jade ready and unlocked before proceeding"
+          title="Recover using Mobile Key (Seed)"
+          subTitle="Recover entire app using Seed"
           subTitleColor="light.secondaryText"
           buttonText="Continue"
           buttonTextColor="light.white"
@@ -684,7 +681,6 @@ function SignersList() {
             close();
           }}
           textColor="light.primaryText"
-          Content={JadeSetupContent}
         />
         <KeeperModal
           visible={visible && type === SignerType.POLICY_SERVER}

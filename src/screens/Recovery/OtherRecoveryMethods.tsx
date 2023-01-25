@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -16,11 +16,6 @@ const OtherRecoveryMethods = () => {
       />
       <Box>
         <Tile
-          title={'Vault Configuration File'}
-          subTitle={'Use this method if you have the vault configuration file.'}
-          onPress={() => {}}
-        />
-        <Tile
           title={'All Signing Devices'}
           subTitle={
             'If you have all the signing devices that were initially used to create the Vault'
@@ -30,9 +25,19 @@ const OtherRecoveryMethods = () => {
           }}
         />
         <Tile
-          title={'Signing Device with Vault details'}
+          title={'Vault Configuration File (Coming Soon!)'}
+          subTitle={'Use this method if you have the vault configuration file.'}
+          onPress={() => {
+            Alert.alert('Coming Soon!');
+          }}
+        />
+
+        <Tile
+          title={'Signing Device with Vault details (Coming Soon!)'}
           subTitle={'These are the signing devices where you may have registered the Vault'}
-          onPress={() => {}}
+          onPress={() => {
+            Alert.alert('Coming Soon!');
+          }}
         />
       </Box>
     </ScreenWrapper>
