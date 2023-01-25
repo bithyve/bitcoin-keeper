@@ -94,9 +94,25 @@ const getCollection = (schema: RealmSchema) => {
   return objects.toJSON();
 };
 
+/**
+ * generic :: deletes an object corresponding to provided schema and the supplied id
+ * @param  {RealmSchema} schema
+ */
+const deleteObjectById = (schema: RealmSchema, id: string) => {
+  try {
+    const object = getObjectById(schema, id);
+    realm.delete(object);
+    return true;
+  } catch (err) {
+    console.error({ err });
+    return false;
+  }
+};
+
 export default {
   initializeRealm,
   deleteRealm,
+  deleteObjectById,
   createObject,
   getObjectByIndex,
   getObjectById,

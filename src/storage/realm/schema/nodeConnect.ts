@@ -3,6 +3,12 @@ import { RealmSchema } from '../enum';
 
 export const NodeConnectSchema: ObjectSchema = {
   name: RealmSchema.NodeConnect,
-  embedded: true,
-  properties: {},
+  properties: {
+    id: 'int',
+    host: 'string',
+    port: 'string',
+    useKeeperNode: 'bool',
+    isConnected: 'bool',
+    useSSL: 'bool'
+  },
 };
