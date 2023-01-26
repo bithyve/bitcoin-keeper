@@ -8,6 +8,8 @@ import useVault from 'src/hooks/useVault';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import idx from 'idx';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/core/config';
 
 const hasPlanChanged = (vault: Vault, subscriptionScheme): VaultMigrationType => {
   if (vault) {
@@ -76,10 +78,14 @@ const updateSignerForScheme = (signer: VaultSigner, subscriptionScheme) => {
   const shouldSwitchXpub =
     completeSigner && signer.xpub !== signer.xpubDetails[xPubTypeToSwitch].xpub;
   if (shouldSwitchXpub) {
+    const switchedXpub = signer.xpubDetails[xPubTypeToSwitch].xpub;
+    const switchedDerivation = signer.xpubDetails[xPubTypeToSwitch].derivationPath;
+    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
     return {
       ...signer,
-      xpub: signer.xpubDetails[xPubTypeToSwitch].xpub,
-      derivationPath: signer.xpubDetails[xPubTypeToSwitch].derivationPath,
+      xpub: switchedXpub,
+      derivationPath: switchedDerivation,
+      signerId: WalletUtilities.getFingerprintFromExtendedKey(switchedXpub, network),
     };
   }
   return signer;
@@ -100,12 +106,6 @@ const useSignerIntel = () => {
     );
   }, [vaultSigners]);
 
-  const areSignersValid =
-    signersState.every((signer) => !signer) ||
-    signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit }) ||
-    areSignersSame({ activeVault, signersState }) ||
-    !areSignersValidInCurrentScheme({ plan, signersState });
-
   const amfSigners = [];
   const misMatchedSigners = [];
   signersState.forEach((signer: VaultSigner) => {
@@ -120,6 +120,13 @@ const useSignerIntel = () => {
       }
     }
   });
+
+  const areSignersValid =
+    signersState.every((signer) => !signer) ||
+    signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit }) ||
+    areSignersSame({ activeVault, signersState }) ||
+    !areSignersValidInCurrentScheme({ plan, signersState }) ||
+    misMatchedSigners.length;
 
   return { planStatus, signersState, areSignersValid, amfSigners, misMatchedSigners };
 };
