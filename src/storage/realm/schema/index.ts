@@ -26,6 +26,7 @@ import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
+import { NodeConnectSchema } from './nodeConnect';
 
 export default [
   KeeperAppSchema,
@@ -52,4 +53,5 @@ export default [
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
+  NodeConnectSchema
 ];
