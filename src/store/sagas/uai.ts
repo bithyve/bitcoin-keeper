@@ -168,7 +168,7 @@ function* uaiChecksWorker({ payload }) {
           if (!migrationUai) {
             yield put(
               addToUaiStack({
-                title: 'To use the vault, reconfigure signing devide',
+                title: 'To use the vault, reconfigure signing device',
                 isDisplay: false,
                 uaiType: uaiType.VAULT_MIGRATION,
                 prirority: 100,

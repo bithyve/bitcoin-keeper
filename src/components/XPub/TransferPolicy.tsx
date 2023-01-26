@@ -6,7 +6,7 @@ import BtcInput from 'src/assets/images/btc_input.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
-import { Wallet, WalletSpecs } from 'src/core/wallets/interfaces/wallet';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import Buttons from '../Buttons';
@@ -18,12 +18,11 @@ import useToastMessage from 'src/hooks/useToastMessage';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
   const { showToast } = useToastMessage();
-  const specs: WalletSpecs = JSON.parse(JSON.stringify(wallet.specs));
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const [policyText, setPolicyText] = useState(specs.transferPolicy.toString());
+  const [policyText, setPolicyText] = useState(wallet.transferPolicy.threshold.toString());
   const dispatch = useDispatch();
   const onPressNumber = (digit) => {
     let temp = policyText;
@@ -51,12 +50,14 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
   };
   const presshandler = () => {
     if (Number(policyText) > 0) {
-      specs.transferPolicy = Number(policyText);
+      wallet.transferPolicy.threshold = Number(policyText);
       dispatch(
         updateWalletProperty({
           wallet,
-          key: 'specs',
-          value: specs,
+          key: 'transferPolicy',
+          value: {
+            threshold: Number(policyText),
+          },
         })
       );
     } else {

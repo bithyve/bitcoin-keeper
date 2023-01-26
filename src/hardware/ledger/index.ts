@@ -1,55 +1,30 @@
-import { EntityKind, NetworkType, SignerStorage, SignerType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
+import { ScriptTypes, XpubTypes } from 'src/core/wallets/enums';
 import BluetoothTransport from '@ledgerhq/react-native-hw-transport-ble';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import { Vault, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/core/wallets/interfaces';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { PsbtV2 } from './client/psbtv2';
 import AppClient from './client/appClient';
 import { DefaultWalletPolicy, WalletPolicy } from './client/policy';
-import { generateSignerFromMetaData } from '..';
 
 const bscript = require('bitcoinjs-lib/src/script');
 
-export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig) => {
+export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig: boolean) => {
   const app = new AppClient(transport);
-  const networkType = config.NETWORK_TYPE;
-  // m / purpose' / coin_type' / account' / script_type' / change / address_index bip-48
-  const coinType = networkType === NetworkType.TESTNET ? 1 : 0;
-  const isNativeSegwit = true;
-  const scriptType = isNativeSegwit ? 2 : 1;
-  const derivationPath = isMultisig
-    ? `m/48'/${coinType}'/0'/${scriptType}'`
-    : `m/84'/${coinType}'/0'`;
-  const xpub = await app.getExtendedPubkey(derivationPath);
+  const xpubDetails: XpubDetailsType = {};
+  // fetch P2WPKH details
+  const singleSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WPKH);
+  const singleSigXpub = await app.getExtendedPubkey(singleSigPath);
+  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+  // fetch P2WSH details
+  const multiSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WSH);
+  const multiSigXpub = await app.getExtendedPubkey(multiSigPath);
+  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+  const xpub = isMultisig ? multiSigXpub : singleSigXpub;
+  const derivationPath = isMultisig ? multiSigPath : singleSigPath;
   const masterfp = await app.getMasterFingerprint();
-  return { xpub, derivationPath, xfp: masterfp };
-};
-
-export const getMockLedgerDetails = (amfData = null) => {
-  const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
-    EntityKind.VAULT,
-    SignerType.LEDGER,
-    config.NETWORK_TYPE
-  );
-
-  const ledger: VaultSigner = generateSignerFromMetaData({
-    xpub,
-    xpriv,
-    derivationPath,
-    xfp: masterFingerprint,
-    signerType: SignerType.LEDGER,
-    storageType: SignerStorage.COLD,
-    isMock: true,
-  });
-
-  if (amfData) {
-    ledger.amfData = amfData;
-    ledger.signerName = 'Nano X*';
-    ledger.isMock = false;
-  }
-  return ledger;
+  return { xpub, derivationPath, xfp: masterfp, xpubDetails };
 };
 
 const getPSBTv2Fromv0 = (psbtv0: bitcoinJS.Psbt) => {
@@ -81,8 +56,8 @@ export const regsiterWithLedger = async (vault: Vault, transport) => {
 
 const getWalletPolicy = async (vault: Vault) => {
   const { signers, isMultiSig, scheme } = vault;
-  const path = `${signers[0].xpubInfo.xfp}${signers[0].xpubInfo.derivationPath.slice(
-    signers[0].xpubInfo.derivationPath.indexOf('/')
+  const path = `${signers[0].masterFingerprint}${signers[0].derivationPath.slice(
+    signers[0].derivationPath.indexOf('/')
   )}`;
   const walletPolicy = !isMultiSig
     ? new DefaultWalletPolicy('wpkh(@0/**)', `[${path}]${signers[0].xpub}`)
@@ -90,8 +65,8 @@ const getWalletPolicy = async (vault: Vault) => {
         'Keeper Vault',
         `wsh(sortedmulti(${scheme.m},${signers.map((_, index) => `@${index}/**`).join(',')}))`,
         signers.map((signer) => {
-          const path = `${signer.xpubInfo.xfp.toLowerCase()}${signer.xpubInfo.derivationPath.slice(
-            signer.xpubInfo.derivationPath.indexOf('/')
+          const path = `${signer.masterFingerprint.toLowerCase()}${signer.derivationPath.slice(
+            signer.derivationPath.indexOf('/')
           )}`;
           return `[${path}]${signer.xpub}`;
         })

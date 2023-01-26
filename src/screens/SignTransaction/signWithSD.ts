@@ -6,6 +6,7 @@ import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
+import { isSignerAMF } from 'src/hardware';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -20,7 +21,7 @@ export const signTransactionWithTapsigner = async ({
   setTapsignerModal(false);
   const { inputsToSign } = signingPayload[0];
   // AMF flow for signing
-  if (currentSigner.amfData && currentSigner.amfData.xpub) {
+  if (isSignerAMF(currentSigner)) {
     await withModal(() => readTapsigner(card, cvc))();
     const { xpriv } = currentSigner;
     const inputs = idx(signingPayload, (_) => _[0].inputs);
@@ -34,7 +35,7 @@ export const signTransactionWithTapsigner = async ({
     return { signedSerializedPSBT, signingPayload: null };
   }
   return withModal(async () => {
-    const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
+    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentSigner);
     signingPayload.forEach((payload) => {
       payload.inputsToSign = signedInput;
     });
@@ -70,7 +71,7 @@ export const signTransactionWithLedger = async ({
 }) => {
   try {
     setLedgerModal(false);
-    if (currentSigner.amfData && currentSigner.amfData.xpub) {
+    if (isSignerAMF(currentSigner)) {
       const { xpriv } = currentSigner;
       const inputs = idx(signingPayload, (_) => _[0].inputs);
       if (!inputs) throw new Error('Invalid signing payload, inputs missing');
@@ -96,7 +97,7 @@ export const signTransactionWithLedger = async ({
       // unknown error
       default:
         captureError(error);
-        Alert.alert(error.toString());
+        Alert.alert('Something went wrong! Please try again');
     }
   }
 };

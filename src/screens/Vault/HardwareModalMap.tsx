@@ -32,7 +32,6 @@ import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
@@ -54,6 +53,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import { crossInteractionHandler } from 'src/common/utilities';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import * as SecureStore from '../../storage/secure-store';
+import { checkSigningDevice } from './AddSigningDevice';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -72,9 +72,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
   const { tapsigner, coldcard, ledger } = translations;
   switch (type) {
     case SignerType.COLDCARD:
-      const ccInstructions = isMultisig
-        ? `Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`
-        : `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
+      const ccInstructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
       return {
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
@@ -248,6 +246,7 @@ const setupPassport = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return passport;
   }
@@ -263,6 +262,7 @@ const setupSeedSigner = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return seedSigner;
   }
@@ -278,6 +278,7 @@ const setupKeystone = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return keystone;
   }
@@ -293,6 +294,7 @@ const setupJade = (qrData, isMultisig) => {
       xfp,
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
+      isMultisig,
     });
     return jade;
   }
@@ -302,23 +304,14 @@ const setupJade = (qrData, isMultisig) => {
 const setupKeeperSigner = (qrData) => {
   try {
     const { mfp, xpub, derivationPath } = JSON.parse(qrData);
-    const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-
-    const ksd: VaultSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.KEEPER,
-      registered: false,
-      signerName: 'Keeper Signing Device',
-      storageType: SignerStorage.WARM,
+    const ksd = generateSignerFromMetaData({
       xpub,
-      xpubInfo: {
-        derivationPath,
-        xfp: mfp,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
-
+      derivationPath,
+      xfp: mfp,
+      signerType: SignerType.KEEPER,
+      storageType: SignerStorage.WARM,
+      isMultisig: true,
+    });
     return ksd;
   } catch (err) {
     const message = crossInteractionHandler(err);
@@ -328,53 +321,50 @@ const setupKeeperSigner = (qrData) => {
 
 const setupMobileKey = async ({ primaryMnemonic }) => {
   const networkType = config.NETWORK_TYPE;
-  const network = WalletUtilities.getNetworkByType(networkType);
   const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
     primaryMnemonic,
     networkType
   );
-
-  const mobileKey: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.MOBILE_KEY,
-    signerName: 'Mobile Key',
-    storageType: SignerStorage.WARM,
+  const mobileKey = generateSignerFromMetaData({
     xpub,
+    derivationPath,
+    xfp: masterFingerprint,
+    signerType: SignerType.MOBILE_KEY,
+    storageType: SignerStorage.WARM,
+    isMultisig: true,
     xpriv,
-    xpubInfo: {
-      derivationPath,
-      xfp: masterFingerprint,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
+  });
   return mobileKey;
 };
 
 const setupSeedWordsBasedKey = (mnemonic) => {
   const networkType = config.NETWORK_TYPE;
-  const network = WalletUtilities.getNetworkByType(networkType);
   const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
-
-  const softSigner: VaultSigner = {
-    signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-    type: SignerType.SEED_WORDS,
-    storageType: SignerStorage.WARM,
-    signerName: 'Seed Words',
+  const softSigner = generateSignerFromMetaData({
     xpub,
-    xpubInfo: {
-      derivationPath,
-      xfp: masterFingerprint,
-    },
-    lastHealthCheck: new Date(),
-    addedOn: new Date(),
-  };
+    derivationPath,
+    xfp: masterFingerprint,
+    signerType: SignerType.SEED_WORDS,
+    storageType: SignerStorage.WARM,
+    isMultisig: true,
+  });
 
   return softSigner;
 };
 
-function PasswordEnter({ primaryMnemonic, navigation, dispatch, pinHash }) {
+function PasswordEnter({
+  primaryMnemonic,
+  navigation,
+  dispatch,
+  pinHash,
+}: {
+  primaryMnemonic;
+  navigation;
+  dispatch;
+  pinHash;
+}) {
   const [password, setPassword] = useState('');
+  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let tmpPasscode = password;
@@ -508,10 +498,10 @@ function HardwareModalMap({
     );
   };
 
-  const onQRScan = (qrData, resetQR) => {
+  const onQRScan = async (qrData, resetQR) => {
     let hw: VaultSigner;
     try {
-      switch (type as SignerType) {
+      switch (type) {
         case SignerType.PASSPORT:
           hw = setupPassport(qrData, isMultisig);
           break;
@@ -533,6 +523,9 @@ function HardwareModalMap({
       dispatch(addSigningDevice(hw));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
+      const exsists = await checkSigningDevice(hw.signerId);
+      if (exsists)
+        showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);

@@ -16,7 +16,7 @@ import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails';
-import EnterSeedScreen from 'src/screens/EnterWalletDetailScreen/EnterSeedScreen';
+import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
@@ -67,6 +67,8 @@ import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import Login from '../screens/LoginScreen/Login';
+import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
+import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -95,6 +97,11 @@ function LoginStack() {
         name="ColdCardReocvery"
         component={ColdCardReocvery}
       />
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="LedgerRecovery"
+        component={LedgerRecovery}
+      />
       <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
@@ -117,6 +124,7 @@ function LoginStack() {
         component={NewKeeperApp}
       />
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+      <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
     </Stack.Navigator>
   );
 }
@@ -196,7 +204,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />

@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BackupType, SigningDeviceRecovery } from 'src/common/data/enums/BHR';
+import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 const initialState: {
   backupMethod: BackupType | null;
@@ -13,7 +15,6 @@ const initialState: {
   cloudBackedConfirmed: boolean;
   appRecoveryLoading: boolean;
   appImageRecoverd: boolean;
-  appRecreated: boolean;
   appImageError: boolean;
   appImagerecoveryRetry: boolean;
   cloudData: Array<any>;
@@ -33,6 +34,8 @@ const initialState: {
   relayVaultUpdate: boolean;
   relayVaultError: boolean;
   realyVaultErrorMessage: string;
+
+  relayVaultReoveryAppId: string;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -41,10 +44,11 @@ const initialState: {
   loading: false,
   cloudBackupCompleted: false,
   cloudBackedConfirmed: false,
+
   appRecoveryLoading: false,
   appImageRecoverd: false,
-  appRecreated: false,
   appImageError: false,
+
   appImagerecoveryRetry: false,
   cloudData: [],
   downloadingBackup: false,
@@ -61,6 +65,7 @@ const initialState: {
   relayVaultUpdate: false,
   relayVaultError: false,
   realyVaultErrorMessage: null,
+  relayVaultReoveryAppId: null,
 };
 
 const bhrSlice = createSlice({
@@ -97,9 +102,6 @@ const bhrSlice = createSlice({
     setAppImageRecoverd: (state, action: PayloadAction<boolean>) => {
       state.appImageRecoverd = action.payload;
     },
-    setAppRecreated: (state, action: PayloadAction<boolean>) => {
-      state.appRecreated = action.payload;
-    },
     setAppRecoveryLoading: (state, action: PayloadAction<boolean>) => {
       state.appRecoveryLoading = action.payload;
     },
@@ -126,7 +128,15 @@ const bhrSlice = createSlice({
       state.backupWarning = action.payload;
     },
     setSigningDevices: (state, action: PayloadAction<any>) => {
-      state.signingDevices = [...state.signingDevices, action.payload];
+      state.signingDevices = _.uniqBy([...state.signingDevices, action.payload], 'signerId');
+    },
+    removeSigningDeviceBhr: (state, action: PayloadAction<VaultSigner>) => {
+      const signerToRemove = action.payload;
+      if (signerToRemove) {
+        state.signingDevices = state.signingDevices.filter(
+          (signer) => signer.signerId !== signerToRemove.signerId
+        );
+      }
     },
     setVaultMetaData: (state, action: PayloadAction<any>) => {
       state.vaultMetaData = action.payload;
@@ -167,6 +177,9 @@ const bhrSlice = createSlice({
       state.relayVaultUpdateLoading = false;
       state.realyVaultErrorMessage = null;
     },
+    setRelayVaultRecoveryAppId: (state, action: PayloadAction<string>) => {
+      state.relayVaultReoveryAppId = action.payload;
+    },
   },
 });
 
@@ -179,7 +192,6 @@ export const {
   setCloudBackupConfirmed,
   setAppRecoveryLoading,
   setAppImageRecoverd,
-  setAppRecreated,
   setAppImageError,
   appImagerecoveryRetry,
   setDownloadingBackup,
@@ -187,6 +199,8 @@ export const {
   setCloudData,
   setInvalidPassword,
   setBackupWarning,
+
+  removeSigningDeviceBhr,
   setSigningDevices,
   setVaultMetaData,
 
@@ -199,6 +213,8 @@ export const {
   relayVaultUpdateSuccess,
   relayVaultUpdateFail,
   resetRealyVaultState,
+
+  setRelayVaultRecoveryAppId,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {
@@ -213,7 +229,6 @@ const bhrPersistConfig = {
     'cloudBackedConfirmed',
     'appImageError',
     'appRecoveryLoading',
-    'appRecreated',
     'appImageRecoverd',
     'appImagerecoveryRetry',
     'cloudData',

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { getColdcardDetails } from 'src/hardware/coldcard';
 
@@ -33,24 +33,22 @@ function SetupColdCard() {
 
   const addColdCard = async () => {
     try {
-      const ccDetails = await withNfcModal(getColdcardDetails);
-      const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = ccDetails;
-      if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-        const coldcard = generateSignerFromMetaData({
-          xpub,
-          derivationPath,
-          xfp,
-          signerType: SignerType.COLDCARD,
-          storageType: SignerStorage.COLD,
-        });
-        dispatch(addSigningDevice(coldcard));
-        showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(coldcard.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
-      } else {
-        showToast(`Looks like you are scanning from the wrong section`, <ToastErrorIcon />, 3000);
-      }
+      const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
+      const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
+      const coldcard = generateSignerFromMetaData({
+        xpub,
+        derivationPath,
+        xfp,
+        isMultisig,
+        signerType: SignerType.COLDCARD,
+        storageType: SignerStorage.COLD,
+        xpubDetails,
+      });
+      dispatch(addSigningDevice(coldcard));
+      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
+      const exsists = await checkSigningDevice(coldcard.signerId);
+      if (exsists) showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);
@@ -60,9 +58,7 @@ function SetupColdCard() {
     }
   };
 
-  const instructions = isMultisig
-    ? 'Go to Settings > Multisig wallets > Export xPub on your Coldcard'
-    : 'Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
+  const instructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
   return (
     <ScreenWrapper>
       <MockWrapper signerType={SignerType.COLDCARD}>
