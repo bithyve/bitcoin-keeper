@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, ActivityIndicator } from 'react-native';
 
-function ActivityIndicatorView(visible: boolean) {
+function ActivityIndicatorView({ visible }: any) {
   return (
     <Box>
       {visible && (

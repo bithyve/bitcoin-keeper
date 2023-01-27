@@ -68,9 +68,10 @@ import { setAppId } from "../reducers/storage";
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, appID, subscription, networkType }: KeeperApp =
-    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-
+  const { primarySeed, id, appID, subscription, networkType, version }: KeeperApp = yield call(
+    dbManager.getObjectByIndex,
+    RealmSchema.KeeperApp
+  );
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallet) {
@@ -89,10 +90,12 @@ export function* updateAppImageWorker({ payload }) {
   }
   try {
     const response = yield call(Relay.updateAppImage, {
+      id,
       appID,
       walletObject,
       networkType,
       subscription: JSON.stringify(subscription),
+      version,
     });
     return response;
   } catch (err) {
@@ -111,7 +114,7 @@ export function* updateVaultImageWorker({
   };
 }) {
   const { vault, archiveVaultId, isUpdate } = payload;
-  const { primarySeed, appID, subscription }: KeeperApp = yield call(
+  const { primarySeed, id, subscription }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
@@ -159,7 +162,7 @@ export function* updateVaultImageWorker({
   try {
     if (archiveVaultId) {
       const response = yield call(Relay.updateVaultImage, {
-        appID,
+        appID: id,
         vaultId: vault.id,
         scheme: vault.scheme,
         signersData,
@@ -170,7 +173,7 @@ export function* updateVaultImageWorker({
       return response;
     }
     const response = yield call(Relay.updateVaultImage, {
-      appID,
+      appID: id,
       vaultId: vault.id,
       scheme: vault.scheme,
       signersData,
@@ -383,9 +386,9 @@ function* getAppImageWorker({ payload }) {
     yield put(setAppImageError(false));
     yield put(setAppRecoveryLoading(true));
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-    const appId = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    const encryptionKey = generateEncryptionKey(primarySeed.toString("hex"));
-    const { appImage, vaultImage } = yield call(Relay.getAppImage, appId);
+    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
+    const { appImage, vaultImage } = yield call(Relay.getAppImage, id);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
@@ -395,7 +398,7 @@ function* getAppImageWorker({ payload }) {
       );
       const imageEncryptionKey = generateEncryptionKey(entropy.toString("hex"));
       const app: KeeperApp = {
-        id: crypto.createHash("sha256").update(primarySeed).digest("hex"),
+        id,
         appID: appImage.appId,
         primarySeed: primarySeed.toString("hex"),
         primaryMnemonic,

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView } from 'native-base';
@@ -34,6 +35,7 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
 type Props = {
   title: string;
@@ -60,18 +62,16 @@ function Option({ title, subTitle, onPress }: Props) {
 }
 
 function WalletSettings({ route }) {
+  const { wallet: walletRoute, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
-
   const [xpubVisible, setXPubVisible] = useState(false);
   const [cosignerVisible, setCosignerVisible] = useState(false);
-
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
-  const { relayWalletUpdateLoading } = useAppSelector((state) => state.bhr);
-  const walletRoute: Wallet = route?.params?.wallet;
+  const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
   const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
@@ -83,7 +83,8 @@ function WalletSettings({ route }) {
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
-  function WalletCard({ walletName, walletBalance, walletDescription }) {
+  // eslint-disable-next-line react/no-unstable-nested-components
+  function WalletCard({ walletName, walletBalance, walletDescription }: any) {
     return (
       <Box variant="linearGradient" style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
@@ -108,8 +109,11 @@ function WalletSettings({ route }) {
   };
 
   useEffect(() => {
-    setTransferPolicyVisible(false);
-  }, [relayWalletUpdateLoading]);
+    if (relayWalletUpdate) {
+      showToast('Wallet details updated!', <TickIcon />);
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate]);
 
   useEffect(() => {
     setLoadingContent({
@@ -279,6 +283,7 @@ function WalletSettings({ route }) {
           subTitle={walletTranslation?.confirmPassSubTitle}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
+          // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <SeedConfirmPasscode
               closeBottomSheet={() => {
@@ -297,6 +302,7 @@ function WalletSettings({ route }) {
           subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
+          // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <ShowXPub
               data={wallet?.specs?.xpub}
@@ -304,7 +310,7 @@ function WalletSettings({ route }) {
                 setXPubVisible(false);
                 showToast('Xpub Copied Successfully', <TickIcon />);
               }}
-              copyable={true}
+              copyable
               close={() => setXPubVisible(false)}
               subText={walletTranslation?.AccountXpub}
               noteSubText={walletTranslation?.AccountXpubNote}

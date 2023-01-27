@@ -6,6 +6,19 @@ import { Shadow } from 'react-native-shadow-2';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
+type Props = {
+  primaryText: string;
+  secondaryText: string;
+  primaryCallback: () => void;
+  secondaryCallback: () => void;
+  primaryDisable: boolean;
+  secondaryDisable: boolean;
+  primaryLoading: boolean;
+  paddingHorizontal: any;
+  activeOpacity: any;
+  touchDisable: boolean;
+};
+
 function Buttons({
   primaryText = '',
   secondaryText = '',
@@ -17,40 +30,39 @@ function Buttons({
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
   touchDisable = false,
-}) {
+}: Props) {
   const [pressed, setPressed] = useState(primaryDisable);
-  const getPrimaryButton = () => {
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          primaryCallback();
-          setPressed(true);
-        }}
-        disabled={touchDisable && pressed}
-        activeOpacity={activeOpacity}
-      >
-        <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-          <Box
-            style={[
-              styles.createBtn,
-              { opacity: touchDisable && pressed ? 0.5 : 1, paddingHorizontal },
-            ]}
-            backgroundColor={{
-              linearGradient: {
-                colors: ['light.gradientStart', 'light.gradientEnd'],
-                start: [0, 0],
-                end: [1, 1],
-              },
-            }}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-              {primaryText}
-            </Text>
-          </Box>
-        </Shadow>
-      </TouchableOpacity>
-    );
-  };
+
+  const getPrimaryButton = () => (
+    <TouchableOpacity
+      onPress={() => {
+        primaryCallback();
+        setPressed(true);
+      }}
+      disabled={touchDisable && pressed}
+      activeOpacity={activeOpacity}
+    >
+      <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+        <Box
+          style={[
+            styles.createBtn,
+            { opacity: touchDisable && pressed ? 0.5 : 1, paddingHorizontal },
+          ]}
+          backgroundColor={{
+            linearGradient: {
+              colors: ['light.gradientStart', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
+            },
+          }}
+        >
+          <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+            {primaryText}
+          </Text>
+        </Box>
+      </Shadow>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>

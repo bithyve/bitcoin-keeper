@@ -69,9 +69,8 @@ const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
   );
 };
 
-const updateSignerForScheme = (signer: VaultSigner, subscriptionScheme) => {
-  const { n } = subscriptionScheme;
-  const xPubTypeToSwitch = n === 1 ? XpubTypes.P2WPKH : XpubTypes.P2WSH;
+export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
+  const xPubTypeToSwitch = schemeN === 1 ? XpubTypes.P2WPKH : XpubTypes.P2WSH;
   const completeSigner =
     !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WPKH].xpub) &&
     !!idx(signer, (_) => _.xpubDetails[XpubTypes.P2WSH].xpub);
@@ -102,7 +101,9 @@ const useSignerIntel = () => {
   useEffect(() => {
     const fills = getPrefillForSignerList(planStatus, vaultSigners, currentSignerLimit);
     setSignersState(
-      vaultSigners.map((signer) => updateSignerForScheme(signer, subscriptionScheme)).concat(fills)
+      vaultSigners
+        .map((signer) => updateSignerForScheme(signer, subscriptionScheme.n))
+        .concat(fills)
     );
   }, [vaultSigners]);
 

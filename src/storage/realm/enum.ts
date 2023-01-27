@@ -20,6 +20,7 @@ export enum RealmSchema {
   TriggerPolicy = 'TriggerPolicy',
   SigningServerSetup = 'SigningServerSetup',
   Backup = 'Backup',
+  NodeConnect = 'NodeConnect',
   UAI = 'UAI',
   AdditionalNotes = 'AdditionalNotes',
   VersionHistory = 'VersionHistory',
