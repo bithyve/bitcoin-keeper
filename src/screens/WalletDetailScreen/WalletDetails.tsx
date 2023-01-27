@@ -76,14 +76,17 @@ function WalletDetails({ route }) {
   const flatListRef = useRef(null);
 
   const handleScrollToIndex = (index) => {
-    if (flatListRef && flatListRef.current) {
-      flatListRef.current.scrollToIndex({ index });
+    if (index !== undefined && flatListRef && flatListRef?.current) {
+      flatListRef?.current?.scrollToIndex({ index });
     }
   };
+
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
-    handleScrollToIndex(index?.index);
-    setWalletIndex(index?.index);
+    if (index?.index !== undefined) {
+      handleScrollToIndex(index?.index);
+      setWalletIndex(index?.index);
+    }
   });
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 20 });
 
@@ -277,7 +280,7 @@ function WalletDetails({ route }) {
         />
       </Box>
 
-      {walletIndex !== wallets.length ? (
+      {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
           {/* {Transfer pollicy} */}
           <Box style={styles.transferPolicyContainer}>
