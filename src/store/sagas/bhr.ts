@@ -19,7 +19,6 @@ import { Platform } from "react-native";
 import { RealmSchema } from "src/storage/realm/enum";
 import Relay from "src/core/services/operations/Relay";
 import { Vault } from "src/core/wallets/interfaces/vault";
-import WalletUtilities from "src/core/wallets/operations/utils";
 import { captureError } from "src/core/services/sentry";
 import crypto from "crypto";
 import dbManager from "src/storage/realm/dbManager";

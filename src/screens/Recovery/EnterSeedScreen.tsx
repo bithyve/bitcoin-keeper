@@ -289,7 +289,7 @@ function EnterSeedScreen({ route }) {
               height: 190,
             }}
             pagingEnabled
-            scrollEnabled={isSeedFilled(6) && true}
+            scrollEnabled={isSeedFilled(6)}
             renderItem={({ item, index }) => (
               <View style={styles.inputListWrapper}>
                 <Text style={styles.indexText} bold>
