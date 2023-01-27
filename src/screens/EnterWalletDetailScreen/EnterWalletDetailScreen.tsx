@@ -15,6 +15,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
 import KeeperText from 'src/components/KeeperText';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import { v4 as uuidv4 } from 'uuid';
 
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
@@ -33,6 +34,7 @@ function EnterWalletDetailScreen({ route }) {
         name: walletName,
         description: walletDescription,
         transferPolicy: {
+          id: uuidv4(),
           threshold: Number(transferPolicy),
         },
       },

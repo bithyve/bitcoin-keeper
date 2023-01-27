@@ -112,6 +112,7 @@ export const TransferPolicySchema: ObjectSchema = {
   name: RealmSchema.TransferPolicy,
   embedded: true,
   properties: {
+    id: 'string',
     threshold: 'int',
   },
 };
