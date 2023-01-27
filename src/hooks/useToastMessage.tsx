@@ -10,7 +10,7 @@ const useToastMessage = () => {
   function showToast(
     title,
     image?,
-    duration = 1000,
+    duration = 3000,
     error = false,
     width = '100%',
     ToastBody = (
