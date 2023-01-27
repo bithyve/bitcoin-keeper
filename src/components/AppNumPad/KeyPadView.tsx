@@ -1,3 +1,5 @@
+/* eslint-disable react/function-component-definition */
+/* eslint-disable react/require-default-props */
 import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView } from 'native-base';
@@ -82,7 +83,8 @@ function WalletSettings({ route }) {
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
-  function WalletCard({ walletName, walletBalance, walletDescription }) {
+  // eslint-disable-next-line react/no-unstable-nested-components
+  function WalletCard({ walletName, walletBalance, walletDescription }: any) {
     return (
       <Box variant="linearGradient" style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
@@ -281,6 +283,7 @@ function WalletSettings({ route }) {
           subTitle={walletTranslation?.confirmPassSubTitle}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
+          // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <SeedConfirmPasscode
               closeBottomSheet={() => {
@@ -299,6 +302,7 @@ function WalletSettings({ route }) {
           subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
+          // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <ShowXPub
               data={wallet?.specs?.xpub}
@@ -306,7 +310,7 @@ function WalletSettings({ route }) {
                 setXPubVisible(false);
                 showToast('Xpub Copied Successfully', <TickIcon />);
               }}
-              copyable={true}
+              copyable
               close={() => setXPubVisible(false)}
               subText={walletTranslation?.AccountXpub}
               noteSubText={walletTranslation?.AccountXpubNote}

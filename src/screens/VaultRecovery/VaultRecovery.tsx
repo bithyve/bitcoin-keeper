@@ -17,7 +17,6 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import { removeSigningDeviceBhr, setRelayVaultRecoveryAppId } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { WalletMap } from '../Vault/WalletMap';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { captureError } from 'src/core/services/sentry';
@@ -30,10 +29,11 @@ import { hash256 } from 'src/core/services/operations/encryption';
 
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
+import { WalletMap } from '../Vault/WalletMap';
 
 const allowedSignerLength = [1, 3, 5];
 
-const AddSigningDevice = ({ error }) => {
+function AddSigningDevice({ error }) {
   const navigation = useNavigation();
   return (
     <Pressable
@@ -58,7 +58,7 @@ const AddSigningDevice = ({ error }) => {
                 alignItems="center"
                 letterSpacing={1.12}
               >
-                {`Add Another`}
+                Add Another
               </Text>
               <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                 Select signing device
@@ -72,7 +72,7 @@ const AddSigningDevice = ({ error }) => {
       </Box>
     </Pressable>
   );
-};
+}
 
 function SignerItem({ signer, index }: { signer: any | undefined; index: number }) {
   const dispatch = useDispatch();
@@ -186,7 +186,7 @@ function VaultRecovery({ navigation }) {
     }
   }, [relayVaultUpdate, relayVaultError]);
 
-  //try catch API error
+  // try catch API error
   const vaultCheck = async () => {
     const vaultId = generateVaultId(signingDevices, config.NETWORK_TYPE);
     const response = await Relay.vaultCheck({ vaultId });
@@ -198,21 +198,19 @@ function VaultRecovery({ navigation }) {
     }
   };
 
-  //try catch API error
+  // try catch API error
   const getMetaData = async () => {
     const xfpHash = hash256(signingDevices[0].masterFingerprint);
     const response = await Relay.getVaultMetaData(xfpHash);
     if (response?.appId) {
       dispatch(setRelayVaultRecoveryAppId(response.appId));
       setError(false);
+    } else if (response.error) {
+      setError(true);
+      Alert.alert('No vault is assocaited with this signer, try with another signer');
     } else {
-      if (response.error) {
-        setError(true);
-        Alert.alert('No vault is assocaited with this signer, try with another signer');
-      } else {
-        setError(true);
-        Alert.alert('Something Went Wrong!');
-      }
+      setError(true);
+      Alert.alert('Something Went Wrong!');
     }
   };
 

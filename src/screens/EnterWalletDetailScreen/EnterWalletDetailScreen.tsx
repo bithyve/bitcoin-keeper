@@ -22,6 +22,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { v4 as uuidv4 } from 'uuid';
 
+// eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
@@ -76,7 +77,7 @@ function EnterWalletDetailScreen({ route }) {
     <View style={styles.Container} background="light.mainBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title={wallet.AddNewWallet}
+        title={`${wallet.AddNewWallet}`}
         subtitle={wallet.AddNewWalletDescription}
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
@@ -147,9 +148,10 @@ function EnterWalletDetailScreen({ route }) {
             secondaryCallback={() => {
               navigtaion.goBack();
             }}
-            primaryText={common.create}
+            primaryText={`${common.create}`}
             primaryCallback={createNewWallet}
             primaryDisable={!walletName || !walletDescription}
+            touchDisable
             primaryLoading={walletLoading}
           />
         </View>

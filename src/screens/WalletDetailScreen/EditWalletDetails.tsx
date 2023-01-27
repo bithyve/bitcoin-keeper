@@ -95,6 +95,7 @@ function EditWalletSettings({ route }) {
             primaryCallback={editWallet}
             primaryLoading={relayWalletUpdateLoading}
             primaryDisable={!walletName || !walletDescription}
+            touchDisable={true}
           />
         </View>
       </View>

@@ -2,15 +2,15 @@ import React from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, ActivityIndicator } from 'react-native';
 
-function ActivityIndicatorView({ visible }) {
+function ActivityIndicatorView({ visible }: any) {
   return (
-    <>
+    <Box>
       {visible && (
         <Box style={styles.container}>
           <ActivityIndicator size="large" animating={visible} color="#00836A" />
         </Box>
       )}
-    </>
+    </Box>
   );
 }
 

@@ -94,13 +94,13 @@ function HealthCheckComponent(props) {
   };
 
   return (
-    <Box backgroundColor="light.secondaryBackground" style={styles.wrapper}>
+    <Box backgroundColor="light.mainBackground" style={styles.wrapper}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.healthCheck}
         </Text>
         <Text fontSize={13} color="light.secondaryText" mb={10}>
-          For the Backup Phrase
+          For the Recovery Phrase
         </Text>
       </Box>
       <Box>
@@ -138,6 +138,7 @@ function HealthCheckComponent(props) {
         }}
         primaryText={common.confirm}
         primaryCallback={onPressConfirm}
+        touchDisable={true}
       />
     </Box>
   );

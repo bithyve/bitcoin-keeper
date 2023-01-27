@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react/jsx-no-bind */
 import * as bip39 from 'bip39';
 
 import { Box, View } from 'native-base';
@@ -112,6 +114,7 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [btnDisable, setBtnDisable] = useState(false);
 
   const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
   const closeInvalidSeedsModal = () => {
@@ -203,6 +206,7 @@ function EnterSeedScreen({ route }) {
   const onPressNextSeedReocvery = async () => {
     if (isSeedFilled(6)) {
       if (isSeedFilled(12)) {
+        setBtnDisable(true);
         const seedWord = getSeedWord();
         setRecoveryLoading(true);
         dispatch(getAppImage(seedWord));
@@ -256,7 +260,7 @@ function EnterSeedScreen({ route }) {
         <Box marginX={10} mt={25}>
           {isSoftKeyRecovery ? (
             <SeedWordsView
-              title={'Enter Seed Words'}
+              title="Enter Seed Words"
               onPressHandler={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
             />
           ) : (
@@ -285,7 +289,7 @@ function EnterSeedScreen({ route }) {
               height: 190,
             }}
             pagingEnabled
-            scrollEnabled={false}
+            scrollEnabled={isSeedFilled(6)}
             renderItem={({ item, index }) => (
               <View style={styles.inputListWrapper}>
                 <Text style={styles.indexText} bold>
@@ -339,10 +343,12 @@ function EnterSeedScreen({ route }) {
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
+
             {isSoftKeyRecovery ? (
               <Buttons
                 primaryCallback={onPressNextSoftReocvery}
                 primaryText="Next"
+                touchDisable={btnDisable}
                 primaryLoading={recoveryLoading}
               />
             ) : (
@@ -354,6 +360,7 @@ function EnterSeedScreen({ route }) {
                 }}
                 secondaryText="Other Methods"
                 primaryLoading={recoveryLoading}
+                touchDisable={btnDisable}
               />
             )}
           </View>
