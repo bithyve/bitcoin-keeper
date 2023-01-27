@@ -289,9 +289,9 @@ function WalletDetails({ route }) {
               style={styles.transferPolicyCard}
               onPress={() => {
                 if (vaultExsist) {
-                  navigation.navigate('SendConfirmation', {
-                    transferType: TransferType.WALLET_TO_VAULT,
-                    walletId: wallets[walletIndex].id,
+                  navigation.navigate('WalletSettings', {
+                    wallet: currentWallet,
+                    editPolicy: true,
                   });
                 } else showToast('Vault is not created', <ToastErrorIcon />);
               }}

@@ -181,7 +181,7 @@ function JadeContent() {
     </Box>
   );
 }
-function KeeperContent() {
+export function KeeperContent() {
   return (
     <Box>
       <KeeperSetup />

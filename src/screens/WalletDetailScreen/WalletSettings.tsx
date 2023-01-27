@@ -61,18 +61,16 @@ function Option({ title, subTitle, onPress }: Props) {
 }
 
 function WalletSettings({ route }) {
+  const { wallet: walletRoute, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
-
   const [xpubVisible, setXPubVisible] = useState(false);
   const [cosignerVisible, setCosignerVisible] = useState(false);
-
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
+  const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
-  const walletRoute: Wallet = route?.params?.wallet;
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
   const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
@@ -109,12 +107,8 @@ function WalletSettings({ route }) {
   };
 
   useEffect(() => {
-    setTransferPolicyVisible(false);
-  }, [relayWalletUpdateLoading]);
-
-  useEffect(() => {
     if (relayWalletUpdate) {
-      showToast('Transfer Policy Changed', <TickIcon />);
+      showToast('Wallet details updated!', <TickIcon />);
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate]);

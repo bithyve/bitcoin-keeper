@@ -24,6 +24,7 @@ export interface WalletPresentationData {
 }
 
 export interface TransferPolicy {
+  id: string;
   threshold: number;
 }
 

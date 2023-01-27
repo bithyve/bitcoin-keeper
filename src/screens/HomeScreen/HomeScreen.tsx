@@ -45,6 +45,8 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
+import { useDispatch } from 'react-redux';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -120,11 +122,16 @@ function InheritanceComponent() {
 function LinkedWallets(props) {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
+  const dispatch = useDispatch();
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+
+  useEffect(() => {
+    dispatch(resetRealyWalletState());
+  }, []);
 
   return (
     <Pressable
@@ -161,9 +168,7 @@ function LinkedWallets(props) {
             </Text>
           </Box>
         </Box>
-        <Pressable
-          onPress={() => props.onAmountPress()}
-        >
+        <Pressable onPress={() => props.onAmountPress()}>
           {props.showHideAmounts ? (
             <Box
               style={{
@@ -224,7 +229,7 @@ function VaultStatus(props) {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
@@ -298,17 +303,16 @@ function VaultStatus(props) {
   return (
     <Box style={styles.vaultStatusContainder}>
       <ImageBackground resizeMode="contain" source={VaultImage}>
-        <TouchableOpacity testID='btn_vault' onPress={open} activeOpacity={0.7}>
+        <TouchableOpacity testID="btn_vault" onPress={open} activeOpacity={0.7}>
           <Box style={styles.vault}>
             <Box style={styles.torContainer}>
-              {
-                getTorStatusText !== 'Tor disabled' &&
+              {getTorStatusText !== 'Tor disabled' && (
                 <Box backgroundColor={getTorStatusColor}>
                   <Text color="light.primaryText" style={styles.torText} bold>
                     {getTorStatusText}
                   </Text>
                 </Box>
-              }
+              )}
             </Box>
             <Box style={styles.vaultBody}>
               <Text color="light.white" style={styles.vaultHeading} bold>
@@ -493,7 +497,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

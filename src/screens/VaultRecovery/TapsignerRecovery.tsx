@@ -26,6 +26,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config from 'src/core/config';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import MockWrapper from '../Vault/MockWrapper';
 
 function TapSignerRecovery() {
@@ -33,6 +34,7 @@ function TapSignerRecovery() {
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
   const { signingDevices } = useAppSelector((state) => state.bhr);
+  const isMultisig = signingDevices.length >= 1;
 
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
 
@@ -57,8 +59,8 @@ function TapSignerRecovery() {
 
   const addTapsigner = React.useCallback(async () => {
     try {
-      const { xpub, derivationPath, xfp } = await withModal(async () =>
-        getTapsignerDetails(card, cvc)
+      const { xpub, derivationPath, xfp, xpubDetails } = await withModal(async () =>
+        getTapsignerDetails(card, cvc, isMultisig)
       )();
       let tapsigner: VaultSigner;
       if (isAMF) {
@@ -73,7 +75,7 @@ function TapSignerRecovery() {
           xfp: masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
-          isMultisig: signingDevices.length > 1,
+          isMultisig,
           xpriv,
           isMock: false,
           xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
@@ -85,15 +87,17 @@ function TapSignerRecovery() {
           xfp,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
-          isMultisig: signingDevices.length > 1,
+          isMultisig,
+          xpubDetails,
         });
       }
       dispatch(setSigningDevices(tapsigner));
-      navigation.navigate('LoginStack', { screen: 'VaultRecovery' });
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
+      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       return;
     } catch (err) {
       let message: string;
+      console.log({ err });
       if (err.toString().includes('401')) {
         message = 'Please check the cvc entered and try again!';
       } else if (err.toString().includes('429')) {
