@@ -8,7 +8,7 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { WalletType } from 'src/core/wallets/enums';
+import { NetworkType, WalletType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -18,6 +18,9 @@ import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';
 import { setAppId } from '../reducers/storage';
+
+export const defaultTransferPolicyThreshold =
+  config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -59,7 +62,7 @@ function* setupKeeperAppWorker({ payload }) {
         name: 'Wallet 1',
         description: 'Single-sig bitcoin wallet',
         transferPolicy: {
-          threshold: 5000,
+          threshold: defaultTransferPolicyThreshold,
         },
       },
     };
@@ -113,11 +116,11 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
         name: 'Mobile Wallet',
         description: 'Single-sig bitcoin wallet',
         transferPolicy: {
-          threshold: 5000,
+          threshold: defaultTransferPolicyThreshold,
         },
       },
     };
-    yield put(addNewWallets([defaultWallet]));
+    yield call(addNewWalletsWorker, { payload: [defaultWallet] });
 
     yield put(setAppId(appID));
   } catch (error) {
