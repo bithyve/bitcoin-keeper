@@ -14,10 +14,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { captureError } from 'src/core/services/sentry';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import MockWrapper from '../Vault/MockWrapper';
 import HWError from 'src/hardware/HWErrorState';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import MockWrapper from '../Vault/MockWrapper';
 
 function ColdCardReocvery() {
   const dispatch = useDispatch();
@@ -54,7 +54,7 @@ function ColdCardReocvery() {
     'Multi Sig: Go to Settings > Multisig wallets > Export xPub on your Coldcard /n Single-Sig: Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
   return (
     <ScreenWrapper>
-      <MockWrapper signerType={SignerType.COLDCARD} isRecovery={true}>
+      <MockWrapper signerType={SignerType.COLDCARD} isRecovery>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle

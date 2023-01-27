@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { ScrollView } from 'react-native-gesture-handler';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,7 +14,6 @@ import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React from 'react';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
-import { wp } from 'src/common/data/responsiveness/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { isTestnet } from 'src/common/constants/Bitcoin';
@@ -22,12 +21,12 @@ import { getTapsignerDetails } from 'src/hardware/tapsigner';
 import { generateSignerFromMetaData } from 'src/hardware';
 import NFC from 'src/core/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import MockWrapper from '../Vault/MockWrapper';
 import { Box } from 'native-base';
 import { useAppSelector } from 'src/store/hooks';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config from 'src/core/config';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
+import MockWrapper from '../Vault/MockWrapper';
 
 function TapSignerRecovery() {
   const [cvc, setCvc] = React.useState('');
@@ -74,7 +73,7 @@ function TapSignerRecovery() {
           xfp: masterFingerprint,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
-          isMultisig: signingDevices.length > 1 ? true : false,
+          isMultisig: signingDevices.length > 1,
           xpriv,
           isMock: false,
           xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
@@ -86,7 +85,7 @@ function TapSignerRecovery() {
           xfp,
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
-          isMultisig: signingDevices.length > 1 ? true : false,
+          isMultisig: signingDevices.length > 1,
         });
       }
       dispatch(setSigningDevices(tapsigner));
@@ -122,7 +121,7 @@ function TapSignerRecovery() {
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
         />
-        <MockWrapper signerType={SignerType.TAPSIGNER} isRecovery={true}>
+        <MockWrapper signerType={SignerType.TAPSIGNER} isRecovery>
           <ScrollView>
             <TextInput
               style={styles.input}
