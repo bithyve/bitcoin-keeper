@@ -152,5 +152,5 @@ class RestClient {
 }
 
 export default new RestClient();
-export {tor};
+export { tor };
 export { TorStatus };

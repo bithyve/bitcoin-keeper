@@ -9,7 +9,6 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
-import RestClient, { TorStatus } from '../rest/RestClient';
 import torrific from './torrific';
 
 const ELECTRUM_CLIENT_CONFIG = {
@@ -36,7 +35,7 @@ export default class ElectrumClient {
       }
 
       ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
-        ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? torrific : global.net,
+        ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? torrific : global.net,
         global.tls,
         ELECTRUM_CLIENT.activePeer?.ssl || ELECTRUM_CLIENT.activePeer?.tcp,
         ELECTRUM_CLIENT.activePeer?.host,
@@ -336,10 +335,8 @@ export default class ElectrumClient {
   }
 
   public static async testConnection(host, tcpPort, sslPort) {
-    console.log('testConnection', host, tcpPort, sslPort);
-    console.log('RestClient.getTorStatus()', RestClient?.getTorStatus());
     const client = new ElectrumCli(
-      host?.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? torrific : global.net,
+      host?.endsWith('.onion') ? torrific : global.net,
       global.tls,
       sslPort || tcpPort,
       host,
@@ -351,7 +348,7 @@ export default class ElectrumClient {
     try {
       const rez = await Promise.race([
         new Promise((resolve) => {
-          timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? 21000 : 5000);
+          timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') ? 21000 : 5000);
         }),
         client.connect(),
       ]);
