@@ -18,25 +18,28 @@ import MockWrapper from '../Vault/MockWrapper';
 import HWError from 'src/hardware/HWErrorState';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { useAppSelector } from 'src/store/hooks';
 
 function ColdCardReocvery() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
+  const { signingDevices } = useAppSelector((state) => state.bhr);
+  const isMultisig = signingDevices.length >= 1 ? true : false;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
 
   const addColdCard = async () => {
     try {
-      const ccDetails = await withNfcModal(getColdcardDetails);
-      const { xpub, derivationPath, xfp, forMultiSig } = ccDetails;
+      const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
+      const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
       const coldcard = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
-        isMultisig: forMultiSig,
+        isMultisig,
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,
+        xpubDetails,
       });
       dispatch(setSigningDevices(coldcard));
       CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });

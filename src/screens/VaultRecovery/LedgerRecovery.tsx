@@ -19,27 +19,29 @@ import { useAppSelector } from 'src/store/hooks';
 function LedgerRecovery() {
   const [visible, setVisible] = useState(true);
   const { signingDevices } = useAppSelector((state) => state.bhr);
-
+  const isMultisig = signingDevices.length >= 1 ? true : false;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
   const addLedger = async (transport) => {
     try {
-      const { xpub, xfp, derivationPath } = await getLedgerDetails(transport, isMultisig);
+      const { xpub, xfp, derivationPath, xpubDetails } = await getLedgerDetails(
+        transport,
+        isMultisig
+      );
       const ledger: VaultSigner = generateSignerFromMetaData({
         xpub,
         xfp,
         derivationPath,
         storageType: SignerStorage.COLD,
         signerType: SignerType.LEDGER,
-        isMultisig: signingDevices.length > 1 ? true : false,
+        isMultisig,
+        xpubDetails,
       });
       dispatch(setSigningDevices(ledger));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       showToast(`${ledger.signerName} added successfully`, <TickIcon />);
-      const exsists = await checkSigningDevice(ledger.signerId);
-      if (exsists) Alert.alert('Warning: Vault with this signer already exisits');
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, null, 3000, true);
