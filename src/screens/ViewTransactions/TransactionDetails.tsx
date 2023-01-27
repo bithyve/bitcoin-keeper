@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native';
 import { Box, ScrollView } from 'native-base';
@@ -22,6 +24,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
+import { Transaction } from 'src/core/wallets/interfaces';
 
 function TransactionDetails({ route }) {
   const navigation = useNavigation();
@@ -30,7 +33,7 @@ function TransactionDetails({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
-  const { transaction } = route.params;
+  const { transaction }: { transaction: Transaction } = route.params;
 
   function InfoCard({
     title,
@@ -131,14 +134,14 @@ function TransactionDetails({ route }) {
             <InfoCard
               title="Transaction ID"
               describtion={transaction.txid}
-              showIcon={true}
+              showIcon
               letterSpacing={2.4}
               Icon={<Link />}
             />
           </TouchableOpacity>
           <InfoCard
             title="Fees"
-            describtion={transaction.fee + ' sats'}
+            describtion={`${transaction.fee} sats`}
             showIcon={false}
             letterSpacing={2.4}
           />
@@ -158,7 +161,7 @@ function TransactionDetails({ route }) {
             <InfoCard
               title="Note"
               describtion={transaction.notes}
-              showIcon={true}
+              showIcon
               letterSpacing={2.4}
               Icon={<Edit />}
             />

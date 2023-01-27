@@ -1,4 +1,4 @@
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/native';
 import React, { ReactElement } from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
@@ -13,6 +13,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 MockWrapper.defaultProps = {
   enable: true,
   isRecovery: false,
+  navigation: null,
 };
 
 function MockWrapper({
@@ -20,14 +21,17 @@ function MockWrapper({
   signerType,
   enable,
   isRecovery,
+  navigation,
 }: {
   children: ReactElement;
   signerType: SignerType;
   enable?: boolean;
   isRecovery?: boolean;
+  navigation?: NavigationProp<any>;
 }) {
   const dispatch = useDispatch();
-  const navigation = useNavigation();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const nav = navigation || useNavigation();
   const { showToast } = useToastMessage();
   const addMockSigner = () => {
     try {
@@ -35,13 +39,11 @@ function MockWrapper({
       if (signer) {
         if (!isRecovery) {
           dispatch(addSigningDevice(signer));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          nav.dispatch(CommonActions.navigate('AddSigningDevice'));
         }
         if (isRecovery) {
           dispatch(setSigningDevices(signer));
-          navigation.dispatch(
-            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
-          );
+          nav.dispatch(CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' }));
         }
 
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
