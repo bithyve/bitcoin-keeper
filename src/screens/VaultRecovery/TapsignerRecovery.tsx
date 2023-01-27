@@ -36,7 +36,6 @@ function TapSignerRecovery() {
   const card = React.useRef(new CKTapCard()).current;
   const { signingDevices } = useAppSelector((state) => state.bhr);
   const isMultisig = signingDevices.length >= 1 ? true : false;
-  console.log({ isMultisig });
 
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
 
@@ -94,7 +93,6 @@ function TapSignerRecovery() {
         });
       }
       dispatch(setSigningDevices(tapsigner));
-
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       return;

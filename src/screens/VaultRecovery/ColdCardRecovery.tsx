@@ -42,7 +42,9 @@ function ColdCardReocvery() {
         xpubDetails,
       });
       dispatch(setSigningDevices(coldcard));
-      CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      navigation.dispatch(
+        CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+      );
       showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       if (error instanceof HWError) {

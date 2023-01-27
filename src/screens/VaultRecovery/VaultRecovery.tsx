@@ -131,9 +131,8 @@ function SuccessModalContent() {
 
 function VaultRecovery({ navigation }) {
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultError, relayVaultUpdate } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultUpdateLoading } =
+    useAppSelector((state) => state.bhr);
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState(signingDevices);
@@ -143,7 +142,7 @@ function VaultRecovery({ navigation }) {
 
   useEffect(() => {
     setsignersList(
-      signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices.length))
+      signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices?.length))
     );
   }, [signingDevices]);
 
@@ -158,7 +157,7 @@ function VaultRecovery({ navigation }) {
   }, [scheme]);
 
   useEffect(() => {
-    if (appId) {
+    if (scheme && appId) {
       try {
         const vaultInfo: NewVaultInfo = {
           vaultType: VaultType.DEFAULT,
@@ -178,10 +177,12 @@ function VaultRecovery({ navigation }) {
 
   useEffect(() => {
     if (relayVaultUpdate) {
+      setRecoveryLoading(false);
       setSuccessModalVisible(true);
+      navigation.navigate('App', { screen: 'NewHome' });
     }
     if (relayVaultError) {
-      Alert.alert('Something Went Wrong!');
+      Alert.alert('Something went wrong!');
     }
   }, [relayVaultUpdate, relayVaultError]);
 
@@ -191,7 +192,6 @@ function VaultRecovery({ navigation }) {
     const response = await Relay.vaultCheck({ vaultId });
     if (response.isVault) {
       setScheme(response.scheme);
-      setRecoveryLoading(false);
     } else {
       setRecoveryLoading(false);
       Alert.alert('Vault does not exist with this signer combination');

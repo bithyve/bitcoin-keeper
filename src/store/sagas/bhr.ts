@@ -65,8 +65,10 @@ import { setAppId } from '../reducers/storage';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, id, appID, subscription, networkType, primaryMnemonic, version }: KeeperApp =
-    yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const { primarySeed, id, appID, subscription, networkType, version }: KeeperApp = yield call(
+    dbManager.getObjectByIndex,
+    RealmSchema.KeeperApp
+  );
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
   if (wallet) {
