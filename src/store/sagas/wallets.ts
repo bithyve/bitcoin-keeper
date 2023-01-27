@@ -163,7 +163,6 @@ function* addNewWallet(
 export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewWalletInfo[] }) {
   const wallets: Wallet[] = [];
   const walletIds = [];
-
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
@@ -173,6 +172,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
   }
 
   for (const wallet of wallets) {
+    yield put(setRelayWalletUpdateLoading(true));
     const response = yield call(updateAppImageWorker, { payload: { wallet } });
     if (response.updated) {
       yield put(relayWalletUpdateSuccess());

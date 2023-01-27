@@ -7,7 +7,7 @@ import { Share } from 'react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 // icons
 import IconShare from 'src/assets/images/icon_share.svg';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
@@ -34,7 +34,7 @@ type Props = {
   Icon: boolean;
 };
 
-const DescritporsModalContent = ({ descriptorString }) => {
+function DescritporsModalContent({ descriptorString }) {
   const onShare = async () => {
     try {
       await Share.share({
@@ -46,7 +46,7 @@ const DescritporsModalContent = ({ descriptorString }) => {
   };
 
   return (
-    <View width={'100%'}>
+    <View width="100%">
       <TouchableOpacity
         onPress={async () => {
           await onShare();
@@ -78,7 +78,7 @@ const DescritporsModalContent = ({ descriptorString }) => {
       </Box>
     </View>
   );
-};
+}
 
 function Option({ title, subTitle, onPress, Icon }: Props) {
   return (
@@ -208,9 +208,9 @@ function VaultSettings({ route }) {
       {/* {Bottom note} */}
       <Box style={styles.bottomNoteWrapper}>
         <InfoBox
-          title="Note"
-          desciption="These settings are for your active vault only and does not affect other vaults"
-          width={250}
+          title="Security Tip"
+          desciption="Recreate the Vault on another coordinator software and check if the multisig has the same details"
+          width={windowWidth * 0.8}
         />
       </Box>
       <KeeperModal

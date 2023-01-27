@@ -5,6 +5,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { Box } from 'native-base';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 import { useNavigation } from '@react-navigation/native';
+import { hp } from 'src/common/data/responsiveness/responsive';
 
 const OtherRecoveryMethods = () => {
   const { navigate } = useNavigation();
@@ -14,7 +15,7 @@ const OtherRecoveryMethods = () => {
         title="Other methods for restoring the vault"
         subtitle="This method can only be used for restoring the Vault"
       />
-      <Box>
+      <Box style={{ marginTop: hp(30) }}>
         <Tile
           title={'All Signing Devices'}
           subTitle={

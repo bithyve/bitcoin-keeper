@@ -168,7 +168,15 @@ function ReceiveScreen({ route }: { route }) {
       </TouchableOpacity>
       {/* {Bottom note} */}
       <Box style={styles.Note}>
-        <Note title={home.AddAmount} subtitle={home.reflectSats} subtitleColor="GreyText" />
+        <Note
+          title={wallet.entityKind === 'VAULT' ? 'Security Tip' : home.AddAmount}
+          subtitle={
+            wallet.entityKind === 'VAULT'
+              ? 'You can get a receive address directly from a signing device and do not have to trust the Keeper app'
+              : home.reflectSats
+          }
+          subtitleColor="GreyText"
+        />
       </Box>
       <KeeperModal
         visible={modalVisible}

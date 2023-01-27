@@ -1,12 +1,12 @@
 import { Box } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { setConnectToMyNode, setNodeDetails } from 'src/store/reducers/settings';
+import { setConnectToMyNode } from 'src/store/reducers/settings';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
@@ -32,12 +32,18 @@ function NodeSettings() {
   const { settings } = translations;
   const { showToast } = useToastMessage();
 
-  const { connectToMyNodeEnabled, nodeDetails } = useAppSelector((state) => state.settings);
-  const [nodeList, setNodeList] = useState(nodeDetails || []);
+  const { connectToMyNodeEnabled } = useAppSelector((state) => state.settings);
+  const [nodeList, setNodeList] = useState([]);
   const [ConnectToNode, setConnectToNode] = useState(connectToMyNodeEnabled);
   const [visible, setVisible] = useState(false);
   const [selectedNodeItem, setSelectedNodeItem] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const nodes = Node.getNodes();
+    setNodeList(nodes);
+  }, []);
+
 
   const openAddNodeModal = () => {
     setVisible(true);
@@ -61,7 +67,6 @@ function NodeSettings() {
     }
 
     setNodeList(nodes);
-    dispatch(setNodeDetails(nodes));
     setSelectedNodeItem(node);
     setLoading(false);
   };
@@ -77,12 +82,16 @@ function NodeSettings() {
   };
 
   const onDelete = async (selectedItem: NodeDetail) => {
-    const filteredNodes = nodeList?.filter((item) => item.id !== selectedItem.id);
-    setNodeList(filteredNodes);
-    dispatch(setNodeDetails(filteredNodes));
+    const status = Node.delete(selectedItem?.id);
+    let nodes = [];
+    if (status) {
+      nodes = Node.getNodes();
+      setNodeList(nodes);
+    }
+
     setSelectedNodeItem(null);
 
-    if (filteredNodes?.length === 0 || selectedItem.isConnected) {
+    if (nodes?.length === 0 || selectedItem.isConnected) {
       console.log('defaut node')
       setConnectToNode(false);
       dispatch(setConnectToMyNode(false));
@@ -92,7 +101,6 @@ function NodeSettings() {
     }
   };
 
-
   const onConnectNode = async (selectedItem) => {
     setLoading(true);
     setSelectedNodeItem(selectedItem);
@@ -100,9 +108,11 @@ function NodeSettings() {
 
     if (!selectedItem.isConnected) {
       node = await Node.connect(selectedItem, nodeList);
+      Node.update(node?.id, { isConnected: node?.isConnected });
     }
     else {
       await disconnectNode(node);
+      Node.update(node?.id, { isConnected: node?.isConnected });
       setLoading(false);
       return;
     }
@@ -138,7 +148,6 @@ function NodeSettings() {
     });
 
     setNodeList(updatedNodes);
-    dispatch(setNodeDetails(updatedNodes));
   };
 
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
