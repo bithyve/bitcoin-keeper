@@ -208,12 +208,10 @@ function VaultRecovery({ navigation }) {
     } else {
       if (response.error) {
         setError(true);
-        Alert.alert(
-          'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
-        );
+        Alert.alert('No vault is assocaited with this signer, try with another signer');
       } else {
         setError(true);
-        Alert.alert('Warning: Something Went Wrong!');
+        Alert.alert('Something Went Wrong!');
       }
     }
   };
