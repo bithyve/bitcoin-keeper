@@ -22,7 +22,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const [policyText, setPolicyText] = useState(wallet.transferPolicy.threshold.toString());
+  const [policyText, setPolicyText] = useState(wallet?.transferPolicy?.threshold.toString());
   const dispatch = useDispatch();
   const onPressNumber = (digit) => {
     let temp = policyText;
@@ -34,7 +34,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
 
   useEffect(() => {
     if (relayWalletError) {
-      showToast(realyWalletErrorMessage);
+      showToast('Something went wrong');
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
