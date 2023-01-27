@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useContext } from 'react';
+import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -14,32 +14,59 @@ import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
 import KeeperText from 'src/components/KeeperText';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { useAppSelector } from 'src/store/hooks';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
+import { v4 as uuidv4 } from 'uuid';
 
+// eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
   const { common } = translations;
   const [walletName, setWalletName] = useState(`Wallet ${route?.params + 1}`);
+  const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(wallet.SinglesigWallet);
-  const [transferPolicy, setTransferPolicy] = useState(isTestnet() ? '5000' : '1000000');
+  const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
+    (state) => state.bhr
+  );
 
   const createNewWallet = useCallback(() => {
+    setWalletLoading(true);
     const newWallet: NewWalletInfo = {
       walletType: WalletType.DEFAULT,
       walletDetails: {
         name: walletName,
         description: walletDescription,
         transferPolicy: {
+          id: uuidv4(),
           threshold: Number(transferPolicy),
         },
       },
     };
     dispatch(addNewWallets([newWallet]));
-    navigtaion.goBack();
   }, [walletName, walletDescription, transferPolicy]);
+
+  useEffect(() => {
+    if (relayWalletUpdate) {
+      showToast('New wallet created!', <TickIcon />);
+      dispatch(resetRealyWalletState());
+      setWalletLoading(false);
+      navigtaion.goBack();
+    }
+    if (relayWalletError) {
+      showToast('Wallet creation failed!', <ToastErrorIcon />);
+      setWalletLoading(false);
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate, relayWalletError]);
 
   // Format number with comma
   // Example: 1000000 => 1,000,000
@@ -50,7 +77,7 @@ function EnterWalletDetailScreen({ route }) {
     <View style={styles.Container} background="light.mainBackground">
       <StatusBarComponent padding={50} />
       <HeaderTitle
-        title={wallet.AddNewWallet}
+        title={`${wallet.AddNewWallet}`}
         subtitle={wallet.AddNewWalletDescription}
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
@@ -121,9 +148,11 @@ function EnterWalletDetailScreen({ route }) {
             secondaryCallback={() => {
               navigtaion.goBack();
             }}
-            primaryText={common.create}
+            primaryText={`${common.create}`}
             primaryCallback={createNewWallet}
             primaryDisable={!walletName || !walletDescription}
+            touchDisable
+            primaryLoading={walletLoading}
           />
         </View>
       </View>

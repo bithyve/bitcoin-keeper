@@ -26,6 +26,7 @@ import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
+import { securityTips } from 'src/common/data/defaultData/defaultData';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -35,6 +36,7 @@ function LoginScreen({ navigation, route }) {
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [randomNum, setRandomNum] = useState(0);
   const [loginModal, setLoginModal] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
@@ -46,6 +48,8 @@ function LoginScreen({ navigation, route }) {
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
 
+  const loginData = securityTips[randomNum];
+
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
 
@@ -53,7 +57,9 @@ function LoginScreen({ navigation, route }) {
   const { login } = translations;
   const { common } = translations;
 
+
   useEffect(() => {
+    setRandomNum(Math.round(Math.random() * 5));
     if (loggingIn) {
       attemptLogin(passcode);
     }
@@ -178,46 +184,18 @@ function LoginScreen({ navigation, route }) {
     setResetPassSuccessVisible(true);
   };
 
-  const getLoginModalContent = () => {
-    if (!isTestnet() && false) {
-      return {
-        title: 'Secure your bitcoin',
-        subTitle:
-          'The Vault can be used in multiple configurations and with different signing devices',
-        assert: {
-          loader: require('src/assets/video/test-net.gif'),
-          height: 200,
-        },
-        message:
-          'Make sure you understand the tradeoffs and the security guarantees different combinations offer.',
-      };
-    } else {
-      return {
-        title: 'Share Feedback',
-        subTitle: '(Beta app only)\nShake your device to send us a bug report or a feature request',
-        assert: {
-          loader: require('src/assets/video/test-net.gif'),
-          height: 200,
-        },
-        message:
-          'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
-      };
-    }
-  };
-
   function LoginModalContent() {
     return (
       <Box>
-        <Image
-          source={getLoginModalContent().assert.loader}
-          style={{
-            width: wp(270),
-            height: hp(getLoginModalContent().assert.height),
-            alignSelf: 'center',
-          }}
-        />
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
-          {getLoginModalContent().message}
+        <Box style={{
+          width: '100%',
+          alignItems: 'center',
+          paddingVertical: hp(20)
+        }}>
+          {loginData.assert}
+        </Box>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(290)}>
+          {loginData.message}
         </Text>
       </Box>
     );
@@ -231,15 +209,6 @@ function LoginScreen({ navigation, route }) {
         <StatusBar />
         <Box flex={1}>
           <Box>
-            <Box
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: hp(44),
-              }}
-            >
-              {isTestnet && <TestnetIndicator />}
-            </Box>
             <Text
               ml={5}
               color="light.white"
@@ -355,9 +324,9 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
-        title={getLoginModalContent().title}
-        subTitle={getLoginModalContent().subTitle}
+        close={() => { }}
+        title={loginData.title}
+        subTitle={loginData.subTitle}
         subTitleColor="light.secondaryText"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}

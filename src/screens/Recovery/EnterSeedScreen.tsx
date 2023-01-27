@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react/jsx-no-bind */
 import * as bip39 from 'bip39';
 
 import { Box, View } from 'native-base';
@@ -12,7 +14,7 @@ import {
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-
+import SuccessSvg from 'src/assets/images/successSvg.svg';
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/common/Fonts';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
@@ -39,8 +41,8 @@ function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
-  const isSoftKeyRecovery = route?.params?.isSoftKeyRecovery;
-  const type = route?.params?.type;
+
+  const { isSoftKeyRecovery = false, type } = route.params || {};
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -110,8 +112,9 @@ function EnterSeedScreen({ route }) {
     },
   ]);
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
-  const [recoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
+  const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [btnDisable, setBtnDisable] = useState(false);
 
   const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
   const closeInvalidSeedsModal = () => {
@@ -125,14 +128,12 @@ function EnterSeedScreen({ route }) {
 
   useEffect(() => {
     if (appImageError) openInvalidSeedsModal();
-    if (appRecoveryLoading) {
-      setRecoveryLoading(true);
-    }
   }, [appRecoveryLoading, appImageError, appImageRecoverd]);
 
   useEffect(() => {
-    if (appId) {
+    if (appId && recoveryLoading) {
       setRecoveryLoading(false);
+      setRecoverySuccessModal(true);
       navigation.navigate('App', { screen: 'NewHome' });
     }
   }, [appId]);
@@ -154,21 +155,7 @@ function EnterSeedScreen({ route }) {
     return seedWord.trim();
   };
 
-  const onPressNextSeedReocvery = async () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
-        const seedWord = getSeedWord();
-        dispatch(getAppImage(seedWord));
-      } else {
-        ref.current.scrollToIndex({ index: 5, animated: true });
-      }
-    } else {
-      showToast('Enter correct seedwords', <ToastErrorIcon />);
-    }
-  };
-
   const setupSeedWordsBasedKey = (mnemonic) => {
-    console.log(mnemonic);
     try {
       const networkType = config.NETWORK_TYPE;
       const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
@@ -183,11 +170,9 @@ function EnterSeedScreen({ route }) {
         storageType: SignerStorage.WARM,
         isMultisig: true,
       });
-      console.log();
       dispatch(setSigningDevices(softSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
-      showToast('Invalid QR, please scan the QR from Passport!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
@@ -201,9 +186,30 @@ function EnterSeedScreen({ route }) {
           setupSeedWordsBasedKey(seedWord);
         } else if (type === SignerType.MOBILE_KEY) {
           Alert.alert('Warning', 'Entire app will be restored', [
-            { text: 'OK', onPress: () => dispatch(getAppImage(seedWord)) },
+            {
+              text: 'OK',
+              onPress: () => {
+                setRecoveryLoading(true);
+                dispatch(getAppImage(seedWord));
+              },
+            },
           ]);
         }
+      } else {
+        ref.current.scrollToIndex({ index: 5, animated: true });
+      }
+    } else {
+      showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+  };
+
+  const onPressNextSeedReocvery = async () => {
+    if (isSeedFilled(6)) {
+      if (isSeedFilled(12)) {
+        setBtnDisable(true);
+        const seedWord = getSeedWord();
+        setRecoveryLoading(true);
+        dispatch(getAppImage(seedWord));
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
       }
@@ -225,6 +231,19 @@ function EnterSeedScreen({ route }) {
     );
   }
 
+  function SuccessModalContent() {
+    return (
+      <View>
+        <Box alignSelf="center">
+          <SuccessSvg />
+        </Box>
+        <Text color="light.greenText" fontSize={13} padding={2}>
+          The BIP-85 wallets and vault in the app are recovered.
+        </Text>
+      </View>
+    );
+  }
+
   const getFormattedNumber = (number) => {
     if (number < 9) return `0${number + 1}`;
     return number + 1;
@@ -241,8 +260,7 @@ function EnterSeedScreen({ route }) {
         <Box marginX={10} mt={25}>
           {isSoftKeyRecovery ? (
             <SeedWordsView
-              title={'Enter Seed Words'}
-              subtitle={'Enter the seed in order'}
+              title="Enter Seed Words"
               onPressHandler={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
             />
           ) : (
@@ -271,7 +289,7 @@ function EnterSeedScreen({ route }) {
               height: 190,
             }}
             pagingEnabled
-            scrollEnabled={false}
+            scrollEnabled={isSeedFilled(6)}
             renderItem={({ item, index }) => (
               <View style={styles.inputListWrapper}>
                 <Text style={styles.indexText} bold>
@@ -325,8 +343,14 @@ function EnterSeedScreen({ route }) {
               <View style={styles.dot} />
               <View style={styles.dash} />
             </Box>
+
             {isSoftKeyRecovery ? (
-              <Buttons primaryCallback={onPressNextSoftReocvery} primaryText="Next" />
+              <Buttons
+                primaryCallback={onPressNextSoftReocvery}
+                primaryText="Next"
+                touchDisable={btnDisable}
+                primaryLoading={recoveryLoading}
+              />
             ) : (
               <Buttons
                 primaryCallback={onPressNextSeedReocvery}
@@ -336,6 +360,7 @@ function EnterSeedScreen({ route }) {
                 }}
                 secondaryText="Other Methods"
                 primaryLoading={recoveryLoading}
+                touchDisable={btnDisable}
               />
             )}
           </View>
@@ -350,6 +375,18 @@ function EnterSeedScreen({ route }) {
           buttonCallback={closeInvalidSeedsModal}
           textColor="light.primaryText"
           Content={InValidSeedsScreen}
+        />
+        <KeeperModal
+          visible={recoverySuccessModal}
+          title="App Recovered"
+          subTitle="Your Keeper App has successfully been recovered"
+          buttonText="Ok"
+          Content={SuccessModalContent}
+          close={() => {}}
+          showCloseIcon={false}
+          buttonCallback={() => {
+            setRecoverySuccessModal(false);
+          }}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>

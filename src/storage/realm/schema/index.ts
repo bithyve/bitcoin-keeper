@@ -19,13 +19,13 @@ import {
   XpubDetailsSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
-import { TriggerPolicySchema } from './triggerPolicy';
 import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
+import { NodeConnectSchema } from './nodeConnect';
 
 export default [
   KeeperAppSchema,
@@ -40,7 +40,6 @@ export default [
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
   TransferPolicySchema,
-  TriggerPolicySchema,
   VaultSchema,
   XpubDetailsSchema,
   VaultPresentationDataSchema,
@@ -52,4 +51,5 @@ export default [
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
+  NodeConnectSchema
 ];

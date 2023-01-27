@@ -59,7 +59,6 @@ function SignTransactionScreen() {
   const [passwordModal, setPasswordModal] = useState(false);
 
   const [activeSignerId, setActiveSignerId] = useState<string>();
-  const LedgerCom = useRef();
   const { showToast } = useToastMessage();
 
   const navigation = useNavigation();

@@ -58,6 +58,7 @@ function AddAmountScreen({ route }: { route }) {
               primaryCallback={() => {
                 navigtaion.navigate('Receive', { amount, wallet });
               }}
+              touchDisable={true}
             />
           </View>
         </View>

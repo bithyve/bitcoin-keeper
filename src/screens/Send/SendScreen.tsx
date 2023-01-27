@@ -50,7 +50,7 @@ function SendScreen({ route }) {
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
 
-  const { sender } = route.params;
+  const { sender } = route.params as { sender: Wallet | Vault };
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -98,16 +98,12 @@ function SendScreen({ route }) {
 
     launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
-        return;
       } else if (response.errorCode === 'camera_unavailable') {
         showToast('Camera not available on device');
-        return;
       } else if (response.errorCode === 'permission') {
         showToast('Permission not satisfied');
-        return;
       } else if (response.errorCode === 'others') {
         showToast(response.errorMessage);
-        return;
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {
@@ -271,8 +267,12 @@ function SendScreen({ route }) {
       {showNote && (
         <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
           <Note
-            title={common.note}
-            subtitle="Make sure the address or QR is the one where you want to send the funds to"
+            title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
+            subtitle={
+              sender.entityKind === 'VAULT'
+                ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
+                : 'Make sure the address or QR is the one where you want to send the funds to'
+            }
             subtitleColor="GreyText"
           />
         </Box>

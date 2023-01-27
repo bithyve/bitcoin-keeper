@@ -1,5 +1,7 @@
 import ElectrumClient from "src/core/services/electrum/client";
 import { NodeDetail } from "src/core/wallets/interfaces";
+import dbManager from "src/storage/realm/dbManager";
+import { RealmSchema } from "src/storage/realm/enum";
 
 export default class Node {
     public static async connect(selectedNode, nodeList) {
@@ -35,6 +37,11 @@ export default class Node {
         await ElectrumClient.connect();
     }
 
+    public static getNodes(): NodeDetail[] {
+        const nodes: NodeDetail[] = dbManager.getCollection(RealmSchema.NodeConnect);
+        return nodes;
+    }
+
     public static async save(nodeDetail: NodeDetail, nodeList: NodeDetail[]) {
         if (
             nodeDetail.host === null ||
@@ -44,19 +51,36 @@ export default class Node {
         )
             return null;
 
-        const nodes = [...nodeList];
         let node = { ...nodeDetail };
         if (node.id === null) {
             node.id = nodeList.length + 1;
-            nodes.push(node);
+            dbManager.createObject(RealmSchema.NodeConnect, node);
         } else {
-            const index = nodes.findIndex((item) => item.id === node.id);
-            if (node.isConnected)
-                node = await Node.connect(node, nodes);
-            nodes[index] = node;
+            dbManager.updateObjectById(RealmSchema.NodeConnect, node.id.toString(), {
+                host: node.host,
+                port: node.port,
+                useSSL: node.useSSL,
+                useKeeperNode: node.useKeeperNode,
+                isConnected: node.isConnected
+            });
+        }
+
+        const nodes = Node.getNodes();
+        if (node.id !== null && node.isConnected) {
+            node = await Node.connect(node, nodes);
         }
 
         return { nodes, node };
+    }
+
+    public static update(id: string, propsToUpdate: any) {
+        if (id === null) return;
+        dbManager.updateObjectById(RealmSchema.NodeConnect, id.toString(), { ...propsToUpdate });
+    }
+
+    public static delete(id) {
+        const status: boolean = dbManager.deleteObjectById(RealmSchema.NodeConnect, id.toString());
+        return status;
     }
 
     public static getModalParams(selectedNodeItem) {

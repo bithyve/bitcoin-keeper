@@ -13,7 +13,6 @@ import { CryptoAccount, CryptoHDKey } from 'src/core/services/qr/bc-ur-registry'
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 
 import RestClient from 'src/core/services/rest/RestClient';
-import _ from 'lodash';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/common/constants/Bitcoin';
@@ -26,9 +25,8 @@ import {
   NetworkType,
   PaymentInfoKind,
   ScriptTypes,
-  TransactionType,
 } from '../enums';
-import { OutputUTXOs, Transaction } from '../interfaces';
+import { OutputUTXOs } from '../interfaces';
 import config from '../../config';
 
 const ECPair = ECPairFactory(ecc);
@@ -354,15 +352,6 @@ export default class WalletUtilities {
           : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
     }
 
-    if (!publicKey)
-      for (const importedAddress in wallet.specs.importedAddresses) {
-        if (address === importedAddress)
-          return {
-            privateKey: wallet.specs.importedAddresses[importedAddress].privateKey,
-            subPath: [],
-          };
-      }
-
     throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ${address}`);
   };
 
@@ -570,42 +559,6 @@ export default class WalletUtilities {
       return { outputs, changeMultisig };
     }
     return { outputs, changeAddress };
-  };
-
-  static findTxDelta = (previousTxidMap, currentTxIdMap, transactions) => {
-    // return new/found transactions(delta b/w hard and soft refresh)
-    const txsFound: Transaction[] = [];
-    const newTxIds: string[] = _.difference(
-      Object.keys(currentTxIdMap),
-      Object.keys(previousTxidMap)
-    );
-    const newTxIdMap = {};
-    newTxIds.forEach((txId) => (newTxIdMap[txId] = true));
-
-    if (newTxIds.length) {
-      transactions.forEach((tx) => {
-        if (newTxIdMap[tx.txid]) txsFound.push(tx);
-      });
-    }
-
-    return txsFound;
-  };
-
-  static setNewTransactions = (transactions: Transaction[], lastSynched: number) => {
-    const lastSynced = lastSynched;
-    let latestSync = lastSynced;
-    const newTransactions: Transaction[] = []; // delta transactions
-    for (const tx of transactions) {
-      if (tx.status === 'Confirmed' && tx.transactionType === TransactionType.RECEIVED) {
-        if (tx.blockTime > lastSynced) newTransactions.push(tx);
-        if (tx.blockTime > latestSync) latestSync = tx.blockTime;
-      }
-    }
-
-    return {
-      newTransactions,
-      lastSynched: latestSync,
-    };
   };
 
   // test-wallet specific utilities

@@ -18,7 +18,7 @@ import Text from 'src/components/KeeperText';
 
 function TransactionElement({
   transaction,
-  onPress = () => { },
+  onPress = () => {},
 }: {
   transaction: Transaction;
   onPress?: () => void;
@@ -29,7 +29,6 @@ function TransactionElement({
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
-  const { status } = transaction;
   return (
     <TouchableOpacity onPress={onPress}>
       <Box style={styles.container}>
@@ -49,11 +48,11 @@ function TransactionElement({
           </Box>
         </Box>
         <Box style={styles.rowCenter}>
-          {status === 'Unconfirmed' ? (
+          {transaction.confirmations > 0 ? null : (
             <Box paddingX={3}>
               <UnconfirmedIcon />
             </Box>
-          ) : null}
+          )}
           <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
           <Text style={styles.amountText}>
             {getAmt(transaction?.amount, exchangeRates, currencyCode, currentCurrency)}
