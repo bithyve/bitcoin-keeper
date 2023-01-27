@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { CommonActions, NavigationRouteContext, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
@@ -232,7 +232,7 @@ function VaultRecovery({ navigation }) {
     <ScreenWrapper>
       <HeaderTitle
         title="Add signing devices"
-        subtitle="To recover your inherited vault"
+        subtitle="To recover your vault"
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
       />

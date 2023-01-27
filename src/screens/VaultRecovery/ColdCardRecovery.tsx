@@ -56,7 +56,7 @@ function ColdCardReocvery() {
   };
 
   const instructions =
-    'Multi Sig: Go to Settings > Multisig wallets > Export xPub on your Coldcard /n Single-Sig: Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
+    'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).';
   return (
     <ScreenWrapper>
       <MockWrapper signerType={SignerType.COLDCARD} isRecovery={true}>

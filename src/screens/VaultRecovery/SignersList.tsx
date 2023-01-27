@@ -3,7 +3,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-
+import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
@@ -37,6 +37,7 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import { KeeperContent } from '../SignTransaction/SignerModals';
 
 const getnavigationState = (type) => {
   return {
@@ -114,20 +115,9 @@ function ColdCardSetupContent() {
         <ColdCardSetupImage />
       </Box>
       <Box marginTop="4" alignItems="flex-start">
-        <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Box mb={hp(19)} mx={wp(10)} flexDirection="row">
-            <Text color="light.greenText" fontSize={13} light ml={3}>
-              {`\u2022 Export the xPub by going to Settings > Multisig wallet > Export xPub. From here choose the NFC option to make the transfer and remember the account you had chosen (This is important for recovering your vault).\n`}
-            </Text>
-          </Box>
-        </Box>
-        <Box flex={1} flexDirection="row" alignItems="space-between" justifyContent="center">
-          <Box mb={hp(19)} mx={wp(10)} flexDirection="row">
-            <Text color="light.greenText" fontSize={13} light ml={3}>
-              {`\u2022 Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet more from Advance option > Danger Zone > Testnet and enable it`}
-            </Text>
-          </Box>
-        </Box>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault)`}
+        </Text>
       </Box>
     </View>
   );
@@ -245,16 +235,6 @@ function JadeSetupContent() {
           }}
         >
           {`\u2022 Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to Multisig and Native Segwit in the options section.\n`}
-        </Text>
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          letterSpacing={0.65}
-          style={{
-            marginLeft: wp(10),
-          }}
-        >
-          {`\u2022 Make sure you enable Testnet mode on the Jade by creating a multisig wallet with the companion app if you are running the app in the Testnet mode.`}
         </Text>
       </Box>
     </View>
@@ -645,9 +625,10 @@ function SignersList({ navigation }) {
         <KeeperModal
           visible={visible && type === SignerType.KEEPER}
           close={close}
-          title="Verify another KSD"
-          subTitle="Recover using KSD"
+          title="Keep your Device Ready"
+          subTitle="Keep your Keeper Signing Device ready before proceeding"
           subTitleColor="light.secondaryText"
+          Content={() => <KeeperContent />}
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={navigateToAddQrBasedSigner}
@@ -657,8 +638,9 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.SEED_WORDS}
           close={close}
           title="Recover through Soft Key"
-          subTitle="Reocver through a stored soft key"
+          subTitle="Keep your 12 words reocvery phrase handy"
           subTitleColor="light.secondaryText"
+          Content={() => <SeedWordsIllustration />}
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={() => {
@@ -672,8 +654,9 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.MOBILE_KEY}
           close={close}
           title="Recover using Mobile Key (Seed)"
-          subTitle="Recover entire app using Seed"
+          subTitle="Keep your 12 words reocvery phrase handy"
           subTitleColor="light.secondaryText"
+          Content={() => <SeedWordsIllustration />}
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={() => {

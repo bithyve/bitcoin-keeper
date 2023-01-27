@@ -1,5 +1,5 @@
 import { Alert, SafeAreaView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useState } from 'react';
 import { getLedgerDetails } from 'src/hardware/ledger';
@@ -40,7 +40,9 @@ function LedgerRecovery() {
         xpubDetails,
       });
       dispatch(setSigningDevices(ledger));
-      navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      navigation.dispatch(
+        CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+      );
       showToast(`${ledger.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       if (error instanceof HWError) {
