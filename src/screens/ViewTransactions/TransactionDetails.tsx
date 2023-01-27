@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native';
 import { Box, ScrollView } from 'native-base';
@@ -21,15 +22,16 @@ import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
+import { Transaction } from 'src/core/wallets/interfaces';
 
 function TransactionDetails({ route }) {
   const navigation = useNavigation();
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
-  const { transaction } = route.params;
+  const { transaction }: { transaction: Transaction } = route.params;
 
   function InfoCard({
     title,
@@ -80,7 +82,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${transaction.txid}`
     );
   };
@@ -134,27 +137,27 @@ function TransactionDetails({ route }) {
             <InfoCard
               title="Transaction ID"
               describtion={transaction.txid}
-              icon={true}
+              icon
               letterSpacing={2.4}
             />
           </TouchableOpacity>
-          {transaction.notes && (
+          {/* {transaction.notes && (
             <InfoCard
               title="Note"
               describtion={transaction.notes}
               icon={false}
               letterSpacing={2.4}
             />
-          )}
+          )} */}
           <InfoCard
             title="Fee"
-            describtion={transaction.fee + ' sats'}
+            describtion={`${transaction.fee} sats`}
             icon={false}
             letterSpacing={2.4}
           />
           <InfoCard
             title="Confirmations"
-            describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
+            describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
             icon={false}
             letterSpacing={2.4}
           />

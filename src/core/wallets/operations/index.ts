@@ -196,8 +196,9 @@ export default class WalletOperations {
       const tx = txs[txid];
 
       if (existingTx) {
-        // transaction already exists in the database, should update if has confs < 6
+        // transaction already exists in the database, should update till transaction has 3+ confs
         if (!tx.confirmations) continue; // unconfirmed transaction
+        if (existingTx.confirmations > 3) continue; // 3+ confs
         if (existingTx.confirmations !== tx.confirmations) {
           // update transaction confirmations
           existingTx.confirmations = tx.confirmations;

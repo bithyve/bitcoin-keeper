@@ -29,7 +29,6 @@ function TransactionElement({
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
-  const { confirmations } = transaction;
   return (
     <TouchableOpacity onPress={onPress}>
       <Box style={styles.container}>
@@ -49,7 +48,7 @@ function TransactionElement({
           </Box>
         </Box>
         <Box style={styles.rowCenter}>
-          {confirmations && confirmations > 0 ? null : (
+          {transaction.confirmations > 0 ? null : (
             <Box paddingX={3}>
               <UnconfirmedIcon />
             </Box>
