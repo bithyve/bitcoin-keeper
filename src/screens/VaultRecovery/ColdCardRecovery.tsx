@@ -14,32 +14,37 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { captureError } from 'src/core/services/sentry';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import MockWrapper from '../Vault/MockWrapper';
 import HWError from 'src/hardware/HWErrorState';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { useAppSelector } from 'src/store/hooks';
+import MockWrapper from '../Vault/MockWrapper';
 
 function ColdCardReocvery() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
-
+  const { signingDevices } = useAppSelector((state) => state.bhr);
+  const isMultisig = signingDevices.length >= 1;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
 
   const addColdCard = async () => {
     try {
-      const ccDetails = await withNfcModal(getColdcardDetails);
-      const { xpub, derivationPath, xfp, forMultiSig } = ccDetails;
+      const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
+      const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
       const coldcard = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
-        isMultisig: forMultiSig,
+        isMultisig,
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,
+        xpubDetails,
       });
       dispatch(setSigningDevices(coldcard));
-      CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      navigation.dispatch(
+        CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+      );
       showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       if (error instanceof HWError) {
@@ -51,10 +56,10 @@ function ColdCardReocvery() {
   };
 
   const instructions =
-    'Multi Sig: Go to Settings > Multisig wallets > Export xPub on your Coldcard /n Single-Sig: Go to Advanced/Tools > Export wallet > Generic Wallet > export with NFC';
+    'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).';
   return (
     <ScreenWrapper>
-      <MockWrapper signerType={SignerType.COLDCARD} isRecovery={true}>
+      <MockWrapper signerType={SignerType.COLDCARD} isRecovery>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
