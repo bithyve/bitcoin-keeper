@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-case-declarations */
@@ -40,7 +41,6 @@ import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { RootState } from '../store';
-import { updateAppImage } from '../sagaActions/bhr';
 import {
   addSigningDevice,
   initiateVaultMigration,
@@ -167,19 +167,13 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet = yield call(
-      addNewWallet,
-      walletType,
-      walletDetails || {},
-      app,
-      importDetails
-    );
+    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
     walletIds.push(wallet.id);
     wallets.push(wallet);
   }
 
   for (const wallet of wallets) {
-    const response = yield call(updateAppImageWorker, { payload: { wallet: wallet } });
+    const response = yield call(updateAppImageWorker, { payload: { wallet } });
     if (response.updated) {
       yield put(relayWalletUpdateSuccess());
       yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
@@ -362,13 +356,7 @@ export function* importNewWalletWorker({
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
   for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet = yield call(
-      addNewWallet,
-      walletType,
-      walletDetails || {},
-      app,
-      importDetails
-    );
+    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
     wallets.push(wallet);
   }
 
@@ -429,6 +417,8 @@ function* refreshWalletsWorker({
   });
 
   for (const synchedWallet of synchedWallets) {
+    if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+
     if (synchedWallet.entityKind === EntityKind.VAULT) {
       yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
         specs: synchedWallet.specs,
