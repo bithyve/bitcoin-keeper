@@ -20,6 +20,7 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
+import { v4 as uuidv4 } from 'uuid';
 
 function EnterWalletDetailScreen({ route }) {
   const navigtaion = useNavigation();
@@ -44,6 +45,7 @@ function EnterWalletDetailScreen({ route }) {
         name: walletName,
         description: walletDescription,
         transferPolicy: {
+          id: uuidv4(),
           threshold: Number(transferPolicy),
         },
       },

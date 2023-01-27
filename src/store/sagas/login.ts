@@ -85,7 +85,7 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
     // connect electrum-client
-    const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
     ElectrumClient.setActivePeer(privateNodes);
     yield call(ElectrumClient.connect);
 
@@ -151,7 +151,7 @@ function* credentialsAuthWorker({ payload }) {
   yield put(setKey(key));
 
   // connect electrum-client
-  const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+  const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
   ElectrumClient.setActivePeer(privateNodes);
   yield call(ElectrumClient.connect);
 

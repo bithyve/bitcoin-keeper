@@ -1,8 +1,7 @@
 import * as bip39 from 'bip39';
-
 import { call, put } from 'redux-saga/effects';
 import { generateEncryptionKey } from 'src/core/services/operations/encryption';
-
+import { v4 as uuidv4 } from 'uuid';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -12,7 +11,6 @@ import { NetworkType, WalletType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
-import { addNewWallets } from '../sagaActions/wallets';
 import config from '../../core/config';
 import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
@@ -62,6 +60,7 @@ function* setupKeeperAppWorker({ payload }) {
         name: 'Wallet 1',
         description: 'Single-sig bitcoin wallet',
         transferPolicy: {
+          id: uuidv4(),
           threshold: defaultTransferPolicyThreshold,
         },
       },
@@ -116,6 +115,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
         name: 'Mobile Wallet',
         description: 'Single-sig bitcoin wallet',
         transferPolicy: {
+          id: uuidv4(),
           threshold: defaultTransferPolicyThreshold,
         },
       },
