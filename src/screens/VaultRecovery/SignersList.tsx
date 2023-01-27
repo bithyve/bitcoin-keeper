@@ -40,10 +40,10 @@ import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 
 const getnavigationState = (type) => {
   return {
-    index: 1,
+    index: 5,
     routes: [
       { name: 'NewKeeperApp' },
-      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false } },
+      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false, type } },
       { name: 'OtherRecoveryMethods' },
       { name: 'VaultRecoveryAddSigner' },
       { name: 'SignersList' },
@@ -73,7 +73,7 @@ export const getDeviceStatus = (
     case SignerType.POLICY_SERVER:
       if (signingDevices.length < 1)
         return {
-          message: 'Add anyother device to recover',
+          message: 'Add another device first to recover',
           disabled: true,
         };
     case SignerType.SEED_WORDS:
@@ -261,7 +261,7 @@ function JadeSetupContent() {
   );
 }
 
-function SignersList() {
+function SignersList({ navigation }) {
   type HWProps = {
     disabled: boolean;
     message: string;
@@ -293,7 +293,6 @@ function SignersList() {
   }, []);
 
   const { navigate } = useNavigation();
-  const navigation = useNavigation();
 
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -463,22 +462,24 @@ function SignersList() {
   };
 
   const verifySigningServer = async (otp) => {
-    const response = await SigningServer.fetchSignerSetup(relayVaultReoveryAppId, otp);
-    if (response.xpub) {
-      const signingServerKey = generateSignerFromMetaData({
-        xpub: response.xpub,
-        derivationPath: response.xpub,
-        xfp: response.masterFingerprint,
-        signerType: SignerType.POLICY_SERVER,
-        storageType: SignerStorage.WARM,
-        isMultisig: true,
-        signerPolicy: response.policy,
-      });
-      dispatch(setSigningDevices(signingServerKey));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-      showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
-    } else {
-      Alert.alert('Invalid OTP');
+    try {
+      const response = await SigningServer.fetchSignerSetup(relayVaultReoveryAppId, otp);
+      if (response.xpub) {
+        const signingServerKey = generateSignerFromMetaData({
+          xpub: response.xpub,
+          derivationPath: response.xpub,
+          xfp: response.masterFingerprint,
+          signerType: SignerType.POLICY_SERVER,
+          storageType: SignerStorage.WARM,
+          isMultisig: true,
+          signerPolicy: response.policy,
+        });
+        dispatch(setSigningDevices(signingServerKey));
+        navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
+        showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
+      }
+    } catch (err) {
+      Alert.alert(`${err}`);
     }
   };
 
