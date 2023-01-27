@@ -1,13 +1,6 @@
+/* eslint-disable no-unused-vars */
 import { SignerPolicy } from 'src/core/services/interfaces';
-import {
-  ActiveAddresses,
-  BIP85Config,
-  Balances,
-  Transaction,
-  TransactionToAddressMapping,
-  UTXO,
-  WalletImportedAddresses,
-} from '.';
+import { BIP85Config, Balances, Transaction, UTXO, ActiveAddresses } from '.';
 import {
   EntityKind,
   NetworkType,
@@ -27,20 +20,13 @@ export interface VaultSpecs {
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   activeAddresses: ActiveAddresses; // addresses being actively used by this vault
-  importedAddresses: WalletImportedAddresses;
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
-  transactions: Transaction[]; // transactions belonging to this vault
-  newTransactions?: Transaction[]; // new transactions arrived during the current sync
+  transactions: Transaction[]; // transactions belonging to this wallet
+  txNote: { [txId: string]: string }; // transaction note
+  hasNewUpdates: boolean; // spec vars have a new update?
   lastSynched: number; // vault's last sync timestamp
-  hasNewTxn?: boolean; // indicates new txns
-  txIdCache: { [txid: string]: boolean };
-  transactionMapping: TransactionToAddressMapping[];
-  transactionNote: {
-    [txId: string]: string;
-  };
-  // transactionsMeta?: TransactionMetaData[];
 }
 
 export interface VaultScheme {

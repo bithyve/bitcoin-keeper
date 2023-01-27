@@ -1,3 +1,4 @@
+/* eslint-disable no-continue */
 /* eslint-disable camelcase */
 /* eslint-disable guard-for-in */
 /* eslint-disable no-await-in-loop */
@@ -20,6 +21,7 @@ import config from 'src/core/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/core/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
+import { ElectrumTransaction } from 'src/core/services/electrum/interface';
 import {
   ActiveAddressAssignee,
   AverageTxFees,
@@ -87,18 +89,70 @@ export default class WalletOperations {
     };
   };
 
-  static importAddress = async (
-    wallet: Wallet | Vault,
-    privateKey: string,
-    address: string,
-    requester: ActiveAddressAssignee
+  static transformElectrumTxToTx = (
+    tx,
+    inputTxs,
+    externalAddresses,
+    internalAddresses,
+    txidToAddress
   ) => {
-    if (!wallet.specs.importedAddresses) wallet.specs.importedAddresses = {};
-    wallet.specs.importedAddresses[address] = {
-      address,
-      privateKey,
+    // popluate tx-inputs with addresses and values
+    const inputs = tx.vin;
+    for (let index = 0; index < tx.vin.length; index++) {
+      const input = inputs[index];
+
+      const inputTx = inputTxs[input.txid];
+      if (inputTx && inputTx.vout[input.vout]) {
+        const vout = inputTx.vout[input.vout];
+        input.addresses = vout.scriptPubKey.addresses;
+        input.value = vout.value;
+      }
+    }
+
+    // calculate cumulative amount and transaction type
+    const outputs = tx.vout;
+    let fee = 0; // delta b/w inputs and outputs
+    let amount = 0;
+    const senderAddresses = [];
+    const recipientAddresses = [];
+
+    for (const input of inputs) {
+      const inputAddress = input.addresses[0];
+      if (
+        externalAddresses[inputAddress] !== undefined ||
+        internalAddresses[inputAddress] !== undefined
+      )
+        amount -= input.value;
+
+      senderAddresses.push(inputAddress);
+      fee += input.value;
+    }
+
+    for (const output of outputs) {
+      const outputAddress = output.scriptPubKey.addresses[0];
+      if (
+        externalAddresses[outputAddress] !== undefined ||
+        internalAddresses[outputAddress] !== undefined
+      )
+        amount += output.value;
+
+      recipientAddresses.push(outputAddress);
+      fee -= output.value;
+    }
+
+    const transaction: Transaction = {
+      txid: tx.txid,
+      address: txidToAddress[tx.txid],
+      confirmations: tx.confirmations ? tx.confirmations : 0,
+      fee: Math.floor(fee * 1e8),
+      date: tx.time ? new Date(tx.time * 1000).toUTCString() : new Date(Date.now()).toUTCString(),
+      transactionType: amount > 0 ? TransactionType.RECEIVED : TransactionType.SENT,
+      amount: Math.floor(Math.abs(amount) * 1e8),
+      recipientAddresses,
+      senderAddresses,
+      blockTime: tx.blocktime,
     };
-    wallet.specs.activeAddresses.external[address] = -1;
+    return transaction;
   };
 
   static fetchTransactions = async (
@@ -108,105 +162,76 @@ export default class WalletOperations {
     internalAddresses: { [address: string]: number },
     network: bitcoinJS.Network
   ) => {
+    const transactions = wallet.specs.transactions;
+    let lastUsedAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
+    let lastUsedChangeAddressIndex = wallet.specs.nextFreeChangeAddressIndex - 1;
+
+    const txidToIndex = {}; // transaction-id to index mapping(assists transaction updation)
+    for (let index = 0; index < transactions.length; index++) {
+      const transaction = transactions[index];
+      txidToIndex[transaction.txid] = index;
+    }
+
     const { historyByAddress, txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(
       addresses,
       network
     );
-
-    const transactions: Transaction[] = [];
     const txs = await ElectrumClient.getTransactionsById(txids);
 
-    // saturate transaction:  inputs-params, type, amount
+    // fetch input transactions(for new ones), in order to construct the inputs
     const inputTxIds = [];
     for (const txid in txs) {
+      if (txidToIndex[txid] !== undefined) continue; // transaction is already present(don't need to reconstruct using inputTxids)
       for (const vin of txs[txid].vin) inputTxIds.push(vin.txid);
     }
     const inputTxs = await ElectrumClient.getTransactionsById(inputTxIds);
 
-    let lastUsedAddressIndex = wallet.specs.nextFreeAddressIndex - 1;
-    let lastUsedChangeAddressIndex = wallet.specs.nextFreeChangeAddressIndex - 1;
-
+    let hasNewUpdates = false;
+    const newTransactions: Transaction[] = [];
+    // construct a new or update an existing transaction
     for (const txid in txs) {
+      let existingTx: Transaction;
+      if (txidToIndex[txid] !== undefined) existingTx = transactions[txidToIndex[txid]];
+
       const tx = txs[txid];
-      // popluate tx-inputs with addresses and values
-      const inputs = tx.vin;
-      for (let index = 0; index < tx.vin.length; index++) {
-        const input = inputs[index];
 
-        const inputTx = inputTxs[input.txid];
-        if (inputTx && inputTx.vout[input.vout]) {
-          const vout = inputTx.vout[input.vout];
-          input.addresses = vout.scriptPubKey.addresses;
-          input.value = vout.value;
+      if (existingTx) {
+        // transaction already exists in the database, should update if has confs < 6
+        if (!tx.confirmations) continue; // unconfirmed transaction
+        if (existingTx.confirmations !== tx.confirmations) {
+          // update transaction confirmations
+          existingTx.confirmations = tx.confirmations;
+          hasNewUpdates = true;
         }
-      }
-
-      // calculate cumulative amount and transaction type
-      const outputs = tx.vout;
-      let fee = 0; // delta b/w inputs and outputs
-      let amount = 0;
-      const senderAddresses = [];
-      const recipientAddresses = [];
-
-      for (const input of inputs) {
-        const inputAddress = input.addresses[0];
-        if (
-          externalAddresses[inputAddress] !== undefined ||
-          internalAddresses[inputAddress] !== undefined
-        )
-          amount -= input.value;
-
-        senderAddresses.push(inputAddress);
-        fee += input.value;
-      }
-
-      for (const output of outputs) {
-        const outputAddress = output.scriptPubKey.addresses[0];
-        if (
-          externalAddresses[outputAddress] !== undefined ||
-          internalAddresses[outputAddress] !== undefined
-        )
-          amount += output.value;
-
-        recipientAddresses.push(outputAddress);
-        fee -= output.value;
-      }
-
-      const address = txidToAddress[txid];
-
-      const transaction: Transaction = {
-        txid,
-        confirmations: tx.confirmations ? tx.confirmations : 0,
-        status: tx.confirmations ? 'Confirmed' : 'Unconfirmed',
-        fee: Math.floor(fee * 1e8),
-        date: tx.time ? new Date(tx.time * 1000).toUTCString() : new Date(Date.now()).toUTCString(),
-        transactionType: amount > 0 ? TransactionType.RECEIVED : TransactionType.SENT,
-        amount: Math.floor(Math.abs(amount) * 1e8),
-        walletType: wallet.type,
-        walletName: wallet.presentationData.name,
-        recipientAddresses,
-        senderAddresses,
-        address,
-        blockTime: tx.blocktime,
-      };
-      transactions.push(transaction);
-
-      // update the last used address/change-address index
-      if (externalAddresses[address] !== undefined) {
-        lastUsedAddressIndex = Math.max(externalAddresses[address], lastUsedAddressIndex);
-      } else if (internalAddresses[address] !== undefined) {
-        lastUsedChangeAddressIndex = Math.max(
-          internalAddresses[address],
-          lastUsedChangeAddressIndex
+      } else {
+        // new transaction construction
+        const transaction = WalletOperations.transformElectrumTxToTx(
+          tx,
+          inputTxs,
+          externalAddresses,
+          internalAddresses,
+          txidToAddress
         );
+        hasNewUpdates = true;
+        newTransactions.push(transaction);
+
+        // update the last used address/change-address index
+        const address = txidToAddress[tx.txid];
+        if (externalAddresses[address] !== undefined) {
+          lastUsedAddressIndex = Math.max(externalAddresses[address], lastUsedAddressIndex);
+        } else if (internalAddresses[address] !== undefined) {
+          lastUsedChangeAddressIndex = Math.max(
+            internalAddresses[address],
+            lastUsedChangeAddressIndex
+          );
+        }
       }
     }
 
-    // sort transactions chronologically
-
-    transactions.sort((tx1, tx2) => (tx1.confirmations > tx2.confirmations ? 1 : -1));
+    newTransactions.sort((tx1, tx2) => (tx1.confirmations > tx2.confirmations ? 1 : -1));
     return {
-      transactions,
+      transactions: newTransactions.concat(transactions),
+      hasNewUpdates,
       lastUsedAddressIndex,
       lastUsedChangeAddressIndex,
     };
@@ -298,8 +323,8 @@ export default class WalletOperations {
         }
       }
 
-      // sync & populate transactions
-      const { transactions, lastUsedAddressIndex, lastUsedChangeAddressIndex } =
+      // sync & populate transactionsInfo
+      const { transactions, lastUsedAddressIndex, lastUsedChangeAddressIndex, hasNewUpdates } =
         await WalletOperations.fetchTransactions(
           wallet,
           addresses,
@@ -309,12 +334,14 @@ export default class WalletOperations {
         );
 
       // update wallet w/ latest utxos, balances and transactions
+      wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
+      wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
       wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
       wallet.specs.confirmedUTXOs = confirmedUTXOs;
       wallet.specs.balances = balances;
       wallet.specs.transactions = transactions;
-      wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
-      wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
+      wallet.specs.hasNewUpdates = hasNewUpdates;
+      wallet.specs.lastSynched = Date.now();
     }
 
     return {

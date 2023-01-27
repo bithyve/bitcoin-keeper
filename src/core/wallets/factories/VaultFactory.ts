@@ -66,7 +66,6 @@ export const generateVault = ({
       external: {},
       internal: {},
     },
-    importedAddresses: {},
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
     confirmedUTXOs: [],
@@ -76,10 +75,9 @@ export const generateVault = ({
       unconfirmed: 0,
     },
     transactions: [],
+    txNote: {},
+    hasNewUpdates: false,
     lastSynched: 0,
-    txIdCache: {},
-    transactionMapping: [],
-    transactionNote: {},
   };
 
   if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);

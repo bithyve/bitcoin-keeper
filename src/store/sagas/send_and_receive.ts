@@ -1,22 +1,19 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
-import {
-  AverageTxFeesByNetwork,
-  SerializedPSBTEnvelop,
-} from "src/core/wallets/interfaces";
-import { EntityKind, SignerType, TxPriority } from "src/core/wallets/enums";
-import { call, put, select } from "redux-saga/effects";
+import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
+import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
+import { call, put, select } from 'redux-saga/effects';
 
-import { RealmSchema } from "src/storage/realm/enum";
-import Relay from "src/core/services/operations/Relay";
-import { Vault } from "src/core/wallets/interfaces/vault";
-import { Wallet } from "src/core/wallets/interfaces/wallet";
-import WalletOperations from "src/core/wallets/operations";
-import WalletUtilities from "src/core/wallets/operations/utils";
-import _ from "lodash";
-import idx from "idx";
-import { createWatcher } from "../utilities";
-import dbManager from "../../storage/realm/dbManager";
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletOperations from 'src/core/wallets/operations';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import _ from 'lodash';
+import idx from 'idx';
+import { createWatcher } from '../utilities';
+import dbManager from '../../storage/realm/dbManager';
 import {
   SendPhaseOneExecutedPayload,
   sendPhaseOneExecuted,
@@ -26,8 +23,8 @@ import {
   crossTransferExecuted,
   crossTransferFailed,
   sendPhaseTwoStarted,
-} from "../reducers/send_and_receive";
-import { setAverageTxFee, setExchangeRates } from "../reducers/network";
+} from '../reducers/send_and_receive';
+import { setAverageTxFee, setExchangeRates } from '../reducers/network';
 import {
   CALCULATE_CUSTOM_FEE,
   CALCULATE_SEND_MAX_FEE,
@@ -45,44 +42,35 @@ import {
   SendPhaseTwoAction,
   customFeeCalculated,
   feeIntelMissing,
-} from "../sagaActions/send_and_receive";
+} from '../sagaActions/send_and_receive';
 
 export function getNextFreeAddress(wallet: Wallet | Vault) {
-  if (!wallet.isUsable) return "";
-  const { updatedWallet, receivingAddress } =
-    WalletOperations.getNextFreeExternalAddress(wallet);
-  const schema =
-    wallet.entityKind === EntityKind.WALLET
-      ? RealmSchema.Wallet
-      : RealmSchema.Vault;
+  if (!wallet.isUsable) return '';
+  const { updatedWallet, receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  const schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
   dbManager.updateObjectById(schema, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
 
 function* fetchFeeRatesWorker() {
   try {
-    const averageTxFeeByNetwork = yield call(
-      WalletOperations.calculateAverageTxFee
-    );
-    if (!averageTxFeeByNetwork) console.log("Failed to calculate fee rates");
+    const averageTxFeeByNetwork = yield call(WalletOperations.calculateAverageTxFee);
+    if (!averageTxFeeByNetwork) console.log('Failed to calculate fee rates');
     else yield put(setAverageTxFee(averageTxFeeByNetwork));
   } catch (err) {
-    console.log("Failed to calculate fee rates", { err });
+    console.log('Failed to calculate fee rates', { err });
   }
 }
 
-export const fetchFeeRatesWatcher = createWatcher(
-  fetchFeeRatesWorker,
-  FETCH_FEE_RATES
-);
+export const fetchFeeRatesWatcher = createWatcher(fetchFeeRatesWorker, FETCH_FEE_RATES);
 
 function* fetchExchangeRatesWorker() {
   try {
     const { exchangeRates } = yield call(Relay.fetchFeeAndExchangeRates);
-    if (!exchangeRates) console.log("Failed to fetch exchange rates");
+    if (!exchangeRates) console.log('Failed to fetch exchange rates');
     else yield put(setExchangeRates(exchangeRates));
   } catch (err) {
-    console.log("Failed to fetch fee and exchange rates", { err });
+    console.log('Failed to fetch fee and exchange rates', { err });
   }
 }
 
@@ -115,8 +103,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
       averageTxFeeByNetwork
     );
 
-    if (!txPrerequisites)
-      throw new Error("Send failed: unable to generate tx pre-requisite");
+    if (!txPrerequisites) throw new Error('Send failed: unable to generate tx pre-requisite');
     yield put(
       sendPhaseOneExecuted({
         successful: true,
@@ -136,10 +123,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
   }
 }
 
-export const sendPhaseOneWatcher = createWatcher(
-  sendPhaseOneWorker,
-  SEND_PHASE_ONE
-);
+export const sendPhaseOneWatcher = createWatcher(sendPhaseOneWorker, SEND_PHASE_ONE);
 
 function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   yield put(sendPhaseTwoStarted());
@@ -147,9 +131,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.sendPhaseOne
   );
   const { wallet, txnPriority, note } = payload;
-  const txPrerequisites = _.cloneDeep(
-    idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)
-  ); // cloning object(mutable) as reducer states are immutable
+  const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
@@ -165,8 +147,8 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 
     switch (wallet.entityKind) {
       case EntityKind.WALLET:
-        if (!txid) throw new Error("Send failed: unable to generate txid");
-        if (note) wallet.specs.transactionNote[txid] = note;
+        if (!txid) throw new Error('Send failed: unable to generate txid');
+        if (note) wallet.specs.txNote[txid] = note;
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -180,9 +162,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
 
       case EntityKind.VAULT:
         if (!serializedPSBTEnvelops.length)
-          throw new Error(
-            "Send failed: unable to generate serializedPSBTEnvelop"
-          );
+          throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -192,7 +172,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         break;
 
       default:
-        throw new Error("Invalid Entity: not a Vault/Wallet");
+        throw new Error('Invalid Entity: not a Vault/Wallet');
     }
   } catch (err) {
     yield put(
@@ -204,10 +184,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   }
 }
 
-export const sendPhaseTwoWatcher = createWatcher(
-  sendPhaseTwoWorker,
-  SEND_PHASE_TWO
-);
+export const sendPhaseTwoWatcher = createWatcher(sendPhaseTwoWorker, SEND_PHASE_TWO);
 
 function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
@@ -216,9 +193,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = yield select(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
-  const txPrerequisites = _.cloneDeep(
-    idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)
-  ); // cloning object(mutable) as reducer states are immutable
+  const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const { wallet, txnPriority } = payload;
   try {
@@ -251,10 +226,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       recipients,
       txHex
     );
-    if (!txid)
-      throw new Error(
-        "Send failed: unable to generate txid using the signed PSBT"
-      );
+    if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
     yield put(
       sendPhaseThreeExecuted({
         successful: true,
@@ -274,10 +246,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   }
 }
 
-export const sendPhaseThreeWatcher = createWatcher(
-  sendPhaseThreeWorker,
-  SEND_PHASE_THREE
-);
+export const sendPhaseThreeWatcher = createWatcher(sendPhaseThreeWorker, SEND_PHASE_THREE);
 
 function* corssTransferWorker({ payload }: CrossTransferAction) {
   const { sender, recipient, amount } = payload;
@@ -327,20 +296,16 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
         yield put(crossTransferExecuted());
       } else {
         yield put(crossTransferFailed());
-        throw new Error("Failed to execute cross transfer; txid missing");
+        throw new Error('Failed to execute cross transfer; txid missing');
       }
-    } else
-      throw new Error("Failed to generate txPrerequisites for cross transfer");
+    } else throw new Error('Failed to generate txPrerequisites for cross transfer');
   } catch (err) {
     yield put(crossTransferFailed());
     console.log({ err });
   }
 }
 
-export const corssTransferWatcher = createWatcher(
-  corssTransferWorker,
-  CROSS_TRANSFER
-);
+export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
   const { numberOfRecipients, wallet } = payload;
@@ -375,7 +340,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
         carryOver: {
           customTxPrerequisites: null,
         },
-        err: "Custom fee minimum: 1 sat/byte",
+        err: 'Custom fee minimum: 1 sat/byte',
       })
     );
     return;
@@ -383,10 +348,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
 
   const { wallet, recipients, feePerByte, customEstimatedBlocks } = payload;
   const sending: any = {};
-  const txPrerequisites = idx(
-    sending,
-    (_) => _.sendST1.carryOver.txPrerequisites
-  );
+  const txPrerequisites = idx(sending, (_) => _.sendST1.carryOver.txPrerequisites);
 
   let outputs;
   if (sending.feeIntelMissing) {
@@ -400,18 +362,15 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
     }
     outputs = outputsArray;
   } else {
-    if (!txPrerequisites) throw new Error("ST1 carry-over missing");
-    outputs = txPrerequisites[TxPriority.LOW].outputs.filter(
-      (output) => output.address
-    );
+    if (!txPrerequisites) throw new Error('ST1 carry-over missing');
+    outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
   }
 
-  const customTxPrerequisites =
-    WalletOperations.prepareCustomTransactionPrerequisites(
-      wallet,
-      outputs,
-      parseInt(feePerByte, 10)
-    );
+  const customTxPrerequisites = WalletOperations.prepareCustomTransactionPrerequisites(
+    wallet,
+    outputs,
+    parseInt(feePerByte, 10)
+  );
 
   if (customTxPrerequisites.inputs) {
     customTxPrerequisites.estimatedBlocks = parseInt(customEstimatedBlocks, 10);
@@ -441,7 +400,4 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
   }
 }
 
-export const calculateCustomFeeWatcher = createWatcher(
-  calculateCustomFee,
-  CALCULATE_CUSTOM_FEE
-);
+export const calculateCustomFeeWatcher = createWatcher(calculateCustomFee, CALCULATE_CUSTOM_FEE);
