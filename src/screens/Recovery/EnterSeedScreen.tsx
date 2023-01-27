@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react/jsx-no-bind */
 import * as bip39 from 'bip39';
 
 import { Box, View } from 'native-base';
