@@ -98,7 +98,7 @@ function QrRecovery() {
 
   return (
     <ScreenWrapper>
-      <MockWrapper signerType={type} enable={setup && type} isRecovery={true}>
+      <MockWrapper signerType={type} enable={setup && type} isRecovery>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} />
           <Box style={styles.qrcontainer}>

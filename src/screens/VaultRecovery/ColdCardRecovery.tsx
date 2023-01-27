@@ -14,17 +14,17 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { captureError } from 'src/core/services/sentry';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import MockWrapper from '../Vault/MockWrapper';
 import HWError from 'src/hardware/HWErrorState';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useAppSelector } from 'src/store/hooks';
+import MockWrapper from '../Vault/MockWrapper';
 
 function ColdCardReocvery() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { signingDevices } = useAppSelector((state) => state.bhr);
-  const isMultisig = signingDevices.length >= 1 ? true : false;
+  const isMultisig = signingDevices.length >= 1;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
 
@@ -59,7 +59,7 @@ function ColdCardReocvery() {
     'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).';
   return (
     <ScreenWrapper>
-      <MockWrapper signerType={SignerType.COLDCARD} isRecovery={true}>
+      <MockWrapper signerType={SignerType.COLDCARD} isRecovery>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle

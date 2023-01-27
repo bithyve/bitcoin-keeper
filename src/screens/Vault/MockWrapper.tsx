@@ -12,13 +12,14 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 
 MockWrapper.defaultProps = {
   enable: true,
+  isRecovery: false,
 };
 
 function MockWrapper({
   children,
   signerType,
   enable,
-  isRecovery = false,
+  isRecovery,
 }: {
   children: ReactElement;
   signerType: SignerType;
