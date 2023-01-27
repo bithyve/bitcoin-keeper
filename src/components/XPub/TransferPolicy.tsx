@@ -96,8 +96,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       </Box>
       <Box py={5}>
         <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
-          This will only trigger a transfer request which you need to approve before the transfer is
-          done
+          This will trigger a transfer request which you need to approve
         </Text>
       </Box>
 

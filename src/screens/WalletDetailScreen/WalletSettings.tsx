@@ -211,7 +211,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Show xPub"
-            subTitle="Use to create a external watch-only wallet"
+            subTitle="Use to create an external, watch-only wallet"
             onPress={() => {
               setXPubVisible(true);
             }}
@@ -232,7 +232,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Transfer Policy"
-            subTitle={`Secure to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+            subTitle={`Transfer to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
             }}
@@ -302,7 +302,7 @@ function WalletSettings({ route }) {
           close={() => setXPubVisible(false)}
           title="Wallet xPub"
           subTitleWidth={wp(240)}
-          subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
+          subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => (
@@ -324,7 +324,7 @@ function WalletSettings({ route }) {
           close={() => setCosignerVisible(false)}
           title="Cosigner Details"
           subTitleWidth={wp(240)}
-          subTitle="Scan the cosigner details from another app in order to add this as a signer"
+          subTitle="Scan the cosigner details from another app to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           buttonText="Done"

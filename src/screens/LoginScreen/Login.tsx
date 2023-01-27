@@ -216,7 +216,7 @@ function LoginScreen({ navigation, route }) {
                 marginTop: hp(44),
               }}
             >
-              {isTestnet && <TestnetIndicator />}
+              {isTestnet() && <TestnetIndicator />}
             </Box>
             <Text
               ml={5}
