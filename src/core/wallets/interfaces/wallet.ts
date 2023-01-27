@@ -1,12 +1,4 @@
-import {
-  ActiveAddresses,
-  Balances,
-  BIP85Config,
-  TransactionToAddressMapping,
-  UTXO,
-  WalletImportedAddresses,
-  Transaction,
-} from '.';
+import { Balances, BIP85Config, UTXO, Transaction, ActiveAddresses } from '.';
 import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
 
 export interface WalletDerivationDetails {
@@ -33,21 +25,13 @@ export interface WalletSpecs {
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
-  importedAddresses: WalletImportedAddresses;
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
   transactions: Transaction[]; // transactions belonging to this wallet
-  newTransactions?: Transaction[]; // new transactions arrived during the current sync
+  txNote: { [txId: string]: string }; // transaction note
+  hasNewUpdates: boolean; // spec vars have a new update?
   lastSynched: number; // wallet's last sync timestamp
-  hasNewTxn?: boolean; // indicates new txns
-  txIdCache: { [txid: string]: boolean };
-  transactionMapping: TransactionToAddressMapping[];
-  transactionNote: {
-    [txId: string]: string;
-  };
-
-  // transactionsMeta?: TransactionMetaData[];
 }
 
 export interface Wallet {

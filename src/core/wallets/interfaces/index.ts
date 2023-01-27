@@ -108,30 +108,17 @@ export interface TransactionToAddressMapping {
 
 export interface Transaction {
   txid: string;
-  status?: string;
+  address?: string;
   confirmations?: number;
   fee?: number;
   date?: string;
   transactionType?: TransactionType;
   amount: number;
-  walletType: string;
-  walletName?: string;
-  contactName?: string;
   recipientAddresses?: string[];
   senderAddresses?: string[];
   blockTime?: number;
-  message?: string;
-  address?: string;
-  type?: string;
-  // sender?: string;
-  // senderId?: string;
-  // receivers?: { id?: string; name: string; amount: number }[];
   tags?: string[];
-  notes?: string;
-  isNew?: boolean;
 }
-
-export type TransactionDetails = Transaction;
 
 export interface Balances {
   confirmed: number;
@@ -144,13 +131,6 @@ export interface UTXO {
   value: number;
   address: string;
   height: number;
-}
-
-export interface WalletImportedAddresses {
-  [address: string]: {
-    address: string;
-    privateKey: string;
-  };
 }
 
 export interface ActiveAddressAssignee {
