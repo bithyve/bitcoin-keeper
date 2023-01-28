@@ -21,15 +21,17 @@ function LedgerContent({
   connectToDevice,
   interactionText,
   infoText,
+  navigation,
 }: any) {
   return (
-    <MockWrapper signerType={SignerType.LEDGER}>
+    <MockWrapper signerType={SignerType.LEDGER} navigation={navigation}>
       <Box>
         {isScanning && !allDevices.length ? (
           <Image source={require('src/assets/video/Loader.gif')} style={styles.loader} />
         ) : null}
         {allDevices.map((device) => (
           <TouchableOpacity
+            key={device.id}
             style={{ marginBottom: 30 }}
             onPress={() => {
               setInteracting(true);
@@ -111,6 +113,7 @@ function LedgerScanningModal({
         connectToDevice={connectToDevice}
         interactionText={interactionText}
         infoText={infoText}
+        navigation={navigation}
       />
     ),
     [isScanning, allDevices, interacting]

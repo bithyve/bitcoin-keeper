@@ -77,7 +77,7 @@ function SignWithTapsigner() {
     <ScreenWrapper>
       <Box flex={1}>
         <HeaderTitle
-          title="Setting up TAPSIGNER"
+          title="Sign with TAPSIGNER"
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
         />

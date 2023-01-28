@@ -18,7 +18,6 @@ function EmptyStateView({
       {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />}
       <Text style={styles.noTransactionTitle}>{title}</Text>
       <Text style={styles.noTransactionSubTitle}>{subTitle}</Text>
-      <Text></Text>
     </Box>
   );
 }
@@ -39,6 +38,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     opacity: 0.85,
     fontWeight: '300',
+    textAlign: 'center',
   },
 });
 export default EmptyStateView;

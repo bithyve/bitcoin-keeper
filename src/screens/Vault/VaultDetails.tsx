@@ -251,8 +251,8 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         ListEmptyComponent={
           <EmptyStateView
             IllustartionImage={NoVaultTransactionIcon}
-            title="No transactions yet."
-            subTitle="Pull down to refresh"
+            title="Security Tip"
+            subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
           />
         }
       />

@@ -1,6 +1,6 @@
-import { ScriptTypes } from 'src/core/wallets/enums';
+import { ScriptTypes, XpubTypes } from 'src/core/wallets/enums';
 import BluetoothTransport from '@ledgerhq/react-native-hw-transport-ble';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/core/wallets/interfaces';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -12,12 +12,19 @@ const bscript = require('bitcoinjs-lib/src/script');
 
 export const getLedgerDetails = async (transport: BluetoothTransport, isMultisig: boolean) => {
   const app = new AppClient(transport);
-  const derivationPath = WalletUtilities.getDerivationForScriptType(
-    isMultisig ? ScriptTypes.P2WSH : ScriptTypes.P2WPKH
-  );
-  const xpub = await app.getExtendedPubkey(derivationPath);
+  const xpubDetails: XpubDetailsType = {};
+  // fetch P2WPKH details
+  const singleSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WPKH);
+  const singleSigXpub = await app.getExtendedPubkey(singleSigPath);
+  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+  // fetch P2WSH details
+  const multiSigPath = WalletUtilities.getDerivationForScriptType(ScriptTypes.P2WSH);
+  const multiSigXpub = await app.getExtendedPubkey(multiSigPath);
+  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+  const xpub = isMultisig ? multiSigXpub : singleSigXpub;
+  const derivationPath = isMultisig ? multiSigPath : singleSigPath;
   const masterfp = await app.getMasterFingerprint();
-  return { xpub, derivationPath, xfp: masterfp };
+  return { xpub, derivationPath, xfp: masterfp, xpubDetails };
 };
 
 const getPSBTv2Fromv0 = (psbtv0: bitcoinJS.Psbt) => {

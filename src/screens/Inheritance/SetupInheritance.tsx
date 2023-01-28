@@ -144,6 +144,7 @@ function SetupInheritance() {
               showToast('Inheritance flow coming soon', null, 1000);
             }}
             paddingHorizontal={wp(20)}
+            touchDisable={true}
           />
         </Box>
       </Box>
