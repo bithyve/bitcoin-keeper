@@ -11,7 +11,7 @@ export interface AppBackup {
 
 export interface KeeperApp {
   id: string;
-  appID: string;
+  publicId: string;
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;

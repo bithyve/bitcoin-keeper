@@ -26,8 +26,8 @@ function* setupKeeperAppWorker({ payload }) {
     const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
 
-    const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
 
     const entropy = yield call(
       BIP85.bip39MnemonicToEntropy,
@@ -37,8 +37,8 @@ function* setupKeeperAppWorker({ payload }) {
     const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
 
     const app: KeeperApp = {
-      id,
-      appID,
+      id: appID,
+      publicId,
       appName,
       primaryMnemonic,
       primarySeed: primarySeed.toString('hex'),
@@ -80,8 +80,8 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
     const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
 
-    const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
 
     const entropy = yield call(
       BIP85.bip39MnemonicToEntropy,
@@ -91,8 +91,8 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
     const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
 
     const app: KeeperApp = {
-      id,
-      appID,
+      id: appID,
+      publicId,
       appName,
       primaryMnemonic,
       primarySeed: primarySeed.toString('hex'),
