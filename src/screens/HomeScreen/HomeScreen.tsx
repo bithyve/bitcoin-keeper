@@ -11,7 +11,6 @@ import { Box, HStack, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
-import NewWalletModal from 'src/components/NewWalletModal';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { useAppSelector } from 'src/store/hooks';
 import useUaiStack from 'src/hooks/useUaiStack';
@@ -43,26 +42,17 @@ import VaultImage from 'src/assets/images/Vault.png';
 import VaultIcon from 'src/assets/images/vaultSuccess.svg';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import UaiDisplay from './UaiDisplay';
-import { WalletMap } from '../Vault/WalletMap';
 import { useDispatch } from 'react-redux';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import UaiDisplay from './UaiDisplay';
+import { WalletMap } from '../Vault/WalletMap';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
 
-  const navigateBack = () => {
-    close();
-  };
-  const [visible, setVisible] = useState(false);
-
-  const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
   const onPress = () => {
     navigation.navigate('SetupInheritance');
   };
-
-  const close = () => setVisible(false);
 
   return (
     <Box alignItems="center" marginTop={hp(19.96)}>
@@ -92,28 +82,6 @@ function InheritanceComponent() {
           </Box>
         </Box>
         <NextIcon pressHandler={() => onPress()} />
-        <NewWalletModal
-          visible={visible}
-          close={close}
-          title={wallet.AddNewWallet}
-          createTitle={wallet.CreateNewwallet}
-          createSubTitle={wallet.WalletDesc}
-          newButton={wallet.CreateNew}
-          newButtonDesc={wallet.WalletDesc}
-          existingButtonTitle={wallet.Recoverexisting}
-          existingButtonSubTitle={wallet.WalletDesc}
-          seedButton={wallet.UsingSeed}
-          seedButtonDesc={wallet.WalletDesc}
-          cloudButton={wallet.FromCloud}
-          cloudButtonDesc={wallet.WalletDesc}
-          mainDesc={wallet.XPubSubTitle}
-          buttonCancel="Cancel"
-          buttonText="Next"
-          buttonTextColor="light.white"
-          buttonCancelColor="light.greenText"
-          buttonCallback={navigateBack}
-          textColor="light.primaryText"
-        />
       </Box>
     </Box>
   );
