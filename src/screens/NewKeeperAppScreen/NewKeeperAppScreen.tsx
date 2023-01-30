@@ -71,13 +71,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const appCreationError = useAppSelector((state) => state.login.appCreationError);
 
   useEffect(() => {
     if (appCreated) {
       setInitiating(false);
       updateFCM();
     }
-  }, [appCreated]);
+    if (appCreationError) {
+      setModalVisible(false)
+      setInitiating(false);
+    }
+  }, [appCreated, appCreationError]);
 
   async function updateFCM() {
     try {
@@ -111,9 +116,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
   useEffect(() => {
     if (keeperInitiating) {
       setModalVisible(true);
-      dispatch(setupKeeperApp());
+      createNewApp();
     }
   }, [keeperInitiating]);
+
+  async function createNewApp() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(setupKeeperApp('', token));
+    } catch (error) {
+      console.log(error)
+      dispatch(setupKeeperApp('', ''));
+    }
+  }
 
   const getSignUpModalContent = () => {
     if (!isTestnet() && false) {
@@ -219,10 +234,24 @@ function NewKeeperApp({ navigation }: { navigation }) {
         new wallets"
         />
       </Box>
-
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}

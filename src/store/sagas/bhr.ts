@@ -70,7 +70,7 @@ export function* updateAppImageWorker({ payload }) {
   }
   try {
     const response = yield call(Relay.updateAppImage, {
-      publicId,
+      id: publicId,
       appID: id,
       walletObject,
       networkType,
