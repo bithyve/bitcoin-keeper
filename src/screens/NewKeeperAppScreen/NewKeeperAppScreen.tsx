@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
@@ -12,10 +14,10 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { isTestnet } from 'src/common/constants/Bitcoin';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import { Box, Image, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   return (
@@ -162,19 +164,17 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
           <HeaderTitle
-            title={'New Keeper App'}
-            subtitle={
-              'Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault'
-            }
+            title="New Keeper App"
+            subtitle="Choose this option when you want to start with a fresh app"
             paddingTop={3}
             enableBack={false}
-            headerTitleColor={'black'}
+            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
           <Tile
             title="Start New"
-            subTitle="New vault and wallets"
+            subTitle="New wallets and vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -187,11 +187,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.titleWrapper02}>
         <Box style={styles.headerContainer}>
           <HeaderTitle
-            title={'Restore'}
-            subtitle={'If you previously had a Keeper wallet you can recover it'}
+            title="Restore"
+            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
             paddingTop={3}
             enableBack={false}
-            headerTitleColor={'black'}
+            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -211,7 +211,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
           }}
           Icon={<Inheritance />} 
-        />*/}
+        /> */}
       </Box>
       <Box style={styles.note}>
         <Note
@@ -222,7 +222,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -256,11 +256,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   tileContainer: {
-    marginTop: hp(20)
+    marginTop: hp(20),
   },
   headerContainer: {
-    width: wp(280)
-  }
+    width: wp(280),
+  },
 });
 
 export default NewKeeperApp;
