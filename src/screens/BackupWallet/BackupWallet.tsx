@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
@@ -14,8 +14,7 @@ import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponen
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import SkipHealthCheck from 'src/components/CloudBackup/SkipHealthCheck';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import useToastMessage from 'src/hooks/useToastMessage';
+import { useAppSelector } from 'src/store/hooks';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import { StyleSheet } from 'react-native';
 
@@ -26,16 +25,11 @@ type Props = {
 };
 
 function BackupWallet() {
-  const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
-  const { backupMethod, loading, isBackupError, backupError } = useAppSelector(
-    (state) => state.bhr
-  );
-  const [cloudBackupModal, setCloudBackupModal] = useState(false);
+  const { backupMethod } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
-  const { showToast } = useToastMessage();
 
   const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
   const navigation = useNavigation();

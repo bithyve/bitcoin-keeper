@@ -480,8 +480,6 @@
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual seeds",
-    "backupOnCloud": "Backup on cloud service",
-    "appGeneratePassTitle": "App Generated Password",
     "healthCheck": "Health Check",
     "enterStrongPass": "Enter App Generated Strong Password",
     "healthCheckNote": "This step ensures that you have access to the backup of your wallet ",
