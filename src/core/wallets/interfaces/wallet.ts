@@ -1,4 +1,4 @@
-import { Balances, BIP85Config, UTXO, Transaction, ActiveAddresses } from '.';
+import { Balances, BIP85Config, UTXO, Transaction } from '.';
 import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
 
 export interface WalletDerivationDetails {
@@ -25,7 +25,6 @@ export interface WalletSpecs {
   xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
-  activeAddresses: ActiveAddresses; // addresses being actively used by this wallet
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances

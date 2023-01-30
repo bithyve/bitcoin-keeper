@@ -1,3 +1,5 @@
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
@@ -12,10 +14,10 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { isTestnet } from 'src/common/constants/Bitcoin';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import { Box, Image, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   return (
@@ -69,13 +71,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const appCreationError = useAppSelector((state) => state.login.appCreationError);
 
   useEffect(() => {
     if (appCreated) {
       setInitiating(false);
       updateFCM();
     }
-  }, [appCreated]);
+    if (appCreationError) {
+      setModalVisible(false)
+      setInitiating(false);
+    }
+  }, [appCreated, appCreationError]);
 
   async function updateFCM() {
     try {
@@ -109,9 +116,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
   useEffect(() => {
     if (keeperInitiating) {
       setModalVisible(true);
-      dispatch(setupKeeperApp());
+      createNewApp();
     }
   }, [keeperInitiating]);
+
+  async function createNewApp() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(setupKeeperApp('', token));
+    } catch (error) {
+      console.log(error)
+      dispatch(setupKeeperApp('', ''));
+    }
+  }
 
   const getSignUpModalContent = () => {
     if (!isTestnet() && false) {
@@ -162,19 +179,17 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
           <HeaderTitle
-            title={'New Keeper App'}
-            subtitle={
-              'Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault'
-            }
+            title="New Keeper App"
+            subtitle="Choose this option when you want to start with a fresh app"
             paddingTop={3}
             enableBack={false}
-            headerTitleColor={'black'}
+            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
           <Tile
             title="Start New"
-            subTitle="New vault and wallets"
+            subTitle="New wallets and vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -187,11 +202,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.titleWrapper02}>
         <Box style={styles.headerContainer}>
           <HeaderTitle
-            title={'Restore'}
-            subtitle={'If you previously had a Keeper wallet you can recover it'}
+            title="Restore"
+            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
             paddingTop={3}
             enableBack={false}
-            headerTitleColor={'black'}
+            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -211,7 +226,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
           }}
           Icon={<Inheritance />} 
-        />*/}
+        /> */}
       </Box>
       <Box style={styles.note}>
         <Note
@@ -219,7 +234,21 @@ function NewKeeperApp({ navigation }: { navigation }) {
         new wallets"
         />
       </Box>
-
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
       <KeeperModal
         dismissible={false}
         close={() => { }}
@@ -256,11 +285,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   tileContainer: {
-    marginTop: hp(20)
+    marginTop: hp(20),
   },
   headerContainer: {
-    width: wp(280)
-  }
+    width: wp(280),
+  },
 });
 
 export default NewKeeperApp;

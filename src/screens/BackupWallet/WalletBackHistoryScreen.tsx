@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Box } from 'native-base';
 
-import BackupHealthCheckList from 'src/components/CloudBackup/BackupHealthCheckList';
+import BackupHealthCheckList from 'src/components/Backup/BackupHealthCheckList';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import {
   heightPercentageToDP as hp,
@@ -12,7 +12,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function WalletBackHistoryScreen({ navigation }) {
   const { translations } = useContext(LocalizationContext);
-  const {BackupWallet} = translations;
+  const { BackupWallet } = translations;
 
   return (
     <ScreenWrapper>

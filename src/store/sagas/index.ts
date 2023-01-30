@@ -33,12 +33,8 @@ import {
 } from './login';
 import {
   backupWarningWatcher,
-  cloudBackupSkippedWatcher,
-  confirmCloudBackupWatcher,
   getAppImageWatcher,
-  getCloudDataWatcher,
   healthCheckSignerWatcher,
-  initCloudBackupWatcher,
   recoverBackupWatcher,
   seedBackedUpWatcher,
   seedBackeupConfirmedWatcher,
@@ -116,10 +112,6 @@ const rootSaga = function* () {
     getAppImageWatcher,
     seedBackedUpWatcher,
     seedBackeupConfirmedWatcher,
-    initCloudBackupWatcher,
-    cloudBackupSkippedWatcher,
-    confirmCloudBackupWatcher,
-    getCloudDataWatcher,
     recoverBackupWatcher,
     healthCheckSignerWatcher,
     backupWarningWatcher,

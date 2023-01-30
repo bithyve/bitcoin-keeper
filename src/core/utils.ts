@@ -1,4 +1,3 @@
-import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { Vault, VaultScheme, VaultSigner } from './wallets/interfaces/vault';
 import WalletOperations from './wallets/operations';
 
