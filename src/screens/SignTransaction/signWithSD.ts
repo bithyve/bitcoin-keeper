@@ -35,7 +35,7 @@ export const signTransactionWithTapsigner = async ({
     return { signedSerializedPSBT, signingPayload: null };
   }
   return withModal(async () => {
-    const signedInput = await signWithTapsigner(card, inputsToSign, cvc);
+    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentSigner);
     signingPayload.forEach((payload) => {
       payload.inputsToSign = signedInput;
     });

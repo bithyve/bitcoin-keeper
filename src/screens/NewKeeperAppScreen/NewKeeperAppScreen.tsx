@@ -5,7 +5,6 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import App from 'src/assets/images/app.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
-import Inheritance from 'src/assets/images/inheritanceKeeper.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import Recover from 'src/assets/images/recover.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -27,7 +26,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       alignItems="center"
       width="90%"
       testID="btn_startNew"
-      style={{ marginTop: hp(10), height: hp(110) }}
+      style={{ marginTop: hp(20), height: hp(110) }}
       marginLeft="5%"
       paddingX={2}
     >
@@ -175,43 +174,51 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <Box>
-        <HeaderTitle
-          title={'New Keeper App'}
-          subtitle={
-            'Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault'
-          }
-          paddingTop={3}
-          enableBack={false}
-          headerTitleColor={'black'}
-        />
-        <Tile
-          title="Start New"
-          subTitle="New vault and wallets"
-          Icon={<App />}
-          onPress={() => {
-            setInitiating(true);
-          }}
-          loading={keeperInitiating}
-        />
+      <Box style={{ marginTop: hp(30) }}>
+        <Box style={styles.headerContainer}>
+          <HeaderTitle
+            title={'New Keeper App'}
+            subtitle={
+              'Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault'
+            }
+            paddingTop={3}
+            enableBack={false}
+            headerTitleColor={'black'}
+          />
+        </Box>
+        <Box style={styles.tileContainer}>
+          <Tile
+            title="Start New"
+            subTitle="New vault and wallets"
+            Icon={<App />}
+            onPress={() => {
+              setInitiating(true);
+            }}
+            loading={keeperInitiating}
+          />
+        </Box>
       </Box>
 
       <Box style={styles.titleWrapper02}>
-        <HeaderTitle
-          title={'Restore'}
-          subtitle={'If you previously had a Keeper wallet you can recover it'}
-          paddingTop={3}
-          enableBack={false}
-          headerTitleColor={'black'}
-        />
-        <Tile
-          title="Recover Existing App"
-          subTitle="For self or inherited Vault"
-          Icon={<Recover />}
-          onPress={() => {
-            navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
-          }}
-        />
+        <Box style={styles.headerContainer}>
+          <HeaderTitle
+            title={'Restore'}
+            subtitle={'If you previously had a Keeper wallet you can recover it'}
+            paddingTop={3}
+            enableBack={false}
+            headerTitleColor={'black'}
+          />
+        </Box>
+        <Box style={styles.tileContainer}>
+          <Tile
+            title="Recover Existing App"
+            subTitle="For self or inherited Vault"
+            Icon={<Recover />}
+            onPress={() => {
+              navigation.navigate('LoginStack', { screen: 'EnterSeedScreen' });
+            }}
+          />
+        </Box>
         {/* <Tile
           title="Inheritance Keeper vault"
           subTitle="Using signing devices"
@@ -230,7 +237,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -269,7 +276,7 @@ const styles = StyleSheet.create({
   },
   note: {
     position: 'absolute',
-    bottom: hp(35),
+    bottom: hp(45),
     marginLeft: 26,
     width: '90%',
     paddingTop: hp(10),
@@ -279,6 +286,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row-reverse',
   },
+  tileContainer: {
+    marginTop: hp(20)
+  },
+  headerContainer: {
+    width: wp(280)
+  }
 });
 
 export default NewKeeperApp;

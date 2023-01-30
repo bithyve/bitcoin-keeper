@@ -496,7 +496,7 @@
     "createCloudBackSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
     "healthCheck": "Health Check",
     "enterStrongPass": "Enter App Generated Strong Password",
-    "healthCheckNote": "This step ensures that you have access to the backup of your wallet ",
+    "healthCheckNote": "This step ensures that you have access to the recovery of your wallet ",
     "healthCheckSuccessTitle": "Health Check Successful",
     "healthCheckSuccessSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
     "healthCheckSuccessParagraph": "You will again be reminded in 90 days Lorem ipsum dolor sit amet, consectetur adipiscing elit,",

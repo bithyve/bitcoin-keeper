@@ -1,14 +1,13 @@
 import * as bip39 from 'bip39';
-
 import { call, put } from 'redux-saga/effects';
 import { generateEncryptionKey } from 'src/core/services/operations/encryption';
-
+import { v4 as uuidv4 } from 'uuid';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { WalletType } from 'src/core/wallets/enums';
+import { NetworkType, WalletType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -20,6 +19,9 @@ import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaAction
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';
 import { setAppId } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
+
+export const defaultTransferPolicyThreshold =
+  config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
 
 function* setupKeeperAppWorker({ payload }) {
   try {
@@ -67,6 +69,7 @@ function* setupKeeperAppWorker({ payload }) {
         },
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
+        backup: {},
       };
       yield call(dbManager.createObject, RealmSchema.KeeperApp, newApp);
 
@@ -77,7 +80,8 @@ function* setupKeeperAppWorker({ payload }) {
           name: 'Wallet 1',
           description: 'Single-sig bitcoin wallet',
           transferPolicy: {
-            threshold: 5000,
+            id: uuidv4(),
+            threshold: defaultTransferPolicyThreshold,
           },
         },
       };
@@ -140,11 +144,12 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
         name: 'Mobile Wallet',
         description: 'Single-sig bitcoin wallet',
         transferPolicy: {
-          threshold: 5000,
+          id: uuidv4(),
+          threshold: defaultTransferPolicyThreshold,
         },
       },
     };
-    yield put(addNewWallets([defaultWallet]));
+    yield call(addNewWalletsWorker, { payload: [defaultWallet] });
 
     yield put(setAppId(appID));
   } catch (error) {

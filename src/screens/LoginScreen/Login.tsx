@@ -23,6 +23,7 @@ import { isTestnet } from 'src/common/constants/Bitcoin';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { securityTips } from 'src/common/data/defaultData/defaultData';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
@@ -38,6 +39,7 @@ function LoginScreen({ navigation, route }) {
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
+  const [randomNum, setRandomNum] = useState(0);
   const [loginModal, setLoginModal] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
@@ -49,6 +51,9 @@ function LoginScreen({ navigation, route }) {
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const { showToast } = useToastMessage();
+
+  const loginData = securityTips[randomNum];
+
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed, recepitVerificationError, recepitVerificationFailed } = useAppSelector((state) => state.login);
 
@@ -56,7 +61,9 @@ function LoginScreen({ navigation, route }) {
   const { login } = translations;
   const { common } = translations;
 
+
   useEffect(() => {
+    setRandomNum(Math.round(Math.random() * 5));
     if (loggingIn) {
       attemptLogin(passcode);
     }
@@ -222,16 +229,15 @@ function LoginScreen({ navigation, route }) {
   function LoginModalContent() {
     return (
       <Box>
-        <Image
-          source={getLoginModalContent().assert.loader}
-          style={{
-            width: wp(270),
-            height: hp(getLoginModalContent().assert.height),
-            alignSelf: 'center',
-          }}
-        />
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(260)}>
-          {getLoginModalContent().message}
+        <Box style={{
+          width: '100%',
+          alignItems: 'center',
+          paddingVertical: hp(20)
+        }}>
+          {loginData.assert}
+        </Box>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(290)}>
+          {loginData.message}
         </Text>
       </Box>
     );
@@ -245,15 +251,6 @@ function LoginScreen({ navigation, route }) {
         <StatusBar />
         <Box flex={1}>
           <Box>
-            <Box
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'center',
-                marginTop: hp(44),
-              }}
-            >
-              {isTestnet && <TestnetIndicator />}
-            </Box>
             <Text
               ml={5}
               color="light.white"
@@ -370,8 +367,8 @@ function LoginScreen({ navigation, route }) {
       <KeeperModal
         visible={loginModal}
         close={() => { }}
-        title={getLoginModalContent().title}
-        subTitle={getLoginModalContent().subTitle}
+        title={loginData.title}
+        subTitle={loginData.subTitle}
         subTitleColor="light.secondaryText"
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}

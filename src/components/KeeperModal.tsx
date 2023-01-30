@@ -124,7 +124,7 @@ function KeeperModal(props: ModalProps) {
                 {`${subTitle}`}
               </Text>
             </Modal.Header>
-            <Modal.Body>
+            <Modal.Body style={styles.bodyContainer}>
               <Content />
             </Modal.Body>
             {((showButtons && learnMore) || !!buttonText) && (
@@ -210,6 +210,9 @@ const getStyles = (subTitleWidth) =>
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
       width: '90%',
+    },
+    bodyContainer: {
+      width: '80%',
     },
     footerContainer: {
       flexDirection: 'row',

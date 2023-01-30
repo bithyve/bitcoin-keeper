@@ -23,6 +23,7 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
+import Note from 'src/components/Note/Note';
 import { WalletMap } from './WalletMap';
 import HardwareModalMap from './HardwareModalMap';
 import SDTag from './components/SDTag';
@@ -247,12 +248,12 @@ function SigningDeviceList({ navigation }: { navigation }) {
                   />
                 );
               })}
-              <Text color="light.primaryText" style={styles.contactUsText}>
-                {vault.VaultInfo}{' '}
-                <Text style={styles.italics} bold>
-                  Contact Us
-                </Text>
-              </Text>
+              <Note
+                title="Security Tip"
+                subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
+                subtitleColor="GreyText"
+                width={windowWidth * 0.8}
+              />
             </Box>
           )}
         </ScrollView>

@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { NavigationRouteContext, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
@@ -17,7 +17,6 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import { removeSigningDeviceBhr, setRelayVaultRecoveryAppId } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { WalletMap } from '../Vault/WalletMap';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { captureError } from 'src/core/services/sentry';
@@ -26,13 +25,16 @@ import { VaultType } from 'src/core/wallets/enums';
 import Relay from 'src/core/services/operations/Relay';
 import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
-import useToastMessage from 'src/hooks/useToastMessage';
+import { hash256 } from 'src/core/services/operations/encryption';
+
+import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
+import KeeperModal from 'src/components/KeeperModal';
+import { WalletMap } from '../Vault/WalletMap';
 
 const allowedSignerLength = [1, 3, 5];
 
-const AddSigningDevice = ({ error }) => {
+function AddSigningDevice({ error }) {
   const navigation = useNavigation();
-  console.log({ error });
   return (
     <Pressable
       onPress={
@@ -56,7 +58,7 @@ const AddSigningDevice = ({ error }) => {
                 alignItems="center"
                 letterSpacing={1.12}
               >
-                {`Add Another`}
+                Add Another
               </Text>
               <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
                 Select signing device
@@ -70,7 +72,7 @@ const AddSigningDevice = ({ error }) => {
       </Box>
     </Pressable>
   );
-};
+}
 
 function SignerItem({ signer, index }: { signer: any | undefined; index: number }) {
   const dispatch = useDispatch();
@@ -114,66 +116,48 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
   );
 }
 
+function SuccessModalContent() {
+  return (
+    <View>
+      <Box alignSelf="center">
+        <SuccessSvg />
+      </Box>
+      <Text color="light.greenText" fontSize={13} padding={2}>
+        The BIP-85 wallets in the app are new as they can’t be recovered using this method
+      </Text>
+    </View>
+  );
+}
+
 function VaultRecovery({ navigation }) {
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultUpdate } = useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultUpdateLoading } =
+    useAppSelector((state) => state.bhr);
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
-  const [signersList, setsignersList] = useState([]);
-  const [successModal, setSuccessModal] = useState(false);
-  const { showToast } = useToastMessage();
+  const [signersList, setsignersList] = useState(signingDevices);
   const [error, setError] = useState(false);
-
-  const getMetaData = async () => {
-    const response = await Relay.getVaultMetaData(signingDevices[0].signerId);
-    if (response?.appId) {
-      dispatch(setRelayVaultRecoveryAppId(response.appId));
-      setError(false);
-    } else {
-      if (response.error) {
-        setError(true);
-        Alert.alert(
-          'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
-        );
-        // showToast('Warning: No Vault Exisits for this Signer', <ToastErrorIcon />);
-      } else {
-        setError(true);
-        Alert.alert('Warning: Something Went Wrong!');
-        // showToast('Warning: Something Went Wrong!', <ToastErrorIcon />);
-      }
-    }
-  };
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
 
   useEffect(() => {
-    if (signingDevices.length === 1) {
-      getMetaData();
-    }
+    setsignersList(
+      signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices?.length))
+    );
   }, [signingDevices]);
 
-  const vaultCheck = async () => {
-    const vaultId = generateVaultId(signingDevices, config.NETWORK_TYPE);
-    const response = await Relay.vaultCheck({ vaultId });
-    if (response.isVault) {
-      setScheme(response.scheme);
-    } else {
-      Alert.alert('Vault does not exist with this signer comnination');
+  useEffect(() => {
+    if (signersList.length === 1) {
+      getMetaData();
     }
-  };
+  }, [signersList]);
 
   useEffect(() => {
     if (scheme && !appId) dispatch(setupKeeperApp());
   }, [scheme]);
 
-  const startRecovery = () => {
-    if (allowedSignerLength.includes(signingDevices.length)) {
-      vaultCheck();
-    } else {
-      Alert.alert("Vault can't be recreated in this scheme");
-    }
-  };
-
   useEffect(() => {
-    if (appId) {
+    if (scheme && appId) {
       try {
         const vaultInfo: NewVaultInfo = {
           vaultType: VaultType.DEFAULT,
@@ -192,34 +176,59 @@ function VaultRecovery({ navigation }) {
   }, [appId]);
 
   useEffect(() => {
-    setsignersList(signingDevices);
-  }, [signingDevices]);
-
-  useEffect(() => {
-    if (appId) {
-      setSuccessModal(true);
+    if (relayVaultUpdate) {
+      setRecoveryLoading(false);
+      setSuccessModalVisible(true);
+      navigation.replace('App');
     }
-  }, [appId]);
+    if (relayVaultError) {
+      Alert.alert('Something went wrong!');
+    }
+  }, [relayVaultUpdate, relayVaultError]);
 
-  function SuccessModalContent() {
-    return (
-      <View>
-        <Box alignSelf="center">
-          <SuccessSvg />
-        </Box>
-        <Text color="light.greenText" fontSize={13} padding={2}>
-          The BIP-85 wallets in the app are new as they can’t be recovered using this method
-        </Text>
-      </View>
-    );
-  }
+  // try catch API error
+  const vaultCheck = async () => {
+    const vaultId = generateVaultId(signingDevices, config.NETWORK_TYPE);
+    const response = await Relay.vaultCheck({ vaultId });
+    if (response.isVault) {
+      setScheme(response.scheme);
+    } else {
+      setRecoveryLoading(false);
+      Alert.alert('Vault does not exist with this signer combination');
+    }
+  };
+
+  // try catch API error
+  const getMetaData = async () => {
+    const xfpHash = hash256(signingDevices[0].masterFingerprint);
+    const response = await Relay.getVaultMetaData(xfpHash);
+    if (response?.appId) {
+      dispatch(setRelayVaultRecoveryAppId(response.appId));
+      setError(false);
+    } else if (response.error) {
+      setError(true);
+      Alert.alert('No vault is assocaited with this signer, try with another signer');
+    } else {
+      setError(true);
+      Alert.alert('Something Went Wrong!');
+    }
+  };
+
+  const startRecovery = () => {
+    if (allowedSignerLength.includes(signingDevices.length)) {
+      setRecoveryLoading(true);
+      vaultCheck();
+    } else {
+      Alert.alert("Vault can't be recreated in this scheme");
+    }
+  };
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
       <HeaderTitle
         title="Add signing devices"
-        subtitle="To recover your inherited vault"
+        subtitle="To recover your vault"
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
       />
@@ -252,7 +261,11 @@ function VaultRecovery({ navigation }) {
         )}
         {signingDevices.length > 0 && (
           <Box position="absolute" bottom={10} width="100%" marginBottom={10}>
-            <Buttons primaryText="Recover Vault" primaryCallback={startRecovery} />
+            <Buttons
+              primaryText="Recover Vault"
+              primaryCallback={startRecovery}
+              primaryLoading={recoveryLoading}
+            />
           </Box>
         )}
         <Note
@@ -260,17 +273,18 @@ function VaultRecovery({ navigation }) {
           subtitle="Signing Server cannot be used as the first signing device while recovering"
         />
       </View>
-      {/* <KeeperModal
-        visible={successModal}
+      <KeeperModal
+        visible={successModalVisible}
         title="Vault Recovered!"
         subTitle="Your Keeper vault has successfully been recovered."
-        buttonText="View Vault"
+        buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => setSuccessModal(false)}
-        buttonCallback={() =>
-          navigation.dispatch(CommonActions.navigate('App', { name: 'VaultDetails', params: {} }))
-        }
-      /> */}
+        close={() => {}}
+        showCloseIcon={false}
+        buttonCallback={() => {
+          setSuccessModalVisible(false);
+        }}
+      />
     </ScreenWrapper>
   );
 }

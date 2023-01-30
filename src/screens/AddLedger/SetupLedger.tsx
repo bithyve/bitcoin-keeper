@@ -1,4 +1,3 @@
-import { SafeAreaView } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useState } from 'react';
@@ -16,6 +15,7 @@ import usePlan from 'src/hooks/usePlan';
 import { checkSigningDevice } from 'src/screens/Vault/AddSigningDevice';
 import LedgerScanningModal from 'src/screens/Vault/components/LedgerScanningModal';
 import HWError from 'src/hardware/HWErrorState';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function AddLedger() {
   const [visible, setVisible] = useState(true);
@@ -28,7 +28,10 @@ function AddLedger() {
 
   const addLedger = async (transport) => {
     try {
-      const { xpub, xfp, derivationPath } = await getLedgerDetails(transport, isMultisig);
+      const { xpub, xfp, derivationPath, xpubDetails } = await getLedgerDetails(
+        transport,
+        isMultisig
+      );
       const ledger: VaultSigner = generateSignerFromMetaData({
         xpub,
         xfp,
@@ -36,6 +39,7 @@ function AddLedger() {
         storageType: SignerStorage.COLD,
         signerType: SignerType.LEDGER,
         isMultisig,
+        xpubDetails,
       });
       dispatch(addSigningDevice(ledger));
       navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
@@ -54,7 +58,7 @@ function AddLedger() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <ScreenWrapper>
       <LedgerScanningModal
         visible={visible}
         setVisible={setVisible}
@@ -63,7 +67,7 @@ function AddLedger() {
         infoText="Select to add this device"
         goBackOnDismiss
       />
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
 

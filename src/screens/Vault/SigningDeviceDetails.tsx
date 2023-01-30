@@ -321,16 +321,9 @@ function SigningDeviceDetails({ route }) {
 
   const openHealthCheckModal = (signerType) => {
     switch (signerType) {
-      case SignerType.TAPSIGNER:
-        setHealthCheckViewTapsigner(true);
-        break;
-      case SignerType.COLDCARD:
-        setHealthCheckViewColdCard(true);
-        break;
       default:
-        // Alert.alert('Health check for this device is not supported currently');
         showToast(
-          'Health check for this device is not supported currently',
+          'Health check coming soon!',
           <ToastError />,
           1000,
           false,
@@ -344,9 +337,8 @@ function SigningDeviceDetails({ route }) {
                 fontWeight: '600',
               }}
             >
-              {' not supported '}
+              {' coming soon!'}
             </Text>
-            currently
           </Text>
         );
     }

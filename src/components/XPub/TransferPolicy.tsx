@@ -15,6 +15,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { updateWalletProperty } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import { v4 as uuidv4 } from 'uuid';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
   const { showToast } = useToastMessage();
@@ -34,11 +36,11 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
 
   useEffect(() => {
     if (relayWalletError) {
-      showToast(realyWalletErrorMessage);
+      showToast('Something went wrong');
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
-      close();
+      showToast('Transfer Policy Changed', <TickIcon />);
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
@@ -50,12 +52,14 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
   };
   const presshandler = () => {
     if (Number(policyText) > 0) {
+      close();
       wallet.transferPolicy.threshold = Number(policyText);
       dispatch(
         updateWalletProperty({
           wallet,
           key: 'transferPolicy',
           value: {
+            id: uuidv4(),
             threshold: Number(policyText),
           },
         })
@@ -108,6 +112,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
         secondaryCallback={close}
         secondaryText={common.cancel}
         paddingHorizontal={wp(30)}
+        touchDisable={true}
       />
       {/* keyboardview start */}
       <KeyPadView

@@ -113,7 +113,7 @@ function ChoosePolicyNew({ navigation, route }) {
       </Box>
     );
   }
-
+  console.log('windowHeight', windowHeight);
   return (
     <Box flex={1} position="relative">
       <ScreenWrapper barStyle="dark-content">
@@ -158,7 +158,7 @@ function ChoosePolicyNew({ navigation, route }) {
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
           clear={() => {}}
           color="light.greenText"
-          height={windowHeight >= 850 ? 80 : 60}
+          height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
         />
       </Box>
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   fieldWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: hp(40),
+    marginTop: windowHeight > 600 ? hp(25) : hp(40),
   },
   titleText: {
     fontSize: 13,

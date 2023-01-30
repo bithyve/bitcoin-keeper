@@ -392,10 +392,10 @@ export default class Relay {
     }
   };
 
-  public static getAppImage = async (appId): Promise<any> => {
+  public static getAppImage = async (id): Promise<any> => {
     try {
       const res = await RestClient.post(`${RELAY}getAppImage`, {
-        id: appId,
+        id,
       });
       const { data } = res;
       return data;
@@ -417,10 +417,10 @@ export default class Relay {
     }
   };
 
-  public static getVaultMetaData = async (signerId): Promise<any> => {
+  public static getVaultMetaData = async (xfpHash): Promise<any> => {
     try {
       const res: any = await RestClient.post(`${RELAY}getVaultMetaData`, {
-        signerId,
+        xfpHash,
       });
       const data = res.data || res.json;
       return data;

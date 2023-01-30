@@ -60,8 +60,8 @@ function SetupTapsigner() {
 
   const addTapsigner = React.useCallback(async () => {
     try {
-      const { xpub, derivationPath, xfp } = await withModal(async () =>
-        getTapsignerDetails(card, cvc)
+      const { xpub, derivationPath, xfp, xpubDetails } = await withModal(async () =>
+        getTapsignerDetails(card, cvc, isMultisig)
       )();
       let tapsigner: VaultSigner;
       if (isAMF) {
@@ -89,6 +89,7 @@ function SetupTapsigner() {
           signerType: SignerType.TAPSIGNER,
           storageType: SignerStorage.COLD,
           isMultisig,
+          xpubDetails,
         });
       }
       dispatch(addSigningDevice(tapsigner));

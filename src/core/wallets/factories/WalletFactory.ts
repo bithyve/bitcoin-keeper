@@ -89,13 +89,12 @@ export const generateWallet = async ({
   const specs: WalletSpecs = {
     xpub,
     xpriv,
+    nextFreeAddressIndex: 0,
+    nextFreeChangeAddressIndex: 0,
     activeAddresses: {
       external: {},
       internal: {},
     },
-    importedAddresses: {},
-    nextFreeAddressIndex: 0,
-    nextFreeChangeAddressIndex: 0,
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
     balances: {
@@ -103,10 +102,9 @@ export const generateWallet = async ({
       unconfirmed: 0,
     },
     transactions: [],
+    txNote: {},
+    hasNewUpdates: false,
     lastSynched: 0,
-    txIdCache: {},
-    transactionMapping: [],
-    transactionNote: {},
   };
 
   const wallet: Wallet = {
