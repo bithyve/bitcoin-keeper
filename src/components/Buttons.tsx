@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity } from 'react-native';
+import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import { View, Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
@@ -33,36 +33,41 @@ function Buttons({
 }: Props) {
   const [pressed, setPressed] = useState(primaryDisable);
 
-  const getPrimaryButton = () => (
-    <TouchableOpacity
-      onPress={() => {
-        primaryCallback();
-        setPressed(true);
-      }}
-      disabled={touchDisable && pressed}
-      activeOpacity={activeOpacity}
-    >
-      <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-        <Box
-          style={[
-            styles.createBtn,
-            { opacity: touchDisable && pressed ? 0.5 : 1, paddingHorizontal },
-          ]}
-          backgroundColor={{
-            linearGradient: {
-              colors: ['light.gradientStart', 'light.gradientEnd'],
-              start: [0, 0],
-              end: [1, 1],
-            },
+  const getPrimaryButton = () => {
+    if (primaryLoading) {
+      return <ActivityIndicator style={styles.createBtn} />;
+    } else
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            primaryCallback();
+            setPressed(true);
           }}
+          disabled={touchDisable && pressed}
+          activeOpacity={activeOpacity}
         >
-          <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-            {primaryText}
-          </Text>
-        </Box>
-      </Shadow>
-    </TouchableOpacity>
-  );
+          <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+            <Box
+              style={[
+                styles.createBtn,
+                { opacity: touchDisable && pressed ? 0.5 : 1, paddingHorizontal },
+              ]}
+              backgroundColor={{
+                linearGradient: {
+                  colors: ['light.gradientStart', 'light.gradientEnd'],
+                  start: [0, 0],
+                  end: [1, 1],
+                },
+              }}
+            >
+              <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                {primaryText}
+              </Text>
+            </Box>
+          </Shadow>
+        </TouchableOpacity>
+      );
+  };
 
   return (
     <View style={styles.container}>
