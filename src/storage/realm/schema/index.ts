@@ -1,6 +1,5 @@
 import {
   BIP85ConfigSchema,
-  ActiveAddressesSchema,
   TransactionSchema,
   TransactionToAddressMappingSchema,
   UTXOSchema,
@@ -34,7 +33,6 @@ export default [
   WalletDerivationDetailsSchema,
   WalletPresentationDataSchema,
   BIP85ConfigSchema,
-  ActiveAddressesSchema,
   UTXOSchema,
   TransactionSchema,
   TransactionToAddressMappingSchema,
@@ -51,5 +49,5 @@ export default [
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
-  NodeConnectSchema
+  NodeConnectSchema,
 ];
