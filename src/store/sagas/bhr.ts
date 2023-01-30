@@ -329,10 +329,7 @@ function* isBackedUP({
     const selectedWarning =
       config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
 
-    if (
-      selectedWarning &&
-      (lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED)
-    ) {
+    if (selectedWarning && lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED) {
       // UAI update here
 
       yield put(setBackupWarning(true));
