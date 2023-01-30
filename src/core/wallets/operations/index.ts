@@ -53,7 +53,7 @@ export default class WalletOperations {
   static getNextFreeExternalAddress = (
     wallet: Wallet | Vault,
     purpose?: DerivationPurpose
-  ): { updatedWallet: Wallet | Vault; receivingAddress: string } => {
+  ): { receivingAddress: string } => {
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     if ((wallet as Vault).isMultiSig) {
@@ -79,9 +79,7 @@ export default class WalletOperations {
       );
     }
 
-    wallet.specs.nextFreeAddressIndex++;
     return {
-      updatedWallet: wallet,
       receivingAddress,
     };
   };
