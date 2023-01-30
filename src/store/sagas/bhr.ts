@@ -331,10 +331,7 @@ function* isBackedUP({
 
     if (
       selectedWarning &&
-      (lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
-        lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
-        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_FAILED ||
-        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED)
+      (lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED)
     ) {
       // UAI update here
 

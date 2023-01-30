@@ -10,15 +10,11 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import AppGeneratePass from 'src/components/CloudBackup/AppGeneratePass';
-import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import HealthCheckComponent from 'src/components/CloudBackup/HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import SkipHealthCheck from 'src/components/CloudBackup/SkipHealthCheck';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { initCloudBackup } from 'src/store/sagaActions/bhr';
-import { setBackupError, setBackupLoading } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import { StyleSheet } from 'react-native';
@@ -33,10 +29,10 @@ function BackupWallet() {
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
-  const { backupMethod, loading, isBackupError, backupError } =
-    useAppSelector((state) => state.bhr);
+  const { backupMethod, loading, isBackupError, backupError } = useAppSelector(
+    (state) => state.bhr
+  );
   const [cloudBackupModal, setCloudBackupModal] = useState(false);
-  const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
   const { showToast } = useToastMessage();
@@ -46,22 +42,6 @@ function BackupWallet() {
 
   const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  useEffect(() => {
-    if (loading) {
-      setTimeout(() => {
-        setCreateCloudBackupModal(true);
-      }, 100);
-    } else {
-      setCreateCloudBackupModal(false);
-      if (isBackupError) {
-        showToast(backupError);
-      }
-    }
-    return () => {
-      dispatch(setBackupLoading(false));
-      dispatch(setBackupError({ isError: false, error: '' }));
-    };
-  }, [loading, isBackupError]);
 
   function Option({ title, subTitle, onPress }: Props) {
     return (
@@ -120,21 +100,6 @@ function BackupWallet() {
         />
       </Box>
       <Box>
-        <ModalWrapper visible={cloudBackupModal} onSwipeComplete={() => setCloudBackupModal(false)}>
-          <AppGeneratePass
-            confirmBtnPress={(password) => {
-              dispatch(initCloudBackup(password, 'App generated strong password'));
-              setCloudBackupModal(false);
-            }}
-            closeBottomSheet={() => setCloudBackupModal(false)}
-          />
-        </ModalWrapper>
-        <ModalWrapper
-          visible={createCloudBackupModal}
-          onSwipeComplete={() => setCreateCloudBackupModal(false)}
-        >
-          <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-        </ModalWrapper>
         <ModalWrapper
           visible={healthCheckModal}
           onSwipeComplete={() => setHealthCheckModal(false)}
