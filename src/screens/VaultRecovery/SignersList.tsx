@@ -38,6 +38,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { WalletMap } from '../Vault/WalletMap';
 import { KeeperContent } from '../SignTransaction/SignerModals';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -111,6 +112,21 @@ function TapsignerSetupContent() {
   );
 }
 
+function LedgerSetupContent() {
+  return (
+    <View justifyContent="flex-start" width={wp(300)}>
+      <Box ml={wp(21)}>
+        <LedgerImage />
+      </Box>
+      <Box marginTop="4" alignItems="flex-start">
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network.`}
+          {`Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub.`}
+        </Text>
+      </Box>
+    </View>
+  );
+}
 function ColdCardSetupContent() {
   return (
     <View justifyContent="flex-start" width={wp(300)}>
@@ -130,7 +146,7 @@ function PassportSetupContent() {
   return (
     <View>
       <Box ml={wp(21)}>
-        <ColdCardSetupImage />
+        <KeystoneSetupImage />
       </Box>
       <Box marginTop="4">
         <Text
@@ -574,7 +590,7 @@ function SignersList({ navigation }) {
             close();
           }}
           textColor="light.primaryText"
-          Content={ColdCardSetupContent}
+          Content={LedgerSetupContent}
         />
         <KeeperModal
           visible={visible && type === SignerType.PASSPORT}
