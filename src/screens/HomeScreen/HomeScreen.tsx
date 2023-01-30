@@ -50,7 +50,6 @@ import { WalletMap } from '../Vault/WalletMap';
 function InheritanceComponent() {
   const navigation = useNavigation();
   const { plan } = usePlan();
-  console.log('plan', plan);
 
   const onPress = () => {
     navigation.navigate('SetupInheritance');
