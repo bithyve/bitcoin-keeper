@@ -229,6 +229,7 @@ const styles = ScaledSheet.create({
   },
   moadalContainer: {
     flex: 1,
+    width: wp(280)
   },
   inputWrapper: {
     borderRadius: 10,
