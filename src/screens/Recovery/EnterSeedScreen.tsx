@@ -348,7 +348,6 @@ function EnterSeedScreen({ route }) {
               <Buttons
                 primaryCallback={onPressNextSoftReocvery}
                 primaryText="Next"
-                touchDisable={btnDisable}
                 primaryLoading={recoveryLoading}
               />
             ) : (
@@ -360,7 +359,6 @@ function EnterSeedScreen({ route }) {
                 }}
                 secondaryText="Other Methods"
                 primaryLoading={recoveryLoading}
-                touchDisable={btnDisable}
               />
             )}
           </View>

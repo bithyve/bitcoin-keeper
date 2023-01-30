@@ -12,11 +12,9 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import {
-  cloudBackupSkipped,
-  confirmCloudBackup,
   seedBackedConfirmed,
 } from 'src/store/sagaActions/bhr';
-import { setCloudBackupConfirmed, setSeedConfirmed } from 'src/store/reducers/bhr';
+import { setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import HealthCheckComponent from './HealthCheckComponent';
@@ -36,7 +34,7 @@ function BackupHealthCheckList() {
   const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { backupMethod, seedConfirmed, cloudBackedConfirmed } = useAppSelector(
+  const { backupMethod, seedConfirmed } = useAppSelector(
     (state) => state.bhr
   );
   const [healthCheckModal, setHealthCheckModal] = useState(false);
@@ -48,7 +46,7 @@ function BackupHealthCheckList() {
   };
 
   useEffect(() => {
-    if (seedConfirmed || cloudBackedConfirmed) {
+    if (seedConfirmed) {
       setShowConfirmSeedModal(false);
       setTimeout(() => {
         setHealthCheckModal(true);
@@ -56,9 +54,8 @@ function BackupHealthCheckList() {
     }
     return () => {
       dispatch(setSeedConfirmed(false));
-      dispatch(setCloudBackupConfirmed(false));
     };
-  }, [seedConfirmed, cloudBackedConfirmed]);
+  }, [seedConfirmed]);
 
   return (
     <Box>
@@ -115,11 +112,7 @@ function BackupHealthCheckList() {
       </ScrollView>
 
       <Box alignItems="flex-start">
-        <Buttons
-          primaryText={common.confirm}
-          primaryCallback={onPressConfirm}
-          touchDisable={true}
-        />
+        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
       </Box>
 
       <ModalWrapper
@@ -132,8 +125,6 @@ function BackupHealthCheckList() {
             setShowConfirmSeedModal(false);
             if (backupMethod === BackupType.SEED) {
               dispatch(seedBackedConfirmed(false));
-            } else {
-              dispatch(cloudBackupSkipped());
             }
           }}
           type={backupMethod}
@@ -144,8 +135,6 @@ function BackupHealthCheckList() {
             if (backupMethod === BackupType.SEED) {
               setShowConfirmSeedModal(false);
               dispatch(seedBackedConfirmed(true));
-            } else {
-              dispatch(confirmCloudBackup(password));
             }
           }}
         />

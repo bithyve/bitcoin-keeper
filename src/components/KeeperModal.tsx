@@ -124,7 +124,7 @@ function KeeperModal(props: ModalProps) {
                 {`${subTitle}`}
               </Text>
             </Modal.Header>
-            <Modal.Body style={styles.bodyContainer}>
+            <Modal.Body>
               <Content />
             </Modal.Body>
             {((showButtons && learnMore) || !!buttonText) && (

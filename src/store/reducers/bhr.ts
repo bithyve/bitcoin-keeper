@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BackupType, SigningDeviceRecovery } from 'src/common/data/enums/BHR';
+import { BackupType } from 'src/common/data/enums/BHR';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
@@ -11,18 +11,15 @@ const initialState: {
   backupError: string;
   seedConfirmed: boolean;
   loading: boolean;
-  cloudBackupCompleted: boolean;
-  cloudBackedConfirmed: boolean;
   appRecoveryLoading: boolean;
   appImageRecoverd: boolean;
   appImageError: boolean;
   appImagerecoveryRetry: boolean;
-  cloudData: Array<any>;
   downloadingBackup: boolean;
   recoverBackupFailed: boolean;
   invalidPassword: boolean;
   backupWarning: boolean;
-  signingDevices: SigningDeviceRecovery[];
+  signingDevices: VaultSigner[];
   vaultMetaData: Object;
 
   relayWalletUpdateLoading: boolean;
@@ -42,15 +39,12 @@ const initialState: {
   backupError: '',
   seedConfirmed: false,
   loading: false,
-  cloudBackupCompleted: false,
-  cloudBackedConfirmed: false,
 
   appRecoveryLoading: false,
   appImageRecoverd: false,
   appImageError: false,
 
   appImagerecoveryRetry: false,
-  cloudData: [],
   downloadingBackup: false,
   recoverBackupFailed: false,
   invalidPassword: false,
@@ -78,26 +72,12 @@ const bhrSlice = createSlice({
     setSeedConfirmed: (state, action: PayloadAction<boolean>) => {
       state.seedConfirmed = action.payload;
     },
-    setCloudBackupConfirmed: (state, action: PayloadAction<boolean>) => {
-      state.cloudBackedConfirmed = action.payload;
-      if (action.payload) {
-        state.backupError = '';
-        state.isBackupError = false;
-        state.loading = false;
-      }
-    },
     setBackupLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
     setBackupError: (state, action: PayloadAction<{ isError: boolean; error: string }>) => {
       state.backupError = action.payload.error;
       state.isBackupError = action.payload.isError;
-    },
-    setCloudBackupCompleted: (state) => {
-      state.cloudBackupCompleted = true;
-      state.backupError = '';
-      state.isBackupError = false;
-      state.loading = false;
     },
     setAppImageRecoverd: (state, action: PayloadAction<boolean>) => {
       state.appImageRecoverd = action.payload;
@@ -117,10 +97,6 @@ const bhrSlice = createSlice({
     setRecoverBackupFailed: (state, action: PayloadAction<boolean>) => {
       state.recoverBackupFailed = action.payload;
     },
-    setCloudData: (state, action: PayloadAction<Array<any>>) => {
-      state.cloudData = action.payload;
-      state.downloadingBackup = false;
-    },
     setInvalidPassword: (state, action: PayloadAction<boolean>) => {
       state.invalidPassword = action.payload;
     },
@@ -134,7 +110,7 @@ const bhrSlice = createSlice({
       const signerToRemove = action.payload;
       if (signerToRemove) {
         state.signingDevices = state.signingDevices.filter(
-          (signer) => signer.signerId !== signerToRemove.signerId
+          (signer) => signer.masterFingerprint !== signerToRemove.masterFingerprint
         );
       }
     },
@@ -188,15 +164,12 @@ export const {
   setSeedConfirmed,
   setBackupError,
   setBackupLoading,
-  setCloudBackupCompleted,
-  setCloudBackupConfirmed,
   setAppRecoveryLoading,
   setAppImageRecoverd,
   setAppImageError,
   appImagerecoveryRetry,
   setDownloadingBackup,
   setRecoverBackupFailed,
-  setCloudData,
   setInvalidPassword,
   setBackupWarning,
 
@@ -225,13 +198,10 @@ const bhrPersistConfig = {
     'backupError',
     'seedConfirmed',
     'loading',
-    'cloudBackupCompleted',
-    'cloudBackedConfirmed',
     'appImageError',
     'appRecoveryLoading',
     'appImageRecoverd',
     'appImagerecoveryRetry',
-    'cloudData',
     'recoverBackupFailed',
     'invalidPassword',
     'backupWarning',

@@ -130,7 +130,6 @@ function ConfirmSeedWord(props) {
             setInvalid(true);
           }
         }}
-        touchDisable={true}
       />
     </Box>
   );

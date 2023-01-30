@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { SignerPolicy } from 'src/core/services/interfaces';
-import { BIP85Config, Balances, Transaction, UTXO, ActiveAddresses } from '.';
+import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
   EntityKind,
   NetworkType,
@@ -19,7 +19,6 @@ export interface VaultSpecs {
   xpubs: string[]; // signers' xpubs
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
-  activeAddresses: ActiveAddresses; // addresses being actively used by this vault
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances

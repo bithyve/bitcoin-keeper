@@ -1,31 +1,32 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { View } from 'native-base';
 import { StyleSheet, ActivityIndicator } from 'react-native';
+import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
 
 function ActivityIndicatorView({ visible }: any) {
-  return (
-    <Box>
-      {visible && (
-        <Box style={styles.container}>
-          <ActivityIndicator size="large" animating={visible} color="#00836A" />
-        </Box>
-      )}
-    </Box>
-  );
+  if (visible) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" animating color="#00836A" style={styles.spinner} />
+      </View>
+    );
+  }
+  return null;
 }
 
 export default ActivityIndicatorView;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
     position: 'absolute',
-    flex: 1,
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
+    left: -windowWidth,
+    right: -windowWidth,
+    top: -windowHeight,
+    bottom: -windowHeight,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  spinner: {
+    top: windowHeight / 2,
+    bottom: windowHeight / 2,
   },
 });

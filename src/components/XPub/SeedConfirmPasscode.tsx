@@ -96,7 +96,6 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
             }}
             primaryText={common.proceed}
             activeOpacity={0.5}
-            touchDisable={true}
           />
         )}
       </Box>
