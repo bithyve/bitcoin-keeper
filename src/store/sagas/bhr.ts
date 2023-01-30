@@ -64,8 +64,11 @@ import {
 } from "../../common/data/enums/BHR";
 import { uaiActionedEntity } from "../sagaActions/uai";
 import { setAppId } from "../reducers/storage";
+import { NodeDetail } from "src/core/wallets/interfaces";
 
 export function* updateAppImageWorker({ payload }) {
+  console.log("updateAppImageWorker class");
+
   const { wallet } = payload;
   const { primarySeed, id, appID, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
@@ -87,6 +90,21 @@ export function* updateAppImageWorker({ payload }) {
       walletObject[wallet.id] = encrytedWallet;
     }
   }
+
+  const nodes: NodeDetail[] = yield call(
+    dbManager.getCollection,
+    RealmSchema.NodeConnect
+  );
+  let nodesToUpdate = [];
+  if (nodes && nodes.length > 0) {
+    for (const index in nodes) {
+      const node = nodes[index];
+      node.isConnected = false;
+      const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
+      nodesToUpdate.push(encrytedNode);
+    }
+  }
+  console.log("nodesToUpdate", nodesToUpdate);
   try {
     const response = yield call(Relay.updateAppImage, {
       id,
@@ -95,6 +113,7 @@ export function* updateAppImageWorker({ payload }) {
       networkType,
       subscription: JSON.stringify(subscription),
       version,
+      nodes: nodesToUpdate,
     });
     return response;
   } catch (err) {
@@ -205,7 +224,7 @@ function* cloudBackupSkippedWorked() {
       confirmed: false,
       subtitle: "",
     });
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* confirmCloudBackupWorked({
@@ -296,7 +315,7 @@ function* seedBackeupConfirmedWorked({
       subtitle: "",
     });
     yield put(setSeedConfirmed(confirmed));
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* initCloudBackupWorked({
@@ -428,7 +447,18 @@ function* getAppImageWorker({ payload }) {
         const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
+
       yield put(setAppId(app.appID));
+
+      if (appImage.nodes) {
+        const nodes = JSON.parse(decrypt(encryptionKey, appImage.nodes));
+        if (nodes) {
+          for (const node of nodes) {
+            console.log(node);
+            yield call(dbManager.createObject, RealmSchema.NodeConnect, node);
+          }
+        }
+      }
     }
   } catch (err) {
     console.log(err);

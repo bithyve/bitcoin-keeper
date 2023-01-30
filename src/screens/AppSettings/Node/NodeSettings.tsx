@@ -92,7 +92,6 @@ function NodeSettings() {
     setSelectedNodeItem(null);
 
     if (nodes?.length === 0 || selectedItem.isConnected) {
-      console.log('defaut node')
       setConnectToNode(false);
       dispatch(setConnectToMyNode(false));
       setLoading(true);
