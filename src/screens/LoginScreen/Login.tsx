@@ -209,6 +209,15 @@ function LoginScreen({ navigation, route }) {
         <StatusBar />
         <Box flex={1}>
           <Box>
+            <Box
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                marginTop: hp(44),
+              }}
+            >
+              {isTestnet() && <TestnetIndicator />}
+            </Box>
             <Text
               ml={5}
               color="light.white"
