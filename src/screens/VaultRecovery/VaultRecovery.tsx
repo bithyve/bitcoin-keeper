@@ -179,7 +179,7 @@ function VaultRecovery({ navigation }) {
     if (relayVaultUpdate) {
       setRecoveryLoading(false);
       setSuccessModalVisible(true);
-      navigation.navigate('App', { screen: 'NewHome' });
+      navigation.replace('App');
     }
     if (relayVaultError) {
       Alert.alert('Something went wrong!');
