@@ -75,19 +75,16 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
   useEffect(() => {
     if (sendMaxFee && temporaryVault) {
       const sendMaxBalance = confirmed - sendMaxFee;
-      const externalAddresses = Object.keys(temporaryVault.specs.activeAddresses.external);
-      const externalAddressesGenerated = externalAddresses && externalAddresses.length;
       const temporaryVaultReference = JSON.parse(JSON.stringify(temporaryVault));
-      const { updatedWallet, receivingAddress } = !externalAddressesGenerated
-        ? WalletOperations.getNextFreeExternalAddress(temporaryVaultReference)
-        : { updatedWallet: temporaryVault, receivingAddress: externalAddresses[0] };
+      const { receivingAddress } =
+        WalletOperations.getNextFreeExternalAddress(temporaryVaultReference);
       setRecepients([
         {
           address: receivingAddress,
           amount: sendMaxBalance,
         },
       ]);
-      dispatch(updateIntrimVault(updatedWallet as Vault));
+      dispatch(updateIntrimVault(temporaryVaultReference as Vault));
       dispatch(
         sendPhaseOne({
           wallet: activeVault,

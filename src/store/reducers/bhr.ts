@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BackupType, SigningDeviceRecovery } from 'src/common/data/enums/BHR';
+import { BackupType } from 'src/common/data/enums/BHR';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
@@ -19,7 +19,7 @@ const initialState: {
   recoverBackupFailed: boolean;
   invalidPassword: boolean;
   backupWarning: boolean;
-  signingDevices: SigningDeviceRecovery[];
+  signingDevices: VaultSigner[];
   vaultMetaData: Object;
 
   relayWalletUpdateLoading: boolean;
@@ -110,7 +110,7 @@ const bhrSlice = createSlice({
       const signerToRemove = action.payload;
       if (signerToRemove) {
         state.signingDevices = state.signingDevices.filter(
-          (signer) => signer.signerId !== signerToRemove.signerId
+          (signer) => signer.masterFingerprint !== signerToRemove.masterFingerprint
         );
       }
     },

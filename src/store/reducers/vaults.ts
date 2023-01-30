@@ -64,10 +64,11 @@ const vaultSlice = createSlice({
       state.signers = _.uniqBy([...state.signers, ...newSigners], 'signerId');
     },
     removeSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
-      const signerToRemove = action.payload && action.payload.signerId ? action.payload : null;
+      const signerToRemove =
+        action.payload && action.payload.masterFingerprint ? action.payload : null;
       if (signerToRemove) {
         state.signers = state.signers.filter(
-          (signer) => signer.signerId !== signerToRemove.signerId
+          (signer) => signer.masterFingerprint !== signerToRemove.masterFingerprint
         );
       }
     },

@@ -162,7 +162,7 @@ function VaultRecovery({ navigation }) {
         const vaultInfo: NewVaultInfo = {
           vaultType: VaultType.DEFAULT,
           vaultScheme: scheme,
-          vaultSigners: signingDevices,
+          vaultSigners: signersList,
           vaultDetails: {
             name: 'Vault',
             description: 'Secure your sats',
@@ -188,7 +188,7 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const vaultCheck = async () => {
-    const vaultId = generateVaultId(signingDevices, config.NETWORK_TYPE);
+    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE);
     const response = await Relay.vaultCheck({ vaultId });
     if (response.isVault) {
       setScheme(response.scheme);
@@ -200,7 +200,7 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const getMetaData = async () => {
-    const xfpHash = hash256(signingDevices[0].masterFingerprint);
+    const xfpHash = hash256(signersList[0].masterFingerprint);
     const response = await Relay.getVaultMetaData(xfpHash);
     if (response?.appId) {
       dispatch(setRelayVaultRecoveryAppId(response.appId));
@@ -215,7 +215,7 @@ function VaultRecovery({ navigation }) {
   };
 
   const startRecovery = () => {
-    if (allowedSignerLength.includes(signingDevices.length)) {
+    if (allowedSignerLength.includes(signersList.length)) {
       setRecoveryLoading(true);
       vaultCheck();
     } else {

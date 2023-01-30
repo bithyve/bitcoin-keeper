@@ -49,6 +49,8 @@ import { WalletMap } from '../Vault/WalletMap';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
+  const { plan } = usePlan();
+  console.log('plan', plan);
 
   const onPress = () => {
     navigation.navigate('SetupInheritance');
@@ -77,7 +79,7 @@ function InheritanceComponent() {
               Inheritance
             </Text>
             <Text color="light.white" style={styles.bottomCardSubtitle}>
-              Upgrade to secure your vault
+              {plan === SubscriptionTier.L3.toUpperCase() ? 'Tools, tips and templates' : 'Upgrade to secure your vault'}
             </Text>
           </Box>
         </Box>

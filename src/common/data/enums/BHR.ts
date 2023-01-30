@@ -13,12 +13,6 @@ export interface BackupHistoryItem {
   subtitle?: string;
 }
 
-export interface SigningDeviceRecovery {
-  signerId: string;
-  type: SignerType;
-  xpub: string;
-}
-
 export const enum BackupAction {
   SEED_BACKUP_CREATED = 'SEED_BACKUP_CREATED',
   SEED_BACKUP_CONFIRMED = 'SEED_BACKUP_CONFIRMED',

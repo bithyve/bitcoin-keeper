@@ -126,7 +126,7 @@ function TransactionDetails({ route }) {
         <Box style={styles.infoCardsWrapper}>
           <InfoCard
             title="Confirmations"
-            describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
+            describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
             showIcon={false}
             letterSpacing={2.4}
           />
