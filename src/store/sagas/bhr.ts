@@ -20,6 +20,7 @@ import { captureError } from 'src/core/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
@@ -50,7 +51,7 @@ import { setAppId } from '../reducers/storage';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, id, appID, subscription, networkType, version }: KeeperApp = yield call(
+  const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
@@ -69,8 +70,8 @@ export function* updateAppImageWorker({ payload }) {
   }
   try {
     const response = yield call(Relay.updateAppImage, {
-      id,
-      appID,
+      id: publicId,
+      appID: id,
       walletObject,
       networkType,
       subscription: JSON.stringify(subscription),
@@ -212,9 +213,9 @@ function* getAppImageWorker({ payload }) {
     yield put(setAppImageError(false));
     yield put(setAppRecoveryLoading(true));
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage } = yield call(Relay.getAppImage, id);
+    const { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
@@ -223,9 +224,10 @@ function* getAppImageWorker({ payload }) {
         primaryMnemonic
       );
       const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+      const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
       const app: KeeperApp = {
-        id,
-        appID: appImage.appId,
+        id: appID,
+        publicId,
         primarySeed: primarySeed.toString('hex'),
         primaryMnemonic,
         imageEncryptionKey,
@@ -251,7 +253,7 @@ function* getAppImageWorker({ payload }) {
         const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
-      yield put(setAppId(app.appID));
+      yield put(setAppId(appID));
     }
   } catch (err) {
     console.log(err);

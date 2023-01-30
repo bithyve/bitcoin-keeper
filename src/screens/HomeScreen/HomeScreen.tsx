@@ -50,7 +50,6 @@ import { WalletMap } from '../Vault/WalletMap';
 function InheritanceComponent() {
   const navigation = useNavigation();
   const { plan } = usePlan();
-  console.log('plan', plan);
 
   const onPress = () => {
     navigation.navigate('SetupInheritance');
@@ -233,7 +232,7 @@ function VaultStatus(props) {
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
       RestClient.subToTorStatus(onChangeTorStatus);
-      identifyUser(keeper.appID);
+      identifyUser(keeper.publicId);
     });
     return () => {
       RestClient.unsubscribe(onChangeTorStatus);
@@ -467,7 +466,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
