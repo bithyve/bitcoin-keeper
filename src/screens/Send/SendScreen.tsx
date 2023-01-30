@@ -14,7 +14,6 @@ import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import Permissions from 'react-native-permissions';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
@@ -43,6 +42,7 @@ import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
+import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
@@ -82,9 +82,6 @@ function SendScreen({ route }) {
     };
   }, []);
 
-  const requestPermission = () => {
-    Permissions.openSettings();
-  };
   const handleChooseImage = () => {
     const options = {
       quality: 1.0,
@@ -151,15 +148,15 @@ function SendScreen({ route }) {
       case PaymentInfoKind.PAYMENT_URI:
         sender.entityKind === 'VAULT'
           ? navigateToNext(
-              address,
-              TransferType.VAULT_TO_ADDRESS,
-              amount ? amount.toString() : null
-            )
+            address,
+            TransferType.VAULT_TO_ADDRESS,
+            amount ? amount.toString() : null
+          )
           : navigateToNext(
-              address,
-              TransferType.WALLET_TO_ADDRESS,
-              amount ? amount.toString() : null
-            );
+            address,
+            TransferType.WALLET_TO_ADDRESS,
+            amount ? amount.toString() : null
+          );
         break;
       default:
     }
@@ -215,16 +212,7 @@ function SendScreen({ route }) {
                 onBarCodeRead={(data) => {
                   handleTextChange(data.data);
                 }}
-                notAuthorizedView={
-                  <View
-                    style={{ ...styles.cameraView, justifyContent: 'center', alignItems: 'center' }}
-                  >
-                    <Text>Camera permission is denied</Text>
-                    <TouchableOpacity onPress={requestPermission}>
-                      <Text>Tap to go to settings</Text>
-                    </TouchableOpacity>
-                  </View>
-                }
+                notAuthorizedView={<CameraUnauthorized />}
               />
             </Box>
             {/* Upload Image */}
@@ -264,20 +252,22 @@ function SendScreen({ route }) {
       </KeyboardAvoidingView>
 
       {/* {Bottom note} */}
-      {showNote && (
-        <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
-          <Note
-            title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
-            subtitle={
-              sender.entityKind === 'VAULT'
-                ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
-                : 'Make sure the address or QR is the one where you want to send the funds to'
-            }
-            subtitleColor="GreyText"
-          />
-        </Box>
-      )}
-    </ScreenWrapper>
+      {
+        showNote && (
+          <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
+            <Note
+              title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
+              subtitle={
+                sender.entityKind === 'VAULT'
+                  ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
+                  : 'Make sure the address or QR is the one where you want to send the funds to'
+              }
+              subtitleColor="GreyText"
+            />
+          </Box>
+        )
+      }
+    </ScreenWrapper >
   );
 }
 
@@ -333,6 +323,7 @@ const styles = ScaledSheet.create({
     overflow: 'hidden',
     borderRadius: 10,
     marginVertical: hp(25),
+    alignItems: 'center',
   },
   walletContainer: {
     flexDirection: 'row',
