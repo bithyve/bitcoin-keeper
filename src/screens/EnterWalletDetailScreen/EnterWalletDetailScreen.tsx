@@ -152,7 +152,7 @@ function EnterWalletDetailScreen({ route }) {
             primaryCallback={createNewWallet}
             primaryDisable={!walletName || !walletDescription}
             touchDisable
-            primaryLoading={walletLoading}
+            primaryLoading={walletLoading || relayWalletUpdateLoading}
           />
         </View>
       </View>
