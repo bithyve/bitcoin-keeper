@@ -199,7 +199,6 @@ function AddSendAmount({ route }) {
               primaryText="Send"
               primaryDisable={Boolean(!amount)}
               primaryCallback={executeSendPhaseOne}
-              touchDisable={true}
             />
           </Box>
         </Box>

@@ -8,8 +8,6 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
-import KeyPadView from '../AppNumPad/KeyPadView';
-import Buttons from '../Buttons';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -17,6 +15,8 @@ import { updateWalletProperty } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { v4 as uuidv4 } from 'uuid';
+import Buttons from '../Buttons';
+import KeyPadView from '../AppNumPad/KeyPadView';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
   const { showToast } = useToastMessage();
@@ -42,6 +42,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
     if (relayWalletUpdate) {
       showToast('Transfer Policy Changed', <TickIcon />);
       dispatch(resetRealyWalletState());
+      close();
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
@@ -52,7 +53,6 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
   };
   const presshandler = () => {
     if (Number(policyText) > 0) {
-      close();
       wallet.transferPolicy.threshold = Number(policyText);
       dispatch(
         updateWalletProperty({
@@ -103,15 +103,12 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
           This will trigger a transfer request which you need to approve
         </Text>
       </Box>
-
       <Buttons
         primaryCallback={presshandler}
-        primaryLoading={relayWalletUpdateLoading}
         primaryText={common.confirm}
         secondaryCallback={close}
         secondaryText={common.cancel}
         paddingHorizontal={wp(30)}
-        touchDisable={true}
       />
       {/* keyboardview start */}
       <KeyPadView
