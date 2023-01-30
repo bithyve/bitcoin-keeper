@@ -51,7 +51,6 @@ function SkipHealthCheck(props) {
         }}
         primaryText="Confirm Seeds"
         primaryCallback={props.confirmBtnPress()}
-        touchDisable={true}
       />
     </Box>
   );

@@ -41,12 +41,11 @@ import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText'
 import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
-import CustomPriorityModal from './CustomPriorityModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -60,7 +59,6 @@ const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WA
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
 function SendConfirmation({ route }) {
-  const navigtaion = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const {
@@ -113,27 +111,6 @@ function SendConfirmation({ route }) {
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
 
-  // // Sending process is still not executed
-  // const [sendingModal, setSendingModal] = useState(false);
-  // const openSendModal = () => setSendingModal(true);
-  // const closeSendModal = () => setSendingModal(false);
-
-  // // Send is Successful
-  // const [visible, setVisible] = useState(false);
-  // const open = () => setVisible(true);
-  // const close = () => setVisible(false);
-
-  // // Send Failed
-  // const [sendFailed, setSendFailed] = useState(false);
-  // const openFailedModal = () => setSendFailed(true);
-  // const closeFailModal = () => setSendFailed(false);
-
-  // const closeAllModal = () => {
-  //   closeFailModal();
-  //   close()
-  //   closeSendModal()
-  // }
-
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
       setTitle('Sending to vault');
@@ -170,14 +147,13 @@ function SendConfirmation({ route }) {
           </Text>
         </View>
         <Buttons
-          secondaryText={'Remind me Later'}
+          secondaryText="Remind me Later"
           secondaryCallback={() => {
             setVisibleTransVaultModal(false);
           }}
           primaryText="Transfer Now"
           primaryCallback={() => onTransferNow()}
           paddingHorizontal={wp(20)}
-          touchDisable={true}
         />
       </>
     );
@@ -684,12 +660,9 @@ function SendConfirmation({ route }) {
             navigation.navigate('NewHome');
           }}
           primaryCallback={onProceed}
-          touchDisable={true}
+          primaryLoading={inProgress}
         />
       </Box>
-      {/* Indicator */}
-      <ActivityIndicatorView visible={inProgress} />
-      {/* Modals */}
       <KeeperModal
         visible={visibleModal}
         close={() => viewDetails()}

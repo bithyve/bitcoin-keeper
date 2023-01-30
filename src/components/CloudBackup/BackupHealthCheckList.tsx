@@ -115,11 +115,7 @@ function BackupHealthCheckList() {
       </ScrollView>
 
       <Box alignItems="flex-start">
-        <Buttons
-          primaryText={common.confirm}
-          primaryCallback={onPressConfirm}
-          touchDisable={true}
-        />
+        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
       </Box>
 
       <ModalWrapper

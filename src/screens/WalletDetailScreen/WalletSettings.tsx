@@ -262,7 +262,6 @@ function WalletSettings({ route }) {
           />
         </ScrollView>
       </Box>
-
       {/* {Bottom note} */}
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
@@ -271,9 +270,6 @@ function WalletSettings({ route }) {
           subtitleColor="GreyText"
         />
       </Box>
-      {/* Indicator */}
-      <ActivityIndicatorView visible={relayWalletUpdateLoading} />
-      {/* Modals */}
       <Box>
         <KeeperModal
           visible={confirmPassVisible}
