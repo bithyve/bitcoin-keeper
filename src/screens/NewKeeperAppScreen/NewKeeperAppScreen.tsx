@@ -16,7 +16,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import { Box, Image, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Note from 'src/components/Note/Note';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
@@ -213,13 +212,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
           Icon={<Inheritance />} 
         /> */}
       </Box>
-      <Box style={styles.note}>
-        <Note
-          subtitle="When you use signing devices to restore Keeper, only the vault is restored and the app has
-        new wallets"
-        />
-      </Box>
-
       <KeeperModal
         dismissible={false}
         close={() => {}}
@@ -242,13 +234,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
 const styles = StyleSheet.create({
   titleWrapper02: {
     marginTop: hp(70),
-  },
-  note: {
-    position: 'absolute',
-    bottom: hp(45),
-    marginLeft: 26,
-    width: '90%',
-    paddingTop: hp(10),
   },
   iconContainer: {
     padding: 10,
