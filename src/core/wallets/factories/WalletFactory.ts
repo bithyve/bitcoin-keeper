@@ -91,10 +91,6 @@ export const generateWallet = async ({
     xpriv,
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
-    activeAddresses: {
-      external: {},
-      internal: {},
-    },
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
     balances: {
