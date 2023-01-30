@@ -1,53 +1,41 @@
 /* eslint-disable guard-for-in */
-import * as bip39 from "bip39";
+import * as bip39 from 'bip39';
 
-import { Wallet } from "src/core/wallets/interfaces/wallet";
-import { call, put } from "redux-saga/effects";
-import config, { APP_STAGE } from "src/core/config";
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { call, put } from 'redux-saga/effects';
+import config, { APP_STAGE } from 'src/core/config';
 import {
   decrypt,
   encrypt,
   generateEncryptionKey,
   hash256,
-} from "src/core/services/operations/encryption";
-import { getCloudBackupData, uploadData } from "src/nativemodules/Cloud";
-
-import BIP85 from "src/core/wallets/operations/BIP85";
-import DeviceInfo from "react-native-device-info";
-import { KeeperApp } from "src/common/data/models/interfaces/KeeperApp";
-import { Platform } from "react-native";
-import { RealmSchema } from "src/storage/realm/enum";
-import Relay from "src/core/services/operations/Relay";
-import { Vault } from "src/core/wallets/interfaces/vault";
-import { captureError } from "src/core/services/sentry";
-import crypto from "crypto";
-import dbManager from "src/storage/realm/dbManager";
-import moment from "moment";
-import { translations } from "src/common/content/LocContext";
-import { refreshWallets, updateSignerDetails } from "../sagaActions/wallets";
-import { createWatcher } from "../utilities";
+} from 'src/core/services/operations/encryption';
+import BIP85 from 'src/core/wallets/operations/BIP85';
+import DeviceInfo from 'react-native-device-info';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import Relay from 'src/core/services/operations/Relay';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { captureError } from 'src/core/services/sentry';
+import crypto from 'crypto';
+import dbManager from 'src/storage/realm/dbManager';
+import moment from 'moment';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
+import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
-  setBackupError,
   setBackupLoading,
   setBackupType,
   setBackupWarning,
-  setCloudBackupCompleted,
-  setCloudBackupConfirmed,
-  setCloudData,
-  setDownloadingBackup,
   setInvalidPassword,
   setSeedConfirmed,
-} from "../reducers/bhr";
+} from '../reducers/bhr';
 import {
-  CLOUD_BACKUP_SKIPPED,
-  CONFIRM_CLOUD_BACKUP,
   GET_APP_IMAGE,
-  GET_CLOUD_DATA,
-  INIT_CLOUD_BACKUP,
   RECOVER_BACKUP,
   SEED_BACKEDUP,
   SEED_BACKEDUP_CONFIRMED,
@@ -56,18 +44,14 @@ import {
   UPDATE_APP_IMAGE,
   UPDATE_VAULT_IMAGE,
   getAppImage,
-} from "../sagaActions/bhr";
-import {
-  BackupAction,
-  BackupHistory,
-  BackupType,
-} from "../../common/data/enums/BHR";
-import { uaiActionedEntity } from "../sagaActions/uai";
-import { setAppId } from "../reducers/storage";
+} from '../sagaActions/bhr';
+import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
+import { uaiActionedEntity } from '../sagaActions/uai';
+import { setAppId } from '../reducers/storage';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
-  const { primarySeed, id, appID, subscription, networkType, version }: KeeperApp = yield call(
+  const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
@@ -77,10 +61,7 @@ export function* updateAppImageWorker({ payload }) {
     const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
     walletObject[wallet.id] = encrytedWallet;
   } else {
-    const wallets: Wallet[] = yield call(
-      dbManager.getCollection,
-      RealmSchema.Wallet
-    );
+    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
@@ -89,8 +70,8 @@ export function* updateAppImageWorker({ payload }) {
   }
   try {
     const response = yield call(Relay.updateAppImage, {
-      id,
-      appID,
+      id: publicId,
+      appID: id,
       walletObject,
       networkType,
       subscription: JSON.stringify(subscription),
@@ -99,7 +80,7 @@ export function* updateAppImageWorker({ payload }) {
     return response;
   } catch (err) {
     console.log({ err });
-    console.error("App image update failed", err);
+    console.error('App image update failed', err);
   }
 }
 
@@ -185,99 +166,6 @@ export function* updateVaultImageWorker({
   }
 }
 
-function getCloudErrorMessage(code) {
-  try {
-    const errorMessages = Platform.select({
-      android: translations.driveErrors,
-      ios: translations.iCloudErrors,
-    });
-    return errorMessages[code] || "";
-  } catch (error) {
-    return "";
-  }
-}
-
-function* cloudBackupSkippedWorked() {
-  try {
-    yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-      title: BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED,
-      date: moment().unix(),
-      confirmed: false,
-      subtitle: "",
-    });
-  } catch (error) {}
-}
-
-function* confirmCloudBackupWorked({
-  payload,
-}: {
-  payload: {
-    password: string;
-  };
-}) {
-  try {
-    const { password } = payload;
-    const { id, primaryMnemonic }: KeeperApp = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.KeeperApp
-    );
-    const response = yield call(getCloudBackupData);
-    if (response.status) {
-      let backup;
-      if (Platform.OS === "android") {
-        backup = JSON.parse(response.data).find(
-          (backup) => backup.appID === id
-        );
-      } else {
-        backup = response.data.find((backup) => backup?.appID === id);
-      }
-      if (backup) {
-        const dec = decrypt(password, backup.encData);
-        const obj = JSON.parse(dec);
-        if (obj.seed && obj.seed === primaryMnemonic) {
-          yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-            title: BackupAction.CLOUD_BACKUP_CONFIRMED,
-            date: moment().unix(),
-            confirmed: true,
-            subtitle: "",
-          });
-          yield put(setCloudBackupConfirmed(true));
-        }
-      } else {
-        // backup does not exists
-        yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-          title: BackupAction.CLOUD_BACKUP_FAILED,
-          date: moment().unix(),
-          confirmed: false,
-          subtitle: "Unable to access cloud backup",
-        });
-        yield put(setCloudBackupConfirmed(false));
-      }
-    } else {
-      const errMsg = getCloudErrorMessage(response.code) || "";
-      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-        title: BackupAction.CLOUD_BACKUP_FAILED,
-        date: moment().unix(),
-        confirmed: false,
-        subtitle: `${errMsg} ${response.code ? `(code ${response.code}` : ""})`,
-      });
-      yield put(setCloudBackupConfirmed(false));
-    }
-    yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-      title: BackupAction.CLOUD_BACKUP_CONFIRMED,
-      date: moment().unix(),
-      confirmed: true,
-      subtitle: "",
-    });
-    yield put(setCloudBackupConfirmed(false));
-
-    yield put(setCloudBackupConfirmed(true));
-  } catch (error) {
-    console.log(error);
-    yield put(setCloudBackupConfirmed(false));
-  }
-}
-
 function* seedBackeupConfirmedWorked({
   payload,
 }: {
@@ -293,80 +181,20 @@ function* seedBackeupConfirmedWorked({
         : BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED,
       date: moment().unix(),
       confirmed,
-      subtitle: "",
+      subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
   } catch (error) {}
 }
 
-function* initCloudBackupWorked({
-  payload,
-}: {
-  payload: {
-    password: string;
-    hint?: string;
-  };
-}) {
-  try {
-    yield put(setBackupLoading(true));
-    const { password, hint } = payload;
-    const { id, primaryMnemonic }: KeeperApp = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.KeeperApp
-    );
-    yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, id, {
-      backup: {
-        method: BackupType.CLOUD,
-        password,
-        hint,
-      },
-    });
-    const data = {
-      seed: primaryMnemonic,
-    };
-    const response = yield call(uploadData, id, {
-      encData: encrypt(password, JSON.stringify(data)),
-      hint,
-    });
-    console.log(response);
-    if (response.status) {
-      yield put(setBackupType(BackupType.CLOUD));
-      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-        title: BackupAction.CLOUD_BACKUP_CREATED,
-        date: moment().unix(),
-        confirmed: true,
-        subtitle: "",
-      });
-      yield put(setCloudBackupCompleted());
-    } else {
-      const errMsg = getCloudErrorMessage(response.code) || "";
-      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-        title: BackupAction.CLOUD_BACKUP_FAILED,
-        date: moment().unix(),
-        confirmed: true,
-        subtitle: `${errMsg} ${response.code ? `(code ${response.code}` : ""})`,
-      });
-      yield put(setBackupError({ isError: true, error: errMsg }));
-      yield put(setBackupLoading(false));
-    }
-  } catch (error) {
-    yield put(setBackupError({ isError: true, error: `${error}` }));
-    yield put(setBackupLoading(false));
-    console.log(error);
-  }
-}
-
 function* seedBackedUpWorker() {
   try {
-    const { id }: KeeperApp = yield call(
-      dbManager.getObjectByIndex,
-      RealmSchema.KeeperApp
-    );
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     yield call(dbManager.createObject, RealmSchema.BackupHistory, {
       title: BackupAction.SEED_BACKUP_CREATED,
       date: moment().unix(),
       confirmed: true,
-      subtitle: "",
+      subtitle: '',
     });
     yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, id, {
       backup: {
@@ -385,9 +213,9 @@ function* getAppImageWorker({ payload }) {
     yield put(setAppImageError(false));
     yield put(setAppRecoveryLoading(true));
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage } = yield call(Relay.getAppImage, id);
+    const { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
     if (appImage) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
@@ -395,11 +223,12 @@ function* getAppImageWorker({ payload }) {
         config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
         primaryMnemonic
       );
-      const imageEncryptionKey = generateEncryptionKey(entropy.toString("hex"));
+      const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+      const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
       const app: KeeperApp = {
-        id,
-        appID: appImage.appId,
-        primarySeed: primarySeed.toString("hex"),
+        id: appID,
+        publicId,
+        primarySeed: primarySeed.toString('hex'),
         primaryMnemonic,
         imageEncryptionKey,
         subscription: JSON.parse(appImage.subscription),
@@ -414,11 +243,7 @@ function* getAppImageWorker({ payload }) {
       if (appImage.wallets) {
         for (const [key, value] of Object.entries(appImage.wallets)) {
           const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
-          yield call(
-            dbManager.createObject,
-            RealmSchema.Wallet,
-            decrytpedWallet
-          );
+          yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
           yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
         }
       }
@@ -428,7 +253,7 @@ function* getAppImageWorker({ payload }) {
         const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
-      yield put(setAppId(app.appID));
+      yield put(setAppId(appID));
     }
   } catch (err) {
     console.log(err);
@@ -436,31 +261,6 @@ function* getAppImageWorker({ payload }) {
   } finally {
     yield put(setAppRecoveryLoading(false));
     yield put(appImagerecoveryRetry());
-  }
-}
-
-function* getCloudDataWorker() {
-  try {
-    yield put(setDownloadingBackup(true));
-    const response = yield call(getCloudBackupData);
-    console.log("response", response);
-    if (response.status) {
-      let backup;
-      if (Platform.OS === "android") {
-        backup = JSON.parse(response.data);
-      } else {
-        backup = response.data;
-      }
-      yield put(setCloudData(backup));
-    } else {
-      yield put(setDownloadingBackup(false));
-      const errMsg = getCloudErrorMessage(response.code) || "";
-      yield put(setBackupError({ isError: true, error: errMsg }));
-    }
-  } catch (error) {
-    console.log(error);
-    yield put(setBackupError({ isError: true, error: "Unknown error" }));
-    yield put(setDownloadingBackup(false));
   }
 }
 
@@ -499,15 +299,11 @@ function* healthCheckSignerWorker({
 }) {
   try {
     const { vaultId, signerId } = payload;
-    const vault: Vault = yield call(
-      dbManager.getObjectById,
-      RealmSchema.Vault,
-      vaultId
-    );
+    const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
     for (const signer of vault.signers) {
       if (signer.signerId === signerId) {
         const date = new Date();
-        yield put(updateSignerDetails(signer, "lastHealthCheck", date));
+        yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
         yield put(uaiActionedEntity(signer.signerId));
       }
     }
@@ -533,17 +329,9 @@ function* isBackedUP({
     const ProductionWarning =
       (currentDate.getTime() - lastBackup.getTime()) / (1000 * 3600 * 24) > 30;
     const selectedWarning =
-      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT
-        ? devWarning
-        : ProductionWarning;
+      config.ENVIRONMENT === APP_STAGE.DEVELOPMENT ? devWarning : ProductionWarning;
 
-    if (
-      selectedWarning &&
-      (lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED ||
-        lastRecord.title === BackupAction.CLOUD_BACKUP_FAILED ||
-        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_FAILED ||
-        lastRecord.title === BackupAction.CLOUD_BACKUP_CONFIRMATION_SKIPPED)
-    ) {
+    if (selectedWarning && lastRecord.title === BackupAction.SEED_BACKUP_CONFIRMATION_SKIPPED) {
       // UAI update here
 
       yield put(setBackupWarning(true));
@@ -552,55 +340,20 @@ function* isBackedUP({
   yield put(setBackupWarning(false));
 }
 
-export const updateAppImageWatcher = createWatcher(
-  updateAppImageWorker,
-  UPDATE_APP_IMAGE
-);
-export const updateVaultImageWatcher = createWatcher(
-  updateVaultImageWorker,
-  UPDATE_VAULT_IMAGE
-);
+export const updateAppImageWatcher = createWatcher(updateAppImageWorker, UPDATE_APP_IMAGE);
+export const updateVaultImageWatcher = createWatcher(updateVaultImageWorker, UPDATE_VAULT_IMAGE);
 
-export const getAppImageWatcher = createWatcher(
-  getAppImageWorker,
-  GET_APP_IMAGE
-);
-export const seedBackedUpWatcher = createWatcher(
-  seedBackedUpWorker,
-  SEED_BACKEDUP
-);
-export const initCloudBackupWatcher = createWatcher(
-  initCloudBackupWorked,
-  INIT_CLOUD_BACKUP
-);
-export const backupWarningWatcher = createWatcher(
-  isBackedUP,
-  SET_BACKUP_WARNING
-);
+export const getAppImageWatcher = createWatcher(getAppImageWorker, GET_APP_IMAGE);
+export const seedBackedUpWatcher = createWatcher(seedBackedUpWorker, SEED_BACKEDUP);
 
-export const cloudBackupSkippedWatcher = createWatcher(
-  cloudBackupSkippedWorked,
-  CLOUD_BACKUP_SKIPPED
-);
-
-export const confirmCloudBackupWatcher = createWatcher(
-  confirmCloudBackupWorked,
-  CONFIRM_CLOUD_BACKUP
-);
+export const backupWarningWatcher = createWatcher(isBackedUP, SET_BACKUP_WARNING);
 
 export const seedBackeupConfirmedWatcher = createWatcher(
   seedBackeupConfirmedWorked,
   SEED_BACKEDUP_CONFIRMED
 );
 
-export const getCloudDataWatcher = createWatcher(
-  getCloudDataWorker,
-  GET_CLOUD_DATA
-);
-export const recoverBackupWatcher = createWatcher(
-  recoverBackupWorker,
-  RECOVER_BACKUP
-);
+export const recoverBackupWatcher = createWatcher(recoverBackupWorker, RECOVER_BACKUP);
 export const healthCheckSignerWatcher = createWatcher(
   healthCheckSignerWorker,
   UPADTE_HEALTH_CHECK_SIGNER

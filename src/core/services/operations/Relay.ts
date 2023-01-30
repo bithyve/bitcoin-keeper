@@ -380,4 +380,30 @@ export default class Relay {
       if (err.code) throw new Error(err.code);
     }
   };
+
+  public static createNewApp = async (
+    publicId: string,
+    appID: string,
+    fcmToken: string
+  ): Promise<{
+    created: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}createNewApp`, {
+        AUTH_ID,
+        appID,
+        publicId,
+        fcmToken,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    const { created } = res.data || res.json;
+    return {
+      created,
+    };
+  };
 }

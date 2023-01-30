@@ -62,10 +62,6 @@ export const generateVault = ({
 
   const specs: VaultSpecs = {
     xpubs,
-    activeAddresses: {
-      external: {},
-      internal: {},
-    },
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
     confirmedUTXOs: [],
