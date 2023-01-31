@@ -68,7 +68,7 @@ function SetupSeedWordSigner({ route, navigation }) {
     <Box flex={1} padding={5} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
       <HeaderTitle
-        title="Soft Key"
+        title="Seed Key"
         subtitle={seedText.SeedDesc}
         onPressHandler={() => navigtaion.goBack()}
       />

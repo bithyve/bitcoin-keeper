@@ -152,7 +152,7 @@ function WalletDetails({ route }) {
                   <Text color="light.white" style={styles.unconfirmedText}>
                     Unconfirmed
                   </Text>
-                  <Text color="light.white" style={styles.unconfirmedBalance}>
+                  <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Box
                       style={{
                         marginRight: 3,
@@ -160,8 +160,10 @@ function WalletDetails({ route }) {
                     >
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
-                    {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency)}
-                  </Text>
+                    <Text color="light.white" style={styles.unconfirmedBalance}>
+                      {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency)}
+                    </Text>
+                  </Box>
                 </Box>
               </Box>
 

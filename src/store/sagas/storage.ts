@@ -50,7 +50,6 @@ function* setupKeeperAppWorker({ payload }) {
       imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
     }
     const response = yield call(Relay.createNewApp, publicId, appID, fcmToken);
-    console.log('response', response);
 
     if (response && response.created) {
       const newAPP: KeeperApp = {
