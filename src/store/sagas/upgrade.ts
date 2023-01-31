@@ -42,7 +42,7 @@ function* switchToMainnet() {
 
   // re-initialise a fresh instance of realm
   yield call(dbManager.initializeRealm, uint8array);
-  yield put(setupKeeperApp());
+  yield put(setupKeeperApp('', ''));
 }
 
 function* updateVersionHistoryWorker({
