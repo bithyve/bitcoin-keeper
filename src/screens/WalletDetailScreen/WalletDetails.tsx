@@ -97,8 +97,6 @@ function WalletDetails({ route }) {
     const walletBalance = balances?.confirmed + balances?.unconfirmed;
     const isActive = index === walletIndex;
 
-    console.log(index, walletBalance);
-
     return (
       <Shadow
         distance={9}
