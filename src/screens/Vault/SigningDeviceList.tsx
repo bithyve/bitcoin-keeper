@@ -307,6 +307,7 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: '8%',
   },
   scrollViewWrapper: {
     height: windowHeight > 800 ? '90%' : '85%',
