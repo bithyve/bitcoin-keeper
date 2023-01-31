@@ -30,7 +30,6 @@ const RNBiometrics = new ReactNativeBiometrics();
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
   const [darkMode, setDarkMode] = useState(false);
-  const { appId } = useAppSelector((state) => state.storage);
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
@@ -80,8 +79,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {

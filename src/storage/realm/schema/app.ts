@@ -5,7 +5,7 @@ export const KeeperAppSchema: ObjectSchema = {
   name: RealmSchema.KeeperApp,
   properties: {
     id: 'string',
-    appID: 'string',
+    publicId: 'string',
     appName: 'string?',
     primaryMnemonic: 'string',
     primarySeed: 'string',
