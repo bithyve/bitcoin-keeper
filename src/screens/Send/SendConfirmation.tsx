@@ -29,7 +29,6 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import VaultIcon from 'src/assets/images/icon_vault2.svg';
 
-import { getAmount, getAmt, getUnit } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { crossTransferReset, sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
@@ -43,8 +42,6 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
@@ -80,9 +77,6 @@ function SendConfirmation({ route }) {
     uaiSetActionFalse: any;
   } = route.params;
 
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const { isSuccessful: crossTransferSuccess, hasFailed: crossTransferFailed } = useAppSelector(
@@ -166,6 +160,7 @@ function SendConfirmation({ route }) {
   }, []);
 
   const onTransferNow = () => {
+    setVisibleTransVaultModal(false);
     dispatch(
       crossTransfer({
         sender: sourceWallet,
@@ -228,9 +223,17 @@ function SendConfirmation({ route }) {
   const viewDetails = () => {
     setVisibleModal(false);
     if (vaultTransfers.includes(transferType)) {
-      navigation.navigate('VaultDetails', { autoRefresh: true });
+      const navigationState = {
+        index: 1,
+        routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
     }
-    navigation.navigate('WalletDetails', { autoRefresh: true });
+    const navigationState = {
+      index: 1,
+      routes: [{ name: 'NewHome' }, { name: 'WalletDetails', params: { autoRefresh: true } }],
+    };
+    navigation.dispatch(CommonActions.reset(navigationState));
   };
 
   useEffect(() => {
@@ -305,59 +308,32 @@ function SendConfirmation({ route }) {
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transferring: ${getAmt(
-                amount,
-                exchangeRates,
-                currencyCode,
-                currentCurrency
-              )} ${getUnit(currencyCode)}`}
+              subTitle={`Transferring: ${amount} sats`}
             />
           );
         case TransferType.VAULT_TO_ADDRESS:
           return isSend ? (
-            <Card
-              title="Vault"
-              subTitle={getAmt(amount, exchangeRates, currencyCode, currentCurrency)}
-              isVault
-            />
+            <Card title="Vault" subTitle={`${amount} sats`} isVault />
           ) : (
-            <Card
-              title={address}
-              subTitle={getAmt(amount, exchangeRates, currencyCode, currentCurrency)}
-            />
+            <Card title={address} subTitle={`${amount} sats`} />
           );
         case TransferType.WALLET_TO_WALLET:
           return isSend ? (
             <Card
               title={sender?.presentationData.name}
-              subTitle={`Available: ${getAmt(
-                sender?.specs.balances.confirmed,
-                exchangeRates,
-                currencyCode,
-                currentCurrency
-              )} ${getUnit(currencyCode)}`}
+              subTitle={`Available: ${sender?.specs.balances.confirmed} sats`}
             />
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transferring: ${getAmt(
-                amount,
-                exchangeRates,
-                currencyCode,
-                currentCurrency
-              )} ${getUnit(currencyCode)}`}
+              subTitle={`Transferring: ${amount} sats`}
             />
           );
         case TransferType.WALLET_TO_VAULT:
           return isSend ? (
             <Card
               title={sourceWallet.presentationData.name}
-              subTitle={`Available balance: ${getAmt(
-                sourceWallet.specs.balances.confirmed,
-                exchangeRates,
-                currencyCode,
-                currentCurrency
-              )} ${getUnit(currencyCode)}`}
+              subTitle={`Available balance: ${sourceWallet.specs.balances.confirmed} sats`}
             />
           ) : (
             <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
@@ -366,23 +342,10 @@ function SendConfirmation({ route }) {
           return isSend ? (
             <Card
               title={sender?.presentationData.name}
-              subTitle={`Available balance: ${getAmt(
-                sender.specs.balances.confirmed,
-                exchangeRates,
-                currencyCode,
-                currentCurrency
-              )} ${getUnit(currencyCode)}`}
+              subTitle={`Available balance: ${sender.specs.balances.confirmed} sats`}
             />
           ) : (
-            <Card
-              title={address}
-              subTitle={`Transferring: ${getAmt(
-                amount,
-                exchangeRates,
-                currencyCode,
-                currentCurrency
-              )} ${getUnit(currencyCode)} `}
-            />
+            <Card title={address} subTitle={`Transferring: ${amount} sats`} />
           );
       }
     };
@@ -628,7 +591,7 @@ function SendConfirmation({ route }) {
           <BTC />
           {transferType === TransferType.WALLET_TO_VAULT
             ? sendMaxFee
-            : getAmount(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+            : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
         </Text>
       </HStack>
     );

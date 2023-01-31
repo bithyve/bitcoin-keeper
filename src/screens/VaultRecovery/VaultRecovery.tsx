@@ -3,7 +3,7 @@ import { Box, HStack, Pressable, VStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
-
+import messaging from '@react-native-firebase/messaging';
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/images/addSigner.svg';
 import Buttons from 'src/components/Buttons';
@@ -140,6 +140,16 @@ function VaultRecovery({ navigation }) {
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
 
+  async function createNewApp() {
+    try {
+      const token = await messaging().getToken();
+      dispatch(setupKeeperApp('', token));
+    } catch (error) {
+      console.log(error);
+      dispatch(setupKeeperApp('', ''));
+    }
+  }
+
   useEffect(() => {
     setsignersList(
       signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices?.length))
@@ -153,7 +163,9 @@ function VaultRecovery({ navigation }) {
   }, [signersList]);
 
   useEffect(() => {
-    if (scheme && !appId) dispatch(setupKeeperApp());
+    if (scheme && !appId) {
+      createNewApp();
+    }
   }, [scheme]);
 
   useEffect(() => {
@@ -189,7 +201,7 @@ function VaultRecovery({ navigation }) {
   // try catch API error
   const vaultCheck = async () => {
     const vaultId = generateVaultId(signersList, config.NETWORK_TYPE);
-    const response = await Relay.vaultCheck({ vaultId });
+    const response = await Relay.vaultCheck(vaultId);
     if (response.isVault) {
       setScheme(response.scheme);
     } else {
