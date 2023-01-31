@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   walletBalance: {
-    marginTop: hp(20),
+    marginTop: hp(12),
   },
   transferPolicyContainer: {
     flexDirection: 'row',
