@@ -1,14 +1,14 @@
 import React from 'react';
-import { View } from 'native-base';
-import { StyleSheet, ActivityIndicator } from 'react-native';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { StyleSheet, ActivityIndicator, Modal, View } from 'react-native';
 
 function ActivityIndicatorView({ visible }: any) {
   if (visible) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" animating color="#00836A" style={styles.spinner} />
-      </View>
+      <Modal transparent visible={visible} statusBarTranslucent>
+        <View style={styles.container}>
+          <ActivityIndicator size="large" animating color="#00836A" />
+        </View>
+      </Modal>
     );
   }
   return null;
@@ -18,15 +18,14 @@ export default ActivityIndicatorView;
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    left: -windowWidth,
-    right: -windowWidth,
-    top: -windowHeight,
-    bottom: -windowHeight,
     backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  spinner: {
-    top: windowHeight / 2,
-    bottom: windowHeight / 2,
+    bottom: 0,
+    flex: 1,
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
