@@ -303,10 +303,10 @@ export default class Relay {
     }
   };
 
-  public static getAppImage = async (id): Promise<any> => {
+  public static getAppImage = async (appId): Promise<any> => {
     try {
       const res = await RestClient.post(`${RELAY}getAppImage`, {
-        id,
+        appId,
       });
       const { data } = res;
       return data;
