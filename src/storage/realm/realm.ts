@@ -51,6 +51,7 @@ export class RealmDatabase {
       ? this.realm.schemaVersion
       : RealmDatabase.schemaVersion;
     if (this.realm) this.realm.close();
+    this.realm = null;
 
     const realmConfig: Realm.Configuration = {
       path: RealmDatabase.file,
