@@ -3,6 +3,7 @@ import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces
 import {
   DerivationPurpose,
   EntityKind,
+  NetworkType,
   SignerStorage,
   SignerType,
   XpubTypes,
@@ -130,7 +131,10 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
 
 export const getSignerSigTypeInfo = (signer: VaultSigner) => {
   const purpose = WalletUtilities.getSignerPurposeFromPath(signer.derivationPath);
-  if (signer.isMock) {
+  if (
+    signer.isMock ||
+    (signer.type === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.TESTNET) // amf flow
+  ) {
     return { isSingleSig: true, isMultiSig: true, purpose };
   }
   if (purpose && DerivationPurpose.BIP48.toString() === purpose) {

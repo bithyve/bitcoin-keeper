@@ -10,14 +10,14 @@ const initializeRealm = async (
   key: ArrayBuffer | ArrayBufferView | Int8Array
 ): Promise<boolean> => {
   console.log('[Realm]: Database initialising...');
-  return await realm.initializeDatabase(key);
+  return realm.initializeDatabase(key);
 };
 
 /**
  * delete realm
  * @returns Promise
  */
-const deleteRealm = () => realm.deleteDatabase();
+const deleteRealm = (key: ArrayBuffer | ArrayBufferView | Int8Array) => realm.deleteDatabase(key);
 
 /**
  * generic :: creates an object corresponding to provided schema
