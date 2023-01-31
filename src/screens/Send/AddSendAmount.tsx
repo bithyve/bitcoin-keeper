@@ -109,6 +109,7 @@ function AddSendAmount({ route }) {
         <WalletDetails
           availableAmt={sender?.specs.balances.confirmed}
           walletName={sender?.presentationData.name}
+          isSats
         />
       </Box>
 
