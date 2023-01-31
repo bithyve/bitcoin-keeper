@@ -17,7 +17,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { getAmt } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -36,6 +36,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 
 type Props = {
   title: string;
@@ -84,7 +85,7 @@ function WalletSettings({ route }) {
   const walletTranslation = translations.wallet;
 
   // eslint-disable-next-line react/no-unstable-nested-components
-  function WalletCard({ walletName, walletBalance, walletDescription }: any) {
+  function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
       <Box variant="linearGradient" style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
@@ -96,9 +97,14 @@ function WalletSettings({ route }) {
               {walletDescription}
             </Text>
           </Box>
-          <Text color="light.white" style={styles.walletBalance}>
-            {walletBalance}
-          </Text>
+          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Box>
+              {Icon}
+            </Box>
+            <Text color="light.white" style={styles.walletBalance}>
+              {walletBalance}
+            </Text>
+          </Box>
         </Box>
       </Box>
     );
@@ -189,6 +195,7 @@ function WalletSettings({ route }) {
             currencyCode,
             currentCurrency
           )}
+          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
       </Box>
       <Box style={styles.optionsListContainer}>

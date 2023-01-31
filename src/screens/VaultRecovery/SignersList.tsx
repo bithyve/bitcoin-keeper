@@ -36,9 +36,9 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { WalletMap } from '../Vault/WalletMap';
 import { KeeperContent } from '../SignTransaction/SignerModals';
-import LedgerImage from 'src/assets/images/ledger_image.svg';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -120,8 +120,9 @@ function LedgerSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network.`}
-          {`Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub.`}
+          Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the
+          your current BTC network. Proceed once you are on the app on the Nano X. Keeper will scan
+          for your hardware and fetch the xPub.
         </Text>
       </Box>
     </View>
@@ -656,7 +657,7 @@ function SignersList({ navigation }) {
         <KeeperModal
           visible={visible && type === SignerType.SEED_WORDS}
           close={close}
-          title="Recover through Soft Key"
+          title="Recover through Seed Key"
           subTitle="Keep your 12 words reocvery phrase handy"
           subTitleColor="light.secondaryText"
           Content={() => <SeedWordsIllustration />}
