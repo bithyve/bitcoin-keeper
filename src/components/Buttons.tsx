@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { View, Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -18,14 +18,7 @@ function Buttons({
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
 }) {
-  const [pressed, setPressed] = useState(false);
-
-  useEffect(() => {
-    setPressed(primaryDisable);
-  }, [primaryDisable]);
-
   const onPrimaryInteraction = () => {
-    setPressed(true);
     primaryCallback();
   };
 
@@ -36,7 +29,7 @@ function Buttons({
   const getPrimaryButton = () => (
     <TouchableOpacity
       onPress={onPrimaryInteraction}
-      disabled={pressed}
+      disabled={primaryDisable}
       activeOpacity={activeOpacity}
     >
       <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>

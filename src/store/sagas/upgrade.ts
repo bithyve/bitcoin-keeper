@@ -32,14 +32,15 @@ export function* applyUpgradeSequence({
 }
 
 function* switchToMainnet() {
+  const AES_KEY = yield select((state) => state.login.key);
+  const uint8array = yield call(stringToArrayBuffer, AES_KEY);
+
   // remove existing realm database
-  const deleted = yield call(dbManager.deleteRealm);
+  const deleted = yield call(dbManager.deleteRealm, uint8array);
   if (!deleted) throw new Error('failed to switch to mainnet');
   yield put(resetReduxStore());
 
   // re-initialise a fresh instance of realm
-  const AES_KEY = yield select((state) => state.login.key);
-  const uint8array = yield call(stringToArrayBuffer, AES_KEY);
   yield call(dbManager.initializeRealm, uint8array);
   yield put(setupKeeperApp());
 }
