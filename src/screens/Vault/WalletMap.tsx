@@ -126,7 +126,7 @@ export const WalletMap = (type: SignerType, light = false) => {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
         Logo: (
           <Text letterSpacing={1.5} fontSize={14} color="light.secondaryText">
-            Soft Key
+            Seed Key
           </Text>
         ),
         type: SignerStorage.WARM,

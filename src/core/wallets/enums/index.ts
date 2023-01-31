@@ -56,10 +56,6 @@ export enum NodeType {
   LIGHTNING = 'LIGHTNING',
 }
 
-export enum ActiveAddressAssigneeType {
-  GIFT = 'GIFT',
-}
-
 export enum VisibilityType {
   DEFAULT = 'DEFAULT',
   DURESS = 'DURESS',

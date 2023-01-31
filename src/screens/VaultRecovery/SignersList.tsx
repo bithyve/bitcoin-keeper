@@ -23,7 +23,6 @@ import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getJadeDetails } from 'src/hardware/jade';
-import { WalletMap } from '../Vault/WalletMap';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -37,21 +36,21 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
+import { WalletMap } from '../Vault/WalletMap';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 
-const getnavigationState = (type) => {
-  return {
-    index: 5,
-    routes: [
-      { name: 'NewKeeperApp' },
-      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false, type } },
-      { name: 'OtherRecoveryMethods' },
-      { name: 'VaultRecoveryAddSigner' },
-      { name: 'SignersList' },
-      { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: true, type } },
-    ],
-  };
-};
+const getnavigationState = (type) => ({
+  index: 5,
+  routes: [
+    { name: 'NewKeeperApp' },
+    { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false, type } },
+    { name: 'OtherRecoveryMethods' },
+    { name: 'VaultRecoveryAddSigner' },
+    { name: 'SignersList' },
+    { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: true, type } },
+  ],
+});
 
 export const getDeviceStatus = (
   type: SignerType,
@@ -72,11 +71,16 @@ export const getDeviceStatus = (
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
       };
     case SignerType.POLICY_SERVER:
-      if (signingDevices.length < 1)
+      if (signingDevices.length < 1) {
         return {
           message: 'Add another device first to recover',
           disabled: true,
         };
+      }
+      return {
+        message: '',
+        disabled: false,
+      };
     case SignerType.SEED_WORDS:
     case SignerType.MOBILE_KEY:
     case SignerType.KEEPER:
@@ -108,6 +112,22 @@ function TapsignerSetupContent() {
   );
 }
 
+function LedgerSetupContent() {
+  return (
+    <View justifyContent="flex-start" width={wp(300)}>
+      <Box ml={wp(21)}>
+        <LedgerImage />
+      </Box>
+      <Box marginTop="4" alignItems="flex-start">
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the
+          your current BTC network. Proceed once you are on the app on the Nano X. Keeper will scan
+          for your hardware and fetch the xPub.
+        </Text>
+      </Box>
+    </View>
+  );
+}
 function ColdCardSetupContent() {
   return (
     <View justifyContent="flex-start" width={wp(300)}>
@@ -127,7 +147,7 @@ function PassportSetupContent() {
   return (
     <View>
       <Box ml={wp(21)}>
-        <ColdCardSetupImage />
+        <KeystoneSetupImage />
       </Box>
       <Box marginTop="4">
         <Text
@@ -285,7 +305,7 @@ function SignersList({ navigation }) {
         xfp,
         signerType: SignerType.PASSPORT,
         storageType: SignerStorage.COLD,
-        isMultisig: signingDevices.length > 1 ? true : false,
+        isMultisig: signingDevices.length > 1,
       });
       dispatch(setSigningDevices(passport));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -370,7 +390,7 @@ function SignersList({ navigation }) {
         xfp,
         signerType: SignerType.SEEDSIGNER,
         storageType: SignerStorage.COLD,
-        isMultisig: signingDevices.length > 1 ? true : false,
+        isMultisig: signingDevices.length > 1,
       });
       dispatch(setSigningDevices(seedSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -391,7 +411,7 @@ function SignersList({ navigation }) {
         xfp,
         signerType: SignerType.KEYSTONE,
         storageType: SignerStorage.COLD,
-        isMultisig: signingDevices.length > 1 ? true : false,
+        isMultisig: signingDevices.length > 1,
       });
       dispatch(setSigningDevices(keystone));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -411,7 +431,7 @@ function SignersList({ navigation }) {
         xfp,
         signerType: SignerType.JADE,
         storageType: SignerStorage.COLD,
-        isMultisig: signingDevices.length > 1 ? true : false,
+        isMultisig: signingDevices.length > 1,
       });
       dispatch(setSigningDevices(jade));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -571,7 +591,7 @@ function SignersList({ navigation }) {
             close();
           }}
           textColor="light.primaryText"
-          Content={ColdCardSetupContent}
+          Content={LedgerSetupContent}
         />
         <KeeperModal
           visible={visible && type === SignerType.PASSPORT}
@@ -637,7 +657,7 @@ function SignersList({ navigation }) {
         <KeeperModal
           visible={visible && type === SignerType.SEED_WORDS}
           close={close}
-          title="Recover through Soft Key"
+          title="Recover through Seed Key"
           subTitle="Keep your 12 words reocvery phrase handy"
           subTitleColor="light.secondaryText"
           Content={() => <SeedWordsIllustration />}

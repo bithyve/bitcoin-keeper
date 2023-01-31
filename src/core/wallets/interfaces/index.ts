@@ -133,27 +133,6 @@ export interface UTXO {
   height: number;
 }
 
-export interface ActiveAddressAssignee {
-  type: WalletType | ActiveAddressAssignee;
-  id?: string;
-  senderInfo?: {
-    id?: string;
-    name: string;
-  };
-  recipientInfo?: {
-    [txid: string]: { id?: string; name: string; amount: number }[];
-  };
-}
-
-export interface ActiveAddresses {
-  external: {
-    [address: string]: number; // active address to index mapping
-  };
-  internal: {
-    [address: string]: number; // active address to index mapping
-  };
-}
-
 export interface BIP85Config {
   index: number;
   words: number;

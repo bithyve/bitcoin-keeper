@@ -12,7 +12,6 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import Relay from 'src/core/services/operations/Relay';
-import { addNewWallets } from '../sagaActions/wallets';
 import config from '../../core/config';
 import { createWatcher } from '../utilities';
 import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaActions/storage';
@@ -25,25 +24,24 @@ export const defaultTransferPolicyThreshold =
 
 function* setupKeeperAppWorker({ payload }) {
   try {
-    yield put(setAppCreationError(false));
+    const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
     let primaryMnemonic;
     let primarySeed;
     let appID;
-    let id;
+    let publicId;
     let imageEncryptionKey;
-    const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     if (app) {
       primaryMnemonic = app.primaryMnemonic;
       primarySeed = app.primarySeed;
-      appID = app.appID;
-      id = app.id;
+      appID = app.id;
+      publicId = app.publicId;
       imageEncryptionKey = app.imageEncryptionKey;
     } else {
       primaryMnemonic = bip39.generateMnemonic();
       primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
-      appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
-      id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+      appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
+      publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
       const entropy = yield call(
         BIP85.bip39MnemonicToEntropy,
         config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
@@ -51,12 +49,12 @@ function* setupKeeperAppWorker({ payload }) {
       );
       imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
     }
+    const response = yield call(Relay.createNewApp, publicId, appID, fcmToken);
 
-    const response = yield call(Relay.createNewApp, id, appID, fcmToken);
     if (response && response.created) {
-      const newApp: KeeperApp = {
-        id,
-        appID,
+      const newAPP: KeeperApp = {
+        id: appID,
+        publicId,
         appName,
         primaryMnemonic,
         primarySeed: primarySeed.toString('hex'),
@@ -64,16 +62,15 @@ function* setupKeeperAppWorker({ payload }) {
         subscription: {
           productId: SubscriptionTier.L1,
           name: SubscriptionTier.L1,
-          level: 1,
+          level: 0,
           icon: 'assets/ic_pleb.svg',
         },
+        backup: {},
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
-        backup: {},
       };
-      yield call(dbManager.createObject, RealmSchema.KeeperApp, newApp);
+      yield call(dbManager.createObject, RealmSchema.KeeperApp, newAPP);
 
-      // create default wallet
       const defaultWallet: NewWalletInfo = {
         walletType: WalletType.DEFAULT,
         walletDetails: {
@@ -85,19 +82,15 @@ function* setupKeeperAppWorker({ payload }) {
           },
         },
       };
-      const { created, err } = yield call(addNewWalletsWorker, { payload: [defaultWallet] });
-      if (created) {
-        yield put(setAppCreationError(false));
-        yield put(setAppId(appID));
-      } else {
-        yield put(setAppCreationError(true));
-      }
+      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+      yield put(setAppId(appID));
     } else {
       yield put(setAppCreationError(true));
     }
   } catch (error) {
     yield put(setAppCreationError(true));
     console.log({ error });
+    yield put(setAppCreationError(true));
   }
 }
 
@@ -109,8 +102,8 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
     const primaryMnemonic = bip39.generateMnemonic();
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
 
-    const appID = WalletUtilities.getFingerprintFromSeed(primarySeed);
-    const id = crypto.createHash('sha256').update(primarySeed).digest('hex');
+    const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
+    const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
 
     const entropy = yield call(
       BIP85.bip39MnemonicToEntropy,
@@ -120,8 +113,8 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
     const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
 
     const app: KeeperApp = {
-      id,
-      appID,
+      id: appID,
+      publicId,
       appName,
       primaryMnemonic,
       primarySeed: primarySeed.toString('hex'),
@@ -131,6 +124,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
         productId: subscription.productId,
         name: subscription.name,
         level: 0,
+        icon: 'assets/ic_pleb.svg',
       },
       version: DeviceInfo.getVersion(),
       networkType: config.NETWORK_TYPE,

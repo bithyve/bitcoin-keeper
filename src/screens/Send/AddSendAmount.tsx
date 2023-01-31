@@ -109,6 +109,7 @@ function AddSendAmount({ route }) {
         <WalletDetails
           availableAmt={sender?.specs.balances.confirmed}
           walletName={sender?.presentationData.name}
+          isSats
         />
       </Box>
 
@@ -199,7 +200,6 @@ function AddSendAmount({ route }) {
               primaryText="Send"
               primaryDisable={Boolean(!amount)}
               primaryCallback={executeSendPhaseOne}
-              touchDisable={true}
             />
           </Box>
         </Box>

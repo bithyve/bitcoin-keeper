@@ -147,7 +147,7 @@ android {
         applicationId "io.hexawallet.keeper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 118
+        versionCode 120
         versionName "1.0.0"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'store', 'play'
@@ -345,15 +345,6 @@ dependencies {
         implementation jscFlavor
     }
     implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
-    implementation("com.google.android.gms:play-services-drive:17.0.0")
-    implementation 'com.google.android.gms:play-services-auth:20.2.0'
-    implementation 'com.google.http-client:google-http-client-gson:1.26.0'
-    implementation('com.google.api-client:google-api-client-android:1.26.0') {
-        exclude group: 'org.apache.httpcomponents'
-    }
-    implementation('com.google.apis:google-api-services-drive:v3-rev136-1.25.0') {
-        exclude group: 'org.apache.httpcomponents'
-    }
 }
 
 if (isNewArchitectureEnabled()) {

@@ -17,7 +17,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { getAmt } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -36,6 +36,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 
 type Props = {
   title: string;
@@ -84,7 +85,7 @@ function WalletSettings({ route }) {
   const walletTranslation = translations.wallet;
 
   // eslint-disable-next-line react/no-unstable-nested-components
-  function WalletCard({ walletName, walletBalance, walletDescription }: any) {
+  function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
       <Box variant="linearGradient" style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
@@ -96,9 +97,14 @@ function WalletSettings({ route }) {
               {walletDescription}
             </Text>
           </Box>
-          <Text color="light.white" style={styles.walletBalance}>
-            {walletBalance}
-          </Text>
+          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Box>
+              {Icon}
+            </Box>
+            <Text color="light.white" style={styles.walletBalance}>
+              {walletBalance}
+            </Text>
+          </Box>
         </Box>
       </Box>
     );
@@ -189,6 +195,7 @@ function WalletSettings({ route }) {
             currencyCode,
             currentCurrency
           )}
+          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
       </Box>
       <Box style={styles.optionsListContainer}>
@@ -207,7 +214,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Show xPub"
-            subTitle="Use to create a external watch-only wallet"
+            subTitle="Use to create an external, watch-only wallet"
             onPress={() => {
               setXPubVisible(true);
             }}
@@ -228,7 +235,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Transfer Policy"
-            subTitle={`Secure to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+            subTitle={`Transfer to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
             }}
@@ -262,7 +269,6 @@ function WalletSettings({ route }) {
           />
         </ScrollView>
       </Box>
-
       {/* {Bottom note} */}
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
@@ -271,9 +277,6 @@ function WalletSettings({ route }) {
           subtitleColor="GreyText"
         />
       </Box>
-      {/* Indicator */}
-      <ActivityIndicatorView visible={relayWalletUpdateLoading} />
-      {/* Modals */}
       <Box>
         <KeeperModal
           visible={confirmPassVisible}
@@ -299,7 +302,7 @@ function WalletSettings({ route }) {
           close={() => setXPubVisible(false)}
           title="Wallet xPub"
           subTitleWidth={wp(240)}
-          subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
+          subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           // eslint-disable-next-line react/no-unstable-nested-components
@@ -322,7 +325,7 @@ function WalletSettings({ route }) {
           close={() => setCosignerVisible(false)}
           title="Cosigner Details"
           subTitleWidth={wp(240)}
-          subTitle="Scan the cosigner details from another app in order to add this as a signer"
+          subTitle="Scan the cosigner details from another app to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           buttonText="Done"

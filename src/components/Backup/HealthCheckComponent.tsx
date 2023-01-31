@@ -138,7 +138,6 @@ function HealthCheckComponent(props) {
         }}
         primaryText={common.confirm}
         primaryCallback={onPressConfirm}
-        touchDisable={true}
       />
     </Box>
   );

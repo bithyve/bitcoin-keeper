@@ -21,9 +21,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import SeedWordsView from 'src/components/SeedWordsView';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
-import CreateCloudBackup from 'src/components/CloudBackup/CreateCloudBackup';
 import Illustration from 'src/assets/images/illustration.svg';
 import { getPlaceholder } from 'src/common/utilities';
 
@@ -97,7 +95,6 @@ function InputSeedWordSigner({ route }: { route: any }) {
   ]);
 
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
-  const [createCloudBackupModal, setCreateCloudBackupModal] = useState(false);
   const [walletRecoverySuccessModal, setWalletRecoverySuccessModal] = useState(false);
 
   const closeInvalidSeedsModal = () => setInvalidSeedsModal(false);
@@ -298,12 +295,6 @@ function InputSeedWordSigner({ route }: { route: any }) {
               textColor="light.primaryText"
               Content={RecoverWalletScreen}
             />
-            <ModalWrapper
-              visible={createCloudBackupModal}
-              onSwipeComplete={() => setCreateCloudBackupModal(false)}
-            >
-              <CreateCloudBackup closeBottomSheet={() => setCreateCloudBackupModal(false)} />
-            </ModalWrapper>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
