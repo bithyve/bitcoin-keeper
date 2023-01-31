@@ -39,7 +39,7 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
       <SignerData signer={signer} />
       <Box style={styles.limitTextWrapper}>
         <Text color="light.GreyText" style={styles.limitText}>
-          {descRef.current.length}/20
+          {descRef && descRef.current && descRef.current.length ? descRef.current.length : 0}/20
         </Text>
       </Box>
       <TextInput
