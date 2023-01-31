@@ -2,7 +2,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack } from 'native-base';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import moment from 'moment';
@@ -32,14 +32,19 @@ function SignerData({ signer }: { signer: VaultSigner }) {
 function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
   const updateDescription = useCallback((text) => {
     descRef.current = text;
+    setMaxLength(text.length);
   }, []);
+
+  const [maxLength, setMaxLength] = useState(
+    signer && signer.signerDescription ? signer.signerDescription.length : 0
+  );
 
   return (
     <VStack style={styles.descriptionContainer}>
       <SignerData signer={signer} />
       <Box style={styles.limitTextWrapper}>
         <Text color="light.GreyText" style={styles.limitText}>
-          {descRef && descRef.current && descRef.current.length ? descRef.current.length : 0}/20
+          {maxLength}/30
         </Text>
       </Box>
       <TextInput
@@ -49,7 +54,7 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
         placeholder="Add Description"
         placeholderTextColor={Colors.RichBlack}
         defaultValue={signer.signerDescription}
-        maxLength={20}
+        maxLength={30}
       />
     </VStack>
   );
