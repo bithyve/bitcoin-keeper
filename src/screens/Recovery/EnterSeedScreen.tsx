@@ -49,7 +49,7 @@ function EnterSeedScreen({ route }) {
   const { appId } = useAppSelector((state) => state.storage);
 
   const ref = useRef<FlatList>(null);
-  const [activeIndicator, setActiveIndicator] = useState(0);
+  const [activePage, setActivePage] = useState(0);
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -251,9 +251,9 @@ function EnterSeedScreen({ route }) {
   const scrollHandler = (event) => {
     const newScrollOffset = event.nativeEvent.contentOffset.y;
     if (newScrollOffset > 90) {
-      setActiveIndicator(1);
+      setActivePage(1);
     } else {
-      setActiveIndicator(0);
+      setActivePage(0);
     }
   };
 
@@ -350,8 +350,8 @@ function EnterSeedScreen({ route }) {
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
-              <View style={activeIndicator === 0 ? styles.dash : styles.dot} />
-              <View style={activeIndicator === 1 ? styles.dash : styles.dot} />
+              <View style={activePage === 0 ? styles.dash : styles.dot} />
+              <View style={activePage === 1 ? styles.dash : styles.dot} />
             </Box>
 
             {isSoftKeyRecovery ? (
