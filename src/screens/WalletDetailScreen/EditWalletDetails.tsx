@@ -84,7 +84,9 @@ function EditWalletSettings({ route }) {
           borderRadius={10}
           borderWidth="0"
           marginY={2}
-          maxLength={40}
+          maxLength={80}
+          multiline
+          numberOfLines={4}
         />
         <View style={styles.buttonWrapper}>
           <Buttons
