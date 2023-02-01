@@ -14,7 +14,6 @@ import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { Alert } from 'react-native';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -111,8 +110,8 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
       );
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
-        Alert.alert('You have insufficient balance at this time.');
-      else Alert.alert(sendPhaseOneState.failedErrorMessage);
+        showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
+      else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
     }
   }, [sendPhaseOneState]);
 
@@ -120,7 +119,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
     if (confirmed) {
       dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: activeVault }));
     } else {
-      Alert.alert('You have unconfirmed balance, please try again later!');
+      showToast('You have unconfirmed balance, please try again later!', <ToastErrorIcon />);
     }
   };
 
