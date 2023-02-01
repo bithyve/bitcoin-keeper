@@ -68,7 +68,7 @@ function SignerAdvanceSettings({ route }: any) {
         err.toString() ===
         'TransportStatusError: Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)'
       ) {
-        showToast('Registration was denied by the user', <ToastErrorIcon />, 1000, true);
+        showToast('Registration was denied by the user', <ToastErrorIcon />);
         return;
       }
       setLedgerModal(false);

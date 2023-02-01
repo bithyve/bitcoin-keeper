@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VaultType } from 'src/core/wallets/enums';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
@@ -18,6 +18,7 @@ import { Alert } from 'react-native';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function VaultMigrationController({ vaultCreating, signersState, planStatus, setCreating }: any) {
   const navigation = useNavigation();
@@ -60,7 +61,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
     }
 
     if (relayVaultError) {
-      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
+      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
       setCreating(false);
     }
