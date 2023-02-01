@@ -1,5 +1,4 @@
 import {
-  Alert,
   FlatList,
   InteractionManager,
   KeyboardAvoidingView,
@@ -126,7 +125,7 @@ function SendScreen({ route }) {
     recipient?: Wallet | Vault
   ) => {
     if (!avgFees) {
-      Alert.alert("Average transaction fees couldn't be fetched!");
+      showToast("Average transaction fees couldn't be fetched!");
       return;
     }
 

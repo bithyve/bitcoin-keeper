@@ -1,4 +1,4 @@
-import { Alert, FlatList } from 'react-native';
+import { FlatList } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
@@ -268,7 +268,7 @@ function SignTransactionScreen() {
         setKeeperModal(true);
         break;
       default:
-        Alert.alert(`action not set for ${type}`);
+        showToast(`action not set for ${type}`);
         break;
     }
   };
@@ -312,7 +312,7 @@ function SignTransactionScreen() {
                 })
               );
             } else {
-              Alert.alert(`Sorry there aren't enough signatures!`);
+              showToast(`Sorry there aren't enough signatures!`);
             }
           }}
         />
