@@ -45,16 +45,6 @@ function* switchToMainnet() {
   // re-initialise a fresh instance of realm
   yield call(dbManager.initializeRealm, uint8array);
   yield put(setupKeeperApp('', ''));
-
-  //Default UAI creation
-  yield put(
-    addToUaiStack({
-      title: 'Make sure your signing devices are safe and accessible',
-      isDisplay: false,
-      uaiType: uaiType.DEFAULT,
-      prirority: 10,
-    })
-  );
 }
 
 function* updateVersionHistoryWorker({
