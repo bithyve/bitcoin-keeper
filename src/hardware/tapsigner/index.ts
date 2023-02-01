@@ -90,3 +90,18 @@ export const readTapsigner = async (card: CKTapCard, cvc: string) => {
   await card.first_look();
   await card.read(cvc);
 };
+
+export const getTapsignerErrorMessage = (error) => {
+  let message;
+  if (error.toString().includes('401')) {
+    message = 'Please check the cvc entered and try again!';
+  } else if (error.toString().includes('429')) {
+    message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
+  } else if (error.toString().includes('205')) {
+    message = 'Something went wrong, please try again!';
+  } else if (error.toString() === 'Error') {
+    // do nothing when nfc is dismissed
+    message = '';
+  }
+  return message;
+};
