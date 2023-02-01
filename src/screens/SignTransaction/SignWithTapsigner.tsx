@@ -14,6 +14,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import { getTapsignerErrorMessage } from 'src/hardware/tapsigner';
 
 function SignWithTapsigner() {
   const [nfcVisible, setNfcVisible] = React.useState(false);
@@ -51,23 +52,15 @@ function SignWithTapsigner() {
       signTransaction();
       navigation.goBack();
     } catch (err) {
-      let message;
-      if (err.toString().includes('401')) {
-        message = 'Please check the cvc entered and try again!';
-      } else if (err.toString().includes('429')) {
-        message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
-      } else if (err.toString().includes('205')) {
-        message = 'Something went wrong, please try again!';
+      const errorMessage = getTapsignerErrorMessage(err);
+      if (errorMessage) {
+        if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
+        showToast(errorMessage, null, 2000, true);
       } else if (err.toString() === 'Error') {
-        // ignore if nfc modal is dismissed
-        return;
+        // do nothing when nfc is dismissed by the user
       } else {
-        message = err.toString();
+        showToast('Something went wrong, please try again!', null, 2000, true);
       }
-      if (Platform.OS === 'ios') {
-        NFC.showiOSMessage(message);
-      }
-      showToast(message, null, 2000, true);
       setNfcVisible(false);
       card.endNfcSession();
     }
@@ -101,7 +94,7 @@ function SignWithTapsigner() {
           keyColor="#041513"
           onDeletePressed={onDeletePressed}
         />
-        <NfcPrompt visible={nfcVisible} close={() => {}} />
+        <NfcPrompt visible={nfcVisible} close={() => setNfcVisible(false)} />
       </Box>
     </ScreenWrapper>
   );

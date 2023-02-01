@@ -22,6 +22,7 @@ import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
   CREDS_AUTH,
+  GENERATE_SEED_HASH,
   RESET_PIN,
   STORE_CREDS,
 } from '../sagaActions/login';
@@ -93,11 +94,11 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
 
-    // uaiChecks
-    yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT]));
+    yield put(
+      uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT, uaiType.DEFAULT])
+    );
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
-
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
@@ -139,8 +140,9 @@ function* credentialsAuthWorker({ payload }) {
 
     const previousVersion = yield select((state) => state.storage.appVersion);
     const newVersion = DeviceInfo.getVersion();
-    if (semver.lt(previousVersion, newVersion))
+    if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
+    }
   } catch (err) {
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
@@ -171,6 +173,7 @@ function* credentialsAuthWorker({ payload }) {
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
         uaiType.SECURE_VAULT,
         uaiType.VAULT_MIGRATION,
+        uaiType.DEFAULT,
       ])
     );
   }
@@ -192,6 +195,7 @@ function* changeAuthCredWorker({ payload }) {
     yield put(credsChanged('not-changed'));
   }
 }
+export const changeAuthCredWatcher = createWatcher(changeAuthCredWorker, CHANGE_AUTH_CRED);
 
 function* resetPinWorker({ payload }) {
   const { newPasscode } = payload;
@@ -218,6 +222,7 @@ function* resetPinWorker({ payload }) {
     yield put(credsChanged('not-changed'));
   }
 }
+export const resetPinCredWatcher = createWatcher(resetPinWorker, RESET_PIN);
 
 function* generateSeedHash() {
   try {
@@ -235,9 +240,7 @@ function* generateSeedHash() {
   }
 }
 
-export const resetPinCredWatcher = createWatcher(resetPinWorker, RESET_PIN);
-
-export const changeAuthCredWatcher = createWatcher(changeAuthCredWorker, CHANGE_AUTH_CRED);
+export const generateSeedHashWatcher = createWatcher(generateSeedHash, GENERATE_SEED_HASH);
 
 function* changeLoginMethodWorker({
   payload,
