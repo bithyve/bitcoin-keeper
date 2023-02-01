@@ -6,7 +6,7 @@ export const INCREASE_PIN_FAIL_ATTEMTS = 'INCREASE_PIN_FAIL_ATTEMTS';
 export const RESET_PIN_FAIL_ATTEMTS = 'RESET_PIN_FAIL_ATTEMTS';
 export const KEY_FETCHED = 'KEY_FETCHED';
 
-export const setupKeeperApp = (appName?: string, fcmToken = '') => ({
+export const setupKeeperApp = (fcmToken: string = '', appName: string = '') => ({
   type: SETUP_KEEPER_APP,
   payload: {
     appName,

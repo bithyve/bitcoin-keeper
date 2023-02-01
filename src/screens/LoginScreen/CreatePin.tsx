@@ -36,14 +36,6 @@ export default function CreatePin(props) {
 
   useEffect(() => {
     if (hasCreds) {
-      dispatch(
-        addToUaiStack({
-          title: 'Make sure your signing devices are safe and accessible',
-          isDisplay: false,
-          uaiType: uaiType.DEFAULT,
-          prirority: 10,
-        })
-      );
       props.navigation.navigate('OnBoardingSlides');
     }
   }, [hasCreds]);

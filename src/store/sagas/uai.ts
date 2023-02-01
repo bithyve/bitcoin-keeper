@@ -184,6 +184,20 @@ function* uaiChecksWorker({ payload }) {
         }
       }
     }
+
+    if (checkForTypes.includes(uaiType.DEFAULT)) {
+      const defaultUai = dbManager.getObjectByField(RealmSchema.UAI, uaiType.DEFAULT, 'uaiType')[0];
+      if (!defaultUai) {
+        yield put(
+          addToUaiStack({
+            title: 'Make sure your signing devices are safe and accessible',
+            isDisplay: false,
+            uaiType: uaiType.DEFAULT,
+            prirority: 10,
+          })
+        );
+      }
+    }
   } catch (err) {
     console.log(err);
   }

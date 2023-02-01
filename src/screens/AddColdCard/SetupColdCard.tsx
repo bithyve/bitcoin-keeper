@@ -19,6 +19,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
+import useAsync from 'src/hooks/useAsync';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -30,6 +31,11 @@ function SetupColdCard() {
 
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
+  const { inProgress, start } = useAsync();
+
+  const addColdCardWithProgress = async () => {
+    await start(addColdCard);
+  };
 
   const addColdCard = async () => {
     try {
@@ -52,9 +58,9 @@ function SetupColdCard() {
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);
-      } else {
-        captureError(error);
-      }
+      } else if (error.toString() === 'Error') {
+        // ignore if user cancels NFC interaction
+      } else captureError(error);
     }
   };
 
@@ -70,7 +76,12 @@ function SetupColdCard() {
               onPressHandler={() => navigation.goBack()}
             />
             <Box style={styles.buttonContainer}>
-              <Buttons activeOpacity={0.7} primaryText="Proceed" primaryCallback={addColdCard} />
+              <Buttons
+                activeOpacity={0.7}
+                primaryText="Proceed"
+                primaryCallback={addColdCardWithProgress}
+                primaryLoading={inProgress}
+              />
             </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} close={closeNfc} />

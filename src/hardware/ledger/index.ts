@@ -40,9 +40,9 @@ const getPSBTv2Fromv0 = (psbtv0: bitcoinJS.Psbt) => {
     psbtv2.setInputSequence(index, input.sequence);
     psbtv2.setInputOutputIndex(index, input.index);
   });
-  psbtv0.txOutputs.forEach((output, i) => {
-    psbtv2.setOutputAmount(i, output.value);
-    psbtv2.setOutputScript(i, output.script);
+  psbtv0.txOutputs.forEach((output, index) => {
+    psbtv2.setOutputAmount(index, output.value);
+    psbtv2.setOutputScript(index, output.script);
   });
   return psbtv2;
 };
