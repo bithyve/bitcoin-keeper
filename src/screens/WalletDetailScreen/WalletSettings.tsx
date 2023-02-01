@@ -375,15 +375,12 @@ const styles = ScaledSheet.create({
   walletCardContainer: {
     borderRadius: hp(20),
     width: wp(320),
-    // height: hp(75),
     paddingHorizontal: 5,
     paddingVertical: 20,
     position: 'relative',
     marginLeft: -wp(20),
-    // marginBottom: hp(0),
   },
   walletCard: {
-    // marginTop: hp(17),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
