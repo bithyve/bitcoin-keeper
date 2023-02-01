@@ -22,6 +22,7 @@ import {
   CHANGE_AUTH_CRED,
   CHANGE_LOGIN_METHOD,
   CREDS_AUTH,
+  GENERATE_SEED_HASH,
   RESET_PIN,
   STORE_CREDS,
 } from '../sagaActions/login';
@@ -194,6 +195,7 @@ function* changeAuthCredWorker({ payload }) {
     yield put(credsChanged('not-changed'));
   }
 }
+export const changeAuthCredWatcher = createWatcher(changeAuthCredWorker, CHANGE_AUTH_CRED);
 
 function* resetPinWorker({ payload }) {
   const { newPasscode } = payload;
@@ -220,6 +222,7 @@ function* resetPinWorker({ payload }) {
     yield put(credsChanged('not-changed'));
   }
 }
+export const resetPinCredWatcher = createWatcher(resetPinWorker, RESET_PIN);
 
 function* generateSeedHash() {
   try {
@@ -237,9 +240,7 @@ function* generateSeedHash() {
   }
 }
 
-export const resetPinCredWatcher = createWatcher(resetPinWorker, RESET_PIN);
-
-export const changeAuthCredWatcher = createWatcher(changeAuthCredWorker, CHANGE_AUTH_CRED);
+export const generateSeedHashWatcher = createWatcher(generateSeedHash, GENERATE_SEED_HASH);
 
 function* changeLoginMethodWorker({
   payload,
