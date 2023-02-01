@@ -16,6 +16,8 @@ import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
 } from '../sagaActions/upgrade';
+import { addToUaiStack } from '../sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const SWITCH_TO_MAINNET_VERSION = '0.0.99';
 export function* applyUpgradeSequence({
@@ -43,6 +45,16 @@ function* switchToMainnet() {
   // re-initialise a fresh instance of realm
   yield call(dbManager.initializeRealm, uint8array);
   yield put(setupKeeperApp('', ''));
+
+  //Default UAI creation
+  yield put(
+    addToUaiStack({
+      title: 'Make sure your signing devices are safe and accessible',
+      isDisplay: false,
+      uaiType: uaiType.DEFAULT,
+      prirority: 10,
+    })
+  );
 }
 
 function* updateVersionHistoryWorker({
