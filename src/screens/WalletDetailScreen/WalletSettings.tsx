@@ -26,7 +26,6 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 // icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';

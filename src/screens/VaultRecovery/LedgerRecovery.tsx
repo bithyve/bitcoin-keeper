@@ -1,4 +1,4 @@
-import { Alert, SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useState } from 'react';
