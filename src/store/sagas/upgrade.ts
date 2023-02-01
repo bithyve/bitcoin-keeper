@@ -16,6 +16,8 @@ import {
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
 } from '../sagaActions/upgrade';
+import { addToUaiStack } from '../sagaActions/uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 const SWITCH_TO_MAINNET_VERSION = '0.0.99';
 export function* applyUpgradeSequence({

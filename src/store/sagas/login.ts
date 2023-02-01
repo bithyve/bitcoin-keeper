@@ -93,11 +93,11 @@ function* credentialsStorageWorker({ payload }) {
     yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
 
-    // uaiChecks
-    yield put(uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT]));
+    yield put(
+      uaiChecks([uaiType.SIGNING_DEVICES_HEALTH_CHECK, uaiType.SECURE_VAULT, uaiType.DEFAULT])
+    );
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
-
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: '',
@@ -139,8 +139,9 @@ function* credentialsAuthWorker({ payload }) {
 
     const previousVersion = yield select((state) => state.storage.appVersion);
     const newVersion = DeviceInfo.getVersion();
-    if (semver.lt(previousVersion, newVersion))
+    if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
+    }
   } catch (err) {
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
@@ -171,6 +172,7 @@ function* credentialsAuthWorker({ payload }) {
         uaiType.SIGNING_DEVICES_HEALTH_CHECK,
         uaiType.SECURE_VAULT,
         uaiType.VAULT_MIGRATION,
+        uaiType.DEFAULT,
       ])
     );
   }
