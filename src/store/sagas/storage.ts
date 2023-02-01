@@ -81,8 +81,9 @@ function* setupKeeperAppWorker({ payload }) {
           },
         },
       };
-      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+
       yield put(setAppId(appID));
+      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
     } else {
       yield put(setAppCreationError(true));
     }

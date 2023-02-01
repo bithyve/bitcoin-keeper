@@ -39,6 +39,7 @@ import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { WalletMap } from '../Vault/WalletMap';
 import { KeeperContent } from '../SignTransaction/SignerModals';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const getnavigationState = (type) => ({
   index: 5,

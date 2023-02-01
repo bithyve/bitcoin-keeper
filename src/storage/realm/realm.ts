@@ -46,15 +46,21 @@ export class RealmDatabase {
   /**
    * deletes instance of the database
    */
-  public deleteDatabase = (): boolean => {
-    if (this.realm) {
-      this.realm.write(() => {
-        this.realm.deleteAll();
-      });
-      return true;
-    }
-    console.log('database not initialized');
-    return false;
+  public deleteDatabase = (key: ArrayBuffer | ArrayBufferView | Int8Array): boolean => {
+    const existingSchemaVersion = this.realm
+      ? this.realm.schemaVersion
+      : RealmDatabase.schemaVersion;
+    if (this.realm) this.realm.close();
+    this.realm = null;
+
+    const realmConfig: Realm.Configuration = {
+      path: RealmDatabase.file,
+      schema,
+      schemaVersion: existingSchemaVersion,
+      encryptionKey: key,
+    };
+    Realm.deleteFile(realmConfig);
+    return true;
   };
 
   /**
