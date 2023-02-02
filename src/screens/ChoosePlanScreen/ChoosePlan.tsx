@@ -29,10 +29,11 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useDispatch } from 'react-redux';
 import { uaiChecks } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { resetVaultMigration } from 'src/store/reducers/vaults';
+import TierUpgradeModal from './TierUpgradeModal';
 
 const plans = [
   {
@@ -188,7 +189,7 @@ function ChoosePlan(props) {
         subscription: sub,
       });
       disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
-
+      disptach(resetVaultMigration());
       if (item.productId === SubscriptionTier.L1) {
         setIsUpgrade(false);
       } else if (
@@ -264,7 +265,7 @@ function ChoosePlan(props) {
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
-                  <Box flexDirection="row" alignItems="center">
+                  <Box flexDirection="row" alignItems="center" key={i}>
                     <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
                       {`• ${i}`}
                     </Text>
