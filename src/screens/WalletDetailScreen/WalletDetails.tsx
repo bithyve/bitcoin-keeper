@@ -35,7 +35,6 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import openLink from 'src/utils/OpenLink';
-import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -103,7 +102,7 @@ function WalletDetails({ route }) {
         startColor="#e4e4e4"
         offset={[0, 14]}
         viewStyle={{
-          height: hp(120),
+          height: hp(137),
           marginRight: 15,
         }}
       >
@@ -129,7 +128,7 @@ function WalletDetails({ route }) {
           ) : (
             <Box>
               <Box style={styles.walletCard}>
-                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Box style={styles.walletInnerView}>
                   <GradientIcon
                     Icon={WalletInsideGreen}
                     height={35}
@@ -490,7 +489,7 @@ const styles = StyleSheet.create({
   walletContainer: {
     borderRadius: hp(10),
     width: wp(310),
-    height: hp(windowHeight > 700 ? 130 : 150),
+    height: hp(windowHeight > 700 ? 145 : 150),
     padding: wp(15),
     position: 'relative',
     marginLeft: 0,
@@ -502,6 +501,12 @@ const styles = StyleSheet.create({
   walletCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    height: hp(60),
+  },
+  walletInnerView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: wp(173),
   },
   walletDescription: {
     letterSpacing: 0.24,

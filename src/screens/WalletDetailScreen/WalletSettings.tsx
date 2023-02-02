@@ -387,7 +387,7 @@ const styles = ScaledSheet.create({
     marginHorizontal: wp(20),
   },
   walletDetailsWrapper: {
-    width: wp(180),
+    width: wp(170),
   },
   walletName: {
     letterSpacing: 0.28,
