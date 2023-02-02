@@ -21,6 +21,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { v4 as uuidv4 } from 'uuid';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -83,32 +84,40 @@ function EnterWalletDetailScreen({ route }) {
         paddingTop={3}
       />
       <View marginX={4} marginY={4}>
-        <Input
-          placeholder={wallet.WalletNamePlaceHolder}
-          placeholderTextColor="light.GreyText"
-          backgroundColor="light.primaryBackground"
-          value={walletName}
-          onChangeText={(value) => setWalletName(value)}
-          style={styles.inputField}
-          borderRadius={10}
-          height={12}
-          autoCorrect={false}
-          marginY={2}
-          borderWidth="0"
-        />
-        <Input
-          placeholder={wallet.WalletDescriptionPlaceholder}
-          placeholderTextColor="light.GreyText"
-          backgroundColor="light.primaryBackground"
-          value={walletDescription}
-          onChangeText={(value) => setWalletDescription(value)}
-          style={styles.inputField}
-          borderRadius={10}
-          height={12}
-          autoCorrect={false}
-          borderWidth="0"
-          marginY={2}
-        />
+        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+          <Input
+            placeholder={wallet.WalletNamePlaceHolder}
+            placeholderTextColor="light.GreyText"
+            value={walletName}
+            onChangeText={(value) => setWalletName(value)}
+            style={styles.inputField}
+            width={wp(260)}
+            autoCorrect={false}
+            marginY={2}
+            borderWidth="0"
+            maxLength={20}
+          />
+          <KeeperText color="light.GreyText" style={styles.limitText}>
+            {walletName && walletName.length}/20
+          </KeeperText>
+        </Box>
+        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+          <Input
+            placeholder={wallet.WalletDescriptionPlaceholder}
+            placeholderTextColor="light.GreyText"
+            value={walletDescription}
+            onChangeText={(value) => setWalletDescription(value)}
+            style={styles.inputField}
+            width={wp(260)}
+            autoCorrect={false}
+            borderWidth="0"
+            marginY={2}
+            maxLength={40}
+          />
+          <KeeperText color="light.GreyText" style={styles.limitText}>
+            {walletDescription && walletDescription.length}/40
+          </KeeperText>
+        </Box>
         <Box marginTop={5}>
           <KeeperText type="regular" style={[styles.autoTransferText, { color: 'light.GreyText' }]}>
             {wallet.AutoTransferInitiated}
@@ -182,11 +191,23 @@ const styles = ScaledSheet.create({
     lineHeight: '15@s',
     letterSpacing: '0.5@s',
   },
+  inputFieldWrapper: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 5,
+  },
   inputField: {
     marginVertical: 10,
     fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     letterSpacing: 0.96,
+  },
+  limitText: {
+    marginRight: 10,
+    fontSize: 10,
+    alignSelf: 'flex-end',
   },
   transferPolicyTextArea: {
     flexDirection: 'row',
