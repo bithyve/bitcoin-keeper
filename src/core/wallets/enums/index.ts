@@ -71,7 +71,6 @@ export enum EntityKind {
 export enum WalletType {
   DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
-  READ_ONLY = 'READ_ONLY',
 }
 
 export enum VaultType {

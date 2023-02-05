@@ -16,7 +16,12 @@ import {
   VerificationType,
 } from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { TransferPolicy, Wallet, WalletPresentationData } from 'src/core/wallets/interfaces/wallet';
+import {
+  TransferPolicy,
+  Wallet,
+  WalletImportDetails,
+  WalletPresentationData,
+} from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
@@ -50,7 +55,6 @@ import {
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
-  IMPORT_NEW_WALLET,
   REFRESH_WALLETS,
   REGISTER_WITH_SIGNING_SERVER,
   SYNC_WALLETS,
@@ -94,17 +98,14 @@ export interface NewWalletDetails {
 export interface NewWalletInfo {
   walletType: WalletType;
   walletDetails?: NewWalletDetails;
-  importDetails?: {
-    primaryMnemonic?: string;
-    xpub?: string;
-  };
+  importDetails?: WalletImportDetails;
 }
 
 function* addNewWallet(
   walletType: WalletType,
   walletDetails: NewWalletDetails,
   app: KeeperApp,
-  importDetails?: { primaryMnemonic?: string; xpub?: string }
+  importDetails?: WalletImportDetails
 ) {
   const { primaryMnemonic } = app;
   const { name: walletName, description: walletDescription, transferPolicy } = walletDetails;
@@ -137,23 +138,11 @@ function* addNewWallet(
         instanceNum: null, // bip-85 instance number is null for imported wallets
         walletName: walletName || 'Imported Wallet',
         walletDescription: walletDescription || 'Bitcoin Wallet',
-        importedMnemonic: importDetails.primaryMnemonic,
+        importDetails,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
       });
       return importedWallet;
-
-    case WalletType.READ_ONLY:
-      const readOnlyWallet: Wallet = yield call(generateWallet, {
-        type: WalletType.READ_ONLY,
-        instanceNum: null, // bip-85 instance number is null for read-only wallets
-        walletName: walletName || 'Read-Only Wallet',
-        walletDescription: walletDescription || 'Bitcoin Wallet',
-        importedXpub: importDetails.xpub,
-        networkType: config.NETWORK_TYPE,
-        transferPolicy,
-      });
-      return readOnlyWallet;
 
     default:
       throw new Error(`Unsupported wallet-type ${walletType}`);
@@ -177,6 +166,14 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
     if (response.updated) {
       yield put(relayWalletUpdateSuccess());
       yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+
+      if (wallet.type === WalletType.IMPORTED) {
+        yield put(
+          refreshWallets([wallet], {
+            hardRefresh: true,
+          })
+        );
+      }
     } else {
       yield put(relayWalletUpdateFail(response.error));
     }
@@ -333,45 +330,6 @@ export const finaliseVaultMigrationWatcher = createWatcher(
   finaliseVaultMigrationWorker,
   FINALISE_VAULT_MIGRATION
 );
-
-export function* importNewWalletWorker({
-  payload,
-}: {
-  payload: {
-    mnemonic: string;
-    walletDetails?: NewWalletDetails;
-  };
-}) {
-  const wallets: Wallet[] = [];
-  const newWalletInfo: NewWalletInfo[] = [
-    {
-      walletType: WalletType.IMPORTED,
-      walletDetails: payload.walletDetails,
-      importDetails: {
-        primaryMnemonic: payload.mnemonic,
-      },
-    },
-  ];
-
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-
-  for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
-    wallets.push(wallet);
-  }
-
-  for (const wallet of wallets) {
-    yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-  }
-
-  yield put(
-    refreshWallets(wallets, {
-      hardRefresh: true,
-    })
-  );
-}
-
-export const importNewWalletWatcher = createWatcher(importNewWalletWorker, IMPORT_NEW_WALLET);
 
 function* syncWalletsWorker({
   payload,

@@ -4,7 +4,7 @@ import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from
 import {
   TransferPolicy,
   Wallet,
-  WalletDerivationDetails,
+  WalletImportDetails,
   WalletPresentationData,
   WalletSpecs,
 } from '../interfaces/wallet';
@@ -19,8 +19,7 @@ export const generateWallet = async ({
   walletName,
   walletDescription,
   primaryMnemonic,
-  importedMnemonic,
-  importedXpub,
+  importDetails,
   networkType,
   transferPolicy,
 }: {
@@ -29,54 +28,48 @@ export const generateWallet = async ({
   walletName: string;
   walletDescription: string;
   primaryMnemonic?: string;
-  importedMnemonic?: string;
-  importedXpub?: string;
+  importDetails?: WalletImportDetails;
   networkType: NetworkType;
   transferPolicy: TransferPolicy;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
-  let xpriv: string;
-  let xpub: string;
-  let id: string;
-  let derivationDetails: WalletDerivationDetails;
 
-  if (type === WalletType.READ_ONLY) {
-    xpub = importedXpub;
-    id = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+  let mnemonic: string;
+  let xDerivationPath: string;
+  let bip85Config: BIP85Config;
+
+  if (type === WalletType.IMPORTED) {
+    mnemonic = importDetails.mnemonic;
+    xDerivationPath =
+      importDetails.derivationPath ||
+      WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
   } else {
-    let mnemonic: string;
-    let bip85Config: BIP85Config;
-    if (type === WalletType.IMPORTED) mnemonic = importedMnemonic;
-    else {
-      if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
-      // BIP85 derivation: primary mnemonic to bip85-child mnemonic
-      bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
-      const entropy = await BIP85.bip39MnemonicToEntropy(
-        bip85Config.derivationPath,
-        primaryMnemonic
-      );
-      mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
-    }
+    if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
+    // BIP85 derivation: primary mnemonic to bip85-child mnemonic
+    bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
+    const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
 
-    id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
-    // derive extended keys
-    const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-    const xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
-    const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
-      seed,
-      network,
-      xDerivationPath
-    );
-    xpriv = extendedKeys.xpriv;
-    xpub = extendedKeys.xpub;
-
-    derivationDetails = {
-      instanceNum,
-      mnemonic,
-      bip85Config,
-      xDerivationPath,
-    };
+    mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+    xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
   }
+
+  const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+  // derive extended keys
+  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed,
+    network,
+    xDerivationPath
+  );
+  const { xpriv } = extendedKeys;
+  const { xpub } = extendedKeys;
+
+  const derivationDetails = {
+    instanceNum,
+    mnemonic,
+    bip85Config,
+    xDerivationPath,
+  };
 
   const defaultShell = 1;
   const presentationData: WalletPresentationData = {

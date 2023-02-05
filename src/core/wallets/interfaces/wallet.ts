@@ -1,5 +1,22 @@
 import { Balances, BIP85Config, UTXO, Transaction } from '.';
-import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
+import {
+  NetworkType,
+  WalletType,
+  VisibilityType,
+  EntityKind,
+  ScriptTypes,
+  DerivationPurpose,
+} from '../enums';
+
+export interface WalletImportDetails {
+  // importing via mnemonic
+  mnemonic?: string;
+  derivationPath?: string;
+
+  // importing via xpriv/xpub
+  extendedKey?: string;
+  purpose?: DerivationPurpose;
+}
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType

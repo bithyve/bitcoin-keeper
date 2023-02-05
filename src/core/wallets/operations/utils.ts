@@ -95,6 +95,26 @@ export default class WalletUtilities {
     return `m/${purpose}'/${isTestnet}'/${accountNumber}'`;
   };
 
+  static getPurpose = (derivationPath: string): DerivationPurpose => {
+    const purpose = parseInt(derivationPath.split('/')[1], 10);
+    switch (purpose) {
+      case DerivationPurpose.BIP84:
+        return DerivationPurpose.BIP84;
+
+      case DerivationPurpose.BIP49:
+        return DerivationPurpose.BIP49;
+
+      case DerivationPurpose.BIP48:
+        return DerivationPurpose.BIP48;
+
+      case DerivationPurpose.BIP44:
+        return DerivationPurpose.BIP44;
+
+      default:
+        throw new Error(`Unsupported derivation type, purpose: ${purpose}`);
+    }
+  };
+
   static getKeyPair = (privateKey: string, network: bitcoinJS.Network): ECPairInterface =>
     ECPair.fromWIF(privateKey, network);
 
@@ -334,11 +354,15 @@ export default class WalletUtilities {
       xpriv = (wallet as Wallet).specs.xpriv;
     }
 
+    let purpose;
+    if (wallet.entityKind === EntityKind.WALLET)
+      purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+
     const network = WalletUtilities.getNetworkByType(networkType);
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network) === address)
+      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
@@ -346,7 +370,7 @@ export default class WalletUtilities {
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network) === address)
+      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
@@ -535,12 +559,17 @@ export default class WalletUtilities {
       );
     }
 
+    let purpose;
+    if (wallet.entityKind === EntityKind.WALLET)
+      purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+
     for (const output of outputs) {
       if (!output.address) {
         if ((wallet as Vault).isMultiSig) {
           output.address = changeMultisig.address;
           return { outputs, changeMultisig };
         }
+
         let xpub = null;
         if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
         else xpub = (wallet as Wallet).specs.xpub;
@@ -549,7 +578,8 @@ export default class WalletUtilities {
           xpub,
           true,
           nextFreeChangeAddressIndex,
-          network
+          network,
+          purpose
         );
         return { outputs, changeAddress: output.address };
       }
