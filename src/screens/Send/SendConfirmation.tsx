@@ -319,38 +319,38 @@ function SendConfirmation({ route }) {
           return isSend ? (
             <Card
               title="Vault"
-              subTitle={`Available: ${sender.specs.balances.confirmed} sats`}
+              subTitle={`Available: ${getCurrencyIcon()} ${getAmt(sender.specs.balances.confirmed, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`}
               isVault
             />
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transferring: ${amount} sats`}
+              subTitle={`Transferring: ${getCurrencyIcon()} ${getAmt(amount, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`}
             />
           );
         case TransferType.VAULT_TO_ADDRESS:
           return isSend ? (
-            <Card title="Vault" subTitle={`${amount} sats`} isVault />
+            <Card title="Vault" subTitle={`${getCurrencyIcon()} ${getAmt(amount, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`} isVault />
           ) : (
-            <Card title={address} subTitle={`${amount} sats`} />
+            <Card title={address} subTitle={`${getCurrencyIcon()} ${getAmt(amount, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`} />
           );
         case TransferType.WALLET_TO_WALLET:
           return isSend ? (
             <Card
               title={sender?.presentationData.name}
-              subTitle={`Available: ${sender?.specs.balances.confirmed} sats`}
+              subTitle={`Available: ${getCurrencyIcon()} ${getAmt(sender?.specs.balances.confirmed, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`}
             />
           ) : (
             <Card
               title={recipient?.presentationData.name}
-              subTitle={`Transferring: ${amount} sats`}
+              subTitle={`Transferring: ${getCurrencyIcon()} ${getAmt(amount, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`}
             />
           );
         case TransferType.WALLET_TO_VAULT:
           return isSend ? (
             <Card
               title={sourceWallet.presentationData.name}
-              subTitle={`Available balance: ${sourceWallet.specs.balances.confirmed} sats`}
+              subTitle={`Available balance: ${getCurrencyIcon()} ${getAmt(sourceWallet.specs.balances.confirmed, exchangeRates, currencyCode, currentCurrency)}${getUnit(currentCurrency)}`}
             />
           ) : (
             <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
@@ -359,10 +359,10 @@ function SendConfirmation({ route }) {
           return isSend ? (
             <Card
               title={sender?.presentationData.name}
-              subTitle={`Available balance: ${sender.specs.balances.confirmed} sats`}
+              subTitle={`Available balance: ${getCurrencyIcon()} ${getAmt(sender.specs.balances.confirmed, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`}
             />
           ) : (
-            <Card title={address} subTitle={`Transferring: ${amount} sats`} />
+            <Card title={address} subTitle={`Transferring: ${getCurrencyIcon()} ${getAmt(amount, exchangeRates, currencyCode, currentCurrency)} ${getUnit(currentCurrency)}`} />
           );
       }
     };
