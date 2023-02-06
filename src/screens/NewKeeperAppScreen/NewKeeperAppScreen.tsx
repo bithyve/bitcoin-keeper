@@ -16,7 +16,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import { Box, Image, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Note from 'src/components/Note/Note';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
@@ -79,7 +78,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       updateFCM();
     }
     if (appCreationError) {
-      setModalVisible(false)
+      setModalVisible(false);
       setInitiating(false);
     }
   }, [appCreated, appCreationError]);
@@ -122,11 +121,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   async function createNewApp() {
     try {
-      const token = await messaging().getToken();
-      dispatch(setupKeeperApp('', token));
+      const fcmToken = await messaging().getToken();
+      dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
-      console.log(error)
-      dispatch(setupKeeperApp('', ''));
+      dispatch(setupKeeperApp());
     }
   }
 
@@ -228,22 +226,16 @@ function NewKeeperApp({ navigation }: { navigation }) {
           Icon={<Inheritance />} 
         /> */}
       </Box>
-      <Box style={styles.note}>
-        <Note
-          subtitle="When you use signing devices to restore Keeper, only the vault is restored and the app has
-        new wallets"
-        />
-      </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
         Content={Box}
         buttonText="Retry"
         buttonCallback={() => {
-          setInitiating(true)
+          setInitiating(true);
         }}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
@@ -251,7 +243,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -271,13 +263,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
 const styles = StyleSheet.create({
   titleWrapper02: {
     marginTop: hp(70),
-  },
-  note: {
-    position: 'absolute',
-    bottom: hp(45),
-    marginLeft: 26,
-    width: '90%',
-    paddingTop: hp(10),
   },
   iconContainer: {
     padding: 10,

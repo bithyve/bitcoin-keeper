@@ -86,7 +86,6 @@ function SendConfirmation({ route }) {
   const { isSuccessful: crossTransferSuccess, hasFailed: crossTransferFailed } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-  const { inProgress } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
 
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -96,9 +95,6 @@ function SendConfirmation({ route }) {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
   const availableTransactionPriorities = useAvailableTransactionPriorities();
-  const [transactionPriorities, setTransactionPriorities] = useState(
-    availableTransactionPriorities
-  );
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -178,6 +174,8 @@ function SendConfirmation({ route }) {
     );
   };
 
+  const [inProgress, setProgress] = useState(false);
+
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.transferPolicy.threshold) {
@@ -188,6 +186,7 @@ function SendConfirmation({ route }) {
         setVisibleTransVaultModal(true);
       }
     } else {
+      setProgress(true);
       dispatch(
         sendPhaseTwo({
           wallet: sender,
@@ -210,20 +209,11 @@ function SendConfirmation({ route }) {
   );
 
   const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
-  const sendHasFailed = useAppSelector(
-    (state) =>
-      state.sendAndReceive.sendPhaseOne.hasFailed || state.sendAndReceive.sendPhaseTwo.hasFailed
-  );
-  const failedMsg = useAppSelector(
-    (state) =>
-      state.sendAndReceive.sendPhaseOne.failedErrorMessage ||
-      state.sendAndReceive.sendPhaseTwo.failedErrorMessage
-  );
-
   const navigation = useNavigation();
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
+      setProgress(false);
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
   }, [serializedPSBTEnvelops]);
@@ -637,7 +627,7 @@ function SendConfirmation({ route }) {
           primaryText="Proceed"
           secondaryText="Cancel"
           secondaryCallback={() => {
-            navigation.navigate('NewHome');
+            navigation.goBack();
           }}
           primaryCallback={onProceed}
           primaryLoading={inProgress}

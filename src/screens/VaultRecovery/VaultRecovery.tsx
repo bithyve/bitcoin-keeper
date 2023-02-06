@@ -142,11 +142,10 @@ function VaultRecovery({ navigation }) {
 
   async function createNewApp() {
     try {
-      const token = await messaging().getToken();
-      dispatch(setupKeeperApp('', token));
+      const fcmToken = await messaging().getToken();
+      dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
-      console.log(error);
-      dispatch(setupKeeperApp('', ''));
+      dispatch(setupKeeperApp());
     }
   }
 

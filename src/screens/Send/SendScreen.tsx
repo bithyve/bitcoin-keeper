@@ -1,5 +1,4 @@
 import {
-  Alert,
   FlatList,
   InteractionManager,
   KeyboardAvoidingView,
@@ -43,6 +42,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
@@ -122,7 +122,7 @@ function SendScreen({ route }) {
     recipient?: Wallet | Vault
   ) => {
     if (!avgFees) {
-      Alert.alert("Average transaction fees couldn't be fetched!");
+      showToast("Average transaction fees couldn't be fetched!");
       return;
     }
 
@@ -159,6 +159,7 @@ function SendScreen({ route }) {
           );
         break;
       default:
+        showToast('Invalid bitcoin address', <ToastErrorIcon />);
     }
   };
 
@@ -220,7 +221,7 @@ function SendScreen({ route }) {
             <UploadImage onPress={handleChooseImage} />
 
             {/* send manually option */}
-            <Box style={styles.inputWrapper}>
+            <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
               <TextInput
                 placeholder="or enter address manually"
                 placeholderTextColor="light.GreyText"
@@ -301,13 +302,15 @@ const styles = ScaledSheet.create({
   },
   inputWrapper: {
     flexDirection: 'row',
-    marginVertical: hp(2),
-    width: '100%',
+    marginVertical: hp(4),
+    marginHorizontal: hp(5),
+    width: '98%',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 10,
   },
   textInput: {
-    width: '90%',
+    width: '100%',
     backgroundColor: Colors.Isabelline,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
