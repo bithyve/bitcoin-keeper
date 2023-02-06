@@ -46,30 +46,17 @@ function TransactionDetails({ route }) {
   }) {
     return (
       <Box
-        backgroundColor="light.primaryBackground"
-        style={{
-          height: hp(65),
-          width: wp(width),
-          marginVertical: hp(7),
-          justifyContent: 'center',
-          paddingLeft: wp(15),
-          borderRadius: 10,
-          padding: 3,
-        }}
+        backgroundColor="light.mainBackground"
+        width={wp(width)}
+        style={styles.infoCardContainer}
       >
         <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
           <Box width={showIcon ? '90%' : '100%'}>
-            <Text
-              fontSize={14}
-              letterSpacing={1.12}
-              color="light.headerText"
-              width="90%"
-              numberOfLines={1}
-            >
+            <Text color="light.headerText" style={styles.titleText}>
               {title}
             </Text>
             <Text
-              fontSize={12}
+              style={styles.descText}
               letterSpacing={letterSpacing}
               color="light.GreyText"
               width={showIcon ? '60%' : '90%'}
@@ -190,11 +177,28 @@ const styles = ScaledSheet.create({
     marginLeft: wp(10),
     width: wp(120),
   },
+  infoCardContainer: {
+    marginVertical: hp(7),
+    justifyContent: 'center',
+    paddingLeft: wp(15),
+    borderRadius: 10,
+    paddingHorizontal: 3,
+    paddingVertical: 10,
+  },
   infoCardsWrapper: {
     alignItems: 'center',
     marginTop: hp(20),
     justifyContent: 'center',
     marginHorizontal: 3,
+  },
+  titleText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+    width: '90%',
+    numberOfLines: 1,
+  },
+  descText: {
+    fontSize: 12,
   },
   transDateText: {
     fontSize: 10,

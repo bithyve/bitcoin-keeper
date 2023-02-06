@@ -28,6 +28,9 @@ export const getColdcardDetails = async (isMultisig: boolean) => {
     const derivationPath = isMultisig ? multiSigPath : singleSigPath;
     return { xpub, derivationPath, xfp: data.xfp, xpubDetails };
   } catch (_) {
+    if (_.toString() === 'Error') {
+      throw _;
+    }
     throw new HWError(HWErrorType.INCORRECT_HW);
   }
 };

@@ -6,7 +6,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { ScrollView } from 'react-native-gesture-handler';
-import { getTapsignerDetails } from 'src/hardware/tapsigner';
+import { getTapsignerDetails, getTapsignerErrorMessage } from 'src/hardware/tapsigner';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -28,6 +28,7 @@ import usePlan from 'src/hooks/usePlan';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import useAsync from 'src/hooks/useAsync';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -57,6 +58,11 @@ function SetupTapsigner() {
   const isAMF = isTestnet();
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
+  const { inProgress, start } = useAsync();
+
+  const addTapsignerWithProgress = async () => {
+    await start(addTapsigner);
+  };
 
   const addTapsigner = React.useCallback(async () => {
     try {
@@ -100,22 +106,16 @@ function SetupTapsigner() {
         if (exsists)
           showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
       }
-    } catch (err) {
-      let message: string;
-      if (err.toString().includes('401')) {
-        message = 'Please check the cvc entered and try again!';
-      } else if (err.toString().includes('429')) {
-        message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
-      } else if (err.toString().includes('205')) {
-        message = 'Something went wrong, please try again!';
-      } else if (err.toString() === 'Error') {
-        // do nothing when nfc is dismissed
-        return;
+    } catch (error) {
+      const errorMessage = getTapsignerErrorMessage(error);
+      if (errorMessage) {
+        if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
+        showToast(errorMessage, null, 2000, true);
+      } else if (error.toString() === 'Error') {
+        // do nothing when nfc is dismissed by the user
       } else {
-        message = err.toString();
+        showToast('Something went wrong, please try again!', null, 2000, true);
       }
-      if (Platform.OS === 'ios') NFC.showiOSMessage(message);
-      showToast(message, null, 2000, true);
       closeNfc();
       card.endNfcSession();
     }
@@ -142,7 +142,12 @@ function SetupTapsigner() {
               You will be scanning the TAPSIGNER after this step
             </Text>
             <Box style={styles.btnContainer}>
-              <Buttons primaryText="Proceed" primaryCallback={addTapsigner} />
+              <Buttons
+                primaryText="Proceed"
+                primaryCallback={addTapsignerWithProgress}
+                primaryDisable={cvc.length < 6}
+                primaryLoading={inProgress}
+              />
             </Box>
           </ScrollView>
         </MockWrapper>
@@ -188,6 +193,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     flexDirection: 'row',
-    marginRight: wp(15),
+    margin: 15,
   },
 });

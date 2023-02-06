@@ -1,4 +1,4 @@
-import { Alert, FlatList } from 'react-native';
+import { FlatList } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
@@ -20,6 +20,7 @@ import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp } from 'src/common/data/responsiveness/responsive';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
@@ -90,7 +91,7 @@ function SignTransactionScreen() {
       dispatch(clearSigningDevice());
     }
     if (relayVaultError) {
-      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
+      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
     }
   }, [relayVaultUpdate, relayVaultError]);
@@ -267,7 +268,7 @@ function SignTransactionScreen() {
         setKeeperModal(true);
         break;
       default:
-        Alert.alert(`action not set for ${type}`);
+        showToast(`action not set for ${type}`);
         break;
     }
   };
@@ -311,7 +312,7 @@ function SignTransactionScreen() {
                 })
               );
             } else {
-              Alert.alert(`Sorry there aren't enough signatures!`);
+              showToast(`Sorry there aren't enough signatures!`);
             }
           }}
         />

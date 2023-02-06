@@ -82,7 +82,6 @@ function SendConfirmation({ route }) {
   const { isSuccessful: crossTransferSuccess, hasFailed: crossTransferFailed } = useAppSelector(
     (state) => state.sendAndReceive.crossTransfer
   );
-  const { inProgress } = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo);
 
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -92,9 +91,6 @@ function SendConfirmation({ route }) {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
   const availableTransactionPriorities = useAvailableTransactionPriorities();
-  const [transactionPriorities, setTransactionPriorities] = useState(
-    availableTransactionPriorities
-  );
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -160,6 +156,7 @@ function SendConfirmation({ route }) {
   }, []);
 
   const onTransferNow = () => {
+    setVisibleTransVaultModal(false);
     dispatch(
       crossTransfer({
         sender: sourceWallet,
@@ -168,6 +165,8 @@ function SendConfirmation({ route }) {
       })
     );
   };
+
+  const [inProgress, setProgress] = useState(false);
 
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
@@ -179,6 +178,7 @@ function SendConfirmation({ route }) {
         setVisibleTransVaultModal(true);
       }
     } else {
+      setProgress(true);
       dispatch(
         sendPhaseTwo({
           wallet: sender,
@@ -201,20 +201,11 @@ function SendConfirmation({ route }) {
   );
 
   const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
-  const sendHasFailed = useAppSelector(
-    (state) =>
-      state.sendAndReceive.sendPhaseOne.hasFailed || state.sendAndReceive.sendPhaseTwo.hasFailed
-  );
-  const failedMsg = useAppSelector(
-    (state) =>
-      state.sendAndReceive.sendPhaseOne.failedErrorMessage ||
-      state.sendAndReceive.sendPhaseTwo.failedErrorMessage
-  );
-
   const navigation = useNavigation();
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
+      setProgress(false);
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     }
   }, [serializedPSBTEnvelops]);
@@ -222,9 +213,17 @@ function SendConfirmation({ route }) {
   const viewDetails = () => {
     setVisibleModal(false);
     if (vaultTransfers.includes(transferType)) {
-      navigation.navigate('VaultDetails', { autoRefresh: true });
+      const navigationState = {
+        index: 1,
+        routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
     }
-    navigation.navigate('WalletDetails', { autoRefresh: true });
+    const navigationState = {
+      index: 1,
+      routes: [{ name: 'NewHome' }, { name: 'WalletDetails', params: { autoRefresh: true } }],
+    };
+    navigation.dispatch(CommonActions.reset(navigationState));
   };
 
   useEffect(() => {
@@ -304,16 +303,9 @@ function SendConfirmation({ route }) {
           );
         case TransferType.VAULT_TO_ADDRESS:
           return isSend ? (
-            <Card
-              title="Vault"
-              subTitle={`${amount} sats`}
-              isVault
-            />
+            <Card title="Vault" subTitle={`${amount} sats`} isVault />
           ) : (
-            <Card
-              title={address}
-              subTitle={`${amount} sats`}
-            />
+            <Card title={address} subTitle={`${amount} sats`} />
           );
         case TransferType.WALLET_TO_WALLET:
           return isSend ? (
@@ -343,10 +335,7 @@ function SendConfirmation({ route }) {
               subTitle={`Available balance: ${sender.specs.balances.confirmed} sats`}
             />
           ) : (
-            <Card
-              title={address}
-              subTitle={`Transferring: ${amount} sats`}
-            />
+            <Card title={address} subTitle={`Transferring: ${amount} sats`} />
           );
       }
     };
@@ -621,7 +610,7 @@ function SendConfirmation({ route }) {
           primaryText="Proceed"
           secondaryText="Cancel"
           secondaryCallback={() => {
-            navigation.navigate('NewHome');
+            navigation.goBack();
           }}
           primaryCallback={onProceed}
           primaryLoading={inProgress}

@@ -22,7 +22,7 @@ import { setAppCreationError } from '../reducers/login';
 export const defaultTransferPolicyThreshold =
   config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
 
-function* setupKeeperAppWorker({ payload }) {
+export function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;
     let primaryMnemonic;
@@ -82,8 +82,9 @@ function* setupKeeperAppWorker({ payload }) {
           },
         },
       };
-      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
+
       yield put(setAppId(appID));
+      yield call(addNewWalletsWorker, { payload: [defaultWallet] });
     } else {
       yield put(setAppCreationError(true));
     }
