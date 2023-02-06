@@ -43,6 +43,7 @@ export const generateWallet = async ({
   let bip85Config: BIP85Config;
 
   if (type === WalletType.IMPORTED) {
+    if (!importDetails) throw new Error('Import details are missing');
     mnemonic = importDetails.mnemonic;
     derivationConfig = importDetails.derivationConfig;
     instanceNum = idx(derivationConfig, (_) => _.accountNumber) || 0;
