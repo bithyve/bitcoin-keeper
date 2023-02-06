@@ -1,7 +1,7 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { TxPriority, VaultType } from 'src/core/wallets/enums';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
@@ -13,14 +13,13 @@ import { captureError } from 'src/core/services/sentry';
 import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
-import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { Alert } from 'react-native';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
+import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
 function VaultMigrationController({ vaultCreating, signersState, planStatus, setCreating }: any) {
   const navigation = useNavigation();
@@ -65,7 +64,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
     }
 
     if (relayVaultError) {
-      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, null, 3000, true);
+      showToast(`Vault Creation Failed ${realyVaultErrorMessage}`, <ToastErrorIcon />);
       dispatch(resetRealyVaultState());
       setCreating(false);
     }
@@ -91,8 +90,8 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
       );
     } else if (sendPhaseOneState.hasFailed) {
       if (sendPhaseOneState.failedErrorMessage === 'Insufficient balance')
-        Alert.alert('You have insufficient balance at this time.');
-      else Alert.alert(sendPhaseOneState.failedErrorMessage);
+        showToast('You have insufficient balance at this time.', <ToastErrorIcon />);
+      else showToast(sendPhaseOneState.failedErrorMessage, <ToastErrorIcon />);
     }
   }, [sendPhaseOneState]);
 
@@ -119,7 +118,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
         );
       }
     } else {
-      Alert.alert('You have unconfirmed balance, please try again later!');
+      showToast('You have unconfirmed balance, please try again later!', <ToastErrorIcon />);
     }
   };
 

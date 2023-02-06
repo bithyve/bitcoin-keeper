@@ -26,7 +26,6 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 // icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
@@ -89,7 +88,7 @@ function WalletSettings({ route }) {
     return (
       <Box variant="linearGradient" style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
-          <Box>
+          <Box style={styles.walletDetailsWrapper}>
             <Text color="light.white" style={styles.walletName}>
               {walletName}
             </Text>
@@ -98,9 +97,7 @@ function WalletSettings({ route }) {
             </Text>
           </Box>
           <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Box>
-              {Icon}
-            </Box>
+            <Box>{Icon}</Box>
             <Text color="light.white" style={styles.walletBalance}>
               {walletBalance}
             </Text>
@@ -378,17 +375,19 @@ const styles = ScaledSheet.create({
   walletCardContainer: {
     borderRadius: hp(20),
     width: wp(320),
-    height: hp(75),
+    paddingHorizontal: 5,
+    paddingVertical: 20,
     position: 'relative',
     marginLeft: -wp(20),
-    marginBottom: hp(0),
   },
   walletCard: {
-    marginTop: hp(17),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginHorizontal: wp(20),
+  },
+  walletDetailsWrapper: {
+    width: wp(170),
   },
   walletName: {
     letterSpacing: 0.28,
