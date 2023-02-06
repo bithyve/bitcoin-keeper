@@ -13,6 +13,22 @@ import CurrencyKind from '../data/enums/CurrencyKind';
 
 export const SATOSHIS_IN_BTC = 1e8;
 
+export const BtcToSats = (amountInBtc: number) => {
+  if (amountInBtc !== 0) {
+    return (amountInBtc * SATOSHIS_IN_BTC).toFixed(0);
+  }
+}
+
+export const SatsToBtc = (amountInSats: number) => {
+  if (amountInSats !== 0) {
+    if (amountInSats > 99) {
+      return (amountInSats / SATOSHIS_IN_BTC);
+    } else {
+      return (amountInSats / SATOSHIS_IN_BTC).toFixed(6);
+    }
+  }
+}
+
 export const getAmount = (amountInSats: number) => {
   //config.NETWORK_TYPE === NetworkType.MAINNET    disable sats mode
 
