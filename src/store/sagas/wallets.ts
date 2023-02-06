@@ -3,6 +3,7 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-case-declarations */
 import {
+  DerivationPurpose,
   EntityKind,
   VaultMigrationType,
   VaultType,
@@ -90,11 +91,19 @@ export interface NewVaultDetails {
   name?: string;
   description?: string;
 }
+
+export interface DerivationConfig {
+  purpose: DerivationPurpose;
+  accountNumber?: number;
+}
+
 export interface NewWalletDetails {
   name?: string;
   description?: string;
+  derivationConfig?: DerivationConfig;
   transferPolicy: TransferPolicy;
 }
+
 export interface NewWalletInfo {
   walletType: WalletType;
   walletDetails?: NewWalletDetails;
@@ -108,7 +117,12 @@ function* addNewWallet(
   importDetails?: WalletImportDetails
 ) {
   const { primaryMnemonic } = app;
-  const { name: walletName, description: walletDescription, transferPolicy } = walletDetails;
+  const {
+    name: walletName,
+    description: walletDescription,
+    derivationConfig,
+    transferPolicy,
+  } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.Wallet,
@@ -121,16 +135,18 @@ function* addNewWallet(
       const defaultWalletInstacnes = wallets.filter(
         (wallet) => wallet.type === WalletType.DEFAULT
       ).length;
-      const checkingWallet: Wallet = yield call(generateWallet, {
+
+      const defaultWallet: Wallet = yield call(generateWallet, {
         type: WalletType.DEFAULT,
         instanceNum: defaultWalletInstacnes, // zero-indexed
-        walletName: walletName || 'Checking Wallet',
+        walletName: walletName || 'Default Wallet',
         walletDescription: walletDescription || 'Bitcoin Wallet',
+        derivationConfig,
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
       });
-      return checkingWallet;
+      return defaultWallet;
 
     case WalletType.IMPORTED:
       const importedWallet: Wallet = yield call(generateWallet, {
