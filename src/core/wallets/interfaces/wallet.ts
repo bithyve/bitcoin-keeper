@@ -1,21 +1,15 @@
+import { DerivationConfig } from 'src/store/sagas/wallets';
 import { Balances, BIP85Config, UTXO, Transaction } from '.';
-import {
-  NetworkType,
-  WalletType,
-  VisibilityType,
-  EntityKind,
-  ScriptTypes,
-  DerivationPurpose,
-} from '../enums';
+import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
 
 export interface WalletImportDetails {
   // importing via mnemonic
   mnemonic?: string;
-  derivationPath?: string;
 
   // importing via xpriv/xpub
-  extendedKey?: string;
-  purpose?: DerivationPurpose;
+  // extendedKey?: string;
+
+  derivationConfig: DerivationConfig;
 }
 
 export interface WalletDerivationDetails {

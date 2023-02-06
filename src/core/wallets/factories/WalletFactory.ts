@@ -1,6 +1,7 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
+import idx from 'idx';
 import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
   TransferPolicy,
@@ -43,26 +44,24 @@ export const generateWallet = async ({
 
   if (type === WalletType.IMPORTED) {
     mnemonic = importDetails.mnemonic;
-    xDerivationPath =
-      importDetails.derivationPath ||
-      WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
+    derivationConfig = importDetails.derivationConfig;
+    instanceNum = idx(derivationConfig, (_) => _.accountNumber) || 0;
   } else {
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
     // BIP85 derivation: primary mnemonic to bip85-child mnemonic
     bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
     const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-
     mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
-
-    if (derivationConfig)
-      xDerivationPath = WalletUtilities.getDerivationPath(
-        EntityKind.WALLET,
-        networkType,
-        derivationConfig.accountNumber,
-        derivationConfig.purpose
-      );
-    else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
   }
+
+  if (derivationConfig)
+    xDerivationPath = WalletUtilities.getDerivationPath(
+      EntityKind.WALLET,
+      networkType,
+      derivationConfig.accountNumber,
+      derivationConfig.purpose
+    );
+  else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
   const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
   // derive extended keys
