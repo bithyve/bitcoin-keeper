@@ -265,7 +265,7 @@ function* getAppImageWorker({ payload }) {
       });
       yield put(setSeedConfirmed(true));
       yield put(setBackupType(BackupType.SEED));
-      // 
+      // create/add restored object for version
       yield call(dbManager.createObject, RealmSchema.VersionHistory, {
         version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
         releaseNote: '',
