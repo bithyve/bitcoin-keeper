@@ -112,13 +112,6 @@ function WalletSettings({ route }) {
   };
 
   useEffect(() => {
-    if (relayWalletUpdate) {
-      showToast('Wallet details updated!', <TickIcon />);
-      dispatch(resetRealyWalletState());
-    }
-  }, [relayWalletUpdate]);
-
-  useEffect(() => {
     setLoadingContent({
       title: 'Please Wait',
       subtitle: 'Receiving test sats',
@@ -339,7 +332,10 @@ function WalletSettings({ route }) {
         />
         <KeeperModal
           visible={transferPolicyVisible}
-          close={() => setTransferPolicyVisible(false)}
+          close={() => {
+            showToast('Transfer Policy Changed', <TickIcon />);
+            setTransferPolicyVisible(false);
+          }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
           subTitleColor="light.secondaryText"
@@ -348,6 +344,7 @@ function WalletSettings({ route }) {
             <TransferPolicy
               wallet={wallet}
               close={() => {
+                showToast('Transfer Policy Changed', <TickIcon />);
                 setTransferPolicyVisible(false);
               }}
             />

@@ -232,7 +232,9 @@ function* getAppImageWorker({ payload }) {
         primaryMnemonic,
         imageEncryptionKey,
         subscription: JSON.parse(appImage.subscription),
-        backup: {},
+        backup: {
+          method: BackupType.SEED,
+        },
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
       };
@@ -254,6 +256,22 @@ function* getAppImageWorker({ payload }) {
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
       yield put(setAppId(appID));
+      // seed confirm for recovery
+      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+        title: BackupAction.SEED_BACKUP_CONFIRMED,
+        date: moment().unix(),
+        confirmed: true,
+        subtitle: 'Recovered using backup phrase',
+      });
+      yield put(setSeedConfirmed(true));
+      yield put(setBackupType(BackupType.SEED));
+      // create/add restored object for version
+      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+        version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+        releaseNote: '',
+        date: new Date().toString(),
+        title: 'Restored version',
+      });
     }
   } catch (err) {
     console.log(err);

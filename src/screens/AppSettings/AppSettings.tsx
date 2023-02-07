@@ -20,7 +20,9 @@ import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { BackupHistory } from 'src/common/data/enums/BHR';
+import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
+import moment from 'moment';
+import { getBackupDuration } from 'src/common/utilities';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import TorModalMap from './TorModalMap';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -46,6 +48,21 @@ function AppSettings({ navigation }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const backupHistory = useMemo(() => data.sorted('date', true), [data]);
+  const backupSubTitle = useMemo(() => {
+    if (backupMethod === null) {
+      return 'Backup your Recovery Phrase';
+    }
+    if (backupHistory[0].title === BackupAction.SEED_BACKUP_CONFIRMED) {
+      const lastBackupDate = moment(backupHistory[0].date);
+      const today = moment(moment().unix());
+      const remainingDays = getBackupDuration() - lastBackupDate.diff(today, 'seconds');
+      if (remainingDays > 0) {
+        return `Recovery Health check due in ${Math.floor(remainingDays / 86400)} days`;
+      }
+      return 'Recovery Health check is due';
+    }
+    return backupWalletStrings[backupHistory[0].title];
+  }, [backupHistory, backupMethod]);
 
   const onChangeTorStatus = (status: TorStatus, message) => {
     settorStatus(status);
@@ -79,8 +96,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -186,11 +203,7 @@ function AppSettings({ navigation }) {
         >
           <Option
             title="App Backup"
-            subTitle={
-              backupMethod === null
-                ? 'Recovery Phrases health check is due'
-                : backupWalletStrings[backupHistory[0].title]
-            }
+            subTitle={backupSubTitle}
             onPress={() => {
               navigation.navigate('BackupWallet');
             }}
