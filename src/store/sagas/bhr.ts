@@ -265,6 +265,13 @@ function* getAppImageWorker({ payload }) {
       });
       yield put(setSeedConfirmed(true));
       yield put(setBackupType(BackupType.SEED));
+      // 
+      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+        version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+        releaseNote: '',
+        date: new Date().toString(),
+        title: 'Restored version',
+      });
     }
   } catch (err) {
     console.log(err);
