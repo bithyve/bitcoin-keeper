@@ -94,7 +94,7 @@ export interface NewVaultDetails {
 
 export interface DerivationConfig {
   purpose: DerivationPurpose;
-  accountNumber?: number;
+  path: string;
 }
 
 export interface NewWalletDetails {

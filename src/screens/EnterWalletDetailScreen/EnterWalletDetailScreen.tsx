@@ -7,8 +7,8 @@ import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
-import { NewWalletInfo } from 'src/store/sagas/wallets';
-import { WalletType } from 'src/core/wallets/enums';
+import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
+import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -22,6 +22,8 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { v4 as uuidv4 } from 'uuid';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import config from 'src/core/config';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -38,14 +40,35 @@ function EnterWalletDetailScreen({ route }) {
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
   );
+  const [purpose, setPurpose] = useState(DerivationPurpose.BIP84);
+  const [path, setPath] = useState(
+    WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+  );
+
+  useEffect(() => {
+    const path = WalletUtilities.getDerivationPath(
+      EntityKind.WALLET,
+      config.NETWORK_TYPE,
+      0,
+      purpose
+    );
+    setPath(path);
+  }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
+
+    const derivationConfig: DerivationConfig = {
+      path,
+      purpose,
+    };
+
     const newWallet: NewWalletInfo = {
       walletType: WalletType.DEFAULT,
       walletDetails: {
         name: walletName,
         description: walletDescription,
+        derivationConfig,
         transferPolicy: {
           id: uuidv4(),
           threshold: Number(transferPolicy),
