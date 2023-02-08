@@ -2,7 +2,7 @@
 import React, { useCallback, useContext, useState } from 'react';
 import * as bip39 from 'bip39';
 import { StyleSheet } from 'react-native';
-import { Box, Center, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
@@ -86,8 +86,9 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-        } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+        isMultisig ? 'MultiSig' : 'SingleSig'
+      } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
@@ -146,8 +147,9 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
@@ -170,8 +172,9 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         subTitle: 'A Signing Server will hold one of the keys in the vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
@@ -187,8 +190,8 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       return {
         Illustration: <BitboxImage />,
         Instructions: [
-          'Lorem Ipsum',
-          `Lorem Ipsum`,
+          `Please visit ${config.CHANNEL_URL} on your desktop to use the Keeper HWI to connect with BitBox02. `,
+          `Make sure the device is setup with the Bitbox app before using it with the Keeper Hardware Interface.`,
         ],
         title: bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
@@ -486,6 +489,19 @@ function HardwareModalMap({
     );
   };
 
+  const navigateToSetupWithChannel = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ConnectChannel',
+        params: {
+          title: `Setting up ${getSignerNameFromType(type)}`,
+          subtitle: `Please visit ${config.CHANNEL_URL} to use the Keeper Hardware Interface to setup`,
+          type,
+        },
+      })
+    );
+  };
+
   const navigateToSeedWordSetup = () => {
     close();
     const mnemonic = bip39.generateMnemonic();
@@ -604,6 +620,7 @@ function HardwareModalMap({
       case SignerType.SEED_WORDS:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
+        return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
       case SignerType.KEYSTONE:
