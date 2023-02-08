@@ -228,6 +228,7 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (walletSendSuccessful) {
+      setProgress(false);
       setVisibleModal(true);
     }
   }, [walletSendSuccessful]);

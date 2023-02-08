@@ -1,16 +1,17 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { FlatList, Box } from 'native-base';
+import moment from 'moment';
 
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import DotView from '../DotView';
-import moment from 'moment';
 
 function VersionHistoryList() {
   const { useQuery } = useContext(RealmWrapperContext);
   const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
+  console.log('VersionHistoryData', VersionHistoryData);
 
   return (
     <FlatList
