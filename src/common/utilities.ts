@@ -1,3 +1,4 @@
+import config, { APP_STAGE }  from 'src/core/config';
 import { Alert } from 'react-native';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -115,3 +116,5 @@ export const crossInteractionHandler = (error): string => {
   Alert.alert('Something went wrong', 'Please ensure that you & KSD are on the latest version');
   return error.message;
 };
+
+export const getBackupDuration = () => config.ENVIRONMENT === APP_STAGE.PRODUCTION ? 1.555e7 : 1800

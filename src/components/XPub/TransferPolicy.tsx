@@ -17,6 +17,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { v4 as uuidv4 } from 'uuid';
 import Buttons from '../Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
+import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
   const { showToast } = useToastMessage();
@@ -68,7 +69,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       showToast('Transfer Policy cannot be zero');
     }
   };
-
+  console.log('relayWalletUpdateLoading', relayWalletUpdateLoading);
   return (
     <Box backgroundColor="light.secondaryBackground" width={wp(275)} borderRadius={10}>
       <Box justifyContent="center" alignItems="center">
@@ -117,6 +118,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
         keyColor="#041513"
         ClearIcon={<DeleteIcon />}
       />
+      {relayWalletUpdateLoading && <ActivityIndicatorView visible={relayWalletUpdateLoading} />}
     </Box>
   );
 }
