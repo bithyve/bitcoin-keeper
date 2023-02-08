@@ -407,7 +407,7 @@ function SigningDeviceDetails({ route }) {
           style={{
             margin: 5,
             justifyContent: 'center',
-            alignContent: 'center',
+            alignItems: 'center',
             width: hp(48),
             height: hp(48),
             borderRadius: 30,
