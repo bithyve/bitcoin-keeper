@@ -23,10 +23,10 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
   const [passcodeFlag] = useState(true);
 
   const [loginError, setLoginError] = useState(false);
+  const [btnDisable, setBtnDisable] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [errMessage, setErrMessage] = useState('');
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
-
   const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
@@ -58,7 +58,9 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
       setErrMessage('Incorrect password');
       setPasscode('');
       setAttempts(attempts + 1);
+      setBtnDisable(false);
     } else {
+      setBtnDisable(false);
       setLoginError(false);
     }
   }, [authenticationFailed]);
@@ -74,6 +76,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         });
         closeBottomSheet();
       }
+      setBtnDisable(false);
       dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
@@ -91,11 +94,13 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         {passcode.length === 4 && (
           <Buttons
             primaryCallback={() => {
+              setBtnDisable(true);
               setLoginError(false);
               attemptLogin(passcode);
             }}
             primaryText={common.proceed}
             activeOpacity={0.5}
+            primaryDisable={btnDisable}
           />
         )}
       </Box>

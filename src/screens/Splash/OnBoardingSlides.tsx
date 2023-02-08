@@ -19,10 +19,9 @@ import Illustration_1 from 'src/assets/images/illustration_1.svg';
 import Illustration_2 from 'src/assets/images/illustration_2.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('window');
 
@@ -36,8 +35,8 @@ function OnBoardingSlides({ navigation }) {
       id: '1',
       title: (
         <>
-          {`${onboarding.Comprehensive} `}
-          <Text style={styles.info}>{onboarding.security}</Text>
+          <Text style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
+          {onboarding.security}
           {` ${onboarding.slide01Title}`}
         </>
       ),

@@ -1,4 +1,4 @@
-import { Alert, SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import React, { useState } from 'react';
@@ -10,7 +10,7 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { checkSigningDevice } from 'src/screens/Vault/AddSigningDevice';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import LedgerScanningModal from 'src/screens/Vault/components/LedgerScanningModal';
 import HWError from 'src/hardware/HWErrorState';
 import { setSigningDevices } from 'src/store/reducers/bhr';
@@ -19,7 +19,7 @@ import { useAppSelector } from 'src/store/hooks';
 function LedgerRecovery() {
   const [visible, setVisible] = useState(true);
   const { signingDevices } = useAppSelector((state) => state.bhr);
-  const isMultisig = signingDevices.length >= 1 ? true : false;
+  const isMultisig = signingDevices.length >= 1;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -46,10 +46,10 @@ function LedgerRecovery() {
       showToast(`${ledger.signerName} added successfully`, <TickIcon />);
     } catch (error) {
       if (error instanceof HWError) {
-        showToast(error.message, null, 3000, true);
+        showToast(error.message, <ToastErrorIcon />);
       } else {
         captureError(error);
-        showToast('Something went wrong, please try again!', null, 3000, true);
+        showToast('Something went wrong, please try again!', <ToastErrorIcon />);
       }
     }
   };
