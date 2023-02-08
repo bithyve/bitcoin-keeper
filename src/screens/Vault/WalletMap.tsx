@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 
 import COLDCARDICON from 'src/assets/images/coldcard_icon.svg';
@@ -19,7 +21,6 @@ import MOBILEKEYLIGHT from 'src/assets/images/mobile_key_light.svg';
 import PASSPORTICON from 'src/assets/images/passport_icon.svg';
 import PASSPORTICONLIGHT from 'src/assets/images/passport_light.svg';
 import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
-import React from 'react';
 import SEEDSIGNERICON from 'src/assets/images/seedsigner_icon.svg';
 import SEEDSIGNERICONLIGHT from 'src/assets/images/seedsigner_light.svg';
 import SEEDSIGNERLOGO from 'src/assets/images/seedsignerlogo.svg';
@@ -33,6 +34,9 @@ import TAPSIGNERLOGO from 'src/assets/images/tapsigner_logo.svg';
 import TREZORICON from 'src/assets/images/trezor_icon.svg';
 import TREZORICONLIGHT from 'src/assets/images/trezor_light.svg';
 import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
+import BITBOXICON from 'src/assets/images/BitBox.svg';
+import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
+
 import Text from 'src/components/KeeperText';
 
 const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
@@ -119,6 +123,12 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light),
         Logo: <SEEDSIGNERLOGO />,
+        type: SignerStorage.COLD,
+      };
+    case SignerType.BITBOX02:
+      return {
+        Icon: getColouredIcon(<BITBOXICON />, <BITBOXICON />, light),
+        Logo: <BITBOXLOGO />,
         type: SignerStorage.COLD,
       };
     case SignerType.SEED_WORDS:

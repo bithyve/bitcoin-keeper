@@ -407,10 +407,11 @@ function SigningDeviceDetails({ route }) {
           style={{
             margin: 5,
             justifyContent: 'center',
-            alignItems: 'center',
+            alignContent: 'center',
             width: hp(48),
             height: hp(48),
             borderRadius: 30,
+            borderWidth: 1,
             backgroundColor: '#725436',
           }}
         >

@@ -362,6 +362,10 @@
     "ScanningBT": "Scanning for bluetooth",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
+  "bitbox":{
+    "SetupTitle": "Setting up BitBox02",
+    "SetupDescription": "Keep your BitBox02 ready before proceeding"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",

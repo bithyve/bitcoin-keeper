@@ -31,6 +31,7 @@ import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
@@ -69,7 +70,7 @@ export function BulletPoint({ text }: { text: string }) {
 }
 
 const getSignerContent = (type: SignerType, isMultisig: boolean, translations: any) => {
-  const { tapsigner, coldcard, ledger } = translations;
+  const { tapsigner, coldcard, ledger, bitbox } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       const ccInstructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
@@ -85,9 +86,8 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
-        isMultisig ? 'MultiSig' : 'SingleSig'
-      } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
+        } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
@@ -146,9 +146,8 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
@@ -171,9 +170,8 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         subTitle: 'A Signing Server will hold one of the keys in the vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
@@ -184,6 +182,16 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
           : [seedSignerInstructions],
         title: 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
+      };
+    case SignerType.BITBOX02:
+      return {
+        Illustration: <BitboxImage />,
+        Instructions: [
+          'Lorem Ipsum',
+          `Lorem Ipsum`,
+        ],
+        title: bitbox.SetupTitle,
+        subTitle: bitbox.SetupDescription,
       };
     case SignerType.SEED_WORDS:
       return {
@@ -227,7 +235,7 @@ function SignerContent({
 }) {
   return (
     <View>
-      <Center>{Illustration}</Center>
+      <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {Instructions.map((instruction) => (
           <BulletPoint text={instruction} />
@@ -595,6 +603,7 @@ function HardwareModalMap({
         return biometricAuth();
       case SignerType.SEED_WORDS:
         return navigateToSeedWordSetup();
+      case SignerType.BITBOX02:
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
       case SignerType.KEYSTONE:

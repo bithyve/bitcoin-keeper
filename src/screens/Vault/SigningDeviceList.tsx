@@ -84,6 +84,7 @@ const getDeviceStatus = (
         disabled: false,
       };
     case SignerType.JADE:
+    case SignerType.BITBOX02:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
     case SignerType.KEYSTONE:
@@ -150,6 +151,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
     SignerType.SEEDSIGNER,
+    SignerType.BITBOX02,
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
@@ -328,6 +330,7 @@ const styles = StyleSheet.create({
   },
   walletMapWrapper: {
     marginRight: wp(20),
+    alignItems: 'center',
     width: wp(15),
   },
   walletMapLogoWrapper: {
