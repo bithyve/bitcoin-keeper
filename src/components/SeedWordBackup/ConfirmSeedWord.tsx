@@ -93,6 +93,7 @@ function ConfirmSeedWord(props) {
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"
+          autoCapitalize="none"
           keyboardType="name-phone-pad"
           onChangeText={(value) => {
             setSeedWord(value.trim());
