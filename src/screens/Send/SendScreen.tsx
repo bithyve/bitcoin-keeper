@@ -194,7 +194,7 @@ function SendScreen({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundColor="light.mainBackground">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
@@ -245,7 +245,7 @@ function SendScreen({ route }) {
 
             {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={5} fontSize={14} letterSpacing={1.12}>
+              <Text marginX={2} fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
               </Text>
               <View>
@@ -312,7 +312,7 @@ const styles = ScaledSheet.create({
   },
   inputWrapper: {
     flexDirection: 'row',
-    marginVertical: hp(4),
+    marginTop: hp(10),
     marginHorizontal: hp(5),
     width: '98%',
     justifyContent: 'center',
@@ -343,7 +343,7 @@ const styles = ScaledSheet.create({
     height: hp(100),
     width: wp(330),
     borderRadius: hp(10),
-    marginHorizontal: wp(16),
+    marginHorizontal: wp(12),
     paddingHorizontal: wp(25),
     marginTop: hp(5),
   },
@@ -356,10 +356,10 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
   },
   noteWrapper: {
-    paddingLeft: 20,
+    marginLeft: wp(20),
     position: 'absolute',
     bottom: hp(20),
-    width: wp(300),
+    width: '100%',
   },
   sendToWalletWrapper: {
     marginTop: hp(20),
