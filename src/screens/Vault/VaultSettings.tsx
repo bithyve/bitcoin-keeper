@@ -199,6 +199,12 @@ function VaultSettings({ route }) {
           onPress={() => setGenratorModalVisible(true)}
           Icon={false}
         />
+        <Option
+          title="Archived Vault"
+          subTitle="View details of old vaults"
+          onPress={() => navigtaion.navigate('ArchivedVault')}
+          Icon={false}
+        />
       </Box>
 
       {/* {Bottom note} */}
