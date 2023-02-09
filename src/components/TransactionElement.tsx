@@ -18,13 +18,13 @@ import Text from 'src/components/KeeperText';
 
 function TransactionElement({
   transaction,
-  onPress = () => {},
+  onPress = () => { },
 }: {
   transaction: Transaction;
   onPress?: () => void;
 }) {
   const { colorMode } = useColorMode();
-  const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mma');
+  const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mmA');
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);

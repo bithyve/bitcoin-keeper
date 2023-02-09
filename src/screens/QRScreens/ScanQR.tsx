@@ -16,6 +16,7 @@ import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-pick
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import MockWrapper from '../Vault/MockWrapper';
 
 const { width } = Dimensions.get('screen');
@@ -109,6 +110,7 @@ function ScanQR() {
               captureAudio={false}
               onBarCodeRead={onBarCodeRead}
               useNativeZoom
+              notAuthorizedView={<CameraUnauthorized />}
             />
           </Box>
           <UploadImage onPress={handleChooseImage} />
