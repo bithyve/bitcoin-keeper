@@ -166,33 +166,44 @@ function* addNewWallet(
 }
 
 export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewWalletInfo[] }) {
-  const wallets: Wallet[] = [];
-  const walletIds = [];
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  try {
+    const wallets: Wallet[] = [];
+    const walletIds = [];
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
-  for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
-    walletIds.push(wallet.id);
-    wallets.push(wallet);
-  }
-
-  for (const wallet of wallets) {
-    yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallet } });
-    if (response.updated) {
-      yield put(relayWalletUpdateSuccess());
-      yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-
-      if (wallet.type === WalletType.IMPORTED) {
-        yield put(
-          refreshWallets([wallet], {
-            hardRefresh: true,
-          })
-        );
-      }
-    } else {
-      yield put(relayWalletUpdateFail(response.error));
+    for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
+      const wallet: Wallet = yield call(
+        addNewWallet,
+        walletType,
+        walletDetails,
+        app,
+        importDetails
+      );
+      walletIds.push(wallet.id);
+      wallets.push(wallet);
     }
+
+    for (const wallet of wallets) {
+      yield put(setRelayWalletUpdateLoading(true));
+      const response = yield call(updateAppImageWorker, { payload: { wallet } });
+      if (response.updated) {
+        yield put(relayWalletUpdateSuccess());
+        yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+
+        if (wallet.type === WalletType.IMPORTED) {
+          yield put(
+            refreshWallets([wallet], {
+              hardRefresh: true,
+            })
+          );
+        }
+      } else {
+        yield put(relayWalletUpdateFail(response.error));
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    yield put(relayWalletUpdateFail(''));
   }
 }
 
