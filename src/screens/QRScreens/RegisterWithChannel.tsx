@@ -18,16 +18,17 @@ import { BITBOX_REGISTER, CREATE_CHANNEL } from 'src/core/services/channel/const
 import { captureError } from 'src/core/services/sentry';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 function RegisterWithChannel() {
   const { params } = useRoute();
   const { signer } = params as { signer: VaultSigner };
-  const channel = io('http://192.168.1.176:4000'); // TODO: update url once hosted
+  const channel = io(config.CHANNEL_URL); // TODO: update url once hosted
   let channelCreated = false;
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const dispatch = useDispatch();
+  const navgation = useNavigation();
 
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -47,6 +48,7 @@ function RegisterWithChannel() {
         const walletConfig = getWalletConfigForBitBox02({ vault });
         channel.emit(BITBOX_REGISTER, { data: walletConfig, room });
         dispatch(updateSignerDetails(signer, 'registered', true));
+        navgation.goBack();
       } catch (error) {
         captureError(error);
       }

@@ -26,12 +26,13 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/core/services/sentry';
+import config from 'src/core/config';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function ConnectChannel() {
   const route = useRoute();
   const { title = '', subtitle = '' } = route.params as any;
-  const channel = io('http://192.168.1.176:4000'); // TODO: update url once hosted
+  const channel = io(config.CHANNEL_URL); // TODO: update url once hosted
   let channelCreated = false;
 
   const { translations } = useContext(LocalizationContext);
