@@ -51,9 +51,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { activeVault } = useVault();
 
   const registerColdCard = async () => {
-    if (signer.type === SignerType.COLDCARD) {
-      await withNfcModal(() => registerToColcard({ vault: activeVault }));
-    }
+    await withNfcModal(() => registerToColcard({ vault: activeVault }));
   };
 
   const registerLedger = async (transport) => {
@@ -82,12 +80,15 @@ function SignerAdvanceSettings({ route }: any) {
   const registerSigner = async () => {
     switch (signer.type) {
       case SignerType.COLDCARD:
-        registerColdCard();
+        await registerColdCard();
         dispatch(updateSignerDetails(signer, 'registered', true));
         return;
       case SignerType.LEDGER:
         setLedgerModal(true);
         return;
+      case SignerType.BITBOX02:
+        navigation.dispatch(CommonActions.navigate('RegisterWithChannel'));
+        break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.PASSPORT:
