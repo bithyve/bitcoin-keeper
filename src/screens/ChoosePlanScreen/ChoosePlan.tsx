@@ -114,7 +114,6 @@ function ChoosePlan(props) {
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
-          // const finish = await RNIap.finishTransaction(purchase, false);
         });
         purchaseErrorSubscription = purchaseErrorListener((error) => {
           console.log('purchaseErrorListener', error);
