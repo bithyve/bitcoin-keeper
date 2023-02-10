@@ -18,7 +18,7 @@ import { captureError } from 'src/core/services/sentry';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 
-const VaultConfigurationRecovery = ({ navigation }) => {
+function VaultConfigurationRecovery({ navigation }) {
   const { appId } = useAppSelector((state) => state.storage);
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
@@ -72,7 +72,7 @@ const VaultConfigurationRecovery = ({ navigation }) => {
       const parsedText: ParsedVauleText = parseTextforVaultConfig(inputText);
       if (parsedText) {
         setScheme(parsedText.scheme);
-        let signers = [];
+        const signers = [];
         parsedText.signersDetails.forEach((config) => {
           const signer = generateSignerFromMetaData({
             xpub: config.xpub,
@@ -95,7 +95,7 @@ const VaultConfigurationRecovery = ({ navigation }) => {
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title={'Reocvery through vault configuration'}
+        title="Reocvery through vault configuration"
         subtitle="Recover the vault from output descriptor or configuration"
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
@@ -119,7 +119,7 @@ const VaultConfigurationRecovery = ({ navigation }) => {
       />
     </ScreenWrapper>
   );
-};
+}
 
 export default VaultConfigurationRecovery;
 
