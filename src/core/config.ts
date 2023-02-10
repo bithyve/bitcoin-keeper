@@ -6,7 +6,6 @@ import axios, { AxiosInstance } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
-import _ from 'lodash';
 import config from 'react-native-config';
 import { NetworkType, WalletType } from './wallets/enums';
 

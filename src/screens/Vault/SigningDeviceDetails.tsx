@@ -50,8 +50,6 @@ function SigningDeviceDetails({ route }) {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { vault } = translations;
   const { healthcheck } = translations;
   const { tapsigner } = translations;
   const { coldcard } = translations;
@@ -347,9 +345,11 @@ function SigningDeviceDetails({ route }) {
   function FooterItem({ Icon, title, onPress }) {
     return (
       <TouchableOpacity onPress={onPress}>
-        <Box style={{
-          alignItems: 'center'
-        }}>
+        <Box
+          style={{
+            alignItems: 'center',
+          }}
+        >
           <Box
             margin="1"
             marginBottom="3"
@@ -460,10 +460,12 @@ function SigningDeviceDetails({ route }) {
           }}
         />
 
-        <Box style={{
-          justifyContent: 'space-between',
-          flexDirection: 'row'
-        }}>
+        <Box
+          style={{
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+          }}
+        >
           <FooterItem
             Icon={Change}
             title="Change signing device"

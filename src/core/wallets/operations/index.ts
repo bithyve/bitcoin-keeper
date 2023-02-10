@@ -40,7 +40,6 @@ import {
   SignerType,
   TransactionType,
   TxPriority,
-  XpubTypes,
 } from '../enums';
 import { Vault, VaultSigner } from '../interfaces/vault';
 
@@ -947,7 +946,7 @@ export default class WalletOperations {
       for (const input of inputs) {
         let subPath;
         if (wallet.isMultiSig) {
-          subPath = WalletUtilities.addressToMultiSig(input.address, wallet as Vault).subPath;
+          subPath = WalletUtilities.addressToMultiSig(input.address, wallet).subPath;
         } else {
           subPath = WalletUtilities.addressToKey(input.address, wallet, true).subPath;
         }

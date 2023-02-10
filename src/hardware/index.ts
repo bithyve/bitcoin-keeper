@@ -17,6 +17,7 @@ import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
+  SignerType.TREZOR,
   SignerType.KEEPER,
   SignerType.MOBILE_KEY,
   SignerType.POLICY_SERVER,

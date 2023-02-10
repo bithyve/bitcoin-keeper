@@ -1,11 +1,10 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, Pressable } from 'native-base';
-import { Keyboard, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
-import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
@@ -21,13 +20,19 @@ import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import WalletDetails from './WalletDetails';
-import { BtcToSats, getAmt, getCurrencyImageByRegion, SATOSHIS_IN_BTC, SatsToBtc } from 'src/common/constants/Bitcoin';
+import {
+  BtcToSats,
+  getAmt,
+  getCurrencyImageByRegion,
+  SATOSHIS_IN_BTC,
+  SatsToBtc,
+} from 'src/common/constants/Bitcoin';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
+import WalletDetails from './WalletDetails';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -60,16 +65,14 @@ function AddSendAmount({ route }) {
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
-      ? (
-        (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
-      )
-      : 0
+      ? (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
+      : 0;
   }
 
   function convertSatsToFiat(amount: Satoshis) {
     return exchangeRates && exchangeRates[currencyCode]
       ? (amount / SATOSHIS_IN_BTC) * exchangeRates[currencyCode].last
-      : 0
+      : 0;
   }
 
   useEffect(() => {
@@ -77,16 +80,16 @@ function AddSendAmount({ route }) {
     const sendMaxBalance = confirmBalance - sendMaxFee;
 
     if (Number(amount) > SatsToBtc(sendMaxBalance)) {
-      setError(true)
+      setError(true);
     } else {
-      setError(false)
+      setError(false);
     }
     if (currentCurrency === CurrencyKind.BITCOIN) {
-      setAmountToSend(BtcToSats(parseFloat(amount)))
+      setAmountToSend(BtcToSats(parseFloat(amount)));
     } else {
       setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
     }
-  }, [amount])
+  }, [amount]);
 
   useEffect(() => {
     const confirmBalance = sender.specs.balances.confirmed;
@@ -154,7 +157,12 @@ function AddSendAmount({ route }) {
         }}
       >
         <WalletDetails
-          availableAmt={getAmt(sender?.specs.balances.confirmed, exchangeRates, currencyCode, currentCurrency)}
+          availableAmt={getAmt(
+            sender?.specs.balances.confirmed,
+            exchangeRates,
+            currencyCode,
+            currentCurrency
+          )}
           walletName={sender?.presentationData.name}
           currencyIcon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)}
         />
@@ -215,10 +223,15 @@ function AddSendAmount({ route }) {
               value={amount}
               onChangeText={(value) => {
                 if (!isNaN(Number(value))) {
-                  setAmount(value.split('.').map((el, i) => i ? el.split('').join('') : el).join('.'))
+                  setAmount(
+                    value
+                      .split('.')
+                      .map((el, i) => (i ? el.split('').join('') : el))
+                      .join('.')
+                  );
                 }
               }}
-              keyboardType={'decimal-pad'}
+              keyboardType="decimal-pad"
             />
           </Box>
           <Pressable

@@ -167,23 +167,20 @@ function VaultInfo({ vault }: { vault: Vault }) {
           </Text>
           {getNetworkAmount(
             unconfirmed,
-            [styles.vaultInfoText, { fontSize: 12 }],
-            0.9,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            [styles.vaultInfoText, { fontSize: 12 }],
+            0.9
           )}
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(
-          confirmed,
-          [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2],
-          1,
-          exchangeRates,
-          currencyCode,
-          currentCurrency
-        )}
+        {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
+          styles.vaultInfoText,
+          { fontSize: 31, lineHeight: 31 },
+          2,
+        ])}
         <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>

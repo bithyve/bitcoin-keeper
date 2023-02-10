@@ -1,7 +1,7 @@
 import { Vault, VaultScheme, VaultSigner } from './wallets/interfaces/vault';
 import WalletOperations from './wallets/operations';
 
-//GENRATOR
+// GENRATOR
 
 export const getDerivationPath = (derivationPath: string) =>
   derivationPath.substring(2).split("'").join('h');
@@ -39,7 +39,7 @@ export const genrateOutputDescriptors = (
   )})\nNo path restrictions\n${receivingAddress}`;
 };
 
-//PASRER
+// PASRER
 export interface ParsedSignersDetails {
   xpub: String;
   masterFingerprint: String;
@@ -60,7 +60,7 @@ const parseKeyExpression = (expression) => {
     if (hexFingerprint.length === 8) {
       hexFingerprint = Buffer.from(hexFingerprint, 'hex').toString('hex');
     }
-    const path = 'm/' + expressionSplit[1].split('/').slice(1).join('/').replace(/[h]/g, "'");
+    const path = `m/${expressionSplit[1].split('/').slice(1).join('/').replace(/[h]/g, "'")}`;
     let xpub = expressionSplit[2];
     if (xpub.indexOf('/') !== -1) {
       xpub = xpub.substr(0, xpub.indexOf('/'));
@@ -118,7 +118,6 @@ export const parseTextforVaultConfig = (secret: string) => {
       scheme,
     };
     return parsedResponse;
-  } else {
-    throw Error('Something went wrong!');
   }
+  throw Error('Something went wrong!');
 };

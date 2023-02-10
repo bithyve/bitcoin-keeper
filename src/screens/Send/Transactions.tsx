@@ -1,9 +1,7 @@
 // libraries
 import { Box, View } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
 import { FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
-import LinearGradient from 'src/components/KeeperGradient';
 // asserts
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -13,9 +11,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 
 function Transactions({ transactions, addTransaction = () => {} }) {
-  const navigation = useNavigation();
-
-  const renderTranscation = ({ item, index }: { item; index }) => {
+  const renderTranscation = ({ item }: { item; index }) => {
     const { address, amount } = item;
     return (
       <Box
