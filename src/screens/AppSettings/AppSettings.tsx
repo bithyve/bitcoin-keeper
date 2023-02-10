@@ -130,7 +130,10 @@ function AppSettings({ navigation }) {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
-        showToast('Biometrics not enabled.\nPlese go to setting and enable it', <ToastErrorIcon />);
+        showToast(
+          'Biometrics not enabled.\nPlease go to setting and enable it',
+          <ToastErrorIcon />
+        );
       }
     } catch (error) {
       console.log(error);
