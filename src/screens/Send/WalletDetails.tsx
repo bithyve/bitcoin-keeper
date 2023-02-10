@@ -11,7 +11,7 @@ import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 
-function WalletDetails({ availableAmt, walletName, isEditable = false, isSats = false }) {
+function WalletDetails({ availableAmt, walletName, isEditable = false, isSats = false, currencyIcon = BTCIcon }) {
   return (
     <Box style={styles.container} backgroundColor="light.primaryBackground">
       <Box flexDirection="row">
@@ -28,8 +28,7 @@ function WalletDetails({ availableAmt, walletName, isEditable = false, isSats = 
           </Text>
           <Text fontSize={12} numberOfLines={1}>
             Available to spend &nbsp;
-            {/* {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)} */}
-            <BTCIcon />
+            {currencyIcon}
             &nbsp;
             <Text bold fontSize={14}>
               {availableAmt && availableAmt} {isSats && 'sats'}

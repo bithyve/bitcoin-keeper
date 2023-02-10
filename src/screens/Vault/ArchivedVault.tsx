@@ -96,7 +96,7 @@ function ArchivedVault() {
           </Box>
         </Box>
         <Box>
-          <Arrow />
+          {/* <Arrow /> */}
         </Box>
       </Pressable>
     );

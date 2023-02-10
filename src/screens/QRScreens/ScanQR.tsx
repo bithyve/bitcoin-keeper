@@ -17,6 +17,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
 import MockWrapper from '../Vault/MockWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -109,6 +110,7 @@ function ScanQR() {
               captureAudio={false}
               onBarCodeRead={onBarCodeRead}
               useNativeZoom
+              notAuthorizedView={<CameraUnauthorized />}
             />
           </Box>
           <UploadImage onPress={handleChooseImage} />
