@@ -217,7 +217,7 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Wallet seed words"
+            title="Wallet Seed Words"
             subTitle="Use to link external wallets to Keeper"
             onPress={() => {
               setConfirmPassVisible(true);
@@ -419,7 +419,7 @@ const styles = ScaledSheet.create({
   optionSubtitle: {
     fontSize: 12,
     letterSpacing: 0.6,
-    width: '90%'
+    width: '90%',
   },
 });
 export default WalletSettings;
