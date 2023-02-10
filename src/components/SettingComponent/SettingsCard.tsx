@@ -6,6 +6,7 @@ import React from 'react';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 
 function SettingsCard(props) {
+  const iff = (condition, then, otherwise) => (condition ? then : otherwise);
   return (
     <Pressable onPress={() => props.onPress()}>
       <Box
@@ -25,9 +26,7 @@ function SettingsCard(props) {
         </Box>
         <Box flex={0.3} justifyContent="center" alignItems="flex-end">
           {props.renderStatus ? (
-            props.renderStatus()
-          ) : props.icon ? (
-            <LinkIcon />
+            iff(props.renderStatus, props.icon, <LinkIcon />)
           ) : (
             <RightArrowIcon />
           )}

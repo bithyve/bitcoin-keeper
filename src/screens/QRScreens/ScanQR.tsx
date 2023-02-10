@@ -15,9 +15,9 @@ import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
-import MockWrapper from '../Vault/MockWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
+import MockWrapper from '../Vault/MockWrapper';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -30,7 +30,7 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => { },
+    onQrScan = () => {},
     setup = false,
     type,
   } = route.params as any;
@@ -148,6 +148,6 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 0,
     position: 'absolute',
-    padding: 20,
+    paddingHorizontal: 10,
   },
 });

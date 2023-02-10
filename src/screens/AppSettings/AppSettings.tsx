@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -22,7 +22,10 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
 import moment from 'moment';
+
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getBackupDuration } from 'src/common/utilities';
+import useToastMessage from 'src/hooks/useToastMessage';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import TorModalMap from './TorModalMap';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -38,6 +41,8 @@ function AppSettings({ navigation }) {
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
+  const { showToast } = useToastMessage();
+
   const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
   const { common } = translations;
@@ -125,7 +130,10 @@ function AppSettings({ navigation }) {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
-        Alert.alert('Biometrics not enabled', 'Plese go to setting and enable it');
+        showToast(
+          'Biometrics not enabled.\nPlease go to setting and enable it',
+          <ToastErrorIcon />
+        );
       }
     } catch (error) {
       console.log(error);
