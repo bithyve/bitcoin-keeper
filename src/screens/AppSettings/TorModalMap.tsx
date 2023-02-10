@@ -79,15 +79,9 @@ function TorEnabledContent() {
 
 function TorModalMap({ visible, close, onPressTryAgain }) {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
-  const [, setMessage] = useState('');
 
-  const onChangeTorStatus = (status: TorStatus, message) => {
+  const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
-    if (status === TorStatus.ERROR) {
-      setMessage(message);
-    } else {
-      setMessage('');
-    }
   };
 
   useEffect(() => {
