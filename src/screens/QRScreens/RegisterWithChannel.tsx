@@ -62,7 +62,7 @@ function RegisterWithChannel() {
     <ScreenWrapper>
       <HeaderTitle
         title="Register with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.CHANNEL_URL} to register with `}
+        subtitle={`Please visit ${config.KEEPER_HWI} to register with the device`}
       />
       <Box style={styles.qrcontainer}>
         <RNCamera

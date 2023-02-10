@@ -79,10 +79,6 @@ const getDeviceStatus = (
       };
 
     case SignerType.TREZOR:
-      return {
-        message: 'Coming soon',
-        disabled: false,
-      };
     case SignerType.JADE:
     case SignerType.BITBOX02:
     case SignerType.PASSPORT:

@@ -355,9 +355,13 @@
     "ScanningBT": "Scanning for bluetooth",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
-  "bitbox":{
+  "bitbox": {
     "SetupTitle": "Setting up BitBox02",
     "SetupDescription": "Keep your BitBox02 ready before proceeding"
+  },
+  "trezor": {
+    "SetupTitle": "Setting up Trezor",
+    "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
   },
   "settings": {
     "selectCurrency": "Select currency",

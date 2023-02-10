@@ -70,7 +70,7 @@ export function BulletPoint({ text }: { text: string }) {
 }
 
 const getSignerContent = (type: SignerType, isMultisig: boolean, translations: any) => {
-  const { tapsigner, coldcard, ledger, bitbox } = translations;
+  const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       const ccInstructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
@@ -190,11 +190,21 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       return {
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.CHANNEL_URL} on your desktop to use the Keeper HWI to connect with BitBox02. `,
-          `Make sure the device is setup with the Bitbox app before using it with the Keeper Hardware Interface.`,
+          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper HWI to connect with BitBox02. `,
+          `Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.`,
         ],
         title: bitbox.SetupTitle,
         subTitle: bitbox.SetupDescription,
+      };
+    case SignerType.TREZOR:
+      return {
+        Illustration: <BitboxImage />,
+        Instructions: [
+          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper HWI to connect with Trezor. `,
+          `Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.`,
+        ],
+        title: trezor.SetupTitle,
+        subTitle: trezor.SetupDescription,
       };
     case SignerType.SEED_WORDS:
       return {
@@ -217,7 +227,6 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         title: tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
       };
-    case SignerType.TREZOR:
     default:
       return {
         Illustration: null,
@@ -495,7 +504,7 @@ function HardwareModalMap({
         name: 'ConnectChannel',
         params: {
           title: `Setting up ${getSignerNameFromType(type)}`,
-          subtitle: `Please visit ${config.CHANNEL_URL} to use the Keeper Hardware Interface to setup`,
+          subtitle: `Please visit ${config.KEEPER_HWI} to use the Keeper Hardware Interface to setup`,
           type,
         },
       })
@@ -620,6 +629,7 @@ function HardwareModalMap({
       case SignerType.SEED_WORDS:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
+      case SignerType.TREZOR:
         return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:

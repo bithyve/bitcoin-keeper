@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
@@ -13,7 +13,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { io } from 'src/core/services/channel';
-import { BITBOX_SETUP, CREATE_CHANNEL } from 'src/core/services/channel/constants';
+import { BITBOX_SETUP, CREATE_CHANNEL, TREZOR_SETUP } from 'src/core/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import usePlan from 'src/hooks/usePlan';
@@ -27,6 +27,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
+import { getTrezorDetails } from 'src/hardware/trezor';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function ConnectChannel() {
@@ -39,7 +40,6 @@ function ConnectChannel() {
   const { common } = translations;
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const [channelId, setChannelId] = useState<string>();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -49,8 +49,7 @@ function ConnectChannel() {
 
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {
-      setChannelId(`${publicId}${data}`);
-      channel.emit(CREATE_CHANNEL, channelId);
+      channel.emit(CREATE_CHANNEL, `${publicId}${data}`);
       channelCreated = true;
     }
   };
@@ -82,6 +81,36 @@ function ConnectChannel() {
         } else captureError(error);
       }
     });
+    channel.on(TREZOR_SETUP, async (data) => {
+      try {
+        const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(data, isMultisig);
+        const trezor = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp,
+          isMultisig,
+          signerType: SignerType.TREZOR,
+          storageType: SignerStorage.COLD,
+          xpubDetails,
+        });
+        dispatch(addSigningDevice(trezor));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${trezor.signerName} added successfully`, <TickIcon />);
+        const exsists = await checkSigningDevice(trezor.signerId);
+        if (exsists)
+          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+      } catch (error) {
+        if (error instanceof HWError) {
+          showToast(error.message, <ToastErrorIcon />, 3000);
+        } else if (error.toString() === 'Error') {
+          // ignore if user cancels NFC interaction
+        } else captureError(error);
+      }
+    });
+
+    return () => {
+      channel.disconnect();
+    };
   }, [channel]);
 
   return (
