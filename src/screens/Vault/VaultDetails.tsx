@@ -48,6 +48,7 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import useVault from 'src/hooks/useVault';
 import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
@@ -382,9 +383,7 @@ function VaultDetails({ route, navigation }) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const vault: Vault = useVault().activeVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
@@ -487,16 +486,21 @@ function VaultDetails({ route, navigation }) {
           transactions={transactions}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
-          vault={vault}
         />
         <Footer vault={vault} />
       </VStack>
       <TierUpgradeModal
         visible={tireChangeModal}
-        close={() => setTireChangeModal(false)}
+        close={() => {
+          if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
+            return;
+          }
+          setTireChangeModal(false);
+        }}
         onPress={onPressModalBtn}
         isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
         plan={keeper.subscription.name}
+        closeOnOverlayClick={hasPlanChanged() !== VaultMigrationType.DOWNGRADE}
       />
       <KeeperModal
         visible={vaultCreated}
