@@ -1,5 +1,16 @@
+import { DerivationConfig } from 'src/store/sagas/wallets';
 import { Balances, BIP85Config, UTXO, Transaction } from '.';
 import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
+
+export interface WalletImportDetails {
+  // importing via mnemonic
+  mnemonic?: string;
+
+  // importing via xpriv/xpub
+  // extendedKey?: string;
+
+  derivationConfig: DerivationConfig;
+}
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType
