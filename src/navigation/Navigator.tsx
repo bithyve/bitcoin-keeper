@@ -69,6 +69,7 @@ import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import Login from '../screens/LoginScreen/Login';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
+import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -124,6 +125,8 @@ function LoginStack() {
         component={NewKeeperApp}
       />
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+      <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
+
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
     </Stack.Navigator>
   );
