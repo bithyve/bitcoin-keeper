@@ -50,7 +50,7 @@ function Option({ title, subTitle, onPress }: Props) {
         <Text color="light.primaryText" style={styles.optionTitle}>
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle}>
+        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2}>
           {subTitle}
         </Text>
       </Box>
@@ -217,7 +217,7 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Wallet seed words"
+            title="Wallet Seed Words"
             subTitle="Use to link external wallets to Keeper"
             onPress={() => {
               setConfirmPassVisible(true);
@@ -419,6 +419,7 @@ const styles = ScaledSheet.create({
   optionSubtitle: {
     fontSize: 12,
     letterSpacing: 0.6,
+    width: '90%',
   },
 });
 export default WalletSettings;

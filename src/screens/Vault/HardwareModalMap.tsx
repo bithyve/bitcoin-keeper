@@ -2,7 +2,7 @@
 import React, { useCallback, useContext, useState } from 'react';
 import * as bip39 from 'bip39';
 import { StyleSheet } from 'react-native';
-import { Box, Center, View } from 'native-base';
+import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
@@ -31,6 +31,7 @@ import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
@@ -69,7 +70,7 @@ export function BulletPoint({ text }: { text: string }) {
 }
 
 const getSignerContent = (type: SignerType, isMultisig: boolean, translations: any) => {
-  const { tapsigner, coldcard, ledger } = translations;
+  const { tapsigner, coldcard, ledger, bitbox, trezor } = translations;
   switch (type) {
     case SignerType.COLDCARD:
       const ccInstructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
@@ -185,6 +186,26 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         title: 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
       };
+    case SignerType.BITBOX02:
+      return {
+        Illustration: <BitboxImage />,
+        Instructions: [
+          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper HWI to connect with BitBox02. `,
+          `Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.`,
+        ],
+        title: bitbox.SetupTitle,
+        subTitle: bitbox.SetupDescription,
+      };
+    case SignerType.TREZOR:
+      return {
+        Illustration: <BitboxImage />,
+        Instructions: [
+          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper HWI to connect with Trezor. `,
+          `Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.`,
+        ],
+        title: trezor.SetupTitle,
+        subTitle: trezor.SetupDescription,
+      };
     case SignerType.SEED_WORDS:
       return {
         Illustration: <SeedWordsIllustration />,
@@ -206,7 +227,6 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         title: tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
       };
-    case SignerType.TREZOR:
     default:
       return {
         Illustration: null,
@@ -227,7 +247,7 @@ function SignerContent({
 }) {
   return (
     <View>
-      <Center>{Illustration}</Center>
+      <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {Instructions.map((instruction) => (
           <BulletPoint text={instruction} />
@@ -478,6 +498,19 @@ function HardwareModalMap({
     );
   };
 
+  const navigateToSetupWithChannel = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ConnectChannel',
+        params: {
+          title: `Setting up ${getSignerNameFromType(type)}`,
+          subtitle: `Please visit ${config.KEEPER_HWI} to use the Keeper Hardware Interface to setup`,
+          type,
+        },
+      })
+    );
+  };
+
   const navigateToSeedWordSetup = () => {
     close();
     const mnemonic = bip39.generateMnemonic();
@@ -595,6 +628,9 @@ function HardwareModalMap({
         return biometricAuth();
       case SignerType.SEED_WORDS:
         return navigateToSeedWordSetup();
+      case SignerType.BITBOX02:
+      case SignerType.TREZOR:
+        return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
       case SignerType.KEYSTONE:

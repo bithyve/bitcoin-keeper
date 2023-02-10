@@ -30,6 +30,8 @@ const DEFAULT_CONFIG = {
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
+  CHANNEL_URL: 'http://localhost:4000',
+  KEEPER_HWI: 'http://localhost:3000',
 };
 
 class Configuration {
@@ -92,16 +94,20 @@ class Configuration {
 
   public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN?.trim() ? config.INSTABUG_TOKEN.trim() : '';
 
+  public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
+    ? config.CHANNEL_URL.trim()
+    : DEFAULT_CONFIG.CHANNEL_URL.trim();
+
+  public KEEPER_HWI: string = config.KEEPER_HWI?.trim()
+    ? config.KEEPER_HWI.trim()
+    : DEFAULT_CONFIG.KEEPER_HWI.trim();
+
   constructor() {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()
       ? config.ENVIRONMENT.trim()
       : DEFAULT_CONFIG.ENVIRONMENT;
-    this.NETWORK =
-      this.ENVIRONMENT === APP_STAGE.PRODUCTION
-        ? bitcoinJS.networks.bitcoin
-        : bitcoinJS.networks.testnet;
-    this.NETWORK_TYPE =
-      this.ENVIRONMENT === APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
+    this.NETWORK = true ? bitcoinJS.networks.bitcoin : bitcoinJS.networks.testnet;
+    this.NETWORK_TYPE = true ? NetworkType.MAINNET : NetworkType.TESTNET;
   }
 
   public setNetwork = (network: NetworkType) => {

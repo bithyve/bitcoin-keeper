@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   BackHandler,
+  Linking
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable } from 'native-base';
@@ -44,6 +45,9 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { useDispatch } from 'react-redux';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import { urlParamsToObj } from 'src/core/utils';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { WalletType } from 'src/core/wallets/enums';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
 
@@ -442,12 +446,46 @@ function TransVaultSuccessfulContent() {
 function HomeScreen({ navigation }) {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
+  const { showToast } = useToastMessage();
 
   useEffect(() => {
+
+    handleDeepLinking()
     const backAction = () => true;
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
     return () => backHandler.remove();
   }, []);
+
+  async function handleDeepLinking() {
+    try {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        if (initialUrl.includes('backup')) {
+          const splits = initialUrl.split('backup/')
+          const decoded = Buffer.from(splits[1], 'base64').toString()
+          const params = urlParamsToObj(decoded)
+          if (params.seed) {
+            navigation.navigate('EnterWalletDetail', {
+              seed: params.seed,
+              name: params.name,
+              path: params.path,
+              appId: params.appId,
+              description: `Imported from ${params.name}`,
+              type: WalletType.IMPORTED
+            })
+          } else {
+            showToast('Invalid deeplink');
+          }
+        } else if (initialUrl.includes('create/')) {
+
+        }
+      }
+    } catch (error) {
+      //
+    }
+  }
+
+
 
   return (
     <Box style={styles.container}>

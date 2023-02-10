@@ -77,25 +77,20 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
     const networkType = NetworkType.TESTNET;
     const network = WalletUtilities.getNetworkByType(networkType);
+
     const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
       primaryMnemonic,
       networkType
     );
-
-    mobileKey = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.MOBILE_KEY,
-      signerName: 'Mobile Key',
-      storageType: SignerStorage.WARM,
+    mobileKey = generateSignerFromMetaData({
       xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.MOBILE_KEY,
+      storageType: SignerStorage.WARM,
+      isMultisig: true,
       xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
+    });
   });
 
   test('vault factory: creating a 1-of-1 vault(mobile-key)', () => {
@@ -120,8 +115,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qvndgkznthw8zghkwg5ayjjer473pxf8gu492j4');
   });
 
@@ -228,20 +222,15 @@ describe('Vault: Multi-sig(2-of-3)', () => {
       networkType
     );
 
-    mobileKey = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.MOBILE_KEY,
-      signerName: 'Mobile Key',
-      storageType: SignerStorage.WARM,
+    mobileKey = generateSignerFromMetaData({
       xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.MOBILE_KEY,
+      storageType: SignerStorage.WARM,
+      isMultisig: true,
       xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
+    });
 
     // configure 2nd singer: signing server
     const signingServerXpub =
@@ -263,37 +252,27 @@ describe('Vault: Multi-sig(2-of-3)', () => {
         transactionAmount: 1000000,
       },
     };
-    signingServer = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
-      type: SignerType.POLICY_SERVER,
-      signerName: 'Signing Server',
-      xpub: signingServerXpub,
-      xpubInfo: {
-        derivationPath: "m/48'/1'/99852'/1'",
-        xfp: 'EC9B478C',
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
+    signingServer = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
+      isMultisig: true,
       signerPolicy: policy,
-    };
+    });
 
     // configure 3rd singer: signing server
     seedwords = 'crisp sausage hunt resource green meat rude volume what bamboo flash extra';
     const seedwordSignerConfig = generateSeedWordsKey(seedwords, networkType);
-    softSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(seedwordSignerConfig.xpub, network),
-      type: SignerType.SEED_WORDS,
+    softSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.SEED_WORDS,
       storageType: SignerStorage.WARM,
-      signerName: 'Seed Words',
-      xpub: seedwordSignerConfig.xpub,
-      xpubInfo: {
-        derivationPath: seedwordSignerConfig.derivationPath,
-        xfp: seedwordSignerConfig.masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
+      isMultisig: true,
+    });
   });
 
   test('vault factory: creating a 2-of-3 vault', () => {
@@ -319,10 +298,9 @@ describe('Vault: Multi-sig(2-of-3)', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual(
-      'tb1qwge5tf2s48z7kqfeg6lck8yphrskvxds45jlev07dlqrjfa953zs44hgzu'
+      'tb1qfpv736j0fdxklevwsr5lhjdstl0xww82zxtnlzd0ew54qkajsn6qd8rwqd'
     );
   });
 
@@ -505,8 +483,7 @@ describe('Vault: AirGapping with Coldcard', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qclvfyg5v9gahygk5la56afevcnpdxt203609gp');
   });
 });
@@ -566,8 +543,7 @@ describe('Vault: AirGapping with SeedSigner', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qae8ea8unjccsum9z75qvzhq6vauw88t503yrsf');
   });
 
@@ -643,8 +619,7 @@ describe('Vault: AirGapping with Keystone', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qpzgrhkjdkkwwc2gs4zvsw0y02z9jm5v5gvp55c');
   });
 
@@ -723,8 +698,7 @@ describe('Vault: AirGapping with Passport', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qk2k65grkkct3pql0hfzjkl0app8eaxuhf5l206');
   });
 });
@@ -792,8 +766,7 @@ describe('Vault: AirGapping with Jade', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1ql7vr9yn9u7qdsgfukyh5mt2ppv7njm93upu43c');
   });
 });
@@ -893,8 +866,7 @@ describe('Vault: Multi-sig(3-of-5)', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual(
       'tb1qlwglqfsh3t4a7tzpkllwqassfspwm783wfhc2z38wut7kuuu8syq8qrchz'
     );
