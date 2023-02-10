@@ -1,12 +1,13 @@
 import React from 'react';
 import { Box, Modal } from 'native-base';
-import { Image, Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import LinearGradient from 'src/components/KeeperGradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
+import LoadingAnimation from './Loader';
 
 function KeeperLoader(props) {
   const {
@@ -17,23 +18,9 @@ function KeeperLoader(props) {
     subTitleColor = 'light.secondaryText',
     loadingContent,
     Content = () => (
-      <Box>
-        <Image
-          source={require('src/assets/video/Loader.gif')}
-          style={{
-            width: wp(250),
-            height: wp(100),
-            alignSelf: 'center',
-            marginTop: hp(30),
-          }}
-        />
-        <Text
-          color="light.greenText"
-          fontSize={13}
-          letterSpacing={0.65}
-          marginTop={hp(60)}
-          width={wp(240)}
-        >
+      <Box style={{ width: windowWidth * 0.8 }}>
+        <LoadingAnimation />
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} marginTop={hp(60)}>
           {loadingContent?.message}
         </Text>
       </Box>

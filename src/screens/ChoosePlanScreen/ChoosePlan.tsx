@@ -6,7 +6,6 @@ import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -103,7 +102,6 @@ function ChoosePlan(props) {
     RNIap.initConnection()
       .then((connected) => {
         purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-          console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
           const sub = await getSubscriptions([purchase.productId]);
@@ -117,7 +115,6 @@ function ChoosePlan(props) {
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
-          const finish = await RNIap.finishTransaction(purchase, false);
         });
         purchaseErrorSubscription = purchaseErrorListener((error) => {
           console.log('purchaseErrorListener', error);
@@ -154,23 +151,8 @@ function ChoosePlan(props) {
 
   async function init() {
     try {
-      /* const subscriptions = await getSubscriptions([
-         'io.hexawallet.keeper.development.hodler',
-         'io.hexawallet.keeper.development.whale',
-       ]);
-       const data = [plans[0]];
- 
-       subscriptions.forEach((subscription, index) => {
-         data.push({
-           ...subscription,
-           ...plans[index + 1],
-           price: getAmt(subscription),
-           name: subscription.title.split(' (')[0],
-         });
-       }); */
       setItems(plans);
       setLoading(false);
-      // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
       console.log('error', error);
     }
@@ -279,7 +261,7 @@ function ChoosePlan(props) {
         <Box
           backgroundColor="light.secondaryBackground"
           position="absolute"
-          bottom={-10}
+          bottom={Platform.OS == 'android' ? 10 : -10}
           justifyContent="flex-end"
           width={wp(340)}
         >

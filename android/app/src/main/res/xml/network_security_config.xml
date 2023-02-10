@@ -3,6 +3,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">192.168.80.178</domain>
+        <domain includeSubdomains="true">192.168.1.176</domain>
         <domain includeSubdomains="true">192.168.1.13</domain>
         <domain includeSubdomains="true">appspot.com</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>

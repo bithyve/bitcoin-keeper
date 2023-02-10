@@ -50,7 +50,7 @@ function Option({ title, subTitle, onPress }: Props) {
         <Text color="light.primaryText" style={styles.optionTitle}>
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle}>
+        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2}>
           {subTitle}
         </Text>
       </Box>
@@ -110,13 +110,6 @@ function WalletSettings({ route }) {
   const getTestSats = () => {
     dispatch(testSatsRecieve(wallet));
   };
-
-  useEffect(() => {
-    if (relayWalletUpdate) {
-      showToast('Wallet details updated!', <TickIcon />);
-      dispatch(resetRealyWalletState());
-    }
-  }, [relayWalletUpdate]);
 
   useEffect(() => {
     setLoadingContent({
@@ -224,7 +217,7 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Wallet seed words"
+            title="Wallet Seed Words"
             subTitle="Use to link external wallets to Keeper"
             onPress={() => {
               setConfirmPassVisible(true);
@@ -339,7 +332,10 @@ function WalletSettings({ route }) {
         />
         <KeeperModal
           visible={transferPolicyVisible}
-          close={() => setTransferPolicyVisible(false)}
+          close={() => {
+            showToast('Transfer Policy Changed', <TickIcon />);
+            setTransferPolicyVisible(false);
+          }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
           subTitleColor="light.secondaryText"
@@ -348,6 +344,7 @@ function WalletSettings({ route }) {
             <TransferPolicy
               wallet={wallet}
               close={() => {
+                showToast('Transfer Policy Changed', <TickIcon />);
                 setTransferPolicyVisible(false);
               }}
             />
@@ -422,6 +419,7 @@ const styles = ScaledSheet.create({
   optionSubtitle: {
     fontSize: 12,
     letterSpacing: 0.6,
+    width: '90%',
   },
 });
 export default WalletSettings;
