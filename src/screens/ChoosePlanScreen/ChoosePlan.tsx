@@ -6,7 +6,6 @@ import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
   purchaseUpdatedListener,
-  requestSubscription,
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -29,10 +28,11 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import TierUpgradeModal from './TierUpgradeModal';
 import { useDispatch } from 'react-redux';
 import { uaiChecks } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { resetVaultMigration } from 'src/store/reducers/vaults';
+import TierUpgradeModal from './TierUpgradeModal';
 
 const plans = [
   {
@@ -102,7 +102,6 @@ function ChoosePlan(props) {
     RNIap.initConnection()
       .then((connected) => {
         purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
-          console.log('purchaseUpdatedListener', purchase);
           const receipt = purchase.transactionReceipt;
           const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
           const sub = await getSubscriptions([purchase.productId]);
@@ -116,7 +115,6 @@ function ChoosePlan(props) {
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription,
           });
-          const finish = await RNIap.finishTransaction(purchase, false);
         });
         purchaseErrorSubscription = purchaseErrorListener((error) => {
           console.log('purchaseErrorListener', error);
@@ -153,23 +151,8 @@ function ChoosePlan(props) {
 
   async function init() {
     try {
-      /* const subscriptions = await getSubscriptions([
-         'io.hexawallet.keeper.development.hodler',
-         'io.hexawallet.keeper.development.whale',
-       ]);
-       const data = [plans[0]];
- 
-       subscriptions.forEach((subscription, index) => {
-         data.push({
-           ...subscription,
-           ...plans[index + 1],
-           price: getAmt(subscription),
-           name: subscription.title.split(' (')[0],
-         });
-       }); */
       setItems(plans);
       setLoading(false);
-      // console.log('subscriptions', JSON.stringify(data));
     } catch (error) {
       console.log('error', error);
     }
@@ -188,7 +171,7 @@ function ChoosePlan(props) {
         subscription: sub,
       });
       disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
-
+      disptach(resetVaultMigration());
       if (item.productId === SubscriptionTier.L1) {
         setIsUpgrade(false);
       } else if (
@@ -264,7 +247,7 @@ function ChoosePlan(props) {
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
-                  <Box flexDirection="row" alignItems="center">
+                  <Box flexDirection="row" alignItems="center" key={i}>
                     <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
                       {`• ${i}`}
                     </Text>

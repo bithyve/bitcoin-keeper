@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -19,7 +19,6 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import MockWrapper from '../Vault/MockWrapper';
 
-const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
 
 function ScanQR() {
@@ -30,7 +29,7 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => { },
+    onQrScan = () => {},
     setup = false,
     type,
   } = route.params as any;
@@ -148,6 +147,6 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 0,
     position: 'absolute',
-    padding: 20,
+    paddingHorizontal: 10,
   },
 });

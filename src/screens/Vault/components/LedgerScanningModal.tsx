@@ -1,4 +1,4 @@
-import { ActivityIndicator, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -10,6 +10,7 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import Text from 'src/components/KeeperText';
 import { useNavigation } from '@react-navigation/native';
+import LoadingAnimation from 'src/components/Loader';
 import { WalletMap } from '../WalletMap';
 import MockWrapper from '../MockWrapper';
 
@@ -26,9 +27,7 @@ function LedgerContent({
   return (
     <MockWrapper signerType={SignerType.LEDGER} navigation={navigation}>
       <Box>
-        {isScanning && !allDevices.length ? (
-          <Image source={require('src/assets/video/Loader.gif')} style={styles.loader} />
-        ) : null}
+        {isScanning && !allDevices.length ? <LoadingAnimation /> : null}
         {allDevices.map((device) => (
           <TouchableOpacity
             key={device.id}
