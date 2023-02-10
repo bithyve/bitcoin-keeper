@@ -66,9 +66,12 @@ import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
-import Login from '../screens/LoginScreen/Login';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
+import ConnectChannel from 'src/screens/Channel/ConnectChannel';
+import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
+import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -124,6 +127,8 @@ function LoginStack() {
         component={NewKeeperApp}
       />
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+      <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
+
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
     </Stack.Navigator>
   );
@@ -182,6 +187,8 @@ function AppStack() {
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
+        <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
+        <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
       </Stack.Navigator>
     </RealmProvider>
   );

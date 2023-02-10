@@ -100,8 +100,12 @@ const vaultSlice = createSlice({
       state.isMigratingNewVault = isMigratingNewVault;
       state.intrimVault = intrimVault;
     },
-    updateIntrimVault: (state, action: PayloadAction<Vault>) => {
-      state.intrimVault = action.payload;
+    resetVaultMigration: (state) => {
+      state.isMigratingNewVault = false;
+      state.intrimVault = null;
+      state.hasMigrationSucceeded = false;
+      state.hasMigrationFailed = false;
+      state.error = null;
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
@@ -135,11 +139,11 @@ export const {
   initiateVaultMigration,
   vaultMigrationCompleted,
   removeSigningDevice,
-  updateIntrimVault,
   setIntroModal,
   setSdIntroModal,
   updateSigningDevice,
   clearSigningDevice,
+  resetVaultMigration,
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;

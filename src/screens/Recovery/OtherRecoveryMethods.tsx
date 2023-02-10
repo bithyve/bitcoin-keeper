@@ -26,10 +26,10 @@ function OtherRecoveryMethods() {
           }}
         />
         <Tile
-          title="Vault Configuration File (Coming Soon!)"
+          title="Vault Configuration File"
           subTitle="Use this method if you have the vault configuration file."
           onPress={() => {
-            showToast('Coming Soon!');
+            navigate('LoginStack', { screen: 'VaultConfigurationRecovery' });
           }}
         />
 

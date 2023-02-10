@@ -413,6 +413,7 @@ function SigningDeviceDetails({ route }) {
             width: hp(48),
             height: hp(48),
             borderRadius: 30,
+            borderWidth: 1,
             backgroundColor: '#725436',
           }}
         >
