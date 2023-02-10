@@ -294,7 +294,7 @@ function WalletDetails({ route }) {
                     wallet: currentWallet,
                     editPolicy: true,
                   });
-                } else showToast('Vault is not created', <ToastErrorIcon />);
+                } else showToast('Create a vault to transfer', <ToastErrorIcon />);
               }}
             >
               <Box style={styles.transferPolicyContent}>
