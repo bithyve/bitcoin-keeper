@@ -35,7 +35,7 @@ function EnterWalletDetailScreen({ route }) {
   const { wallet } = translations;
   const { common } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route.params?.seed?.replace(/,/g, " "))
+  const [importedSeed, setImportedSeed] = useState(route.params?.seed?.replace(/,/g, ' '));
   const [walletName, setWalletName] = useState(route.params?.name);
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
@@ -44,8 +44,10 @@ function EnterWalletDetailScreen({ route }) {
     (state) => state.bhr
   );
   const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
-  const [path, setPath] = useState(route.params?.path ? route.params?.path :
-    WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+  const [path, setPath] = useState(
+    route.params?.path
+      ? route.params?.path
+      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
 
   useEffect(() => {
@@ -74,14 +76,14 @@ function EnterWalletDetailScreen({ route }) {
         derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
         transferPolicy: {
           id: uuidv4(),
-          threshold: Number(transferPolicy),
+          threshold: parseInt(transferPolicy),
         },
       },
       importDetails: {
         derivationConfig,
         // eslint-disable-next-line react/prop-types
-        mnemonic: importedSeed
-      }
+        mnemonic: importedSeed,
+      },
     };
     dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, transferPolicy]);
@@ -96,7 +98,7 @@ function EnterWalletDetailScreen({ route }) {
       } else {
         showToast('Wallet imported', <TickIcon />);
         navigtaion.goBack();
-        Linking.openURL(`${route?.params.appId}://backup/true`)
+        Linking.openURL(`${route?.params.appId}://backup/true`);
       }
     }
     if (relayWalletError) {
@@ -112,15 +114,15 @@ function EnterWalletDetailScreen({ route }) {
     value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   const onQrScan = (qrData) => {
-    navigtaion.goBack()
-    const words = qrData.split(' ')
+    navigtaion.goBack();
+    const words = qrData.split(' ');
     if (words.length === 12 || words.length === 24) {
-      setImportedSeed(qrData)
-      setWalletType(WalletType.IMPORTED)
+      setImportedSeed(qrData);
+      setWalletType(WalletType.IMPORTED);
     } else {
-      showToast('Invalid QR')
+      showToast('Invalid QR');
     }
-  }
+  };
 
   const renderAdvanceOptions = () => (
     <Box>
@@ -146,17 +148,25 @@ function EnterWalletDetailScreen({ route }) {
       </KeeperText>
       <Select
         style={{ backgroundColor: 'red' }}
-        selectedValue={purpose} minWidth="200"
+        selectedValue={purpose}
+        minWidth="200"
         accessibilityLabel="Choose Service"
         placeholder="Choose Purpose"
         mt={1}
-        onValueChange={itemValue => setPurpose(itemValue)}>
+        onValueChange={(itemValue) => setPurpose(itemValue)}
+      >
         <Select.Item label="P2PKH: legacy, single-sig" value={`${DerivationPurpose.BIP44}`} />
-        <Select.Item label="P2SH-P2WPKH: wrapped segwit, single-sg" value={`${DerivationPurpose.BIP49}`} />
-        <Select.Item label="P2WPKH: native segwit, single-sig" value={`${DerivationPurpose.BIP84}`} />
+        <Select.Item
+          label="P2SH-P2WPKH: wrapped segwit, single-sg"
+          value={`${DerivationPurpose.BIP49}`}
+        />
+        <Select.Item
+          label="P2WPKH: native segwit, single-sig"
+          value={`${DerivationPurpose.BIP84}`}
+        />
       </Select>
     </Box>
-  )
+  );
 
   return (
     <View style={styles.Container} background="light.mainBackground">
@@ -214,7 +224,7 @@ function EnterWalletDetailScreen({ route }) {
             <Input
               placeholderTextColor="light.GreyText"
               value={formatNumber(transferPolicy)}
-              onChangeText={(value) => setTransferPolicy(formatNumber(value))}
+              onChangeText={(value) => setTransferPolicy(value)}
               autoCorrect={false}
               fontSize={15}
               fontWeight="300"
@@ -235,9 +245,7 @@ function EnterWalletDetailScreen({ route }) {
             {wallet.AutoTransferInitiatedDesc}
           </KeeperText>
         </Box>
-        {
-          walletType === WalletType.IMPORTED && renderAdvanceOptions()
-        }
+        {walletType === WalletType.IMPORTED && renderAdvanceOptions()}
         <View marginY={5}>
           <Buttons
             secondaryText="Scan or import"
@@ -251,7 +259,7 @@ function EnterWalletDetailScreen({ route }) {
                     onQrScan,
                   },
                 })
-              )
+              );
             }}
             primaryText={`${common.create}`}
             primaryCallback={createNewWallet}
