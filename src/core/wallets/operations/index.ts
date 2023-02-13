@@ -64,13 +64,14 @@ export default class WalletOperations {
       ).address;
     } else {
       let xpub = null;
-      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-      else xpub = (wallet as Wallet).specs.xpub;
-
-      const purpose = WalletUtilities.getPurpose(
-        (wallet as Wallet).derivationDetails.xDerivationPath
-      );
-
+      let purpose = null;
+      if (wallet.entityKind === EntityKind.VAULT) {
+        xpub = (wallet as Vault).specs.xpubs[0];
+        purpose = WalletUtilities.getPurpose((wallet as Vault).signers[0].derivationPath);
+      } else {
+        xpub = (wallet as Wallet).specs.xpub;
+        purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+      }
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
         false,
