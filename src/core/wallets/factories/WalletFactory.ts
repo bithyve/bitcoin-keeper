@@ -53,7 +53,8 @@ export const generateWallet = async ({
   }
 
   if (derivationConfig) xDerivationPath = derivationConfig.path;
-  else if (importDetails.derivationConfig) xDerivationPath = importDetails.derivationConfig.path;
+  else if (importDetails && importDetails.derivationConfig)
+    xDerivationPath = importDetails.derivationConfig.path;
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
   const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
