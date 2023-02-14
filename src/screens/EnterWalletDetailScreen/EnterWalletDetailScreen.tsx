@@ -248,18 +248,19 @@ function EnterWalletDetailScreen({ route }) {
         {walletType === WalletType.IMPORTED && renderAdvanceOptions()}
         <View marginY={5}>
           <Buttons
-            secondaryText="Scan or import"
+            secondaryText={common.cancel}
             secondaryCallback={() => {
-              navigtaion.dispatch(
-                CommonActions.navigate({
-                  name: 'ScanQR',
-                  params: {
-                    title: `Import`,
-                    subtitle: 'Please scan seed words',
-                    onQrScan,
-                  },
-                })
-              );
+              navigtaion.goBack()
+              /* navigtaion.dispatch(
+                 CommonActions.navigate({
+                   name: 'ScanQR',
+                   params: {
+                     title: `Import`,
+                     subtitle: 'Please scan seed words',
+                     onQrScan,
+                   },
+                 })
+               ); */
             }}
             primaryText={`${common.create}`}
             primaryCallback={createNewWallet}
