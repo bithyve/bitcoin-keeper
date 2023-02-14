@@ -53,6 +53,7 @@ function VaultConfigurationRecovery({ navigation }) {
       } catch (err) {
         captureError(err);
       }
+      setRecoveryLoading(false);
     }
   }, [appId]);
 
@@ -62,6 +63,7 @@ function VaultConfigurationRecovery({ navigation }) {
       navigation.replace('App');
     }
     if (relayVaultError) {
+      setRecoveryLoading(false);
       Alert.alert('Something went wrong!');
     }
   }, [relayVaultUpdate, relayVaultError]);
@@ -88,7 +90,8 @@ function VaultConfigurationRecovery({ navigation }) {
         createNewApp();
       }
     } catch (err) {
-      console.log(err);
+      setRecoveryLoading(false);
+      Alert.alert('Something went wrong!');
     }
   };
 
