@@ -60,7 +60,7 @@ export const encodeBytesUR = (data, rotation, type: BufferEncoding = 'hex') => {
   try {
     const buff = Buffer.from(data, type);
     const bytes = new Bytes(buff);
-    const encoder = bytes.toUREncoder(rotation);
+    const encoder = bytes.toUREncoder(rotation, null, rotation);
     return getFragmentedData(encoder);
   } catch (_) {}
   return [data];
