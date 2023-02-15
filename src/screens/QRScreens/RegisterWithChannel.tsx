@@ -36,8 +36,7 @@ function RegisterWithChannel() {
 
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {
-      const channelId = `${publicId}${data}`;
-      channel.emit(CREATE_CHANNEL, channelId);
+      channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
       channelCreated = true;
     }
   };
