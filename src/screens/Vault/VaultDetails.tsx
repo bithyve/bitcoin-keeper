@@ -30,7 +30,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -64,6 +64,14 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
+            if (
+              vault.signers.find((item) =>
+                [SignerType.BITBOX02, SignerType.TREZOR].includes(item.type)
+              )
+            ) {
+              showToast('Send is not supported yet with Bitbox and Trezor.');
+              return;
+            }
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
         >
@@ -167,23 +175,20 @@ function VaultInfo({ vault }: { vault: Vault }) {
           </Text>
           {getNetworkAmount(
             unconfirmed,
-            [styles.vaultInfoText, { fontSize: 12 }],
-            0.9,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            [styles.vaultInfoText, { fontSize: 12 }],
+            0.9
           )}
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(
-          confirmed,
-          [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2],
-          1,
-          exchangeRates,
-          currencyCode,
-          currentCurrency
-        )}
+        {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
+          styles.vaultInfoText,
+          { fontSize: 31, lineHeight: 31 },
+          2,
+        ])}
         <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>

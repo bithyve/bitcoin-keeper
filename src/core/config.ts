@@ -6,7 +6,6 @@ import axios, { AxiosInstance } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
-import _ from 'lodash';
 import config from 'react-native-config';
 import { NetworkType, WalletType } from './wallets/enums';
 
@@ -30,8 +29,8 @@ const DEFAULT_CONFIG = {
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
-  CHANNEL_URL: 'http://localhost:4000',
-  KEEPER_HWI: 'http://localhost:3000',
+  CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
+  KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
 };
 
 class Configuration {

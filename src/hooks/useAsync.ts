@@ -11,7 +11,7 @@ const useAsync = () => {
       setData(data);
       setProgress(false);
     } catch (err) {
-      setError(error);
+      setError(err);
       setProgress(false);
     }
   };
