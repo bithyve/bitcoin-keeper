@@ -28,7 +28,6 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
-  setBackupLoading,
   setBackupType,
   setBackupWarning,
   setInvalidPassword,
