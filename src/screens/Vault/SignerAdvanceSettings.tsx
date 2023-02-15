@@ -93,8 +93,7 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
-        navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
         break;
       default:
         showToast('Comming soon', null, 1000);
