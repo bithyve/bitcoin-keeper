@@ -4,7 +4,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { Pressable } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { StyleSheet } from 'react-native';
@@ -68,6 +68,12 @@ function UaiDisplay({ uaiStack }) {
           },
         };
       case uaiType.DEFAULT:
+        return {
+          cta: () => {
+            navigtaion.navigate('VaultDetails');
+          },
+        };
+      default:
         return {
           cta: () => {
             navigtaion.navigate('VaultDetails');
