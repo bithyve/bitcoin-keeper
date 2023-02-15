@@ -52,6 +52,12 @@ export interface ParsedVauleText {
   scheme: VaultScheme;
 }
 
+const allowedScehemes = {
+  1: 1,
+  2: 3,
+  3: 5,
+};
+
 const parseKeyExpression = (expression) => {
   const re = /\[([^\]]+)\](.*)/;
   const expressionSplit = expression.match(re);
@@ -107,9 +113,15 @@ export const parseTextforVaultConfig = (secret: string) => {
       .substr(config.descriptor.indexOf('sortedmulti(') + 12)
       .split(',');
 
+    const m = parseInt(keyExpressions.splice(0, 1)[0]);
+    const n = keyExpressions.length;
+
+    if (allowedScehemes[m] !== n) {
+      throw Error('Unsupported schemes');
+    }
     const scheme: VaultScheme = {
-      m: parseInt(keyExpressions.splice(0, 1)[0]),
-      n: keyExpressions.length,
+      m,
+      n,
     };
     const signersDetailsList = keyExpressions.map((expression) => parseKeyExpression(expression));
     const parsedResponse: ParsedVauleText = {
@@ -120,4 +132,19 @@ export const parseTextforVaultConfig = (secret: string) => {
     return parsedResponse;
   }
   throw Error('Something went wrong!');
+};
+
+export const urlParamsToObj = (url: string): object => {
+  try {
+    const regex = /[?&]([^=#]+)=([^&#]*)/g;
+    const params = {};
+    let match;
+    while ((match = regex.exec(url))) {
+      // eslint-disable-next-line prefer-destructuring
+      params[match[1]] = match[2];
+    }
+    return params;
+  } catch (err) {
+    return {};
+  }
 };

@@ -219,7 +219,7 @@ function VaultStatus(props) {
 
   const open = () => {
     if (signers.length) {
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
     } else {
       navigateToHardwareSetup();
     }

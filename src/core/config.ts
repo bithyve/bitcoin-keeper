@@ -105,8 +105,12 @@ class Configuration {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()
       ? config.ENVIRONMENT.trim()
       : DEFAULT_CONFIG.ENVIRONMENT;
-    this.NETWORK = true ? bitcoinJS.networks.bitcoin : bitcoinJS.networks.testnet;
-    this.NETWORK_TYPE = true ? NetworkType.MAINNET : NetworkType.TESTNET;
+    this.NETWORK =
+      this.ENVIRONMENT === APP_STAGE.PRODUCTION
+        ? bitcoinJS.networks.bitcoin
+        : bitcoinJS.networks.testnet;
+    this.NETWORK_TYPE =
+      this.ENVIRONMENT === APP_STAGE.PRODUCTION ? NetworkType.MAINNET : NetworkType.TESTNET;
   }
 
   public setNetwork = (network: NetworkType) => {
