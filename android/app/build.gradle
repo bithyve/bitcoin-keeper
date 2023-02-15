@@ -147,8 +147,8 @@ android {
         applicationId "io.hexawallet.keeper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 125
-        versionName "1.0.0"
+        versionCode 129
+        versionName "1.0.1"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'store', 'play'
         multiDexEnabled true
@@ -344,7 +344,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
-    // implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
+    implementation files("../../node_modules/react-native-tor/android/libs/sifir_android.aar")
 }
 
 if (isNewArchitectureEnabled()) {

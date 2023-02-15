@@ -63,7 +63,7 @@ export const WalletDerivationDetailsSchema: ObjectSchema = {
   name: RealmSchema.WalletDerivationDetails,
   embedded: true,
   properties: {
-    instanceNum: 'int',
+    instanceNum: 'int?',
     mnemonic: 'string',
     bip85Config: `${RealmSchema.BIP85Config}?`,
     xDerivationPath: 'string',

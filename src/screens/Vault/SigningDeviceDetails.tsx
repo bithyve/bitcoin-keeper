@@ -347,7 +347,9 @@ function SigningDeviceDetails({ route }) {
   function FooterItem({ Icon, title, onPress }) {
     return (
       <TouchableOpacity onPress={onPress}>
-        <VStack alignItems="center" style={{ marginTop: 10 }}>
+        <Box style={{
+          alignItems: 'center'
+        }}>
           <Box
             margin="1"
             marginBottom="3"
@@ -369,7 +371,7 @@ function SigningDeviceDetails({ route }) {
           >
             {title}
           </Text>
-        </VStack>
+        </Box>
       </TouchableOpacity>
     );
   }
@@ -411,6 +413,7 @@ function SigningDeviceDetails({ route }) {
             width: hp(48),
             height: hp(48),
             borderRadius: 30,
+            borderWidth: 1,
             backgroundColor: '#725436',
           }}
         >
@@ -457,7 +460,10 @@ function SigningDeviceDetails({ route }) {
           }}
         />
 
-        <HStack justifyContent="space-between">
+        <Box style={{
+          justifyContent: 'space-between',
+          flexDirection: 'row'
+        }}>
           <FooterItem
             Icon={Change}
             title="Change signing device"
@@ -477,7 +483,7 @@ function SigningDeviceDetails({ route }) {
               navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
             }}
           />
-        </HStack>
+        </Box>
         <SuccessModal
           visible={healthCheckViewTapSigner}
           close={closeHealthCheckView}

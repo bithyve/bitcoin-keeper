@@ -42,6 +42,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { WalletType } from 'src/core/wallets/enums';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -113,7 +114,11 @@ function WalletDetails({ route }) {
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
               style={styles.addWalletContainer}
-              onPress={() => navigation.navigate('EnterWalletDetail', wallets.length)}
+              onPress={() => navigation.navigate('EnterWalletDetail', {
+                name: `Wallet ${wallets.length}`,
+                description: 'Single-sig Wallet',
+                type: WalletType.DEFAULT
+              })}
             >
               <GradientIcon
                 Icon={AddSCardIcon}
@@ -294,7 +299,7 @@ function WalletDetails({ route }) {
                     wallet: currentWallet,
                     editPolicy: true,
                   });
-                } else showToast('Vault is not created', <ToastErrorIcon />);
+                } else showToast('Create a vault to transfer', <ToastErrorIcon />);
               }}
             >
               <Box style={styles.transferPolicyContent}>

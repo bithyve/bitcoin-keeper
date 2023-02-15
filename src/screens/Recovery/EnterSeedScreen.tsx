@@ -116,7 +116,10 @@ function EnterSeedScreen({ route }) {
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
 
-  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
+  const openInvalidSeedsModal = () => {
+    setRecoveryLoading(false);
+    setInvalidSeedsModal(true);
+  };
   const closeInvalidSeedsModal = () => {
     setRecoveryLoading(false);
     setInvalidSeedsModal(false);

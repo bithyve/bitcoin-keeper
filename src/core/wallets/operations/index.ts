@@ -50,10 +50,7 @@ import WalletUtilities from './utils';
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
-  static getNextFreeExternalAddress = (
-    wallet: Wallet | Vault,
-    purpose?: DerivationPurpose
-  ): { receivingAddress: string } => {
+  static getNextFreeExternalAddress = (wallet: Wallet | Vault): { receivingAddress: string } => {
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     if ((wallet as Vault).isMultiSig) {
@@ -67,9 +64,14 @@ export default class WalletOperations {
       ).address;
     } else {
       let xpub = null;
-      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-      else xpub = (wallet as Wallet).specs.xpub;
-
+      let purpose = null;
+      if (wallet.entityKind === EntityKind.VAULT) {
+        xpub = (wallet as Vault).specs.xpubs[0];
+        purpose = WalletUtilities.getPurpose((wallet as Vault).signers[0].derivationPath);
+      } else {
+        xpub = (wallet as Wallet).specs.xpub;
+        purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+      }
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
         false,
@@ -243,6 +245,10 @@ export default class WalletOperations {
       const hardGapLimit = 10; // hard refresh gap limit
       const addresses = [];
 
+      let purpose;
+      if (wallet.entityKind === EntityKind.WALLET)
+        purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+
       // collect external(receive) chain addresses
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
@@ -261,7 +267,7 @@ export default class WalletOperations {
           if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
           else xpub = (wallet as Wallet).specs.xpub;
 
-          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
+          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose);
         }
 
         externalAddresses[address] = itr;
@@ -286,7 +292,7 @@ export default class WalletOperations {
           if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
           else xpub = (wallet as Wallet).specs.xpub;
 
-          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
+          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose);
         }
 
         internalAddresses[address] = itr;
