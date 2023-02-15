@@ -25,7 +25,7 @@ function RegisterWithQR({ route, navigation }: any) {
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
   const markAsregistered = () => {
     dispatch(updateSignerDetails(signer, 'registered', true));
-    navigation.navigate('VaultDetails');
+    navigation.goBack();
   };
   return (
     <ScreenWrapper>
