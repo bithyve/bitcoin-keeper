@@ -30,7 +30,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -64,6 +64,14 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
+            if (
+              vault.signers.find((item) =>
+                [SignerType.BITBOX02, SignerType.TREZOR].includes(item.type)
+              )
+            ) {
+              showToast('Send is not supported yet with Bitbox and Trezor.');
+              return;
+            }
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
         >
