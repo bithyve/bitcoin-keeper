@@ -117,7 +117,7 @@ function AddSendAmount({ route }) {
   const executeSendPhaseOne = () => {
     const recipients = [];
     if (!amountToSend) {
-      Alert.alert('Please enter a valid amount');
+      showToast('Please enter a valid amount');
       return;
     }
 
