@@ -168,7 +168,6 @@ function* addNewWallet(
 export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewWalletInfo[] }) {
   try {
     const wallets: Wallet[] = [];
-    const walletIds = [];
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
     for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
@@ -179,7 +178,6 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
         app,
         importDetails
       );
-      walletIds.push(wallet.id);
       wallets.push(wallet);
     }
 

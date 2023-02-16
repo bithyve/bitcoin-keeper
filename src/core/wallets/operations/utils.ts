@@ -531,12 +531,12 @@ export default class WalletUtilities {
           subPath: number[];
           signerPubkeyMap: Map<string, Buffer>;
         };
-        changeAddress?: undefined;
+        changeAddress?: string;
       }
     | {
         outputs: OutputUTXOs[];
         changeAddress: string;
-        changeMultisig?: undefined;
+        changeMultisig?: any;
       } => {
     const changeAddress: string = '';
     let changeMultisig: {

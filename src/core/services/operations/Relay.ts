@@ -162,11 +162,6 @@ export default class Relay {
   ) => {
     try {
       let res;
-      // const obj = {
-      //   AUTH_ID,
-      //   receivers,
-      //   notification,
-      // };
       try {
         res = await RestClient.post(`${RELAY}sendKeeperNotifications`, {
           AUTH_ID,
