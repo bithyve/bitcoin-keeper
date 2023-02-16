@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, Pressable } from 'native-base';
-import { TextInput } from 'react-native';
+import { Alert, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -108,7 +108,7 @@ function AddSendAmount({ route }) {
       sender,
       recipient,
       address,
-      amount: parseInt(amountToSend),
+      amount: parseInt(amountToSend, 10),
       transferType,
     });
   };
@@ -116,9 +116,14 @@ function AddSendAmount({ route }) {
 
   const executeSendPhaseOne = () => {
     const recipients = [];
+    if (!amountToSend) {
+      showToast('Please enter a valid amount');
+      return;
+    }
+
     recipients.push({
       address,
-      amount: amount ? parseInt(amount) : 0,
+      amount: amountToSend, // should be denominated in sats
     });
     dispatch(
       sendPhaseOne({

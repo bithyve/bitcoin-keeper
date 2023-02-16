@@ -62,15 +62,14 @@ export default class WalletOperations {
         false
       ).address;
     } else {
-      let xpub = null;
-      let purpose = null;
-      if (wallet.entityKind === EntityKind.VAULT) {
-        xpub = (wallet as Vault).specs.xpubs[0];
-        purpose = WalletUtilities.getPurpose((wallet as Vault).signers[0].derivationPath);
-      } else {
-        xpub = (wallet as Wallet).specs.xpub;
-        purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
-      }
+      const xpub =
+        wallet.entityKind === EntityKind.VAULT
+          ? (wallet as Vault).specs.xpubs[0]
+          : (wallet as Wallet).specs.xpub;
+      const purpose = EntityKind.VAULT
+        ? undefined
+        : WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
         false,
