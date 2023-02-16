@@ -1,13 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { VerificationType } from 'src/core/services/interfaces';
-import {
-  NetworkType,
-  NodeType,
-  SignerType,
-  TransactionType,
-  TxPriorityDefault,
-  WalletType,
-} from '../enums';
+import { NetworkType, SignerType, TransactionType, TxPriorityDefault } from '../enums';
 
 export interface InputUTXOs {
   txId: string;

@@ -74,12 +74,11 @@ function* updateVersionHistoryWorker({
     const res = yield call(Relay.fetchReleaseNotes, newVersion);
 
     let notes = '';
-    // eslint-disable-next-line no-nested-ternary
-    notes = res.release
-      ? Platform.OS === 'ios'
-        ? res.release.releaseNotes.ios
-        : res.release.releaseNotes.android
-      : '';
+    if (res.release) {
+      if (Platform.OS === 'ios') notes = res.release.releaseNotes.ios;
+      else notes = res.release.releaseNotes.android;
+    }
+
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
       version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
       releaseNote: notes,

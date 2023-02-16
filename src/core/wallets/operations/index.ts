@@ -167,10 +167,7 @@ export default class WalletOperations {
       txidToIndex[transaction.txid] = index;
     }
 
-    const { historyByAddress, txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(
-      addresses,
-      network
-    );
+    const { txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(addresses, network);
     const txs = await ElectrumClient.getTransactionsById(txids);
 
     // fetch input transactions(for new ones), in order to construct the inputs
@@ -412,7 +409,7 @@ export default class WalletOperations {
       },
     };
 
-    // TODO: configure to procure fee by network type
+    // configure to procure fee by network type
     const averageTxFeeByNetwork: AverageTxFeesByNetwork = {
       [NetworkType.TESTNET]: averageTxFees,
       [NetworkType.MAINNET]: averageTxFees,
