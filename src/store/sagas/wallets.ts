@@ -222,7 +222,7 @@ function* addNewVaultWorker({
   payload: {
     newVaultInfo?: NewVaultInfo;
     vault?: Vault;
-    isMigrated?: Boolean;
+    isMigrated?: boolean;
     oldVaultId?: string;
   };
 }) {

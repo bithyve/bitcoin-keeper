@@ -1,6 +1,6 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
@@ -12,7 +12,6 @@ import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from 'src/core/services/sentry';
 import config, { APP_STAGE } from 'src/core/config';
 import { getPassportDetails } from 'src/hardware/passport';
@@ -405,7 +404,6 @@ function SignersList({ navigation }) {
   const verifyKeystone = async (qrData) => {
     try {
       const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
       const keystone: VaultSigner = generateSignerFromMetaData({
         xpub,
         derivationPath,

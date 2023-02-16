@@ -131,8 +131,9 @@ function SuccessModalContent() {
 
 function VaultRecovery({ navigation }) {
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultUpdateLoading } =
-    useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultError, relayVaultUpdate } = useAppSelector(
+    (state) => state.bhr
+  );
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState(signingDevices);
