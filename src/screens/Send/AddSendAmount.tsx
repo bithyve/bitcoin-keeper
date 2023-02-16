@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, Pressable } from 'native-base';
-import { Alert, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
