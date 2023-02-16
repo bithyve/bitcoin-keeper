@@ -110,11 +110,10 @@ export default function ResetPin(props) {
     }
   }, [credsChanged]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (isPinChangedFailed) {
-      // todo
     }
-  }, [isPinChangedFailed]);
+  }, [isPinChangedFailed]); */
 
   useEffect(() => {
     if (passcode === confirmPasscode) {
