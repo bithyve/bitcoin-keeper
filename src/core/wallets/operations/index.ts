@@ -306,10 +306,7 @@ export default class WalletOperations {
       for (const address in utxosByAddress) {
         const utxos = utxosByAddress[address];
         for (const utxo of utxos) {
-          if (utxo.height > 0) {
-            confirmedUTXOs.push(utxo);
-            balances.confirmed += utxo.value;
-          } else if (internalAddresses[utxo.address] !== undefined) {
+          if (utxo.height > 0 || internalAddresses[utxo.address] !== undefined) {
             // defaulting utxo's on the change branch to confirmed
             confirmedUTXOs.push(utxo);
             balances.confirmed += utxo.value;
