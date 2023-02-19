@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Select } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 

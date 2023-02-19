@@ -63,9 +63,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -191,14 +189,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
             }}
           />
         </Box>
-        {/* <Tile
-          title="Inheritance Keeper vault"
-          subTitle="Using signing devices"
-          onPress={() => {
-            navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-          }}
-          Icon={<Inheritance />} 
-        /> */}
       </Box>
       <KeeperModal
         dismissible={false}

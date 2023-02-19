@@ -118,7 +118,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
         );
       }
     } else {
-      showToast('You have unconfirmed balance, please try again later!', <ToastErrorIcon />);
+      showToast('You have unconfirmed balance, please try again in some time', <ToastErrorIcon />);
     }
   };
 
@@ -167,9 +167,21 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
     if (activeVault) {
       if (unconfirmed) {
         showToast(
-          'You have unconfirmed balance, please try again later!',
+          'You have unconfirmed balance, please try again in some time',
           <ToastErrorIcon />,
-          3000
+          4000
+        );
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'NewHome' },
+              {
+                name: 'VaultDetails',
+                params: { autoRefresh: true },
+              },
+            ],
+          })
         );
         return;
       }

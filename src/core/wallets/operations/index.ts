@@ -40,7 +40,6 @@ import {
   SignerType,
   TransactionType,
   TxPriority,
-  XpubTypes,
 } from '../enums';
 import { Vault, VaultSigner } from '../interfaces/vault';
 
@@ -63,15 +62,14 @@ export default class WalletOperations {
         false
       ).address;
     } else {
-      let xpub = null;
-      let purpose = null;
-      if (wallet.entityKind === EntityKind.VAULT) {
-        xpub = (wallet as Vault).specs.xpubs[0];
-        purpose = WalletUtilities.getPurpose((wallet as Vault).signers[0].derivationPath);
-      } else {
-        xpub = (wallet as Wallet).specs.xpub;
-        purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
-      }
+      const xpub =
+        wallet.entityKind === EntityKind.VAULT
+          ? (wallet as Vault).specs.xpubs[0]
+          : (wallet as Wallet).specs.xpub;
+      const purpose = EntityKind.VAULT
+        ? undefined
+        : WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
         false,
@@ -169,10 +167,7 @@ export default class WalletOperations {
       txidToIndex[transaction.txid] = index;
     }
 
-    const { historyByAddress, txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(
-      addresses,
-      network
-    );
+    const { txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(addresses, network);
     const txs = await ElectrumClient.getTransactionsById(txids);
 
     // fetch input transactions(for new ones), in order to construct the inputs
@@ -311,10 +306,7 @@ export default class WalletOperations {
       for (const address in utxosByAddress) {
         const utxos = utxosByAddress[address];
         for (const utxo of utxos) {
-          if (utxo.height > 0) {
-            confirmedUTXOs.push(utxo);
-            balances.confirmed += utxo.value;
-          } else if (internalAddresses[utxo.address] !== undefined) {
+          if (utxo.height > 0 || internalAddresses[utxo.address] !== undefined) {
             // defaulting utxo's on the change branch to confirmed
             confirmedUTXOs.push(utxo);
             balances.confirmed += utxo.value;
@@ -414,7 +406,7 @@ export default class WalletOperations {
       },
     };
 
-    // TODO: configure to procure fee by network type
+    // configure to procure fee by network type
     const averageTxFeeByNetwork: AverageTxFeesByNetwork = {
       [NetworkType.TESTNET]: averageTxFees,
       [NetworkType.MAINNET]: averageTxFees,
@@ -948,7 +940,7 @@ export default class WalletOperations {
       for (const input of inputs) {
         let subPath;
         if (wallet.isMultiSig) {
-          subPath = WalletUtilities.addressToMultiSig(input.address, wallet as Vault).subPath;
+          subPath = WalletUtilities.addressToMultiSig(input.address, wallet).subPath;
         } else {
           subPath = WalletUtilities.addressToKey(input.address, wallet, true).subPath;
         }

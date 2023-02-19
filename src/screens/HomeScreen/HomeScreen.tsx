@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   BackHandler,
-  Linking
+  Linking,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable } from 'native-base';
@@ -82,7 +82,9 @@ function InheritanceComponent() {
               Inheritance
             </Text>
             <Text color="light.white" style={styles.bottomCardSubtitle}>
-              {plan === SubscriptionTier.L3.toUpperCase() ? 'Tools, tips and templates' : 'Upgrade to secure your vault'}
+              {plan === SubscriptionTier.L3.toUpperCase()
+                ? 'Tools, tips and templates'
+                : 'Upgrade to secure your vault'}
             </Text>
           </Box>
         </Box>
@@ -217,7 +219,7 @@ function VaultStatus(props) {
 
   const open = () => {
     if (signers.length) {
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
     } else {
       navigateToHardwareSetup();
     }
@@ -449,8 +451,7 @@ function HomeScreen({ navigation }) {
   const { showToast } = useToastMessage();
 
   useEffect(() => {
-
-    handleDeepLinking()
+    handleDeepLinking();
     const backAction = () => true;
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
     return () => backHandler.remove();
@@ -461,9 +462,9 @@ function HomeScreen({ navigation }) {
       const initialUrl = await Linking.getInitialURL();
       if (initialUrl) {
         if (initialUrl.includes('backup')) {
-          const splits = initialUrl.split('backup/')
-          const decoded = Buffer.from(splits[1], 'base64').toString()
-          const params = urlParamsToObj(decoded)
+          const splits = initialUrl.split('backup/');
+          const decoded = Buffer.from(splits[1], 'base64').toString();
+          const params = urlParamsToObj(decoded);
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
@@ -471,21 +472,18 @@ function HomeScreen({ navigation }) {
               path: params.path,
               appId: params.appId,
               description: `Imported from ${params.name}`,
-              type: WalletType.IMPORTED
-            })
+              type: WalletType.IMPORTED,
+            });
           } else {
             showToast('Invalid deeplink');
           }
         } else if (initialUrl.includes('create/')) {
-
         }
       }
     } catch (error) {
       //
     }
   }
-
-
 
   return (
     <Box style={styles.container}>
@@ -504,7 +502,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

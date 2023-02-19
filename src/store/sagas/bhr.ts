@@ -28,7 +28,6 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
-  setBackupLoading,
   setBackupType,
   setBackupWarning,
   setInvalidPassword,
@@ -89,8 +88,8 @@ export function* updateVaultImageWorker({
 }: {
   payload: {
     vault: Vault;
-    archiveVaultId?: String;
-    isUpdate?: Boolean;
+    archiveVaultId?: string;
+    isUpdate?: boolean;
   };
 }) {
   const { vault, archiveVaultId, isUpdate } = payload;
@@ -111,8 +110,8 @@ export function* updateVaultImageWorker({
   }
 
   const signersData: Array<{
-    signerId: String;
-    xfpHash: String;
+    signerId: string;
+    xfpHash: string;
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {

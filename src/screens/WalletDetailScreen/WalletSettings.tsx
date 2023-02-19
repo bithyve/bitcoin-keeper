@@ -230,7 +230,7 @@ function WalletSettings({ route }) {
               setTransferPolicyVisible(true);
             }}
           />
-          {config.NETWORK_TYPE == NetworkType.TESTNET && (
+          {config.NETWORK_TYPE === NetworkType.TESTNET && (
             <Option
               title="Receive Test Sats"
               subTitle="Receive Test Sats to this address"

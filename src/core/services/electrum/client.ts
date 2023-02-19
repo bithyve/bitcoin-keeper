@@ -303,7 +303,7 @@ export default class ElectrumClient {
     const res = {};
     txids = [...new Set(txids)]; // remove duplicates, if any
 
-    // TODO: lets try cache first
+    // lets try cache first
     const chunks = ElectrumClient.splitIntoChunks(txids, batchsize);
     for (const chunk of chunks) {
       let results = [];
@@ -313,7 +313,7 @@ export default class ElectrumClient {
 
       for (const txdata of results) {
         if (txdata.error && txdata.error.code === -32600) {
-          // TODO: large response error, would need to handle it over a single call
+          // large response error, would need to handle it over a single call
         }
 
         res[txdata.param] = txdata.result;

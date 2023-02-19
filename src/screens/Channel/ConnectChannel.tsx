@@ -49,7 +49,7 @@ function ConnectChannel() {
 
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, `${publicId}${data}`);
+      channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
       channelCreated = true;
     }
   };

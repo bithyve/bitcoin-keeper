@@ -5,6 +5,7 @@ function getSDMessage({ type }: { type: SignerType }) {
     case SignerType.COLDCARD:
     case SignerType.LEDGER:
     case SignerType.PASSPORT:
+    case SignerType.BITBOX02:
     case SignerType.KEYSTONE: {
       return 'Register for full verification';
     }
