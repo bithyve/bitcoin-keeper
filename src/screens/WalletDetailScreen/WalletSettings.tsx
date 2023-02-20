@@ -80,6 +80,7 @@ function WalletSettings({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
@@ -183,7 +184,8 @@ function WalletSettings({ route }) {
             wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            satsEnabled
           )}
           Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
