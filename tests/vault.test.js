@@ -28,8 +28,7 @@ import {
   getWalletConfig,
 } from 'src/hardware';
 import {
-  COLDCARD_MS_EXPORT,
-  COLDCARD_SS_EXPORT,
+  COLDCARD_EXPORT,
   JADE_MS_EXPORT,
   JADE_SS_EXPORT,
   KEYSTONE_MS_EXPORT,
@@ -434,7 +433,7 @@ describe('Vault: AirGapping with Coldcard', () => {
   let coldcard; // Signer
 
   test('coldcard: extract xpub, derivation and master fingerprint from coldcard export format', () => {
-    extract = extractColdCardExport(COLDCARD_SS_EXPORT.data, COLDCARD_SS_EXPORT.rtdName);
+    extract = extractColdCardExport(COLDCARD_EXPORT.data, false);
     expect(extract).toHaveProperty('xpub');
     expect(extract).toHaveProperty('derivationPath');
     expect(extract).toHaveProperty('xfp');
@@ -449,9 +448,9 @@ describe('Vault: AirGapping with Coldcard', () => {
       signerType: SignerType.COLDCARD,
       storageType: SignerStorage.COLD,
     });
-    expect(coldcard).toHaveProperty('xpub', xpub);
-    expect(coldcard).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(coldcard).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(coldcard).toHaveProperty('xpub');
+    expect(coldcard).toHaveProperty('derivationPath', derivationPath);
+    expect(coldcard).toHaveProperty('masterFingerprint', xfp);
     expect(coldcard).toHaveProperty('type', SignerType.COLDCARD);
     expect(coldcard).toHaveProperty('storageType', SignerStorage.COLD);
     expect(coldcard).toHaveProperty('signerName', getSignerNameFromType(SignerType.COLDCARD));
@@ -509,9 +508,9 @@ describe('Vault: AirGapping with SeedSigner', () => {
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
     });
-    expect(seedsigner).toHaveProperty('xpub', xpub);
-    expect(seedsigner).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(seedsigner).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(seedsigner).toHaveProperty('xpub');
+    expect(seedsigner).toHaveProperty('derivationPath', derivationPath);
+    expect(seedsigner).toHaveProperty('masterFingerprint', xfp);
     expect(seedsigner).toHaveProperty('type', SignerType.SEEDSIGNER);
     expect(seedsigner).toHaveProperty('storageType', SignerStorage.COLD);
     expect(seedsigner).toHaveProperty('signerName', getSignerNameFromType(SignerType.SEEDSIGNER));
@@ -585,9 +584,9 @@ describe('Vault: AirGapping with Keystone', () => {
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
     });
-    expect(keystone).toHaveProperty('xpub', xpub);
-    expect(keystone).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(keystone).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(keystone).toHaveProperty('xpub');
+    expect(keystone).toHaveProperty('derivationPath', derivationPath);
+    expect(keystone).toHaveProperty('masterFingerprint', xfp);
     expect(keystone).toHaveProperty('type', SignerType.KEYSTONE);
     expect(keystone).toHaveProperty('storageType', SignerStorage.COLD);
     expect(keystone).toHaveProperty('signerName', getSignerNameFromType(SignerType.KEYSTONE));
@@ -664,9 +663,9 @@ describe('Vault: AirGapping with Passport', () => {
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
     });
-    expect(passport).toHaveProperty('xpub', xpub);
-    expect(passport).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(passport).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(passport).toHaveProperty('xpub');
+    expect(passport).toHaveProperty('derivationPath', derivationPath);
+    expect(passport).toHaveProperty('masterFingerprint', xfp);
     expect(passport).toHaveProperty('type', SignerType.PASSPORT);
     expect(passport).toHaveProperty('storageType', SignerStorage.COLD);
     expect(passport).toHaveProperty('signerName', getSignerNameFromType(SignerType.PASSPORT));
@@ -732,9 +731,9 @@ describe('Vault: AirGapping with Jade', () => {
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
     });
-    expect(jade).toHaveProperty('xpub', xpub);
-    expect(jade).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(jade).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(jade).toHaveProperty('xpub');
+    expect(jade).toHaveProperty('derivationPath', derivationPath);
+    expect(jade).toHaveProperty('masterFingerprint', xfp);
     expect(jade).toHaveProperty('type', SignerType.JADE);
     expect(jade).toHaveProperty('storageType', SignerStorage.COLD);
     expect(jade).toHaveProperty('signerName', getSignerNameFromType(SignerType.JADE));
@@ -781,7 +780,7 @@ describe('Vault: Multi-sig(3-of-5)', () => {
   let jdExtract;
 
   test('signers: extract xpub, derivation and master fingerprint from thier export format', () => {
-    ccExtract = extractColdCardExport(COLDCARD_MS_EXPORT.data, COLDCARD_MS_EXPORT.rtdName);
+    ccExtract = extractColdCardExport(COLDCARD_EXPORT.data, true);
     ssExtract = getSeedSignerDetails(SEEDSIGNER_MS_EXPORT.data);
     let decoder = new URRegistryDecoder();
     let bytes = decodeURBytes(decoder, KEYSTONE_MS_EXPORT.data);
@@ -831,8 +830,8 @@ describe('Vault: Multi-sig(3-of-5)', () => {
 
     signers.map((signer, index) => {
       expect(signer).toHaveProperty('xpub', signer.xpub);
-      expect(signer).toHaveProperty('xpubInfo.derivationPath', signer.xpubInfo.derivationPath);
-      expect(signer).toHaveProperty('xpubInfo.xfp', signer.xpubInfo.xfp);
+      expect(signer).toHaveProperty('derivationPath', signer.derivationPath);
+      expect(signer).toHaveProperty('masterFingerprint', signer.masterFingerprint);
       expect(signer).toHaveProperty('type', signerTypes[index]);
       expect(signer).toHaveProperty('storageType', SignerStorage.COLD);
       expect(signer).toHaveProperty('signerName', getSignerNameFromType(signerTypes[index]));

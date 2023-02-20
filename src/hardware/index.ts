@@ -38,7 +38,11 @@ export const generateSignerFromMetaData = ({
 }): VaultSigner => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  if (networkType !== config.NETWORK_TYPE) {
+  if (
+    networkType !== config.NETWORK_TYPE &&
+    config.NETWORK_TYPE === NetworkType.TESTNET &&
+    signerType !== SignerType.KEYSTONE
+  ) {
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
