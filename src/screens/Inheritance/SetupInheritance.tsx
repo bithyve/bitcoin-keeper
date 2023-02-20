@@ -76,7 +76,9 @@ function SetupInheritance() {
 
   function InheritanceContent() {
     return (
-      <Box>
+      <Box style={{
+        width: wp(280)
+      }}>
         {inheritanceData.map((item) => (
           <InheritancePoint
             title={item.title}
