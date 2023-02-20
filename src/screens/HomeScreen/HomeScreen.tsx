@@ -335,6 +335,7 @@ function VaultStatus(props) {
                   <Box
                     style={{
                       marginVertical: 15,
+                      marginLeft: 3,
                     }}
                   >
                     <Hidden />
