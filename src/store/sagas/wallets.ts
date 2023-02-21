@@ -10,12 +10,7 @@ import {
   VisibilityType,
   WalletType,
 } from 'src/core/wallets/enums';
-import {
-  SignerException,
-  SignerRestriction,
-  SingerVerification,
-  VerificationType,
-} from 'src/core/services/interfaces';
+import { SignerException, SignerRestriction } from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
@@ -28,7 +23,6 @@ import {
   setNetBalance,
   setTestCoinsFailed,
   setTestCoinsReceived,
-  signingServerRegistrationVerified,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -36,7 +30,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
 import SigningServer from 'src/core/services/operations/SigningServer';
-import { SigningServerSetup } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -57,13 +50,11 @@ import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
   REFRESH_WALLETS,
-  REGISTER_WITH_SIGNING_SERVER,
   SYNC_WALLETS,
   TEST_SATS_RECIEVE,
   UPDATE_SIGNER_POLICY,
   UPDATE_WALLET_DETAILS,
   UPDATE_WALLET_SETTINGS,
-  VALIDATE_SIGNING_SERVER_REGISTRATION,
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
@@ -501,72 +492,6 @@ function* updateWalletSettingsWorker({
 export const updateWalletSettingsWatcher = createWatcher(
   updateWalletSettingsWorker,
   UPDATE_WALLET_SETTINGS
-);
-
-export function* registerWithSigningServerWorker({ payload }: { payload: { policy } }) {
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (app.signingServerSetup && app.signingServerSetup.setupInfo?.xpub)
-    throw new Error('registration already in progress');
-
-  const { policy } = payload;
-  const {
-    setupData,
-  }: {
-    setupData: {
-      verification: SingerVerification;
-      bhXpub: string;
-      derivationPath: string;
-      masterFingerprint: string;
-    };
-  } = yield call(SigningServer.register, app.id, policy);
-
-  const signingServerSetup: SigningServerSetup = {
-    validation: {
-      validationType: setupData.verification.method,
-      validationKey:
-        setupData.verification.method === VerificationType.TWO_FA
-          ? setupData.verification.verifier
-          : null,
-      vaildated: false,
-    },
-    setupInfo: {
-      xpub: setupData.bhXpub,
-      derivationPath: setupData.derivationPath,
-      masterFingerprint: setupData.masterFingerprint,
-    },
-  };
-
-  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-    signingServerSetup,
-  });
-}
-
-export const registerWithSigningServerWatcher = createWatcher(
-  registerWithSigningServerWorker,
-  REGISTER_WITH_SIGNING_SERVER
-);
-
-function* validateSigningServerRegistrationWorker({ payload }: { payload: { verificationToken } }) {
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const { verificationToken } = payload;
-  try {
-    const { valid } = yield call(SigningServer.validate, app.id, verificationToken);
-    if (valid) {
-      yield put(signingServerRegistrationVerified(true));
-      const signingServerSetup: SigningServerSetup = getJSONFromRealmObject(app.signingServerSetup);
-      signingServerSetup.validation.vaildated = true;
-      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-        signingServerSetup,
-      });
-    } else yield put(signingServerRegistrationVerified(false));
-  } catch (error) {
-    yield put(signingServerRegistrationVerified(false));
-  }
-}
-
-export const validateSigningServerRegistrationWatcher = createWatcher(
-  validateSigningServerRegistrationWorker,
-  VALIDATE_SIGNING_SERVER_REGISTRATION
 );
 
 export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
