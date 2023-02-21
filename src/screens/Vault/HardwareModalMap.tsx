@@ -32,6 +32,7 @@ import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
@@ -198,7 +199,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       };
     case SignerType.TREZOR:
       return {
-        Illustration: <BitboxImage />,
+        Illustration: <TrezorSetup />,
         Instructions: [
           `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper HWI to connect with Trezor. `,
           `Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.`,
