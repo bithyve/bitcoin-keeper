@@ -8,25 +8,32 @@ import Background from 'src/assets/images/deviceBackground.svg';
 
 function ShakingAssetsAnimation() {
   const shakeAnimation = new Animated.Value(0);
+
+  const rotateData = shakeAnimation.interpolate({
+    inputRange: [0, 1, 2, 3, 4, 5, 6],
+    outputRange: ['0deg', '-15deg', '0deg', '15deg', '0deg', '0deg', '0deg'],
+  });
+
   const startShake = () => {
-    Animated.sequence([
-      Animated.timing(shakeAnimation, { toValue: 10, duration: 100, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: -10, duration: 100, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 10, duration: 100, useNativeDriver: true }),
-      Animated.timing(shakeAnimation, { toValue: 0, duration: 100, useNativeDriver: true }),
-    ]).start();
+    Animated.loop(
+      Animated.timing(shakeAnimation, {
+        toValue: 6,
+        duration: 1200,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start(() => startShake());
   };
   useEffect(() => {
-    setInterval(() => {
-      startShake();
-    }, 2000);
+    startShake();
   }, []);
+
   return (
-    <Box style={{ alignItems: 'center' }}>
+    <Box style={styles.wrapper}>
       <Background />
       <Animated.View
         style={{
-          transform: [{ translateX: shakeAnimation }],
+          transform: [{ rotate: rotateData }],
           marginVertical: 10,
           position: 'absolute',
         }}
@@ -35,11 +42,20 @@ function ShakingAssetsAnimation() {
           <Device />
         </Box>
       </Animated.View>
-      <Box style={{ alignItems: 'center', top: -100 }}>
+      <Box style={styles.dirIndicatorWrapper}>
         <DirectionIndicator />
       </Box>
     </Box>
   );
 }
+const styles = StyleSheet.create({
+  wrapper: {
+    alignItems: 'center',
+  },
+  dirIndicatorWrapper: {
+    alignItems: 'center',
+    top: -100,
+  },
+});
 
 export default ShakingAssetsAnimation;
