@@ -148,15 +148,15 @@ function SendScreen({ route }) {
       case PaymentInfoKind.PAYMENT_URI:
         sender.entityKind === 'VAULT'
           ? navigateToNext(
-            address,
-            TransferType.VAULT_TO_ADDRESS,
-            amount ? amount.toString() : null
-          )
+              address,
+              TransferType.VAULT_TO_ADDRESS,
+              amount ? amount.toString() : null
+            )
           : navigateToNext(
-            address,
-            TransferType.WALLET_TO_ADDRESS,
-            amount ? amount.toString() : null
-          );
+              address,
+              TransferType.WALLET_TO_ADDRESS,
+              amount ? amount.toString() : null
+            );
         break;
       default:
         showToast('Invalid bitcoin address', <ToastErrorIcon />);
@@ -208,6 +208,7 @@ function SendScreen({ route }) {
           <Box>
             <Box style={styles.qrcontainer}>
               <RNCamera
+                autoFocus="on"
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
@@ -253,22 +254,20 @@ function SendScreen({ route }) {
       </KeyboardAvoidingView>
 
       {/* {Bottom note} */}
-      {
-        showNote && (
-          <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
-            <Note
-              title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
-              subtitle={
-                sender.entityKind === 'VAULT'
-                  ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
-                  : 'Make sure the address or QR is the one where you want to send the funds to'
-              }
-              subtitleColor="GreyText"
-            />
-          </Box>
-        )
-      }
-    </ScreenWrapper >
+      {showNote && (
+        <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
+          <Note
+            title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
+            subtitle={
+              sender.entityKind === 'VAULT'
+                ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
+                : 'Make sure the address or QR is the one where you want to send the funds to'
+            }
+            subtitleColor="GreyText"
+          />
+        </Box>
+      )}
+    </ScreenWrapper>
   );
 }
 

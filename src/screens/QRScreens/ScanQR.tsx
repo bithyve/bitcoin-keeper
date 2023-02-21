@@ -105,6 +105,7 @@ function ScanQR() {
           <HeaderTitle title={title} subtitle={subtitle} />
           <Box style={styles.qrcontainer}>
             <RNCamera
+              autoFocus="on"
               style={styles.cameraView}
               captureAudio={false}
               onBarCodeRead={onBarCodeRead}
