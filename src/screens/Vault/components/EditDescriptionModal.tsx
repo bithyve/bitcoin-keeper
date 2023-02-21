@@ -44,7 +44,7 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
       <SignerData signer={signer} />
       <Box style={styles.limitTextWrapper}>
         <Text color="light.GreyText" style={styles.limitText}>
-          {maxLength}/30
+          {maxLength}/20
         </Text>
       </Box>
       <TextInput
@@ -54,7 +54,7 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
         placeholder="Add Description"
         placeholderTextColor={Colors.RichBlack}
         defaultValue={signer.signerDescription}
-        maxLength={30}
+        maxLength={20}
       />
     </VStack>
   );

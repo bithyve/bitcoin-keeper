@@ -57,7 +57,6 @@ function LoginScreen({ navigation, route }) {
   const { login } = translations;
   const { common } = translations;
 
-
   useEffect(() => {
     setRandomNum(Math.round(Math.random() * 5));
     if (loggingIn) {
@@ -187,11 +186,13 @@ function LoginScreen({ navigation, route }) {
   function LoginModalContent() {
     return (
       <Box>
-        <Box style={{
-          width: '100%',
-          alignItems: 'center',
-          paddingVertical: hp(20)
-        }}>
+        <Box
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            paddingVertical: hp(20),
+          }}
+        >
           {loginData.assert}
         </Box>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(290)}>
@@ -243,19 +244,13 @@ function LoginScreen({ navigation, route }) {
               </Box>
               {/*  */}
             </Box>
-
-            {loginError && (
-              <Text
-                style={styles.errorMessage}
-                color="light.error"
-                fontSize={12}
-                textAlign="right"
-                letterSpacing={0.65}
-                mr={12}
-              >
-                {errMessage}
-              </Text>
-            )}
+            <Box>
+              {loginError && (
+                <Text style={styles.errorMessage} color="light.error">
+                  {errMessage}
+                </Text>
+              )}
+            </Box>
             <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length === 4 && (
                 <Box>
@@ -333,7 +328,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
+        close={() => {}}
         title={loginData.title}
         subTitle={loginData.subTitle}
         subTitleColor="light.secondaryText"
@@ -390,6 +385,9 @@ const styles = StyleSheet.create({
   },
   errorMessage: {
     fontStyle: 'italic',
+    fontSize: 12,
+    textAlign: 'center',
+    letterSpacing: 0.65,
   },
 });
 
