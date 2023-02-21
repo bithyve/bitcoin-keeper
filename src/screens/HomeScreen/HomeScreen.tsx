@@ -103,6 +103,7 @@ function LinkedWallets(props) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     dispatch(resetRealyWalletState());
@@ -166,7 +167,7 @@ function LinkedWallets(props) {
                   letterSpacing: 0.6,
                 }}
               >
-                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
+                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
               </Text>
               <Text
                 color="light.white"
@@ -176,7 +177,7 @@ function LinkedWallets(props) {
                   fontSize: hp(12),
                 }}
               >
-                {getUnit(currentCurrency)}
+                {getUnit(currentCurrency, satsEnabled)}
               </Text>
             </Box>
           ) : (
@@ -205,6 +206,8 @@ function VaultStatus(props) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
+
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
@@ -325,10 +328,10 @@ function VaultStatus(props) {
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
                     <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency)}
+                      {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
                     </Text>
                     <Text color="light.white" style={styles.vaultBalanceUnit}>
-                      {getUnit(currentCurrency)}
+                      {getUnit(currentCurrency, satsEnabled)}
                     </Text>
                   </Box>
                 ) : (
@@ -503,7 +506,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

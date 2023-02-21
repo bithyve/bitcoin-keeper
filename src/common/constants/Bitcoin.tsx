@@ -30,10 +30,10 @@ export const SatsToBtc = (amountInSats: number) => {
   return amountInSats;
 };
 
-export const getAmount = (amountInSats: number) => {
+export const getAmount = (amountInSats: number, satsEnabled = false) => {
   // config.NETWORK_TYPE === NetworkType.MAINNET    disable sats mode
 
-  if (amountInSats !== 0) {
+  if (satsEnabled === false && amountInSats !== 0) {
     if (amountInSats > 99) {
       return amountInSats / SATOSHIS_IN_BTC;
     }
@@ -44,9 +44,9 @@ export const getAmount = (amountInSats: number) => {
 
 const numberWithCommas = (x) => (x ? x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 0);
 
-export const getAmt = (amountInSats: number, exchangeRates, currencyCode, currentCurrency) => {
+export const getAmt = (amountInSats: number, exchangeRates, currencyCode, currentCurrency, satsEnabled = false) => {
   if (currentCurrency === CurrencyKind.BITCOIN) {
-    return getAmount(amountInSats);
+    return getAmount(amountInSats, satsEnabled);
   }
   if (exchangeRates && exchangeRates[currencyCode]) {
     return ((exchangeRates[currencyCode].last / SATOSHIS_IN_BTC) * amountInSats).toFixed(2);
@@ -84,10 +84,10 @@ export const getNetworkAmount = (
   );
 };
 
-export const getUnit = (currentCurrency) => {
+export const getUnit = (currentCurrency, satsEnabled = false) => {
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   // disable sats mode
-  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET && false) {
+  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET && satsEnabled) {
     return 'sats';
   }
   return '';
