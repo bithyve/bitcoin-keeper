@@ -85,8 +85,6 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
-  console.log(loginError);
-
   return (
     <Box borderRadius={10}>
       <Box>

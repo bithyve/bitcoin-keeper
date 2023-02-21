@@ -4,7 +4,6 @@ import { StyleSheet, View } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import DotView from 'src/components/DotView';
-import Colors from 'src/theme/Colors';
 
 export interface Props {
   passCode?: string;
@@ -18,7 +17,7 @@ function PinInputsView({
   passcodeFlag,
   backgroundColor,
   textColor,
-  borderColor = passcodeFlag ? Colors.OutrageousOrange : 'transparent',
+  borderColor = 'transparent',
 }: Props) {
   const [hide, setHide] = useState(false);
 
