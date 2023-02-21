@@ -244,7 +244,7 @@ function VaultRecovery({ navigation }) {
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
       />
-      <Box style={{ flex: 0.7, justifyContent: 'space-between' }}>
+      <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>
             <FlatList
@@ -273,7 +273,7 @@ function VaultRecovery({ navigation }) {
           </Box>
         )}
       </Box>
-      <Box style={{ position: 'absolute', bottom: 5, width: '100%', marginHorizontal: 20 }}>
+      <Box style={styles.bottomViewWrapper}>
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
@@ -316,6 +316,16 @@ const styles = ScaledSheet.create({
     borderRadius: 5,
     backgroundColor: '#FAC48B',
     justifyContent: 'center',
+  },
+  scrollViewWrapper: {
+    flex: 0.7,
+    justifyContent: 'space-between',
+  },
+  bottomViewWrapper: {
+    position: 'absolute',
+    bottom: 5,
+    width: '100%',
+    marginHorizontal: 20,
   },
 });
 
