@@ -8,11 +8,11 @@ import {
 } from '../interfaces';
 import RestClient from '../rest/RestClient';
 
-const { HEXA_ID, SIGNING_SERVER } = config;
+const { SIGNING_SERVER } = config;
 
 export default class SigningServer {
   static register = async (
-    appId: string,
+    vaultId: string,
     policy: SignerPolicy
   ): Promise<{
     setupData: {
@@ -25,8 +25,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/setupSigner`, {
-        HEXA_ID,
-        appId,
+        vaultId,
         policy,
       });
     } catch (err) {
@@ -42,7 +41,7 @@ export default class SigningServer {
   };
 
   static validate = async (
-    appId: string,
+    vaultId: string,
     verificationToken
   ): Promise<{
     valid: boolean;
@@ -50,8 +49,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/validateSingerSetup`, {
-        HEXA_ID,
-        appId,
+        vaultId,
         verificationToken,
       });
     } catch (err) {
@@ -68,7 +66,7 @@ export default class SigningServer {
   };
 
   static fetchSignerSetup = async (
-    appId: string,
+    vaultId: string,
     verificationToken
   ): Promise<{
     valid: boolean;
@@ -80,8 +78,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/fetchSignerSetup`, {
-        HEXA_ID,
-        appId,
+        vaultId,
         verificationToken,
       });
     } catch (err) {
@@ -104,7 +101,7 @@ export default class SigningServer {
   };
 
   static updatePolicy = async (
-    appId: string,
+    vaultId: string,
     updates: {
       restrictions?: SignerRestriction;
       exceptions?: SignerException;
@@ -115,8 +112,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/updateSignerPolicy`, {
-        HEXA_ID,
-        appId,
+        vaultId,
         updates,
       });
     } catch (err) {
@@ -132,7 +128,7 @@ export default class SigningServer {
   };
 
   static signPSBT = async (
-    appId: string,
+    vaultId: string,
     verificationToken: number,
     serializedPSBT: string,
     childIndexArray: Array<{
@@ -151,8 +147,7 @@ export default class SigningServer {
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/signTransaction`, {
-        HEXA_ID: config.HEXA_ID,
-        appId,
+        vaultId,
         verificationToken,
         serializedPSBT,
         childIndexArray,
