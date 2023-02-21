@@ -11,19 +11,25 @@ function ShakingAssetsAnimation() {
 
   const rotateData = shakeAnimation.interpolate({
     inputRange: [0, 1, 2, 3, 4, 5, 6],
-    outputRange: ['0deg', '-15deg', '0deg', '15deg', '0deg', '0deg', '0deg'],
+    outputRange: ['0deg', '-12deg', '0deg', '12deg', '0deg', '0deg', '0deg'],
+  });
+
+  const transData = shakeAnimation.interpolate({
+    inputRange: [0, 1, 2, 3, 4, 5, 6],
+    outputRange: [0, -25, 0, 25, 0, 0, 0],
   });
 
   const startShake = () => {
     Animated.loop(
       Animated.timing(shakeAnimation, {
         toValue: 6,
-        duration: 1200,
+        duration: 800,
         easing: Easing.linear,
         useNativeDriver: true,
       })
-    ).start(() => startShake());
+    ).start();
   };
+
   useEffect(() => {
     startShake();
   }, []);
@@ -33,7 +39,7 @@ function ShakingAssetsAnimation() {
       <Background />
       <Animated.View
         style={{
-          transform: [{ rotate: rotateData }],
+          transform: [{ rotate: rotateData }, { translateX: transData }],
           marginVertical: 10,
           position: 'absolute',
         }}
