@@ -320,7 +320,7 @@ export default class ElectrumClient {
         if (res[txdata.param]) delete res[txdata.param].hex;
 
         // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
-        for (const vout of res[txdata.param].vout || []) {
+        for (const vout of res[txdata.param]?.vout || []) {
           if (vout?.scriptPubKey?.address)
             vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
         }
