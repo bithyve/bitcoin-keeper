@@ -148,7 +148,7 @@ function WalletDetails({ route }) {
                     <Text color="light.white" style={styles.walletName}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription} ellipsizeMode="tail" width={wp(170)} numberOfLines={1}>
+                    <Text color="light.white" style={styles.walletDescription} ellipsizeMode="tail" numberOfLines={1}>
                       {walletDescription}
                     </Text>
                   </Box>
