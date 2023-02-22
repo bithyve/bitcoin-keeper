@@ -6,7 +6,6 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
-  ScrollView,
 } from 'react-native';
 // libraries
 import { Box, View } from 'native-base';
@@ -95,6 +94,7 @@ function SendScreen({ route }) {
 
     launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
+        showToast('Camera device has been cancled')
       } else if (response.errorCode === 'camera_unavailable') {
         showToast('Camera not available on device');
       } else if (response.errorCode === 'permission') {
@@ -146,17 +146,10 @@ function SendScreen({ route }) {
           : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        sender.entityKind === 'VAULT'
-          ? navigateToNext(
-              address,
-              TransferType.VAULT_TO_ADDRESS,
-              amount ? amount.toString() : null
-            )
-          : navigateToNext(
-              address,
-              TransferType.WALLET_TO_ADDRESS,
-              amount ? amount.toString() : null
-            );
+        const transferType = sender.entityKind === 'VAULT'
+          ? TransferType.VAULT_TO_ADDRESS
+          : TransferType.WALLET_TO_ADDRESS;
+        navigateToNext(address, transferType, amount ? amount.toString() : null);
         break;
       default:
         showToast('Invalid bitcoin address', <ToastErrorIcon />);

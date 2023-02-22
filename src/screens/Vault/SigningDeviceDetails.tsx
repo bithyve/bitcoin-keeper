@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, VStack, View, Center } from 'native-base';
+import { Box, View, Center } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { NfcTech } from 'react-native-nfc-manager';
@@ -88,7 +88,14 @@ function SigningDeviceDetails({ route }) {
     setNfcVisible(true);
     try {
       const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2wsh;
+      let xpub;
+      if (rtdName === 'URI') {
+        xpub = data;
+      } else if (rtdName === 'TEXT') {
+        xpub = data;
+      } else {
+        xpub = data.p2wsh;
+      }
       const path = data?.p2wsh_deriv ?? '';
       const xfp = data?.xfp ?? '';
       setNfcVisible(false);
@@ -299,6 +306,8 @@ function SigningDeviceDetails({ route }) {
   const confirmHealthCheck = () => {
     navigation.goBack();
   };
+
+  console.log(nfcVisible);
 
   function HealthCheckContentTapsigner() {
     return (
