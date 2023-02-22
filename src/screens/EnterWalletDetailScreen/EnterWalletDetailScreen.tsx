@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Box, Input, View, Select } from 'native-base';
+import { Box, Input, View, Select, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import Fonts from 'src/common/Fonts';
@@ -28,6 +28,7 @@ import { Linking } from 'react-native';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -126,13 +127,13 @@ function EnterWalletDetailScreen({ route }) {
 
   const renderAdvanceOptions = () => (
     <Box>
-      <KeeperText type="regular" style={[styles.autoTransferText, { color: 'light.GreyText' }]}>
+      <KeeperText type="regular" style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
         Path
       </KeeperText>
-      <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+      <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
         <Input
           placeholder="Path"
-          placeholderTextColor="light.GreyText"
+          placeholderTextColor={`${colorMode}.GreyText`}
           value={path}
           onChangeText={(value) => setPath(value)}
           style={styles.inputField}
@@ -143,7 +144,7 @@ function EnterWalletDetailScreen({ route }) {
           maxLength={20}
         />
       </Box>
-      <KeeperText type="regular" style={[styles.autoTransferText, { color: 'light.GreyText' }]}>
+      <KeeperText type="regular" style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
         Purpose
       </KeeperText>
       <Select
@@ -169,7 +170,7 @@ function EnterWalletDetailScreen({ route }) {
   );
 
   return (
-    <View style={styles.Container} background="light.mainBackground">
+    <View style={styles.Container} background={`${colorMode}.mainBackground`}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
@@ -178,10 +179,10 @@ function EnterWalletDetailScreen({ route }) {
         paddingTop={3}
       />
       <View marginX={4} marginY={4}>
-        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+        <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
           <Input
             placeholder={wallet.WalletNamePlaceHolder}
-            placeholderTextColor="light.GreyText"
+            placeholderTextColor={`${colorMode}.GreyText`}
             value={walletName}
             onChangeText={(value) => setWalletName(value)}
             style={styles.inputField}
@@ -191,14 +192,14 @@ function EnterWalletDetailScreen({ route }) {
             borderWidth="0"
             maxLength={20}
           />
-          <KeeperText color="light.GreyText" style={styles.limitText}>
+          <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletName && walletName.length}/20
           </KeeperText>
         </Box>
-        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+        <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
           <Input
             placeholder={wallet.WalletDescriptionPlaceholder}
-            placeholderTextColor="light.GreyText"
+            placeholderTextColor={`${colorMode}.GreyText`}
             value={walletDescription}
             onChangeText={(value) => setWalletDescription(value)}
             style={styles.inputField}
@@ -208,21 +209,21 @@ function EnterWalletDetailScreen({ route }) {
             marginY={2}
             maxLength={40}
           />
-          <KeeperText color="light.GreyText" style={styles.limitText}>
+          <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
           </KeeperText>
         </Box>
         <Box marginTop={5}>
-          <KeeperText type="regular" style={[styles.autoTransferText, { color: 'light.GreyText' }]}>
+          <KeeperText type="regular" style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
             {wallet.AutoTransferInitiated}
           </KeeperText>
           <Box style={styles.transferPolicyTextArea}>
             <Box style={styles.bitcoinLogo}>
               <BitcoinGreyIcon height="15" width="15" />
             </Box>
-            <KeeperText style={[styles.splitter, { color: 'light.divider' }]}>|</KeeperText>
+            <KeeperText style={[styles.splitter, { color: `${colorMode}.divider` }]}>|</KeeperText>
             <Input
-              placeholderTextColor="light.GreyText"
+              placeholderTextColor={`${colorMode}.GreyText`}
               value={formatNumber(transferPolicy)}
               onChangeText={(value) => setTransferPolicy(value)}
               autoCorrect={false}
@@ -232,7 +233,7 @@ function EnterWalletDetailScreen({ route }) {
               keyboardType="numeric"
               borderWidth="0"
               letterSpacing={3}
-              color="light.greenText"
+              color={`${colorMode}.greenText`}
             />
             <Box style={styles.sats}>
               <KeeperText type="bold">{common.sats}</KeeperText>
@@ -240,7 +241,7 @@ function EnterWalletDetailScreen({ route }) {
           </Box>
           <KeeperText
             type="regular"
-            style={[styles.autoTransferTextDesc, { color: 'light.GreyText' }]}
+            style={[styles.autoTransferTextDesc, { color: `${colorMode}.GreyText` }]}
           >
             {wallet.AutoTransferInitiatedDesc}
           </KeeperText>

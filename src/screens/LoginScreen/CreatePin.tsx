@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { Dimensions, StatusBar, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -19,6 +19,7 @@ import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 const windowHeight = Dimensions.get('window').height;
 
 export default function CreatePin(props) {
+  const { colorMode } = useColorMode();
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
@@ -131,7 +132,7 @@ export default function CreatePin(props) {
   return (
     <LinearGradient
       testID="main"
-      colors={['light.gradientStart', 'light.gradientEnd']}
+      colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
       style={styles.linearGradient}
     >
       <Box style={styles.wrapper}>
@@ -141,10 +142,10 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box mt={windowHeight > 670 ? hp('5%') : 0}>
             <Box>
-              <Text style={styles.welcomeText} color="light.white">
+              <Text style={styles.welcomeText} color={`${colorMode}.white`}>
                 {login.welcome}
               </Text>
-              <Text color="light.textColor" style={styles.labelText}>
+              <Text color={`${colorMode}.textColor`} style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -155,7 +156,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                      `light.error`
+                    `${colorMode}.error`
                     : 'transparent'
                 }
               />
@@ -163,7 +164,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color="light.textColor" style={styles.labelText}>
+                <Text color={`${colorMode}.textColor`} style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
@@ -178,13 +179,13 @@ export default function CreatePin(props) {
                     }
                     borderColor={
                       passcode != confirmPasscode && confirmPasscode.length === 4
-                        ? 'light.error'
+                        ? `${colorMode}.error`
                         : 'transparent'
                     }
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color="light.error" style={styles.errorText}>
+                    <Text color={`${colorMode}.error`} style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}

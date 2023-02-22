@@ -1,5 +1,6 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, Image } from 'native-base';
+import { Box, Image, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -20,18 +21,19 @@ import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import { securityTips } from 'src/common/data/defaultData/defaultData';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
-import { securityTips } from 'src/common/data/defaultData/defaultData';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
+  const { colorMode } = useColorMode();
   const { relogin } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
@@ -195,7 +197,7 @@ function LoginScreen({ navigation, route }) {
         >
           {loginData.assert}
         </Box>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(290)}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65} width={wp(290)}>
           {loginData.message}
         </Text>
       </Box>
@@ -203,7 +205,7 @@ function LoginScreen({ navigation, route }) {
   }
   return (
     <LinearGradient
-      colors={['light.gradientStart', 'light.gradientEnd']}
+      colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
       style={styles.linearGradient}
     >
       <Box flex={1}>
@@ -221,7 +223,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Text
               ml={5}
-              color="light.white"
+              color={`${colorMode}.white`}
               fontSize={22}
               style={{
                 marginTop: hp(65),
@@ -230,7 +232,7 @@ function LoginScreen({ navigation, route }) {
               {login.welcomeback}
             </Text>
             <Box>
-              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.textColor">
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color={`${colorMode}.textColor`}>
                 {login.enter_your}
                 {login.passcode}
               </Text>
@@ -246,7 +248,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Box>
               {loginError && (
-                <Text style={styles.errorMessage} color="light.error">
+                <Text style={styles.errorMessage} color={`${colorMode}.error`}>
                   {errMessage}
                 </Text>
               )}
@@ -278,7 +280,7 @@ function LoginScreen({ navigation, route }) {
                 setForgotVisible(true);
               }}
             >
-              <Text color="light.white" bold fontSize={14}>
+              <Text color={`${colorMode}.white`} bold fontSize={14}>
                 {login.ForgotPasscode}
               </Text>
             </TouchableOpacity>
@@ -328,10 +330,10 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={loginData.title}
         subTitle={loginData.subTitle}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         showCloseIcon={false}
         buttonText={isAuthenticated ? 'Next' : null}
         buttonCallback={loginModalAction}

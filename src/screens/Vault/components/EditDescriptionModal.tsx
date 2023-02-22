@@ -1,7 +1,7 @@
 import KeeperModal from 'src/components/KeeperModal';
 import { TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useCallback, useRef, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
@@ -14,14 +14,15 @@ import Fonts from 'src/common/Fonts';
 import { WalletMap } from '../WalletMap';
 
 function SignerData({ signer }: { signer: VaultSigner }) {
+  const { colorMode } = useColorMode();
   return (
     <HStack>
       <Box style={styles.icon}>{WalletMap(signer.type, true).Icon}</Box>
       <VStack marginX="4" maxWidth="80%">
-        <Text style={styles.name} color="light.primaryText" numberOfLines={2}>
+        <Text style={styles.name} color={`${colorMode}.primaryText`} numberOfLines={2}>
           {signer.signerName}
         </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
           {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
         </Text>
       </VStack>
@@ -30,6 +31,7 @@ function SignerData({ signer }: { signer: VaultSigner }) {
 }
 
 function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
+  const { colorMode } = useColorMode();
   const updateDescription = useCallback((text) => {
     descRef.current = text;
     setMaxLength(text.length);
@@ -43,7 +45,7 @@ function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
     <VStack style={styles.descriptionContainer}>
       <SignerData signer={signer} />
       <Box style={styles.limitTextWrapper}>
-        <Text color="light.GreyText" style={styles.limitText}>
+        <Text color={`${colorMode}.GreyText`} style={styles.limitText}>
           {maxLength}/20
         </Text>
       </Box>
@@ -71,6 +73,7 @@ function DescriptionModal({
   signer: VaultSigner;
   callback: any;
 }) {
+  const { colorMode } = useColorMode();
   const descRef = useRef();
   const MemoisedContent = React.useCallback(
     () => <Content signer={signer} descRef={descRef} />,
@@ -83,7 +86,7 @@ function DescriptionModal({
   return (
     <KeeperModal
       visible={visible}
-      modalBackground={['light.mainBackground', 'light.mainBackground']}
+      modalBackground={[`${colorMode}.mainBackground`, `${colorMode}.mainBackground`]}
       close={close}
       title="Add Description"
       subTitle="Optionally you can add a short description to the signing device"

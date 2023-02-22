@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input, Pressable } from 'native-base';
+import { Box, Input, Pressable, useColorMode } from 'native-base';
 import { TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -35,6 +35,7 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import WalletDetails from './WalletDetails';
 
 function AddSendAmount({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {
@@ -190,7 +191,7 @@ function AddSendAmount({ route }) {
       >
         {error && (
           <Text
-            color="light.indicator"
+            color={`${colorMode}.indicator`}
             style={{
               fontSize: 10,
               letterSpacing: 0.1,
@@ -203,8 +204,8 @@ function AddSendAmount({ route }) {
           </Text>
         )}
         <Box
-          backgroundColor="light.primaryBackground"
-          borderColor={error ? 'light.indicator' : 'transparent'}
+          backgroundColor={`${colorMode}.primaryBackground`}
+          borderColor={error ? `${colorMode}.indicator` : 'transparent'}
           style={styles.inputWrapper}
         >
           <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
@@ -214,14 +215,14 @@ function AddSendAmount({ route }) {
             <Box
               marginLeft={2}
               width={0.5}
-              backgroundColor="light.divider"
+              backgroundColor={`${colorMode}.divider`}
               opacity={0.3}
               height={7}
             />
             <Input
               placeholder="Enter Amount"
-              placeholderTextColor="light.greenText"
-              color="light.greenText"
+              placeholderTextColor={`${colorMode}.greenText`}
+              color={`${colorMode}.greenText`}
               opacity={0.5}
               width="90%"
               fontSize={14}
@@ -250,10 +251,10 @@ function AddSendAmount({ route }) {
                   calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet: sender })
                 );
             }}
-            backgroundColor="light.accent"
+            backgroundColor={`${colorMode}.accent`}
             style={styles.sendMaxWrapper}
           >
-            <Text color="light.sendMax" style={styles.sendMaxText}>
+            <Text color={`${colorMode}.sendMax`} style={styles.sendMaxText}>
               Send Max
             </Text>
           </Pressable>

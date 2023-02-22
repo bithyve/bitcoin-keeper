@@ -1,6 +1,8 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Pressable, View } from 'native-base';
+import { Box, Pressable, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { Shadow } from 'react-native-shadow-2';
@@ -45,6 +47,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 
 function WalletDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -127,7 +130,7 @@ function WalletDetails({ route }) {
                 gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
               />
 
-              <Text color="light.white" style={styles.addWalletText}>
+              <Text color={`${colorMode}.white`} style={styles.addWalletText}>
                 {wallet.AddNewWallet}
               </Text>
             </TouchableOpacity>
@@ -145,16 +148,16 @@ function WalletDetails({ route }) {
                       marginLeft: 10,
                     }}
                   >
-                    <Text color="light.white" style={styles.walletName}>
+                    <Text color={`${colorMode}.white`} style={styles.walletName}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription}>
+                    <Text color={`${colorMode}.white`} style={styles.walletDescription}>
                       {walletDescription}
                     </Text>
                   </Box>
                 </Box>
                 <Box>
-                  <Text color="light.white" style={styles.unconfirmedText}>
+                  <Text color={`${colorMode}.white`} style={styles.unconfirmedText}>
                     Unconfirmed
                   </Text>
                   <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -165,7 +168,7 @@ function WalletDetails({ route }) {
                     >
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
-                    <Text color="light.white" style={styles.unconfirmedBalance}>
+                    <Text color={`${colorMode}.white`} style={styles.unconfirmedBalance}>
                       {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
                     </Text>
                   </Box>
@@ -173,7 +176,7 @@ function WalletDetails({ route }) {
               </Box>
 
               <Box style={styles.walletBalance}>
-                <Text color="light.white" style={styles.walletName}>
+                <Text color={`${colorMode}.white`} style={styles.walletName}>
                   Available Balance
                 </Text>
                 <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -184,9 +187,9 @@ function WalletDetails({ route }) {
                   >
                     {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                   </Box>
-                  <Text color="light.white" style={styles.availableBalance}>
+                  <Text color={`${colorMode}.white`} style={styles.availableBalance}>
                     {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-                    <Text color="light.textColor" style={styles.balanceUnit}>
+                    <Text color={`${colorMode}.textColor`} style={styles.balanceUnit}>
                       {getUnit(currentCurrency, satsEnabled)}
                     </Text>
                   </Text>
@@ -257,7 +260,7 @@ function WalletDetails({ route }) {
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
       <Box style={styles.headerContainer}>
-        <Text color="light.textWallet" style={styles.headerTitle}>
+        <Text color={`${colorMode}.textWallet`} style={styles.headerTitle}>
           {wallets?.length} Linked Wallets
         </Text>
 
@@ -265,9 +268,9 @@ function WalletDetails({ route }) {
           <Box style={styles.headerBTCIcon}>
             {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTC)}
           </Box>
-          <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
+          <Text color={`${colorMode}.textWallet`} fontSize={hp(30)} style={styles.headerBalance}>
             {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-            <Text color="light.textColorDark" style={styles.balanceUnit}>
+            <Text color={`${colorMode}.textColorDark`} style={styles.balanceUnit}>
               {getUnit(currentCurrency, satsEnabled)}
             </Text>
           </Text>
@@ -292,7 +295,7 @@ function WalletDetails({ route }) {
           {/* {Transfer pollicy} */}
           <Box style={styles.transferPolicyContainer}>
             <Pressable
-              backgroundColor="light.accent"
+              backgroundColor={`${colorMode}.accent`}
               style={styles.transferPolicyCard}
               onPress={() => {
                 if (vaultExsist) {
@@ -311,7 +314,7 @@ function WalletDetails({ route }) {
                   }}
                 >
                   <Text
-                    color="light.learnMoreBorder"
+                    color={`${colorMode}.learnMoreBorder`}
                     fontSize={12}
                     style={{
                       letterSpacing: 0.6,
@@ -321,7 +324,7 @@ function WalletDetails({ route }) {
                   </Text>
                   <Text
                     bold
-                    color="light.learnMoreBorder"
+                    color={`${colorMode}.learnMoreBorder`}
                     style={{
                       fontSize: 14,
                       letterSpacing: 0.7,
@@ -346,7 +349,7 @@ function WalletDetails({ route }) {
           </Box>
 
           <Box style={styles.transactions}>
-            <Text color="light.textBlack" style={styles.transactionText}>
+            <Text color={`${colorMode}.textBlack`} style={styles.transactionText}>
               Transactions
             </Text>
           </Box>
@@ -370,7 +373,7 @@ function WalletDetails({ route }) {
             />
           </Box>
           <Box style={styles.footerContainer}>
-            <Box style={styles.border} borderColor="light.GreyText" />
+            <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
             <Box style={styles.footerItemContainer}>
               <TouchableOpacity
                 style={styles.IconText}
@@ -379,7 +382,7 @@ function WalletDetails({ route }) {
                 }}
               >
                 <Send />
-                <Text color="light.primaryText" style={styles.footerItemText}>
+                <Text color={`${colorMode}.primaryText`} style={styles.footerItemText}>
                   Send
                 </Text>
               </TouchableOpacity>
@@ -390,7 +393,7 @@ function WalletDetails({ route }) {
                 }}
               >
                 <Recieve />
-                <Text color="light.primaryText" style={styles.footerItemText}>
+                <Text color={`${colorMode}.primaryText`} style={styles.footerItemText}>
                   Receive
                 </Text>
               </TouchableOpacity>
@@ -401,7 +404,7 @@ function WalletDetails({ route }) {
                 }}
               >
                 <IconSettings />
-                <Text color="light.primaryText" style={styles.footerItemText}>
+                <Text color={`${colorMode}.primaryText`} style={styles.footerItemText}>
                   Settings
                 </Text>
               </TouchableOpacity>
@@ -411,7 +414,7 @@ function WalletDetails({ route }) {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text color="light.primaryText" numberOfLines={2} style={styles.addNewWalletText}>
+          <Text color={`${colorMode}.primaryText`} numberOfLines={2} style={styles.addNewWalletText}>
             Add a new wallet or import one
           </Text>
         </Box>
@@ -423,8 +426,8 @@ function WalletDetails({ route }) {
         }}
         title="Bip-85 Wallets"
         subTitle="Create as many (hot) wallets as you want, and backup with a single Recovery Phrase"
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
+        modalBackground={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
+        textColor={`${colorMode}.white`}
         Content={LinkedWalletContent}
         DarkCloseIcon
         learnMore

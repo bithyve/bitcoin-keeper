@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -26,6 +26,7 @@ import AddNode from './AddNodeModal';
 import Node from './node';
 
 function NodeSettings() {
+  const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -166,7 +167,7 @@ function NodeSettings() {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
+    <ScreenWrapper backgroundColor={`${colorMode}.mainBackground`} barStyle="dark-content">
       <HeaderTitle
         paddingLeft={25}
         title={settings.nodeSettings}
@@ -174,10 +175,10 @@ function NodeSettings() {
       />
       <Box style={styles.nodeConnectSwitchWrapper}>
         <Box>
-          <Text color="light.primaryText" style={styles.connectToMyNodeTitle}>
+          <Text color={`${colorMode}.primaryText`} style={styles.connectToMyNodeTitle}>
             {settings.connectToMyNode}
           </Text>
-          <Text style={styles.appSettingSubTitle} color="light.secondaryText">
+          <Text style={styles.appSettingSubTitle} color={`${colorMode}.secondaryText`}>
             {settings.connectToMyNodeSubtitle}
           </Text>
         </Box>
@@ -185,7 +186,7 @@ function NodeSettings() {
           <Switch value={ConnectToNode} onValueChange={onChangeConnectToMyNode} />
         </Box>
       </Box>
-      <Box borderColor="light.GreyText" style={styles.splitter} />
+      <Box borderColor={`${colorMode}.GreyText`} style={styles.splitter} />
       <Box style={styles.nodeListHeader}>
         <Text style={styles.nodeListTitle}>{settings.nodesUsedPreviously}</Text>
       </Box>
@@ -204,22 +205,22 @@ function NodeSettings() {
                 }
               >
                 <Box
-                  backgroundColor={ConnectToNode ? 'light.primaryBackground' : 'light.fadedGray'}
+                  backgroundColor={ConnectToNode ? `${colorMode}.primaryBackground` : `${colorMode}.fadedGray`}
                   style={[styles.nodeList, { opacity: ConnectToNode ? 1 : 0.5 }]}
                 >
-                  <Box style={[styles.nodeDetail, { backgroundColor: 'light.primaryBackground' }]}>
-                    <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                  <Box style={[styles.nodeDetail, { backgroundColor: `${colorMode}.primaryBackground` }]}>
+                    <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                       {settings.host}
                     </Text>
                     <Text numberOfLines={1} style={styles.nodeTextValue}>
                       {item.host}
                     </Text>
-                    <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                    <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                       {settings.portNumber}
                     </Text>
                     <Text style={styles.nodeTextValue}>{item.port}</Text>
                   </Box>
-                  <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+                  <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
                   <Box style={styles.nodeButtons}>
                     <TouchableOpacity onPress={() => onEdit(item)}>
                       <Box style={[styles.actionArea, { paddingLeft: 14, paddingRight: 14 }]}>
@@ -227,7 +228,7 @@ function NodeSettings() {
                         <Text style={[styles.actionText]}>{common.edit}</Text>
                       </Box>
                     </TouchableOpacity>
-                    <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+                    <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
 
                     <TouchableOpacity onPress={() => onConnectNode(item)}>
                       <Box
@@ -247,7 +248,7 @@ function NodeSettings() {
                         </Text>
                       </Box>
                     </TouchableOpacity>
-                    <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+                    <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
 
                     <TouchableOpacity onPress={() => onDelete(item)}>
                       <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
@@ -264,13 +265,13 @@ function NodeSettings() {
       )}
 
       <TouchableOpacity onPress={onAdd}>
-        <Box backgroundColor="light.primaryBackground" style={styles.addNewNode}>
+        <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.addNewNode}>
           <AddIcon />
           <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
         </Box>
       </TouchableOpacity>
 
-      <Box style={styles.note} backgroundColor="light.mainBackground">
+      <Box style={styles.note} backgroundColor={`${colorMode}.mainBackground`}>
         <Note title={common.note} subtitle={settings.nodeSettingsNote} />
       </Box>
 
@@ -289,7 +290,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>

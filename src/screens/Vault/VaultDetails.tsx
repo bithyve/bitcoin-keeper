@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -53,13 +53,14 @@ import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
   const styles = getStyles(0);
   return (
     <Box>
-      <Box borderWidth={0.5} borderColor="light.GreyText" borderRadius={20} opacity={0.2} />
+      <Box borderWidth={0.5} borderColor={`${colorMode}.GreyText`} borderRadius={20} opacity={0.2} />
       <Box flexDirection="row" justifyContent="space-between" marginX={10} marginTop={3}>
         <TouchableOpacity
           style={styles.IconText}
@@ -76,7 +77,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Send />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Send
           </Text>
         </TouchableOpacity>
@@ -87,7 +88,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Recieve />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Receive
           </Text>
         </TouchableOpacity>
@@ -98,7 +99,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <Buy />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Buy
           </Text>
         </TouchableOpacity>
@@ -109,7 +110,7 @@ function Footer({ vault }: { vault: Vault }) {
           }}
         >
           <IconSettings />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Settings
           </Text>
         </TouchableOpacity>
@@ -119,6 +120,7 @@ function Footer({ vault }: { vault: Vault }) {
 }
 
 function Header() {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const styles = getStyles(0);
@@ -132,7 +134,7 @@ function Header() {
       </Box>
       <Box width="50%">
         <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-          <Text color="light.white" style={styles.footerText} light>
+          <Text color={`${colorMode}.white`} style={styles.footerText} light>
             Know More
           </Text>
         </TouchableOpacity>
@@ -142,6 +144,7 @@ function Header() {
 }
 
 function VaultInfo({ vault }: { vault: Vault }) {
+  const { colorMode } = useColorMode();
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -161,16 +164,16 @@ function VaultInfo({ vault }: { vault: Vault }) {
             <VaultIcon />
           </Box>
           <VStack>
-            <Text color="light.white" style={styles.vaultInfoText} fontSize={16}>
+            <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={16}>
               {name}
             </Text>
-            <Text color="light.white" style={styles.vaultInfoText} fontSize={12}>
+            <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={12}>
               {description}
             </Text>
           </VStack>
         </HStack>
         <VStack alignItems="flex-end">
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={9}>
             Unconfirmed
           </Text>
           {getNetworkAmount(
@@ -189,7 +192,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
           { fontSize: 31, lineHeight: 31 },
           2,
         ])}
-        <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+        <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>
       </VStack>
@@ -198,6 +201,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
 }
 
 function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
   const renderTransactionElement = ({ item }) => (
@@ -216,7 +220,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
     <>
       <VStack style={{ paddingTop: windowHeight * 0.09 }}>
         <HStack justifyContent="space-between">
-          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text color={`${colorMode}.textBlack`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           {transactions.lenth ? (
@@ -233,7 +237,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
                   }}
                 >
                   <Text
-                    color="light.primaryGreen"
+                    color={`${colorMode}.primaryGreen`}
                     marginRight={2}
                     fontSize={11}
                     bold
@@ -267,6 +271,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
 }
 
 function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationType; vault: Vault }) {
+  const { colorMode } = useColorMode();
   const { signers: Signers, isMultiSig } = vault;
   const styles = getStyles(0);
   const navigation = useNavigation();
@@ -299,7 +304,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <AddIcon />
             </Box>
             <VStack pb={2}>
-              <Text color="light.white" fontSize={10} bold letterSpacing={0.6} textAlign="center">
+              <Text color={`${colorMode}.white`} fontSize={10} bold letterSpacing={0.6} textAlign="center">
                 Add signing device to upgrade
               </Text>
             </VStack>
@@ -352,7 +357,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               </Text>
               <VStack pb={2}>
                 <Text
-                  color="light.textBlack"
+                  color={`${colorMode}.textBlack`}
                   fontSize={11}
                   letterSpacing={0.6}
                   textAlign="center"
@@ -361,7 +366,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                   {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
                 <Text
-                  color="light.textBlack"
+                  color={`${colorMode}.textBlack`}
                   fontSize={8}
                   letterSpacing={0.6}
                   textAlign="center"
@@ -382,6 +387,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
 }
 
 function VaultDetails({ route, navigation }) {
+  const { colorMode } = useColorMode();
   const { vaultTransferSuccessful = false, autoRefresh } = route.params || {};
 
   const dispatch = useDispatch();
@@ -456,7 +462,7 @@ function VaultDetails({ route, navigation }) {
     () => (
       <View>
         <Success />
-        <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
+        <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
           For sending out of the vault you will need the signing devices. This means no one can
           steal your bitcoin in the vault unless they also have the signing devices
         </Text>
@@ -480,7 +486,7 @@ function VaultDetails({ route, navigation }) {
         <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
       <VStack
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
         px={wp(28)}
         borderTopLeftRadius={20}
         flex={1}
@@ -512,7 +518,7 @@ function VaultDetails({ route, navigation }) {
         title="New Vault Created"
         subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
         buttonText="View Vault"
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}
         Content={NewVaultContent}
@@ -524,12 +530,12 @@ function VaultDetails({ route, navigation }) {
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
+        modalBackground={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
+        textColor={`${colorMode}.white`}
         Content={VaultContent}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         buttonText="Continue"
-        buttonTextColor="light.greenText"
+        buttonTextColor={`${colorMode}.greenText`}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}

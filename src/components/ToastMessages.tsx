@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import React from 'react';
 import { StyleSheet } from 'react-native';
@@ -18,8 +18,9 @@ function HexaToastMessages({
   error?: boolean;
   ToastBody?: any
 }) {
+  const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={error ? 'error.500' : 'light.accent'} style={styles.toast}>
+    <Box backgroundColor={error ? 'error.500' : `${colorMode}.accent`} style={styles.toast}>
       {Image && <Box>{Image}</Box>}
       {ToastBody}
     </Box>

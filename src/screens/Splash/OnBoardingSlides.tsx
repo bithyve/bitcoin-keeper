@@ -9,7 +9,7 @@ import {
   BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, StatusBar } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 
 import LinearGradient from 'src/components/KeeperGradient';
 
@@ -26,6 +26,7 @@ import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideC
 const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { onboarding } = translations;
   const { common } = translations;
@@ -67,7 +68,7 @@ function OnBoardingSlides({ navigation }) {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
   return (
-    <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
+    <LinearGradient colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]} style={styles.container}>
       <ImageBackground resizeMode="contain" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
@@ -76,7 +77,7 @@ function OnBoardingSlides({ navigation }) {
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={styles.skipTextWrapper}
               >
-                <Text color="light.white" bold style={styles.skipText}>
+                <Text color={`${colorMode}.white`} bold style={styles.skipText}>
                   Skip&nbsp;&nbsp;
                 </Text>
                 <Skip />
@@ -106,8 +107,8 @@ function OnBoardingSlides({ navigation }) {
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
               <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
-                <Box borderColor="light.lightAccent" style={styles.seeFAQWrapper}>
-                  <Text color="light.lightAccent" bold style={styles.seeFAQText}>
+                <Box borderColor={`${colorMode}.lightAccent`} style={styles.seeFAQWrapper}>
+                  <Text color={`${colorMode}.lightAccent`} bold style={styles.seeFAQText}>
                     {common.seeFAQs}
                   </Text>
                 </Box>
@@ -137,7 +138,7 @@ function OnBoardingSlides({ navigation }) {
                       colors={['#FFFFFF', '#80A8A1']}
                       style={styles.cta}
                     >
-                      <Text bold color="light.greenText" style={styles.startAppText}>
+                      <Text bold color={`${colorMode}.greenText`} style={styles.startAppText}>
                         Start App
                       </Text>
                     </LinearGradient>

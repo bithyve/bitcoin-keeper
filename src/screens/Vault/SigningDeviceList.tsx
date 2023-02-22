@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import config, { APP_STAGE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -93,6 +93,7 @@ const getDeviceStatus = (
 };
 
 function SigningDeviceList({ navigation }: { navigation }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
@@ -119,7 +120,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
         <Box alignSelf="center">
           <SigningDevicesIllustration />
         </Box>
-        <Text color="light.white" style={styles.modalText}>
+        <Text color={`${colorMode}.white`} style={styles.modalText}>
           {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
@@ -177,21 +178,21 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
         >
           <Box
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
               <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
-              <Box backgroundColor="light.divider" style={styles.divider} />
+              <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {WalletMap(type).Logo}
-                <Text color="light.inActiveMsg" style={styles.messageText}>
+                <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
                   {message}
                 </Text>
               </Box>
             </Box>
-            <Box backgroundColor="light.divider" style={styles.dividerStyle} />
+            <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
         <HardwareModalMap visible={visible} close={close} type={type} />
@@ -204,7 +205,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
       <Box justifyContent="center" alignItems="center">
         <Alert />
       </Box>
-      <Text fontSize={13} letterSpacing={0.65} width={wp(260)} color="light.greenText" marginY={4}>
+      <Text fontSize={13} letterSpacing={0.65} width={wp(260)} color={`${colorMode}.greenText`} marginY={4}>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
       </Text>
     </Box>
@@ -215,7 +216,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
-        headerTitleColor="light.textBlack"
+        headerTitleColor={`${colorMode}.textBlack`}
         learnMore
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
@@ -266,8 +267,8 @@ function SigningDeviceList({ navigation }: { navigation }) {
           title="NFC Not supported"
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
           buttonText="  CTA  "
-          buttonTextColor="light.white"
-          textColor="light.primaryText"
+          buttonTextColor={`${colorMode}.white`}
+          textColor={`${colorMode}.primaryText`}
           Content={nfcAlertConternt}
         />
         <KeeperModal
@@ -277,14 +278,14 @@ function SigningDeviceList({ navigation }: { navigation }) {
           }}
           title="Signing Devices"
           subTitle="A signing device is a hardware or software that stores one of the private keys needed for your vault"
-          modalBackground={['light.gradientStart', 'light.gradientEnd']}
+          modalBackground={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"
-          buttonTextColor="light.greenText"
+          buttonTextColor={`${colorMode}.greenText`}
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
-          textColor="light.white"
+          textColor={`${colorMode}.white`}
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore

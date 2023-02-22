@@ -1,4 +1,4 @@
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { View, StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
@@ -10,6 +10,7 @@ import Switch from 'src/components/Switch/Switch';
 import Text from 'src/components/KeeperText';
 
 function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) => void) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { settings } = translations;
@@ -43,7 +44,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: 'light.mainBackground' }]}>
+    <View style={[styles.container, { backgroundColor: `${colorMode}.mainBackground` }]}>
       <Box style={styles.box}>
         <Box style={styles.useSSL}>
           <Text style={styles.useSSLText}>{settings.useSSL}</Text>
@@ -62,7 +63,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
             <Input
               placeholderTextColor="grey"
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.primaryBackground`}
               placeholder={settings.host}
               borderRadius={10}
               borderWidth={0}
@@ -83,7 +84,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           >
             <Input
               placeholderTextColor="grey"
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.primaryBackground`}
               placeholder={settings.portNumberPlaceholder}
               keyboardType="number-pad"
               borderRadius={10}

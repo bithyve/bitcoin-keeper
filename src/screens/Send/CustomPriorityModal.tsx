@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Modal, Input } from 'native-base';
+import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/images/modal_close.svg';
@@ -11,13 +11,14 @@ import { windowHeight, windowWidth } from 'src/common/data/responsiveness/respon
 import { useAppSelector } from 'src/store/hooks';
 
 function CustomPriorityModal(props) {
+  const { colorMode } = useColorMode();
   const {
     visible,
     close,
     title = 'Title',
     subTitle = null,
     info = null,
-    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
+    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback,
@@ -84,7 +85,7 @@ function CustomPriorityModal(props) {
         justifyContent="flex-end"
       >
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-          <Box style={styles.container} backgroundColor="light.secondaryBackground">
+          <Box style={styles.container} backgroundColor={`${colorMode}.secondaryBackground`}>
             <TouchableOpacity style={styles.close} onPress={close}>
               <Close />
             </TouchableOpacity>
@@ -111,7 +112,7 @@ function CustomPriorityModal(props) {
               />
             </Box>
             <Box my={windowHeight * 0.02}>
-              <Text color="light.greenText" mx={windowWidth * 0.038}>
+              <Text color={`${colorMode}.greenText`} mx={windowWidth * 0.038}>
                 {info}
               </Text>
             </Box>
@@ -128,7 +129,7 @@ function CustomPriorityModal(props) {
                   setCustomPriorityFee('');
                 }}
               >
-                <Text mr={windowWidth * 0.07} color="light.greenText" bold letterSpacing={1.6}>
+                <Text mr={windowWidth * 0.07} color={`${colorMode}.greenText`} bold letterSpacing={1.6}>
                   Start Over
                 </Text>
               </TouchableOpacity>
@@ -159,7 +160,7 @@ function CustomPriorityModal(props) {
             <KeyPadView
               onPressNumber={onPressNumber}
               onDeletePressed={onDeletePressed}
-              keyColor="light.primaryText"
+              keyColor={`${colorMode}.primaryText`}
             />
           </Box>
         </Modal.Content>

@@ -1,6 +1,6 @@
 import { ActivityIndicator, Platform, ScrollView } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import RNIap, {
   Subscription,
   getSubscriptions,
@@ -83,7 +83,8 @@ const plans = [
   },
 ];
 
-function ChoosePlan(props) {
+function ChoosePlan() {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { choosePlan } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
@@ -211,7 +212,7 @@ function ChoosePlan(props) {
               ? `You are currently a ${subscription.name.slice(0, -1)}`
               : `You are currently a ${subscription.name}`
           }
-          headerTitleColor="light.primaryText"
+          headerTitleColor={`${colorMode}.primaryText`}
         />
 
         <TierUpgradeModal
@@ -234,21 +235,21 @@ function ChoosePlan(props) {
               onChange={(item) => setCurrentPosition(item)}
             />
 
-            <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />
+            <Box opacity={0.1} backgroundColor={`${colorMode}.Border`} width="100%" height={0.5} my={5} />
 
             <Box ml={8}>
               <Box>
-                <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
+                <Text fontSize={14} color={`${colorMode}.primaryText`} letterSpacing={1.12}>
                   {getBenifitsTitle(items[currentPosition].name)}:
                 </Text>
-                {/* <Text fontSize={(12)} color={'light.GreyText'} >
+                {/* <Text fontSize={(12)} color={`${colorMode}.GreyText`} >
             {items[currentPosition].subTitle}
           </Text> */}
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
                   <Box flexDirection="row" alignItems="center" key={i}>
-                    <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
+                    <Text fontSize={13} color={`${colorMode}.GreyText`} mb={2} ml={3} letterSpacing={0.65}>
                       {`• ${i}`}
                     </Text>
                   </Box>
@@ -259,7 +260,7 @@ function ChoosePlan(props) {
         )}
 
         <Box
-          backgroundColor="light.secondaryBackground"
+          backgroundColor={`${colorMode}.secondaryBackground`}
           position="absolute"
           bottom={Platform.OS === 'android' ? 3 : -10}
           justifyContent="flex-end"

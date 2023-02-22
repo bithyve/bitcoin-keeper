@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -24,6 +24,7 @@ function ShowXPub({
   noteSubText: string;
   copyable: boolean;
 }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
 
@@ -33,13 +34,13 @@ function ShowXPub({
         <Box>
           <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
           <Box
-            backgroundColor="light.QrCode"
+            backgroundColor={`${colorMode}.QrCode`}
             alignItems="center"
             justifyContent="center"
             padding={1}
             width={hp(200)}
           >
-            <Text fontSize={12} color="light.recieverAddress">
+            <Text fontSize={12} color={`${colorMode}.recieverAddress`}>
               {subText}
             </Text>
           </Box>
@@ -53,7 +54,7 @@ function ShowXPub({
               }}
               style={{
                 flexDirection: 'row',
-                backgroundColor: 'light.textInputBackground',
+                backgroundColor: `${colorMode}.textInputBackground`,
                 borderTopLeftRadius: 10,
                 borderBottomLeftRadius: 10,
                 width: wp(220),

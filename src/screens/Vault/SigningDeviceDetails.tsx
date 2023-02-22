@@ -1,6 +1,7 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useState } from 'react';
 import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, VStack, View, Center } from 'native-base';
+import { Box, HStack, VStack, View, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import { NfcTech } from 'react-native-nfc-manager';
@@ -50,6 +51,7 @@ import SigningDeviceChecklist from './SigningDeviceChecklist';
 import { WalletMap } from './WalletMap';
 
 function SigningDeviceDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -306,10 +308,10 @@ function SigningDeviceDetails({ route }) {
         <Box alignSelf="center">
           <TapsignerSetupImage />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} padding={2}>
+        <Text color={`${colorMode}.secondaryText`} fontSize={13} padding={2}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" fontSize={13} padding={2}>
+        <Text color={`${colorMode}.secondaryText`} fontSize={13} padding={2}>
           You will need the Pin/ CVC at the back of the card
         </Text>
       </View>
@@ -322,10 +324,10 @@ function SigningDeviceDetails({ route }) {
         <Box alignSelf="center">
           <ColdCardSetupImage />
         </Box>
-        <Text color="light.secondaryText" style={styles.textStyle}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle}>
           Health Check is initiated if a signning device is not used for the last 180 days
         </Text>
-        <Text color="light.secondaryText" style={styles.textStyle} />
+        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle} />
       </View>
     );
   }
@@ -336,11 +338,11 @@ function SigningDeviceDetails({ route }) {
         <Box marginLeft={5}>
           <SkipHealthCheckIcon />
         </Box>
-        <Text color="light.secondaryText" style={styles.textStyle}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle}>
           You can choose to manually confirm the health of the signing device if you are sure that
           they are secure and accessible.
         </Text>
-        <Text color="light.secondaryText" style={styles.textStyle}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle}>
           Or you can choose to do the Health Check when you can
         </Text>
       </View>
@@ -354,7 +356,7 @@ function SigningDeviceDetails({ route }) {
           {' '}
           <Illustration />
         </Box>
-        <Text color="light.secondaryText" fontSize={13} padding={2}>
+        <Text color={`${colorMode}.secondaryText`} fontSize={13} padding={2}>
           You will be reminded in 90 days for the health check
         </Text>
       </View>
@@ -370,10 +372,10 @@ function SigningDeviceDetails({ route }) {
           1000,
           false,
           '60%',
-          <Text color="light.black" style={{ marginLeft: 10, width: '60%' }} numberOfLines={2}>
+          <Text color={`${colorMode}.black`} style={{ marginLeft: 10, width: '60%' }} numberOfLines={2}>
             Health check for this device is
             <Text
-              color="light.black"
+              color={`${colorMode}.black`}
               style={{
                 fontStyle: 'italic',
                 fontWeight: '600',
@@ -400,7 +402,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            backgroundColor="light.accent"
+            backgroundColor={`${colorMode}.accent`}
             justifyContent="center"
             alignItems="center"
           >
@@ -425,7 +427,7 @@ function SigningDeviceDetails({ route }) {
       <Box>
         <Center>{getSignerContent(signer?.type).assert}</Center>
         <Text
-          color="light.white"
+          color={`${colorMode}.white`}
           style={{
             fontSize: 13,
             letterSpacing: 0.65,
@@ -468,7 +470,7 @@ function SigningDeviceDetails({ route }) {
             <Text fontSize={14} letterSpacing={1.15}>
               {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
             </Text>
-            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer?.addedOn)
+            <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(signer?.addedOn)
               .format('DD MMM YYYY, hh:mmA')
               .toLowerCase()}`}</Text>
           </Box>
@@ -488,13 +490,13 @@ function SigningDeviceDetails({ route }) {
         justifyContent="center"
         width={windowWidth}
         height={hp(188)}
-        backgroundColor="light.secondaryBackground"
+        backgroundColor={`${colorMode}.secondaryBackground`}
       >
-        <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
+        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
           You will be reminded in 90 days for the health check
         </Text>
         <Box
-          borderColor="light.GreyText"
+          borderColor={`${colorMode}.GreyText`}
           style={{
             borderWidth: 0.5,
             width: '90%',
@@ -536,9 +538,9 @@ function SigningDeviceDetails({ route }) {
           title={healthcheck.HealthCheck}
           subTitle={tapsigner.SetupDescription}
           buttonText="Proceed"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           cancelButtonText="Skip"
-          cancelButtonColor="light.greenText"
+          cancelButtonColor={`${colorMode}.greenText`}
           cancelButtonPressed={healthCheckSkip}
           buttonPressed={() => confirm(SignerType.TAPSIGNER)}
           Content={HealthCheckContentTapsigner}
@@ -549,9 +551,9 @@ function SigningDeviceDetails({ route }) {
           title={healthcheck.HealthCheck}
           subTitle={coldcard.SetupDescription}
           buttonText="Proceed"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           cancelButtonText="Skip"
-          cancelButtonColor="light.greenText"
+          cancelButtonColor={`${colorMode}.greenText`}
           cancelButtonPressed={healthCheckSkip}
           buttonPressed={() => confirm(SignerType.COLDCARD)}
           Content={HealthCheckContentColdCard}
@@ -561,11 +563,11 @@ function SigningDeviceDetails({ route }) {
           close={closehealthCheckSkip}
           title={healthcheck.SkippingHealthCheck}
           subTitle="It is very important that you keep your signing devices secure and fairly accessible at all times."
-          textColor="light.secondaryText"
+          textColor={`${colorMode}.secondaryText`}
           buttonText="Manual Confirm"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           cancelButtonText="Will Do Later"
-          cancelButtonColor="light.greenText"
+          cancelButtonColor={`${colorMode}.greenText`}
           cancelButtonPressed={SkipHealthCheck}
           buttonPressed={confirm}
           Content={HealthCheckSkipContent}
@@ -591,9 +593,9 @@ function SigningDeviceDetails({ route }) {
           title={healthcheck.HealthCheckSuccessful}
           subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"
           buttonText="Home"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           cancelButtonText=""
-          cancelButtonColor="light.greenText"
+          cancelButtonColor={`${colorMode}.greenText`}
           cancelButtonPressed={SkipHealthCheck}
           buttonPressed={confirmHealthCheck}
           Content={HealthCheckSuccessContent}
@@ -603,8 +605,8 @@ function SigningDeviceDetails({ route }) {
           close={() => setDetailModal(false)}
           title={getSignerContent(signer?.type).title}
           subTitle={getSignerContent(signer?.type).subTitle}
-          modalBackground={['light.gradientStart', 'light.gradientEnd']}
-          textColor="light.white"
+          modalBackground={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
+          textColor={`${colorMode}.white`}
           learnMoreCallback={() => openLink(getSignerContent(signer?.type).FAQ)}
           Content={SignerContent}
           DarkCloseIcon
