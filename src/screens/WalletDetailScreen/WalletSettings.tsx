@@ -34,7 +34,6 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 
 type Props = {
@@ -45,12 +44,12 @@ type Props = {
 
 function Option({ title, subTitle, onPress }: Props) {
   return (
-    <Pressable style={styles.optionContainer} onPress={onPress}>
+    <Pressable style={styles.optionContainer} onPress={onPress} testID={`press_${title}`}>
       <Box style={{ width: '96%' }}>
-        <Text color="light.primaryText" style={styles.optionTitle}>
+        <Text color="light.primaryText" style={styles.optionTitle} testID={`text_${title}`}>
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2}>
+        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2} testID={`text_${subTitle}`}>
           {subTitle}
         </Text>
       </Box>
