@@ -140,9 +140,6 @@ export const getCurrencyImageByRegion = (
     'DOP',
     'ARS',
   ];
-  // These currencies also use the $ symbol although the currency is Peso 'MXN', 'COP', 'CLP', 'UYU', 'DOP', 'ARS'
-
-  // const poundCurrency = ['EGP', 'FKP', 'GIP', 'GGP', 'IMP', 'JEP', 'SHP', 'SYP', 'GBP'];
 
   if (currentCurrency !== CurrencyKind.BITCOIN && dollarCurrency.includes(currencyCode)) {
     if (type === 'light') {
@@ -158,70 +155,4 @@ export const getCurrencyImageByRegion = (
     return <BTCIcon />;
   }
 
-  // using Dolar for now
-
-  // if (poundCurrency.includes(currencyCode)) {
-  //   if (type === 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_white.png')
-  //   } else if (type === 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_dark.png')
-  //   } else if (type === 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_gray.png')
-  //   } else if (type === 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_pound_white.png')
-  // }
-
-  // if (currencyCode === 'DKK' || currencyCode === 'ISK' || currencyCode === 'SEK') {
-  //   if (type === 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_white.png')
-  //   } else if (type === 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_dark.png')
-  //   } else if (type === 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_gray.png')
-  //   } else if (type === 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_kr_gray.png')
-  // }
-
-  // if (currencyCode === 'PLN') {
-  //   if (type === 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_white.png')
-  //   } else if (type === 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_dark.png')
-  //   } else if (type === 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_gray.png')
-  //   } else if (type === 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_pln_gray.png')
-  // }
-
-  // if (currencyCode === 'THB') {
-  //   if (type === 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_white.png')
-  //   } else if (type === 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_dark.png')
-  //   } else if (type === 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_gray.png')
-  //   } else if (type === 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_thb_gray.png')
-  // }
-
-  // if (currencyCode === 'CHF') {
-  //   if (type === 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_white.png')
-  //   } else if (type === 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_dark.png')
-  //   } else if (type === 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_gray.png')
-  //   } else if (type === 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_chf_gray.png')
-  // }
 };
