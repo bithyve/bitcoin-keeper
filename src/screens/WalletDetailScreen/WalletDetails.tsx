@@ -594,7 +594,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   unconfirmedBalance: {
-    fontSize: 14,
+    fontSize: 17,
     letterSpacing: 0.6,
     alignSelf: 'flex-end',
   },

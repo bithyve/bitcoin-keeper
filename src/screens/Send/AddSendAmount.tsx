@@ -154,7 +154,7 @@ function AddSendAmount({ route }) {
     <ScreenWrapper>
       <HeaderTitle
         title={
-          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
+          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the Amount`
         }
       />
       <Box
@@ -222,7 +222,7 @@ function AddSendAmount({ route }) {
               placeholder="Enter Amount"
               placeholderTextColor="light.greenText"
               color="light.greenText"
-              opacity={1}
+              opacity={0.5}
               width="90%"
               fontSize={14}
               fontWeight={300}
