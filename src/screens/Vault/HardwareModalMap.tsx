@@ -190,7 +190,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       return {
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper HWI to connect with BitBox02. `,
+          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with BitBox02. `,
           `Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.`,
         ],
         title: bitbox.SetupTitle,
@@ -200,7 +200,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       return {
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper HWI to connect with Trezor. `,
+          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor. `,
           `Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.`,
         ],
         title: trezor.SetupTitle,

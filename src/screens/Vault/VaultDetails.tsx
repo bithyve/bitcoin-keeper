@@ -64,14 +64,14 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            if (
-              vault.signers.find((item) =>
-                [SignerType.BITBOX02, SignerType.TREZOR].includes(item.type)
-              )
-            ) {
-              showToast('Send is not supported yet with Bitbox and Trezor.');
-              return;
-            }
+            // if (
+            //   vault.signers.find((item) =>
+            //     [SignerType.BITBOX02, SignerType.TREZOR].includes(item.type)
+            //   )
+            // ) {
+            //   showToast('Send is not supported yet with Bitbox and Trezor.');
+            //   return;
+            // }
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
         >
