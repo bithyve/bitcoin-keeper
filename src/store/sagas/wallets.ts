@@ -508,7 +508,9 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
     };
   } = payload;
   // TO_DO_VAULT_API
-  const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
+  const vaultId = ''; // TODO: plugin vaultId
+  const appId = app.id;
+  const { updated } = yield call(SigningServer.updatePolicy, vaultId, appId, updates);
 
   if (!updated) {
     Alert.alert('Failed to update signer policy, try again.');

@@ -45,9 +45,10 @@ function SetupSigningServer({ route }: { route }) {
 
   const fetchSetupData = async () => {
     const { policy } = route.params;
-    const vaultId = keeper.id;
+    const vaultId = ''; // TODO: plugin vaultId
+    const appId = keeper.id;
     try {
-      const { setupData } = await SigningServer.register(vaultId, policy);
+      const { setupData } = await SigningServer.register(vaultId, appId, policy);
       setSetupData(setupData);
       setValidationKey(setupData.verification.verifier);
     } catch (err) {
@@ -57,9 +58,10 @@ function SetupSigningServer({ route }: { route }) {
 
   const validateSetup = async () => {
     const verificationToken = Number(otp);
-    const vaultId = keeper.id;
+    const vaultId = ''; // TODO: plugin vaultId
+    const appId = keeper.id;
     try {
-      const { valid } = await SigningServer.validate(vaultId, verificationToken);
+      const { valid } = await SigningServer.validate(vaultId, appId, verificationToken);
       if (valid) setIsSetupValidated(valid);
       else showToast('Invalid OTP. Please try again!');
     } catch (err) {
