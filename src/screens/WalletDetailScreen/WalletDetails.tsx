@@ -56,6 +56,7 @@ function WalletDetails({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
@@ -165,7 +166,7 @@ function WalletDetails({ route }) {
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
                     <Text color="light.white" style={styles.unconfirmedBalance}>
-                      {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency)}
+                      {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
                     </Text>
                   </Box>
                 </Box>
@@ -184,9 +185,9 @@ function WalletDetails({ route }) {
                     {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                   </Box>
                   <Text color="light.white" style={styles.availableBalance}>
-                    {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency)}
+                    {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
                     <Text color="light.textColor" style={styles.balanceUnit}>
-                      {getUnit(currentCurrency)}
+                      {getUnit(currentCurrency, satsEnabled)}
                     </Text>
                   </Text>
                 </Box>
@@ -265,9 +266,9 @@ function WalletDetails({ route }) {
             {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTC)}
           </Box>
           <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
-            {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
+            {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
             <Text color="light.textColorDark" style={styles.balanceUnit}>
-              {getUnit(currentCurrency)}
+              {getUnit(currentCurrency, satsEnabled)}
             </Text>
           </Text>
         </Box>
@@ -331,9 +332,10 @@ function WalletDetails({ route }) {
                       wallets[walletIndex].transferPolicy.threshold,
                       exchangeRates,
                       currencyCode,
-                      currentCurrency
+                      currentCurrency,
+                      satsEnabled
                     )}
-                    {getUnit(currentCurrency)}
+                    {getUnit(currentCurrency, satsEnabled)}
                   </Text>
                 </Box>
                 <Box>
@@ -592,7 +594,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   unconfirmedBalance: {
-    fontSize: 14,
+    fontSize: 17,
     letterSpacing: 0.6,
     alignSelf: 'flex-end',
   },

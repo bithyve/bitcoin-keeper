@@ -261,7 +261,7 @@ function ChoosePlan(props) {
         <Box
           backgroundColor="light.secondaryBackground"
           position="absolute"
-          bottom={Platform.OS === 'android' ? 10 : -10}
+          bottom={Platform.OS === 'android' ? 3 : -10}
           justifyContent="flex-end"
           width={wp(340)}
         >

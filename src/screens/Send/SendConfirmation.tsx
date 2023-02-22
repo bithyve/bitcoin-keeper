@@ -103,6 +103,7 @@ function SendConfirmation({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
@@ -313,8 +314,9 @@ function SendConfirmation({ route }) {
                 sender.specs.balances.confirmed,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
               isVault
             />
           ) : (
@@ -324,8 +326,9 @@ function SendConfirmation({ route }) {
                 amount,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
             />
           );
         case TransferType.VAULT_TO_ADDRESS:
@@ -336,8 +339,9 @@ function SendConfirmation({ route }) {
                 amount,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
               isVault
             />
           ) : (
@@ -347,8 +351,9 @@ function SendConfirmation({ route }) {
                 amount,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
             />
           );
         case TransferType.WALLET_TO_WALLET:
@@ -359,8 +364,9 @@ function SendConfirmation({ route }) {
                 sender?.specs.balances.confirmed,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
             />
           ) : (
             <Card
@@ -369,8 +375,9 @@ function SendConfirmation({ route }) {
                 amount,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
             />
           );
         case TransferType.WALLET_TO_VAULT:
@@ -381,8 +388,9 @@ function SendConfirmation({ route }) {
                 sourceWallet.specs.balances.confirmed,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )}${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )}${getUnit(currentCurrency, satsEnabled)}`}
             />
           ) : (
             <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
@@ -395,8 +403,9 @@ function SendConfirmation({ route }) {
                 sender.specs.balances.confirmed,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
             />
           ) : (
             <Card
@@ -405,8 +414,9 @@ function SendConfirmation({ route }) {
                 amount,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
-              )} ${getUnit(currentCurrency)}`}
+                currentCurrency,
+                satsEnabled
+              )} ${getUnit(currentCurrency, satsEnabled)}`}
             />
           );
       }

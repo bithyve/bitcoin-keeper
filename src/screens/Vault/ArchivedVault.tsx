@@ -25,6 +25,7 @@ function ArchivedVault() {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   function VaultItem({ vaultItem, index }: { vaultItem: Vault; index: number }) {
     return (
@@ -77,7 +78,8 @@ function ArchivedVault() {
                 vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed,
                 exchangeRates,
                 currencyCode,
-                currentCurrency
+                currentCurrency,
+                satsEnabled
               )}
             </Text>
           </Box>

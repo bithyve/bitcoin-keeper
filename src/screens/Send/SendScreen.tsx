@@ -12,7 +12,7 @@ import {
 import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
@@ -148,15 +148,15 @@ function SendScreen({ route }) {
       case PaymentInfoKind.PAYMENT_URI:
         sender.entityKind === 'VAULT'
           ? navigateToNext(
-            address,
-            TransferType.VAULT_TO_ADDRESS,
-            amount ? amount.toString() : null
-          )
+              address,
+              TransferType.VAULT_TO_ADDRESS,
+              amount ? amount.toString() : null
+            )
           : navigateToNext(
-            address,
-            TransferType.WALLET_TO_ADDRESS,
-            amount ? amount.toString() : null
-          );
+              address,
+              TransferType.WALLET_TO_ADDRESS,
+              amount ? amount.toString() : null
+            );
         break;
       default:
         showToast('Invalid bitcoin address', <ToastErrorIcon />);
@@ -198,77 +198,75 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          <HeaderTitle
-            title={common.send}
-            subtitle="Scan a bitcoin address"
-            headerTitleColor="light.textBlack"
-            paddingTop={hp(5)}
-          />
-          <Box>
-            <Box style={styles.qrcontainer}>
-              <RNCamera
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={(data) => {
-                  handleTextChange(data.data);
-                }}
-                notAuthorizedView={<CameraUnauthorized />}
-              />
-            </Box>
-            {/* Upload Image */}
-
-            <UploadImage onPress={handleChooseImage} />
-
-            {/* send manually option */}
-            <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
-              <TextInput
-                placeholder="or enter address manually"
-                placeholderTextColor="light.GreyText"
-                style={styles.textInput}
-                value={paymentInfo}
-                onChangeText={handleTextChange}
-              />
-            </Box>
-
-            {/* Send to Wallet options */}
-            <Box style={styles.sendToWalletWrapper}>
-              <Text marginX={2} fontSize={14} letterSpacing={1.12}>
-                or send to a wallet
-              </Text>
-              <View>
-                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
-                  <FlatList
-                    data={otherWallets}
-                    renderItem={renderWallets}
-                    keyExtractor={(item) => item.id}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                  />
-                </View>
-              </View>
-            </Box>
+        {/* <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}> */}
+        <HeaderTitle
+          title={common.send}
+          subtitle="Scan a bitcoin address"
+          headerTitleColor="light.textBlack"
+          paddingTop={hp(5)}
+        />
+        <Box>
+          <Box style={styles.qrcontainer}>
+            <RNCamera
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={(data) => {
+                handleTextChange(data.data);
+              }}
+              notAuthorizedView={<CameraUnauthorized />}
+            />
           </Box>
-        </ScrollView>
+          {/* Upload Image */}
+
+          <UploadImage onPress={handleChooseImage} />
+
+          {/* send manually option */}
+          <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+            <TextInput
+              placeholder="or enter address manually"
+              placeholderTextColor="light.GreyText"
+              style={styles.textInput}
+              value={paymentInfo}
+              onChangeText={handleTextChange}
+            />
+          </Box>
+
+          {/* Send to Wallet options */}
+          <Box style={styles.sendToWalletWrapper}>
+            <Text marginX={2} fontSize={14} letterSpacing={1.12}>
+              or send to a wallet
+            </Text>
+            <View>
+              <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
+                <FlatList
+                  data={otherWallets}
+                  renderItem={renderWallets}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                />
+              </View>
+            </View>
+          </Box>
+        </Box>
+        {/* </ScrollView> */}
       </KeyboardAvoidingView>
 
       {/* {Bottom note} */}
-      {
-        showNote && (
-          <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
-            <Note
-              title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
-              subtitle={
-                sender.entityKind === 'VAULT'
-                  ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
-                  : 'Make sure the address or QR is the one where you want to send the funds to'
-              }
-              subtitleColor="GreyText"
-            />
-          </Box>
-        )
-      }
-    </ScreenWrapper >
+      {showNote && (
+        <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
+          <Note
+            title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
+            subtitle={
+              sender.entityKind === 'VAULT'
+                ? 'Check the send-to address on a signing device you are going to use to sign the transaction.'
+                : 'Make sure the address or QR is the one where you want to send the funds to'
+            }
+            subtitleColor="GreyText"
+          />
+        </Box>
+      )}
+    </ScreenWrapper>
   );
 }
 
@@ -349,11 +347,11 @@ const styles = ScaledSheet.create({
   noteWrapper: {
     marginLeft: wp(20),
     position: 'absolute',
-    bottom: hp(20),
+    bottom: windowHeight > 680 ? hp(20) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {
-    marginTop: hp(20),
+    marginTop: windowHeight > 680 ? hp(20) : hp(10),
   },
 });
 export default SendScreen;
