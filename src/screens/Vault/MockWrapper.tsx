@@ -30,8 +30,7 @@ function MockWrapper({
   navigation?: NavigationProp<any>;
 }) {
   const dispatch = useDispatch();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const nav = navigation || useNavigation();
+  const nav = navigation ?? useNavigation();
   const { showToast } = useToastMessage();
   const addMockSigner = () => {
     try {

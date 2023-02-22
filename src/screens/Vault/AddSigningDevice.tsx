@@ -204,7 +204,12 @@ function AddSigningDevice() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={`${preTitle}`} subtitle={subtitle} headerTitleColor="light.textBlack" />
+      <HeaderTitle
+        title={`${preTitle}`}
+        subtitle={subtitle}
+        headerTitleColor="light.textBlack"
+        enableBack={planStatus !== VaultMigrationType.DOWNGRADE}
+      />
       <VaultMigrationController
         vaultCreating={vaultCreating}
         setCreating={setCreating}
@@ -250,7 +255,11 @@ function AddSigningDevice() {
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
           secondaryText="Cancel"
-          secondaryCallback={navigation.goBack}
+          secondaryCallback={
+            planStatus !== VaultMigrationType.DOWNGRADE
+              ? navigation.goBack
+              : () => navigation.replace('App')
+          }
           paddingHorizontal={wp(30)}
         />
       </Box>
