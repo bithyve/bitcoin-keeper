@@ -145,10 +145,10 @@ function WalletDetails({ route }) {
                       marginLeft: 10,
                     }}
                   >
-                    <Text color="light.white" style={styles.walletName}>
+                    <Text color="light.white" style={styles.walletName} testID={`text_${walletName}`}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription}>
+                    <Text color="light.white" style={styles.walletDescription} testID={`text_${walletDescription}`}>
                       {walletDescription}
                     </Text>
                   </Box>
