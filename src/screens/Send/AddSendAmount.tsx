@@ -150,8 +150,6 @@ function AddSendAmount({ route }) {
     []
   );
 
-  console.log(sender?.specs.balances.confirmed);
-
   return (
     <ScreenWrapper>
       <HeaderTitle
