@@ -1,20 +1,11 @@
 import SecutityTip from 'src/assets/images/securityTip.svg';
-import { Image } from 'react-native';
-import { hp, wp } from '../responsiveness/responsive';
 import React from 'react';
 
 export const securityTips = [
   {
     title: 'Share Feedback',
     subTitle: '(Beta app only)\nShake your device to send us a bug report or a feature request',
-    assert: <Image
-      source={require('src/assets/video/test-net.gif')}
-      style={{
-        width: wp(270),
-        height: hp(200),
-        alignSelf: 'center',
-      }}
-    />,
+    assert: <SecutityTip />,
     message:
       'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
   },
