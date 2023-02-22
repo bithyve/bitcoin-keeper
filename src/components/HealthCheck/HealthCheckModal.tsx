@@ -1,4 +1,4 @@
-import { Box, Modal, Input } from 'native-base';
+import { Box, Modal, Input, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Close from 'src/assets/images/modal_close.svg';
@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch } from 'src/store/hooks';
 
 function HealthCheckModal(props) {
+  const { colorMode } = useColorMode();
   const {
     visible,
     closeHealthCheck,
@@ -17,8 +18,8 @@ function HealthCheckModal(props) {
     placeHolderName = '',
     SignerName = 'SignerName',
     SignerIcon = '',
-    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
-    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
+    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback = props.closeHealthCheck || null,
@@ -69,14 +70,14 @@ function HealthCheckModal(props) {
           <Box style={{ flexDirection: 'row', marginLeft: 10, alignSelf: 'flex-start' }}>
             <Box>{SignerIcon}</Box>
             <Box style={{ marginTop: 8, flexDirection: 'column' }}>
-              <Text color="light.primaryText" fontSize={14}>
+              <Text color={`${colorMode}.primaryText`} fontSize={14}>
                 {SignerName}
               </Text>
             </Box>
           </Box>
           <Input
             placeholderTextColor="grey"
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             placeholder={placeHolderName}
             borderWidth={0}
             borderRadius={5}

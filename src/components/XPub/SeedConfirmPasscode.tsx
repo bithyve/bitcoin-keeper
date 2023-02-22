@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
@@ -15,6 +15,7 @@ import Buttons from '../Buttons';
 import Text from '../KeeperText';
 
 function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
+  const { colorMode } = useColorMode();
   const relogin = false;
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -92,7 +93,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor textColor />
         {loginError &&
           <Text
-            color='light.indicator'
+            color={`${colorMode}.indicator`}
             style={{
               textAlign: 'right',
               fontStyle: 'italic'
@@ -120,7 +121,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor="light.primaryText"
+          keyColor={`${colorMode}.primaryText`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>

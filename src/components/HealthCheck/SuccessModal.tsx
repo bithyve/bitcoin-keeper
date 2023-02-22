@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Modal, View, Box } from 'native-base';
+import { Modal, View, Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
 import LinearGradient from 'src/components/KeeperGradient';
@@ -9,17 +9,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Close from 'src/assets/images/modal_close.svg';
 
 function SuccessModal(props) {
+  const { colorMode } = useColorMode();
   const {
     visible,
     close,
     title = 'Title',
     subTitle = 'Subtitle',
-    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
-    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
+    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
-    buttonTextColor = 'light.white',
+    buttonTextColor = `${colorMode}.white`,
     buttonCallback = props.close || null,
-    textColor = 'light.GreyText',
+    textColor = `${colorMode}.GreyText`,
     cancelButtonText = 'Cancel',
     cancelButtonColor = '#073E39',
     cancelButtonPressed,
@@ -39,9 +40,9 @@ function SuccessModal(props) {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent="flex-end"
 
-      // zIndex={'-1'}
-      // style={styles.viewContainer}
-      // overlayVisible
+    // zIndex={'-1'}
+    // style={styles.viewContainer}
+    // overlayVisible
     >
       <View flex={1} style={styles.viewContainer}>
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
