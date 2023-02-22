@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
@@ -29,9 +29,10 @@ function HeaderTitle({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   titleFontSize = 16,
 }: Props) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
@@ -48,11 +49,11 @@ function HeaderTitle({
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed}>
               <Box
-                borderColor="light.learnMoreBorder"
-                backgroundColor="light.lightAccent"
+                borderColor={`${colorMode}.learnMoreBorder`}
+                backgroundColor={`${colorMode}.lightAccent`}
                 style={styles.learnMoreContainer}
               >
-                <Text color="light.learnMoreBorder" style={styles.learnMoreText}>
+                <Text color={`${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
                   Learn More
                 </Text>
               </Box>
@@ -77,7 +78,7 @@ function HeaderTitle({
             </Text>
           )}
           {subtitle && (
-            <Text style={styles.addWalletDescription} color="light.primaryText">
+            <Text style={styles.addWalletDescription} color={`${colorMode}.primaryText`}>
               {subtitle}
             </Text>
           )}

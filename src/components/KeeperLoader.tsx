@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Modal } from 'native-base';
+import { Box, Modal, useColorMode } from 'native-base';
 import { Platform, StyleSheet } from 'react-native';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -10,17 +10,18 @@ import Text from 'src/components/KeeperText';
 import LoadingAnimation from './Loader';
 
 function KeeperLoader(props) {
+  const { colorMode } = useColorMode();
   const {
     visible,
     close,
-    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
+    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
     textColor = '#000',
-    subTitleColor = 'light.secondaryText',
+    subTitleColor = `${colorMode}.secondaryText`,
     loadingContent,
     Content = () => (
       <Box style={{ width: windowWidth * 0.8 }}>
         <LoadingAnimation />
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} marginTop={hp(60)}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65} marginTop={hp(60)}>
           {loadingContent?.message}
         </Text>
       </Box>

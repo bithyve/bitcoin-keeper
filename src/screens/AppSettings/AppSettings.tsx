@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
@@ -86,7 +87,7 @@ function AppSettings({ navigation }) {
 
   const RenderTorStatus = useCallback(
     () => (
-      <Box backgroundColor="light.lightAccent" py={0.5} px={1.5} borderRadius={10}>
+      <Box backgroundColor={`${colorMode}.lightAccent`} py={0.5} px={1.5} borderRadius={10}>
         <Text fontSize={11}>{torStatus}</Text>
       </Box>
     ),
@@ -150,7 +151,7 @@ function AppSettings({ navigation }) {
         flexDirection="row"
         alignItems="center"
         onPress={onPress}
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
         style={styles.appBackupWrapper}
       >
         {Icon && (
@@ -158,8 +159,8 @@ function AppSettings({ navigation }) {
             {/* { Notification indicator } */}
             {backupMethod === null && (
               <Box
-                backgroundColor="light.indicator"
-                borderColor="light.white"
+                backgroundColor={`${colorMode}.indicator`}
+                borderColor={`${colorMode}.white`}
                 style={styles.notificationIndicator}
               />
             )}
@@ -167,10 +168,10 @@ function AppSettings({ navigation }) {
           </Box>
         )}
         <Box style={{ marginLeft: wp(20) }}>
-          <Text color="light.primaryText" style={styles.appBackupTitle}>
+          <Text color={`${colorMode}.primaryText`} style={styles.appBackupTitle}>
             {title}
           </Text>
-          <Text color="light.GreyText" style={styles.appBackupSubTitle}>
+          <Text color={`${colorMode}.GreyText`} style={styles.appBackupSubTitle}>
             {subTitle}
           </Text>
         </Box>
@@ -226,14 +227,14 @@ function AppSettings({ navigation }) {
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
 
-          {/* <SettingsSwitchCard
+          <SettingsSwitchCard
             title={settings.DarkMode}
             description={settings.DarkModeSubTitle}
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
             value={darkMode}
-          /> */}
+          />
           <SettingsCard
             title={settings.nodeSettings}
             description={settings.nodeSettingsSubtitle}
@@ -274,14 +275,14 @@ function AppSettings({ navigation }) {
           />
         </ScrollView>
 
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
+        <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.secondaryBackground`}>
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
+              <Box style={styles.telTweetLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
+                    <Text color={`${colorMode}.textColor2`} style={styles.telTweetLinkTitle}>
                       Keeper Telegram
                     </Text>
                   </Box>
@@ -292,11 +293,11 @@ function AppSettings({ navigation }) {
               </Box>
             </Pressable>
             <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
+              <Box style={styles.telTweetLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
+                    <Text color={`${colorMode}.textColor2`} style={styles.telTweetLinkTitle}>
                       Keeper Twitter
                     </Text>
                   </Box>
@@ -309,19 +310,19 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
+            <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.TermsConditions}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.PrivacyPolicy}

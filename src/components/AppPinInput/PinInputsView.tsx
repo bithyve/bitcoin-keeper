@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -19,6 +19,7 @@ function PinInputsView({
   textColor,
   borderColor = 'transparent',
 }: Props) {
+  const { colorMode } = useColorMode();
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -34,7 +35,7 @@ function PinInputsView({
   const getBackgroundColor = () =>
     backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)';
 
-  const getTextColor = () => (textColor ? 'light.textBlack' : 'light.white');
+  const getTextColor = () => (textColor ? `${colorMode}.textBlack` : `${colorMode}.white`);
 
   const getDotColor = () => (textColor ? 'black' : 'white');
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -15,6 +15,7 @@ function UploadImage(
     onPress = () => { }
   }: Props
 ) {
+  const { colorMode } = useColorMode();
   return (
     <TouchableOpacity
       activeOpacity={0.5}
@@ -30,7 +31,7 @@ function UploadImage(
         <ImageIcon />
         <Text
           style={styles.text}
-          color={'light.white'}
+          color={`${colorMode}.white`}
         >
           Upload from gallery
         </Text>

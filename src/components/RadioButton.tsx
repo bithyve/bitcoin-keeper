@@ -1,3 +1,5 @@
+/* eslint-disable react/require-default-props */
+/* eslint-disable react/function-component-definition */
 import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'src/components/KeeperGradient';
@@ -5,6 +7,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
+import { useColorMode } from 'native-base';
 
 export type Props = {
   isChecked: boolean;
@@ -21,7 +24,7 @@ const RadioButton: React.FC<Props> = ({
   // color = '#00836A',
   borderColor = '#E3E3E3',
   ignoresTouch = false,
-  onpress = () => {},
+  onpress = () => { },
 }: Props) => {
   const containerStyle = useMemo(
     () => ({
@@ -36,7 +39,7 @@ const RadioButton: React.FC<Props> = ({
       size,
     ]
   );
-
+  const { colorMode } = useColorMode();
   const innerCircleStyle = useMemo(
     () => ({
       // backgroundColor: color,
@@ -61,7 +64,7 @@ const RadioButton: React.FC<Props> = ({
         style={{ ...styles.createBtn }}
         start={[0.8, 0.1]}
         end={[0.35, 0.9]}
-        colors={['light.gradientStart', 'light.gradientEnd']}
+        colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
       >
         {isChecked && <View style={innerCircleStyle} />}
       </LinearGradient>
