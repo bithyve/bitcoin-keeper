@@ -46,7 +46,7 @@ function AddSigningDevice({ error }) {
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
       }
     >
-      <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
+      <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12" marginTop={5}>
         <HStack style={styles.signerItem}>
           <HStack alignItems="center">
             <AddIcon />
@@ -244,21 +244,22 @@ function VaultRecovery({ navigation }) {
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
       />
-      <View style={{ flex: 1, justifyContent: 'space-between' }}>
+      <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={signersList}
               keyExtractor={(item, index) => item?.signerId ?? index}
               renderItem={renderSigner}
               style={{
-                marginTop: hp(52),
+                marginTop: hp(32),
               }}
             />
             <AddSigningDevice error={error} />
           </Box>
         ) : (
-          <Box alignItems="center" style={{ flex: 1, justifyContent: 'center' }}>
+          <Box alignItems="center">
             <TouchableOpacity
               onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
             >
@@ -271,8 +272,10 @@ function VaultRecovery({ navigation }) {
             </Text>
           </Box>
         )}
+      </Box>
+      <Box style={styles.bottomViewWrapper}>
         {signingDevices.length > 0 && (
-          <Box position="absolute" bottom={10} width="100%" marginBottom={10}>
+          <Box width="100%">
             <Buttons
               primaryText="Recover Vault"
               primaryCallback={startRecovery}
@@ -284,7 +287,7 @@ function VaultRecovery({ navigation }) {
           title="Note"
           subtitle="Signing Server cannot be used as the first signing device while recovering"
         />
-      </View>
+      </Box>
       <KeeperModal
         visible={successModalVisible}
         title="Vault Recovered!"
@@ -313,6 +316,16 @@ const styles = ScaledSheet.create({
     borderRadius: 5,
     backgroundColor: '#FAC48B',
     justifyContent: 'center',
+  },
+  scrollViewWrapper: {
+    flex: 0.7,
+    justifyContent: 'space-between',
+  },
+  bottomViewWrapper: {
+    position: 'absolute',
+    bottom: 5,
+    width: '100%',
+    marginHorizontal: 20,
   },
 });
 

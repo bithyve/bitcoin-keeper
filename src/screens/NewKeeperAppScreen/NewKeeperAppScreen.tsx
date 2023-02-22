@@ -15,9 +15,8 @@ import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
-import LoadingAnimation from 'src/components/Loader';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   return (
@@ -138,7 +137,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
     return (
       <Box style={{ width: windowWidth * 0.8 }}>
         <ShakingAssetsAnimation />
-        {/* <LoadingAnimation /> */}
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
@@ -194,7 +192,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -209,7 +207,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}

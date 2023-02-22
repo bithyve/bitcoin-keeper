@@ -316,8 +316,8 @@ function WalletSettings({ route }) {
           visible={cosignerVisible}
           close={() => setCosignerVisible(false)}
           title="Cosigner Details"
-          subTitleWidth={wp(240)}
-          subTitle="Scan the cosigner details from another app to add this as a signer"
+          subTitleWidth={wp(260)}
+          subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           buttonText="Done"

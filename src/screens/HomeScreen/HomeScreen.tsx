@@ -285,7 +285,7 @@ function VaultStatus(props) {
           <Box style={styles.vault}>
             <Box style={styles.torContainer}>
               {getTorStatusText !== 'Tor disabled' && (
-                <Box backgroundColor={getTorStatusColor}>
+                <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
                   <Text color="light.primaryText" style={styles.torText} bold>
                     {getTorStatusText}
                   </Text>
@@ -338,6 +338,7 @@ function VaultStatus(props) {
                   <Box
                     style={{
                       marginVertical: 15,
+                      marginLeft: 3,
                     }}
                   >
                     <Hidden />
@@ -599,14 +600,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   torContainer: {
-    paddingHorizontal: 10,
-    marginTop: hp(30),
+    marginTop: hp(25),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: hp(14),
   },
   torText: {
-    letterSpacing: 1,
+    letterSpacing: 0.75,
     fontSize: 11,
     textAlign: 'center',
     textTransform: 'uppercase',

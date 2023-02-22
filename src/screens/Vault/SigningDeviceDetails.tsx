@@ -36,6 +36,10 @@ import Illustration from 'src/assets/images/illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ToastError from 'src/assets/images/toast_error.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
+import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg'
+import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
+import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
+import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 
 import openLink from 'src/utils/OpenLink';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -159,6 +163,46 @@ function SigningDeviceDetails({ route }) {
           description:
             '\u2022Foundation products are beautiful, and intuitive, and remove the steep learning curve typically associated with Bitcoin and decentralized tech.\n\u2022 Foundation reflects our optimism about the future. Our products feel positive, aspirational, and a bit sci-fi.',
           FAQ: 'https://docs.foundationdevices.com',
+        };
+      case SignerType.MOBILE_KEY:
+        return {
+          title: 'Mobile Key',
+          subTitle:
+            'You could use the wallet key on your app as one of the signing keys',
+          assert: <MobileKeyIllustration />,
+          description:
+            '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
+          FAQ: '',
+        };
+      case SignerType.SEED_WORDS:
+        return {
+          title: 'Seed Key',
+          subTitle:
+            'You could use a newly generated seed (12 words) as one of the signing keys',
+          assert: <SeedWordsIllustration />,
+          description:
+            '\u2022Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
+          FAQ: '',
+        };
+      case SignerType.KEEPER:
+        return {
+          title: 'Keeper as signing device',
+          subTitle:
+            'You can use a specific BIP-85 wallet on another Keeper app as a signer',
+          assert: <KeeperSetupImage />,
+          description:
+            '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
+          FAQ: '',
+        };
+      case SignerType.POLICY_SERVER:
+        return {
+          title: 'Signing Server',
+          subTitle:
+            'The key on the Signing Server will sign a transaction depending on the policy and authentication',
+          assert: <SigningServerIllustration />,
+          description:
+            '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signing devices, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
+          FAQ: '',
         };
       default:
         return {
