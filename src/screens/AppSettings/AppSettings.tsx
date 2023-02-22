@@ -152,6 +152,7 @@ function AppSettings({ navigation }) {
         onPress={onPress}
         backgroundColor="light.primaryBackground"
         style={styles.appBackupWrapper}
+        testID={`press_${title}`}
       >
         {Icon && (
           <Box style={styles.appBackupIconWrapper}>
