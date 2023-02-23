@@ -116,6 +116,7 @@ function LinkedWallets(props) {
         marginTop: hp(8),
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
+      testID='btn_LinkedWallet'
     >
       <Box
         backgroundColor={{

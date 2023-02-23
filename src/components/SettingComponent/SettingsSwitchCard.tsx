@@ -13,7 +13,7 @@ function SettingsSwitchCard(props) {
       padding={3}
       borderRadius={10}
       {...props}
-      testID={`press_${props.title}`}
+      testID={`btn_${props.title}`}
     >
       <Box flex={1}>
         <Text color="light.primaryText" fontSize={14} letterSpacing={1.04} testID={`text_${props.title}`}>

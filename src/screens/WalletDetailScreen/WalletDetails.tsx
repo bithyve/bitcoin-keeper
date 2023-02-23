@@ -145,10 +145,10 @@ function WalletDetails({ route }) {
                       marginLeft: 10,
                     }}
                   >
-                    <Text color="light.white" style={styles.walletName} testID={`text_${walletName}`}>
+                    <Text color="light.white" style={styles.walletName} testID={`text_${walletName.replace(/ /g, '_')}`}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription} testID={`text_${walletDescription}`}>
+                    <Text color="light.white" style={styles.walletDescription} testID={`text_${walletDescription.replace(/ /g, '_')}`}>
                       {walletDescription}
                     </Text>
                   </Box>
@@ -399,6 +399,7 @@ function WalletDetails({ route }) {
                 onPress={() => {
                   navigation.navigate('WalletSettings', { wallet: currentWallet });
                 }}
+                testID='btn_walletSettings'
               >
                 <IconSettings />
                 <Text color="light.primaryText" style={styles.footerItemText}>
