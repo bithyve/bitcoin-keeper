@@ -9,7 +9,7 @@ import {
   BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, StatusBar } from 'native-base';
+import { Box } from 'native-base';
 
 import LinearGradient from 'src/components/KeeperGradient';
 

@@ -15,7 +15,7 @@ import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
-import LoadingAnimation from 'src/components/Loader';
+import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
@@ -135,8 +135,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   function SignUpModalContent() {
     return (
-      <Box style={{ width: wp(280) }}>
-        <LoadingAnimation />
+      <Box style={{ width: windowWidth * 0.8 }}>
+        <ShakingAssetsAnimation />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
