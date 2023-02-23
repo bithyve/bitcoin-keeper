@@ -12,13 +12,14 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/images/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
+import ThemeMode from 'src/common/data/enums/ThemeMode';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import openLink from 'src/utils/OpenLink';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { setTorEnabled } from 'src/store/reducers/settings';
+import { setThemeMode, setTorEnabled } from 'src/store/reducers/settings';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
@@ -41,6 +42,8 @@ function AppSettings({ navigation }) {
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const state = useAppSelector((state) => state.settings)
+  console.log('state', state)
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
 
@@ -80,6 +83,15 @@ function AppSettings({ navigation }) {
       RestClient.unsubscribe(onChangeTorStatus);
     };
   }, []);
+
+  useEffect(() => {
+    if (darkMode) {
+      dispatch(setThemeMode(ThemeMode.DARK))
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT))
+    }
+
+  }, [darkMode])
 
   useEffect(() => {
     init();
