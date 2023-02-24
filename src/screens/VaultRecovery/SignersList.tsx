@@ -269,7 +269,7 @@ function SignersList({ navigation }) {
     first?: boolean;
     last?: boolean;
   };
-  const { signingDevices, relayVaultReoveryAppId } = useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [isBLESupported, setBLESupport] = useState(false);
 
@@ -462,8 +462,8 @@ function SignersList({ navigation }) {
 
   const verifySigningServer = async (otp) => {
     try {
-      const vaultId = ''; // TODO: plugin vaultId
-      const appId = relayVaultReoveryAppId;
+      const vaultId = relayVaultReoveryShellId;
+      const appId = relayVaultReoveryShellId;
       const response = await SigningServer.fetchSignerSetup(vaultId, appId, otp);
       if (response.xpub) {
         const signingServerKey = generateSignerFromMetaData({
