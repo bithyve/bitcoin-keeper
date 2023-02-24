@@ -279,10 +279,11 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* migrateVaultWorker({
   payload,
 }: {
-  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType };
+  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType; vaultShellId: string };
 }) {
   try {
     const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
+    const { vaultShellId } = payload;
 
     if (vaultScheme.n !== vaultSigners.length)
       throw new Error('Vault schema(n) and signers mismatch');
@@ -296,6 +297,7 @@ function* migrateVaultWorker({
       scheme: vaultScheme,
       signers: vaultSigners,
       networkType,
+      vaultShellId,
     });
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
   } catch (error) {
@@ -496,6 +498,8 @@ export const updateWalletSettingsWatcher = createWatcher(
 
 export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+  const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
   const {
     signer,
@@ -507,18 +511,15 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
       exceptions?: SignerException;
     };
   } = payload;
-  // TO_DO_VAULT_API
-  const vaultId = ''; // TODO: plugin vaultId
+  const vaultId = activeVault.shellId; // TODO: plugin vaultId
   const appId = app.id;
   const { updated } = yield call(SigningServer.updatePolicy, vaultId, appId, updates);
-
   if (!updated) {
     Alert.alert('Failed to update signer policy, try again.');
     throw new Error('Failed to update the policy');
   }
 
-  const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
-  const signers: VaultSigner[] = getJSONFromRealmObject(defaultVault.signers);
+  const signers: VaultSigner[] = getJSONFromRealmObject(activeVault.signers);
   for (const current of signers) {
     if (current.signerId === signer.signerId) {
       current.signerPolicy = {
@@ -529,7 +530,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
       break;
     }
   }
-  yield call(dbManager.updateObjectById, RealmSchema.Vault, defaultVault.id, {
+  yield call(dbManager.updateObjectById, RealmSchema.Vault, activeVault.id, {
     signers,
   });
 }
