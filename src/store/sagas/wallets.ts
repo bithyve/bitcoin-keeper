@@ -279,10 +279,11 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* migrateVaultWorker({
   payload,
 }: {
-  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType };
+  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType; vaultShellId: string };
 }) {
   try {
     const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
+    const { vaultShellId } = payload;
 
     if (vaultScheme.n !== vaultSigners.length)
       throw new Error('Vault schema(n) and signers mismatch');
@@ -296,6 +297,7 @@ function* migrateVaultWorker({
       scheme: vaultScheme,
       signers: vaultSigners,
       networkType,
+      vaultShellId,
     });
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
   } catch (error) {
