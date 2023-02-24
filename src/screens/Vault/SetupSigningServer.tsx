@@ -31,6 +31,7 @@ import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import SigningServer from 'src/core/services/operations/SigningServer';
+import useVault from 'src/hooks/useVault';
 
 function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
@@ -38,6 +39,7 @@ function SetupSigningServer({ route }: { route }) {
   const { showToast } = useToastMessage();
   const [validationModal, showValidationModal] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
+  const { activeVault } = useVault();
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
@@ -45,7 +47,7 @@ function SetupSigningServer({ route }: { route }) {
 
   const fetchSetupData = async () => {
     const { policy } = route.params;
-    const vaultId = ''; // TODO: plugin vaultId
+    const vaultId = activeVault.shellId; // TODO: plugin vaultId
     const appId = keeper.id;
     try {
       const { setupData } = await SigningServer.register(vaultId, appId, policy);
@@ -58,7 +60,7 @@ function SetupSigningServer({ route }: { route }) {
 
   const validateSetup = async () => {
     const verificationToken = Number(otp);
-    const vaultId = ''; // TODO: plugin vaultId
+    const vaultId = activeVault.shellId; // TODO: plugin vaultId
     const appId = keeper.id;
     try {
       const { valid } = await SigningServer.validate(vaultId, appId, verificationToken);
