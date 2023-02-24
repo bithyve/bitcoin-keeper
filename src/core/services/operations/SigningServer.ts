@@ -8,7 +8,7 @@ import {
 } from '../interfaces';
 import RestClient from '../rest/RestClient';
 
-const { SIGNING_SERVER } = config;
+const { HEXA_ID, SIGNING_SERVER } = config;
 
 export default class SigningServer {
   /**
@@ -32,6 +32,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/setupSigner`, {
+        HEXA_ID,
         vaultId,
         appId,
         policy,
@@ -58,6 +59,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/validateSingerSetup`, {
+        HEXA_ID,
         vaultId,
         appId,
         verificationToken,
@@ -89,6 +91,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/fetchSignerSetup`, {
+        HEXA_ID,
         vaultId,
         appId,
         verificationToken,
@@ -125,6 +128,7 @@ export default class SigningServer {
     let res: AxiosResponse;
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/updateSignerPolicy`, {
+        HEXA_ID,
         vaultId,
         appId,
         updates,
@@ -162,6 +166,7 @@ export default class SigningServer {
 
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/signTransaction`, {
+        HEXA_ID,
         vaultId,
         appId,
         verificationToken,
