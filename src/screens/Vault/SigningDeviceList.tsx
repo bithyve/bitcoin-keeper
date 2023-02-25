@@ -151,6 +151,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
+    SignerType.OTHER_SD,
     SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
