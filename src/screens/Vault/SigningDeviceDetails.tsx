@@ -304,8 +304,6 @@ function SigningDeviceDetails({ route }) {
     navigation.goBack();
   };
 
-  console.log(nfcVisible);
-
   function HealthCheckContentTapsigner() {
     return (
       <View>

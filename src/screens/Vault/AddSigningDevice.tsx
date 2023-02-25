@@ -117,7 +117,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           >
             {SDIcons(signer.type, true).Icon}
           </Box>
-          <VStack marginX="4" maxWidth="80%">
+          <VStack marginLeft="4" maxWidth="80%">
             <Text
               color="light.primaryText"
               numberOfLines={1}
