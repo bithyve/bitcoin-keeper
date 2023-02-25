@@ -29,7 +29,7 @@ import { hash256 } from 'src/core/services/operations/encryption';
 
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
-import { WalletMap } from '../Vault/WalletMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const allowedSignerLength = [1, 3, 5];
 
@@ -92,7 +92,7 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
             alignItems="center"
             alignSelf="center"
           >
-            {WalletMap(signer.type, true).Icon}
+            {SDIcons(signer.type, true).Icon}
           </Box>
           <VStack marginX="4" maxWidth="80%">
             <Text

@@ -23,7 +23,7 @@ import { regsiterWithLedger } from 'src/hardware/ledger';
 import useVault from 'src/hooks/useVault';
 import { captureError } from 'src/core/services/sentry';
 import useNfcModal from 'src/hooks/useNfcModal';
-import { WalletMap } from './WalletMap';
+import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import LedgerScanningModal from './components/LedgerScanningModal';
 
@@ -130,7 +130,7 @@ function SignerAdvanceSettings({ route }: any) {
       <HeaderTitle title="Advanced Settings" headerTitleColor="light.textBlack" />
       <Box backgroundColor={gradientStyles} style={styles.card}>
         <HStack alignItems="center">
-          <Box style={styles.circle}>{WalletMap(signer.type, true).Icon}</Box>
+          <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
           <VStack justifyContent="center" px={4}>
             <Text color="white" style={[font14]}>
               {signerName}

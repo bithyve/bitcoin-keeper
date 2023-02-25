@@ -49,7 +49,7 @@ import { urlParamsToObj } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
 import UaiDisplay from './UaiDisplay';
-import { WalletMap } from '../Vault/WalletMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -315,7 +315,7 @@ function VaultStatus(props) {
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
                     <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
-                      {WalletMap(signer.type).Icon}
+                      {SDIcons(signer.type).Icon}
                     </Box>
                   ))}
                 </Box>
@@ -328,7 +328,13 @@ function VaultStatus(props) {
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
                     <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                      {getAmt(
+                        vaultBalance,
+                        exchangeRates,
+                        currencyCode,
+                        currentCurrency,
+                        satsEnabled
+                      )}
                     </Text>
                     <Text color="light.white" style={styles.vaultBalanceUnit}>
                       {getUnit(currentCurrency, satsEnabled)}
@@ -506,7 +512,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

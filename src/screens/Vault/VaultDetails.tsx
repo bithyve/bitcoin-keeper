@@ -49,7 +49,7 @@ import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useVault from 'src/hooks/useVault';
-import { WalletMap } from './WalletMap';
+import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault }: { vault: Vault }) {
@@ -345,7 +345,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 alignItems="center"
                 alignSelf="center"
               >
-                {WalletMap(signer.type, true).Icon}
+                {SDIcons(signer.type, true).Icon}
               </Box>
               <Text bold style={styles.unregistered}>
                 {indicate ? 'Not registered' : ' '}

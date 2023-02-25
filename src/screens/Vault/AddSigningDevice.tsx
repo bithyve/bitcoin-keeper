@@ -31,7 +31,7 @@ import { getSignerSigTypeInfo } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import { globalStyles } from 'src/common/globalStyles';
-import { WalletMap } from './WalletMap';
+import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
 
@@ -115,7 +115,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
             alignItems="center"
             alignSelf="center"
           >
-            {WalletMap(signer.type, true).Icon}
+            {SDIcons(signer.type, true).Icon}
           </Box>
           <VStack marginX="4" maxWidth="80%">
             <Text
