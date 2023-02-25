@@ -41,7 +41,8 @@ export const generateSignerFromMetaData = ({
   if (
     networkType !== config.NETWORK_TYPE &&
     config.NETWORK_TYPE === NetworkType.TESTNET &&
-    signerType !== SignerType.KEYSTONE
+    signerType !== SignerType.KEYSTONE &&
+    signerType !== SignerType.JADE
   ) {
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
