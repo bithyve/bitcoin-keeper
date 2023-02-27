@@ -20,13 +20,13 @@ import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import { securityTips } from 'src/common/data/defaultData/defaultData';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
-import { securityTips } from 'src/common/data/defaultData/defaultData';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -58,7 +58,7 @@ function LoginScreen({ navigation, route }) {
   const { common } = translations;
 
   useEffect(() => {
-    setRandomNum(Math.round(Math.random() * 5));
+    setRandomNum(Math.floor(Math.random() * 5));
     if (loggingIn) {
       attemptLogin(passcode);
     }
