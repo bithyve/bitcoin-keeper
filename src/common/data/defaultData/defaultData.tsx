@@ -38,3 +38,4 @@ export const securityTips = [
       'Testing out your setup before using it is always a good idea',
   }
 ]
+export const getSecurityTip = () => securityTips[Math.round(Math.random() * securityTips.length - 1)]
