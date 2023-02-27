@@ -30,6 +30,7 @@ import { hash256 } from 'src/core/services/operations/encryption';
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
 import { WalletMap } from '../Vault/WalletMap';
+import { setTempShellId } from 'src/store/reducers/vaults';
 
 const allowedSignerLength = [1, 3, 5];
 
@@ -219,8 +220,10 @@ function VaultRecovery({ navigation }) {
       const response = await Relay.getVaultMetaData(xfpHash);
       if (response?.vaultShellId) {
         dispatch(setRelayVaultRecoveryShellId(response.vaultShellId));
+        dispatch(setTempShellId(response.vaultShellId));
       } else if (!response?.vaultShellId && response?.appId) {
         dispatch(setRelayVaultRecoveryShellId(response.appId));
+        dispatch(setTempShellId(response.appId));
       } else if (response.error) {
         setError(true);
         Alert.alert('No vault is assocaited with this signer, try with another signer');
