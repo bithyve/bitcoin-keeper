@@ -56,6 +56,8 @@ function SignTransactionScreen() {
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
   const [keeperModal, setKeeperModal] = useState(false);
+  const [trezorModal, setTrezorModal] = useState(false);
+  const [bitbox02Modal, setBitbox02Modal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -267,6 +269,12 @@ function SignTransactionScreen() {
       case SignerType.KEEPER:
         setKeeperModal(true);
         break;
+      case SignerType.TREZOR:
+        setTrezorModal(true);
+        break;
+      case SignerType.BITBOX02:
+        setBitbox02Modal(true);
+        break;
       default:
         showToast(`action not set for ${type}`);
         break;
@@ -329,9 +337,13 @@ function SignTransactionScreen() {
         seedSignerModal={seedSignerModal}
         keystoneModal={keystoneModal}
         jadeModal={jadeModal}
+        keeperModal={keeperModal}
+        trezorModal={trezorModal}
+        bitbox02Modal={bitbox02Modal}
+        setTrezorModal={setTrezorModal}
+        setBitbox02Modal={setBitbox02Modal}
         setJadeModal={setJadeModal}
         setKeystoneModal={setKeystoneModal}
-        keeperModal={keeperModal}
         setSeedSignerModal={setSeedSignerModal}
         setPassportModal={setPassportModal}
         setKeeperModal={setKeeperModal}
