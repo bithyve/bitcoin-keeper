@@ -20,7 +20,7 @@ import { generateSeedHash } from '../sagaActions/login';
 import { setupKeeperAppWorker } from './storage';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { updateVaultImageWorker } from './bhr';
+import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 
 export const SWITCH_TO_MAINNET_VERSION = '0.0.99';
 export const ADDITION_OF_VAULTSHELL_VERSION = '1.0.1';
@@ -63,13 +63,22 @@ function* switchToMainnet() {
 }
 
 function* additionOfVaultShellId() {
-  const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const { id, primarySeed }: KeeperApp = yield call(
+    dbManager.getObjectByIndex,
+    RealmSchema.KeeperApp
+  );
   const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
   try {
     for (const vault of vaults) {
       vault.shellId = id;
+      const encryptionKey = generateEncryptionKey(primarySeed);
+      const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
       //updating the vault image on relay
-      const response = yield call(updateVaultImageWorker, { payload: { vault, isUpdate: true } });
+      const response = yield call(Relay.updateVaultImage, {
+        vaultShellId: vault.shellId,
+        vaultId: vault.id,
+        vault: vaultEncrypted,
+      });
       if (response.updated) {
         yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, { shellId: id });
       }

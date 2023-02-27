@@ -1,9 +1,8 @@
 import { call } from 'redux-saga/effects';
 import semver from 'semver';
-import { decrypt } from 'src/core/services/operations/encryption';
+import { decrypt, encrypt } from 'src/core/services/operations/encryption';
 import Relay from 'src/core/services/operations/Relay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { updateVaultImageWorker } from './bhr';
 import { ADDITION_OF_VAULTSHELL_VERSION } from './upgrade';
 
 export function* applyRestoreSequence({
@@ -31,7 +30,12 @@ function* additionOfVaultShellId(vaultImage, appImage, encryptionKey) {
     //updating Vault Image on Relay first then changing it in local image
     const vault: Vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
     vault.shellId = appImage.appId;
-    const response = yield call(updateVaultImageWorker, { payload: { vault, isUpdate: true } });
+    const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
+    const response = yield call(Relay.updateVaultImage, {
+      vaultShellId: vault.shellId,
+      vaultId: vault.id,
+      vault: vaultEncrypted,
+    });
     if (response.updated) {
       vaultImage.shellId = appImage.appId;
       return;
