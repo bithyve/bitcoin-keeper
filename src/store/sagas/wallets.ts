@@ -77,6 +77,7 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
+import { generateKey } from 'src/core/services/operations/encryption';
 
 export interface NewVaultDetails {
   name?: string;
@@ -225,6 +226,9 @@ function* addNewVaultWorker({
       if (vaultScheme.n !== vaultSigners.length)
         throw new Error('Vault schema(n) and signers mismatch');
 
+      const tempShellId = yield select((state: RootState) => state.vault.tempShellId);
+      const vaultShellId = tempShellId ? tempShellId : generateKey(12);
+
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
         type: vaultType,
@@ -233,6 +237,7 @@ function* addNewVaultWorker({
         scheme: vaultScheme,
         signers: vaultSigners,
         networkType,
+        vaultShellId,
       });
     }
     yield put(setRelayVaultUpdateLoading(true));
@@ -511,7 +516,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
       exceptions?: SignerException;
     };
   } = payload;
-  const vaultId = activeVault.shellId; // TODO: plugin vaultId
+  const vaultId = activeVault.shellId;
   const appId = app.id;
   const { updated } = yield call(SigningServer.updatePolicy, vaultId, appId, updates);
   if (!updated) {

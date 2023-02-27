@@ -33,6 +33,7 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
+  tempShellId: string;
 };
 
 export type SignerUpdatePayload = {
@@ -53,6 +54,7 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
+  tempShellId: null,
 };
 
 const vaultSlice = createSlice({
@@ -122,6 +124,9 @@ const vaultSlice = createSlice({
       state.error = error;
       state.intrimVault = null;
     },
+    setTempShellId: (state, action: PayloadAction<string>) => {
+      state.tempShellId = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_SIGINING_DEVICE, (state) => {
@@ -144,6 +149,7 @@ export const {
   updateSigningDevice,
   clearSigningDevice,
   resetVaultMigration,
+  setTempShellId,
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;
