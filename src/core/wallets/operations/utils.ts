@@ -531,12 +531,12 @@ export default class WalletUtilities {
           subPath: number[];
           signerPubkeyMap: Map<string, Buffer>;
         };
-        changeAddress?: undefined;
+        changeAddress?: string;
       }
     | {
         outputs: OutputUTXOs[];
         changeAddress: string;
-        changeMultisig?: undefined;
+        changeMultisig?: any;
       } => {
     const changeAddress: string = '';
     let changeMultisig: {
@@ -607,7 +607,6 @@ export default class WalletUtilities {
     const amount = 10000 / SATOSHIS_IN_BTC;
     try {
       const res = await RestClient.post(`${config.RELAY}/testnetFaucet`, {
-        AUTH_ID: config.AUTH_ID,
         recipientAddress,
         amount,
       });

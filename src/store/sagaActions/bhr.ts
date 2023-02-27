@@ -19,8 +19,8 @@ export const updateAppImage = (walletId?) => ({
 
 export const updateVaultImage = (payload: {
   vault: Vault;
-  archiveVaultId?: String;
-  isUpdate?: Boolean;
+  archiveVaultId?: string;
+  isUpdate?: boolean;
 }) => ({
   type: UPDATE_VAULT_IMAGE,
   payload,

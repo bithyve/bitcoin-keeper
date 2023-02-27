@@ -92,16 +92,20 @@ function LedgerSigningModal({
 }
 
 function ColdCardContent({ register, isMultisig }: { register: boolean; isMultisig: boolean }) {
+  let message = '';
+
+  if (register) {
+    message = `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`;
+  } else if (isMultisig) {
+    message = `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`;
+  }
+
   return (
     <Box>
       <ColdCardSVG />
       <Box marginTop={2} width={wp(220)}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {register
-            ? `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`
-            : isMultisig
-            ? `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`
-            : ''}
+          {message}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {register
@@ -119,9 +123,8 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
       <PassportSVG />
       <Box marginTop={2} width={wp(220)}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${
-            isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
-          }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
+            }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
@@ -155,14 +158,12 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
       <KeystoneSetup />
       <Box marginTop={2} width={wp(220)}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${
-            isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
-          }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
+            }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Keystone ${
-            isMultisig ? 'multisig menu' : 'Generic Wallet section'
-          }, press the scan icon on the top bar and wait for the QR to be scanned.`}
+          {`\u2022 On the Keystone ${isMultisig ? 'multisig menu' : 'Generic Wallet section'
+            }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>

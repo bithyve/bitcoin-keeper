@@ -7,7 +7,7 @@ import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
 import config from '../../config';
 
-const { AUTH_ID, HEXA_ID, RELAY } = config;
+const { HEXA_ID, RELAY } = config;
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -22,7 +22,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}checkCompatibility`, {
-        AUTH_ID,
         method,
         version,
       });
@@ -81,7 +80,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}fetchNotifications`, {
-        AUTH_ID,
         appID,
       });
     } catch (err) {
@@ -112,7 +110,6 @@ export default class Relay {
 
       try {
         res = await RestClient.post(`${RELAY}sendNotifications`, {
-          AUTH_ID,
           receivers,
           notification,
         });
@@ -162,14 +159,8 @@ export default class Relay {
   ) => {
     try {
       let res;
-      // const obj = {
-      //   AUTH_ID,
-      //   receivers,
-      //   notification,
-      // };
       try {
         res = await RestClient.post(`${RELAY}sendKeeperNotifications`, {
-          AUTH_ID,
           receivers,
           notification,
         });
@@ -196,7 +187,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}getMessages`, {
-        AUTH_ID,
         appID,
         timeStamp,
       });
@@ -223,7 +213,6 @@ export default class Relay {
       let res;
       try {
         res = await RestClient.post(`${RELAY}updateMessages`, {
-          AUTH_ID,
           appId,
           data,
         });
@@ -249,7 +238,6 @@ export default class Relay {
       let res;
       try {
         res = await RestClient.post(`${RELAY}v2/fetchappImage`, {
-          AUTH_ID,
           appId,
         });
       } catch (err) {
@@ -391,7 +379,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}createNewApp`, {
-        AUTH_ID,
         appID,
         publicId,
         fcmToken,

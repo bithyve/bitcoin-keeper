@@ -12,6 +12,7 @@ const initialState: {
   torEnbled: boolean;
   inheritanceModal: boolean,
   connectToMyNodeEnabled: boolean,
+  satsEnabled: boolean
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -21,6 +22,7 @@ const initialState: {
   torEnbled: false,
   inheritanceModal: true,
   connectToMyNodeEnabled: false,
+  satsEnabled: false
 }
 
 const settingsSlice = createSlice({
@@ -50,6 +52,9 @@ const settingsSlice = createSlice({
     },
     setConnectToMyNode: (state, action: PayloadAction<boolean>) => {
       state.connectToMyNodeEnabled = action.payload
+    },
+    setSatsEnabled: (state, action: PayloadAction<boolean>) => {
+      state.satsEnabled = action.payload
     }
   }
 })
@@ -62,7 +67,8 @@ export const {
   setLanguage,
   setTorEnabled,
   setInheritance,
-  setConnectToMyNode
+  setConnectToMyNode,
+  setSatsEnabled
 } = settingsSlice.actions
 
 export default settingsSlice.reducer;

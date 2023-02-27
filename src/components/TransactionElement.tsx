@@ -28,6 +28,7 @@ function TransactionElement({
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -55,9 +56,9 @@ function TransactionElement({
           )}
           <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
           <Text style={styles.amountText}>
-            {getAmt(transaction?.amount, exchangeRates, currencyCode, currentCurrency)}
+            {getAmt(transaction?.amount, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getUnit(currentCurrency)}
+              {getUnit(currentCurrency, satsEnabled)}
             </Text>
           </Text>
         </Box>

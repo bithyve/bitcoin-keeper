@@ -47,8 +47,6 @@ import {
 export function getNextFreeAddress(wallet: Wallet | Vault) {
   if (!wallet.isUsable) return '';
   const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
-  // const schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
-  // dbManager.updateObjectById(schema, wallet.id, { specs: updatedWallet.specs });
   return receivingAddress;
 }
 
