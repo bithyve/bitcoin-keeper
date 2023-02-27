@@ -57,6 +57,7 @@ export interface VaultSigner {
 
 export interface Vault {
   id: string; // vault identifier(derived from xpub)
+  shellId: string;
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
