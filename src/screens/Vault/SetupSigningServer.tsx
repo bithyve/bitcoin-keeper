@@ -32,6 +32,9 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import useVault from 'src/hooks/useVault';
+import { setTempShellId } from 'src/store/reducers/vaults';
+import { generateKey } from 'src/core/services/operations/encryption';
+import { useAppSelector } from 'src/store/hooks';
 
 function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
@@ -40,14 +43,27 @@ function SetupSigningServer({ route }: { route }) {
   const [validationModal, showValidationModal] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
   const { activeVault } = useVault();
+  const { tempShellId } = useAppSelector((state) => state.vault);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
 
+  const getShellId = () => {
+    if (activeVault) {
+      return activeVault.shellId;
+    } else if (!tempShellId) {
+      let vaultShellId = generateKey(12);
+      dispatch(setTempShellId(vaultShellId));
+      return vaultShellId;
+    } else {
+      return tempShellId;
+    }
+  };
+
   const fetchSetupData = async () => {
     const { policy } = route.params;
-    const vaultId = activeVault.shellId; // TODO: plugin vaultId
+    const vaultId = getShellId();
     const appId = keeper.id;
     try {
       const { setupData } = await SigningServer.register(vaultId, appId, policy);
@@ -60,7 +76,7 @@ function SetupSigningServer({ route }: { route }) {
 
   const validateSetup = async () => {
     const verificationToken = Number(otp);
-    const vaultId = activeVault.shellId; // TODO: plugin vaultId
+    const vaultId = getShellId();
     const appId = keeper.id;
     try {
       const { valid } = await SigningServer.validate(vaultId, appId, verificationToken);
