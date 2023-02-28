@@ -2,7 +2,6 @@ import ElectrumClient from "src/core/services/electrum/client";
 import { NodeDetail } from "src/core/wallets/interfaces";
 import dbManager from "src/storage/realm/dbManager";
 import { RealmSchema } from "src/storage/realm/enum";
-import { updateAppImageWorker } from "src/store/sagas/bhr";
 
 export default class Node {
     public static async connect(selectedNode, nodeList) {
@@ -66,10 +65,6 @@ export default class Node {
             });
         }
 
-        console.log("update app image worker");
-        updateAppImageWorker(null);
-        console.log("app image worker updated");
-
         const nodes = Node.getNodes();
         if (node.id !== null && node.isConnected) {
             node = await Node.connect(node, nodes);
@@ -81,16 +76,11 @@ export default class Node {
     public static update(id: string, propsToUpdate: any) {
         if (id === null) return;
         dbManager.updateObjectById(RealmSchema.NodeConnect, id.toString(), { ...propsToUpdate });
-        console.log("update app image worker");
-        updateAppImageWorker(null);
-        console.log("app image worker updated");
     }
 
     public static delete(id) {
         const status: boolean = dbManager.deleteObjectById(RealmSchema.NodeConnect, id.toString());
-        console.log("update app image worker");
-        updateAppImageWorker(null);
-        console.log("app image worker updated"); return status;
+        return status;
     }
 
     public static getModalParams(selectedNodeItem) {
