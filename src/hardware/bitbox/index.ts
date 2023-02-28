@@ -107,7 +107,7 @@ export const getTxForBitBox02 = async (
         : {
             ours: false,
             value: outputUtxos[index].value.toString(),
-            payload: output.script.slice(2), // get 20 byte pubkeyhash: in p2wpkh it means strip the first two bytes from 22 byte script (segwit version and op_push elements)
+            payload: WalletUtilities.getPubkeyHashFromScript(output.address, output.script),
           };
     });
     const walletConfig = isMultisig ? getWalletConfigForBitBox02({ vault }) : null;
