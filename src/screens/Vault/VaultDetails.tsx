@@ -30,7 +30,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -48,6 +48,7 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import useVault from 'src/hooks/useVault';
 import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
@@ -63,6 +64,14 @@ function Footer({ vault }: { vault: Vault }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
+            if (
+              vault.signers.find((item) =>
+                [SignerType.BITBOX02, SignerType.TREZOR].includes(item.type)
+              )
+            ) {
+              showToast('Send is not supported yet with Bitbox and Trezor.');
+              return;
+            }
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
         >
@@ -166,23 +175,20 @@ function VaultInfo({ vault }: { vault: Vault }) {
           </Text>
           {getNetworkAmount(
             unconfirmed,
-            [styles.vaultInfoText, { fontSize: 12 }],
-            0.9,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            [styles.vaultInfoText, { fontSize: 12 }],
+            0.9
           )}
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(
-          confirmed,
-          [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2],
-          1,
-          exchangeRates,
-          currencyCode,
-          currentCurrency
-        )}
+        {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
+          styles.vaultInfoText,
+          { fontSize: 31, lineHeight: 31 },
+          2,
+        ])}
         <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>
@@ -382,9 +388,7 @@ function VaultDetails({ route, navigation }) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const vault: Vault = useVault().activeVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
@@ -487,16 +491,21 @@ function VaultDetails({ route, navigation }) {
           transactions={transactions}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
-          vault={vault}
         />
         <Footer vault={vault} />
       </VStack>
       <TierUpgradeModal
         visible={tireChangeModal}
-        close={() => setTireChangeModal(false)}
+        close={() => {
+          if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
+            return;
+          }
+          setTireChangeModal(false);
+        }}
         onPress={onPressModalBtn}
         isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
         plan={keeper.subscription.name}
+        closeOnOverlayClick={hasPlanChanged() !== VaultMigrationType.DOWNGRADE}
       />
       <KeeperModal
         visible={vaultCreated}

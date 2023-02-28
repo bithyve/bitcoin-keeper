@@ -3,26 +3,26 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-case-declarations */
 import {
+  DerivationPurpose,
   EntityKind,
   VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
 } from 'src/core/wallets/enums';
-import {
-  SignerException,
-  SignerRestriction,
-  SingerVerification,
-  VerificationType,
-} from 'src/core/services/interfaces';
+import { SignerException, SignerRestriction } from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { TransferPolicy, Wallet, WalletPresentationData } from 'src/core/wallets/interfaces/wallet';
+import {
+  TransferPolicy,
+  Wallet,
+  WalletImportDetails,
+  WalletPresentationData,
+} from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
   setTestCoinsFailed,
   setTestCoinsReceived,
-  signingServerRegistrationVerified,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -30,7 +30,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
 import SigningServer from 'src/core/services/operations/SigningServer';
-import { SigningServerSetup } from 'src/core/wallets/interfaces/';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -50,15 +49,12 @@ import {
 import {
   ADD_NEW_WALLETS,
   AUTO_SYNC_WALLETS,
-  IMPORT_NEW_WALLET,
   REFRESH_WALLETS,
-  REGISTER_WITH_SIGNING_SERVER,
   SYNC_WALLETS,
   TEST_SATS_RECIEVE,
   UPDATE_SIGNER_POLICY,
   UPDATE_WALLET_DETAILS,
   UPDATE_WALLET_SETTINGS,
-  VALIDATE_SIGNING_SERVER_REGISTRATION,
   refreshWallets,
   walletSettingsUpdateFailed,
   walletSettingsUpdated,
@@ -81,33 +77,44 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
+import { generateKey } from 'src/core/services/operations/encryption';
 
 export interface NewVaultDetails {
   name?: string;
   description?: string;
 }
+
+export interface DerivationConfig {
+  purpose: DerivationPurpose;
+  path: string;
+}
+
 export interface NewWalletDetails {
   name?: string;
   description?: string;
+  derivationConfig?: DerivationConfig;
   transferPolicy: TransferPolicy;
 }
+
 export interface NewWalletInfo {
   walletType: WalletType;
   walletDetails?: NewWalletDetails;
-  importDetails?: {
-    primaryMnemonic?: string;
-    xpub?: string;
-  };
+  importDetails?: WalletImportDetails;
 }
 
 function* addNewWallet(
   walletType: WalletType,
   walletDetails: NewWalletDetails,
   app: KeeperApp,
-  importDetails?: { primaryMnemonic?: string; xpub?: string }
+  importDetails?: WalletImportDetails
 ) {
   const { primaryMnemonic } = app;
-  const { name: walletName, description: walletDescription, transferPolicy } = walletDetails;
+  const {
+    name: walletName,
+    description: walletDescription,
+    derivationConfig,
+    transferPolicy,
+  } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.Wallet,
@@ -120,16 +127,18 @@ function* addNewWallet(
       const defaultWalletInstacnes = wallets.filter(
         (wallet) => wallet.type === WalletType.DEFAULT
       ).length;
-      const checkingWallet: Wallet = yield call(generateWallet, {
+
+      const defaultWallet: Wallet = yield call(generateWallet, {
         type: WalletType.DEFAULT,
         instanceNum: defaultWalletInstacnes, // zero-indexed
-        walletName: walletName || 'Checking Wallet',
+        walletName: walletName || 'Default Wallet',
         walletDescription: walletDescription || 'Bitcoin Wallet',
+        derivationConfig,
         primaryMnemonic,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
       });
-      return checkingWallet;
+      return defaultWallet;
 
     case WalletType.IMPORTED:
       const importedWallet: Wallet = yield call(generateWallet, {
@@ -137,23 +146,11 @@ function* addNewWallet(
         instanceNum: null, // bip-85 instance number is null for imported wallets
         walletName: walletName || 'Imported Wallet',
         walletDescription: walletDescription || 'Bitcoin Wallet',
-        importedMnemonic: importDetails.primaryMnemonic,
+        importDetails,
         networkType: config.NETWORK_TYPE,
         transferPolicy,
       });
       return importedWallet;
-
-    case WalletType.READ_ONLY:
-      const readOnlyWallet: Wallet = yield call(generateWallet, {
-        type: WalletType.READ_ONLY,
-        instanceNum: null, // bip-85 instance number is null for read-only wallets
-        walletName: walletName || 'Read-Only Wallet',
-        walletDescription: walletDescription || 'Bitcoin Wallet',
-        importedXpub: importDetails.xpub,
-        networkType: config.NETWORK_TYPE,
-        transferPolicy,
-      });
-      return readOnlyWallet;
 
     default:
       throw new Error(`Unsupported wallet-type ${walletType}`);
@@ -161,25 +158,42 @@ function* addNewWallet(
 }
 
 export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewWalletInfo[] }) {
-  const wallets: Wallet[] = [];
-  const walletIds = [];
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  try {
+    const wallets: Wallet[] = [];
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
 
-  for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
-    walletIds.push(wallet.id);
-    wallets.push(wallet);
-  }
-
-  for (const wallet of wallets) {
-    yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallet } });
-    if (response.updated) {
-      yield put(relayWalletUpdateSuccess());
-      yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-    } else {
-      yield put(relayWalletUpdateFail(response.error));
+    for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
+      const wallet: Wallet = yield call(
+        addNewWallet,
+        walletType,
+        walletDetails,
+        app,
+        importDetails
+      );
+      wallets.push(wallet);
     }
+
+    for (const wallet of wallets) {
+      yield put(setRelayWalletUpdateLoading(true));
+      const response = yield call(updateAppImageWorker, { payload: { wallet } });
+      if (response.updated) {
+        yield put(relayWalletUpdateSuccess());
+        yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+
+        if (wallet.type === WalletType.IMPORTED) {
+          yield put(
+            refreshWallets([wallet], {
+              hardRefresh: true,
+            })
+          );
+        }
+      } else {
+        yield put(relayWalletUpdateFail(response.error));
+      }
+    }
+  } catch (err) {
+    console.log(err);
+    yield put(relayWalletUpdateFail(''));
   }
 }
 
@@ -198,7 +212,7 @@ function* addNewVaultWorker({
   payload: {
     newVaultInfo?: NewVaultInfo;
     vault?: Vault;
-    isMigrated?: Boolean;
+    isMigrated?: boolean;
     oldVaultId?: string;
   };
 }) {
@@ -212,6 +226,9 @@ function* addNewVaultWorker({
       if (vaultScheme.n !== vaultSigners.length)
         throw new Error('Vault schema(n) and signers mismatch');
 
+      const tempShellId = yield select((state: RootState) => state.vault.tempShellId);
+      const vaultShellId = tempShellId ? tempShellId : generateKey(12);
+
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
         type: vaultType,
@@ -220,6 +237,7 @@ function* addNewVaultWorker({
         scheme: vaultScheme,
         signers: vaultSigners,
         networkType,
+        vaultShellId,
       });
     }
     yield put(setRelayVaultUpdateLoading(true));
@@ -266,10 +284,11 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* migrateVaultWorker({
   payload,
 }: {
-  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType };
+  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType; vaultShellId: string };
 }) {
   try {
     const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
+    const { vaultShellId } = payload;
 
     if (vaultScheme.n !== vaultSigners.length)
       throw new Error('Vault schema(n) and signers mismatch');
@@ -283,6 +302,7 @@ function* migrateVaultWorker({
       scheme: vaultScheme,
       signers: vaultSigners,
       networkType,
+      vaultShellId,
     });
     yield put(initiateVaultMigration({ isMigratingNewVault: true, intrimVault: vault }));
   } catch (error) {
@@ -333,45 +353,6 @@ export const finaliseVaultMigrationWatcher = createWatcher(
   finaliseVaultMigrationWorker,
   FINALISE_VAULT_MIGRATION
 );
-
-export function* importNewWalletWorker({
-  payload,
-}: {
-  payload: {
-    mnemonic: string;
-    walletDetails?: NewWalletDetails;
-  };
-}) {
-  const wallets: Wallet[] = [];
-  const newWalletInfo: NewWalletInfo[] = [
-    {
-      walletType: WalletType.IMPORTED,
-      walletDetails: payload.walletDetails,
-      importDetails: {
-        primaryMnemonic: payload.mnemonic,
-      },
-    },
-  ];
-
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-
-  for (const { walletType, walletDetails, importDetails } of newWalletInfo) {
-    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
-    wallets.push(wallet);
-  }
-
-  for (const wallet of wallets) {
-    yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-  }
-
-  yield put(
-    refreshWallets(wallets, {
-      hardRefresh: true,
-    })
-  );
-}
-
-export const importNewWalletWatcher = createWatcher(importNewWalletWorker, IMPORT_NEW_WALLET);
 
 function* syncWalletsWorker({
   payload,
@@ -520,74 +501,10 @@ export const updateWalletSettingsWatcher = createWatcher(
   UPDATE_WALLET_SETTINGS
 );
 
-export function* registerWithSigningServerWorker({ payload }: { payload: { policy } }) {
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  if (app.signingServerSetup && app.signingServerSetup.setupInfo?.xpub)
-    throw new Error('registration already in progress');
-
-  const { policy } = payload;
-  const {
-    setupData,
-  }: {
-    setupData: {
-      verification: SingerVerification;
-      bhXpub: string;
-      derivationPath: string;
-      masterFingerprint: string;
-    };
-  } = yield call(SigningServer.register, app.id, policy);
-
-  const signingServerSetup: SigningServerSetup = {
-    validation: {
-      validationType: setupData.verification.method,
-      validationKey:
-        setupData.verification.method === VerificationType.TWO_FA
-          ? setupData.verification.verifier
-          : null,
-      vaildated: false,
-    },
-    setupInfo: {
-      xpub: setupData.bhXpub,
-      derivationPath: setupData.derivationPath,
-      masterFingerprint: setupData.masterFingerprint,
-    },
-  };
-
-  yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-    signingServerSetup,
-  });
-}
-
-export const registerWithSigningServerWatcher = createWatcher(
-  registerWithSigningServerWorker,
-  REGISTER_WITH_SIGNING_SERVER
-);
-
-function* validateSigningServerRegistrationWorker({ payload }: { payload: { verificationToken } }) {
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const { verificationToken } = payload;
-  try {
-    const { valid } = yield call(SigningServer.validate, app.id, verificationToken);
-    if (valid) {
-      yield put(signingServerRegistrationVerified(true));
-      const signingServerSetup: SigningServerSetup = getJSONFromRealmObject(app.signingServerSetup);
-      signingServerSetup.validation.vaildated = true;
-      yield call(dbManager.updateObjectById, RealmSchema.KeeperApp, app.id, {
-        signingServerSetup,
-      });
-    } else yield put(signingServerRegistrationVerified(false));
-  } catch (error) {
-    yield put(signingServerRegistrationVerified(false));
-  }
-}
-
-export const validateSigningServerRegistrationWatcher = createWatcher(
-  validateSigningServerRegistrationWorker,
-  VALIDATE_SIGNING_SERVER_REGISTRATION
-);
-
 export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+  const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
   const {
     signer,
@@ -599,16 +516,15 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
       exceptions?: SignerException;
     };
   } = payload;
-  // TO_DO_VAULT_API
-  const { updated } = yield call(SigningServer.updatePolicy, app.id, updates);
-
+  const vaultId = activeVault.shellId;
+  const appId = app.id;
+  const { updated } = yield call(SigningServer.updatePolicy, vaultId, appId, updates);
   if (!updated) {
     Alert.alert('Failed to update signer policy, try again.');
     throw new Error('Failed to update the policy');
   }
 
-  const defaultVault: Vault = yield call(dbManager.getObjectByIndex, RealmSchema.Vault);
-  const signers: VaultSigner[] = getJSONFromRealmObject(defaultVault.signers);
+  const signers: VaultSigner[] = getJSONFromRealmObject(activeVault.signers);
   for (const current of signers) {
     if (current.signerId === signer.signerId) {
       current.signerPolicy = {
@@ -619,7 +535,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
       break;
     }
   }
-  yield call(dbManager.updateObjectById, RealmSchema.Vault, defaultVault.id, {
+  yield call(dbManager.updateObjectById, RealmSchema.Vault, activeVault.id, {
     signers,
   });
 }

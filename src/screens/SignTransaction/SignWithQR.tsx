@@ -16,6 +16,7 @@ import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import DisplayQR from '../QRScreens/DisplayQR';
 
 function SignWithQR() {
@@ -50,6 +51,7 @@ function SignWithQR() {
         }
       } else {
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+        dispatch(updateSignerDetails(signer, 'registered', true));
       }
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     } catch (err) {
@@ -73,7 +75,7 @@ function SignWithQR() {
 
   const encodeToBytes = signer.type === SignerType.PASSPORT;
   const navigateToVaultRegistration = () =>
-    navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
+    navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
   return (
     <ScreenWrapper>
       <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />

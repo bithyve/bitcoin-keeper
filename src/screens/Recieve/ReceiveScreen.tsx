@@ -61,7 +61,7 @@ function ReceiveScreen({ route }: { route }) {
       <View>
         <View style={styles.Container}>
           <View style={styles.inputParentView}>
-            <View style={[styles.inputWrapper01, { backgroundColor: 'light.primaryBackground' }]}>
+            <Box style={styles.inputWrapper01} backgroundColor="light.primaryBackground">
               <View style={styles.btcIconWrapper}>
                 <BtcInput />
               </View>
@@ -75,7 +75,7 @@ function ReceiveScreen({ route }: { route }) {
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
               />
-            </View>
+            </Box>
 
             <View style={styles.bottomBtnView}>
               <Buttons
@@ -88,7 +88,6 @@ function ReceiveScreen({ route }: { route }) {
                   setModalVisible(false);
                   // navigtaion.navigate('Receive', { amount, wallet });
                 }}
-                touchDisable={true}
               />
             </View>
           </View>
@@ -275,7 +274,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     marginVertical: 5,
-    padding: 7,
+    padding: 5,
   },
   verticalDeviderLine: {
     marginLeft: 5,

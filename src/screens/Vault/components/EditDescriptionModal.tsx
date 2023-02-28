@@ -2,16 +2,16 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack } from 'native-base';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import moment from 'moment';
 
 import { ScaledSheet } from 'react-native-size-matters';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
-import { WalletMap } from '../WalletMap';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
+import { WalletMap } from '../WalletMap';
 
 function SignerData({ signer }: { signer: VaultSigner }) {
   return (
@@ -32,18 +32,29 @@ function SignerData({ signer }: { signer: VaultSigner }) {
 function Content({ signer, descRef }: { signer: VaultSigner; descRef }) {
   const updateDescription = useCallback((text) => {
     descRef.current = text;
+    setMaxLength(text.length);
   }, []);
+
+  const [maxLength, setMaxLength] = useState(
+    signer && signer.signerDescription ? signer.signerDescription.length : 0
+  );
 
   return (
     <VStack style={styles.descriptionContainer}>
       <SignerData signer={signer} />
+      <Box style={styles.limitTextWrapper}>
+        <Text color="light.GreyText" style={styles.limitText}>
+          {maxLength}/20
+        </Text>
+      </Box>
       <TextInput
         autoCapitalize="sentences"
         onChangeText={updateDescription}
         style={styles.descriptionEdit}
-        placeholder={'Add Description'}
+        placeholder="Add Description"
         placeholderTextColor={Colors.RichBlack}
         defaultValue={signer.signerDescription}
+        maxLength={20}
       />
     </VStack>
   );
@@ -102,6 +113,16 @@ const styles = ScaledSheet.create({
   },
   descriptionContainer: {
     width: windowWidth * 0.8,
+  },
+  limitTextWrapper: {
+    width: windowWidth * 0.7,
+    paddingHorizontal: 10,
+    marginVertical: 10,
+    alignItems: 'flex-end',
+  },
+  limitText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
   },
   icon: {
     width: 40,

@@ -56,10 +56,6 @@ export enum NodeType {
   LIGHTNING = 'LIGHTNING',
 }
 
-export enum ActiveAddressAssigneeType {
-  GIFT = 'GIFT',
-}
-
 export enum VisibilityType {
   DEFAULT = 'DEFAULT',
   DURESS = 'DURESS',
@@ -75,7 +71,6 @@ export enum EntityKind {
 export enum WalletType {
   DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
-  READ_ONLY = 'READ_ONLY',
 }
 
 export enum VaultType {
@@ -101,6 +96,8 @@ export enum SignerType {
   MOBILE_KEY = 'MOBILE_KEY',
   SEED_WORDS = 'SEED_WORDS',
   SEEDSIGNER = 'SEEDSIGNER',
+  BITBOX02 = 'BITBOX02',
+  OTHER_SD = 'OTHER_SD',
 }
 
 export enum PaymentInfoKind {

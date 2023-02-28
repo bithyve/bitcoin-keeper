@@ -45,13 +45,12 @@ function NodeSettings() {
     setNodeList(nodes);
   }, []);
 
-
   const openAddNodeModal = () => {
     setVisible(true);
   };
 
   const closeAddNodeModal = async () => {
-    if (nodeList.length == 0 || nodeList.filter((item) => item.isConnected == true).length == 0) {
+    if (nodeList.length === 0 || nodeList.filter((item) => item.isConnected).length === 0) {
       await onChangeConnectToMyNode(false);
     }
     setVisible(false);
@@ -126,8 +125,7 @@ function NodeSettings() {
 
     if (node.isConnected) {
       showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />);
-    }
-    else {
+    } else {
       showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />);
     }
 
@@ -140,7 +138,7 @@ function NodeSettings() {
     setConnectToNode(node?.isConnected);
     dispatch(setConnectToMyNode(node?.isConnected));
     updateNode(node);
-  }
+  };
 
   const updateNode = (selectedItem) => {
     const nodes = [...nodeList];
@@ -172,19 +170,18 @@ function NodeSettings() {
   };
 
   return (
-    <ScreenWrapper backgroundColor='light.mainBackground' barStyle="dark-content">
+    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
         paddingLeft={25}
         title={settings.nodeSettings}
-        subtitle={settings.nodeSettingUsedSoFar} />
+        subtitle={settings.nodeSettingUsedSoFar}
+      />
       <Box style={styles.nodeConnectSwitchWrapper}>
         <Box>
-          <Text
-            color="light.primaryText"
-            style={styles.connectToMyNodeTitle}>{settings.connectToMyNode}</Text>
-          <Text
-            style={styles.appSettingSubTitle}
-            color="light.secondaryText">
+          <Text color="light.primaryText" style={styles.connectToMyNodeTitle}>
+            {settings.connectToMyNode}
+          </Text>
+          <Text style={styles.appSettingSubTitle} color="light.secondaryText">
             {settings.connectToMyNodeSubtitle}
           </Text>
         </Box>
@@ -210,16 +207,18 @@ function NodeSettings() {
                     : null
                 }
               >
-                <Box backgroundColor={ConnectToNode ? "light.primaryBackground" : "light.fadedGray"}
-                  style={[styles.nodeList, { opacity: ConnectToNode ? 1 : 0.50 }]}>
+                <Box
+                  backgroundColor={ConnectToNode ? 'light.primaryBackground' : 'light.fadedGray'}
+                  style={[styles.nodeList, { opacity: ConnectToNode ? 1 : 0.5 }]}
+                >
                   <Box style={[styles.nodeDetail, { backgroundColor: 'light.primaryBackground' }]}>
-                    <Text
-                      color='light.secondaryText'
-                      style={[styles.nodeTextHeader]}>
+                    <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
                       {settings.host}
                     </Text>
-                    <Text numberOfLines={1} style={styles.nodeTextValue}>{item.host}</Text>
-                    <Text color='light.secondaryText' style={[styles.nodeTextHeader]}>
+                    <Text numberOfLines={1} style={styles.nodeTextValue}>
+                      {item.host}
+                    </Text>
+                    <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
                       {settings.portNumber}
                     </Text>
                     <Text style={styles.nodeTextValue}>{item.port}</Text>
@@ -229,16 +228,25 @@ function NodeSettings() {
                     <TouchableOpacity onPress={() => onEdit(item)}>
                       <Box style={[styles.actionArea, { paddingLeft: 14, paddingRight: 14 }]}>
                         <EditIcon />
-                        <Text
-                          style={[styles.actionText]}>{common.edit}</Text>
+                        <Text style={[styles.actionText]}>{common.edit}</Text>
                       </Box>
                     </TouchableOpacity>
                     <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
 
                     <TouchableOpacity onPress={() => onConnectNode(item)}>
-                      <Box style={[styles.actionArea, { width: 70, paddingTop: Node.nodeConnectionStatus(item) ? 4 : 5 }]}>
+                      <Box
+                        style={[
+                          styles.actionArea,
+                          { width: 70, paddingTop: Node.nodeConnectionStatus(item) ? 4 : 5 },
+                        ]}
+                      >
                         {Node.nodeConnectionStatus(item) ? <DisconnectIcon /> : <ConnectIcon />}
-                        <Text style={[styles.actionText, { paddingTop: Node.nodeConnectionStatus(item) ? 0 : 1 }]}>
+                        <Text
+                          style={[
+                            styles.actionText,
+                            { paddingTop: Node.nodeConnectionStatus(item) ? 0 : 1 },
+                          ]}
+                        >
                           {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
                         </Text>
                       </Box>
@@ -248,8 +256,7 @@ function NodeSettings() {
                     <TouchableOpacity onPress={() => onDelete(item)}>
                       <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                         <DeleteIcon />
-                        <Text
-                          style={[styles.actionText, { paddingTop: 2 }]}>{common.delete}</Text>
+                        <Text style={[styles.actionText, { paddingTop: 2 }]}>{common.delete}</Text>
                       </Box>
                     </TouchableOpacity>
                   </Box>
@@ -258,8 +265,7 @@ function NodeSettings() {
             )}
           />
         </Box>
-      )
-      }
+      )}
 
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor="light.primaryBackground" style={styles.addNewNode}>
@@ -273,7 +279,7 @@ function NodeSettings() {
       </Box>
 
       <KeeperModal
-        justifyContent='center'
+        justifyContent="center"
         visible={visible}
         close={closeAddNodeModal}
         title={settings.nodeDetailsTitle}
@@ -287,12 +293,12 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
       </Modal>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
@@ -303,7 +309,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingLeft: 47
+    paddingLeft: 47,
   },
   appSettingTitle: {
     fontSize: 18,
@@ -333,7 +339,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   verticleSplitter: {
-    opacity: 0.40,
+    opacity: 0.4,
     borderWidth: 0.5,
     height: 45,
   },
@@ -358,7 +364,7 @@ const styles = StyleSheet.create({
   },
   nodeDetail: {
     width: '49%',
-    padding: 5
+    padding: 5,
   },
   nodeList: {
     flexDirection: 'row',
@@ -383,12 +389,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 0.36,
     fontWeight: '600',
-    paddingTop: 4
+    paddingTop: 4,
   },
   actionArea: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 5
+    paddingTop: 5,
   },
   delete: {
     alignItems: 'center',
@@ -397,7 +403,7 @@ const styles = StyleSheet.create({
   nodeTextHeader: {
     marginHorizontal: 20,
     fontSize: 11,
-    letterSpacing: 0.6
+    letterSpacing: 0.6,
   },
   nodeTextValue: {
     fontSize: 12,

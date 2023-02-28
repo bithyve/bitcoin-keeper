@@ -49,6 +49,7 @@ function EnterSeedScreen({ route }) {
   const { appId } = useAppSelector((state) => state.storage);
 
   const ref = useRef<FlatList>(null);
+  const [activePage, setActivePage] = useState(0);
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -114,9 +115,11 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
-  const [btnDisable, setBtnDisable] = useState(false);
 
-  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
+  const openInvalidSeedsModal = () => {
+    setRecoveryLoading(false);
+    setInvalidSeedsModal(true);
+  };
   const closeInvalidSeedsModal = () => {
     setRecoveryLoading(false);
     setInvalidSeedsModal(false);
@@ -206,7 +209,6 @@ function EnterSeedScreen({ route }) {
   const onPressNextSeedReocvery = async () => {
     if (isSeedFilled(6)) {
       if (isSeedFilled(12)) {
-        setBtnDisable(true);
         const seedWord = getSeedWord();
         setRecoveryLoading(true);
         dispatch(getAppImage(seedWord));
@@ -248,6 +250,16 @@ function EnterSeedScreen({ route }) {
     if (number < 9) return `0${number + 1}`;
     return number + 1;
   };
+
+  const scrollHandler = (event) => {
+    const newScrollOffset = event.nativeEvent.contentOffset.y;
+    if (newScrollOffset > 90) {
+      setActivePage(1);
+    } else {
+      setActivePage(0);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -290,6 +302,7 @@ function EnterSeedScreen({ route }) {
             }}
             pagingEnabled
             scrollEnabled={isSeedFilled(6)}
+            onScroll={(event) => scrollHandler(event)}
             renderItem={({ item, index }) => (
               <View style={styles.inputListWrapper}>
                 <Text style={styles.indexText} bold>
@@ -340,15 +353,14 @@ function EnterSeedScreen({ route }) {
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
-              <View style={styles.dot} />
-              <View style={styles.dash} />
+              <View style={activePage === 0 ? styles.dash : styles.dot} />
+              <View style={activePage === 1 ? styles.dash : styles.dot} />
             </Box>
 
             {isSoftKeyRecovery ? (
               <Buttons
                 primaryCallback={onPressNextSoftReocvery}
                 primaryText="Next"
-                touchDisable={btnDisable}
                 primaryLoading={recoveryLoading}
               />
             ) : (
@@ -360,7 +372,6 @@ function EnterSeedScreen({ route }) {
                 }}
                 secondaryText="Other Methods"
                 primaryLoading={recoveryLoading}
-                touchDisable={btnDisable}
               />
             )}
           </View>
@@ -406,7 +417,7 @@ const styles = ScaledSheet.create({
     backgroundColor: '#A7A7A7',
     width: 6,
     height: 4,
-    marginRight: 6,
+    marginHorizontal: 6,
   },
   dash: {
     backgroundColor: '#676767',

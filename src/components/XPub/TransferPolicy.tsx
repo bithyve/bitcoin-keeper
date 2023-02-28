@@ -8,14 +8,16 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
-import KeyPadView from '../AppNumPad/KeyPadView';
-import Buttons from '../Buttons';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { updateWalletProperty } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import { v4 as uuidv4 } from 'uuid';
+import Buttons from '../Buttons';
+import KeyPadView from '../AppNumPad/KeyPadView';
+import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
   const { showToast } = useToastMessage();
@@ -39,9 +41,9 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
-      close();
       showToast('Transfer Policy Changed', <TickIcon />);
       dispatch(resetRealyWalletState());
+      close();
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
@@ -58,6 +60,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
           wallet,
           key: 'transferPolicy',
           value: {
+            id: uuidv4(),
             threshold: Number(policyText),
           },
         })
@@ -66,7 +69,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       showToast('Transfer Policy cannot be zero');
     }
   };
-
+  console.log('relayWalletUpdateLoading', relayWalletUpdateLoading);
   return (
     <Box backgroundColor="light.secondaryBackground" width={wp(275)} borderRadius={10}>
       <Box justifyContent="center" alignItems="center">
@@ -98,19 +101,15 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       </Box>
       <Box py={5}>
         <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
-          This will only trigger a transfer request which you need to approve before the transfer is
-          done
+          This will trigger a transfer request which you need to approve
         </Text>
       </Box>
-
       <Buttons
         primaryCallback={presshandler}
-        primaryLoading={relayWalletUpdateLoading}
         primaryText={common.confirm}
         secondaryCallback={close}
         secondaryText={common.cancel}
         paddingHorizontal={wp(30)}
-        touchDisable={true}
       />
       {/* keyboardview start */}
       <KeyPadView
@@ -119,6 +118,7 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
         keyColor="#041513"
         ClearIcon={<DeleteIcon />}
       />
+      {relayWalletUpdateLoading && <ActivityIndicatorView visible={relayWalletUpdateLoading} />}
     </Box>
   );
 }

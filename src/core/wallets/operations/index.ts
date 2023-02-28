@@ -21,9 +21,7 @@ import config from 'src/core/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/core/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
-import { ElectrumTransaction } from 'src/core/services/electrum/interface';
 import {
-  ActiveAddressAssignee,
   AverageTxFees,
   AverageTxFeesByNetwork,
   Balances,
@@ -42,7 +40,6 @@ import {
   SignerType,
   TransactionType,
   TxPriority,
-  XpubTypes,
 } from '../enums';
 import { Vault, VaultSigner } from '../interfaces/vault';
 
@@ -52,10 +49,7 @@ import WalletUtilities from './utils';
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
-  static getNextFreeExternalAddress = (
-    wallet: Wallet | Vault,
-    purpose?: DerivationPurpose
-  ): { updatedWallet: Wallet | Vault; receivingAddress: string } => {
+  static getNextFreeExternalAddress = (wallet: Wallet | Vault): { receivingAddress: string } => {
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(wallet.networkType);
     if ((wallet as Vault).isMultiSig) {
@@ -68,9 +62,13 @@ export default class WalletOperations {
         false
       ).address;
     } else {
-      let xpub = null;
-      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-      else xpub = (wallet as Wallet).specs.xpub;
+      const xpub =
+        wallet.entityKind === EntityKind.VAULT
+          ? (wallet as Vault).specs.xpubs[0]
+          : (wallet as Wallet).specs.xpub;
+      const purpose = EntityKind.VAULT
+        ? undefined
+        : WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
 
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
@@ -81,10 +79,7 @@ export default class WalletOperations {
       );
     }
 
-    wallet.specs.activeAddresses.external[receivingAddress] = wallet.specs.nextFreeAddressIndex;
-    wallet.specs.nextFreeAddressIndex++;
     return {
-      updatedWallet: wallet,
       receivingAddress,
     };
   };
@@ -172,10 +167,7 @@ export default class WalletOperations {
       txidToIndex[transaction.txid] = index;
     }
 
-    const { historyByAddress, txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(
-      addresses,
-      network
-    );
+    const { txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(addresses, network);
     const txs = await ElectrumClient.getTransactionsById(txids);
 
     // fetch input transactions(for new ones), in order to construct the inputs
@@ -248,6 +240,10 @@ export default class WalletOperations {
       const hardGapLimit = 10; // hard refresh gap limit
       const addresses = [];
 
+      let purpose;
+      if (wallet.entityKind === EntityKind.WALLET)
+        purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+
       // collect external(receive) chain addresses
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
@@ -266,7 +262,7 @@ export default class WalletOperations {
           if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
           else xpub = (wallet as Wallet).specs.xpub;
 
-          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
+          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose);
         }
 
         externalAddresses[address] = itr;
@@ -291,7 +287,7 @@ export default class WalletOperations {
           if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
           else xpub = (wallet as Wallet).specs.xpub;
 
-          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
+          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose);
         }
 
         internalAddresses[address] = itr;
@@ -310,10 +306,7 @@ export default class WalletOperations {
       for (const address in utxosByAddress) {
         const utxos = utxosByAddress[address];
         for (const utxo of utxos) {
-          if (utxo.height > 0) {
-            confirmedUTXOs.push(utxo);
-            balances.confirmed += utxo.value;
-          } else if (internalAddresses[utxo.address] !== undefined) {
+          if (utxo.height > 0 || internalAddresses[utxo.address] !== undefined) {
             // defaulting utxo's on the change branch to confirmed
             confirmedUTXOs.push(utxo);
             balances.confirmed += utxo.value;
@@ -350,102 +343,6 @@ export default class WalletOperations {
     };
   };
 
-  static updateActiveAddresses = (
-    wallet: Wallet | Vault,
-    consumedUTXOs: { [txid: string]: InputUTXOs }
-  ) => {
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-
-    const activeExternalAddresses = wallet.specs.activeAddresses.external;
-    const activeInternalAddresses = wallet.specs.activeAddresses.internal;
-
-    for (const consumedUTXO of Object.values(consumedUTXOs)) {
-      let found = false;
-      // is out of bound external address?
-      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex; itr++) {
-        let address: string;
-        if ((wallet as Vault).isMultiSig) {
-          address = WalletUtilities.createMultiSig(
-            (wallet as Vault).specs.xpubs,
-            (wallet as Vault).scheme.m,
-            network,
-            itr,
-            false
-          ).address;
-        } else {
-          let xpub = null;
-          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-          else xpub = (wallet as Wallet).specs.xpub;
-
-          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network);
-        }
-
-        if (consumedUTXO.address === address) {
-          // include out of bound ext address
-          if (activeExternalAddresses[address] === undefined)
-            activeExternalAddresses[address] = itr;
-          found = true;
-          break;
-        }
-      }
-
-      // is out of bound internal address?
-      if (!found)
-        for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex; itr++) {
-          let address: string;
-          if ((wallet as Vault).isMultiSig) {
-            address = WalletUtilities.createMultiSig(
-              (wallet as Vault).specs.xpubs,
-              (wallet as Vault).scheme.m,
-              network,
-              itr,
-              true
-            ).address;
-          } else {
-            let xpub = null;
-            if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-            else xpub = (wallet as Wallet).specs.xpub;
-
-            address = WalletUtilities.getAddressByIndex(xpub, true, itr, network);
-          }
-
-          if (consumedUTXO.address === address) {
-            // include out of bound(soft-refresh range) int address
-            if (activeInternalAddresses[address] === undefined)
-              activeInternalAddresses[address] = itr;
-            break;
-          }
-        }
-    }
-
-    // add internal address used for change utxo to activeAddresses.internal
-    let changeAddress: string;
-
-    if ((wallet as Vault).isMultiSig) {
-      changeAddress = WalletUtilities.createMultiSig(
-        (wallet as Vault).specs.xpubs,
-        (wallet as Vault).scheme.m,
-        network,
-        wallet.specs.nextFreeChangeAddressIndex,
-        true
-      ).address;
-    } else {
-      let xpub = null;
-      if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-      else xpub = (wallet as Wallet).specs.xpub;
-
-      changeAddress = WalletUtilities.getAddressByIndex(
-        xpub,
-        true,
-        wallet.specs.nextFreeChangeAddressIndex,
-        network
-      );
-    }
-
-    activeInternalAddresses[changeAddress] = wallet.specs.nextFreeChangeAddressIndex;
-    wallet.specs.nextFreeChangeAddressIndex++;
-  };
-
   static removeConsumedUTXOs = (wallet: Wallet | Vault, inputs: InputUTXOs[]) => {
     const consumedUTXOs: { [txid: string]: InputUTXOs } = {};
     inputs.forEach((input) => {
@@ -460,7 +357,6 @@ export default class WalletOperations {
     });
 
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
-    WalletOperations.updateActiveAddresses(wallet, consumedUTXOs);
   };
 
   static fetchFeeRatesByPriority = async () => {
@@ -510,7 +406,7 @@ export default class WalletOperations {
       },
     };
 
-    // TODO: configure to procure fee by network type
+    // configure to procure fee by network type
     const averageTxFeeByNetwork: AverageTxFeesByNetwork = {
       [NetworkType.TESTNET]: averageTxFees,
       [NetworkType.MAINNET]: averageTxFees,
@@ -1044,7 +940,7 @@ export default class WalletOperations {
       for (const input of inputs) {
         let subPath;
         if (wallet.isMultiSig) {
-          subPath = WalletUtilities.addressToMultiSig(input.address, wallet as Vault).subPath;
+          subPath = WalletUtilities.addressToMultiSig(input.address, wallet).subPath;
         } else {
           subPath = WalletUtilities.addressToKey(input.address, wallet, true).subPath;
         }

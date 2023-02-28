@@ -20,15 +20,6 @@ export const BIP85ConfigSchema: ObjectSchema = {
   },
 };
 
-export const ActiveAddressesSchema: ObjectSchema = {
-  name: RealmSchema.ActiveAddresses,
-  embedded: true,
-  properties: {
-    external: '{}',
-    internal: '{}',
-  },
-};
-
 export const UTXOSchema: ObjectSchema = {
   name: RealmSchema.UTXO,
   embedded: true,
@@ -72,7 +63,7 @@ export const WalletDerivationDetailsSchema: ObjectSchema = {
   name: RealmSchema.WalletDerivationDetails,
   embedded: true,
   properties: {
-    instanceNum: 'int',
+    instanceNum: 'int?',
     mnemonic: 'string',
     bip85Config: `${RealmSchema.BIP85Config}?`,
     xDerivationPath: 'string',
@@ -107,7 +98,6 @@ export const WalletSpecsSchema: ObjectSchema = {
     xpriv: 'string?',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
-    activeAddresses: RealmSchema.ActiveAddresses,
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,

@@ -3,6 +3,7 @@ import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces
 import {
   DerivationPurpose,
   EntityKind,
+  NetworkType,
   SignerStorage,
   SignerType,
   XpubTypes,
@@ -16,6 +17,7 @@ import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
+  SignerType.TREZOR,
   SignerType.KEEPER,
   SignerType.MOBILE_KEY,
   SignerType.POLICY_SERVER,
@@ -97,10 +99,13 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'TAPSIGNER';
       break;
     case SignerType.TREZOR:
-      name = type;
+      name = 'Trezor';
       break;
     case SignerType.SEEDSIGNER:
       name = 'SeedSigner';
+      break;
+    case SignerType.BITBOX02:
+      name = 'BitBox02';
       break;
     default:
       name = type;
@@ -130,7 +135,10 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
 
 export const getSignerSigTypeInfo = (signer: VaultSigner) => {
   const purpose = WalletUtilities.getSignerPurposeFromPath(signer.derivationPath);
-  if (signer.isMock) {
+  if (
+    signer.isMock ||
+    (signer.type === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.TESTNET) // amf flow
+  ) {
     return { isSingleSig: true, isMultiSig: true, purpose };
   }
   if (purpose && DerivationPurpose.BIP48.toString() === purpose) {

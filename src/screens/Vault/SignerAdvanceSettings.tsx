@@ -51,9 +51,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { activeVault } = useVault();
 
   const registerColdCard = async () => {
-    if (signer.type === SignerType.COLDCARD) {
-      await withNfcModal(() => registerToColcard({ vault: activeVault }));
-    }
+    await withNfcModal(() => registerToColcard({ vault: activeVault }));
   };
 
   const registerLedger = async (transport) => {
@@ -68,7 +66,7 @@ function SignerAdvanceSettings({ route }: any) {
         err.toString() ===
         'TransportStatusError: Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)'
       ) {
-        showToast('Registration was denied by the user', <ToastErrorIcon />, 1000, true);
+        showToast('Registration was denied by the user', <ToastErrorIcon />);
         return;
       }
       setLedgerModal(false);
@@ -82,18 +80,20 @@ function SignerAdvanceSettings({ route }: any) {
   const registerSigner = async () => {
     switch (signer.type) {
       case SignerType.COLDCARD:
-        registerColdCard();
+        await registerColdCard();
         dispatch(updateSignerDetails(signer, 'registered', true));
         return;
       case SignerType.LEDGER:
         setLedgerModal(true);
         return;
+      case SignerType.BITBOX02:
+        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { signer }));
+        break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
-        navigation.dispatch(CommonActions.navigate('RegisterWithQR'));
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
         break;
       default:
         showToast('Comming soon', null, 1000);

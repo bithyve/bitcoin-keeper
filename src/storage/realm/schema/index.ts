@@ -1,6 +1,5 @@
 import {
   BIP85ConfigSchema,
-  ActiveAddressesSchema,
   TransactionSchema,
   TransactionToAddressMappingSchema,
   UTXOSchema,
@@ -19,7 +18,6 @@ import {
   XpubDetailsSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
-import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
@@ -34,7 +32,6 @@ export default [
   WalletDerivationDetailsSchema,
   WalletPresentationDataSchema,
   BIP85ConfigSchema,
-  ActiveAddressesSchema,
   UTXOSchema,
   TransactionSchema,
   TransactionToAddressMappingSchema,
@@ -45,11 +42,10 @@ export default [
   VaultPresentationDataSchema,
   SignerPolicy,
   VaultSpecsSchema,
-  SigningServerSetupSchema,
   BackupSchema,
   UAISchema,
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
-  NodeConnectSchema
+  NodeConnectSchema,
 ];

@@ -26,7 +26,7 @@ import usePlan from 'src/hooks/usePlan';
 import Note from 'src/components/Note/Note';
 import { WalletMap } from './WalletMap';
 import HardwareModalMap from './HardwareModalMap';
-import SDTag from './components/SDTag';
+import { getSDMessage } from './components/SDMessage';
 
 type HWProps = {
   type: SignerType;
@@ -79,11 +79,8 @@ const getDeviceStatus = (
       };
 
     case SignerType.TREZOR:
-      return {
-        message: 'Coming soon',
-        disabled: false,
-      };
     case SignerType.JADE:
+    case SignerType.BITBOX02:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
     case SignerType.KEYSTONE:
@@ -150,6 +147,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     SignerType.TREZOR,
     SignerType.TAPSIGNER,
     SignerType.SEEDSIGNER,
+    SignerType.BITBOX02,
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
@@ -192,7 +190,6 @@ function SigningDeviceList({ navigation }: { navigation }) {
                   {message}
                 </Text>
               </Box>
-              <SDTag type={type} />
             </Box>
             <Box backgroundColor="light.divider" style={styles.dividerStyle} />
           </Box>
@@ -231,13 +228,17 @@ function SigningDeviceList({ navigation }: { navigation }) {
           ) : (
             <Box paddingY="4">
               {sortedSigners?.map((type: SignerType, index: number) => {
-                const { disabled, message } = getDeviceStatus(
+                const { disabled, message: connectivityStatus } = getDeviceStatus(
                   type,
                   isNfcSupported,
                   isBLESupported,
                   isOnL1,
                   vaultSigners
                 );
+                let message = connectivityStatus;
+                if (!connectivityStatus) {
+                  message = getSDMessage({ type });
+                }
                 return (
                   <HardWareWallet
                     type={type}
@@ -304,6 +305,7 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: '8%',
   },
   scrollViewWrapper: {
     height: windowHeight > 800 ? '90%' : '85%',
@@ -324,6 +326,7 @@ const styles = StyleSheet.create({
   },
   walletMapWrapper: {
     marginRight: wp(20),
+    alignItems: 'center',
     width: wp(15),
   },
   walletMapLogoWrapper: {

@@ -1,11 +1,11 @@
 import Text from 'src/components/KeeperText';
-import { Box, Image } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import { Box, HStack, Image, Switch } from 'native-base';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
+import TorAsset from 'src/assets/images/TorAssert.svg';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
@@ -20,13 +20,15 @@ import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import { setTorEnabled } from 'src/store/reducers/settings';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
-import { securityTips } from 'src/common/data/defaultData/defaultData';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -36,19 +38,18 @@ function LoginScreen({ navigation, route }) {
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
-  const [randomNum, setRandomNum] = useState(0);
   const [loginModal, setLoginModal] = useState(false);
   const [errMessage, setErrMessage] = useState('');
   const [passcodeFlag] = useState(true);
   const [forgotVisible, setForgotVisible] = useState(false);
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
-  const loginMethod = useAppSelector((state) => state.settings.loginMethod);
+  const { loginMethod, torEnbled } = useAppSelector((state) => state.settings);
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
-
-  const loginData = securityTips[randomNum];
+  const [loginData, setLoginData] = useState(getSecurityTip())
+  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const [canLogin, setCanLogin] = useState(false);
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
@@ -57,12 +58,18 @@ function LoginScreen({ navigation, route }) {
   const { login } = translations;
   const { common } = translations;
 
+  const onChangeTorStatus = (status: TorStatus) => {
+    settorStatus(status);
+  };
 
   useEffect(() => {
-    setRandomNum(Math.round(Math.random() * 5));
+    RestClient.subToTorStatus(onChangeTorStatus);
     if (loggingIn) {
       attemptLogin(passcode);
     }
+    return () => {
+      RestClient.unsubscribe(onChangeTorStatus);
+    };
   }, [loggingIn]);
 
   useEffect(() => {
@@ -184,22 +191,85 @@ function LoginScreen({ navigation, route }) {
     setResetPassSuccessVisible(true);
   };
 
+  const toggleTor = () => {
+    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
+      RestClient.setUseTor(true);
+      dispatch(setTorEnabled(true));
+    } else {
+      RestClient.setUseTor(false);
+      dispatch(setTorEnabled(false));
+    }
+  };
+
+  const modelAsset = useMemo(() => {
+    if (torEnbled) {
+      return <TorAsset />;
+    }
+    return loginData.assert;
+  }, [torEnbled, torStatus]);
+
+  const modelMessage = useMemo(() => {
+    if (torEnbled) {
+      if (torStatus === TorStatus.CONNECTED) {
+        return loginData.message
+      }
+      return 'It might take upto minute'
+    }
+    return loginData.message;
+  }, [torEnbled, torStatus]);
+
+  const modelTitle = useMemo(() => {
+    if (torEnbled) {
+      if (torStatus === TorStatus.CONNECTED) {
+        return loginData.title
+      }
+      return 'Connecting to Tor '
+    }
+    return loginData.title;
+  }, [torEnbled, torStatus]);
+
+  const modelSubTitle = useMemo(() => {
+    if (torEnbled) {
+      if (torStatus === TorStatus.CONNECTED) {
+        return loginData.subTitle
+      }
+      return 'Network calls and some functions may work slower when the Tor is enabled  '
+    }
+    return loginData.subTitle;
+  }, [torEnbled, torStatus]);
+
+  const modelButtonText = useMemo(() => {
+    if (isAuthenticated) {
+      if (torEnbled) {
+        if (torStatus === TorStatus.CONNECTED) {
+          return 'Next'
+        }
+        return null
+      }
+      return 'Next';
+    }
+    return null
+  }, [torEnbled, torStatus, isAuthenticated]);
+
   function LoginModalContent() {
     return (
       <Box>
-        <Box style={{
-          width: '100%',
-          alignItems: 'center',
-          paddingVertical: hp(20)
-        }}>
-          {loginData.assert}
+        <Box
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            paddingVertical: hp(20),
+          }}
+        >
+          {modelAsset}
         </Box>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(290)}>
-          {loginData.message}
+          {modelMessage}
         </Text>
       </Box>
     );
   }
+
   return (
     <LinearGradient
       colors={['light.gradientStart', 'light.gradientEnd']}
@@ -209,6 +279,15 @@ function LoginScreen({ navigation, route }) {
         <StatusBar />
         <Box flex={1}>
           <Box>
+            <Box
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'center',
+                marginTop: hp(44),
+              }}
+            >
+              {isTestnet() && <TestnetIndicator />}
+            </Box>
             <Text
               ml={5}
               color="light.white"
@@ -234,19 +313,46 @@ function LoginScreen({ navigation, route }) {
               </Box>
               {/*  */}
             </Box>
+            <Box>
+              {loginError && (
+                <Text style={styles.errorMessage} color="light.error">
+                  {errMessage}
+                </Text>
+              )}
+            </Box>
+          </Box>
 
-            {loginError && (
-              <Text
-                style={styles.errorMessage}
-                color="light.error"
-                fontSize={12}
-                textAlign="right"
-                letterSpacing={0.65}
-                mr={12}
+          <HStack justifyContent="space-between" mr={10} paddingTop="1">
+            <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
+              Use tor
+            </Text>
+            <Switch
+              value={torEnbled}
+              trackColor={{ true: '#FFFA' }}
+              thumbColor="#358475"
+              onChange={toggleTor}
+              defaultIsChecked={torEnbled}
+            />
+          </HStack>
+
+          <Box justifyContent="space-between" flexDirection="row">
+            {attempts >= 1 ? (
+              <TouchableOpacity
+                style={{
+                  flex: 0.8,
+                  justifyContent: 'flex-end',
+                  elevation: loggingIn ? 0 : 10,
+                  margin: 20,
+                }}
+                onPress={() => {
+                  setForgotVisible(true);
+                }}
               >
-                {errMessage}
-              </Text>
-            )}
+                <Text color="light.white" bold fontSize={14}>
+                  {login.ForgotPasscode}
+                </Text>
+              </TouchableOpacity>
+            ) : <Box />}
             <Box mt={10} alignSelf="flex-end" mr={10}>
               {passcode.length === 4 && (
                 <Box>
@@ -262,23 +368,6 @@ function LoginScreen({ navigation, route }) {
               )}
             </Box>
           </Box>
-          {attempts >= 1 && (
-            <TouchableOpacity
-              style={{
-                flex: 0.8,
-                justifyContent: 'flex-end',
-                elevation: loggingIn ? 0 : 10,
-                margin: 20,
-              }}
-              onPress={() => {
-                setForgotVisible(true);
-              }}
-            >
-              <Text color="light.white" bold fontSize={14}>
-                {login.ForgotPasscode}
-              </Text>
-            </TouchableOpacity>
-          )}
 
           {/* keyboardview start */}
           <KeyPadView
@@ -325,12 +414,13 @@ function LoginScreen({ navigation, route }) {
       <KeeperModal
         visible={loginModal}
         close={() => { }}
-        title={loginData.title}
-        subTitle={loginData.subTitle}
+        title={modelTitle}
+        subTitle={modelSubTitle}
         subTitleColor="light.secondaryText"
         showCloseIcon={false}
-        buttonText={isAuthenticated ? 'Next' : null}
+        buttonText={modelButtonText}
         buttonCallback={loginModalAction}
+        showButtons
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
@@ -381,6 +471,9 @@ const styles = StyleSheet.create({
   },
   errorMessage: {
     fontStyle: 'italic',
+    fontSize: 12,
+    textAlign: 'center',
+    letterSpacing: 0.65,
   },
 });
 

@@ -98,7 +98,6 @@ export const VaultSpecsSchema: ObjectSchema = {
     xpubs: 'string[]',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
-    activeAddresses: RealmSchema.ActiveAddresses,
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
@@ -113,6 +112,7 @@ export const VaultSchema: ObjectSchema = {
   name: RealmSchema.Vault,
   properties: {
     id: 'string',
+    shellId: 'string',
     entityKind: 'string',
     type: 'string',
     networkType: 'string',

@@ -1,4 +1,3 @@
-import { SigningServerSetup } from 'src/core/wallets/interfaces';
 import { NetworkType } from 'src/core/wallets/enums';
 import SubScription from './Subscription';
 import { BackupType } from '../../enums/BHR';
@@ -11,7 +10,7 @@ export interface AppBackup {
 
 export interface KeeperApp {
   id: string;
-  appID: string;
+  publicId: string;
   appName?: string;
   primaryMnemonic: string;
   primarySeed: string;
@@ -20,5 +19,4 @@ export interface KeeperApp {
   networkType: NetworkType;
   backup: AppBackup;
   subscription: SubScription;
-  signingServerSetup?: SigningServerSetup;
 }

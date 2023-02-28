@@ -23,7 +23,14 @@ function Content({ isUpgrade }) {
   );
 }
 
-function TierUpgradeModal({ visible, close, onPress, isUpgrade, plan }) {
+function TierUpgradeModal({
+  visible,
+  close,
+  onPress,
+  isUpgrade,
+  plan,
+  closeOnOverlayClick = true,
+}) {
   return (
     <KeeperModal
       visible={visible}
@@ -40,6 +47,7 @@ function TierUpgradeModal({ visible, close, onPress, isUpgrade, plan }) {
       buttonCallback={onPress}
       textColor="light.primaryText"
       Content={() => <Content isUpgrade={isUpgrade} />}
+      closeOnOverlayClick={closeOnOverlayClick}
     />
   );
 }

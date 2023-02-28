@@ -1,7 +1,11 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import { generateEncryptionKey, hash256 } from 'src/core/services/operations/encryption';
+import {
+  generateEncryptionKey,
+  generateKey,
+  hash256,
+} from 'src/core/services/operations/encryption';
 import {
   EntityKind,
   NetworkType,
@@ -42,6 +46,7 @@ export const generateVault = ({
   scheme,
   signers,
   networkType,
+  vaultShellId,
 }: {
   type: VaultType;
   vaultName: string;
@@ -49,9 +54,11 @@ export const generateVault = ({
   scheme: VaultScheme;
   signers: VaultSigner[];
   networkType: NetworkType;
+  vaultShellId?: string;
 }): Vault => {
   const id = generateVaultId(signers, networkType);
   const xpubs = signers.map((signer) => signer.xpub);
+  const shellId = vaultShellId ? vaultShellId : generateKey(12);
   const defaultShell = 1;
   const presentationData: VaultPresentationData = {
     name: vaultName,
@@ -62,10 +69,6 @@ export const generateVault = ({
 
   const specs: VaultSpecs = {
     xpubs,
-    activeAddresses: {
-      external: {},
-      internal: {},
-    },
     nextFreeAddressIndex: 0,
     nextFreeChangeAddressIndex: 0,
     confirmedUTXOs: [],
@@ -86,6 +89,7 @@ export const generateVault = ({
   const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
   const vault: Vault = {
     id,
+    shellId,
     entityKind: EntityKind.VAULT,
     type,
     networkType,

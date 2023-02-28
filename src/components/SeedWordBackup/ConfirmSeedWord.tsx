@@ -73,7 +73,7 @@ function ConfirmSeedWord(props) {
   };
 
   return (
-    <Box backgroundColor="light.secondaryBackground" padding={10} borderRadius={10}>
+    <Box backgroundColor="light.mainBackground" padding={10} borderRadius={10}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.confirmSeedWord}
@@ -93,6 +93,7 @@ function ConfirmSeedWord(props) {
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"
+          autoCapitalize="none"
           keyboardType="name-phone-pad"
           onChangeText={(value) => {
             setSeedWord(value.trim());
@@ -101,10 +102,10 @@ function ConfirmSeedWord(props) {
           style={{
             fontSize: 13,
             letterSpacing: 0.96,
-            height: 50,
           }}
           borderRadius={10}
           marginY={2}
+          height={10}
           borderWidth="0"
         />
       </Box>
@@ -130,7 +131,6 @@ function ConfirmSeedWord(props) {
             setInvalid(true);
           }
         }}
-        touchDisable={true}
       />
     </Box>
   );

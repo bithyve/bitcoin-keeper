@@ -1,11 +1,10 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, Pressable } from 'native-base';
-import { Keyboard, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
-import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
@@ -21,6 +20,18 @@ import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import {
+  BtcToSats,
+  getAmt,
+  getCurrencyImageByRegion,
+  SATOSHIS_IN_BTC,
+  SatsToBtc,
+} from 'src/common/constants/Bitcoin';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
+import BTCIcon from 'src/assets/images/btc_black.svg';
 import WalletDetails from './WalletDetails';
 
 function AddSendAmount({ route }) {
@@ -41,16 +52,55 @@ function AddSendAmount({ route }) {
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
+  const [amountToSend, setAmountToSend] = useState('');
+
   const [error, setError] = useState(false); // this state will handle error
   const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
 
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
+
+  function convertFiatToSats(fiatAmount: number) {
+    return exchangeRates && exchangeRates[currencyCode]
+      ? (fiatAmount / exchangeRates[currencyCode].last) * SATOSHIS_IN_BTC
+      : 0;
+  }
+
+  function convertSatsToFiat(amount: Satoshis) {
+    return exchangeRates && exchangeRates[currencyCode]
+      ? (amount / SATOSHIS_IN_BTC) * exchangeRates[currencyCode].last
+      : 0;
+  }
+
+  useEffect(() => {
+    const confirmBalance = sender.specs.balances.confirmed;
+    const sendMaxBalance = confirmBalance - sendMaxFee;
+
+    if (Number(amount) > SatsToBtc(sendMaxBalance)) {
+      setError(true);
+    } else {
+      setError(false);
+    }
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      setAmountToSend(BtcToSats(parseFloat(amount)));
+    } else {
+      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+    }
+  }, [amount]);
+
   useEffect(() => {
     const confirmBalance = sender.specs.balances.confirmed;
     if (sendMaxFee && confirmBalance) {
       const sendMaxBalance = confirmBalance - sendMaxFee;
-      setAmount(`${sendMaxBalance}`);
+      if (currentCurrency === CurrencyKind.BITCOIN) {
+        setAmount(`${SatsToBtc(sendMaxBalance)}`);
+      } else {
+        setAmount(convertSatsToFiat(sendMaxBalance).toString());
+      }
     }
   }, [sendMaxFee]);
 
@@ -59,7 +109,7 @@ function AddSendAmount({ route }) {
       sender,
       recipient,
       address,
-      amount: parseInt(amount),
+      amount: parseInt(amountToSend, 10),
       transferType,
     });
   };
@@ -67,9 +117,14 @@ function AddSendAmount({ route }) {
 
   const executeSendPhaseOne = () => {
     const recipients = [];
+    if (!amountToSend) {
+      showToast('Please enter a valid amount');
+      return;
+    }
+
     recipients.push({
       address,
-      amount: amount ? parseInt(amount) : 0,
+      amount: amountToSend, // should be denominated in sats
     });
     dispatch(
       sendPhaseOne({
@@ -94,11 +149,12 @@ function AddSendAmount({ route }) {
     },
     []
   );
+
   return (
     <ScreenWrapper>
       <HeaderTitle
         title={
-          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
+          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the Amount`
         }
       />
       <Box
@@ -107,8 +163,16 @@ function AddSendAmount({ route }) {
         }}
       >
         <WalletDetails
-          availableAmt={sender?.specs.balances.confirmed}
+          availableAmt={getAmt(
+            sender?.specs.balances.confirmed,
+            exchangeRates,
+            currencyCode,
+            currentCurrency,
+            satsEnabled
+          )}
           walletName={sender?.presentationData.name}
+          currencyIcon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)}
+          isSats={satsEnabled}
         />
       </Box>
 
@@ -145,7 +209,7 @@ function AddSendAmount({ route }) {
         >
           <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
             <Box marginRight={2}>
-              <BitcoinInput />
+              {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BitcoinInput)}
             </Box>
             <Box
               marginLeft={2}
@@ -155,18 +219,27 @@ function AddSendAmount({ route }) {
               height={7}
             />
             <Input
-              placeholder="Enter Amount (sats)"
+              placeholder="Enter Amount"
               placeholderTextColor="light.greenText"
               color="light.greenText"
-              opacity={1}
+              opacity={0.5}
               width="90%"
               fontSize={14}
               fontWeight={300}
               letterSpacing={1.04}
               borderWidth="0"
               value={amount}
-              onChangeText={(value) => setAmount(value)}
-              onFocus={() => Keyboard.dismiss()}
+              onChangeText={(value) => {
+                if (!isNaN(Number(value))) {
+                  setAmount(
+                    value
+                      .split('.')
+                      .map((el, i) => (i ? el.split('').join('') : el))
+                      .join('.')
+                  );
+                }
+              }}
+              keyboardType="decimal-pad"
             />
           </Box>
           <Pressable
@@ -197,21 +270,11 @@ function AddSendAmount({ route }) {
                 navigation.goBack();
               }}
               primaryText="Send"
-              primaryDisable={Boolean(!amount)}
+              primaryDisable={Boolean(!amount || error)}
               primaryCallback={executeSendPhaseOne}
-              touchDisable={true}
             />
           </Box>
         </Box>
-      </Box>
-      <Box style={styles.appNumPadWrapper}>
-        <AppNumPad
-          setValue={setAmount}
-          clear={() => setAmount('')}
-          color="light.greenText"
-          height={windowHeight > 670 ? 85 : 65}
-          darkDeleteIcon
-        />
       </Box>
     </ScreenWrapper>
   );

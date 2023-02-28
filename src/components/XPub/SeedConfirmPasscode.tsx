@@ -12,6 +12,7 @@ import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from '../Buttons';
+import Text from '../KeeperText';
 
 function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
   const relogin = false;
@@ -20,13 +21,12 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
   const dispatch = useAppDispatch();
 
   const [passcode, setPasscode] = useState('');
-  const [passcodeFlag] = useState(true);
 
   const [loginError, setLoginError] = useState(false);
+  const [btnDisable, setBtnDisable] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [errMessage, setErrMessage] = useState('');
+  const [errMessage, setErrMessage] = useState('Incorrect Passcode! Try Again');
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
-
   const onPressNumber = (text) => {
     let tmpPasscode = passcode;
     if (passcode.length < 4) {
@@ -55,10 +55,12 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
   useEffect(() => {
     if (authenticationFailed && passcode) {
       setLoginError(true);
-      setErrMessage('Incorrect password');
+      setErrMessage('Incorrect Passcode! Try Again');
       setPasscode('');
       setAttempts(attempts + 1);
+      setBtnDisable(false);
     } else {
+      setBtnDisable(false);
       setLoginError(false);
     }
   }, [authenticationFailed]);
@@ -74,6 +76,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         });
         closeBottomSheet();
       }
+      setBtnDisable(false);
       dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
@@ -86,17 +89,29 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     <Box borderRadius={10}>
       <Box>
         {/* pin input view */}
-        <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} backgroundColor textColor />
+        <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor textColor />
+        {loginError &&
+          <Text
+            color='light.indicator'
+            style={{
+              textAlign: 'right',
+              fontStyle: 'italic'
+            }}
+          >
+            {errMessage}
+          </Text>
+        }
         {/*  */}
         {passcode.length === 4 && (
           <Buttons
             primaryCallback={() => {
+              setBtnDisable(true);
               setLoginError(false);
               attemptLogin(passcode);
             }}
             primaryText={common.proceed}
             activeOpacity={0.5}
-            touchDisable={true}
+            primaryDisable={btnDisable}
           />
         )}
       </Box>

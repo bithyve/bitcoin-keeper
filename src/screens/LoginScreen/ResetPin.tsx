@@ -9,6 +9,7 @@ import {
 import LinearGradient from 'src/components/KeeperGradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
@@ -109,11 +110,10 @@ export default function ResetPin(props) {
     }
   }, [credsChanged]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (isPinChangedFailed) {
-      // todo
     }
-  }, [isPinChangedFailed]);
+  }, [isPinChangedFailed]); */
 
   useEffect(() => {
     if (passcode === confirmPasscode) {
@@ -185,7 +185,7 @@ export default function ResetPin(props) {
           <KeyPadView
             onDeletePressed={onDeletePressed}
             onPressNumber={onPressNumber}
-            // ClearIcon={<DeleteIcon />}
+            ClearIcon={<DeleteIcon />}
           />
         </Box>
       </Box>

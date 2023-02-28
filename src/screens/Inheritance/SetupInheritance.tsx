@@ -76,7 +76,9 @@ function SetupInheritance() {
 
   function InheritanceContent() {
     return (
-      <Box>
+      <Box style={{
+        width: wp(280)
+      }}>
         {inheritanceData.map((item) => (
           <InheritancePoint
             title={item.title}
@@ -144,7 +146,6 @@ function SetupInheritance() {
               showToast('Inheritance flow coming soon', null, 1000);
             }}
             paddingHorizontal={wp(20)}
-            touchDisable={true}
           />
         </Box>
       </Box>

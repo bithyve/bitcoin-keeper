@@ -3,8 +3,6 @@ import { render } from '@testing-library/react-native';
 import { Provider } from 'react-redux';
 import { NativeBaseProvider } from 'native-base';
 import { customTheme } from 'src/common/themes';
-import { configureStore } from '@reduxjs/toolkit';
-import type { PreloadedState } from '@reduxjs/toolkit';
 import { store } from '../store/store';
 
 const initialStore = store;

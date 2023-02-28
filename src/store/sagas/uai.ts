@@ -129,9 +129,9 @@ function* uaiChecksWorker({ payload }) {
       );
       for (const wallet of wallets) {
         const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
-        if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+        if (wallet.specs.balances.confirmed >= Number(wallet.transferPolicy.threshold)) {
           if (uai) {
-            if (wallet.specs.balances.confirmed >= Number(wallet.specs.transferPolicy)) {
+            if (wallet.specs.balances.confirmed >= Number(wallet.transferPolicy.threshold)) {
               yield put(uaiActionedEntity(uai.entityId, false));
             }
           } else {
@@ -182,6 +182,20 @@ function* uaiChecksWorker({ payload }) {
             yield put(uaiActioned(migrationUai.id));
           }
         }
+      }
+    }
+
+    if (checkForTypes.includes(uaiType.DEFAULT)) {
+      const defaultUai = dbManager.getObjectByField(RealmSchema.UAI, uaiType.DEFAULT, 'uaiType')[0];
+      if (!defaultUai) {
+        yield put(
+          addToUaiStack({
+            title: 'Make sure your signing devices are safe and accessible',
+            isDisplay: false,
+            uaiType: uaiType.DEFAULT,
+            prirority: 10,
+          })
+        );
       }
     }
   } catch (err) {

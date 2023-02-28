@@ -130,8 +130,6 @@
     "Creatingyourwallet": "Creating your wallet",
     "Thismay": "This may take a short time, while the app sets it all up for you:",
     "Hexaencrypts": "Hexa encrypts and secures all the data on the app and any communication that goes out",
-    "creatingbackup": "Automatically creating backup on the cloud",
-    "creatingbackupDrive": "Automatically creating backup on the drive",
     "preloading": "Preloading the Test Account with test sats",
     "multi": "Setting up multiple accounts",
     "Answersdonotmatch": "Answers do not match",
@@ -269,8 +267,6 @@
     "CreateNew": "Create New",
     "Recoverexisting": "Recover an existing wallet",
     "UsingSeed": "Using Seed Words",
-    "FromCloud": "From Cloud Backup",
-    "WalletDesc": "Lorem ipsumdolor sit amet,",
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
@@ -286,9 +282,9 @@
     "XPubTitle": "Wallet xPub",
     "XPubSubTitle": "Scan or copy paste the xPub in another app for generating new addresses and fetching balances",
     "AccountXpub": "Wallet xPub",
-    "AccountXpubNote": "The xPub is only for the selected wallet and not other wallets in the app",
+    "AccountXpubNote": "This xPub is only for the selected wallet and not other wallets in the app",
     "confirmPassTitle": "Confirm Passcode",
-    "confirmPassSubTitle": "To show recovery phrase for this wallet",
+    "confirmPassSubTitle": "To show Recovery Phrase for this wallet",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details"
   },
@@ -358,6 +354,14 @@
     "SetupDescription": "Keep your bluetooth enabled Ledger Nano X ready before proceeding",
     "ScanningBT": "Scanning for bluetooth",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
+  },
+  "bitbox": {
+    "SetupTitle": "Setting up BitBox02",
+    "SetupDescription": "Keep your BitBox02 ready before proceeding"
+  },
+  "trezor": {
+    "SetupTitle": "Setting up Trezor",
+    "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
   },
   "settings": {
     "selectCurrency": "Select currency",
@@ -480,11 +484,6 @@
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual seeds",
-    "backupOnCloud": "Backup on cloud service",
-    "appGeneratePassTitle": "App Generated Password",
-    "appGeneratePassSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
-    "createCloudBackTitle": "Recovering your Wallet",
-    "createCloudBackSubTitle": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed",
     "healthCheck": "Health Check",
     "enterStrongPass": "Enter App Generated Strong Password",
     "healthCheckNote": "This step ensures that you have access to the backup of your wallet ",
@@ -498,44 +497,6 @@
     "myWalletBackupTitle": "My Wallet Backup",
     "SEED_BACKUP_CREATED": "Recovery Phrase backup is created",
     "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
-    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
-    "CLOUD_BACKUP_CREATED": "Cloud backup created",
-    "CLOUD_BACKUP_FAILED": "Cloud backup failed",
-    "CLOUD_BACKUP_CONFIRMATION_SKIPPED": "Cloud backup confirmation skipped",
-    "CLOUD_BACKUP_CONFIRMED": "Cloud backup confirmed",
-    "CLOUD_BACKUP_CONFIRMATION_FAILED": "Cloud backup confirmation failed"
-  },
-  "iCloudErrors": {
-    "36": "iCloud account is temporarily unavailable, please try after sometime.",
-    "25": "iCloud account is temporarily unavailable, please try after sometime.",
-    "21": "Please check authentication with iCloud in settings and try again.",
-    "19": "We were unable to reach iCloud server. Please try again after sometime.",
-    "18": "Seems you are using an older version of Hexa. Please update your app and try again.",
-    "27": "Your request data size was beyond the limits specified by iCloud. Please try after sometime.",
-    "4": "iCloud is currently inaccessible. Please try again in sometime.",
-    "3": "Network error, please check your internet connection.",
-    "7": "You may have pressed requested too many times. Please try after sometime.",
-    "9": "You are not logged-in into your iCloud account. Please log in from your phone Settings.",
-    "default": "We encountered a non-standard error. Please try again after sometime or contact us"
-  },
-  "driveErrors": {
-    "17": "Failed to connect to your Google Drive. Please try after sometime.",
-    "Errorconnecting": "Error connecting with server. Please try again after sometime.",
-    "10": "Technical error occurred. This cannot be rectified at your end. Please contact our support.",
-    "13": "We encountered a error. Please try again after sometime",
-    "8": "Google Drive is temporarily unavailable. Please try again",
-    "5": "Incorrect account name. Please use the account name you used originally while setting up the wallet.",
-    "7": "A network error occurred. Please check your connection and try again.",
-    "unabletoreconnect": "Unable to re-connect with Google Drive right now. Please try again after sometime.",
-    "19": "Unable to connect with Google Drive right now. Please try again after sometime.",
-    "3": "Google Play services is disabled on your phone. Please enable them from phone Settings",
-    "2": "The installed version of Google Play services is out of date. Please update it from Play store.",
-    "4": "You are not logged-in into your Google Drive account. Please log in from your Phone Settings.",
-    "15": "Request timed out. Please try again.",
-    "30": "Please check authentication with your google account in settings and try again.",
-    "errorinuploadingdata": "Error in uploading data. Please try again later.",
-    "12501": "We recommend signing in as it easily allows you to backup your wallet on your personal cloud.",
-    "12502": "We recommend signing in as it easily allows you to backup your wallet on your personal drive.",
-    "default": "We encountered a non-standard error. Please try again after sometime or contact us"
+    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped"
   }
 }

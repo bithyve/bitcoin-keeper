@@ -35,7 +35,6 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import openLink from 'src/utils/OpenLink';
-import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -43,6 +42,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { WalletType } from 'src/core/wallets/enums';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -56,6 +56,7 @@ function WalletDetails({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
@@ -103,7 +104,7 @@ function WalletDetails({ route }) {
         startColor="#e4e4e4"
         offset={[0, 14]}
         viewStyle={{
-          height: hp(120),
+          height: hp(137),
           marginRight: 15,
         }}
       >
@@ -114,7 +115,11 @@ function WalletDetails({ route }) {
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
               style={styles.addWalletContainer}
-              onPress={() => navigation.navigate('EnterWalletDetail', wallets.length)}
+              onPress={() => navigation.navigate('EnterWalletDetail', {
+                name: `Wallet ${wallets.length}`,
+                description: 'Single-sig Wallet',
+                type: WalletType.DEFAULT
+              })}
             >
               <GradientIcon
                 Icon={AddSCardIcon}
@@ -129,7 +134,7 @@ function WalletDetails({ route }) {
           ) : (
             <Box>
               <Box style={styles.walletCard}>
-                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Box style={styles.walletInnerView}>
                   <GradientIcon
                     Icon={WalletInsideGreen}
                     height={35}
@@ -143,7 +148,7 @@ function WalletDetails({ route }) {
                     <Text color="light.white" style={styles.walletName}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription}>
+                    <Text color="light.white" style={styles.walletDescription} ellipsizeMode="tail" numberOfLines={1}>
                       {walletDescription}
                     </Text>
                   </Box>
@@ -152,7 +157,7 @@ function WalletDetails({ route }) {
                   <Text color="light.white" style={styles.unconfirmedText}>
                     Unconfirmed
                   </Text>
-                  <Text color="light.white" style={styles.unconfirmedBalance}>
+                  <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Box
                       style={{
                         marginRight: 3,
@@ -160,8 +165,10 @@ function WalletDetails({ route }) {
                     >
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
-                    {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency)}
-                  </Text>
+                    <Text color="light.white" style={styles.unconfirmedBalance}>
+                      {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                    </Text>
+                  </Box>
                 </Box>
               </Box>
 
@@ -178,9 +185,9 @@ function WalletDetails({ route }) {
                     {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                   </Box>
                   <Text color="light.white" style={styles.availableBalance}>
-                    {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency)}
+                    {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
                     <Text color="light.textColor" style={styles.balanceUnit}>
-                      {getUnit(currentCurrency)}
+                      {getUnit(currentCurrency, satsEnabled)}
                     </Text>
                   </Text>
                 </Box>
@@ -259,9 +266,9 @@ function WalletDetails({ route }) {
             {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTC)}
           </Box>
           <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
-            {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
+            {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
             <Text color="light.textColorDark" style={styles.balanceUnit}>
-              {getUnit(currentCurrency)}
+              {getUnit(currentCurrency, satsEnabled)}
             </Text>
           </Text>
         </Box>
@@ -293,7 +300,7 @@ function WalletDetails({ route }) {
                     wallet: currentWallet,
                     editPolicy: true,
                   });
-                } else showToast('Vault is not created', <ToastErrorIcon />);
+                } else showToast('Create a vault to transfer', <ToastErrorIcon />);
               }}
             >
               <Box style={styles.transferPolicyContent}>
@@ -325,9 +332,10 @@ function WalletDetails({ route }) {
                       wallets[walletIndex].transferPolicy.threshold,
                       exchangeRates,
                       currencyCode,
-                      currentCurrency
+                      currentCurrency,
+                      satsEnabled
                     )}
-                    {getUnit(currentCurrency)}
+                    {getUnit(currentCurrency, satsEnabled)}
                   </Text>
                 </Box>
                 <Box>
@@ -488,7 +496,7 @@ const styles = StyleSheet.create({
   walletContainer: {
     borderRadius: hp(10),
     width: wp(310),
-    height: hp(windowHeight > 700 ? 130 : 150),
+    height: hp(windowHeight > 700 ? 145 : 150),
     padding: wp(15),
     position: 'relative',
     marginLeft: 0,
@@ -500,6 +508,12 @@ const styles = StyleSheet.create({
   walletCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    height: hp(60),
+  },
+  walletInnerView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: wp(173),
   },
   walletDescription: {
     letterSpacing: 0.24,
@@ -511,7 +525,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   walletBalance: {
-    marginTop: hp(20),
+    marginTop: hp(12),
   },
   transferPolicyContainer: {
     flexDirection: 'row',
@@ -580,7 +594,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   unconfirmedBalance: {
-    fontSize: 14,
+    fontSize: 17,
     letterSpacing: 0.6,
     alignSelf: 'flex-end',
   },

@@ -1,13 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { VerificationType } from 'src/core/services/interfaces';
-import {
-  NetworkType,
-  NodeType,
-  SignerType,
-  TransactionType,
-  TxPriorityDefault,
-  WalletType,
-} from '../enums';
+import { NetworkType, SignerType, TransactionType, TxPriorityDefault } from '../enums';
 
 export interface InputUTXOs {
   txId: string;
@@ -133,45 +126,11 @@ export interface UTXO {
   height: number;
 }
 
-export interface ActiveAddressAssignee {
-  type: WalletType | ActiveAddressAssignee;
-  id?: string;
-  senderInfo?: {
-    id?: string;
-    name: string;
-  };
-  recipientInfo?: {
-    [txid: string]: { id?: string; name: string; amount: number }[];
-  };
-}
-
-export interface ActiveAddresses {
-  external: {
-    [address: string]: number; // active address to index mapping
-  };
-  internal: {
-    [address: string]: number; // active address to index mapping
-  };
-}
-
 export interface BIP85Config {
   index: number;
   words: number;
   language: string;
   derivationPath: string;
-}
-
-export interface SigningServerSetup {
-  validation?: {
-    validationType: VerificationType;
-    validationKey?: string;
-    vaildated?: boolean;
-  };
-  setupInfo?: {
-    xpub: string;
-    derivationPath: string;
-    masterFingerprint: string;
-  };
 }
 
 export interface SigningPayload {

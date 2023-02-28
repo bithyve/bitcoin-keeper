@@ -31,6 +31,7 @@ function TransactionDetails({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
   const { transaction }: { transaction: Transaction } = route.params;
@@ -46,30 +47,17 @@ function TransactionDetails({ route }) {
   }) {
     return (
       <Box
-        backgroundColor="light.primaryBackground"
-        style={{
-          height: hp(65),
-          width: wp(width),
-          marginVertical: hp(7),
-          justifyContent: 'center',
-          paddingLeft: wp(15),
-          borderRadius: 10,
-          padding: 3,
-        }}
+        backgroundColor="light.mainBackground"
+        width={wp(width)}
+        style={styles.infoCardContainer}
       >
         <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
           <Box width={showIcon ? '90%' : '100%'}>
-            <Text
-              fontSize={14}
-              letterSpacing={1.12}
-              color="light.headerText"
-              width="90%"
-              numberOfLines={1}
-            >
+            <Text color="light.headerText" style={styles.titleText}>
               {title}
             </Text>
             <Text
-              fontSize={12}
+              style={styles.descText}
               letterSpacing={letterSpacing}
               color="light.GreyText"
               width={showIcon ? '60%' : '90%'}
@@ -85,8 +73,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${transaction.txid}`
     );
   };
@@ -114,9 +101,9 @@ function TransactionDetails({ route }) {
           </Box>
           <Box>
             <Text style={styles.amountText}>
-              {`${getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency)} `}
+              {`${getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency, satsEnabled)} `}
               <Text color="light.dateText" style={styles.unitText}>
-                {getUnit(currentCurrency)}
+                {getUnit(currentCurrency, satsEnabled)}
               </Text>
             </Text>
           </Box>
@@ -126,7 +113,7 @@ function TransactionDetails({ route }) {
         <Box style={styles.infoCardsWrapper}>
           <InfoCard
             title="Confirmations"
-            describtion={transaction.confirmations > 6 ? '6+' : transaction.confirmations}
+            describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
             showIcon={false}
             letterSpacing={2.4}
           />
@@ -190,11 +177,28 @@ const styles = ScaledSheet.create({
     marginLeft: wp(10),
     width: wp(120),
   },
+  infoCardContainer: {
+    marginVertical: hp(7),
+    justifyContent: 'center',
+    paddingLeft: wp(15),
+    borderRadius: 10,
+    paddingHorizontal: 3,
+    paddingVertical: 10,
+  },
   infoCardsWrapper: {
     alignItems: 'center',
     marginTop: hp(20),
     justifyContent: 'center',
     marginHorizontal: 3,
+  },
+  titleText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+    width: '90%',
+    numberOfLines: 1,
+  },
+  descText: {
+    fontSize: 12,
   },
   transDateText: {
     fontSize: 10,

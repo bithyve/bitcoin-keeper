@@ -11,6 +11,7 @@ export const RE_LOGIN = 'RE_LOGIN';
 export const CHANGE_AUTH_CRED = 'CHANGE_AUTH_CRED';
 export const RESET_PIN = 'RESET_PIN';
 export const SET_LOGIN_METHOD = 'SET_LOGIN_METHOD';
+export const GENERATE_SEED_HASH = 'GENERATE_SEED_HASH';
 export const CHANGE_LOGIN_METHOD = 'CHANGE_LOGIN_METHOD';
 export const UPDATE_WALLET_NAME = 'UPDATE_WALLET_NAME';
 export const SWITCH_CREDS_CHANGED = 'SWITCH_CREDS_CHANGED';
@@ -21,6 +22,10 @@ export const storeCreds = (passcode) => ({
   payload: {
     passcode,
   },
+});
+
+export const generateSeedHash = () => ({
+  type: GENERATE_SEED_HASH,
 });
 
 export const changeLoginMethod = (method: LoginMethod, pubKey: string = '') => ({

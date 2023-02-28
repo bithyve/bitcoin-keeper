@@ -1,3 +1,4 @@
+import config, { APP_STAGE } from 'src/core/config';
 import { Alert } from 'react-native';
 
 export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousands = ',') => {
@@ -111,7 +112,10 @@ export const getPlaceholder = (index: number) => {
  * @returns string
  */
 export const crossInteractionHandler = (error): string => {
-  // TODO: check via UAI whether the app is on latest version or not and alert accordingly
+  // check via UAI whether the app is on latest version or not and alert accordingly
   Alert.alert('Something went wrong', 'Please ensure that you & KSD are on the latest version');
   return error.message;
 };
+
+export const getBackupDuration = () =>
+  config.ENVIRONMENT === APP_STAGE.PRODUCTION ? 1.555e7 : 1800;

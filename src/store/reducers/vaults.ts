@@ -33,6 +33,7 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
+  tempShellId: string;
 };
 
 export type SignerUpdatePayload = {
@@ -53,6 +54,7 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
+  tempShellId: null,
 };
 
 const vaultSlice = createSlice({
@@ -64,10 +66,11 @@ const vaultSlice = createSlice({
       state.signers = _.uniqBy([...state.signers, ...newSigners], 'signerId');
     },
     removeSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
-      const signerToRemove = action.payload && action.payload.signerId ? action.payload : null;
+      const signerToRemove =
+        action.payload && action.payload.masterFingerprint ? action.payload : null;
       if (signerToRemove) {
         state.signers = state.signers.filter(
-          (signer) => signer.signerId !== signerToRemove.signerId
+          (signer) => signer.masterFingerprint !== signerToRemove.masterFingerprint
         );
       }
     },
@@ -99,8 +102,12 @@ const vaultSlice = createSlice({
       state.isMigratingNewVault = isMigratingNewVault;
       state.intrimVault = intrimVault;
     },
-    updateIntrimVault: (state, action: PayloadAction<Vault>) => {
-      state.intrimVault = action.payload;
+    resetVaultMigration: (state) => {
+      state.isMigratingNewVault = false;
+      state.intrimVault = null;
+      state.hasMigrationSucceeded = false;
+      state.hasMigrationFailed = false;
+      state.error = null;
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
@@ -116,6 +123,9 @@ const vaultSlice = createSlice({
       state.hasMigrationFailed = hasMigrationFailed;
       state.error = error;
       state.intrimVault = null;
+    },
+    setTempShellId: (state, action: PayloadAction<string>) => {
+      state.tempShellId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -134,11 +144,12 @@ export const {
   initiateVaultMigration,
   vaultMigrationCompleted,
   removeSigningDevice,
-  updateIntrimVault,
   setIntroModal,
   setSdIntroModal,
   updateSigningDevice,
   clearSigningDevice,
+  resetVaultMigration,
+  setTempShellId,
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;

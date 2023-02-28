@@ -10,16 +10,8 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 
-function WalletDetails({ availableAmt, walletName, isEditable = false }) {
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
-
+function WalletDetails({ availableAmt = '', walletName = '', isEditable = false, isSats = false, currencyIcon = BTCIcon }) {
   return (
     <Box style={styles.container} backgroundColor="light.primaryBackground">
       <Box flexDirection="row">
@@ -32,14 +24,14 @@ function WalletDetails({ availableAmt, walletName, isEditable = false }) {
           }}
         >
           <Text color="light.sendCardHeading" numberOfLines={1} style={styles.walletNameText}>
-            {walletName && walletName}
+            {walletName}
           </Text>
           <Text fontSize={12} numberOfLines={1}>
             Available to spend &nbsp;
-            {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)}
+            {currencyIcon}
             &nbsp;
             <Text bold fontSize={14}>
-              {availableAmt && getAmt(availableAmt, exchangeRates, currencyCode, currentCurrency)} {getUnit(currencyCode)}
+              {availableAmt} {isSats && 'sats'}
             </Text>
           </Text>
         </Box>

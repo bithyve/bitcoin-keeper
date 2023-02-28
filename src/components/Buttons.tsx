@@ -1,23 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { View, Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-
-type Props = {
-  primaryText: string;
-  secondaryText: string;
-  primaryCallback: () => void;
-  secondaryCallback: () => void;
-  primaryDisable: boolean;
-  secondaryDisable: boolean;
-  primaryLoading: boolean;
-  paddingHorizontal: any;
-  activeOpacity: any;
-  touchDisable: boolean;
-};
+import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 
 function Buttons({
   primaryText = '',
@@ -29,25 +17,24 @@ function Buttons({
   primaryLoading = false,
   paddingHorizontal = wp(40),
   activeOpacity = 0.5,
-  touchDisable = false,
-}: Props) {
-  const [pressed, setPressed] = useState(primaryDisable);
+}) {
+  const onPrimaryInteraction = () => {
+    primaryCallback();
+  };
+
+  if (primaryLoading) {
+    return <ActivityIndicatorView visible={primaryLoading} />;
+  }
 
   const getPrimaryButton = () => (
     <TouchableOpacity
-      onPress={() => {
-        primaryCallback();
-        setPressed(true);
-      }}
-      disabled={touchDisable && pressed}
+      onPress={onPrimaryInteraction}
+      disabled={primaryDisable}
       activeOpacity={activeOpacity}
     >
       <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
         <Box
-          style={[
-            styles.createBtn,
-            { opacity: touchDisable && pressed ? 0.5 : 1, paddingHorizontal },
-          ]}
+          style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
           backgroundColor={{
             linearGradient: {
               colors: ['light.gradientStart', 'light.gradientEnd'],

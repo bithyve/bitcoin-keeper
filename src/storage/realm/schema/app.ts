@@ -5,7 +5,7 @@ export const KeeperAppSchema: ObjectSchema = {
   name: RealmSchema.KeeperApp,
   properties: {
     id: 'string',
-    appID: 'string',
+    publicId: 'string',
     appName: 'string?',
     primaryMnemonic: 'string',
     primarySeed: 'string',
@@ -14,7 +14,6 @@ export const KeeperAppSchema: ObjectSchema = {
     version: 'string',
     subscription: RealmSchema.StoreSubscription,
     backup: RealmSchema.Backup,
-    signingServerSetup: `${RealmSchema.SigningServerSetup}?`,
   },
   primaryKey: 'id',
 };

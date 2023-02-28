@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable camelcase */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-console */
@@ -13,7 +14,7 @@ import RestClient, { TorStatus } from '../rest/RestClient';
 import torrific from './torrific';
 
 const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: [{ host: '35.177.46.45', ssl: '50002' }],
+  predefinedTestnetPeers: [{ host: '13.42.121.212', ssl: '50002' }],
   predefinedPeers: [{ host: '52.56.32.52', ssl: '50002' }],
   maxConnectionAttempt: 5,
   reconnectDelay: 1000, // 1 second
@@ -36,7 +37,10 @@ export default class ElectrumClient {
       }
 
       ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
-        ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? torrific : global.net,
+        ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') &&
+        RestClient?.getTorStatus() === TorStatus.CONNECTED
+          ? torrific
+          : global.net,
         global.tls,
         ELECTRUM_CLIENT.activePeer?.ssl || ELECTRUM_CLIENT.activePeer?.tcp,
         ELECTRUM_CLIENT.activePeer?.host,
@@ -52,7 +56,10 @@ export default class ElectrumClient {
           ELECTRUM_CLIENT.isClientConnected = false;
           console.log('Error: Close the connection');
 
-          setTimeout(ElectrumClient.connect, ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500);
+          setTimeout(
+            ElectrumClient.connect,
+            ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500
+          );
         }
       };
 
@@ -71,7 +78,7 @@ export default class ElectrumClient {
     }
 
     if (ELECTRUM_CLIENT.isClientConnected) return ELECTRUM_CLIENT.isClientConnected;
-    return await ElectrumClient.reconnect();
+    return ElectrumClient.reconnect();
   }
 
   public static async reconnect() {
@@ -296,7 +303,7 @@ export default class ElectrumClient {
     const res = {};
     txids = [...new Set(txids)]; // remove duplicates, if any
 
-    // TODO: lets try cache first
+    // lets try cache first
     const chunks = ElectrumClient.splitIntoChunks(txids, batchsize);
     for (const chunk of chunks) {
       let results = [];
@@ -306,7 +313,7 @@ export default class ElectrumClient {
 
       for (const txdata of results) {
         if (txdata.error && txdata.error.code === -32600) {
-          // TODO: large response error, would need to handle it over a single call
+          // large response error, would need to handle it over a single call
         }
 
         res[txdata.param] = txdata.result;
@@ -339,19 +346,28 @@ export default class ElectrumClient {
     console.log('testConnection', host, tcpPort, sslPort);
     console.log('RestClient.getTorStatus()', RestClient?.getTorStatus());
     const client = new ElectrumCli(
-      host?.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? torrific : global.net,
+      host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED
+        ? torrific
+        : global.net,
       global.tls,
       sslPort || tcpPort,
       host,
       sslPort ? 'tls' : 'tcp'
     );
 
-    client.onError = (ex) => { console.log(ex) }; // mute
+    client.onError = (ex) => {
+      console.log(ex);
+    }; // mute
     let timeoutId = null;
     try {
       const rez = await Promise.race([
         new Promise((resolve) => {
-          timeoutId = setTimeout(() => resolve('timeout'), host.endsWith('.onion') && (RestClient?.getTorStatus() === TorStatus.CONNECTED) ? 21000 : 5000);
+          timeoutId = setTimeout(
+            () => resolve('timeout'),
+            host.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED
+              ? 21000
+              : 5000
+          );
         }),
         client.connect(),
       ]);

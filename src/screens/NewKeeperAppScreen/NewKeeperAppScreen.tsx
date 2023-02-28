@@ -1,7 +1,9 @@
+/* eslint-disable react/jsx-no-bind */
+/* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import App from 'src/assets/images/app.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -11,11 +13,10 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { isTestnet } from 'src/common/constants/Bitcoin';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
-import { Box, Image, Pressable } from 'native-base';
+import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Note from 'src/components/Note/Note';
+import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
+import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   return (
@@ -62,20 +63,23 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const appCreationError = useAppSelector((state) => state.login.appCreationError);
 
   useEffect(() => {
     if (appCreated) {
       setInitiating(false);
       updateFCM();
     }
-  }, [appCreated]);
+    if (appCreationError) {
+      setModalVisible(false);
+      setInitiating(false);
+    }
+  }, [appCreated, appCreationError]);
 
   async function updateFCM() {
     try {
@@ -109,48 +113,31 @@ function NewKeeperApp({ navigation }: { navigation }) {
   useEffect(() => {
     if (keeperInitiating) {
       setModalVisible(true);
-      dispatch(setupKeeperApp());
+      createNewApp();
     }
   }, [keeperInitiating]);
 
-  const getSignUpModalContent = () => {
-    if (!isTestnet() && false) {
-      return {
-        title: 'Multisig security for your sats',
-        subTitle:
-          'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
-        assert: {
-          loader: require('src/assets/video/Loader.gif'),
-          height: 180,
-        },
-        message:
-          'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.',
-      };
+  async function createNewApp() {
+    try {
+      const fcmToken = await messaging().getToken();
+      dispatch(setupKeeperApp(fcmToken));
+    } catch (error) {
+      dispatch(setupKeeperApp());
     }
-    return {
-      title: 'Shake to send feedback',
-      subTitle: 'Shake your device to send us a bug report or a feature request',
-      assert: {
-        loader: require('src/assets/video/test-net.gif'),
-        height: 200,
-      },
-      message:
-        'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
-    };
-  };
+  }
+
+  const getSignUpModalContent = () => ({
+    title: 'Shake to send feedback',
+    subTitle: 'Shake your device to send us a bug report or a feature request',
+    message:
+      'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
+  });
 
   function SignUpModalContent() {
     return (
-      <Box>
-        <Image
-          source={getSignUpModalContent().assert.loader}
-          style={{
-            width: wp(270),
-            height: hp(getSignUpModalContent().assert.height),
-            alignSelf: 'center',
-          }}
-        />
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
+      <Box style={{ width: windowWidth * 0.8 }}>
+        <ShakingAssetsAnimation />
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
       </Box>
@@ -162,19 +149,17 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
           <HeaderTitle
-            title={'New Keeper App'}
-            subtitle={
-              'Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault'
-            }
+            title="New Keeper App"
+            subtitle="Choose this option when you want to start with a fresh app"
             paddingTop={3}
             enableBack={false}
-            headerTitleColor={'black'}
+            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
           <Tile
             title="Start New"
-            subTitle="New vault and wallets"
+            subTitle="New wallets and vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -187,11 +172,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.titleWrapper02}>
         <Box style={styles.headerContainer}>
           <HeaderTitle
-            title={'Restore'}
-            subtitle={'If you previously had a Keeper wallet you can recover it'}
+            title="Restore"
+            subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
             paddingTop={3}
             enableBack={false}
-            headerTitleColor={'black'}
+            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -204,22 +189,22 @@ function NewKeeperApp({ navigation }: { navigation }) {
             }}
           />
         </Box>
-        {/* <Tile
-          title="Inheritance Keeper vault"
-          subTitle="Using signing devices"
-          onPress={() => {
-            navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-          }}
-          Icon={<Inheritance />} 
-        />*/}
       </Box>
-      <Box style={styles.note}>
-        <Note
-          subtitle="When you use signing devices to restore Keeper, only the vault is restored and the app has
-        new wallets"
-        />
-      </Box>
-
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true);
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
       <KeeperModal
         dismissible={false}
         close={() => { }}
@@ -243,24 +228,17 @@ const styles = StyleSheet.create({
   titleWrapper02: {
     marginTop: hp(70),
   },
-  note: {
-    position: 'absolute',
-    bottom: hp(45),
-    marginLeft: 26,
-    width: '90%',
-    paddingTop: hp(10),
-  },
   iconContainer: {
     padding: 10,
     flex: 1,
     flexDirection: 'row-reverse',
   },
   tileContainer: {
-    marginTop: hp(20)
+    marginTop: hp(20),
   },
   headerContainer: {
-    width: wp(280)
-  }
+    width: wp(280),
+  },
 });
 
 export default NewKeeperApp;

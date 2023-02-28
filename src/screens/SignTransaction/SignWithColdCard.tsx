@@ -85,6 +85,7 @@ function SignWithColdCard({ route }: { route }) {
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+        dispatch(updateSignerDetails(signer, 'registered', true));
       }
     });
 

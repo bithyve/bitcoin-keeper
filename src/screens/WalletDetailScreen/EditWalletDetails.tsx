@@ -1,14 +1,15 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Input, View } from 'native-base';
+import { Input, View, Box } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { ScaledSheet } from 'react-native-size-matters';
 
+import KeeperText from 'src/components/KeeperText';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { updateWalletDetails } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -63,28 +64,38 @@ function EditWalletSettings({ route }) {
         paddingTop={3}
       />
       <View style={styles.inputWrapper}>
-        <Input
-          //   placeholder={walletText.WalletName}
-          placeholderTextColor="light.greenText"
-          backgroundColor="light.primaryBackground"
-          value={walletName}
-          onChangeText={(value) => setWalletName(value)}
-          style={styles.inputField}
-          borderRadius={10}
-          marginY={2}
-          borderWidth="0"
-        />
-        <Input
-          //   placeholder={walletText.SinglesigWallet}
-          placeholderTextColor="light.greenText"
-          backgroundColor="light.primaryBackground"
-          value={walletDescription}
-          onChangeText={(value) => setWalletDescription(value)}
-          style={styles.inputField}
-          borderRadius={10}
-          borderWidth="0"
-          marginY={2}
-        />
+        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+          <Input
+            //   placeholder={walletText.WalletName}
+            placeholderTextColor="light.greenText"
+            value={walletName}
+            onChangeText={(value) => setWalletName(value)}
+            style={styles.inputField}
+            width={wp(260)}
+            marginY={2}
+            borderWidth="0"
+            maxLength={28}
+          />
+          <KeeperText color="light.GreyText" style={styles.limitText}>
+            {walletName && walletName.length}/28
+          </KeeperText>
+        </Box>
+        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+          <Input
+            //   placeholder={walletText.SinglesigWallet}
+            placeholderTextColor="light.greenText"
+            value={walletDescription}
+            onChangeText={(value) => setWalletDescription(value)}
+            style={styles.inputField}
+            width={wp(260)}
+            borderWidth="0"
+            marginY={2}
+            maxLength={40}
+          />
+          <KeeperText color="light.GreyText" style={styles.limitText}>
+            {walletDescription && walletDescription.length}/40
+          </KeeperText>
+        </Box>
         <View style={styles.buttonWrapper}>
           <Buttons
             secondaryText={common.cancel}
@@ -95,7 +106,6 @@ function EditWalletSettings({ route }) {
             primaryCallback={editWallet}
             primaryLoading={relayWalletUpdateLoading}
             primaryDisable={!walletName || !walletDescription}
-            touchDisable={true}
           />
         </View>
       </View>
@@ -127,9 +137,21 @@ const styles = ScaledSheet.create({
     fontSize: 13,
     letterSpacing: 0.96,
   },
+  inputFieldWrapper: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 5,
+  },
   inputWrapper: {
     marginHorizontal: 4,
     marginVertical: windowHeight / 15,
+  },
+  limitText: {
+    marginRight: 10,
+    fontSize: 10,
+    alignSelf: 'flex-end',
   },
   buttonWrapper: {
     marginVertical: 25,

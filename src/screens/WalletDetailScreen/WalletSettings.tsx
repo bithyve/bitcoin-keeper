@@ -17,7 +17,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { getAmt } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -26,7 +26,6 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 // icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
@@ -36,6 +35,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 
 type Props = {
   title: string;
@@ -50,7 +50,7 @@ function Option({ title, subTitle, onPress }: Props) {
         <Text color="light.primaryText" style={styles.optionTitle}>
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle}>
+        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2}>
           {subTitle}
         </Text>
       </Box>
@@ -80,15 +80,16 @@ function WalletSettings({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
   // eslint-disable-next-line react/no-unstable-nested-components
-  function WalletCard({ walletName, walletBalance, walletDescription }: any) {
+  function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
       <Box variant="linearGradient" style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
-          <Box>
+          <Box style={styles.walletDetailsWrapper}>
             <Text color="light.white" style={styles.walletName}>
               {walletName}
             </Text>
@@ -96,9 +97,12 @@ function WalletSettings({ route }) {
               {walletDescription}
             </Text>
           </Box>
-          <Text color="light.white" style={styles.walletBalance}>
-            {walletBalance}
-          </Text>
+          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Box>{Icon}</Box>
+            <Text color="light.white" style={styles.walletBalance}>
+              {walletBalance}
+            </Text>
+          </Box>
         </Box>
       </Box>
     );
@@ -107,13 +111,6 @@ function WalletSettings({ route }) {
   const getTestSats = () => {
     dispatch(testSatsRecieve(wallet));
   };
-
-  useEffect(() => {
-    if (relayWalletUpdate) {
-      showToast('Wallet details updated!', <TickIcon />);
-      dispatch(resetRealyWalletState());
-    }
-  }, [relayWalletUpdate]);
 
   useEffect(() => {
     setLoadingContent({
@@ -187,8 +184,10 @@ function WalletSettings({ route }) {
             wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            satsEnabled
           )}
+          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
       </Box>
       <Box style={styles.optionsListContainer}>
@@ -207,7 +206,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Show xPub"
-            subTitle="Use to create a external watch-only wallet"
+            subTitle="Use to create an external, watch-only wallet"
             onPress={() => {
               setXPubVisible(true);
             }}
@@ -220,7 +219,7 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Wallet seed words"
+            title="Wallet Seed Words"
             subTitle="Use to link external wallets to Keeper"
             onPress={() => {
               setConfirmPassVisible(true);
@@ -228,12 +227,12 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Transfer Policy"
-            subTitle={`Secure to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+            subTitle={`Transfer to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
             }}
           />
-          {config.NETWORK_TYPE == NetworkType.TESTNET && (
+          {config.NETWORK_TYPE === NetworkType.TESTNET && (
             <Option
               title="Receive Test Sats"
               subTitle="Receive Test Sats to this address"
@@ -262,7 +261,6 @@ function WalletSettings({ route }) {
           />
         </ScrollView>
       </Box>
-
       {/* {Bottom note} */}
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
@@ -271,9 +269,6 @@ function WalletSettings({ route }) {
           subtitleColor="GreyText"
         />
       </Box>
-      {/* Indicator */}
-      <ActivityIndicatorView visible={relayWalletUpdateLoading} />
-      {/* Modals */}
       <Box>
         <KeeperModal
           visible={confirmPassVisible}
@@ -299,7 +294,7 @@ function WalletSettings({ route }) {
           close={() => setXPubVisible(false)}
           title="Wallet xPub"
           subTitleWidth={wp(240)}
-          subTitle="Scan or copy paste the xPub in another app for generating new addresses and fetching balances"
+          subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           // eslint-disable-next-line react/no-unstable-nested-components
@@ -321,7 +316,7 @@ function WalletSettings({ route }) {
           visible={cosignerVisible}
           close={() => setCosignerVisible(false)}
           title="Cosigner Details"
-          subTitleWidth={wp(240)}
+          subTitleWidth={wp(260)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
@@ -339,7 +334,10 @@ function WalletSettings({ route }) {
         />
         <KeeperModal
           visible={transferPolicyVisible}
-          close={() => setTransferPolicyVisible(false)}
+          close={() => {
+            showToast('Transfer Policy Changed', <TickIcon />);
+            setTransferPolicyVisible(false);
+          }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
           subTitleColor="light.secondaryText"
@@ -348,6 +346,7 @@ function WalletSettings({ route }) {
             <TransferPolicy
               wallet={wallet}
               close={() => {
+                showToast('Transfer Policy Changed', <TickIcon />);
                 setTransferPolicyVisible(false);
               }}
             />
@@ -375,17 +374,19 @@ const styles = ScaledSheet.create({
   walletCardContainer: {
     borderRadius: hp(20),
     width: wp(320),
-    height: hp(75),
+    paddingHorizontal: 5,
+    paddingVertical: 20,
     position: 'relative',
     marginLeft: -wp(20),
-    marginBottom: hp(0),
   },
   walletCard: {
-    marginTop: hp(17),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginHorizontal: wp(20),
+  },
+  walletDetailsWrapper: {
+    width: wp(170),
   },
   walletName: {
     letterSpacing: 0.28,
@@ -420,6 +421,7 @@ const styles = ScaledSheet.create({
   optionSubtitle: {
     fontSize: 12,
     letterSpacing: 0.6,
+    width: '90%',
   },
 });
 export default WalletSettings;
