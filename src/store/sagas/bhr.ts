@@ -206,7 +206,7 @@ function* seedBackeupConfirmedWorked({
       subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
-  } catch (error) {}
+  } catch (error) { }
 }
 
 function* seedBackedUpWorker() {
@@ -310,11 +310,9 @@ function* getAppImageWorker({ payload }) {
       });
 
       if (appImage.nodes) {
-        if (appImage.nodes) {
-          for (const node of appImage.nodes) {
-            const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
-            yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
-          }
+        for (const node of appImage.nodes) {
+          const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+          yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
         }
       }
     }
