@@ -129,14 +129,19 @@ export const signTransactionWithSigningServer = async ({
   signingServerOTP,
   serializedPSBT,
   SigningServer,
+  shellId,
 }) => {
   try {
     showOTPModal(false);
     const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     const outgoing = idx(signingPayload, (_) => _[0].outgoing);
     if (!childIndexArray) throw new Error('Invalid signing payload');
+
+    const vaultId = shellId;
+    const appId = keeper.id;
     const { signedPSBT } = await SigningServer.signPSBT(
-      keeper.id,
+      vaultId,
+      appId,
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
       childIndexArray,

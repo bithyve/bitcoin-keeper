@@ -401,7 +401,9 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     expect(token).toBeDefined();
 
     jest.setTimeout(10000);
+    const vaultId = '';
     const { signedPSBT } = await SigningServer.signPSBT(
+      vaultId,
       appId,
       token,
       serializedPSBT,

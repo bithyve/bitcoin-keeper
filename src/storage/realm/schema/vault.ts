@@ -112,6 +112,7 @@ export const VaultSchema: ObjectSchema = {
   name: RealmSchema.Vault,
   properties: {
     id: 'string',
+    shellId: 'string',
     entityKind: 'string',
     type: 'string',
     networkType: 'string',
