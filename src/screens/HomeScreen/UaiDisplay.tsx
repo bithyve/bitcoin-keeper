@@ -105,7 +105,7 @@ function UaiDisplay({ uaiStack }) {
   if (uaiStack.length > 0) {
     return (
       <>
-        <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container}>
+        <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container} testID={`btn_${uai?.uaiType}`}>
           <Text numberOfLines={2} color="light.white" style={styles.uaiTitle}>
             {uai?.title}
           </Text>
