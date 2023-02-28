@@ -74,6 +74,7 @@ function Footer({ vault }: { vault: Vault }) {
             }
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
+          testID={'btn_send'}
         >
           <Send />
           <Text color="light.primaryText" style={styles.footerText}>
@@ -85,6 +86,7 @@ function Footer({ vault }: { vault: Vault }) {
           onPress={() => {
             navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
           }}
+          testID={'btn_receive'}
         >
           <Recieve />
           <Text color="light.primaryText" style={styles.footerText}>
@@ -96,6 +98,7 @@ function Footer({ vault }: { vault: Vault }) {
           onPress={() => {
             showToast('Comming Soon');
           }}
+          testID={'btn_buy'}
         >
           <Buy />
           <Text color="light.primaryText" style={styles.footerText}>
@@ -107,6 +110,7 @@ function Footer({ vault }: { vault: Vault }) {
           onPress={() => {
             navigation.navigate('VaultSettings');
           }}
+          testID={'btn_settings'}
         >
           <IconSettings />
           <Text color="light.primaryText" style={styles.footerText}>
@@ -126,12 +130,12 @@ function Header() {
     <Box flexDirection="row" width="100%" px="2%">
       <StatusBar barStyle="light-content" />
       <Box width="50%">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()} testID={'btn_back'}>
           <BackIcon />
         </TouchableOpacity>
       </Box>
       <Box width="50%">
-        <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
+        <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))} testID={'btn_knowMore'}>
           <Text color="light.white" style={styles.footerText} light>
             Know More
           </Text>
@@ -231,6 +235,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
                       })
                     );
                   }}
+                  testID={'btn_viewAll'}
                 >
                   <Text
                     color="light.primaryGreen"
@@ -333,6 +338,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                   })
                 );
               }}
+              testID={`btn_${signer.signerId}`}
             >
               {indicate ? <Box style={styles.indicator} /> : null}
               <Box
