@@ -52,8 +52,6 @@ import { applyRestoreSequence } from './restoreUpgrade';
 import { NodeDetail } from "src/core/wallets/interfaces";
 
 export function* updateAppImageWorker({ payload }) {
-  console.log("updateAppImageWorker class");
-
   const { wallet } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
