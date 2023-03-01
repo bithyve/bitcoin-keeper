@@ -1124,10 +1124,6 @@ export default class WalletOperations {
     serializedPSBTEnvelops: SerializedPSBTEnvelop[],
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
-    recipients: {
-      address: string;
-      amount: number;
-    }[],
     txHex?: string
   ): Promise<{
     txid: string;

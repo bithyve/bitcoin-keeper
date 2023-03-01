@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -192,7 +192,6 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
-  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const { wallet, txnPriority } = payload;
   try {
     const threshold = (wallet as Vault).scheme.m;
@@ -217,7 +216,6 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       serializedPSBTEnvelops,
       txPrerequisites,
       txnPriority,
-      recipients,
       txHex
     );
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
