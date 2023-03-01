@@ -195,7 +195,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
           description: 'Secure your sats',
         },
       };
-      dispatch(migrateVault(vaultInfo, planStatus));
+      dispatch(migrateVault(vaultInfo, planStatus, activeVault.shellId));
     } else {
       createVault(signersState, subscriptionScheme);
     }

@@ -45,7 +45,7 @@ function SignTransactionScreen() {
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const { signers, id: vaultId, scheme } = defaultVault;
+  const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -204,6 +204,7 @@ function SignTransactionScreen() {
             signingServerOTP,
             serializedPSBT,
             SigningServer,
+            shellId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.SEED_WORDS === signerType) {

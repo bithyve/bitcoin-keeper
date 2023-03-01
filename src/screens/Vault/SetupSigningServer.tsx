@@ -27,42 +27,69 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import idx from 'idx';
-import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { validateSigningServerRegistration } from 'src/store/sagaActions/wallets';
 import { generateSignerFromMetaData } from 'src/hardware';
+import SigningServer from 'src/core/services/operations/SigningServer';
+import useVault from 'src/hooks/useVault';
+import { setTempShellId } from 'src/store/reducers/vaults';
+import { generateKey } from 'src/core/services/operations/encryption';
+import { useAppSelector } from 'src/store/hooks';
 
 function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [validationModal, showValidationModal] = useState(false);
-  const [validationKey, setValidationKey] = useState('');
   const { useQuery } = useContext(RealmWrapperContext);
+  const { activeVault } = useVault();
+  const { tempShellId } = useAppSelector((state) => state.vault);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const key = idx(keeper, (_) => _.signingServerSetup.validation.validationKey);
-  const isAlreadyValidated = idx(keeper, (_) => _.signingServerSetup.validation.vaildated);
-  const signingServerVerified = useAppSelector((state) => state.wallet.signingServer.verified);
-  const { xpub, derivationPath, masterFingerprint } =
-    idx(keeper, (_) => _.signingServerSetup.setupInfo) || {};
+  const [setupData, setSetupData] = useState(null);
+  const [validationKey, setValidationKey] = useState('');
+  const [isSetupValidated, setIsSetupValidated] = useState(false);
 
-  const [settingSigningServerKey, setSettingSigningServerKey] = useState(false);
-
-  useEffect(() => {
-    if (key) setValidationKey(key);
-  }, [key]);
-
-  useEffect(() => {
-    if ((signingServerVerified || isAlreadyValidated) && !settingSigningServerKey) {
-      setSettingSigningServerKey(true);
-      setupSigningServerKey();
+  const getShellId = () => {
+    if (activeVault) {
+      return activeVault.shellId;
+    } else if (!tempShellId) {
+      let vaultShellId = generateKey(12);
+      dispatch(setTempShellId(vaultShellId));
+      return vaultShellId;
+    } else {
+      return tempShellId;
     }
-  }, [signingServerVerified, isAlreadyValidated, settingSigningServerKey]);
+  };
+
+  const fetchSetupData = async () => {
+    const { policy } = route.params;
+    const vaultId = getShellId();
+    const appId = keeper.id;
+    try {
+      const { setupData } = await SigningServer.register(vaultId, appId, policy);
+      setSetupData(setupData);
+      setValidationKey(setupData.verification.verifier);
+    } catch (err) {
+      showToast('Something went wrong. Please try again!');
+    }
+  };
+
+  const validateSetup = async () => {
+    const verificationToken = Number(otp);
+    const vaultId = getShellId();
+    const appId = keeper.id;
+    try {
+      const { valid } = await SigningServer.validate(vaultId, appId, verificationToken);
+      if (valid) setIsSetupValidated(valid);
+      else showToast('Invalid OTP. Please try again!');
+    } catch (err) {
+      showToast('Validation failed. Please try again!');
+    }
+  };
 
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
+    const { bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
     const signingServerKey = generateSignerFromMetaData({
       xpub,
       derivationPath,
@@ -76,6 +103,14 @@ function SetupSigningServer({ route }: { route }) {
     navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
+
+  useEffect(() => {
+    fetchSetupData();
+  }, []);
+
+  useEffect(() => {
+    if (setupData && isSetupValidated) setupSigningServerKey();
+  }, [setupData, isSetupValidated]);
 
   const [otp, setOtp] = useState('');
 
@@ -124,12 +159,7 @@ function SetupSigningServer({ route }: { route }) {
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
-              <CustomGreenButton
-                onPress={() => {
-                  dispatch(validateSigningServerRegistration(Number(otp)));
-                }}
-                value="Confirm"
-              />
+              <CustomGreenButton onPress={validateSetup} value="Confirm" />
             </Box>
           </Box>
         </Box>

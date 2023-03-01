@@ -189,10 +189,10 @@ function EnterWalletDetailScreen({ route }) {
             autoCorrect={false}
             marginY={2}
             borderWidth="0"
-            maxLength={20}
+            maxLength={28}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
-            {walletName && walletName.length}/20
+            {walletName && walletName.length}/28
           </KeeperText>
         </Box>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
