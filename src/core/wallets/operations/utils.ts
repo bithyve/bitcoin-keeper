@@ -674,27 +674,14 @@ export default class WalletUtilities {
   };
 
   static getPubkeyHashFromScript = (address: string, script: Buffer) => {
-    const testnet = isTestnet();
-    if (testnet) {
-      if (address.startsWith('tb1')) {
-        return script.slice(2);
-      }
-      if (address.startsWith('m') || address.startsWith('n')) {
-        return script.slice(3, 23);
-      }
-      if (address.startsWith('2')) {
-        return script.slice(2, 22);
-      }
-    } else {
-      if (address.startsWith('bc1')) {
-        return script.slice(2);
-      }
-      if (address.startsWith('1')) {
-        return script.slice(3, 23);
-      }
-      if (address.startsWith('3')) {
-        return script.slice(2, 22);
-      }
+    if (address.startsWith('tb1') || address.startsWith('bc1')) {
+      return script.slice(2);
+    }
+    if (address.startsWith('m') || address.startsWith('n') || address.startsWith('1')) {
+      return script.slice(3, 23);
+    }
+    if (address.startsWith('2') || address.startsWith('3')) {
+      return script.slice(2, 22);
     }
   };
 }
