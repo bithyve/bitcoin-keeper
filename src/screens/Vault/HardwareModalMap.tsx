@@ -13,7 +13,6 @@ import Text from 'src/components/KeeperText';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -54,7 +53,6 @@ import { HWErrorType } from 'src/common/data/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import { crossInteractionHandler } from 'src/common/utilities';
 import { isTestnet } from 'src/common/constants/Bitcoin';
-import useAsync from 'src/hooks/useAsync';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import * as SecureStore from '../../storage/secure-store';
