@@ -98,6 +98,7 @@ export const VaultSpecsSchema: ObjectSchema = {
     xpubs: 'string[]',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
+    receivingAddress: 'string?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,

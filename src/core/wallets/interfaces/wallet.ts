@@ -36,6 +36,7 @@ export interface WalletSpecs {
   xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  receivingAddress?: string; // current receiving address(external chain)
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances

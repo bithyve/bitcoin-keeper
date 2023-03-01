@@ -6,6 +6,7 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 // libraries
 import { Box, View } from 'native-base';
@@ -31,7 +32,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -42,6 +42,7 @@ import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import WalletOperations from 'src/core/wallets/operations';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
@@ -94,7 +95,7 @@ function SendScreen({ route }) {
 
     launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
-        showToast('Camera device has been cancled')
+        showToast('Camera device has been cancled');
       } else if (response.errorCode === 'camera_unavailable') {
         showToast('Camera not available on device');
       } else if (response.errorCode === 'permission') {
@@ -146,9 +147,10 @@ function SendScreen({ route }) {
           : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        const transferType = sender.entityKind === 'VAULT'
-          ? TransferType.VAULT_TO_ADDRESS
-          : TransferType.WALLET_TO_ADDRESS;
+        const transferType =
+          sender.entityKind === 'VAULT'
+            ? TransferType.VAULT_TO_ADDRESS
+            : TransferType.WALLET_TO_ADDRESS;
         navigateToNext(address, transferType, amount ? amount.toString() : null);
         break;
       default:
@@ -159,9 +161,19 @@ function SendScreen({ route }) {
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
       if (sender.entityKind === 'VAULT') {
-        navigateToNext(getNextFreeAddress(item), TransferType.VAULT_TO_WALLET, null, item);
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(item),
+          TransferType.VAULT_TO_WALLET,
+          null,
+          item
+        );
       } else {
-        navigateToNext(getNextFreeAddress(item), TransferType.WALLET_TO_WALLET, null, item);
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(item),
+          TransferType.WALLET_TO_WALLET,
+          null,
+          item
+        );
       }
     };
     return (
@@ -191,58 +203,58 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        {/* <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}> */}
         <HeaderTitle
           title={common.send}
           subtitle="Scan a bitcoin address"
           headerTitleColor="light.textBlack"
           paddingTop={hp(5)}
         />
-        <Box>
-          <Box style={styles.qrcontainer}>
-            <RNCamera
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={(data) => {
-                handleTextChange(data.data);
-              }}
-              notAuthorizedView={<CameraUnauthorized />}
-            />
-          </Box>
-          {/* Upload Image */}
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+          <Box>
+            <Box style={styles.qrcontainer}>
+              <RNCamera
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={(data) => {
+                  handleTextChange(data.data);
+                }}
+                notAuthorizedView={<CameraUnauthorized />}
+              />
+            </Box>
+            {/* Upload Image */}
 
-          <UploadImage onPress={handleChooseImage} />
+            <UploadImage onPress={handleChooseImage} />
 
-          {/* send manually option */}
-          <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
-            <TextInput
-              placeholder="or enter address manually"
-              placeholderTextColor="light.GreyText"
-              style={styles.textInput}
-              value={paymentInfo}
-              onChangeText={handleTextChange}
-            />
-          </Box>
+            {/* send manually option */}
+            <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+              <TextInput
+                placeholder="or enter address manually"
+                placeholderTextColor="light.GreyText"
+                style={styles.textInput}
+                value={paymentInfo}
+                onChangeText={handleTextChange}
+              />
+            </Box>
 
-          {/* Send to Wallet options */}
-          <Box style={styles.sendToWalletWrapper}>
-            <Text marginX={2} fontSize={14} letterSpacing={1.12}>
-              or send to a wallet
-            </Text>
-            <View>
-              <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
-                <FlatList
-                  data={otherWallets}
-                  renderItem={renderWallets}
-                  keyExtractor={(item) => item.id}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                />
+            {/* Send to Wallet options */}
+            <Box style={styles.sendToWalletWrapper}>
+              <Text marginX={2} fontSize={14} letterSpacing={1.12}>
+                or send to a wallet
+              </Text>
+              <View>
+                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
+                  <FlatList
+                    data={otherWallets}
+                    renderItem={renderWallets}
+                    keyExtractor={(item) => item.id}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                  />
+                </View>
               </View>
-            </View>
+            </Box>
           </Box>
-        </Box>
-        {/* </ScrollView> */}
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* {Bottom note} */}

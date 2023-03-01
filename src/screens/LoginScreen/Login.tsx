@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Image, Switch } from 'native-base';
+import { Box, HStack, Switch } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -48,7 +48,7 @@ function LoginScreen({ navigation, route }) {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [loginData, setLoginData] = useState(getSecurityTip())
+  const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const [canLogin, setCanLogin] = useState(false);
@@ -211,9 +211,9 @@ function LoginScreen({ navigation, route }) {
   const modelMessage = useMemo(() => {
     if (torEnbled) {
       if (torStatus === TorStatus.CONNECTED) {
-        return loginData.message
+        return loginData.message;
       }
-      return 'It might take upto minute'
+      return 'It might take upto minute';
     }
     return loginData.message;
   }, [torEnbled, torStatus]);
@@ -221,9 +221,9 @@ function LoginScreen({ navigation, route }) {
   const modelTitle = useMemo(() => {
     if (torEnbled) {
       if (torStatus === TorStatus.CONNECTED) {
-        return loginData.title
+        return loginData.title;
       }
-      return 'Connecting to Tor '
+      return 'Connecting to Tor ';
     }
     return loginData.title;
   }, [torEnbled, torStatus]);
@@ -231,9 +231,9 @@ function LoginScreen({ navigation, route }) {
   const modelSubTitle = useMemo(() => {
     if (torEnbled) {
       if (torStatus === TorStatus.CONNECTED) {
-        return loginData.subTitle
+        return loginData.subTitle;
       }
-      return 'Network calls and some functions may work slower when the Tor is enabled  '
+      return 'Network calls and some functions may work slower when the Tor is enabled  ';
     }
     return loginData.subTitle;
   }, [torEnbled, torStatus]);
@@ -242,13 +242,13 @@ function LoginScreen({ navigation, route }) {
     if (isAuthenticated) {
       if (torEnbled) {
         if (torStatus === TorStatus.CONNECTED) {
-          return 'Next'
+          return 'Next';
         }
-        return null
+        return null;
       }
       return 'Next';
     }
-    return null
+    return null;
   }, [torEnbled, torStatus, isAuthenticated]);
 
   function LoginModalContent() {
@@ -335,15 +335,10 @@ function LoginScreen({ navigation, route }) {
             />
           </HStack>
 
-          <Box justifyContent="space-between" flexDirection="row">
+          <Box style={styles.btnContainer}>
             {attempts >= 1 ? (
               <TouchableOpacity
-                style={{
-                  flex: 0.8,
-                  justifyContent: 'flex-end',
-                  elevation: loggingIn ? 0 : 10,
-                  margin: 20,
-                }}
+                style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}
                 onPress={() => {
                   setForgotVisible(true);
                 }}
@@ -352,8 +347,10 @@ function LoginScreen({ navigation, route }) {
                   {login.ForgotPasscode}
                 </Text>
               </TouchableOpacity>
-            ) : <Box />}
-            <Box mt={10} alignSelf="flex-end" mr={10}>
+            ) : (
+              <Box />
+            )}
+            <Box style={styles.btnWrapper}>
               {passcode.length === 4 && (
                 <Box>
                   <CustomButton
@@ -413,7 +410,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
+        close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
         subTitleColor="light.secondaryText"
@@ -474,6 +471,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     letterSpacing: 0.65,
+  },
+  btnContainer: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    width: '100%',
+  },
+  forgotPassWrapper: {
+    flex: 0.8,
+    margin: 20,
+    width: '65%',
+    marginTop: 30,
+  },
+  btnWrapper: {
+    marginTop: 25,
+    alignSelf: 'flex-start',
+    marginRight: 15,
+    width: '35%',
   },
 });
 
