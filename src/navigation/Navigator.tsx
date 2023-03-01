@@ -72,6 +72,8 @@ import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
 import Login from '../screens/LoginScreen/Login';
+import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
+import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -128,7 +130,8 @@ function LoginStack() {
       />
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
       <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
-
+      <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
+      <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
     </Stack.Navigator>
   );
