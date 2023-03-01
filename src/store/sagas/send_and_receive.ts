@@ -7,7 +7,6 @@ import { call, put, select } from 'redux-saga/effects';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
@@ -43,12 +42,6 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-
-export function getNextFreeAddress(wallet: Wallet | Vault) {
-  if (!wallet.isUsable) return '';
-  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
-  return receivingAddress;
-}
 
 function* fetchFeeRatesWorker() {
   try {
@@ -259,7 +252,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     // const recipients = yield call(processRecipients);
     const recipients = [
       {
-        address: yield call(getNextFreeAddress, recipient),
+        address: yield call(WalletOperations.getNextFreeAddress, recipient),
         amount,
       },
     ];

@@ -42,40 +42,53 @@ import {
   TransactionType,
   TxPriority,
 } from '../enums';
-import { Vault, VaultSigner } from '../interfaces/vault';
+import { Vault, VaultScheme, VaultSigner, VaultSpecs } from '../interfaces/vault';
 
-import { Wallet } from '../interfaces/wallet';
+import { Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
-  static getNextFreeExternalAddress = (wallet: Wallet | Vault): { receivingAddress: string } => {
+  private static getNextFreeExternalAddress = ({
+    entity,
+    isMultiSig,
+    specs,
+    networkType,
+    scheme,
+    derivationPath,
+  }: {
+    entity: EntityKind;
+    isMultiSig: boolean;
+    specs: VaultSpecs | WalletSpecs;
+    networkType: NetworkType;
+    scheme?: VaultScheme;
+    derivationPath?: string;
+  }): { receivingAddress: string } => {
     let receivingAddress;
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    if ((wallet as Vault).isMultiSig) {
-      const { xpubs } = (wallet as Vault).specs;
+    const network = WalletUtilities.getNetworkByType(networkType);
+
+    if (isMultiSig) {
+      // case: multi-sig vault
+      const { xpubs } = specs as VaultSpecs;
       receivingAddress = WalletUtilities.createMultiSig(
         xpubs,
-        (wallet as Vault).scheme.m,
+        scheme.m,
         network,
-        wallet.specs.nextFreeAddressIndex,
+        specs.nextFreeAddressIndex,
         false
       ).address;
     } else {
+      // case: single-sig vault/wallet
       const xpub =
-        wallet.entityKind === EntityKind.VAULT
-          ? (wallet as Vault).specs.xpubs[0]
-          : (wallet as Wallet).specs.xpub;
+        entity === EntityKind.VAULT ? (specs as VaultSpecs).xpubs[0] : (specs as WalletSpecs).xpub;
       const purpose =
-        wallet.entityKind === EntityKind.VAULT
-          ? undefined
-          : WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+        entity === EntityKind.VAULT ? undefined : WalletUtilities.getPurpose(derivationPath);
 
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
         false,
-        (wallet as Wallet).specs.nextFreeAddressIndex,
+        specs.nextFreeAddressIndex,
         network,
         purpose
       );
@@ -84,6 +97,20 @@ export default class WalletOperations {
     return {
       receivingAddress,
     };
+  };
+
+  static getNextFreeAddress = (wallet: Wallet | Vault) => {
+    if (wallet.specs.receivingAddress) return wallet.specs.receivingAddress;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress({
+      entity: wallet.entityKind,
+      isMultiSig: (wallet as Vault).isMultiSig,
+      specs: wallet.specs,
+      networkType: wallet.networkType,
+      scheme: (wallet as Vault).scheme,
+      derivationPath: (wallet as Wallet).derivationDetails.xDerivationPath,
+    });
+
+    return receivingAddress;
   };
 
   static transformElectrumTxToTx = (
@@ -332,6 +359,14 @@ export default class WalletOperations {
       // update wallet w/ latest utxos, balances and transactions
       wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
       wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
+      wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
+        entity: wallet.entityKind,
+        isMultiSig: (wallet as Vault).isMultiSig,
+        specs: wallet.specs,
+        networkType: wallet.networkType,
+        scheme: (wallet as Vault).scheme,
+        derivationPath: (wallet as Wallet).derivationDetails.xDerivationPath,
+      }).receivingAddress;
       wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
       wallet.specs.confirmedUTXOs = confirmedUTXOs;
       wallet.specs.balances = balances;

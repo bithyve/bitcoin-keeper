@@ -108,7 +108,8 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
       );
       if (sendMaxFee && temporaryVault) {
         const maxBalance = confirmed - sendMaxFee;
-        const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(temporaryVault);
+
+        const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
         setRecepients([{ address: receivingAddress, amount: maxBalance }]);
         dispatch(
           sendPhaseOne({

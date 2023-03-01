@@ -13,6 +13,7 @@ import {
 import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
+import WalletOperations from '../operations';
 
 export const generateWallet = async ({
   type,
@@ -112,6 +113,7 @@ export const generateWallet = async ({
     scriptType: ScriptTypes.P2WPKH,
     transferPolicy,
   };
+  wallet.specs.receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   return wallet;
 };
 
