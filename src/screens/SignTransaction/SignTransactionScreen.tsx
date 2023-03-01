@@ -73,6 +73,9 @@ function SignTransactionScreen() {
   );
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
+  const sendFailedMessage = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
+  );
   const [broadcasting, setBroadcasting] = useState(false);
   const textRef = useRef(null);
   const dispatch = useDispatch();
@@ -119,6 +122,13 @@ function SignTransactionScreen() {
     },
     []
   );
+
+  useEffect(() => {
+    if (sendFailedMessage && broadcasting) {
+      setBroadcasting(false);
+      showToast(sendFailedMessage);
+    }
+  }, [sendFailedMessage, broadcasting]);
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;

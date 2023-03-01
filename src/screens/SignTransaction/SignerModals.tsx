@@ -96,7 +96,7 @@ function LedgerSigningModal({
 
 function ColdCardContent({ register, isMultisig }: { register: boolean; isMultisig: boolean }) {
   return (
-    <Box>
+    <Box alignItems="center">
       <ColdCardSVG />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
@@ -118,7 +118,7 @@ function ColdCardContent({ register, isMultisig }: { register: boolean; isMultis
 
 function PassportContent({ isMultisig }: { isMultisig: boolean }) {
   return (
-    <Box>
+    <Box alignItems="center">
       <PassportSVG />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
@@ -136,7 +136,7 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
 
 function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
   return (
-    <Box>
+    <Box alignItems="center">
       <SeedSignerSetup />
       <Box marginTop={2}>
         {isMultisig ? (
@@ -154,7 +154,7 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
 
 function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
   return (
-    <Box>
+    <Box alignItems="center">
       <KeystoneSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
@@ -174,7 +174,7 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
 
 function JadeContent() {
   return (
-    <Box>
+    <Box alignItems="center">
       <JadeSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
@@ -187,7 +187,7 @@ function JadeContent() {
 
 function TrezorContent() {
   return (
-    <Box>
+    <Box alignItems="center">
       <TrezorSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
@@ -200,7 +200,7 @@ function TrezorContent() {
 
 function BitBox02Content() {
   return (
-    <Box>
+    <Box alignItems="center">
       <BitoxImage />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
@@ -212,7 +212,7 @@ function BitBox02Content() {
 }
 export function KeeperContent() {
   return (
-    <Box>
+    <Box alignItems="center">
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
