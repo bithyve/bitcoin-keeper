@@ -107,7 +107,7 @@ export default class WalletOperations {
       specs: wallet.specs,
       networkType: wallet.networkType,
       scheme: (wallet as Vault).scheme,
-      derivationPath: (wallet as Wallet).derivationDetails.xDerivationPath,
+      derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
     });
 
     return receivingAddress;
@@ -365,7 +365,7 @@ export default class WalletOperations {
         specs: wallet.specs,
         networkType: wallet.networkType,
         scheme: (wallet as Vault).scheme,
-        derivationPath: (wallet as Wallet).derivationDetails.xDerivationPath,
+        derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
       }).receivingAddress;
       wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
       wallet.specs.confirmedUTXOs = confirmedUTXOs;
