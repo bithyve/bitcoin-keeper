@@ -335,15 +335,10 @@ function LoginScreen({ navigation, route }) {
             />
           </HStack>
 
-          <Box justifyContent="space-between" flexDirection="row">
+          <Box style={styles.btnContainer}>
             {attempts >= 1 ? (
               <TouchableOpacity
-                style={{
-                  flex: 0.8,
-                  justifyContent: 'flex-end',
-                  elevation: loggingIn ? 0 : 10,
-                  margin: 20,
-                }}
+                style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10, }]}
                 onPress={() => {
                   setForgotVisible(true);
                 }}
@@ -353,7 +348,7 @@ function LoginScreen({ navigation, route }) {
                 </Text>
               </TouchableOpacity>
             ) : <Box />}
-            <Box mt={10} alignSelf="flex-end" mr={10}>
+            <Box style={styles.btnWrapper}>
               {passcode.length === 4 && (
                 <Box>
                   <CustomButton
@@ -475,6 +470,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.65,
   },
+  btnContainer: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    width: '100%'
+  },
+  forgotPassWrapper: {
+    flex: 0.8,
+    margin: 20,
+    width: '65%',
+    marginTop: 30,
+  },
+  btnWrapper: {
+    marginTop: 25,
+    alignSelf: 'flex-start',
+    marginRight: 15,
+    width: '35%'
+  },
+
 });
 
 export default LoginScreen;

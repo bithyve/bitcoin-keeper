@@ -6,6 +6,7 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
+  ScrollView
 } from 'react-native';
 // libraries
 import { Box, View } from 'native-base';
@@ -191,58 +192,58 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        {/* <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}> */}
         <HeaderTitle
           title={common.send}
           subtitle="Scan a bitcoin address"
           headerTitleColor="light.textBlack"
           paddingTop={hp(5)}
         />
-        <Box>
-          <Box style={styles.qrcontainer}>
-            <RNCamera
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={(data) => {
-                handleTextChange(data.data);
-              }}
-              notAuthorizedView={<CameraUnauthorized />}
-            />
-          </Box>
-          {/* Upload Image */}
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+          <Box>
+            <Box style={styles.qrcontainer}>
+              <RNCamera
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={(data) => {
+                  handleTextChange(data.data);
+                }}
+                notAuthorizedView={<CameraUnauthorized />}
+              />
+            </Box>
+            {/* Upload Image */}
 
-          <UploadImage onPress={handleChooseImage} />
+            <UploadImage onPress={handleChooseImage} />
 
-          {/* send manually option */}
-          <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
-            <TextInput
-              placeholder="or enter address manually"
-              placeholderTextColor="light.GreyText"
-              style={styles.textInput}
-              value={paymentInfo}
-              onChangeText={handleTextChange}
-            />
-          </Box>
+            {/* send manually option */}
+            <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+              <TextInput
+                placeholder="or enter address manually"
+                placeholderTextColor="light.GreyText"
+                style={styles.textInput}
+                value={paymentInfo}
+                onChangeText={handleTextChange}
+              />
+            </Box>
 
-          {/* Send to Wallet options */}
-          <Box style={styles.sendToWalletWrapper}>
-            <Text marginX={2} fontSize={14} letterSpacing={1.12}>
-              or send to a wallet
-            </Text>
-            <View>
-              <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
-                <FlatList
-                  data={otherWallets}
-                  renderItem={renderWallets}
-                  keyExtractor={(item) => item.id}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                />
+            {/* Send to Wallet options */}
+            <Box style={styles.sendToWalletWrapper}>
+              <Text marginX={2} fontSize={14} letterSpacing={1.12}>
+                or send to a wallet
+              </Text>
+              <View>
+                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
+                  <FlatList
+                    data={otherWallets}
+                    renderItem={renderWallets}
+                    keyExtractor={(item) => item.id}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                  />
+                </View>
               </View>
-            </View>
+            </Box>
           </Box>
-        </Box>
-        {/* </ScrollView> */}
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* {Bottom note} */}
