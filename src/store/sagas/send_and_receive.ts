@@ -202,12 +202,8 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       if (serializedPSBTEnvelop.isSigned) {
         availableSignatures++;
       }
-      if (
-        (serializedPSBTEnvelop.signerType === SignerType.COLDCARD ||
-          serializedPSBTEnvelop.signerType === SignerType.KEYSTONE) &&
-        serializedPSBTEnvelop.txHex
-      ) {
-        txHex = serializedPSBTEnvelop.txHex;
+      if (serializedPSBTEnvelop.txHex) {
+        txHex = serializedPSBTEnvelop.txHex; // txHex is given out by COLDCARD, KEYSTONE and TREZOR post signing
       }
     }
     if (availableSignatures < threshold)
