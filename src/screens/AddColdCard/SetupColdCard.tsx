@@ -7,7 +7,7 @@ import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -32,6 +32,10 @@ function SetupColdCard() {
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
   const { inProgress, start } = useAsync();
+
+  useEffect(() => {
+    addColdCardWithProgress();
+  }, [])
 
   const addColdCardWithProgress = async () => {
     await start(addColdCard);
@@ -75,14 +79,6 @@ function SetupColdCard() {
               subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
             />
-            <Box style={styles.buttonContainer}>
-              <Buttons
-                activeOpacity={0.7}
-                primaryText="Proceed"
-                primaryCallback={addColdCardWithProgress}
-                primaryLoading={inProgress}
-              />
-            </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} close={closeNfc} />
         </Box>
