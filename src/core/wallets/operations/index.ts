@@ -67,9 +67,10 @@ export default class WalletOperations {
         wallet.entityKind === EntityKind.VAULT
           ? (wallet as Vault).specs.xpubs[0]
           : (wallet as Wallet).specs.xpub;
-      const purpose = EntityKind.VAULT
-        ? undefined
-        : WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+      const purpose =
+        wallet.entityKind === EntityKind.VAULT
+          ? undefined
+          : WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
 
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
