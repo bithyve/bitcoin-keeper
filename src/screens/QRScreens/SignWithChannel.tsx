@@ -23,7 +23,7 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { getSignedSerializedPSBTForTrezor, getTxForTrezor } from 'src/hardware/trezor';
+import { getTxForTrezor } from 'src/hardware/trezor';
 import { captureError } from 'src/core/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { getSignedSerializedPSBTForBitbox02, getTxForBitBox02 } from 'src/hardware/bitbox';
@@ -77,12 +77,8 @@ function SignWithChannel() {
     channel.on(SIGNED_TX, ({ data }) => {
       try {
         if (signer.type === SignerType.TREZOR) {
-          const { signedSerializedPSBT } = getSignedSerializedPSBTForTrezor(
-            serializedPSBT,
-            data,
-            signingPayload
-          );
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+          const { serializedTx: txHex } = data;
+          dispatch(updatePSBTEnvelops({ txHex, signerId: signer.signerId }));
           navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
         } else if (signer.type === SignerType.BITBOX02) {
           const { signedSerializedPSBT } = getSignedSerializedPSBTForBitbox02(

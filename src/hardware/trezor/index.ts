@@ -77,32 +77,6 @@ export const getTxForTrezor = (
   }
 };
 
-export const getSignedSerializedPSBTForTrezor = (unsignedPSBT, signedTx, signingPayload) => {
-  try {
-    const { signatures, witnesses } = signedTx;
-    const PSBT = bitcoinJS.Psbt.fromBase64(unsignedPSBT);
-    const { inputsToSign } = signingPayload[0];
-    for (let inputIndex = 0; inputIndex < inputsToSign.length; inputIndex += 1) {
-      const { sighashType, publicKey } = inputsToSign[inputIndex];
-      const derSignature = Buffer.from(signatures[inputIndex], 'hex');
-      const hashTypeBuffer = Buffer.allocUnsafe(1);
-      hashTypeBuffer.writeUInt8(sighashType, 0);
-      PSBT.data.updateInput(inputIndex, {
-        partialSig: [
-          {
-            pubkey: Buffer.from(publicKey, 'hex'),
-            signature: Buffer.concat([derSignature, hashTypeBuffer]),
-          },
-        ],
-        witnessScript: Buffer.from(witnesses[inputIndex], 'hex'),
-      });
-    }
-    return { signedSerializedPSBT: PSBT.toBase64() };
-  } catch (err) {
-    captureError(err);
-  }
-};
-
 const getIdFromHash = (hash: Buffer): string => reverse(hash).toString('hex');
 
 const getOutputScriptCodesFromPath = (path) => {
