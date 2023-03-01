@@ -117,8 +117,8 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
-  const [suggestedWords, setSuggestedWords] = useState([])
-  const [onChangeIndex, setOnChangeIndex] = useState(-1)
+  // const [suggestedWords, setSuggestedWords] = useState([])
+  // const [onChangeIndex, setOnChangeIndex] = useState(-1)
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -263,10 +263,10 @@ function EnterSeedScreen({ route }) {
       setActivePage(0);
     }
   };
-  const getSuggestedWords = (text) => {
-    const filteredData = bip39.wordlists.english.filter(data => data.toLowerCase().startsWith(text))
-    setSuggestedWords(filteredData)
-  }
+  // const getSuggestedWords = (text) => {
+  //   const filteredData = bip39.wordlists.english.filter(data => data.toLowerCase().startsWith(text))
+  //   setSuggestedWords(filteredData)
+  // }
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -336,12 +336,12 @@ function EnterSeedScreen({ route }) {
                     const data = [...seedData];
                     data[index].name = text.trim();
                     setSeedData(data);
-                    if (text.length > 1) {
-                      setOnChangeIndex(index)
-                      getSuggestedWords(text.toLowerCase())
-                    } else {
-                      setSuggestedWords([])
-                    }
+                    // if (text.length > 1) {
+                    // setOnChangeIndex(index)
+                    // getSuggestedWords(text.toLowerCase())
+                    // } else {
+                    // setSuggestedWords([])
+                    // }
                   }}
                   onBlur={() => {
                     if (!bip39.wordlists.english.includes(seedData[index].name)) {
@@ -354,15 +354,15 @@ function EnterSeedScreen({ route }) {
                     const data = [...seedData];
                     data[index].invalid = false;
                     setSeedData(data);
-                    setSuggestedWords([])
-                    setOnChangeIndex(index)
+                    // setSuggestedWords([])
+                    // setOnChangeIndex(index)
                   }}
                   onSubmitEditing={() => {
-                    setSuggestedWords([])
+                    // setSuggestedWords([])
                   }}
 
                 />
-                {onChangeIndex === index ? <ScrollView style={styles.suggestionScrollView} nestedScrollEnabled>
+                {/* {onChangeIndex === index ? <ScrollView style={styles.suggestionScrollView} nestedScrollEnabled>
                   {
                     suggestedWords?.length > 0 ?
                       <View style={styles.suggestionWrapper}>
@@ -372,15 +372,16 @@ function EnterSeedScreen({ route }) {
                             const data = [...seedData];
                             data[onChangeIndex].name = word.trim();
                             setSeedData(data);
-                            setSuggestedWords([])
+                            // setSuggestedWords([])
                           }}>
                             <Text style={styles.suggestionWord}>{word}</Text>
                           </TouchableOpacity>
                         ))}
                       </View>
                       : null
-                  }
+                  } 
                 </ScrollView> : null}
+                */}
               </View>
 
             )}
