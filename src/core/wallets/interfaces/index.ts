@@ -135,7 +135,9 @@ export interface BIP85Config {
 
 export interface SigningPayload {
   payloadTarget: SignerType;
-  inputs?: any;
+  inputs?: InputUTXOs[];
+  outputs?: OutputUTXOs[];
+  change?: string;
   inputsToSign?: Array<{
     digest: string;
     subPath: string;
