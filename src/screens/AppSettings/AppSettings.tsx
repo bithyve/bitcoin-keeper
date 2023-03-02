@@ -152,7 +152,7 @@ function AppSettings({ navigation }) {
         onPress={onPress}
         backgroundColor="light.primaryBackground"
         style={styles.appBackupWrapper}
-        testID={`btn_${title}`}
+        testID={`btn_${title.replace(/ /g, '_')}}`}
       >
         {Icon && (
           <Box style={styles.appBackupIconWrapper}>
@@ -277,7 +277,7 @@ function AppSettings({ navigation }) {
 
         <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
           <Box style={styles.socialMediaLinkWrapper2}>
-            <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
+            <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')} testID='btn_keeperTelegram'>
               <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
@@ -292,7 +292,7 @@ function AppSettings({ navigation }) {
                 </Box>
               </Box>
             </Pressable>
-            <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')} testID='press_keeperTwitter'>
+            <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')} testID='btn_keeperTwitter'>
               <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
@@ -311,19 +311,19 @@ function AppSettings({ navigation }) {
 
           <Box style={{ flex: hp(0.15) }}>
             <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='press_FAQ'>
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='btn_FAQ'>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}
                 </Text>
               </Pressable>
               <Text color="light.textColor2">|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='press_termsCondition'>
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='btn_termsCondition'>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.TermsConditions}
                 </Text>
               </Pressable>
               <Text color="light.textColor2">|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='press_privacyPolicy'>
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='btn_privacyPolicy'>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.PrivacyPolicy}
                 </Text>
