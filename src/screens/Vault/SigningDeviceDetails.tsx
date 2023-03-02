@@ -430,7 +430,7 @@ function SigningDeviceDetails({ route }) {
 
   function FooterItem({ Icon, title, onPress }) {
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity style={{ width: wp(100) }} onPress={onPress}>
         <Box
           style={{
             alignItems: 'center',
@@ -452,7 +452,6 @@ function SigningDeviceDetails({ route }) {
             numberOfLines={2}
             fontSize={12}
             letterSpacing={0.84}
-            width={wp(100)}
             textAlign="center"
           >
             {title}
@@ -548,8 +547,8 @@ function SigningDeviceDetails({ route }) {
 
         <Box
           style={{
-            justifyContent: 'space-between',
             flexDirection: 'row',
+            justifyContent: 'space-between',
           }}
         >
           <FooterItem

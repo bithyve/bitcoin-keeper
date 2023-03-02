@@ -22,8 +22,7 @@ export const genrateOutputDescriptors = (
   scheme: VaultScheme,
   vault: Vault
 ) => {
-  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
-
+  const receivingAddress = WalletOperations.getNextFreeAddress(vault);
   if (!isMultisig) {
     const signer: VaultSigner = signers[0];
     // eslint-disable-next-line no-use-before-define

@@ -24,6 +24,7 @@ import {
 
 import WalletUtilities from '../operations/utils';
 import config from '../../config';
+import WalletOperations from '../operations';
 
 const crypto = require('crypto');
 
@@ -58,7 +59,7 @@ export const generateVault = ({
 }): Vault => {
   const id = generateVaultId(signers, networkType);
   const xpubs = signers.map((signer) => signer.xpub);
-  const shellId = vaultShellId ? vaultShellId : generateKey(12);
+  const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
   const presentationData: VaultPresentationData = {
     name: vaultName,
@@ -66,6 +67,11 @@ export const generateVault = ({
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
+
+  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
+
+  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+  const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
 
   const specs: VaultSpecs = {
     xpubs,
@@ -83,10 +89,6 @@ export const generateVault = ({
     lastSynched: 0,
   };
 
-  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
-
-  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
-  const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
   const vault: Vault = {
     id,
     shellId,
@@ -102,6 +104,7 @@ export const generateVault = ({
     archived: false,
     scriptType,
   };
+  vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
   return vault;
 };
 

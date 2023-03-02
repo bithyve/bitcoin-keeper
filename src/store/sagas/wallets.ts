@@ -39,6 +39,7 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { generateKey } from 'src/core/services/operations/encryption';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -77,7 +78,6 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
-import { generateKey } from 'src/core/services/operations/encryption';
 
 export interface NewVaultDetails {
   name?: string;
@@ -227,7 +227,7 @@ function* addNewVaultWorker({
         throw new Error('Vault schema(n) and signers mismatch');
 
       const tempShellId = yield select((state: RootState) => state.vault.tempShellId);
-      const vaultShellId = tempShellId ? tempShellId : generateKey(12);
+      const vaultShellId = tempShellId || generateKey(12);
 
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
@@ -547,7 +547,7 @@ export const updateSignerPolicyWatcher = createWatcher(
 
 function* testcoinsWorker({ payload }) {
   const { wallet } = payload;
-  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
+  const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
 
   const { txid } = yield call(Relay.getTestcoins, receivingAddress, network);

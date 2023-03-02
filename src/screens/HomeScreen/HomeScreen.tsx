@@ -328,7 +328,13 @@ function VaultStatus(props) {
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
                     <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                      {getAmt(
+                        vaultBalance,
+                        exchangeRates,
+                        currencyCode,
+                        currentCurrency,
+                        satsEnabled
+                      )}
                     </Text>
                     <Text color="light.white" style={styles.vaultBalanceUnit}>
                       {getUnit(currentCurrency, satsEnabled)}
@@ -456,9 +462,6 @@ function HomeScreen({ navigation }) {
 
   useEffect(() => {
     handleDeepLinking();
-    const backAction = () => true;
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    return () => backHandler.remove();
   }, []);
 
   async function handleDeepLinking() {
@@ -506,7 +509,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

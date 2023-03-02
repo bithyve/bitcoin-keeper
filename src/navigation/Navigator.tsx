@@ -71,6 +71,7 @@ import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
+import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import Login from '../screens/LoginScreen/Login';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
@@ -192,6 +193,7 @@ function AppStack() {
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
+        <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
       </Stack.Navigator>
     </RealmProvider>
   );
