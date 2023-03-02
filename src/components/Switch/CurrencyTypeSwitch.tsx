@@ -41,7 +41,7 @@ function CurrencyTypeSwitch() {
   }, [currencyKind]);
 
   return (
-    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()}>
+    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID='btn_currencyToggle'>
       <LinearGradient
         start={[0, 0]}
         end={[1, 0]}

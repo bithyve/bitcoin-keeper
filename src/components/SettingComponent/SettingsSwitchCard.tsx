@@ -23,7 +23,7 @@ function SettingsSwitchCard(props) {
           {props.description}
         </Text>
       </Box>
-      <Box justifyContent="center" alignItems="flex-end">
+      <Box justifyContent="center" alignItems="flex-end" testID={`view_${props.title}`}>
         {props.renderStatus ? (
           props.renderStatus()
         ) : (
