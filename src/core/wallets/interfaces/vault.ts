@@ -19,6 +19,7 @@ export interface VaultSpecs {
   xpubs: string[]; // signers' xpubs
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  receivingAddress?: string; // current receiving address(external chain)
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
@@ -57,6 +58,7 @@ export interface VaultSigner {
 
 export interface Vault {
   id: string; // vault identifier(derived from xpub)
+  shellId: string;
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet

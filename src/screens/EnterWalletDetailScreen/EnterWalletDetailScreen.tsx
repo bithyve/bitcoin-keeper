@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Select } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 
@@ -189,10 +189,10 @@ function EnterWalletDetailScreen({ route }) {
             autoCorrect={false}
             marginY={2}
             borderWidth="0"
-            maxLength={20}
+            maxLength={28}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
-            {walletName && walletName.length}/20
+            {walletName && walletName.length}/28
           </KeeperText>
         </Box>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>

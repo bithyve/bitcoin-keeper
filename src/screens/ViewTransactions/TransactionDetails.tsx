@@ -31,6 +31,7 @@ function TransactionDetails({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
   const { transaction }: { transaction: Transaction } = route.params;
@@ -72,8 +73,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${transaction.txid}`
     );
   };
@@ -101,9 +101,9 @@ function TransactionDetails({ route }) {
           </Box>
           <Box>
             <Text style={styles.amountText}>
-              {`${getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency)} `}
+              {`${getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency, satsEnabled)} `}
               <Text color="light.dateText" style={styles.unitText}>
-                {getUnit(currentCurrency)}
+                {getUnit(currentCurrency, satsEnabled)}
               </Text>
             </Text>
           </Box>

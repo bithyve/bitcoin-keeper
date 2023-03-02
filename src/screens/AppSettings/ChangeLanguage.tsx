@@ -17,6 +17,7 @@ import availableLanguages from '../../common/content/availableLanguages';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
+import { setSatsEnabled } from 'src/store/reducers/settings';
 
 const styles = StyleSheet.create({
   btn: {
@@ -158,24 +159,25 @@ const styles = StyleSheet.create({
 });
 
 function ChangeLanguage() {
+
+  const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
+  const { currencyCode, language, satsEnabled } = useAppSelector((state) => state.settings);
+  const dispatch = useAppDispatch();
+
   const [currencyList] = useState(FiatCurrencies);
   const [countryList] = useState(CountryCode);
   const { colorMode } = useColorMode();
-  const [satsMode, setSatsMode] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [Visible, setVisible] = useState(false);
   const [showLanguages, setShowLanguages] = useState(false);
-  const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
-  const { currencyCode, language } = useAppSelector((state) => state.settings);
   const [currency, setCurrency] = useState(FiatCurrencies.find((cur) => cur.code === currencyCode));
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages.find((lang) => lang.iso === language)
   );
   const [isDisabled, setIsDisabled] = useState(true);
-  const dispatch = useAppDispatch();
 
   const changeThemeMode = () => {
-    setSatsMode(!satsMode);
+    dispatch(setSatsEnabled(!satsEnabled));
   };
 
   const { translations } = useContext(LocalizationContext);
@@ -233,7 +235,7 @@ function ChangeLanguage() {
           my={2}
           bgColor={`${colorMode}.backgroundColor2`}
           onSwitchToggle={() => changeThemeMode()}
-          value={satsMode}
+          value={satsEnabled}
         />
         <CountrySwitchCard
           title={settings.AlternateCurrency}

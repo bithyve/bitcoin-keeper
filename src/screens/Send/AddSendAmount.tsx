@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, Pressable } from 'native-base';
-import { Alert, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -62,6 +62,7 @@ function AddSendAmount({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -153,7 +154,7 @@ function AddSendAmount({ route }) {
     <ScreenWrapper>
       <HeaderTitle
         title={
-          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the amount`
+          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the Amount`
         }
       />
       <Box
@@ -166,10 +167,12 @@ function AddSendAmount({ route }) {
             sender?.specs.balances.confirmed,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            satsEnabled
           )}
           walletName={sender?.presentationData.name}
           currencyIcon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)}
+          isSats={satsEnabled}
         />
       </Box>
 
@@ -219,7 +222,7 @@ function AddSendAmount({ route }) {
               placeholder="Enter Amount"
               placeholderTextColor="light.greenText"
               color="light.greenText"
-              opacity={1}
+              opacity={0.5}
               width="90%"
               fontSize={14}
               fontWeight={300}

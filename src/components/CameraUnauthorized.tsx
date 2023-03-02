@@ -6,7 +6,7 @@ import { Box } from 'native-base';
 import Text from './KeeperText';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
-function CameraUnauthorized({ }) {
+function CameraUnauthorized() {
 
   const requestPermission = () => {
     Permissions.openSettings();

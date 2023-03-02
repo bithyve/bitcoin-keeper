@@ -1,13 +1,6 @@
 /* eslint-disable no-unused-vars */
 import { VerificationType } from 'src/core/services/interfaces';
-import {
-  NetworkType,
-  NodeType,
-  SignerType,
-  TransactionType,
-  TxPriorityDefault,
-  WalletType,
-} from '../enums';
+import { NetworkType, SignerType, TransactionType, TxPriorityDefault } from '../enums';
 
 export interface InputUTXOs {
   txId: string;
@@ -140,22 +133,11 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
-export interface SigningServerSetup {
-  validation?: {
-    validationType: VerificationType;
-    validationKey?: string;
-    vaildated?: boolean;
-  };
-  setupInfo?: {
-    xpub: string;
-    derivationPath: string;
-    masterFingerprint: string;
-  };
-}
-
 export interface SigningPayload {
   payloadTarget: SignerType;
-  inputs?: any;
+  inputs?: InputUTXOs[];
+  outputs?: OutputUTXOs[];
+  change?: string;
   inputsToSign?: Array<{
     digest: string;
     subPath: string;

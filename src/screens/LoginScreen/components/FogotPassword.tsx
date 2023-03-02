@@ -53,8 +53,6 @@ function FogotPassword(props) {
       } else {
         setInvalid(true);
       }
-    } else {
-      // TODO
     }
   }
 

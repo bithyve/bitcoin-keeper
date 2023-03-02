@@ -15,7 +15,7 @@ import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
-import LoadingAnimation from 'src/components/Loader';
+import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
@@ -25,10 +25,9 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       backgroundColor="light.primaryBackground"
       flexDirection="row"
       alignItems="center"
-      width="90%"
+      width="100%"
       testID="btn_startNew"
       style={{ marginTop: hp(20), height: hp(110) }}
-      marginLeft="5%"
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
@@ -63,9 +62,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -138,7 +135,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   function SignUpModalContent() {
     return (
       <Box style={{ width: windowWidth * 0.8 }}>
-        <LoadingAnimation />
+        <ShakingAssetsAnimation />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
@@ -191,14 +188,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
             }}
           />
         </Box>
-        {/* <Tile
-          title="Inheritance Keeper vault"
-          subTitle="Using signing devices"
-          onPress={() => {
-            navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-          }}
-          Icon={<Inheritance />} 
-        /> */}
       </Box>
       <KeeperModal
         dismissible={false}

@@ -23,7 +23,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 function RegisterWithChannel() {
   const { params } = useRoute();
   const { signer } = params as { signer: VaultSigner };
-  const channel = io(config.CHANNEL_URL); // TODO: update url once hosted
+  const channel = io(config.CHANNEL_URL);
   let channelCreated = false;
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -65,6 +65,7 @@ function RegisterWithChannel() {
       />
       <Box style={styles.qrcontainer}>
         <RNCamera
+          autoFocus="on"
           style={styles.cameraView}
           captureAudio={false}
           onBarCodeRead={onBarCodeRead}

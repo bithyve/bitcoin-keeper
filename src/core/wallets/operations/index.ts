@@ -26,6 +26,7 @@ import {
   AverageTxFeesByNetwork,
   Balances,
   InputUTXOs,
+  OutputUTXOs,
   SerializedPSBTEnvelop,
   SigningPayload,
   Transaction,
@@ -41,39 +42,53 @@ import {
   TransactionType,
   TxPriority,
 } from '../enums';
-import { Vault, VaultSigner } from '../interfaces/vault';
+import { Vault, VaultScheme, VaultSigner, VaultSpecs } from '../interfaces/vault';
 
-import { Wallet } from '../interfaces/wallet';
+import { Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
-  static getNextFreeExternalAddress = (wallet: Wallet | Vault): { receivingAddress: string } => {
+  private static getNextFreeExternalAddress = ({
+    entity,
+    isMultiSig,
+    specs,
+    networkType,
+    scheme,
+    derivationPath,
+  }: {
+    entity: EntityKind;
+    isMultiSig: boolean;
+    specs: VaultSpecs | WalletSpecs;
+    networkType: NetworkType;
+    scheme?: VaultScheme;
+    derivationPath?: string;
+  }): { receivingAddress: string } => {
     let receivingAddress;
-    const network = WalletUtilities.getNetworkByType(wallet.networkType);
-    if ((wallet as Vault).isMultiSig) {
-      const { xpubs } = (wallet as Vault).specs;
+    const network = WalletUtilities.getNetworkByType(networkType);
+
+    if (isMultiSig) {
+      // case: multi-sig vault
+      const { xpubs } = specs as VaultSpecs;
       receivingAddress = WalletUtilities.createMultiSig(
         xpubs,
-        (wallet as Vault).scheme.m,
+        scheme.m,
         network,
-        wallet.specs.nextFreeAddressIndex,
+        specs.nextFreeAddressIndex,
         false
       ).address;
     } else {
+      // case: single-sig vault/wallet
       const xpub =
-        wallet.entityKind === EntityKind.VAULT
-          ? (wallet as Vault).specs.xpubs[0]
-          : (wallet as Wallet).specs.xpub;
-      const purpose = EntityKind.VAULT
-        ? undefined
-        : WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
+        entity === EntityKind.VAULT ? (specs as VaultSpecs).xpubs[0] : (specs as WalletSpecs).xpub;
+      const purpose =
+        entity === EntityKind.VAULT ? undefined : WalletUtilities.getPurpose(derivationPath);
 
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
         false,
-        (wallet as Wallet).specs.nextFreeAddressIndex,
+        specs.nextFreeAddressIndex,
         network,
         purpose
       );
@@ -82,6 +97,20 @@ export default class WalletOperations {
     return {
       receivingAddress,
     };
+  };
+
+  static getNextFreeAddress = (wallet: Wallet | Vault) => {
+    if (wallet.specs.receivingAddress) return wallet.specs.receivingAddress;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress({
+      entity: wallet.entityKind,
+      isMultiSig: (wallet as Vault).isMultiSig,
+      specs: wallet.specs,
+      networkType: wallet.networkType,
+      scheme: (wallet as Vault).scheme,
+      derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
+    });
+
+    return receivingAddress;
   };
 
   static transformElectrumTxToTx = (
@@ -167,10 +196,7 @@ export default class WalletOperations {
       txidToIndex[transaction.txid] = index;
     }
 
-    const { historyByAddress, txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(
-      addresses,
-      network
-    );
+    const { txids, txidToAddress } = await ElectrumClient.syncHistoryByAddress(addresses, network);
     const txs = await ElectrumClient.getTransactionsById(txids);
 
     // fetch input transactions(for new ones), in order to construct the inputs
@@ -309,10 +335,7 @@ export default class WalletOperations {
       for (const address in utxosByAddress) {
         const utxos = utxosByAddress[address];
         for (const utxo of utxos) {
-          if (utxo.height > 0) {
-            confirmedUTXOs.push(utxo);
-            balances.confirmed += utxo.value;
-          } else if (internalAddresses[utxo.address] !== undefined) {
+          if (utxo.height > 0 || internalAddresses[utxo.address] !== undefined) {
             // defaulting utxo's on the change branch to confirmed
             confirmedUTXOs.push(utxo);
             balances.confirmed += utxo.value;
@@ -336,6 +359,14 @@ export default class WalletOperations {
       // update wallet w/ latest utxos, balances and transactions
       wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
       wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
+      wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
+        entity: wallet.entityKind,
+        isMultiSig: (wallet as Vault).isMultiSig,
+        specs: wallet.specs,
+        networkType: wallet.networkType,
+        scheme: (wallet as Vault).scheme,
+        derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
+      }).receivingAddress;
       wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
       wallet.specs.confirmedUTXOs = confirmedUTXOs;
       wallet.specs.balances = balances;
@@ -412,7 +443,7 @@ export default class WalletOperations {
       },
     };
 
-    // TODO: configure to procure fee by network type
+    // configure to procure fee by network type
     const averageTxFeeByNetwork: AverageTxFeesByNetwork = {
       [NetworkType.TESTNET]: averageTxFees,
       [NetworkType.MAINNET]: averageTxFees,
@@ -718,6 +749,9 @@ export default class WalletOperations {
     scriptType?: BIP48ScriptTypes
   ): Promise<{
     PSBT: bitcoinJS.Psbt;
+    inputs: InputUTXOs[];
+    outputs: OutputUTXOs[];
+    change: string;
   }> => {
     try {
       let inputs;
@@ -749,6 +783,7 @@ export default class WalletOperations {
         network
       );
 
+      const change = changeAddress || changeMultisig?.address;
       outputsWithChange.sort((out1, out2) => {
         if (out1.address < out2.address) return -1;
         if (out1.address > out2.address) return 1;
@@ -795,6 +830,9 @@ export default class WalletOperations {
       }
       return {
         PSBT,
+        inputs,
+        outputs,
+        change,
       };
     } catch (err) {
       throw new Error(`Transaction creation failed: ${err.message}`);
@@ -877,10 +915,12 @@ export default class WalletOperations {
 
   static signVaultTransaction = (
     wallet: Vault,
-    inputs: any,
+    inputs: InputUTXOs[],
     PSBT: bitcoinJS.Psbt,
     signer: VaultSigner,
-    outgoing: number
+    outgoing: number,
+    outputs: OutputUTXOs[],
+    change: string
   ):
     | {
         signedPSBT: bitcoinJS.Psbt;
@@ -891,6 +931,7 @@ export default class WalletOperations {
         serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
     const signingPayload: SigningPayload[] = [];
+    const payloadTarget = signer.type;
     let isSigned = false;
     if (signer.isMock && signer.xpriv) {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
@@ -904,7 +945,9 @@ export default class WalletOperations {
       isSigned = true;
     } else if (
       (signer.type === SignerType.TAPSIGNER && !isSignerAMF(signer)) ||
-      signer.type === SignerType.LEDGER
+      signer.type === SignerType.LEDGER ||
+      signer.type === SignerType.TREZOR ||
+      signer.type === SignerType.BITBOX02
     ) {
       const inputsToSign = [];
       for (let inputIndex = 0; inputIndex < inputs.length; inputIndex++) {
@@ -938,9 +981,15 @@ export default class WalletOperations {
           publicKey: publicKey.toString('hex'),
         });
       }
-      signingPayload.push({ payloadTarget: SignerType.TAPSIGNER, inputsToSign });
+      signingPayload.push({
+        payloadTarget,
+        inputsToSign,
+        inputs,
+        outputs,
+        change,
+      });
     } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
-      signingPayload.push({ payloadTarget: signer.type, inputs });
+      signingPayload.push({ payloadTarget, inputs });
     } else if (signer.type === SignerType.POLICY_SERVER) {
       const childIndexArray = [];
       for (const input of inputs) {
@@ -959,11 +1008,10 @@ export default class WalletOperations {
           },
         });
       }
-      signingPayload.push({ payloadTarget: SignerType.POLICY_SERVER, childIndexArray, outgoing });
+      signingPayload.push({ payloadTarget, childIndexArray, outgoing });
     }
-
     if (isSignerAMF(signer)) {
-      signingPayload.push({ payloadTarget: signer.type, inputs });
+      signingPayload.push({ payloadTarget, inputs });
     }
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
@@ -1069,16 +1117,12 @@ export default class WalletOperations {
         txid: string;
       }
   > => {
-    const { PSBT } = await WalletOperations.createTransaction(
+    const { PSBT, inputs, outputs, change } = await WalletOperations.createTransaction(
       wallet,
       txPrerequisites,
       txnPriority,
       customTxPrerequisites
     );
-
-    let inputs;
-    if (txnPriority === TxPriority.CUSTOM) inputs = customTxPrerequisites.inputs;
-    else inputs = txPrerequisites[txnPriority].inputs;
 
     if (wallet.entityKind === EntityKind.VAULT) {
       const { signers } = wallet as Vault;
@@ -1093,7 +1137,9 @@ export default class WalletOperations {
           inputs,
           PSBT,
           signer,
-          outgoing
+          outgoing,
+          outputs,
+          change
         );
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
@@ -1114,10 +1160,6 @@ export default class WalletOperations {
     serializedPSBTEnvelops: SerializedPSBTEnvelop[],
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
-    recipients: {
-      address: string;
-      amount: number;
-    }[],
     txHex?: string
   ): Promise<{
     txid: string;

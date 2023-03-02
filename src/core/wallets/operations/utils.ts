@@ -531,12 +531,12 @@ export default class WalletUtilities {
           subPath: number[];
           signerPubkeyMap: Map<string, Buffer>;
         };
-        changeAddress?: undefined;
+        changeAddress?: string;
       }
     | {
         outputs: OutputUTXOs[];
         changeAddress: string;
-        changeMultisig?: undefined;
+        changeMultisig?: any;
       } => {
     const changeAddress: string = '';
     let changeMultisig: {
@@ -607,7 +607,6 @@ export default class WalletUtilities {
     const amount = 10000 / SATOSHIS_IN_BTC;
     try {
       const res = await RestClient.post(`${config.RELAY}/testnetFaucet`, {
-        AUTH_ID: config.AUTH_ID,
         recipientAddress,
         amount,
       });
@@ -671,6 +670,18 @@ export default class WalletUtilities {
         return `m/86'/${networkType}'/${account}'`;
       default: // multisig wrapped segwit
         return `m/48'/${networkType}'/${account}'/2'`;
+    }
+  };
+
+  static getPubkeyHashFromScript = (address: string, script: Buffer) => {
+    if (address.startsWith('tb1') || address.startsWith('bc1')) {
+      return script.slice(2);
+    }
+    if (address.startsWith('m') || address.startsWith('n') || address.startsWith('1')) {
+      return script.slice(3, 23);
+    }
+    if (address.startsWith('2') || address.startsWith('3')) {
+      return script.slice(2, 22);
     }
   };
 }

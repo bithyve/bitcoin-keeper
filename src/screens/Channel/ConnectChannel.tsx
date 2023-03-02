@@ -33,7 +33,7 @@ import { checkSigningDevice } from '../Vault/AddSigningDevice';
 function ConnectChannel() {
   const route = useRoute();
   const { title = '', subtitle = '' } = route.params as any;
-  const channel = io(config.CHANNEL_URL); // TODO: update url once hosted
+  const channel = io(config.CHANNEL_URL);
   let channelCreated = false;
 
   const { translations } = useContext(LocalizationContext);
@@ -119,6 +119,7 @@ function ConnectChannel() {
         <HeaderTitle title={title} subtitle={subtitle} />
         <Box style={styles.qrcontainer}>
           <RNCamera
+            autoFocus="on"
             style={styles.cameraView}
             captureAudio={false}
             onBarCodeRead={onBarCodeRead}
