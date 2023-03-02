@@ -17,7 +17,6 @@ export enum RealmSchema {
   VaultPresentationData = 'VaultPresentationData',
   SignerPolicy = 'SignerPolicy',
   TriggerPolicy = 'TriggerPolicy',
-  SigningServerSetup = 'SigningServerSetup',
   Backup = 'Backup',
   NodeConnect = 'NodeConnect',
   UAI = 'UAI',

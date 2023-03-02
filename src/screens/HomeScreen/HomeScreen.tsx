@@ -61,7 +61,7 @@ function InheritanceComponent() {
 
   return (
     <Box alignItems="center" marginTop={hp(19.96)}>
-      <Pressable onPress={onPress} testID={'btn_Inheritance'}>
+      <Pressable onPress={onPress} testID="btn_Inheritance">
         <Box
           style={styles.bottomCard}
           backgroundColor={{
@@ -419,7 +419,7 @@ function VaultInfo() {
             </Pressable>
             {isTestnet() && <TestnetIndicator />}
           </Box>
-          <Pressable testID={`btn_AppSettings`} onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
+          <Pressable testID="btn_AppSettings" onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
             <SettingIcon />
           </Pressable>
         </Box>
@@ -464,9 +464,6 @@ function HomeScreen({ navigation }) {
 
   useEffect(() => {
     handleDeepLinking();
-    const backAction = () => true;
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    return () => backHandler.remove();
   }, []);
 
   async function handleDeepLinking() {

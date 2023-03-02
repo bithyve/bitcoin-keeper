@@ -18,7 +18,6 @@ import {
   XpubDetailsSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
-import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
@@ -43,7 +42,6 @@ export default [
   VaultPresentationDataSchema,
   SignerPolicy,
   VaultSpecsSchema,
-  SigningServerSetupSchema,
   BackupSchema,
   UAISchema,
   VaultSignerSchema,
