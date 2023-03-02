@@ -25,10 +25,9 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       backgroundColor="light.primaryBackground"
       flexDirection="row"
       alignItems="center"
-      width="90%"
+      width="100%"
       testID="btn_startNew"
       style={{ marginTop: hp(20), height: hp(110) }}
-      marginLeft="5%"
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
@@ -192,7 +191,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -207,7 +206,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
