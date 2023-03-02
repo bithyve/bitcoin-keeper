@@ -57,6 +57,13 @@ const allowedScehemes = {
   3: 5,
 };
 
+function removeEmptyLines(data) {
+  const lines = data.split('\n');
+  const nonEmptyLines = lines.filter((line) => line.trim() !== '');
+  const output = nonEmptyLines.join('\n');
+  return output;
+}
+
 const parseKeyExpression = (expression) => {
   const re = /\[([^\]]+)\](.*)/;
   const expressionSplit = expression.match(re);
@@ -123,6 +130,35 @@ export const parseTextforVaultConfig = (secret: string) => {
       n,
     };
     const signersDetailsList = keyExpressions.map((expression) => parseKeyExpression(expression));
+    const parsedResponse: ParsedVauleText = {
+      signersDetails: signersDetailsList,
+      isMultisig: true,
+      scheme,
+    };
+    return parsedResponse;
+  }
+  if (secret.includes('Derivation')) {
+    const text = removeEmptyLines(secret);
+    const lines = text.split('\n');
+    const signersDetailsList = [];
+    let scheme;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('Policy')) {
+        let [m, n] = line.split('Policy:')[1].split('of');
+        scheme = { m: parseInt(m), n: parseInt(n) };
+        if (allowedScehemes[scheme.m] !== scheme.n) {
+          throw Error('Unsupported scheme');
+        }
+      }
+      if (line.startsWith('Derivation:')) {
+        const path = line.split(':')[1].trim();
+        const masterFingerprintLine = lines[i + 1].trim();
+        const masterFingerprint = masterFingerprintLine.split(':')[0].trim();
+        const xpub = lines[i + 1].split(':')[1].trim();
+        signersDetailsList.push({ xpub, masterFingerprint: masterFingerprint.toUpperCase(), path });
+      }
+    }
     const parsedResponse: ParsedVauleText = {
       signersDetails: signersDetailsList,
       isMultisig: true,

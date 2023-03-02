@@ -3117,9 +3117,9 @@
   integrity sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==
 
 "@types/async@^3.2.6":
-  version "3.2.15"
-  resolved "https://registry.yarnpkg.com/@types/async/-/async-3.2.15.tgz#26d4768fdda0e466f18d6c9918ca28cc89a4e1fe"
-  integrity sha512-PAmPfzvFA31mRoqZyTVsgJMsvbynR429UTTxhmfsUCrWGh3/fxOrzqBtaTPJsn4UtzTv4Vb0+/O7CARWb69N4g==
+  version "3.2.18"
+  resolved "https://registry.yarnpkg.com/@types/async/-/async-3.2.18.tgz#3d93dde6eab654f7bc23e549d9af5d3fa4a5bdc5"
+  integrity sha512-/IsuXp3B9R//uRLi40VlIYoMp7OzhkunPe2fDu7jGfQXI9y3CDCx6FC4juRLSqrpmLst3vgsiK536AAGJFl4Ww==
 
 "@types/babel__core@^7.1.14":
   version "7.1.19"
@@ -3946,6 +3946,11 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+base-64@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/base-64/-/base-64-0.1.0.tgz#780a99c84e7d600260361511c4877613bf24f6bb"
+  integrity sha512-Y5gU45svrR5tI2Vt/X9GPd3L0HNIKzGu202EjxrXMpuc2V2CiKgemAbUUsqYmZJvPtCXoUKjNZwBJzsNScUbXA==
 
 base-x@^3.0.2:
   version "3.0.9"
@@ -9975,10 +9980,25 @@ react-native-device-info@10.0.2:
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.0.2.tgz#17cd96df277cca5a22fb80409527c181a08d4ed1"
   integrity sha512-6XY8EctYqNEX6EHDoHxz3yONOYxCHKrgEdStP7HZDYzFXb1JB5BFt7UbXDWrmihXUZDv06sBsjN26+Tp0EajXw==
 
+react-native-document-picker@^8.1.3:
+  version "8.1.3"
+  resolved "https://registry.yarnpkg.com/react-native-document-picker/-/react-native-document-picker-8.1.3.tgz#200b47c182d2d654747b5e41b5843fd378ac9d2e"
+  integrity sha512-lC+SZnzqIEE30x2CSHeZT+f7FzhQOTJprCNMRPpFVl4mLV9dDCJ/wZAmMByJFT79oQMPrzjlhhJlmjm+sVRUWQ==
+  dependencies:
+    invariant "^2.2.4"
+
 react-native-flipper@^0.145.0:
   version "0.145.0"
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.145.0.tgz#4f94552e286c4fd0e0493fca96141b41877ee233"
   integrity sha512-FZJsQsMfvn6y6+xouvfFOtcNiZ8nkXT2/p1D7rBLIb1kTUw5357+sveg4qwp77UhmcBYiE9IRGHlgLp+tLWbnw==
+
+react-native-fs@^2.20.0:
+  version "2.20.0"
+  resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.20.0.tgz#05a9362b473bfc0910772c0acbb73a78dbc810f6"
+  integrity sha512-VkTBzs7fIDUiy/XajOSNk0XazFE9l+QlMAce7lGuebZcag5CnjszB+u4BdqzwaQOdcYb5wsJIsqq4kxInIRpJQ==
+  dependencies:
+    base-64 "^0.1.0"
+    utf8 "^3.0.0"
 
 react-native-gesture-handler@^2.3.2:
   version "2.5.0"
@@ -11937,6 +11957,11 @@ use@^3.1.0:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/use/-/use-3.1.1.tgz#d50c8cac79a19fbc20f2911f56eb973f4e10070f"
   integrity sha512-cwESVXlO3url9YWlFW/TA9cshCEhtu7IKJ/p5soJ/gGpj7vbvFrAY/eIioQ6Dw23KjZhYgiIo8HOs1nQ2vr/oQ==
+
+utf8@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/utf8/-/utf8-3.0.0.tgz#f052eed1364d696e769ef058b183df88c87f69d1"
+  integrity sha512-E8VjFIQ/TyQgp+TZfS6l8yp/xWppSAHzidGiRrqe4bK4XP9pTRyKFgGJpO3SN7zdX4DeomTrwaseCHovfpFcqQ==
 
 util-deprecate@^1.0.1, util-deprecate@~1.0.1:
   version "1.0.2"
