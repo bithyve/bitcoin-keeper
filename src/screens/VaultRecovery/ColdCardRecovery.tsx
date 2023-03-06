@@ -19,14 +19,27 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useAppSelector } from 'src/store/hooks';
 import MockWrapper from '../Vault/MockWrapper';
+import NFC from 'src/core/services/nfc';
+import { NfcTech } from 'react-native-nfc-manager';
 
-function ColdCardReocvery() {
+function ColdCardReocvery({ route }) {
+  const { isConfigRecovery = false, initateRecovery } = route.params || {};
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { signingDevices } = useAppSelector((state) => state.bhr);
   const isMultisig = signingDevices.length >= 1;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
+
+  const getConfigDetails = async () => {
+    const { data } = (await NFC.read(NfcTech.NfcV))[0];
+    return data;
+  };
+
+  const recoverConfigCC = async () => {
+    const config = await withNfcModal(async () => getConfigDetails());
+    initateRecovery(config);
+  };
 
   const addColdCard = async () => {
     try {
@@ -55,20 +68,25 @@ function ColdCardReocvery() {
     }
   };
 
-  const instructions =
-    'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).';
+  const instructions = isConfigRecovery
+    ? 'Export the vault config by going to Setting > Multisig > Then select the wallet > Export  '
+    : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).';
   return (
     <ScreenWrapper>
       <MockWrapper signerType={SignerType.COLDCARD} isRecovery>
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
-              title="Setting up Coldcard"
+              title={isConfigRecovery ? 'Recover from ColdCard' : 'Setting up Coldcard'}
               subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
             />
             <Box style={styles.buttonContainer}>
-              <Buttons activeOpacity={0.7} primaryText="Proceed" primaryCallback={addColdCard} />
+              <Buttons
+                activeOpacity={0.7}
+                primaryText="Proceed"
+                primaryCallback={isConfigRecovery ? recoverConfigCC : addColdCard}
+              />
             </Box>
           </Box>
           <NfcPrompt visible={nfcVisible} close={closeNfc} />

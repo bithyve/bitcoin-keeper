@@ -133,22 +133,11 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
-export interface SigningServerSetup {
-  validation?: {
-    validationType: VerificationType;
-    validationKey?: string;
-    vaildated?: boolean;
-  };
-  setupInfo?: {
-    xpub: string;
-    derivationPath: string;
-    masterFingerprint: string;
-  };
-}
-
 export interface SigningPayload {
   payloadTarget: SignerType;
-  inputs?: any;
+  inputs?: InputUTXOs[];
+  outputs?: OutputUTXOs[];
+  change?: string;
   inputsToSign?: Array<{
     digest: string;
     subPath: string;

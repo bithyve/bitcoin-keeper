@@ -462,9 +462,6 @@ function HomeScreen({ navigation }) {
 
   useEffect(() => {
     handleDeepLinking();
-    const backAction = () => true;
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    return () => backHandler.remove();
   }, []);
 
   async function handleDeepLinking() {

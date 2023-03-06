@@ -38,7 +38,12 @@ export const generateSignerFromMetaData = ({
 }): VaultSigner => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  if (networkType !== config.NETWORK_TYPE) {
+  if (
+    networkType !== config.NETWORK_TYPE &&
+    config.NETWORK_TYPE === NetworkType.TESTNET &&
+    signerType !== SignerType.KEYSTONE &&
+    signerType !== SignerType.JADE
+  ) {
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
@@ -175,3 +180,18 @@ export const getMockSigner = (signerType: SignerType) => {
 
 export const isSignerAMF = (signer: VaultSigner) =>
   !!idx(signer, (_) => _.xpubDetails[XpubTypes.AMF].xpub);
+
+const HARDENED = 0x80000000;
+export const getKeypathFromString = (keypathString: string): number[] => {
+  let levels = keypathString.toLowerCase().split('/');
+  if (levels[0] !== 'm') throw new Error('Invalid keypath');
+  levels = levels.slice(1);
+  return levels.map((level: any) => {
+    let hardened = false;
+    if (level.substring(level.length - 1) === "'") hardened = true;
+    level = parseInt(level, 10);
+    if (Number.isNaN(level) || level < 0 || level >= HARDENED) throw new Error('Invalid keypath');
+    if (hardened) level += HARDENED;
+    return level;
+  });
+};

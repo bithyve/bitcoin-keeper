@@ -40,6 +40,9 @@ import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg'
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import JadeSVG from 'src/assets/images/illustration_jade.svg';
 
 import openLink from 'src/utils/OpenLink';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -207,6 +210,36 @@ function SigningDeviceDetails({ route }) {
           description:
             '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signing devices, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
           FAQ: '',
+        };
+      case SignerType.BITBOX02:
+        return {
+          title: 'Bitbox 02',
+          subTitle:
+            'Easy backup and restore with a microSD card',
+          assert: <BitboxImage />,
+          description:
+            'Minimalist and discreet design. The BitBox02 features a dual-chip design with a secure chip Limited firmware that only supports Bitcoin',
+          FAQ: 'https://shiftcrypto.ch/support/',
+        };
+      case SignerType.TREZOR:
+        return {
+          title: 'Trezor',
+          subTitle:
+            'Trezor Suite is designed for every level of user. Easily and securely send, receive, and manage coins with confidence',
+          assert: <TrezorSetup />,
+          description:
+            '\u2022Sleek, secure design.\n\u2022 Digital Independence.\n\u2022 Easy hardware wallet backup',
+          FAQ: 'https://trezor.io/support',
+        };
+      case SignerType.JADE:
+        return {
+          title: 'Jade Blockstream',
+          subTitle:
+            'Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.',
+          assert: <JadeSVG />,
+          description:
+            '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
+          FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
         };
       default:
         return {
@@ -392,7 +425,7 @@ function SigningDeviceDetails({ route }) {
 
   function FooterItem({ Icon, title, onPress }) {
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity style={{ width: wp(100) }} onPress={onPress}>
         <Box
           style={{
             alignItems: 'center',
@@ -414,7 +447,6 @@ function SigningDeviceDetails({ route }) {
             numberOfLines={2}
             fontSize={12}
             letterSpacing={0.84}
-            width={wp(100)}
             textAlign="center"
           >
             {title}
@@ -510,8 +542,8 @@ function SigningDeviceDetails({ route }) {
 
         <Box
           style={{
-            justifyContent: 'space-between',
             flexDirection: 'row',
+            justifyContent: 'space-between',
           }}
         >
           <FooterItem

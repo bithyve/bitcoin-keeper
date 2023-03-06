@@ -36,9 +36,9 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -269,7 +269,7 @@ function SignersList({ navigation }) {
     first?: boolean;
     last?: boolean;
   };
-  const { signingDevices, relayVaultReoveryAppId } = useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [isBLESupported, setBLESupport] = useState(false);
 
@@ -462,7 +462,9 @@ function SignersList({ navigation }) {
 
   const verifySigningServer = async (otp) => {
     try {
-      const response = await SigningServer.fetchSignerSetup(relayVaultReoveryAppId, otp);
+      const vaultId = relayVaultReoveryShellId;
+      const appId = relayVaultReoveryShellId;
+      const response = await SigningServer.fetchSignerSetup(vaultId, appId, otp);
       if (response.xpub) {
         const signingServerKey = generateSignerFromMetaData({
           xpub: response.xpub,

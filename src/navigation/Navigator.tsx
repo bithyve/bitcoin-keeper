@@ -72,6 +72,9 @@ import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
 import SetupOtherSDScreen from 'src/screens/AddOtherSD/SetupOtherSDScreen';
+import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
+import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
+import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -129,7 +132,8 @@ function LoginStack() {
       />
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
       <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
-
+      <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
+      <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
     </Stack.Navigator>
   );
@@ -191,6 +195,7 @@ function AppStack() {
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
+        <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
       </Stack.Navigator>
     </RealmProvider>
   );

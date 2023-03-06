@@ -14,7 +14,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
-import { removeSigningDeviceBhr, setRelayVaultRecoveryAppId } from 'src/store/reducers/bhr';
+import { removeSigningDeviceBhr, setRelayVaultRecoveryShellId } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
@@ -29,6 +29,7 @@ import { hash256 } from 'src/core/services/operations/encryption';
 
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
+import { setTempShellId } from 'src/store/reducers/vaults';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const allowedSignerLength = [1, 3, 5];
@@ -212,15 +213,23 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const getMetaData = async () => {
-    const xfpHash = hash256(signersList[0].masterFingerprint);
-    const response = await Relay.getVaultMetaData(xfpHash);
-    if (response?.appId) {
-      dispatch(setRelayVaultRecoveryAppId(response.appId));
+    try {
       setError(false);
-    } else if (response.error) {
-      setError(true);
-      Alert.alert('No vault is assocaited with this signer, try with another signer');
-    } else {
+      const xfpHash = hash256(signersList[0].masterFingerprint);
+
+      const response = await Relay.getVaultMetaData(xfpHash);
+      if (response?.vaultShellId) {
+        dispatch(setRelayVaultRecoveryShellId(response.vaultShellId));
+        dispatch(setTempShellId(response.vaultShellId));
+      } else if (!response?.vaultShellId && response?.appId) {
+        dispatch(setRelayVaultRecoveryShellId(response.appId));
+        dispatch(setTempShellId(response.appId));
+      } else if (response.error) {
+        setError(true);
+        Alert.alert('No vault is assocaited with this signer, try with another signer');
+      }
+    } catch (err) {
+      console.log(err);
       setError(true);
       Alert.alert('Something Went Wrong!');
     }
