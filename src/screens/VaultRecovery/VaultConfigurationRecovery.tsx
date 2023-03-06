@@ -49,7 +49,6 @@ function VaultConfigurationRecovery() {
               onPress={() => {
                 navigate('LoginStack', {
                   screen: 'ScanQRFileRecovery',
-                  params: { initateRecovery },
                 });
               }}
             />
