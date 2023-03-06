@@ -213,6 +213,9 @@ function LoginScreen({ navigation, route }) {
       if (torStatus === TorStatus.CONNECTED) {
         return loginData.message;
       }
+      if (torStatus === TorStatus.ERROR) {
+        return '';
+      }
       return 'It might take upto minute';
     }
     return loginData.message;
@@ -223,6 +226,9 @@ function LoginScreen({ navigation, route }) {
       if (torStatus === TorStatus.CONNECTED) {
         return loginData.title;
       }
+      if (torStatus === TorStatus.ERROR) {
+        return 'Error'
+      }
       return 'Connecting to Tor ';
     }
     return loginData.title;
@@ -232,6 +238,9 @@ function LoginScreen({ navigation, route }) {
     if (torEnbled) {
       if (torStatus === TorStatus.CONNECTED) {
         return loginData.subTitle;
+      }
+      if (torStatus === TorStatus.ERROR) {
+        return 'Failed to connect to tor'
       }
       return 'Network calls and some functions may work slower when the Tor is enabled  ';
     }
@@ -244,9 +253,11 @@ function LoginScreen({ navigation, route }) {
         if (torStatus === TorStatus.CONNECTED) {
           return 'Next';
         }
-        return null;
+        if (torStatus === TorStatus.ERROR) {
+          return 'Login w/o tor';
+        }
       }
-      return 'Next';
+      return null;
     }
     return null;
   }, [torEnbled, torStatus, isAuthenticated]);
@@ -410,7 +421,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         subTitleColor="light.secondaryText"
