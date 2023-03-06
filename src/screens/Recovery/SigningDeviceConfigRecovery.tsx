@@ -10,13 +10,11 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import config, { APP_STAGE } from 'src/core/config';
-
+import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import NFC from 'src/core/services/nfc';
 import { BleManager } from 'react-native-ble-plx';
 import { useAppSelector } from 'src/store/hooks';
-
 import { WalletMap } from '../Vault/WalletMap';
-import useConfigRecovery from 'src/hooks/useConfigReocvery';
 
 export const getDeviceStatus = (
   type: SignerType,
@@ -141,8 +139,6 @@ function SigningDeviceConfigRecovery({ navigation }) {
     const open = () => setVisible(true);
     const close = () => setVisible(false);
 
-    const { initateRecovery } = useConfigRecovery();
-
     return (
       <>
         <TouchableOpacity
@@ -180,7 +176,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
           buttonText="Proceed"
           buttonTextColor="light.white"
           buttonCallback={() => {
-            navigate('ColdCardReocvery', { isConfigRecovery: true, initateRecovery });
+            navigate('LoginStack', {
+              screen: 'ColdCardReocvery',
+              params: { isConfigRecovery: true },
+            });
             close();
           }}
           textColor="light.primaryText"
@@ -196,7 +195,11 @@ function SigningDeviceConfigRecovery({ navigation }) {
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={() => {
-            navigate('LoginStack', { screen: 'ScanQRFileRecovery', params: { initateRecovery } });
+            navigate('LoginStack', {
+              screen: 'ScanQRFileRecovery',
+              params: { allowFileUploads: false },
+            });
+            close();
           }}
           textColor="light.primaryText"
           Content={PassportSetupContent}

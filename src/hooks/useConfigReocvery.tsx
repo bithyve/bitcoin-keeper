@@ -17,11 +17,11 @@ import { Alert } from 'react-native';
 const useConfigRecovery = () => {
   const { appId } = useAppSelector((state) => state.storage);
   const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
+
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [scheme, setScheme] = useState<VaultScheme>();
   const [signersList, setSignersList] = useState([]);
   const navigation = useNavigation();
-
   const dispatch = useDispatch();
   async function createNewApp() {
     try {
@@ -33,7 +33,7 @@ const useConfigRecovery = () => {
   }
 
   useEffect(() => {
-    if (appId) {
+    if (appId && scheme) {
       try {
         const vaultInfo: NewVaultInfo = {
           vaultType: VaultType.DEFAULT,
@@ -50,7 +50,7 @@ const useConfigRecovery = () => {
       }
       setRecoveryLoading(false);
     }
-  }, [appId, scheme]);
+  }, [appId, signersList]);
 
   useEffect(() => {
     if (relayVaultUpdate) {
@@ -63,12 +63,11 @@ const useConfigRecovery = () => {
     }
   }, [relayVaultUpdate, relayVaultError]);
 
-  const initateRecovery = useCallback((text) => {
+  const initateRecovery = (text) => {
     setRecoveryLoading(true);
     try {
       const parsedText: ParsedVauleText = parseTextforVaultConfig(text);
       if (parsedText) {
-        setScheme(parsedText.scheme);
         const signers = [];
         parsedText.signersDetails.forEach((config) => {
           const signer = generateSignerFromMetaData({
@@ -81,15 +80,18 @@ const useConfigRecovery = () => {
           });
           signers.push(signer);
         });
+        setScheme(parsedText.scheme);
         setSignersList(signers);
-        createNewApp();
+        if (!appId) {
+          createNewApp();
+        }
       }
     } catch (err) {
       setRecoveryLoading(false);
       console.log(err);
       Alert.alert(`Something went wrong!`);
     }
-  }, []);
+  };
 
   return { recoveryLoading, initateRecovery };
 };
