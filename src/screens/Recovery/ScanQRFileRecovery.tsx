@@ -10,12 +10,14 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadFile from 'src/components/UploadFile';
+import useConfigRecovery from 'src/hooks/useConfigReocvery';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
 
 function ScanQRFileRecovery({ route }) {
-  const { initateRecovery } = route.params;
+  const { allowFileUploads = true } = route.params || {};
+  const { initateRecovery } = useConfigRecovery();
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
   const { showToast } = useToastMessage();
@@ -77,7 +79,7 @@ function ScanQRFileRecovery({ route }) {
             <Text>{`Scanned ${qrPercent}%`}</Text>
           </HStack>
         </Box>
-        <UploadFile fileHandler={initateRecovery} />
+        {allowFileUploads && <UploadFile fileHandler={initateRecovery} />}
         <Box style={styles.noteWrapper}>
           <Note
             title={common.note}

@@ -4,7 +4,7 @@ import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -21,9 +21,11 @@ import { useAppSelector } from 'src/store/hooks';
 import MockWrapper from '../Vault/MockWrapper';
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
+import useConfigRecovery from 'src/hooks/useConfigReocvery';
 
 function ColdCardReocvery({ route }) {
-  const { isConfigRecovery = false, initateRecovery } = route.params || {};
+  const { isConfigRecovery = false } = route.params || {};
+  const { initateRecovery } = useConfigRecovery();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { signingDevices } = useAppSelector((state) => state.bhr);
