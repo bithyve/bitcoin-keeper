@@ -93,6 +93,15 @@ function BackupWallet() {
           }}
         />
       </Box>
+      <Box style={[styles.optionWrapper, { marginTop: hp(10),}]}>
+        <Option
+          title={BackupWallet.importWallet}
+          subTitle=""
+          onPress={() => {
+            navigation.navigate('ImportWallet');
+          }}
+        />
+      </Box>
       <Box>
         <ModalWrapper
           visible={healthCheckModal}
@@ -149,7 +158,7 @@ const styles = StyleSheet.create({
   optionWrapper: {
     alignItems: 'center',
     marginTop: hp(40),
-    padding: 25,
+    paddingHorizontal: 25,
   },
 });
 export default BackupWallet;

@@ -484,6 +484,7 @@
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual seeds",
+    "importWallet": "Import wallet",
     "healthCheck": "Health Check",
     "enterStrongPass": "Enter App Generated Strong Password",
     "healthCheckNote": "This step ensures that you have access to the backup of your wallet ",
