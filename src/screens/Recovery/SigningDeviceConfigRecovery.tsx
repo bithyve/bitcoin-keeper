@@ -15,8 +15,8 @@ import NFC from 'src/core/services/nfc';
 import { BleManager } from 'react-native-ble-plx';
 import { useAppSelector } from 'src/store/hooks';
 
-import { WalletMap } from '../Vault/WalletMap';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 export const getDeviceStatus = (
   type: SignerType,
@@ -159,10 +159,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
+              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
               <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
-                {WalletMap(type).Logo}
+                {SDIcons(type).Logo}
                 <Text color="light.inActiveMsg" style={styles.messageText}>
                   {message}
                 </Text>

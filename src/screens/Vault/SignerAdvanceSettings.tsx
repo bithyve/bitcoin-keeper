@@ -93,6 +93,7 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
+      case SignerType.OTHER_SD:
         navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
         break;
       default:
