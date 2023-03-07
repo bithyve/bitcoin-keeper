@@ -29,6 +29,7 @@ export const UTXOSchema: ObjectSchema = {
     value: 'int',
     address: 'string',
     height: 'int',
+    label: { type: '{}?', properties: { name: 'string', editable: 'bool' } },
   },
 };
 
