@@ -124,6 +124,7 @@ export interface UTXO {
   value: number;
   address: string;
   height: number;
+  labels?: Array<{ name: string, editable: boolean }>
 }
 
 export interface BIP85Config {

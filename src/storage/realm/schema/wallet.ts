@@ -20,6 +20,14 @@ export const BIP85ConfigSchema: ObjectSchema = {
   },
 };
 
+export const LabelSchema: ObjectSchema = {
+  name: RealmSchema.Label,
+  embedded: true,
+  properties: {
+   name: 'string',
+   editable: 'bool'
+  },
+};
 export const UTXOSchema: ObjectSchema = {
   name: RealmSchema.UTXO,
   embedded: true,
@@ -29,7 +37,7 @@ export const UTXOSchema: ObjectSchema = {
     value: 'int',
     address: 'string',
     height: 'int',
-    label: { type: '{}?', properties: { name: 'string', editable: 'bool' } },
+    labels: `${RealmSchema.Label}[]?`,
   },
 };
 

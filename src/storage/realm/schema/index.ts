@@ -8,6 +8,7 @@ import {
   WalletSchema,
   WalletSpecsSchema,
   TransferPolicySchema,
+  LabelSchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -33,6 +34,7 @@ export default [
   WalletPresentationDataSchema,
   BIP85ConfigSchema,
   UTXOSchema,
+  LabelSchema,
   TransactionSchema,
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,

@@ -6,6 +6,7 @@ export enum RealmSchema {
   WalletPresentationData = 'WalletPresentationData',
   BIP85Config = 'BIP85Config',
   UTXO = 'UTXO',
+  Label = 'Label',
   Transaction = 'Transaction',
   TransferPolicy = 'TransferPolicy',
   TransactionToAddressMapping = 'TransactionToAddressMapping',
