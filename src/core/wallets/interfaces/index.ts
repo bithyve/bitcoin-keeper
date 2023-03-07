@@ -117,14 +117,17 @@ export interface Balances {
   confirmed: number;
   unconfirmed: number;
 }
-
+export interface Lables {
+  name: string,
+  editable: boolean
+}
 export interface UTXO {
   txId: string;
   vout: number;
   value: number;
   address: string;
   height: number;
-  labels?: Array<{ name: string, editable: boolean }>
+  labels?: Lables[];
 }
 
 export interface BIP85Config {
