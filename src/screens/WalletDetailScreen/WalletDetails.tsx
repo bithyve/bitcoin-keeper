@@ -63,7 +63,7 @@ function WalletDetails({ route }) {
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false)
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
 
@@ -118,11 +118,13 @@ function WalletDetails({ route }) {
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
               style={styles.addWalletContainer}
-              onPress={() => navigation.navigate('EnterWalletDetail', {
-                name: `Wallet ${wallets.length}`,
-                description: 'Single-sig Wallet',
-                type: WalletType.DEFAULT
-              })}
+              onPress={() =>
+                navigation.navigate('EnterWalletDetail', {
+                  name: `Wallet ${wallets.length + 1}`,
+                  description: 'Single-sig Wallet',
+                  type: WalletType.DEFAULT,
+                })
+              }
             >
               <GradientIcon
                 Icon={AddSCardIcon}
@@ -151,7 +153,12 @@ function WalletDetails({ route }) {
                     <Text color="light.white" style={styles.walletName}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription} ellipsizeMode="tail" numberOfLines={1}>
+                    <Text
+                      color="light.white"
+                      style={styles.walletDescription}
+                      ellipsizeMode="tail"
+                      numberOfLines={1}
+                    >
                       {walletDescription}
                     </Text>
                   </Box>
@@ -169,7 +176,13 @@ function WalletDetails({ route }) {
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
                     <Text color="light.white" style={styles.unconfirmedBalance}>
-                      {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                      {getAmt(
+                        balances?.unconfirmed,
+                        exchangeRates,
+                        currencyCode,
+                        currentCurrency,
+                        satsEnabled
+                      )}
                     </Text>
                   </Box>
                 </Box>
@@ -188,7 +201,13 @@ function WalletDetails({ route }) {
                     {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                   </Box>
                   <Text color="light.white" style={styles.availableBalance}>
-                    {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                    {getAmt(
+                      walletBalance,
+                      exchangeRates,
+                      currencyCode,
+                      currentCurrency,
+                      satsEnabled
+                    )}
                     <Text color="light.textColor" style={styles.balanceUnit}>
                       {getUnit(currentCurrency, satsEnabled)}
                     </Text>
@@ -259,35 +278,73 @@ function WalletDetails({ route }) {
   function RampBuyContent() {
     return (
       <Box padding={1}>
-        <Text color='#073B36' fontSize={13} letterSpacing={0.65} my={1}>
-          By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin
+        <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
+          By proceeding, you understand that Ramp will process the payment and transfer for the
+          purchased bitcoin
         </Text>
-        <Box my={4} alignItems="center" borderRadius={10} p={4} backgroundColor="#FDF7F0" flexDirection="row">
-          <GradientIcon
-            Icon={WalletInsideGreen}
-            height={35}
-            gradient={['#FFFFFF', '#80A8A1']}
-          />
+        <Box
+          my={4}
+          alignItems="center"
+          borderRadius={10}
+          p={4}
+          backgroundColor="#FDF7F0"
+          flexDirection="row"
+        >
+          <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
           <Box mx={4}>
-            <Text fontSize={12} color='#5F6965'>Bitcoin will be transferred to</Text>
-            <Text fontSize={19} letterSpacing={1.28} color='#041513'>{wallets[walletIndex].presentationData.name}</Text>
-            <Text fontStyle='italic' fontSize={12} color='#00836A'>{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
+            <Text fontSize={12} color="#5F6965">
+              Bitcoin will be transferred to
+            </Text>
+            <Text fontSize={19} letterSpacing={1.28} color="#041513">
+              {wallets[walletIndex].presentationData.name}
+            </Text>
+            <Text
+              fontStyle="italic"
+              fontSize={12}
+              color="#00836A"
+            >{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
           </Box>
         </Box>
 
-        <Box my={4} alignItems="center" borderRadius={10} px={4} py={6} backgroundColor="#FDF7F0" flexDirection="row">
-          <Box backgroundColor="#FAC48B" borderRadius={20} height={10} width={10} justifyItems="center" alignItems="center">
+        <Box
+          my={4}
+          alignItems="center"
+          borderRadius={10}
+          px={4}
+          py={6}
+          backgroundColor="#FDF7F0"
+          flexDirection="row"
+        >
+          <Box
+            backgroundColor="#FAC48B"
+            borderRadius={20}
+            height={10}
+            width={10}
+            justifyItems="center"
+            alignItems="center"
+          >
             <Text fontSize={22}>@</Text>
           </Box>
           <Box mx={4}>
-            <Text fontSize={12} color='#5F6965'>Address for ramp transactions</Text>
-            <Text width={wp(200)} ellipsizeMode="middle" numberOfLines={1} fontSize={19} letterSpacing={1.28} color='#041513'>{wallets[walletIndex].specs.receivingAddress}</Text>
+            <Text fontSize={12} color="#5F6965">
+              Address for ramp transactions
+            </Text>
+            <Text
+              width={wp(200)}
+              ellipsizeMode="middle"
+              numberOfLines={1}
+              fontSize={19}
+              letterSpacing={1.28}
+              color="#041513"
+            >
+              {wallets[walletIndex].specs.receivingAddress}
+            </Text>
           </Box>
         </Box>
         <Buttons
           secondaryText="Cancel"
           secondaryCallback={() => {
-            setShowBuyRampModal(false)
+            setShowBuyRampModal(false);
           }}
           primaryText="Buy Bitcoin"
           primaryCallback={() => buyWithRamp(wallets[walletIndex].specs.receivingAddress)}
@@ -298,14 +355,14 @@ function WalletDetails({ route }) {
 
   const buyWithRamp = (address: string) => {
     try {
-      setShowBuyRampModal(false)
+      setShowBuyRampModal(false);
       Linking.openURL(fetchRampReservation({ receiveAddress: address }));
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true)
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
     <ScreenWrapper>
@@ -448,10 +505,7 @@ function WalletDetails({ route }) {
                   Receive
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={onPressBuyBitcoin}
-              >
+              <TouchableOpacity style={styles.IconText} onPress={onPressBuyBitcoin}>
                 <BuyBitcoin />
                 <Text color="light.primaryText" style={styles.footerItemText}>
                   Buy Bitcoin
@@ -482,7 +536,7 @@ function WalletDetails({ route }) {
       <KeeperModal
         visible={showBuyRampModal}
         close={() => {
-          setShowBuyRampModal(false)
+          setShowBuyRampModal(false);
         }}
         title="Buy bitcoin with Ramp"
         subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
