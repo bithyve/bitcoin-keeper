@@ -32,7 +32,7 @@ import ScanQR from 'src/screens/QRScreens/ScanQR';
 import ShowQR from 'src/screens/QRScreens/ShowQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
-import SelectingUTXO from 'src/screens/Send/UTXOSelection';
+import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
@@ -155,7 +155,7 @@ function AppStack() {
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
-        <Stack.Screen name="UTXOSelection" component={SelectingUTXO} />
+        <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
@@ -218,7 +218,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />
