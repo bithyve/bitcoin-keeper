@@ -121,7 +121,6 @@ function AddSendAmount({ route }) {
       showToast('Please enter a valid amount');
       return;
     }
-
     recipients.push({
       address,
       amount: amountToSend, // should be denominated in sats
@@ -265,10 +264,11 @@ function AddSendAmount({ route }) {
         <Box style={styles.ctaBtnWrapper}>
           <Box ml={windowWidth * -0.09}>
             <Buttons
-              secondaryText="Cancel"
+              secondaryText="Manually Select UTXOs"
               secondaryCallback={() => {
-                navigation.goBack();
+                navigation.navigate('UTXOSelection', { sender, amount })
               }}
+              secondaryDisable={Boolean(!amount || error)}
               primaryText="Send"
               primaryDisable={Boolean(!amount || error)}
               primaryCallback={executeSendPhaseOne}
