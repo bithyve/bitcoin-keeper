@@ -51,12 +51,16 @@ class RestClient {
   }
 
   async setUseTor(useTor: boolean) {
-    RestClient.useTor = useTor;
-    if (useTor) {
-      this.initTor();
-    } else {
-      await tor.stopIfRunning();
-      this.updateTorStatus(TorStatus.OFF);
+    try {
+      RestClient.useTor = useTor;
+      if (useTor) {
+        this.initTor();
+      } else {
+        await tor.stopIfRunning();
+        this.updateTorStatus(TorStatus.OFF);
+      }
+    } catch (error) {
+      this.updateTorStatus(TorStatus.ERROR);
     }
   }
 
