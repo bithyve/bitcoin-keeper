@@ -24,8 +24,8 @@ export const LabelSchema: ObjectSchema = {
   name: RealmSchema.Label,
   embedded: true,
   properties: {
-   name: 'string',
-   editable: 'bool'
+    name: 'string',
+    editable: 'bool',
   },
 };
 export const UTXOSchema: ObjectSchema = {
@@ -37,7 +37,7 @@ export const UTXOSchema: ObjectSchema = {
     value: 'int',
     address: 'string',
     height: 'int',
-    labels: `${RealmSchema.Label}[]?`,
+    labels: { type: 'list', objectType: `${RealmSchema.Label}` },
   },
 };
 

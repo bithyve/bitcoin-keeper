@@ -117,9 +117,9 @@ export interface Balances {
   confirmed: number;
   unconfirmed: number;
 }
-export interface Lables {
-  name: string,
-  editable: boolean
+export interface Labels {
+  name: string;
+  editable: boolean;
 }
 export interface UTXO {
   txId: string;
@@ -127,7 +127,7 @@ export interface UTXO {
   value: number;
   address: string;
   height: number;
-  labels?: Lables[];
+  labels?: Labels[];
 }
 
 export interface BIP85Config {
