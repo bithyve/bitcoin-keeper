@@ -692,7 +692,7 @@ const styles = StyleSheet.create({
   buyBtcContent: {
     fontSize: 13,
     letterSpacing: 0.65,
-    marginVertical: 1,
+    marginVertical: 15,
   },
   toWalletWrapper: {
     marginVertical: 4,
