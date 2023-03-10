@@ -46,6 +46,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import WalletOperations from 'src/core/wallets/operations';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -276,6 +277,12 @@ function WalletDetails({ route }) {
   }
 
   function RampBuyContent() {
+    const [buyAddress, setBuyAddress] = useState('');
+    useEffect(() => {
+      const receivingAddress = WalletOperations.getNextFreeAddress(wallets[walletIndex]);
+      setBuyAddress(receivingAddress);
+    }, []);
+
     return (
       <Box padding={1}>
         <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
@@ -337,7 +344,7 @@ function WalletDetails({ route }) {
               letterSpacing={1.28}
               color="#041513"
             >
-              {wallets[walletIndex].specs.receivingAddress}
+              {buyAddress}
             </Text>
           </Box>
         </Box>
@@ -347,7 +354,7 @@ function WalletDetails({ route }) {
             setShowBuyRampModal(false);
           }}
           primaryText="Buy Bitcoin"
-          primaryCallback={() => buyWithRamp(wallets[walletIndex].specs.receivingAddress)}
+          primaryCallback={() => buyWithRamp(buyAddress)}
         />
       </Box>
     );
