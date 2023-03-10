@@ -32,6 +32,7 @@ import {
   Transaction,
   TransactionPrerequisite,
   TransactionPrerequisiteElements,
+  UTXO,
 } from '../interfaces';
 import {
   BIP48ScriptTypes,
@@ -489,7 +490,8 @@ export default class WalletOperations {
       address: string;
       amount: number;
     }[],
-    averageTxFees: AverageTxFees
+    averageTxFees: AverageTxFees,
+    UTXOs?: any
   ):
     | {
         fee: number;
@@ -501,7 +503,7 @@ export default class WalletOperations {
         fee?;
         balance?;
       } => {
-    const inputUTXOs = wallet.specs.confirmedUTXOs;
+    const inputUTXOs = UTXOs && UTXOs.length ? UTXOs : wallet.specs.confirmedUTXOs;
     let confirmedBalance = 0;
     inputUTXOs.forEach((utxo) => {
       confirmedBalance += utxo.value;
@@ -1050,7 +1052,8 @@ export default class WalletOperations {
       address: string;
       amount: number;
     }[],
-    averageTxFees: AverageTxFees
+    averageTxFees: AverageTxFees,
+    UTXOs?: UTXO[]
   ): Promise<{
     txPrerequisites: TransactionPrerequisite;
   }> => {
@@ -1062,7 +1065,8 @@ export default class WalletOperations {
     let { fee, balance, txPrerequisites } = WalletOperations.prepareTransactionPrerequisites(
       wallet,
       recipients,
-      averageTxFees
+      averageTxFees,
+      UTXOs
     );
 
     let netAmount = 0;
@@ -1081,7 +1085,8 @@ export default class WalletOperations {
       const minTxPrerequisites = WalletOperations.prepareTransactionPrerequisites(
         wallet,
         recipients,
-        minAvgTxFee
+        minAvgTxFee,
+        UTXOs
       );
 
       if (minTxPrerequisites.balance < netAmount + minTxPrerequisites.fee)
