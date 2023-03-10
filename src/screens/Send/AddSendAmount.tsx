@@ -266,7 +266,11 @@ function AddSendAmount({ route }) {
             <Buttons
               secondaryText="Manually Select UTXOs"
               secondaryCallback={() => {
-                navigation.navigate('UTXOSelection', { sender, amount })
+                if (!amountToSend) {
+                  showToast('Please enter a valid amount');
+                  return;
+                }
+                navigation.navigate('UTXOSelection', { sender, amount });
               }}
               secondaryDisable={Boolean(!amount || error)}
               primaryText="Send"
