@@ -256,8 +256,9 @@ function LoginScreen({ navigation, route }) {
         if (torStatus === TorStatus.ERROR) {
           return 'Login w/o tor';
         }
+        return null
       }
-      return null;
+      return "Next";
     }
     return null;
   }, [torEnbled, torStatus, isAuthenticated]);
