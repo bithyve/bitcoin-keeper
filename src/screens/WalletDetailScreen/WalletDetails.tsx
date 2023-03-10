@@ -51,6 +51,33 @@ import { fetchRampReservation } from 'src/services/ramp';
 import { UTXO } from 'src/core/wallets/interfaces';
 import _ from 'lodash';
 
+const UtxoLabels = [
+  {
+    id: 1,
+    label: 'Work Expenses'
+  },
+  {
+    id: 2,
+    label: 'Salary Txns'
+  },
+  {
+    id: 3,
+    label: 'Petty Cash'
+  },
+  {
+    id: 4,
+    label: 'Family'
+  },
+  {
+    id: 5,
+    label: 'Personal'
+  },
+  {
+    id: 6,
+    label: 'Traveling'
+  },
+]
+
 function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -84,7 +111,6 @@ function WalletDetails({ route }) {
     return utxo
   }) || [])
 
-  console.log('transections', transections)
   const { autoRefresh } = route?.params || {};
 
   useEffect(() => {
@@ -321,36 +347,43 @@ function WalletDetails({ route }) {
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true)
   const RenderTransactionElement = useCallback(({ item }) => (
-    < TouchableOpacity style={styles.utxoCardWrapper} onPress={() => {
+    < TouchableOpacity style={styles.utxoCardContainer} onPress={() => {
       navigation.dispatch(
         CommonActions.navigate('UtxoLabeling')
       );
     }}
     >
-      <Box style={styles.selectionViewWrapper}>
-        <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
-      </Box>
-      <Box style={styles.txIDContainer}>
-        <Box style={styles.rowCenter}>
-          <Box style={styles.transactionContainer}>
-            <Text
-              color={`${colorMode}.GreyText`}
-              style={styles.transactionIdText}
-              numberOfLines={1}
-            >
-              {item.txId}
-            </Text>
+      <Box style={styles.utxoCardWrapper}>
+        <Box style={styles.selectionViewWrapper}>
+          <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
+        </Box>
+        <Box style={styles.txIDContainer}>
+          <Box style={styles.rowCenter}>
+            <Box style={styles.transactionContainer}>
+              <Text
+                color={`${colorMode}.GreyText`}
+                style={styles.transactionIdText}
+                numberOfLines={1}
+              >
+                {item.txId}
+              </Text>
+            </Box>
           </Box>
         </Box>
-      </Box>
-      <Box style={styles.amountWrapper}>
-        <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
-        <Text style={styles.amountText} numberOfLines={1}>
-          {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-          <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-            {getUnit(currentCurrency, satsEnabled)}
+        <Box style={styles.amountWrapper}>
+          <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+          <Text style={styles.amountText} numberOfLines={1}>
+            {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+            <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+              {getUnit(currentCurrency, satsEnabled)}
+            </Text>
           </Text>
-        </Text>
+        </Box>
+      </Box>
+      <Box style={styles.labelList}>
+        {UtxoLabels.map((item) => <Box style={styles.utxoLabelView}>
+          <Text>{item.label}</Text>
+        </Box>)}
       </Box>
     </TouchableOpacity >
   ), [utxoState])
@@ -818,13 +851,15 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   // 
-  utxoCardWrapper: {
+  utxoCardContainer: {
     backgroundColor: '#FDF7F0',
     marginVertical: 5,
     borderRadius: 10,
     padding: 10,
-    flexDirection: 'row',
     width: '99%',
+  },
+  utxoCardWrapper: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -876,5 +911,18 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     fontSize: hp(12),
   },
+  labelList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
+    marginTop: 5,
+    marginLeft: 20
+  },
+  utxoLabelView: {
+    backgroundColor: '#E3BE96',
+    padding: 5,
+    borderRadius: 5,
+    margin: 3,
+  }
 });
 export default WalletDetails;
