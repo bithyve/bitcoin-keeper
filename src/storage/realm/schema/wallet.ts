@@ -122,6 +122,7 @@ export const WalletSchema: ObjectSchema = {
     specs: RealmSchema.WalletSpecs,
     scriptType: 'string',
     transferPolicy: `${RealmSchema.TransferPolicy}`,
+    depositWalletId: `string?`,
   },
   primaryKey: 'id',
 };

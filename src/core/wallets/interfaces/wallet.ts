@@ -57,6 +57,7 @@ export interface Wallet {
   specs: WalletSpecs;
   scriptType: ScriptTypes;
   transferPolicy: TransferPolicy;
+  depositWalletId?: string; //this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
 }
 
 export interface TriggerPolicy {
