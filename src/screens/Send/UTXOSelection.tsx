@@ -20,15 +20,23 @@ import BtcBlack from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import Buttons from 'src/components/Buttons';
 import _ from 'lodash';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { useDispatch } from 'react-redux';
+import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
+import config from 'src/core/config';
+import { TxPriority } from 'src/core/wallets/enums';
 
 function UTXOSelection({ route }: any) {
   const navigation = useNavigation();
-  const { sender, amount } = route.params;
+  const { sender, amount, address } = route.params;
   const utxos = _.clone(sender.specs.confirmedUTXOs);
   const { colorMode } = useColorMode();
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
+  const { showToast } = useToastMessage();
+  const dispatch = useDispatch();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { averageTxFees } = useAppSelector((state) => state.network);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [utxoState, setUtxoState] = useState(
@@ -85,7 +93,30 @@ function UTXOSelection({ route }: any) {
     ),
     [utxoState]
   );
-  const areEnoughUTXOsSelected = selectionTotal >= BtcToSats(amount);
+  const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+  const areEnoughUTXOsSelected =
+    selectionTotal >= Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
+  const showFeeErrorMessage =
+    selectionTotal >= Number(BtcToSats(amount)) &&
+    selectionTotal < Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
+  const executeSendPhaseOne = () => {
+    const recipients = [];
+    if (!selectionTotal) {
+      showToast('Please enter a valid amount');
+      return;
+    }
+    recipients.push({
+      address,
+      amount,
+    });
+    dispatch(
+      sendPhaseOne({
+        wallet: sender,
+        recipients,
+        UTXOs: utxoState.filter((utxo) => utxo.selected),
+      })
+    );
+  };
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -101,6 +132,11 @@ function UTXOSelection({ route }: any) {
         showsVerticalScrollIndicator={false}
       />
       <Box>
+        {showFeeErrorMessage ? (
+          <Text color={`${colorMode}.error`} style={styles.feeErrorMessage} textAlign="left">
+            Please select more UTXOs to accomidate the minimun fee required
+          </Text>
+        ) : null}
         <Text color={`${colorMode}.GreyText`} style={styles.totalAmount} textAlign="right">
           {SatsToBtc(selectionTotal)}/{amount}
         </Text>
@@ -113,6 +149,7 @@ function UTXOSelection({ route }: any) {
               navigation.goBack();
             }}
             primaryDisable={!areEnoughUTXOsSelected}
+            primaryCallback={executeSendPhaseOne}
             primaryText="Send"
           />
         </Box>
@@ -178,6 +215,10 @@ const styles = StyleSheet.create({
   },
   totalAmount: {
     fontSize: 18,
+    letterSpacing: 0.6,
+  },
+  feeErrorMessage: {
+    fontSize: 14,
     letterSpacing: 0.6,
   },
 });

@@ -71,7 +71,7 @@ export const fetchExchangeRatesWatcher = createWatcher(
 );
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
-  const { wallet, recipients } = payload;
+  const { wallet, recipients, UTXOs } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -91,7 +91,8 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
       WalletOperations.transferST1,
       wallet,
       recipients,
-      averageTxFeeByNetwork
+      averageTxFeeByNetwork,
+      UTXOs
     );
 
     if (!txPrerequisites) throw new Error('Send failed: unable to generate tx pre-requisite');

@@ -16,7 +16,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -270,7 +270,9 @@ function AddSendAmount({ route }) {
                   showToast('Please enter a valid amount');
                   return;
                 }
-                navigation.navigate('UTXOSelection', { sender, amount });
+                navigation.dispatch(
+                  CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                );
               }}
               secondaryDisable={Boolean(!amount || error)}
               primaryText="Send"
