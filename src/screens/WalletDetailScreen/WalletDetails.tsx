@@ -1,7 +1,8 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Pressable, View } from 'native-base';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Box, Pressable, useColorMode, View } from 'native-base';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { Shadow } from 'react-native-shadow-2';
 import { useDispatch } from 'react-redux';
@@ -19,6 +20,7 @@ import LinearGradient from 'src/components/KeeperGradient';
 import Arrow from 'src/assets/images/arrow_brown.svg';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
+import BtcBlack from 'src/assets/images/btc_black.svg';
 // data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -46,11 +48,41 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import { UTXO } from 'src/core/wallets/interfaces';
+import _ from 'lodash';
+
+const UtxoLabels = [
+  {
+    id: 1,
+    label: 'Work Expenses',
+  },
+  {
+    id: 2,
+    label: 'Salary Txns',
+  },
+  {
+    id: 3,
+    label: 'Petty Cash',
+  },
+  {
+    id: 4,
+    label: 'Family',
+  },
+  {
+    id: 5,
+    label: 'Personal',
+  },
+  {
+    id: 6,
+    label: 'Traveling',
+  },
+];
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { colorMode } = useColorMode();
 
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
@@ -69,8 +101,17 @@ function WalletDetails({ route }) {
 
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [tab, setTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
+  const utxos = _.clone(currentWallet.specs.confirmedUTXOs);
+  const [utxoState, setUtxoState] = useState(
+    utxos.map((utxo) => {
+      utxo.selected = false;
+      return utxo;
+    }) || []
+  );
+
   const { autoRefresh } = route?.params || {};
 
   useEffect(() => {
@@ -277,60 +318,32 @@ function WalletDetails({ route }) {
 
   function RampBuyContent() {
     return (
-      <Box padding={1}>
-        <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
+      <Box style={styles.buyBtcWrapper}>
+        <Text color="#073B36" style={styles.buyBtcContent}>
           By proceeding, you understand that Ramp will process the payment and transfer for the
           purchased bitcoin
         </Text>
-        <Box
-          my={4}
-          alignItems="center"
-          borderRadius={10}
-          p={4}
-          backgroundColor="#FDF7F0"
-          flexDirection="row"
-        >
+        <Box style={styles.toWalletWrapper}>
           <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
-          <Box mx={4}>
-            <Text fontSize={12} color="#5F6965">
-              Bitcoin will be transferred to
-            </Text>
-            <Text fontSize={19} letterSpacing={1.28} color="#041513">
+          <Box style={styles.buyBtcCard}>
+            <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
+            <Text style={styles.presentationName}>
               {wallets[walletIndex].presentationData.name}
             </Text>
             <Text
-              fontStyle="italic"
-              fontSize={12}
-              color="#00836A"
+              style={styles.confirmBalanceText}
             >{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
           </Box>
         </Box>
 
-        <Box
-          my={4}
-          alignItems="center"
-          borderRadius={10}
-          px={4}
-          py={6}
-          backgroundColor="#FDF7F0"
-          flexDirection="row"
-        >
-          <Box
-            backgroundColor="#FAC48B"
-            borderRadius={20}
-            height={10}
-            width={10}
-            justifyItems="center"
-            alignItems="center"
-          >
-            <Text fontSize={22}>@</Text>
+        <Box style={styles.atViewWrapper}>
+          <Box style={styles.atViewWrapper02}>
+            <Text style={styles.atText}>@</Text>
           </Box>
-          <Box mx={4}>
-            <Text fontSize={12} color="#5F6965">
-              Address for ramp transactions
-            </Text>
+          <Box style={styles.buyBtcCard}>
+            <Text style={styles.buyBtcTitle}>Address for ramp transactions</Text>
             <Text
-              width={wp(200)}
+              style={styles.addressTextView}
               ellipsizeMode="middle"
               numberOfLines={1}
               fontSize={19}
@@ -363,6 +376,57 @@ function WalletDetails({ route }) {
   };
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const RenderTransactionElement = useCallback(
+    ({ item }) => (
+      <TouchableOpacity
+        style={styles.utxoCardContainer}
+        onPress={() => {
+          navigation.dispatch(CommonActions.navigate('UtxoLabeling'));
+        }}
+      >
+        <Box style={styles.utxoCardWrapper}>
+          <Box style={styles.selectionViewWrapper}>
+            <Box
+              style={[
+                styles.selectionView,
+                { backgroundColor: item.selected ? 'orange' : 'white' },
+              ]}
+            />
+          </Box>
+          <Box style={styles.txIDContainer}>
+            <Box style={styles.rowCenter}>
+              <Box style={styles.transactionContainer}>
+                <Text
+                  color={`${colorMode}.GreyText`}
+                  style={styles.transactionIdText}
+                  numberOfLines={1}
+                >
+                  {item.txId}
+                </Text>
+              </Box>
+            </Box>
+          </Box>
+          <Box style={styles.amountWrapper}>
+            <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+            <Text style={styles.amountText} numberOfLines={1}>
+              {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+              <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                {getUnit(currentCurrency, satsEnabled)}
+              </Text>
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.labelList}>
+          {UtxoLabels.map((item) => (
+            <Box style={styles.utxoLabelView}>
+              <Text>{item.label}</Text>
+            </Box>
+          ))}
+        </Box>
+      </TouchableOpacity>
+    ),
+    [utxoState]
+  );
 
   return (
     <ScreenWrapper>
@@ -455,31 +519,52 @@ function WalletDetails({ route }) {
               </Box>
             </Pressable>
           </Box>
-
-          <Box style={styles.transactions}>
-            <Text color="light.textBlack" style={styles.transactionText}>
-              Transactions
-            </Text>
+          <Box style={styles.tabWrapper}>
+            <TouchableOpacity style={styles.transTabWrapper} onPress={() => setTab('Transactions')}>
+              <Text>Transactions</Text>
+            </TouchableOpacity>
+            <Box style={{ width: '4%' }}>
+              <Text style={styles.verticalDash}>|</Text>
+            </Box>
+            <TouchableOpacity style={styles.utxoTabWrapper} onPress={() => setTab('UTXOs')}>
+              <Text>UTXOs</Text>
+            </TouchableOpacity>
           </Box>
-
           <Box style={styles.transactionsListContainer}>
-            <FlatList
-              refreshControl={
-                <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
-              }
-              data={transections}
-              renderItem={renderTransactionElement}
-              keyExtractor={(item) => item}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <EmptyStateView
-                  IllustartionImage={NoTransactionIcon}
-                  title="No transactions yet."
-                  subTitle="Pull down to refresh"
-                />
-              }
-            />
+            {tab === 'Transactions' ? (
+              <FlatList
+                refreshControl={
+                  <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
+                }
+                data={transections}
+                renderItem={renderTransactionElement}
+                keyExtractor={(item) => item}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  <EmptyStateView
+                    IllustartionImage={NoTransactionIcon}
+                    title="No transactions yet."
+                    subTitle="Pull down to refresh"
+                  />
+                }
+              />
+            ) : (
+              <FlatList
+                data={utxoState}
+                renderItem={({ item }) => <RenderTransactionElement item={item} />}
+                keyExtractor={(item: UTXO) => item.txId}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  <EmptyStateView
+                    IllustartionImage={NoTransactionIcon}
+                    title="No transactions yet."
+                    subTitle="Pull down to refresh"
+                  />
+                }
+              />
+            )}
           </Box>
+          {/*  */}
           <Box style={styles.footerContainer}>
             <Box style={styles.border} borderColor="light.GreyText" />
             <Box style={styles.footerItemContainer}>
@@ -659,16 +744,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  transactions: {
+  tabWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: hp(24),
+    padding: 12,
+    marginTop: hp(20),
     width: '100%',
-  },
-  transactionText: {
-    marginLeft: wp(10),
-    fontSize: 16,
-    letterSpacing: 1.28,
   },
   viewAllContainer: {
     flexDirection: 'row',
@@ -677,7 +757,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     marginTop: hp(10),
-    height: windowHeight > 800 ? hp(220) : hp(205),
+    height: windowHeight > 800 ? hp(230) : hp(205),
     position: 'relative',
   },
   footerContainer: {
@@ -737,6 +817,149 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  // buy bitcoin
+  buyBtcWrapper: {
+    padding: 1,
+  },
+  buyBtcContent: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    marginVertical: 1,
+  },
+  toWalletWrapper: {
+    marginVertical: 4,
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: '#FDF7F0',
+    flexDirection: 'row',
+  },
+  buyBtcCard: {
+    marginHorizontal: 20,
+  },
+  buyBtcTitle: {
+    fontSize: 12,
+    color: '#5F6965',
+  },
+  presentationName: {
+    fontSize: 19,
+    letterSpacing: 1.28,
+    color: '#041513',
+  },
+  confirmBalanceText: {
+    fontStyle: 'italic',
+    fontSize: 12,
+    color: '#00836A',
+  },
+  atViewWrapper: {
+    marginVertical: 4,
+    alignItems: 'center',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    backgroundColor: '#FDF7F0',
+    flexDirection: 'row',
+  },
+  atViewWrapper02: {
+    backgroundColor: '#FAC48B',
+    borderRadius: 30,
+    height: 30,
+    width: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  atText: {
+    fontSize: 21,
+    textAlign: 'center',
+  },
+  addressTextView: {
+    width: wp(180),
+  },
+  transTabWrapper: {
+    width: '48%',
+  },
+  utxoTabWrapper: {
+    width: '48%',
+    alignItems: 'flex-end',
+  },
+  verticalDash: {
+    color: '#E3BE96',
+    fontSize: 16,
+  },
+  //
+  utxoCardContainer: {
+    backgroundColor: '#FDF7F0',
+    marginVertical: 5,
+    borderRadius: 10,
+    padding: 10,
+    width: '99%',
+  },
+  utxoCardWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  selectionViewWrapper: {
+    width: '8%',
+    alignItems: 'center',
+  },
+  selectionView: {
+    borderWidth: 1,
+    borderColor: 'orange',
+    height: 15,
+    width: 15,
+    alignSelf: 'center',
+  },
+  txIDContainer: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '55%',
+  },
+  rowCenter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  amountWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    width: '39%',
+  },
+  amountText: {
+    fontSize: 19,
+    letterSpacing: 0.95,
+    marginHorizontal: 3,
+    marginRight: 3,
+  },
+  transactionContainer: {
+    flexDirection: 'row',
+    margin: 1.5,
+  },
+  transactionIdText: {
+    fontSize: 13,
+    letterSpacing: 0.6,
+    marginRight: 5,
+  },
+  unitText: {
+    letterSpacing: 0.6,
+    fontSize: hp(12),
+  },
+  labelList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
+    marginTop: 5,
+    marginLeft: 20,
+  },
+  utxoLabelView: {
+    backgroundColor: '#E3BE96',
+    padding: 5,
+    borderRadius: 5,
+    margin: 3,
   },
 });
 export default WalletDetails;
