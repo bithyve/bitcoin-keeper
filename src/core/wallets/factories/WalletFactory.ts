@@ -34,7 +34,7 @@ export const generateWallet = async ({
   primaryMnemonic?: string;
   importDetails?: WalletImportDetails;
   networkType: NetworkType;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
 

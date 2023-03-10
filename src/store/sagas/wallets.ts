@@ -93,7 +93,7 @@ export interface NewWalletDetails {
   name?: string;
   description?: string;
   derivationConfig?: DerivationConfig;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
 }
 
 export interface NewWalletInfo {
@@ -106,7 +106,8 @@ function* addNewWallet(
   walletType: WalletType,
   walletDetails: NewWalletDetails,
   app: KeeperApp,
-  importDetails?: WalletImportDetails
+  importDetails?: WalletImportDetails,
+  instanceNum?: number
 ) {
   const { primaryMnemonic } = app;
   const {
@@ -151,6 +152,43 @@ function* addNewWallet(
         transferPolicy,
       });
       return importedWallet;
+
+    //Whirpool wallet types premix,postmix, badbank
+    case WalletType.PRE_MIX:
+      const preMixWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.PRE_MIX,
+        instanceNum, //deposit account's index
+        walletName: 'Pre mix Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        primaryMnemonic,
+        networkType: config.NETWORK_TYPE,
+      });
+      return preMixWallet;
+
+    case WalletType.POST_MIX:
+      const postMixWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.PRE_MIX,
+        instanceNum, //deposit account's index
+        walletName: 'Post mix Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        primaryMnemonic,
+        networkType: config.NETWORK_TYPE,
+      });
+      return postMixWallet;
+
+    case WalletType.BAD_BANK:
+      const badBankWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.BAD_BANK,
+        instanceNum, //deposit account's index
+        walletName: 'Bad Bank Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        primaryMnemonic,
+        networkType: config.NETWORK_TYPE,
+      });
+      return badBankWallet;
 
     default:
       throw new Error(`Unsupported wallet-type ${walletType}`);

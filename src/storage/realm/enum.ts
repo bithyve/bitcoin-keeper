@@ -25,5 +25,5 @@ export enum RealmSchema {
   BackupHistory = 'BackupHistory',
   StoreSubscription = 'StoreSubscription',
   WhirlpoolConfig = 'WhirlpoolConfig',
-  WhirlpoolWalletDetails = 'WhirlpoolWalletDetials',
+  WhirlpoolWalletDetails = 'WhirlpoolWalletDetails',
 }
