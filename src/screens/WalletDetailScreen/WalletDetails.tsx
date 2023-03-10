@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Pressable, View } from 'native-base';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Box, Pressable, useColorMode, View } from 'native-base';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { Shadow } from 'react-native-shadow-2';
 import { useDispatch } from 'react-redux';
@@ -20,6 +20,7 @@ import LinearGradient from 'src/components/KeeperGradient';
 import Arrow from 'src/assets/images/arrow_brown.svg';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
+import BtcBlack from 'src/assets/images/btc_black.svg';
 // data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -47,11 +48,15 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import { UTXO } from 'src/core/wallets/interfaces';
+import _ from 'lodash';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+  const { colorMode } = useColorMode();
+
 
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
@@ -70,8 +75,16 @@ function WalletDetails({ route }) {
 
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [tab, setTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
+  const utxos = _.clone(currentWallet.specs.confirmedUTXOs);
+  const [utxoState, setUtxoState] = useState(utxos.map((utxo) => {
+    utxo.selected = false
+    return utxo
+  }) || [])
+
+  console.log('transections', transections)
   const { autoRefresh } = route?.params || {};
 
   useEffect(() => {
@@ -307,6 +320,40 @@ function WalletDetails({ route }) {
   }
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true)
+  const RenderTransactionElement = useCallback(({ item }) => (
+    < TouchableOpacity style={styles.utxoCardWrapper} onPress={() => {
+      navigation.dispatch(
+        CommonActions.navigate('UtxoLabeling')
+      );
+    }}
+    >
+      <Box style={styles.selectionViewWrapper}>
+        <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
+      </Box>
+      <Box style={styles.txIDContainer}>
+        <Box style={styles.rowCenter}>
+          <Box style={styles.transactionContainer}>
+            <Text
+              color={`${colorMode}.GreyText`}
+              style={styles.transactionIdText}
+              numberOfLines={1}
+            >
+              {item.txId}
+            </Text>
+          </Box>
+        </Box>
+      </Box>
+      <Box style={styles.amountWrapper}>
+        <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+        <Text style={styles.amountText} numberOfLines={1}>
+          {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+          <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+            {getUnit(currentCurrency, satsEnabled)}
+          </Text>
+        </Text>
+      </Box>
+    </TouchableOpacity >
+  ), [utxoState])
 
   return (
     <ScreenWrapper>
@@ -399,31 +446,57 @@ function WalletDetails({ route }) {
               </Box>
             </Pressable>
           </Box>
-
-          <Box style={styles.transactions}>
-            <Text color="light.textBlack" style={styles.transactionText}>
+          {/* <Box style={styles.transactions}> */}
+          {/* <Text color="light.textBlack" style={styles.transactionText}>
               Transactions
             </Text>
+          </Box> */}
+          <Box style={[styles.tabWrapper, { backgroundColor: "light.secondaryBackground" }]}>
+            <TouchableOpacity style={styles.transTabWrapper} onPress={() => setTab('Transactions')}>
+              <Text>Transactions</Text>
+            </TouchableOpacity>
+            <Box style={{ width: '4%' }}>
+              <Text style={{ color: '#E3BE96', fontSize: 16 }}>|</Text>
+            </Box>
+            <TouchableOpacity style={styles.utxoTabWrapper} onPress={() => setTab('UTXOs')}>
+              <Text>UTXOs</Text>
+            </TouchableOpacity>
           </Box>
-
           <Box style={styles.transactionsListContainer}>
-            <FlatList
-              refreshControl={
-                <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
-              }
-              data={transections}
-              renderItem={renderTransactionElement}
-              keyExtractor={(item) => item}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <EmptyStateView
-                  IllustartionImage={NoTransactionIcon}
-                  title="No transactions yet."
-                  subTitle="Pull down to refresh"
-                />
-              }
-            />
+            {tab === 'Transactions' ?
+              <FlatList
+                refreshControl={
+                  <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
+                }
+                data={transections}
+                renderItem={renderTransactionElement}
+                keyExtractor={(item) => item}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  <EmptyStateView
+                    IllustartionImage={NoTransactionIcon}
+                    title="No transactions yet."
+                    subTitle="Pull down to refresh"
+                  />
+                }
+              />
+              :
+              <FlatList
+                data={utxoState}
+                renderItem={({ item }) => <RenderTransactionElement item={item} />}
+                keyExtractor={(item: UTXO) => item.txId}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  <EmptyStateView
+                    IllustartionImage={NoTransactionIcon}
+                    title="No transactions yet."
+                    subTitle="Pull down to refresh"
+                  />
+                }
+              />
+            }
           </Box>
+          {/*  */}
           <Box style={styles.footerContainer}>
             <Box style={styles.border} borderColor="light.GreyText" />
             <Box style={styles.footerItemContainer}>
@@ -606,6 +679,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  tabWrapper: {
+    flexDirection: 'row',
+    padding: 15,
+    marginTop: hp(20),
+    width: '100%'
+  },
   transactions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -624,7 +703,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     marginTop: hp(10),
-    height: windowHeight > 800 ? hp(220) : hp(205),
+    height: windowHeight > 800 ? hp(230) : hp(205),
     position: 'relative',
   },
   footerContainer: {
@@ -742,6 +821,72 @@ const styles = StyleSheet.create({
   },
   addressTextView: {
     width: wp(180)
-  }
+  },
+  transTabWrapper: {
+    width: '48%'
+  },
+  utxoTabWrapper: {
+    width: '48%',
+    alignItems: 'flex-end'
+  },
+  // 
+  utxoCardWrapper: {
+    backgroundColor: '#FDF7F0',
+    marginVertical: 5,
+    borderRadius: 10,
+    padding: 10,
+    flexDirection: 'row',
+    width: '99%',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  selectionViewWrapper: {
+    width: '8%',
+    alignItems: 'center',
+  },
+  selectionView: {
+    borderWidth: 1,
+    borderColor: 'orange',
+    height: 15,
+    width: 15,
+    alignSelf: 'center'
+  },
+  txIDContainer: {
+    flexDirection: 'row',
+    borderRadius: 10,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '55%'
+  },
+  rowCenter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  amountWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    width: '39%'
+  },
+  amountText: {
+    fontSize: 19,
+    letterSpacing: 0.95,
+    marginHorizontal: 3,
+    marginRight: 3,
+  },
+  transactionContainer: {
+    flexDirection: 'row',
+    margin: 1.5,
+  },
+  transactionIdText: {
+    fontSize: 13,
+    letterSpacing: 0.6,
+    marginRight: 5,
+  },
+  unitText: {
+    letterSpacing: 0.6,
+    fontSize: hp(12),
+  },
 });
 export default WalletDetails;
