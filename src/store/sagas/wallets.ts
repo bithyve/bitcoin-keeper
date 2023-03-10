@@ -5,6 +5,7 @@
 import {
   DerivationPurpose,
   EntityKind,
+  NetworkType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
@@ -61,6 +62,7 @@ import {
   walletSettingsUpdated,
   UPDATE_SIGNER_DETAILS,
   UPDATE_WALLET_PROPERTY,
+  ADD_WHIRLPOOL_WALLETS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -78,6 +80,7 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
+import { getDerivationPath } from 'src/core/utils';
 
 export interface NewVaultDetails {
   name?: string;
@@ -94,6 +97,7 @@ export interface NewWalletDetails {
   description?: string;
   derivationConfig?: DerivationConfig;
   transferPolicy?: TransferPolicy;
+  instanceNum?: number;
 }
 
 export interface NewWalletInfo {
@@ -102,12 +106,60 @@ export interface NewWalletInfo {
   importDetails?: WalletImportDetails;
 }
 
+export function* addWhirlpoolWalletsWatcher({
+  payload,
+}: {
+  payload: {
+    depositWallet: Wallet;
+  };
+}) {
+  const { depositWallet } = payload;
+  const instanceNum = depositWallet.derivationDetails.instanceNum;
+
+  const preMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.PRE_MIX,
+    walletDetails: {
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483645),
+      },
+    },
+  };
+  const postMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.POST_MIX,
+    walletDetails: {
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483646),
+      },
+    },
+  };
+  const badBankWalletInfo: NewWalletInfo = {
+    walletType: WalletType.POST_MIX,
+    walletDetails: {
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483644),
+      },
+    },
+  };
+  const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
+  yield call(addNewWalletsWorker, { payload: newWalletsInfo });
+}
+
+export const addWhirlpoolWalletsWorker = createWatcher(
+  addWhirlpoolWalletsWatcher,
+  ADD_WHIRLPOOL_WALLETS
+);
+
 function* addNewWallet(
   walletType: WalletType,
   walletDetails: NewWalletDetails,
   app: KeeperApp,
-  importDetails?: WalletImportDetails,
-  instanceNum?: number
+  importDetails?: WalletImportDetails
 ) {
   const { primaryMnemonic } = app;
   const {
@@ -115,6 +167,7 @@ function* addNewWallet(
     description: walletDescription,
     derivationConfig,
     transferPolicy,
+    instanceNum,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
