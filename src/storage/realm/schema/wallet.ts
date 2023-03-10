@@ -109,6 +109,14 @@ export const WalletSpecsSchema: ObjectSchema = {
   },
 };
 
+export const WhirlpoolConfig: ObjectSchema = {
+  name: RealmSchema.WhirlpoolConfig,
+  embedded: true,
+  properties: {
+    whirlpoolWalletDetails: `${RealmSchema.WhirlpoolWalletDetails}[]`,
+  },
+};
+
 export const WalletSchema: ObjectSchema = {
   name: RealmSchema.Wallet,
   properties: {
@@ -123,6 +131,7 @@ export const WalletSchema: ObjectSchema = {
     scriptType: 'string',
     transferPolicy: `${RealmSchema.TransferPolicy}`,
     depositWalletId: `string?`,
+    whirlpoolConfig: `${RealmSchema.WhirlpoolConfig}?`,
   },
   primaryKey: 'id',
 };
