@@ -446,17 +446,12 @@ function WalletDetails({ route }) {
               </Box>
             </Pressable>
           </Box>
-          {/* <Box style={styles.transactions}> */}
-          {/* <Text color="light.textBlack" style={styles.transactionText}>
-              Transactions
-            </Text>
-          </Box> */}
-          <Box style={[styles.tabWrapper, { backgroundColor: "light.secondaryBackground" }]}>
+          <Box style={styles.tabWrapper}>
             <TouchableOpacity style={styles.transTabWrapper} onPress={() => setTab('Transactions')}>
               <Text>Transactions</Text>
             </TouchableOpacity>
             <Box style={{ width: '4%' }}>
-              <Text style={{ color: '#E3BE96', fontSize: 16 }}>|</Text>
+              <Text style={styles.verticalDash}>|</Text>
             </Box>
             <TouchableOpacity style={styles.utxoTabWrapper} onPress={() => setTab('UTXOs')}>
               <Text>UTXOs</Text>
@@ -681,20 +676,9 @@ const styles = StyleSheet.create({
   },
   tabWrapper: {
     flexDirection: 'row',
-    padding: 15,
+    padding: 12,
     marginTop: hp(20),
-    width: '100%'
-  },
-  transactions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: hp(24),
     width: '100%',
-  },
-  transactionText: {
-    marginLeft: wp(10),
-    fontSize: 16,
-    letterSpacing: 1.28,
   },
   viewAllContainer: {
     flexDirection: 'row',
@@ -828,6 +812,10 @@ const styles = StyleSheet.create({
   utxoTabWrapper: {
     width: '48%',
     alignItems: 'flex-end'
+  },
+  verticalDash: {
+    color: '#E3BE96',
+    fontSize: 16
   },
   // 
   utxoCardWrapper: {
