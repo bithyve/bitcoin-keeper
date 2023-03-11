@@ -106,11 +106,13 @@ function WalletDetails({ route }) {
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
   const utxos = _.clone(currentWallet && currentWallet.specs && currentWallet.specs.confirmedUTXOs);
+  const [selectionTotal, setSelectionTotal] = useState(0)
   const [utxoState, setUtxoState] = useState(utxos && utxos.map((utxo) => {
     utxo.selected = false
     return utxo
   }) || [])
 
+  const [enableSelection, setEnableSelection] = useState(false)
   const { autoRefresh } = route?.params || {};
 
   useEffect(() => {
@@ -348,15 +350,27 @@ function WalletDetails({ route }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true)
   const RenderTransactionElement = useCallback(({ item }) => (
     < TouchableOpacity style={styles.utxoCardContainer} onPress={() => {
-      navigation.dispatch(
-        CommonActions.navigate('UtxoLabeling')
-      );
+      if(enableSelection){
+        let utxoSum = selectionTotal;
+        setUtxoState(utxoState.map(utxo => {
+            if (utxo.txId === item.txId) {
+                utxoSum = utxo.selected ? utxoSum - utxo.value : utxoSum + utxo.value
+                return { ...utxo, selected: !utxo.selected }
+            }
+            return utxo
+        }))
+        setSelectionTotal(utxoSum)
+      }else{
+        navigation.dispatch(
+          CommonActions.navigate('UtxoLabeling')
+        );
+      }
     }}
     >
       <Box style={styles.utxoCardWrapper}>
-        <Box style={styles.selectionViewWrapper}>
+        {enableSelection &&  <Box style={styles.selectionViewWrapper}>
           <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
-        </Box>
+        </Box>}
         <Box style={styles.txIDContainer}>
           <Box style={styles.rowCenter}>
             <Box style={styles.transactionContainer}>
@@ -389,7 +403,7 @@ function WalletDetails({ route }) {
         </Box>
       </Box>
     </TouchableOpacity >
-  ), [utxoState])
+  ), [utxoState, enableSelection])
 
   return (
     <ScreenWrapper>
@@ -582,7 +596,7 @@ function WalletDetails({ route }) {
                 <TouchableOpacity
                   style={styles.IconText}
                   onPress={() => {
-                    navigation.navigate('Send', { sender: currentWallet });
+                    setEnableSelection(true)
                   }}
                 >
                   <Send />
@@ -593,7 +607,7 @@ function WalletDetails({ route }) {
                 <TouchableOpacity
                   style={styles.IconText}
                   onPress={() => {
-                    navigation.navigate('Receive', { wallet: currentWallet });
+
                   }}
                 >
                   <Recieve />
