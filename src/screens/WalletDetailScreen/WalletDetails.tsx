@@ -528,7 +528,7 @@ function WalletDetails({ route }) {
             }
           </Box>
           {/*  */}
-          <Box style={styles.footerContainer}>
+          {tab === 'Transactions' ? <Box style={styles.footerContainer}>
             <Box style={styles.border} borderColor="light.GreyText" />
             <Box style={styles.footerItemContainer}>
               <TouchableOpacity
@@ -575,6 +575,34 @@ function WalletDetails({ route }) {
               </TouchableOpacity>
             </Box>
           </Box>
+            :
+            <Box style={styles.footerContainer}>
+              <Box style={styles.border} borderColor="light.GreyText" />
+              <Box style={styles.footerItemContainer}>
+                <TouchableOpacity
+                  style={styles.IconText}
+                  onPress={() => {
+                    navigation.navigate('Send', { sender: currentWallet });
+                  }}
+                >
+                  <Send />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Send Selected
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.IconText}
+                  onPress={() => {
+                    navigation.navigate('Receive', { wallet: currentWallet });
+                  }}
+                >
+                  <Recieve />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Mix Selected
+                  </Text>
+                </TouchableOpacity>
+              </Box>
+            </Box>}
         </>
       ) : (
         <Box style={styles.addNewWalletContainer}>
