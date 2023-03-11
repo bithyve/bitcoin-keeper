@@ -40,7 +40,6 @@ export const securityTips = [
   },
 ];
 export const getSecurityTip = () => {
-  const selected = Math.floor(Math.random() * securityTips.length)
-  console.log(selected)
+  const selected = Math.floor(Math.random() * securityTips.length);
   return securityTips[selected];
-}
+};

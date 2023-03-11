@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { VerificationType } from 'src/core/services/interfaces';
-import { NetworkType, SignerType, TransactionType, TxPriorityDefault } from '../enums';
+import { LabelType, NetworkType, SignerType, TransactionType, TxPriorityDefault } from '../enums';
 
 export interface InputUTXOs {
   txId: string;
@@ -117,13 +116,20 @@ export interface Balances {
   confirmed: number;
   unconfirmed: number;
 }
-
 export interface UTXO {
   txId: string;
   vout: number;
   value: number;
   address: string;
   height: number;
+}
+
+export interface UTXOInfo {
+  id: string;
+  txId: string;
+  vout: number;
+  walletId: string;
+  labels: Array<{ name: string; type: LabelType }>;
 }
 
 export interface BIP85Config {
