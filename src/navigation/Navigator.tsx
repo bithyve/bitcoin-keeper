@@ -158,7 +158,6 @@ function AppStack() {
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
         <Stack.Screen name="UtxoLabeling" component={UtxoLabeling} />
-        <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
@@ -221,7 +220,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />
