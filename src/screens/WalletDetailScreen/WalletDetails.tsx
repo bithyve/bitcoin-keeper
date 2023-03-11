@@ -104,14 +104,14 @@ function WalletDetails({ route }) {
   const [tab, setTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
-  const utxos = _.clone(currentWallet.specs.confirmedUTXOs);
-  const [utxoState, setUtxoState] = useState(
-    utxos.map((utxo) => {
-      utxo.selected = false;
-      return utxo;
-    }) || []
-  );
+  const utxos = _.clone(currentWallet && currentWallet.specs && currentWallet.specs.confirmedUTXOs);
+  const [selectionTotal, setSelectionTotal] = useState(0)
+  const [utxoState, setUtxoState] = useState(utxos && utxos.map((utxo) => {
+    utxo.selected = false
+    return utxo
+  }) || [])
 
+  const [enableSelection, setEnableSelection] = useState(false)
   const { autoRefresh } = route?.params || {};
 
   useEffect(() => {
@@ -375,35 +375,40 @@ function WalletDetails({ route }) {
     }
   };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-  const RenderTransactionElement = useCallback(
-    ({ item }) => (
-      <TouchableOpacity
-        style={styles.utxoCardContainer}
-        onPress={() => {
-          navigation.dispatch(CommonActions.navigate('UtxoLabeling'));
-        }}
-      >
-        <Box style={styles.utxoCardWrapper}>
-          <Box style={styles.selectionViewWrapper}>
-            <Box
-              style={[
-                styles.selectionView,
-                { backgroundColor: item.selected ? 'orange' : 'white' },
-              ]}
-            />
-          </Box>
-          <Box style={styles.txIDContainer}>
-            <Box style={styles.rowCenter}>
-              <Box style={styles.transactionContainer}>
-                <Text
-                  color={`${colorMode}.GreyText`}
-                  style={styles.transactionIdText}
-                  numberOfLines={1}
-                >
-                  {item.txId}
-                </Text>
-              </Box>
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true)
+  const RenderTransactionElement = useCallback(({ item }) => (
+    < TouchableOpacity style={styles.utxoCardContainer} onPress={() => {
+      if (enableSelection) {
+        let utxoSum = selectionTotal;
+        setUtxoState(utxoState.map(utxo => {
+          if (utxo.txId === item.txId) {
+            utxoSum = utxo.selected ? utxoSum - utxo.value : utxoSum + utxo.value
+            return { ...utxo, selected: !utxo.selected }
+          }
+          return utxo
+        }))
+        setSelectionTotal(utxoSum)
+      } else {
+        navigation.dispatch(
+          CommonActions.navigate('UtxoLabeling')
+        );
+      }
+    }}
+    >
+      <Box style={styles.utxoCardWrapper}>
+        {enableSelection && <Box style={styles.selectionViewWrapper}>
+          <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
+        </Box>}
+        <Box style={styles.txIDContainer}>
+          <Box style={styles.rowCenter}>
+            <Box style={styles.transactionContainer}>
+              <Text
+                color={`${colorMode}.GreyText`}
+                style={styles.transactionIdText}
+                numberOfLines={1}
+              >
+                {item.txId}
+              </Text>
             </Box>
           </Box>
           <Box style={styles.amountWrapper}>
@@ -416,17 +421,17 @@ function WalletDetails({ route }) {
             </Text>
           </Box>
         </Box>
-        <Box style={styles.labelList}>
-          {UtxoLabels.map((item) => (
-            <Box style={styles.utxoLabelView}>
-              <Text>{item.label}</Text>
-            </Box>
-          ))}
+      </Box>
+      <Box style={styles.labelList}>
+        {UtxoLabels && UtxoLabels.slice(0, 3).map((item) => <Box style={styles.utxoLabelView}>
+          <Text>{item.label}</Text>
+        </Box>)}
+        <Box style={styles.utxoLabelView}>
+          <Text>+{UtxoLabels && UtxoLabels.length - 3} more</Text>
         </Box>
-      </TouchableOpacity>
-    ),
-    [utxoState]
-  );
+      </Box>
+    </TouchableOpacity >
+  ), [utxoState, enableSelection])
 
   return (
     <ScreenWrapper>
@@ -565,7 +570,7 @@ function WalletDetails({ route }) {
             )}
           </Box>
           {/*  */}
-          <Box style={styles.footerContainer}>
+          {tab === 'Transactions' ? <Box style={styles.footerContainer}>
             <Box style={styles.border} borderColor="light.GreyText" />
             <Box style={styles.footerItemContainer}>
               <TouchableOpacity
@@ -609,6 +614,34 @@ function WalletDetails({ route }) {
               </TouchableOpacity>
             </Box>
           </Box>
+            :
+            <Box style={styles.footerContainer}>
+              <Box style={styles.border} borderColor="light.GreyText" />
+              <Box style={styles.footerItemContainer}>
+                <TouchableOpacity
+                  style={styles.IconText}
+                  onPress={() => {
+                    setEnableSelection(!enableSelection)
+                  }}
+                >
+                  <Send />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Send Selected
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.IconText}
+                  onPress={() => {
+
+                  }}
+                >
+                  <Recieve />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Mix Selected
+                  </Text>
+                </TouchableOpacity>
+              </Box>
+            </Box>}
         </>
       ) : (
         <Box style={styles.addNewWalletContainer}>
