@@ -105,8 +105,8 @@ function WalletDetails({ route }) {
   const [tab, setTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
-  const utxos = _.clone(currentWallet.specs.confirmedUTXOs);
-  const [utxoState, setUtxoState] = useState(utxos.map((utxo) => {
+  const utxos = _.clone(currentWallet && currentWallet.specs && currentWallet.specs.confirmedUTXOs);
+  const [utxoState, setUtxoState] = useState(utxos && utxos.map((utxo) => {
     utxo.selected = false
     return utxo
   }) || [])
@@ -381,9 +381,12 @@ function WalletDetails({ route }) {
         </Box>
       </Box>
       <Box style={styles.labelList}>
-        {UtxoLabels.map((item) => <Box style={styles.utxoLabelView}>
+        {UtxoLabels && UtxoLabels.slice(0, 3).map((item) => <Box style={styles.utxoLabelView}>
           <Text>{item.label}</Text>
         </Box>)}
+        <Box style={styles.utxoLabelView}>
+          <Text>+{UtxoLabels && UtxoLabels.length - 3} more</Text>
+        </Box>
       </Box>
     </TouchableOpacity >
   ), [utxoState])
