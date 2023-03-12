@@ -33,6 +33,7 @@ import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 
 function AddDetailsFinalScreen({ route }) {
   const navigation = useNavigation();
@@ -45,13 +46,28 @@ function AddDetailsFinalScreen({ route }) {
   const { home } = translations;
   const [amount, setAmount] = useState('');
   const [error, setError] = useState(false); // this state will handle error
+  const [arrow, setArrow] = useState(false);
+  const [showPurpose, setShowPurpose] = useState(false);
+  const [purposeList, setPurposeList] = useState([
+    'test purpose1',
+    'test purpose2',
+    'test purpose3',
+  ]);
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
   const onNextClick = () => {};
 
-  const onDropDownClick = () => {};
+  const onDropDownClick = () => {
+    if (showPurpose) {
+      setShowPurpose(false);
+      setArrow(false);
+    } else {
+      setShowPurpose(true);
+      setArrow(true);
+    }
+  };
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground">
@@ -74,16 +90,39 @@ function AddDetailsFinalScreen({ route }) {
             </Box>
             <TouchableOpacity onPress={onDropDownClick} style={styles.dropDownContainer}>
               <Text style={styles.balanceCrossesText}>P2WKH: native segwit, single sig</Text>
+              <Box
+                style={[
+                  styles.icArrow,
+                  {
+                    transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
+                  },
+                ]}
+              >
+                <RightArrowIcon />
+              </Box>
             </TouchableOpacity>
           </Box>
+          {showPurpose && (
+            <ScrollView style={styles.langScrollViewWrapper}>
+              {purposeList.map((item) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowPurpose(false);
+                    setArrow(false);
+                  }}
+                  style={styles.flagWrapper1}
+                >
+                  <Text style={styles.purposeText}>{item}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          )}
         </ScrollView>
         <View style={styles.dotContainer}>
           <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
-            {[1, 2, 3].map((item, index) => {
-              return (
-                <View key={index} style={2 == index ? styles.selectedDot : styles.unSelectedDot} />
-              );
-            })}
+            {[1, 2, 3].map((item, index) => (
+              <View key={index} style={index == 2 ? styles.selectedDot : styles.unSelectedDot} />
+            ))}
           </View>
           <Box style={styles.ctaBtnWrapper}>
             <Box ml={windowWidth * -0.09}>
@@ -146,6 +185,7 @@ const styles = ScaledSheet.create({
     borderBottomLeftRadius: 10,
     paddingVertical: 20,
     marginTop: 10,
+    flexDirection: 'row',
   },
   cameraView: {
     height: hp(250),
@@ -226,7 +266,7 @@ const styles = ScaledSheet.create({
     marginTop: hp(10),
   },
   balanceCrossesText: {
-    width: '100%',
+    // width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
     // padding: 20,
@@ -234,11 +274,39 @@ const styles = ScaledSheet.create({
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.96,
+    flex: 1,
   },
   ctaBtnWrapper: {
     // marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
+  },
+  langScrollViewWrapper: {
+    borderWidth: 1,
+    borderColor: Colors.Platinum,
+    borderRadius: 10,
+    margin: 15,
+    width: '90%',
+    zIndex: 10,
+    backgroundColor: '#FAF4ED',
+  },
+  flagWrapper1: {
+    flexDirection: 'row',
+    height: wp(40),
+    // alignSelf: 'center',
+    alignItems: 'center',
+  },
+  purposeText: {
+    fontFamily: Fonts.RobotoCondensedRegular,
+    fontSize: 13,
+    marginLeft: wp(10),
+    letterSpacing: 0.6,
+    color: 'light.GreyText',
+  },
+  icArrow: {
+    marginLeft: wp(10),
+    marginRight: wp(10),
+    alignSelf: 'center',
   },
 });
 export default AddDetailsFinalScreen;
