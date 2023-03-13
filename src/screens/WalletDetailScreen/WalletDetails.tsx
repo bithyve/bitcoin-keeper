@@ -32,7 +32,7 @@ import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import openLink from 'src/utils/OpenLink';
@@ -46,6 +46,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import useWallets from 'src/hooks/useWallets';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -53,7 +54,8 @@ function WalletDetails({ route }) {
   const { showToast } = useToastMessage();
 
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const { wallets } = useWallets();
+  wallets.forEach((wallet) => console.log(wallet.type));
   const vaults: Vault[] = useQuery(RealmSchema.Vault).map(getJSONFromRealmObject) || [];
   const vaultExsist = Boolean(vaults.length);
   const exchangeRates = useExchangeRates();
@@ -440,7 +442,7 @@ function WalletDetails({ route }) {
                   >
                     ฿{' '}
                     {getAmt(
-                      wallets[walletIndex].transferPolicy.threshold,
+                      wallets[walletIndex]?.transferPolicy?.threshold,
                       exchangeRates,
                       currencyCode,
                       currentCurrency,
@@ -520,6 +522,18 @@ function WalletDetails({ route }) {
                 <IconSettings />
                 <Text color="light.primaryText" style={styles.footerItemText}>
                   Settings
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.IconText}
+                onPress={() => {
+                  console.log('dfa');
+                  dispatch(addNewWhirlpoolWallets({ depositWallet: wallets[1] }));
+                }}
+              >
+                <IconSettings />
+                <Text color="light.primaryText" style={styles.footerItemText}>
+                  Whirlpool
                 </Text>
               </TouchableOpacity>
             </Box>
