@@ -37,6 +37,7 @@ export const UTXOInfoSchema: ObjectSchema = {
     walletId: 'string',
     labels: { type: 'list', objectType: `${RealmSchema.Label}` },
   },
+  primaryKey: 'id',
 };
 
 export const UTXOSchema: ObjectSchema = {

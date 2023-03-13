@@ -530,6 +530,9 @@ function WalletDetails({ route }) {
                     <Box style={styles.transactionsListContainer}>
                         {tab === 'Transactions' ? (
                             <FlatList
+                                // style={{
+                                //     paddingBottom: '20%',
+                                // }}
                                 refreshControl={
                                     <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
                                 }
@@ -746,7 +749,7 @@ const styles = StyleSheet.create({
     },
     transactionsListContainer: {
         marginTop: hp(10),
-        height: windowHeight > 800 ? hp(230) : hp(205),
+        height: windowHeight > 800 ? hp(290) : hp(205),
         position: 'relative',
     },
     footerContainer: {
