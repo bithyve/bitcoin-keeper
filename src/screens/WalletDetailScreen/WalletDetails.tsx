@@ -470,7 +470,7 @@ function WalletDetails({ route }) {
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
           {/* {Transfer pollicy} */}
-          <Box style={styles.transferPolicyContainer}>
+          {/* <Box style={styles.transferPolicyContainer}>
             <Pressable
               backgroundColor="light.accent"
               style={styles.transferPolicyCard}
@@ -523,7 +523,7 @@ function WalletDetails({ route }) {
                 </Box>
               </Box>
             </Pressable>
-          </Box>
+          </Box> */}
           {/* tabview */}
           <WalletDetailsTabView setActiveTab={(value) => setTab(value)} />
           {/* end */}
