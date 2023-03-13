@@ -4,13 +4,20 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import _ from 'lodash';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
+import BTC from 'src/assets/images/btc_wallet.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import PreMix from 'src/assets/images/icon_premix.svg';
+import PostMix from 'src/assets/images/icon_postmix.svg';
+import BadBank from 'src/assets/images/icon_badbank.svg';
+import Deposit from 'src/assets/images/icon_deposit.svg';
+// data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Text from 'src/components/KeeperText';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { addNewWhirlpoolWallets, refreshWallets } from 'src/store/sagaActions/wallets';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -24,8 +31,6 @@ import UTXOFooter from './components/UTXOFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
-import KeeperModal from 'src/components/KeeperModal';
-import BTC from 'src/assets/images/btc_wallet.svg';
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
   tab,
@@ -128,7 +133,7 @@ function WalletDetails({ route }) {
   };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
-  const AccountComponent = ({ title, balance, onPress }) => {
+  const AccountComponent = ({ title, balance, onPress, icon }) => {
     return (
       <Pressable style={{
         marginTop: hp(20),
@@ -144,9 +149,12 @@ function WalletDetails({ route }) {
         onPress={onPress}
       >
         <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ fontSize: 13, letterSpacing: 1 }}>
-            {title}
-          </Text>
+          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {icon}
+            <Text style={{ fontSize: 13, letterSpacing: 1, marginLeft: wp(10) }}>
+              {title}
+            </Text>
+          </Box>
           <Box flexDirection={'row'}>
             <Box
               style={{
@@ -170,22 +178,26 @@ function WalletDetails({ route }) {
         <AccountComponent
           title={'Deposit'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<Deposit />} />
 
         <AccountComponent
           title={'PreMix Account'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<PreMix />} />
 
         <AccountComponent
           title={'PostMix Account'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<PostMix />} />
 
         <AccountComponent
           title={'Bad bank Account'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<BadBank />} />
       </View>
     );
   }
