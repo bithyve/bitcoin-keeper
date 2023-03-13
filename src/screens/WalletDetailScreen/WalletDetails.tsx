@@ -22,6 +22,7 @@ import Arrow from 'src/assets/images/arrow_brown.svg';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
+import MixIcon from 'src/assets/images/icon_mix.svg'
 // data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -604,14 +605,14 @@ function WalletDetails({ route }) {
                             <Box style={styles.border} borderColor="light.GreyText" />
                             <Box style={styles.footerItemContainer}>
                                 <BottomMenuItem
+                                    onPress={() => { }}
+                                    icon={<MixIcon />}
+                                    title='Mix Selected'
+                                />
+                                <BottomMenuItem
                                     onPress={() => setEnableSelection(!enableSelection)}
                                     icon={<Send />}
                                     title='Send Selected'
-                                />
-                                <BottomMenuItem
-                                    onPress={() => { }}
-                                    icon={<Recieve />}
-                                    title='Mix Selected'
                                 />
                             </Box>
                         </Box>}
