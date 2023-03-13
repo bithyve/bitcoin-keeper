@@ -54,8 +54,9 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import WalletOperations from 'src/core/wallets/operations';
 
-function Footer({ vault, onPressBuy }: { vault: Vault, onPressBuy: Function }) {
+function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
@@ -86,10 +87,7 @@ function Footer({ vault, onPressBuy }: { vault: Vault, onPressBuy: Function }) {
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={onPressBuy}
-        >
+        <TouchableOpacity style={styles.IconText} onPress={onPressBuy}>
           <Buy />
           <Text color="light.primaryText" style={styles.footerText}>
             Buy
@@ -387,7 +385,7 @@ function VaultDetails({ route, navigation }) {
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
   const [tireChangeModal, setTireChangeModal] = useState(false);
   const { subscriptionScheme } = usePlan();
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false)
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
 
   const onPressModalBtn = () => {
     setTireChangeModal(false);
@@ -459,38 +457,85 @@ function VaultDetails({ route, navigation }) {
     []
   );
 
-
   function RampBuyContent() {
+    const [buyAddress, setBuyAddress] = useState('');
+
+    useEffect(() => {
+      const receivingAddress = WalletOperations.getNextFreeAddress(vault);
+      setBuyAddress(receivingAddress);
+    }, []);
     return (
       <Box padding={1}>
-        <Text color='#073B36' fontSize={13} letterSpacing={0.65} my={1}>
-          By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin
+        <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
+          By proceeding, you understand that Ramp will process the payment and transfer for the
+          purchased bitcoin
         </Text>
-        <Box my={4} alignItems="center" borderRadius={10} p={4} backgroundColor="#FDF7F0" flexDirection="row">
+        <Box
+          my={4}
+          alignItems="center"
+          borderRadius={10}
+          p={4}
+          backgroundColor="#FDF7F0"
+          flexDirection="row"
+        >
           <VaultIcon />
           <Box mx={4}>
-            <Text fontSize={12} color='#5F6965'>Bitcoin will be transferred to</Text>
-            <Text fontSize={19} letterSpacing={1.28} color='#041513'>{vault.presentationData.name}</Text>
-            <Text fontStyle='italic' fontSize={12} color='#00836A'>{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
+            <Text fontSize={12} color="#5F6965">
+              Bitcoin will be transferred to
+            </Text>
+            <Text fontSize={19} letterSpacing={1.28} color="#041513">
+              {vault.presentationData.name}
+            </Text>
+            <Text
+              fontStyle="italic"
+              fontSize={12}
+              color="#00836A"
+            >{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
           </Box>
         </Box>
 
-        <Box my={4} alignItems="center" borderRadius={10} px={4} py={6} backgroundColor="#FDF7F0" flexDirection="row">
-          <Box backgroundColor="#FAC48B" borderRadius={20} height={10} width={10} justifyItems="center" alignItems="center">
+        <Box
+          my={4}
+          alignItems="center"
+          borderRadius={10}
+          px={4}
+          py={6}
+          backgroundColor="#FDF7F0"
+          flexDirection="row"
+        >
+          <Box
+            backgroundColor="#FAC48B"
+            borderRadius={20}
+            height={10}
+            width={10}
+            justifyItems="center"
+            alignItems="center"
+          >
             <Text fontSize={22}>@</Text>
           </Box>
           <Box mx={4}>
-            <Text fontSize={12} color='#5F6965'>Address for ramp transactions</Text>
-            <Text width={wp(200)} ellipsizeMode="middle" numberOfLines={1} fontSize={19} letterSpacing={1.28} color='#041513'>{vault.specs.receivingAddress}</Text>
+            <Text fontSize={12} color="#5F6965">
+              Address for ramp transactions
+            </Text>
+            <Text
+              width={wp(200)}
+              ellipsizeMode="middle"
+              numberOfLines={1}
+              fontSize={19}
+              letterSpacing={1.28}
+              color="#041513"
+            >
+              {buyAddress}
+            </Text>
           </Box>
         </Box>
         <Buttons
           secondaryText="Cancel"
           secondaryCallback={() => {
-            setShowBuyRampModal(false)
+            setShowBuyRampModal(false);
           }}
           primaryText="Buy Bitcoin"
-          primaryCallback={() => buyWithRamp(vault.specs.receivingAddress)}
+          primaryCallback={() => buyWithRamp(buyAddress)}
         />
       </Box>
     );
@@ -498,14 +543,14 @@ function VaultDetails({ route, navigation }) {
 
   const buyWithRamp = (address: string) => {
     try {
-      setShowBuyRampModal(false)
+      setShowBuyRampModal(false);
       Linking.openURL(fetchRampReservation({ receiveAddress: address }));
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true)
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
     <LinearGradient
@@ -582,7 +627,7 @@ function VaultDetails({ route, navigation }) {
       <KeeperModal
         visible={showBuyRampModal}
         close={() => {
-          setShowBuyRampModal(false)
+          setShowBuyRampModal(false);
         }}
         title="Buy bitcoin with Ramp"
         subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"

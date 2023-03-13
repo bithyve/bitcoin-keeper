@@ -47,6 +47,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import WalletOperations from 'src/core/wallets/operations';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -64,7 +65,7 @@ function WalletDetails({ route }) {
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false)
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
 
@@ -119,11 +120,13 @@ function WalletDetails({ route }) {
           {!(item?.presentationData && item?.specs) ? (
             <TouchableOpacity
               style={styles.addWalletContainer}
-              onPress={() => navigation.navigate('EnterWalletDetail', {
-                name: `Wallet ${wallets.length}`,
-                description: 'Single-sig Wallet',
-                type: WalletType.DEFAULT
-              })}
+              onPress={() =>
+                navigation.navigate('EnterWalletDetail', {
+                  name: `Wallet ${wallets.length + 1}`,
+                  description: 'Single-sig Wallet',
+                  type: WalletType.DEFAULT,
+                })
+              }
             >
               <GradientIcon
                 Icon={AddSCardIcon}
@@ -152,7 +155,12 @@ function WalletDetails({ route }) {
                     <Text color="light.white" style={styles.walletName}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription} ellipsizeMode="tail" numberOfLines={1}>
+                    <Text
+                      color="light.white"
+                      style={styles.walletDescription}
+                      ellipsizeMode="tail"
+                      numberOfLines={1}
+                    >
                       {walletDescription}
                     </Text>
                   </Box>
@@ -170,7 +178,13 @@ function WalletDetails({ route }) {
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
                     <Text color="light.white" style={styles.unconfirmedBalance}>
-                      {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                      {getAmt(
+                        balances?.unconfirmed,
+                        exchangeRates,
+                        currencyCode,
+                        currentCurrency,
+                        satsEnabled
+                      )}
                     </Text>
                   </Box>
                 </Box>
@@ -189,7 +203,13 @@ function WalletDetails({ route }) {
                     {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                   </Box>
                   <Text color="light.white" style={styles.availableBalance}>
-                    {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                    {getAmt(
+                      walletBalance,
+                      exchangeRates,
+                      currencyCode,
+                      currentCurrency,
+                      satsEnabled
+                    )}
                     <Text color="light.textColor" style={styles.balanceUnit}>
                       {getUnit(currentCurrency, satsEnabled)}
                     </Text>
@@ -258,6 +278,12 @@ function WalletDetails({ route }) {
   }
 
   function RampBuyContent() {
+    const [buyAddress, setBuyAddress] = useState('');
+    useEffect(() => {
+      const receivingAddress = WalletOperations.getNextFreeAddress(wallets[walletIndex]);
+      setBuyAddress(receivingAddress);
+    }, []);
+
     return (
       <Box style={styles.buyBtcWrapper}>
         <Text color='#073B36' style={styles.buyBtcContent}>
@@ -288,10 +314,10 @@ function WalletDetails({ route }) {
         <Buttons
           secondaryText="Cancel"
           secondaryCallback={() => {
-            setShowBuyRampModal(false)
+            setShowBuyRampModal(false);
           }}
           primaryText="Buy Bitcoin"
-          primaryCallback={() => buyWithRamp(wallets[walletIndex].specs.receivingAddress)}
+          primaryCallback={() => buyWithRamp(buyAddress)}
         />
       </Box>
     );
@@ -299,14 +325,14 @@ function WalletDetails({ route }) {
 
   const buyWithRamp = (address: string) => {
     try {
-      setShowBuyRampModal(false)
+      setShowBuyRampModal(false);
       Linking.openURL(fetchRampReservation({ receiveAddress: address }));
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true)
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
     <ScreenWrapper>
@@ -449,10 +475,7 @@ function WalletDetails({ route }) {
                   Receive
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={onPressBuyBitcoin}
-              >
+              <TouchableOpacity style={styles.IconText} onPress={onPressBuyBitcoin}>
                 <BuyBitcoin />
                 <Text color="light.primaryText" style={styles.footerItemText}>
                   Buy Bitcoin
@@ -483,7 +506,7 @@ function WalletDetails({ route }) {
       <KeeperModal
         visible={showBuyRampModal}
         close={() => {
-          setShowBuyRampModal(false)
+          setShowBuyRampModal(false);
         }}
         title="Buy bitcoin with Ramp"
         subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
