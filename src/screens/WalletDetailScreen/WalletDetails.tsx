@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
-import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, Linking, Platform, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, useColorMode, View } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
@@ -22,6 +22,7 @@ import Arrow from 'src/assets/images/arrow_brown.svg';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
+import MixIcon from 'src/assets/images/icon_mix.svg'
 // data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -57,28 +58,35 @@ const UtxoLabels = [
     {
         id: 1,
         label: 'Work Expenses',
+        type: 0
     },
     {
         id: 2,
-        label: 'Salary Txns',
+        label: 'Wallet',
+        type: 1
     },
     {
         id: 3,
-        label: 'Petty Cash',
+        label: 'Salary Txns',
+        type: 0
     },
     {
         id: 4,
         label: 'Family',
+        type: 0
     },
     {
         id: 5,
         label: 'Personal',
+        type: 0
     },
     {
         id: 6,
         label: 'Traveling',
+        type: 0
     },
 ];
+console.log('windowHeight', windowHeight)
 
 function WalletDetails({ route }) {
     const navigation = useNavigation();
@@ -378,6 +386,7 @@ function WalletDetails({ route }) {
     };
 
     const onPressBuyBitcoin = () => setShowBuyRampModal(true)
+
     const RenderTransactionElement = useCallback(({ item }) => (
         < TouchableOpacity style={styles.utxoCardContainer} onPress={() => {
             if (enableSelection) {
@@ -397,38 +406,43 @@ function WalletDetails({ route }) {
             }
         }}
         >
-            <Box style={styles.utxoCardWrapper}>
-                {enableSelection ? <Box style={[styles.selectionViewWrapper, { width: '7%' }]}>
-                    <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
+            <Box style={styles.utxoInnerView}>
+                {enableSelection ? <Box style={{ width: '7%' }}>
+                    <Box style={styles.selectionViewWrapper}>
+                        <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
+                    </Box>
                 </Box> : null}
-                <Box style={[styles.txIDContainer, { width: enableSelection ? '62%' : '70%', }]}>
+                <Box style={styles.utxoCardWrapper}>
                     <Box style={styles.rowCenter}>
-                        <Text
-                            color={`${colorMode}.GreyText`}
-                            style={styles.transactionIdText}
-                            numberOfLines={1}
-                        >
-                            {item.txId}
-                        </Text>
-                    </Box>
-                    <Box style={[styles.amountWrapper, { width: enableSelection ? '50%' : '45%' }]}>
-                        <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
-                        <Text style={styles.amountText} numberOfLines={1}>
-                            {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-                            <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                                {getUnit(currentCurrency, satsEnabled)}
+                        <Box style={{ width: '60%' }}>
+                            <Text
+                                color={`${colorMode}.GreyText`}
+                                style={styles.transactionIdText}
+                                numberOfLines={1}
+                            >
+                                {item.txId}
                             </Text>
-                        </Text>
+                        </Box>
+                        <Box style={[styles.amountWrapper, { width: '45%' }]}>
+                            <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+                            <Text style={styles.amountText} numberOfLines={1}>
+                                {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                                    {getUnit(currentCurrency, satsEnabled)}
+                                </Text>
+                            </Text>
+                        </Box>
+                    </Box>
+                    <Box style={styles.labelList}>
+                        {UtxoLabels && UtxoLabels.slice(0, 3).map((item) => <Box style={[styles.utxoLabelView, { backgroundColor: item.type === 0 ? '#E3BE96' : '#52C9B2' }]}>
+                            <Text>{item.label}</Text>
+                        </Box>)}
+                        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
+                            <Text>+{UtxoLabels && UtxoLabels.length - 3} more</Text>
+                        </Box>
                     </Box>
                 </Box>
-            </Box>
-            <Box style={styles.labelList}>
-                {UtxoLabels && UtxoLabels.slice(0, 3).map((item) => <Box style={styles.utxoLabelView}>
-                    <Text>{item.label}</Text>
-                </Box>)}
-                <Box style={styles.utxoLabelView}>
-                    <Text>+{UtxoLabels && UtxoLabels.length - 3} more</Text>
-                </Box>
+
             </Box>
         </TouchableOpacity >
     ), [utxoState, enableSelection])
@@ -533,7 +547,7 @@ function WalletDetails({ route }) {
                                 refreshControl={
                                     <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
                                 }
-                                data={transections}
+                                data={transections.concat(transections)}
                                 renderItem={renderTransactionElement}
                                 keyExtractor={(item) => item}
                                 showsVerticalScrollIndicator={false}
@@ -592,14 +606,14 @@ function WalletDetails({ route }) {
                             <Box style={styles.border} borderColor="light.GreyText" />
                             <Box style={styles.footerItemContainer}>
                                 <BottomMenuItem
+                                    onPress={() => { }}
+                                    icon={<MixIcon />}
+                                    title='Mix Selected'
+                                />
+                                <BottomMenuItem
                                     onPress={() => setEnableSelection(!enableSelection)}
                                     icon={<Send />}
                                     title='Send Selected'
-                                />
-                                <BottomMenuItem
-                                    onPress={() => { }}
-                                    icon={<Recieve />}
-                                    title='Mix Selected'
                                 />
                             </Box>
                         </Box>}
@@ -745,14 +759,15 @@ const styles = StyleSheet.create({
         marginRight: wp(2),
     },
     transactionsListContainer: {
-        marginTop: hp(10),
-        height: windowHeight > 800 ? hp(290) : hp(205),
+        paddingVertical: hp(10),
+        height: Platform.OS === 'ios' ? '45%' : '43%',
         position: 'relative',
     },
     footerContainer: {
         position: 'absolute',
-        bottom: 0,
+        bottom: Platform.OS === 'ios' ? 5 : 0,
         width: wp(375),
+        height: '11%',
         paddingHorizontal: 5,
     },
     border: {
@@ -762,8 +777,8 @@ const styles = StyleSheet.create({
     },
     footerItemContainer: {
         flexDirection: 'row',
-        marginTop: windowHeight > 800 ? 15 : 5,
-        marginBottom: windowHeight > 800 ? hp(10) : 0,
+        paddingTop: windowHeight > 850 ? 15 : 5,
+        marginBottom: windowHeight > 850 ? hp(10) : 0,
         justifyContent: 'space-evenly',
         marginHorizontal: 16,
     },
@@ -870,15 +885,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#FDF7F0',
         marginVertical: 5,
         borderRadius: 10,
-        padding: 5,
-        paddingVertical: 10,
+        padding: 6,
+        paddingVertical: 15,
         width: '100%',
     },
     utxoCardWrapper: {
+        width: '90%',
+    },
+    utxoInnerView: {
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center'
-
     },
     selectionViewWrapper: {
         alignItems: 'center',
@@ -886,20 +903,13 @@ const styles = StyleSheet.create({
     selectionView: {
         borderWidth: 1,
         borderColor: 'orange',
-        height: 15,
-        width: 15,
+        height: 20,
+        width: 20,
+        borderRadius: 20,
         alignSelf: 'center',
-    },
-    txIDContainer: {
-        flexDirection: 'row',
-        borderRadius: 10,
-        justifyContent: 'space-between',
-        alignItems: 'center',
     },
     rowCenter: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     amountWrapper: {
         flexDirection: 'row',
@@ -911,10 +921,6 @@ const styles = StyleSheet.create({
         letterSpacing: 0.95,
         marginHorizontal: 3,
         marginRight: 3,
-    },
-    transactionContainer: {
-        // flexDirection: 'row',
-        // margin: 1.5,
     },
     transactionIdText: {
         fontSize: 13,
@@ -929,9 +935,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         width: '100%',
+        paddingTop: 5
     },
     utxoLabelView: {
-        backgroundColor: '#E3BE96',
         padding: 5,
         borderRadius: 5,
         margin: 3,
