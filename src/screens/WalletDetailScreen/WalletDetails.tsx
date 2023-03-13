@@ -46,6 +46,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import MixIcon from 'src/assets/images/icon_mix.svg';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -364,6 +365,10 @@ function WalletDetails({ route }) {
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
+  const onPressMixTxs = () => {
+    navigation.navigate('WhirlpoolConfiguration')
+  }
+
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
@@ -509,6 +514,15 @@ function WalletDetails({ route }) {
                 <BuyBitcoin />
                 <Text color="light.primaryText" style={styles.footerItemText}>
                   Buy Bitcoin
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.IconText}
+                onPress={onPressMixTxs}
+              >
+                <MixIcon />
+                <Text color="light.primaryText" style={styles.footerItemText}>
+                  Mix Txs
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity

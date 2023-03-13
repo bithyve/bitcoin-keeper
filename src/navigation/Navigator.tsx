@@ -75,6 +75,9 @@ import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import Login from '../screens/LoginScreen/Login';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
+import PoolSelection from 'src/screens/Mix/PoolSelection';
+import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
+import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -194,6 +197,9 @@ function AppStack() {
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
+        <Stack.Screen name="PoolSelection" component={PoolSelection} />
+        <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
+        <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -216,7 +222,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />
