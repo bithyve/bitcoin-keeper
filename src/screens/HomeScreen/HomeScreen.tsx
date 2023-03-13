@@ -50,6 +50,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
+import useWallets from 'src/hooks/useWallets';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -96,9 +97,8 @@ function InheritanceComponent() {
 
 function LinkedWallets(props) {
   const navigation = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const dispatch = useDispatch();
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -212,6 +212,7 @@ function VaultStatus(props) {
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
       .filter((vault) => !vault.archived)[0] || [];
+
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },

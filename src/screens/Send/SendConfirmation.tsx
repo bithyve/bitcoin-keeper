@@ -47,6 +47,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import useWallets from 'src/hooks/useWallets';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -89,7 +90,7 @@ function SendConfirmation({ route }) {
 
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { wallets } = useWallets();
   const sourceWallet = wallets.find((item) => item.id === walletId);
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)

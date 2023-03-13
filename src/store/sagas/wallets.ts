@@ -5,6 +5,7 @@
 import {
   DerivationPurpose,
   EntityKind,
+  NetworkType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
@@ -40,6 +41,7 @@ import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { generateKey } from 'src/core/services/operations/encryption';
+import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -61,6 +63,7 @@ import {
   walletSettingsUpdated,
   UPDATE_SIGNER_DETAILS,
   UPDATE_WALLET_PROPERTY,
+  ADD_WHIRLPOOL_WALLETS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -78,6 +81,7 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
+import { getDerivationPath } from 'src/core/utils';
 
 export interface NewVaultDetails {
   name?: string;
@@ -93,7 +97,9 @@ export interface NewWalletDetails {
   name?: string;
   description?: string;
   derivationConfig?: DerivationConfig;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
+  instanceNum?: number;
+  parentMnemonic?: string;
 }
 
 export interface NewWalletInfo {
@@ -101,6 +107,58 @@ export interface NewWalletInfo {
   walletDetails?: NewWalletDetails;
   importDetails?: WalletImportDetails;
 }
+
+export function* addWhirlpoolWalletsWatcher({
+  payload,
+}: {
+  payload: {
+    depositWallet: Wallet;
+  };
+}) {
+  const { depositWallet } = payload;
+  const instanceNum = depositWallet.derivationDetails.instanceNum;
+
+  const preMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.PRE_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483645),
+      },
+    },
+  };
+  const postMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.POST_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483646),
+      },
+    },
+  };
+  const badBankWalletInfo: NewWalletInfo = {
+    walletType: WalletType.BAD_BANK,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483644),
+      },
+    },
+  };
+  const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
+  yield call(addNewWalletsWorker, { payload: newWalletsInfo });
+}
+
+export const addWhirlpoolWalletsWorker = createWatcher(
+  addWhirlpoolWalletsWatcher,
+  ADD_WHIRLPOOL_WALLETS
+);
 
 function* addNewWallet(
   walletType: WalletType,
@@ -114,6 +172,8 @@ function* addNewWallet(
     description: walletDescription,
     derivationConfig,
     transferPolicy,
+    instanceNum,
+    parentMnemonic,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
@@ -151,6 +211,43 @@ function* addNewWallet(
         transferPolicy,
       });
       return importedWallet;
+
+    //Whirpool wallet types premix,postmix, badbank
+    case WalletType.PRE_MIX:
+      const preMixWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.PRE_MIX,
+        instanceNum, //deposit account's index
+        walletName: 'Pre mix Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        networkType: config.NETWORK_TYPE,
+        parentMnemonic,
+      });
+      return preMixWallet;
+
+    case WalletType.POST_MIX:
+      const postMixWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.POST_MIX,
+        instanceNum, //deposit account's index
+        walletName: 'Post mix Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        networkType: config.NETWORK_TYPE,
+        parentMnemonic,
+      });
+      return postMixWallet;
+
+    case WalletType.BAD_BANK:
+      const badBankWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.BAD_BANK,
+        instanceNum, //deposit account's index
+        walletName: 'Bad Bank Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        networkType: config.NETWORK_TYPE,
+        parentMnemonic,
+      });
+      return badBankWallet;
 
     default:
       throw new Error(`Unsupported wallet-type ${walletType}`);
@@ -367,12 +464,24 @@ function* syncWalletsWorker({
   const { wallets } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
-  const { synchedWallets } = yield call(
+  const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(
     WalletOperations.syncWalletsViaElectrumClient,
     wallets,
     network
   );
-
+  for (const wallet of synchedWallets) {
+    const allUTXOs = wallet.specs.confirmedUTXOs.concat(wallet.specs.unconfirmedUTXOs);
+    for (const utxo of allUTXOs) {
+      const utxoId = `${utxo.txId}${utxo.vout}`;
+      const utxoInfo: UTXOInfo = {
+        id: utxoId,
+        txId: utxo.txId,
+        vout: utxo.vout,
+        walletId: wallet.id,
+      };
+      dbManager.createObject(RealmSchema.UTXOInfo, utxoInfo);
+    }
+  }
   return {
     synchedWallets,
   };

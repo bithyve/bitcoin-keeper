@@ -8,6 +8,10 @@ import {
   WalletSchema,
   WalletSpecsSchema,
   TransferPolicySchema,
+  WhirlpoolConfigSchema,
+  WhirlpoolWalletDetailsSchema,
+  LabelSchema,
+  UTXOInfoSchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -33,6 +37,8 @@ export default [
   WalletPresentationDataSchema,
   BIP85ConfigSchema,
   UTXOSchema,
+  UTXOInfoSchema,
+  LabelSchema,
   TransactionSchema,
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
@@ -48,4 +54,6 @@ export default [
   VersionHistorySchema,
   BackupHistorySchema,
   NodeConnectSchema,
+  WhirlpoolConfigSchema,
+  WhirlpoolWalletDetailsSchema,
 ];
