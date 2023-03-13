@@ -64,6 +64,7 @@ function WalletDetails({ route }) {
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+  const [selectAccount, setselectAccount] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
 
@@ -137,35 +138,128 @@ function WalletDetails({ route }) {
               </Text>
             </TouchableOpacity>
           ) : (
-            <Box>
-              <Box style={styles.walletCard}>
-                <Box style={styles.walletInnerView}>
-                  <GradientIcon
-                    Icon={WalletInsideGreen}
-                    height={35}
-                    gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-                  />
-                  <Box
-                    style={{
-                      marginLeft: 10,
-                    }}
-                  >
-                    <Text color="light.white" style={styles.walletName}>
-                      {walletName}
-                    </Text>
-                    <Text
-                      color="light.white"
-                      style={styles.walletDescription}
-                      ellipsizeMode="tail"
-                      numberOfLines={1}
+            true ?
+              <Box>
+                <Box style={{ ...styles.walletCard, height: wp(40) }}>
+                  <Box style={styles.walletInnerView}>
+                    <GradientIcon
+                      Icon={WalletInsideGreen}
+                      height={35}
+                      gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+                    />
+                    <Box
+                      style={{
+                        marginLeft: 10,
+                      }}
                     >
-                      {walletDescription}
+                      <Text color="light.white" style={styles.walletName}>
+                        {walletName}
+                      </Text>
+                      <Text
+                        color="light.white"
+                        style={styles.walletDescription}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                      >
+                        {walletDescription}
+                      </Text>
+                    </Box>
+                  </Box>
+
+                </Box>
+
+                <Pressable style={{
+                  marginTop: hp(20),
+                  paddingHorizontal: wp(15),
+                  paddingVertical: hp(10),
+                  height: hp(55),
+                  width: wp(270),
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  borderRadius: hp(5),
+                }}
+                  backgroundColor="light.Glass"
+                  onPress={() => setselectAccount(true)}
+                >
+                  <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Text color="light.white" style={{ fontSize: 13, letterSpacing: 1 }}>
+                      PerMix Account
                     </Text>
+                    <Box>
+                      <Box flexDirection={'row'}>
+                        <Box
+                          style={{
+                            marginRight: 3, marginTop: 3
+                          }}
+                        >
+                          {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+                        </Box>
+                        <Text color="light.white" style={{ fontSize: 20, letterSpacing: 1 }}>
+                          0.000024
+                        </Text>
+                      </Box>
+                      <Text color="light.white" style={{ fontSize: 13, letterSpacing: 1 }}>
+                        Unconfirmed 0.00050
+                      </Text>
+                    </Box>
+                  </Box>
+                </Pressable>
+              </Box>
+              :
+              <Box>
+                <Box style={styles.walletCard}>
+                  <Box style={styles.walletInnerView}>
+                    <GradientIcon
+                      Icon={WalletInsideGreen}
+                      height={35}
+                      gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+                    />
+                    <Box
+                      style={{
+                        marginLeft: 10,
+                      }}
+                    >
+                      <Text color="light.white" style={styles.walletName}>
+                        {walletName}
+                      </Text>
+                      <Text
+                        color="light.white"
+                        style={styles.walletDescription}
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
+                      >
+                        {walletDescription}
+                      </Text>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Text color="light.white" style={styles.unconfirmedText}>
+                      Unconfirmed
+                    </Text>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Box
+                        style={{
+                          marginRight: 3,
+                        }}
+                      >
+                        {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+                      </Box>
+                      <Text color="light.white" style={styles.unconfirmedBalance}>
+                        {getAmt(
+                          balances?.unconfirmed,
+                          exchangeRates,
+                          currencyCode,
+                          currentCurrency,
+                          satsEnabled
+                        )}
+                      </Text>
+                    </Box>
                   </Box>
                 </Box>
-                <Box>
-                  <Text color="light.white" style={styles.unconfirmedText}>
-                    Unconfirmed
+
+                <Box style={styles.walletBalance}>
+                  <Text color="light.white" style={styles.walletName}>
+                    Available Balance
                   </Text>
                   <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Box
@@ -175,46 +269,21 @@ function WalletDetails({ route }) {
                     >
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
-                    <Text color="light.white" style={styles.unconfirmedBalance}>
+                    <Text color="light.white" style={styles.availableBalance}>
                       {getAmt(
-                        balances?.unconfirmed,
+                        walletBalance,
                         exchangeRates,
                         currencyCode,
                         currentCurrency,
                         satsEnabled
                       )}
+                      <Text color="light.textColor" style={styles.balanceUnit}>
+                        {getUnit(currentCurrency, satsEnabled)}
+                      </Text>
                     </Text>
                   </Box>
                 </Box>
               </Box>
-
-              <Box style={styles.walletBalance}>
-                <Text color="light.white" style={styles.walletName}>
-                  Available Balance
-                </Text>
-                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Box
-                    style={{
-                      marginRight: 3,
-                    }}
-                  >
-                    {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
-                  </Box>
-                  <Text color="light.white" style={styles.availableBalance}>
-                    {getAmt(
-                      walletBalance,
-                      exchangeRates,
-                      currencyCode,
-                      currentCurrency,
-                      satsEnabled
-                    )}
-                    <Text color="light.textColor" style={styles.balanceUnit}>
-                      {getUnit(currentCurrency, satsEnabled)}
-                    </Text>
-                  </Text>
-                </Box>
-              </Box>
-            </Box>
           )}
         </Box>
       </Shadow>
@@ -271,6 +340,67 @@ function WalletDetails({ route }) {
           When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This
           ensures you don’t have more sats in hot wallets than you need.
         </Text>
+      </View>
+    );
+  }
+  const AccountComponent = ({ title, balance, onPress }) => {
+    return (
+      <Pressable style={{
+        marginTop: hp(20),
+        paddingHorizontal: wp(15),
+        paddingVertical: hp(10),
+        height: hp(55),
+        width: wp(270),
+        alignSelf: 'center',
+        justifyContent: 'center',
+        borderRadius: hp(5),
+      }}
+        backgroundColor="light.lightAccent"
+        onPress={onPress}
+      >
+        <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ fontSize: 13, letterSpacing: 1 }}>
+            {title}
+          </Text>
+          <Box flexDirection={'row'}>
+            <Box
+              style={{
+                marginRight: 3, marginTop: 3
+              }}
+            >
+              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+            </Box>
+            <Text style={{ fontSize: 20, letterSpacing: 1 }}>
+              {balance}
+            </Text>
+          </Box>
+        </Box>
+      </Pressable>
+    );
+  }
+
+  function SelectAccountContent() {
+    return (
+      <View >
+        <AccountComponent
+          title={'Deposit'}
+          balance={'0.000024'}
+          onPress={() => { }} />
+
+        <AccountComponent
+          title={'PreMix Account'}
+          balance={'0.000024'}
+          onPress={() => { }} />
+
+        <AccountComponent
+          title={'PostMix Account'}
+          balance={'0.000024'}
+          onPress={() => { }} />
+
+        <AccountComponent
+          title={'Bad bank Account'}
+          balance={'0.000024'}
+          onPress={() => { }} />
       </View>
     );
   }
@@ -557,6 +687,15 @@ function WalletDetails({ route }) {
         DarkCloseIcon
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+      />
+      <KeeperModal
+        visible={selectAccount}
+        close={() => {
+          setselectAccount(false)
+        }}
+        title="Select Account"
+        subTitle="Select Account Type"
+        Content={SelectAccountContent}
       />
     </ScreenWrapper>
   );
