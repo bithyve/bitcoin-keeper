@@ -49,6 +49,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import MixIcon from 'src/assets/images/icon_mix.svg';
 import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
 import WalletDetailsTabView from './WalletDetailsTabView';
@@ -378,6 +379,7 @@ function WalletDetails({ route }) {
             console.log(error);
         }
     };
+
 
     const onPressBuyBitcoin = () => setShowBuyRampModal(true)
     const RenderTransactionElement = useCallback(({ item }) => (
