@@ -935,6 +935,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         width: '100%',
+        paddingTop: 5
     },
     utxoLabelView: {
         padding: 5,
