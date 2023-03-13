@@ -50,6 +50,8 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { UTXO } from 'src/core/wallets/interfaces';
 import _ from 'lodash';
+import BottomTabView from 'src/components/BottomTab/BottomTabView';
+import WalletDetailsTabView from './WalletDetailsTabView';
 
 const UtxoLabels = [
   {
@@ -396,22 +398,20 @@ function WalletDetails({ route }) {
     }}
     >
       <Box style={styles.utxoCardWrapper}>
-        {enableSelection && <Box style={styles.selectionViewWrapper}>
+        {enableSelection ? <Box style={[styles.selectionViewWrapper, { width: '7%' }]}>
           <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
-        </Box>}
-        <Box style={styles.txIDContainer}>
+        </Box> : null}
+        <Box style={[styles.txIDContainer, { width: enableSelection ? '62%' : '70%', }]}>
           <Box style={styles.rowCenter}>
-            <Box style={styles.transactionContainer}>
-              <Text
-                color={`${colorMode}.GreyText`}
-                style={styles.transactionIdText}
-                numberOfLines={1}
-              >
-                {item.txId}
-              </Text>
-            </Box>
+            <Text
+              color={`${colorMode}.GreyText`}
+              style={styles.transactionIdText}
+              numberOfLines={1}
+            >
+              {item.txId}
+            </Text>
           </Box>
-          <Box style={styles.amountWrapper}>
+          <Box style={[styles.amountWrapper, { width: enableSelection ? '50%' : '45%' }]}>
             <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
             <Text style={styles.amountText} numberOfLines={1}>
               {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
@@ -524,17 +524,9 @@ function WalletDetails({ route }) {
               </Box>
             </Pressable>
           </Box>
-          <Box style={styles.tabWrapper}>
-            <TouchableOpacity style={styles.transTabWrapper} onPress={() => setTab('Transactions')}>
-              <Text>Transactions</Text>
-            </TouchableOpacity>
-            <Box style={{ width: '4%' }}>
-              <Text style={styles.verticalDash}>|</Text>
-            </Box>
-            <TouchableOpacity style={styles.utxoTabWrapper} onPress={() => setTab('UTXOs')}>
-              <Text>UTXOs</Text>
-            </TouchableOpacity>
-          </Box>
+          {/* tabview */}
+          <WalletDetailsTabView setActiveTab={(value) => setTab(value)} />
+          {/* end */}
           <Box style={styles.transactionsListContainer}>
             {tab === 'Transactions' ? (
               <FlatList
@@ -569,7 +561,7 @@ function WalletDetails({ route }) {
               />
             )}
           </Box>
-          {/*  */}
+          {/* bottom tabs */}
           {tab === 'Transactions' ? <Box style={styles.footerContainer}>
             <Box style={styles.border} borderColor="light.GreyText" />
             <Box style={styles.footerItemContainer}>
@@ -642,6 +634,9 @@ function WalletDetails({ route }) {
                 </TouchableOpacity>
               </Box>
             </Box>}
+          {/* <Box style={styles.footerContainer}>
+            <BottomTabView />
+          </Box> */}
         </>
       ) : (
         <Box style={styles.addNewWalletContainer}>
@@ -777,12 +772,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  tabWrapper: {
-    flexDirection: 'row',
-    padding: 12,
-    marginTop: hp(20),
-    width: '100%',
-  },
+
   viewAllContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -909,32 +899,22 @@ const styles = StyleSheet.create({
   addressTextView: {
     width: wp(180),
   },
-  transTabWrapper: {
-    width: '48%',
-  },
-  utxoTabWrapper: {
-    width: '48%',
-    alignItems: 'flex-end',
-  },
-  verticalDash: {
-    color: '#E3BE96',
-    fontSize: 16,
-  },
   //
   utxoCardContainer: {
     backgroundColor: '#FDF7F0',
     marginVertical: 5,
     borderRadius: 10,
-    padding: 10,
-    width: '99%',
+    padding: 5,
+    paddingVertical: 10,
+    width: '100%',
   },
   utxoCardWrapper: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: '100%',
+    alignItems: 'center'
+
   },
   selectionViewWrapper: {
-    width: '8%',
     alignItems: 'center',
   },
   selectionView: {
@@ -949,7 +929,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '55%',
   },
   rowCenter: {
     flexDirection: 'row',
@@ -960,7 +939,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    width: '39%',
   },
   amountText: {
     fontSize: 19,
@@ -969,8 +947,8 @@ const styles = StyleSheet.create({
     marginRight: 3,
   },
   transactionContainer: {
-    flexDirection: 'row',
-    margin: 1.5,
+    // flexDirection: 'row',
+    // margin: 1.5,
   },
   transactionIdText: {
     fontSize: 13,
@@ -985,8 +963,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     width: '100%',
-    marginTop: 5,
-    marginLeft: 20,
   },
   utxoLabelView: {
     backgroundColor: '#E3BE96',
