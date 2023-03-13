@@ -530,9 +530,6 @@ function WalletDetails({ route }) {
                     <Box style={styles.transactionsListContainer}>
                         {tab === 'Transactions' ? (
                             <FlatList
-                                // style={{
-                                //     paddingBottom: '20%',
-                                // }}
                                 refreshControl={
                                     <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
                                 }
