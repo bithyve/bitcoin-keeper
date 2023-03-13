@@ -129,7 +129,7 @@ export interface UTXOInfo {
   txId: string;
   vout: number;
   walletId: string;
-  labels: Array<{ name: string; type: LabelType }>;
+  labels?: Array<{ name: string; type: LabelType }>;
 }
 
 export interface BIP85Config {
