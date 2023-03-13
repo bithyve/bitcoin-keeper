@@ -50,6 +50,7 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { UTXO } from 'src/core/wallets/interfaces';
 import _ from 'lodash';
+import WalletOperations from 'src/core/wallets/operations';
 
 const UtxoLabels = [
   {
@@ -105,13 +106,17 @@ function WalletDetails({ route }) {
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
   const utxos = _.clone(currentWallet && currentWallet.specs && currentWallet.specs.confirmedUTXOs);
-  const [selectionTotal, setSelectionTotal] = useState(0)
-  const [utxoState, setUtxoState] = useState(utxos && utxos.map((utxo) => {
-    utxo.selected = false
-    return utxo
-  }) || [])
+  const [selectionTotal, setSelectionTotal] = useState(0);
+  const [utxoState, setUtxoState] = useState(
+    (utxos &&
+      utxos.map((utxo) => {
+        utxo.selected = false;
+        return utxo;
+      })) ||
+      []
+  );
 
-  const [enableSelection, setEnableSelection] = useState(false)
+  const [enableSelection, setEnableSelection] = useState(false);
   const { autoRefresh } = route?.params || {};
 
   useEffect(() => {
@@ -317,6 +322,12 @@ function WalletDetails({ route }) {
   }
 
   function RampBuyContent() {
+    const [buyAddress, setBuyAddress] = useState('');
+    useEffect(() => {
+      const receivingAddress = WalletOperations.getNextFreeAddress(wallets[walletIndex]);
+      setBuyAddress(receivingAddress);
+    }, []);
+
     return (
       <Box style={styles.buyBtcWrapper}>
         <Text color="#073B36" style={styles.buyBtcContent}>
@@ -350,7 +361,7 @@ function WalletDetails({ route }) {
               letterSpacing={1.28}
               color="#041513"
             >
-              {wallets[walletIndex].specs.receivingAddress}
+              {buyAddress}
             </Text>
           </Box>
         </Box>
@@ -360,7 +371,7 @@ function WalletDetails({ route }) {
             setShowBuyRampModal(false);
           }}
           primaryText="Buy Bitcoin"
-          primaryCallback={() => buyWithRamp(wallets[walletIndex].specs.receivingAddress)}
+          primaryCallback={() => buyWithRamp(buyAddress)}
         />
       </Box>
     );
@@ -375,63 +386,78 @@ function WalletDetails({ route }) {
     }
   };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true)
-  const RenderTransactionElement = useCallback(({ item }) => (
-    < TouchableOpacity style={styles.utxoCardContainer} onPress={() => {
-      if (enableSelection) {
-        let utxoSum = selectionTotal;
-        setUtxoState(utxoState.map(utxo => {
-          if (utxo.txId === item.txId) {
-            utxoSum = utxo.selected ? utxoSum - utxo.value : utxoSum + utxo.value
-            return { ...utxo, selected: !utxo.selected }
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const RenderTransactionElement = useCallback(
+    ({ item }) => (
+      <TouchableOpacity
+        style={styles.utxoCardContainer}
+        onPress={() => {
+          if (enableSelection) {
+            let utxoSum = selectionTotal;
+            setUtxoState(
+              utxoState.map((utxo) => {
+                if (utxo.txId === item.txId) {
+                  utxoSum = utxo.selected ? utxoSum - utxo.value : utxoSum + utxo.value;
+                  return { ...utxo, selected: !utxo.selected };
+                }
+                return utxo;
+              })
+            );
+            setSelectionTotal(utxoSum);
+          } else {
+            navigation.dispatch(CommonActions.navigate('UtxoLabeling'));
           }
-          return utxo
-        }))
-        setSelectionTotal(utxoSum)
-      } else {
-        navigation.dispatch(
-          CommonActions.navigate('UtxoLabeling')
-        );
-      }
-    }}
-    >
-      <Box style={styles.utxoCardWrapper}>
-        {enableSelection && <Box style={styles.selectionViewWrapper}>
-          <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
-        </Box>}
-        <Box style={styles.txIDContainer}>
-          <Box style={styles.rowCenter}>
-            <Box style={styles.transactionContainer}>
-              <Text
-                color={`${colorMode}.GreyText`}
-                style={styles.transactionIdText}
-                numberOfLines={1}
-              >
-                {item.txId}
+        }}
+      >
+        <Box style={styles.utxoCardWrapper}>
+          {enableSelection && (
+            <Box style={styles.selectionViewWrapper}>
+              <Box
+                style={[
+                  styles.selectionView,
+                  { backgroundColor: item.selected ? 'orange' : 'white' },
+                ]}
+              />
+            </Box>
+          )}
+          <Box style={styles.txIDContainer}>
+            <Box style={styles.rowCenter}>
+              <Box style={styles.transactionContainer}>
+                <Text
+                  color={`${colorMode}.GreyText`}
+                  style={styles.transactionIdText}
+                  numberOfLines={1}
+                >
+                  {item.txId}
+                </Text>
+              </Box>
+            </Box>
+            <Box style={styles.amountWrapper}>
+              <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+              <Text style={styles.amountText} numberOfLines={1}>
+                {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                  {getUnit(currentCurrency, satsEnabled)}
+                </Text>
               </Text>
             </Box>
           </Box>
-          <Box style={styles.amountWrapper}>
-            <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
-            <Text style={styles.amountText} numberOfLines={1}>
-              {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-              <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                {getUnit(currentCurrency, satsEnabled)}
-              </Text>
-            </Text>
+        </Box>
+        <Box style={styles.labelList}>
+          {UtxoLabels &&
+            UtxoLabels.slice(0, 3).map((item) => (
+              <Box style={styles.utxoLabelView}>
+                <Text>{item.label}</Text>
+              </Box>
+            ))}
+          <Box style={styles.utxoLabelView}>
+            <Text>+{UtxoLabels && UtxoLabels.length - 3} more</Text>
           </Box>
         </Box>
-      </Box>
-      <Box style={styles.labelList}>
-        {UtxoLabels && UtxoLabels.slice(0, 3).map((item) => <Box style={styles.utxoLabelView}>
-          <Text>{item.label}</Text>
-        </Box>)}
-        <Box style={styles.utxoLabelView}>
-          <Text>+{UtxoLabels && UtxoLabels.length - 3} more</Text>
-        </Box>
-      </Box>
-    </TouchableOpacity >
-  ), [utxoState, enableSelection])
+      </TouchableOpacity>
+    ),
+    [utxoState, enableSelection]
+  );
 
   return (
     <ScreenWrapper>
@@ -570,58 +596,59 @@ function WalletDetails({ route }) {
             )}
           </Box>
           {/*  */}
-          {tab === 'Transactions' ? <Box style={styles.footerContainer}>
-            <Box style={styles.border} borderColor="light.GreyText" />
-            <Box style={styles.footerItemContainer}>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={() => {
-                  navigation.navigate('Send', { sender: currentWallet });
-                }}
-              >
-                <Send />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Send
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={() => {
-                  navigation.navigate('Receive', { wallet: currentWallet });
-                }}
-              >
-                <Recieve />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Receive
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.IconText} onPress={onPressBuyBitcoin}>
-                <BuyBitcoin />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Buy Bitcoin
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={() => {
-                  navigation.navigate('WalletSettings', { wallet: currentWallet });
-                }}
-              >
-                <IconSettings />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Settings
-                </Text>
-              </TouchableOpacity>
-            </Box>
-          </Box>
-            :
+          {tab === 'Transactions' ? (
             <Box style={styles.footerContainer}>
               <Box style={styles.border} borderColor="light.GreyText" />
               <Box style={styles.footerItemContainer}>
                 <TouchableOpacity
                   style={styles.IconText}
                   onPress={() => {
-                    setEnableSelection(!enableSelection)
+                    navigation.navigate('Send', { sender: currentWallet });
+                  }}
+                >
+                  <Send />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Send
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.IconText}
+                  onPress={() => {
+                    navigation.navigate('Receive', { wallet: currentWallet });
+                  }}
+                >
+                  <Recieve />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Receive
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.IconText} onPress={onPressBuyBitcoin}>
+                  <BuyBitcoin />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Buy Bitcoin
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.IconText}
+                  onPress={() => {
+                    navigation.navigate('WalletSettings', { wallet: currentWallet });
+                  }}
+                >
+                  <IconSettings />
+                  <Text color="light.primaryText" style={styles.footerItemText}>
+                    Settings
+                  </Text>
+                </TouchableOpacity>
+              </Box>
+            </Box>
+          ) : (
+            <Box style={styles.footerContainer}>
+              <Box style={styles.border} borderColor="light.GreyText" />
+              <Box style={styles.footerItemContainer}>
+                <TouchableOpacity
+                  style={styles.IconText}
+                  onPress={() => {
+                    setEnableSelection(!enableSelection);
                   }}
                 >
                   <Send />
@@ -629,19 +656,15 @@ function WalletDetails({ route }) {
                     Send Selected
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.IconText}
-                  onPress={() => {
-
-                  }}
-                >
+                <TouchableOpacity style={styles.IconText} onPress={() => {}}>
                   <Recieve />
                   <Text color="light.primaryText" style={styles.footerItemText}>
                     Mix Selected
                   </Text>
                 </TouchableOpacity>
               </Box>
-            </Box>}
+            </Box>
+          )}
         </>
       ) : (
         <Box style={styles.addNewWalletContainer}>

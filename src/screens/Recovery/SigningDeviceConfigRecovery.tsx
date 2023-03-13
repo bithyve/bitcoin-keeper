@@ -219,7 +219,7 @@ function SigningDeviceConfigRecovery({ navigation }) {
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">
-          {[SignerType.COLDCARD, SignerType.PASSPORT].map((type: SignerType, index: number) => {
+          {[SignerType.COLDCARD].map((type: SignerType, index: number) => {
             const { disabled, message } = getDeviceStatus(
               type,
               isNfcSupported,
