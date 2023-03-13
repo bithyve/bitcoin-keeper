@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
-import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, Linking, Platform, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, useColorMode, View } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
@@ -86,6 +86,7 @@ const UtxoLabels = [
         type: 0
     },
 ];
+console.log('windowHeight', windowHeight)
 
 function WalletDetails({ route }) {
     const navigation = useNavigation();
@@ -546,7 +547,7 @@ function WalletDetails({ route }) {
                                 refreshControl={
                                     <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
                                 }
-                                data={transections}
+                                data={transections.concat(transections)}
                                 renderItem={renderTransactionElement}
                                 keyExtractor={(item) => item}
                                 showsVerticalScrollIndicator={false}
@@ -758,14 +759,15 @@ const styles = StyleSheet.create({
         marginRight: wp(2),
     },
     transactionsListContainer: {
-        marginTop: hp(10),
-        height: windowHeight > 800 ? hp(290) : hp(205),
+        paddingVertical: hp(10),
+        height: Platform.OS === 'ios' ? '45%' : '43%',
         position: 'relative',
     },
     footerContainer: {
         position: 'absolute',
-        bottom: 0,
+        bottom: Platform.OS === 'ios' ? 5 : 0,
         width: wp(375),
+        height: '11%',
         paddingHorizontal: 5,
     },
     border: {
@@ -775,8 +777,8 @@ const styles = StyleSheet.create({
     },
     footerItemContainer: {
         flexDirection: 'row',
-        marginTop: windowHeight > 800 ? 15 : 5,
-        marginBottom: windowHeight > 800 ? hp(10) : 0,
+        paddingTop: windowHeight > 850 ? 15 : 5,
+        marginBottom: windowHeight > 850 ? hp(10) : 0,
         justifyContent: 'space-evenly',
         marginHorizontal: 16,
     },
