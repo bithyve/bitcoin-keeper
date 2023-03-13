@@ -19,6 +19,7 @@ import BuyBitcoin from 'src/assets/images/icon_buy.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
 import Arrow from 'src/assets/images/arrow_brown.svg';
+import Selected from 'src/assets/images/selected.svg'
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
@@ -409,7 +410,8 @@ function WalletDetails({ route }) {
             <Box style={styles.utxoInnerView}>
                 {enableSelection ? <Box style={{ width: '7%' }}>
                     <Box style={styles.selectionViewWrapper}>
-                        <Box style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]} />
+                        {item.selected ? <Selected /> : <Box style={[styles.selectionView, { backgroundColor: 'white' }]} />}
+
                     </Box>
                 </Box> : null}
                 <Box style={styles.utxoCardWrapper}>
