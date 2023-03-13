@@ -405,7 +405,7 @@ function WalletDetails({ route }) {
             );
             setSelectionTotal(utxoSum);
           } else {
-            navigation.dispatch(CommonActions.navigate('UtxoLabeling'));
+            navigation.dispatch(CommonActions.navigate('UTXOLabeling', { utxo: item }));
           }
         }}
       >

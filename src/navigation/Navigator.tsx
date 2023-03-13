@@ -75,7 +75,7 @@ import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigura
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
-import UtxoLabeling from 'src/screens/UTXOManagement/UtxoLabeling';
+import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -157,7 +157,7 @@ function AppStack() {
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
-        <Stack.Screen name="UtxoLabeling" component={UtxoLabeling} />
+        <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
         <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
@@ -220,7 +220,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />
