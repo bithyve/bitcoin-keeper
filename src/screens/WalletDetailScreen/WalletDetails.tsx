@@ -19,6 +19,10 @@ import LinearGradient from 'src/components/KeeperGradient';
 import Arrow from 'src/assets/images/arrow_brown.svg';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
+import PreMix from 'src/assets/images/icon_premix.svg';
+import PostMix from 'src/assets/images/icon_postmix.svg';
+import BadBank from 'src/assets/images/icon_badbank.svg';
+import Deposit from 'src/assets/images/icon_deposit.svg';
 // data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -182,9 +186,12 @@ function WalletDetails({ route }) {
                   onPress={() => setselectAccount(true)}
                 >
                   <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Text color="light.white" style={{ fontSize: 13, letterSpacing: 1 }}>
-                      PerMix Account
-                    </Text>
+                    <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <PreMix />
+                      <Text color="light.white" style={{ fontSize: 13, letterSpacing: 1, marginLeft: wp(10) }}>
+                        PerMix Account
+                      </Text>
+                    </Box>
                     <Box>
                       <Box flexDirection={'row'}>
                         <Box
@@ -343,7 +350,7 @@ function WalletDetails({ route }) {
       </View>
     );
   }
-  const AccountComponent = ({ title, balance, onPress }) => {
+  const AccountComponent = ({ title, balance, onPress, icon }) => {
     return (
       <Pressable style={{
         marginTop: hp(20),
@@ -359,9 +366,12 @@ function WalletDetails({ route }) {
         onPress={onPress}
       >
         <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ fontSize: 13, letterSpacing: 1 }}>
-            {title}
-          </Text>
+          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+            {icon}
+            <Text style={{ fontSize: 13, letterSpacing: 1, marginLeft: wp(10) }}>
+              {title}
+            </Text>
+          </Box>
           <Box flexDirection={'row'}>
             <Box
               style={{
@@ -385,22 +395,26 @@ function WalletDetails({ route }) {
         <AccountComponent
           title={'Deposit'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<Deposit />} />
 
         <AccountComponent
           title={'PreMix Account'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<PreMix />} />
 
         <AccountComponent
           title={'PostMix Account'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<PostMix />} />
 
         <AccountComponent
           title={'Bad bank Account'}
           balance={'0.000024'}
-          onPress={() => { }} />
+          onPress={() => { }}
+          icon={<BadBank />} />
       </View>
     );
   }
