@@ -98,6 +98,7 @@ export interface NewWalletDetails {
   derivationConfig?: DerivationConfig;
   transferPolicy?: TransferPolicy;
   instanceNum?: number;
+  parentMnemonic?: string;
 }
 
 export interface NewWalletInfo {
@@ -119,6 +120,7 @@ export function* addWhirlpoolWalletsWatcher({
   const preMixWalletInfo: NewWalletInfo = {
     walletType: WalletType.PRE_MIX,
     walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
@@ -129,6 +131,7 @@ export function* addWhirlpoolWalletsWatcher({
   const postMixWalletInfo: NewWalletInfo = {
     walletType: WalletType.POST_MIX,
     walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
@@ -137,8 +140,9 @@ export function* addWhirlpoolWalletsWatcher({
     },
   };
   const badBankWalletInfo: NewWalletInfo = {
-    walletType: WalletType.POST_MIX,
+    walletType: WalletType.BAD_BANK,
     walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
@@ -168,6 +172,7 @@ function* addNewWallet(
     derivationConfig,
     transferPolicy,
     instanceNum,
+    parentMnemonic,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
@@ -214,20 +219,20 @@ function* addNewWallet(
         walletName: 'Pre mix Wallet',
         walletDescription: 'Bitcoin Wallet',
         derivationConfig,
-        primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        parentMnemonic,
       });
       return preMixWallet;
 
     case WalletType.POST_MIX:
       const postMixWallet: Wallet = yield call(generateWallet, {
-        type: WalletType.PRE_MIX,
+        type: WalletType.POST_MIX,
         instanceNum, //deposit account's index
         walletName: 'Post mix Wallet',
         walletDescription: 'Bitcoin Wallet',
         derivationConfig,
-        primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        parentMnemonic,
       });
       return postMixWallet;
 
@@ -238,8 +243,8 @@ function* addNewWallet(
         walletName: 'Bad Bank Wallet',
         walletDescription: 'Bitcoin Wallet',
         derivationConfig,
-        primaryMnemonic,
         networkType: config.NETWORK_TYPE,
+        parentMnemonic,
       });
       return badBankWallet;
 
