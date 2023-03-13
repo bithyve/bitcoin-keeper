@@ -227,7 +227,7 @@ function LoginScreen({ navigation, route }) {
         return loginData.title;
       }
       if (torStatus === TorStatus.ERROR) {
-        return 'Error'
+        return 'Error';
       }
       return 'Connecting to Tor ';
     }
@@ -240,7 +240,7 @@ function LoginScreen({ navigation, route }) {
         return loginData.subTitle;
       }
       if (torStatus === TorStatus.ERROR) {
-        return 'Failed to connect to tor'
+        return 'Failed to connect to tor';
       }
       return 'Network calls and some functions may work slower when the Tor is enabled  ';
     }
@@ -256,9 +256,9 @@ function LoginScreen({ navigation, route }) {
         if (torStatus === TorStatus.ERROR) {
           return 'Login w/o tor';
         }
-        return null
+        return null;
       }
-      return "Next";
+      return 'Next';
     }
     return null;
   }, [torEnbled, torStatus, isAuthenticated]);
@@ -334,7 +334,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
           </Box>
 
-          <HStack justifyContent="space-between" mr={10} paddingTop="1">
+          {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
             <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
@@ -345,7 +345,7 @@ function LoginScreen({ navigation, route }) {
               onChange={toggleTor}
               defaultIsChecked={torEnbled}
             />
-          </HStack>
+          </HStack> */}
 
           <Box style={styles.btnContainer}>
             {attempts >= 1 ? (
@@ -422,7 +422,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
+        close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
         subTitleColor="light.secondaryText"
