@@ -7,6 +7,7 @@ import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/
 import { Shadow } from 'react-native-shadow-2';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import _ from 'lodash';
 // icons and images
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
@@ -49,9 +50,8 @@ import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { UTXO } from 'src/core/wallets/interfaces';
-import _ from 'lodash';
-import BottomTabView from 'src/components/BottomTab/BottomTabView';
 import WalletDetailsTabView from './WalletDetailsTabView';
+import BottomMenuItem from './BottomMenuItem';
 
 const UtxoLabels = [
   {
@@ -565,78 +565,44 @@ function WalletDetails({ route }) {
           {tab === 'Transactions' ? <Box style={styles.footerContainer}>
             <Box style={styles.border} borderColor="light.GreyText" />
             <Box style={styles.footerItemContainer}>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={() => {
-                  navigation.navigate('Send', { sender: currentWallet });
-                }}
-              >
-                <Send />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Send
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={() => {
-                  navigation.navigate('Receive', { wallet: currentWallet });
-                }}
-              >
-                <Recieve />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Receive
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.IconText} onPress={onPressBuyBitcoin}>
-                <BuyBitcoin />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Buy Bitcoin
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.IconText}
-                onPress={() => {
-                  navigation.navigate('WalletSettings', { wallet: currentWallet });
-                }}
-              >
-                <IconSettings />
-                <Text color="light.primaryText" style={styles.footerItemText}>
-                  Settings
-                </Text>
-              </TouchableOpacity>
+              <BottomMenuItem
+                onPress={() => navigation.navigate('Send', { sender: currentWallet })}
+                icon={<Send />}
+                title='Send'
+              />
+              <BottomMenuItem
+                onPress={() => navigation.navigate('Receive', { wallet: currentWallet })}
+                icon={<Recieve />}
+                title='Receive'
+              />
+              <BottomMenuItem
+                onPress={onPressBuyBitcoin}
+                icon={<BuyBitcoin />}
+                title='Buy Bitcoin'
+              />
+              <BottomMenuItem
+                onPress={() => navigation.navigate('WalletSettings', { wallet: currentWallet })}
+                icon={<IconSettings />}
+                title='Settings'
+              />
             </Box>
           </Box>
             :
             <Box style={styles.footerContainer}>
               <Box style={styles.border} borderColor="light.GreyText" />
               <Box style={styles.footerItemContainer}>
-                <TouchableOpacity
-                  style={styles.IconText}
-                  onPress={() => {
-                    setEnableSelection(!enableSelection)
-                  }}
-                >
-                  <Send />
-                  <Text color="light.primaryText" style={styles.footerItemText}>
-                    Send Selected
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.IconText}
-                  onPress={() => {
-
-                  }}
-                >
-                  <Recieve />
-                  <Text color="light.primaryText" style={styles.footerItemText}>
-                    Mix Selected
-                  </Text>
-                </TouchableOpacity>
+                <BottomMenuItem
+                  onPress={() => setEnableSelection(!enableSelection)}
+                  icon={<Send />}
+                  title='Send Selected'
+                />
+                <BottomMenuItem
+                  onPress={() => { }}
+                  icon={<Recieve />}
+                  title='Mix Selected'
+                />
               </Box>
             </Box>}
-          {/* <Box style={styles.footerContainer}>
-            <BottomTabView />
-          </Box> */}
         </>
       ) : (
         <Box style={styles.addNewWalletContainer}>
