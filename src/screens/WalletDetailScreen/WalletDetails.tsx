@@ -528,7 +528,7 @@ function WalletDetails({ route }) {
                 style={styles.IconText}
                 onPress={() => {
                   console.log('dfa');
-                  dispatch(addNewWhirlpoolWallets({ depositWallet: wallets[1] }));
+                  dispatch(addNewWhirlpoolWallets({ depositWallet: currentWallet }));
                 }}
               >
                 <IconSettings />
