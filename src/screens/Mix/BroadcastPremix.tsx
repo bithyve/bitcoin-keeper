@@ -25,7 +25,13 @@ const broadcastModalContent = (onBroadcastModalCallback) => {
     return (
         <Box>
             <Box>
-                <Text color="light.secondaryText" style={styles.textWidth}>Premix, Postmix, Bad bank</Text>
+                <Text color="light.secondaryText" style={{ paddingTop: 5 }}><Text style={{ fontWeight: 'bold' }}>Premix</Text> This wallet contains the UTXOs from your premix transaction (also called the Tx0).
+                    Your premix transaction splits your UTXOs into equal amounts ready for mixing.</Text>
+                <Text color="light.secondaryText" style={{ paddingTop: 5 }}><Text style={{ fontWeight: 'bold' }}>Postmix</Text> This wallet contains the UTXOs from your mixes.
+                    Whirlpool will select UTXOs from both the Premix and the Postmix wallets to include in coinjoin transactions.
+                    Funds in this wallet can be considered mixed and are safe to spend anonymously, especially after a number of mixing rounds.</Text>
+                <Text color="light.secondaryText" style={{ paddingTop: 5 }}><Text style={{ fontWeight: 'bold' }}>Badbank</Text> This wallet contains the change from your premix (Tx0) transaction - whatever is left over from splitting your input UTXOs into equal amounts.
+                    Consider mixing any UTXOs here if they are large enough, but do not combine them with mixed funds</Text>
             </Box>
             <Box style={styles.modalFooter}>
                 <Buttons
@@ -104,7 +110,7 @@ export default function BroadcastPremix() {
                 visible={showBroadcastModal}
                 close={closeBroadcastModal}
                 title="Broadcast Premix"
-                subTitle="Please review the details below and click the button to broadcast your transaction."
+                subTitle="Initiating your first coinjoin will add three new wallets to your existing wallet: Premix, Postmix and Badbank."
                 subTitleColor="#5F6965"
                 modalBackground={['#F7F2EC', '#F7F2EC']}
                 buttonBackground={['#00836A', '#073E39']}
@@ -123,9 +129,6 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginLeft: 50,
         flexDirection: 'row',
-    },
-    textWidth: {
-        width: '50%'
     },
     footerContainer: {
         position: 'absolute',

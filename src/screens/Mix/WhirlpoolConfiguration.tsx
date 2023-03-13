@@ -49,7 +49,11 @@ const feesContent = (fees, onFeeSelectionCallback) => {
 function WhirlpoolContent() {
     return (
         <View>
-            <Text>Whirlpool content</Text>
+            <Text>Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
+                These wallets are all based off the same seed that you used to create the BIP39 software wallet you are using.
+                They simply use different (but well known) derivation paths to derive other addresses.
+                That means that you can always recover all your funds so long as you have the seed.
+            </Text>
         </View>
     );
 }
