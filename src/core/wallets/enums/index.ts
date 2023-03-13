@@ -133,3 +133,8 @@ export enum XpubTypes {
   'P2TR' = 'P2TR',
   'AMF' = 'AMF',
 }
+
+export enum LabelType {
+  SYSTEM = 'SYSTEM',
+  USER = 'USER',
+}
