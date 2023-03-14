@@ -31,9 +31,18 @@ export default class WhirlpoolClient {
   static getTx0Preview = (
     tx0data: TX0Data,
     pool: PoolData,
+    premix_fee_per_byte: number,
     miner_fee_per_byte: number,
-    inputs: InputUTXOs
+    inputs: InputUTXOs[]
   ): Preview => {
+    let inputs_value = 0;
+    inputs.forEach((input) => {
+      inputs_value += input.value;
+    });
+
+    if (inputs_value < pool.must_mix_balance_min)
+      throw new Error(`You need ${pool.must_mix_balance_min} sats to do the mix`);
+
     // const preview = Preview::new(
     //     inputs_value: // construct from inputs,
     //     premix_value: // construct using PremixValue.new(pool: &Pool, fee_per_vbyte: f64),
@@ -44,12 +53,17 @@ export default class WhirlpoolClient {
     //     n_pool_max_outputs: u16
     //     )
 
+    const minerFee = 256; // paying average tx fee for now(should be calculated using miner_fee_per_byte)
+    const n_premix_outputs = Math.floor(
+      (inputs_value - pool.fee_value - minerFee) / pool.must_mix_balance_min
+    );
     const preview: Preview = {
-      premix_value: 1000150,
-      n_premix_outputs: 1,
-      coordinator_fee: 5000,
-      miner_fee: 1,
-      change: 16246,
+      premix_value: pool.must_mix_balance_min, // low premix priority
+      n_premix_outputs,
+      coordinator_fee: pool.fee_value,
+      miner_fee: minerFee,
+      change:
+        inputs_value - pool.fee_value - minerFee - n_premix_outputs * pool.must_mix_balance_min, // bad bank
     };
 
     return preview;
