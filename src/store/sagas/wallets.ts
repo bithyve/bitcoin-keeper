@@ -18,6 +18,7 @@ import {
   Wallet,
   WalletImportDetails,
   WalletPresentationData,
+  WhirlpoolConfig,
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
@@ -40,7 +41,7 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { generateKey } from 'src/core/services/operations/encryption';
+import { generateKey, hash256 } from 'src/core/services/operations/encryption';
 import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { RootState } from '../store';
 import {
@@ -152,7 +153,28 @@ export function* addWhirlpoolWalletsWatcher({
     },
   };
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
-  yield call(addNewWalletsWorker, { payload: newWalletsInfo });
+  const isWalletAdded = yield call(addNewWalletsWorker, { payload: newWalletsInfo });
+  if (isWalletAdded) {
+    const whirlpoolConfig: WhirlpoolConfig = {
+      whirlpoolWalletDetails: [
+        {
+          walletId: hash256(`${depositWallet.id}${WalletType.PRE_MIX}`),
+          walletType: WalletType.PRE_MIX,
+        },
+        {
+          walletId: hash256(`${depositWallet.id}${WalletType.POST_MIX}`),
+          walletType: WalletType.POST_MIX,
+        },
+        {
+          walletId: hash256(`${depositWallet.id}${WalletType.BAD_BANK}`),
+          walletType: WalletType.BAD_BANK,
+        },
+      ],
+    };
+    yield call(updateWalletsPropertyWorker, {
+      payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
+    });
+  }
 }
 
 export const addWhirlpoolWalletsWorker = createWatcher(
@@ -270,27 +292,43 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
       wallets.push(wallet);
     }
 
-    for (const wallet of wallets) {
+    if (wallets.length > 0) {
       yield put(setRelayWalletUpdateLoading(true));
-      const response = yield call(updateAppImageWorker, { payload: { wallet } });
+      const response = yield call(updateAppImageWorker, { payload: { wallets } });
       if (response.updated) {
         yield put(relayWalletUpdateSuccess());
-        yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
-
-        if (wallet.type === WalletType.IMPORTED) {
-          yield put(
-            refreshWallets([wallet], {
-              hardRefresh: true,
-            })
-          );
-        }
+        yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
+        return true;
       } else {
         yield put(relayWalletUpdateFail(response.error));
+        return false;
+      }
+    } else {
+      for (const wallet of wallets) {
+        yield put(setRelayWalletUpdateLoading(true));
+        const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
+        if (response.updated) {
+          yield put(relayWalletUpdateSuccess());
+          yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+
+          if (wallet.type === WalletType.IMPORTED) {
+            yield put(
+              refreshWallets([wallet], {
+                hardRefresh: true,
+              })
+            );
+          }
+          return true;
+        } else {
+          yield put(relayWalletUpdateFail(response.error));
+          return false;
+        }
       }
     }
   } catch (err) {
     console.log(err);
     yield put(relayWalletUpdateFail(''));
+    return false;
   }
 }
 
@@ -741,7 +779,15 @@ function* updateSignerDetailsWorker({ payload }) {
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
 
-function* updateWalletsPropertyWorker({ payload }) {
+function* updateWalletsPropertyWorker({
+  payload,
+}: {
+  payload: {
+    wallet: Wallet;
+    key: string;
+    value: any;
+  };
+}) {
   const {
     wallet,
     key,

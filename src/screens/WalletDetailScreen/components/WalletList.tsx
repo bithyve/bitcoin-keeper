@@ -7,12 +7,9 @@ import AddSCardIcon from 'src/assets/images/card_add.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Text from 'src/components/KeeperText';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -166,9 +163,7 @@ function WalletItem({
   );
 }
 
-function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef }: any) {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef, wallets }: any) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);

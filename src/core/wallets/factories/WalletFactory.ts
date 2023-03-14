@@ -68,7 +68,7 @@ export const generateWallet = async ({
   let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
 
   if (whirlPoolWalletTypes.includes(type)) {
-    id = hash256(`id${type}`);
+    id = hash256(`${id}${type}`);
   }
 
   // derive extended keys

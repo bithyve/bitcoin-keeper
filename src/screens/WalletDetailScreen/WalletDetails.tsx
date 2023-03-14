@@ -24,6 +24,7 @@ import UTXOFooter from './components/UTXOFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
+import useWallets from 'src/hooks/useWallets';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
@@ -81,8 +82,7 @@ function Footer({
 
 function WalletDetails({ route }) {
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const { wallets } = useWallets({ getAll: true });
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
@@ -101,16 +101,28 @@ function WalletDetails({ route }) {
       []
   );
   const [enableSelection, setEnableSelection] = useState(false);
+  // const [selectAccount, setselectAccount] = useState(false);
+  // const { translations } = useContext(LocalizationContext);
+  // const { wallet } = translations;
+  // const [walletIndex, setWalletIndex] = useState<number>(0);
+  // const [pullRefresh, setPullRefresh] = useState(false);
+  // const currentWallet: Wallet = wallets[walletIndex];
+  // const isWhirlpoolWallet = !!currentWallet.whirlpoolConfig.whirlpoolWalletDetails.length;
+  // const transections = isWhirlpoolWalletwallets[walletIndex]?.specs?.transactions || [];
+
   const { autoRefresh } = route?.params || {};
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
+
   const flatListRef = useRef(null);
+
   const handleScrollToIndex = (index) => {
     if (index !== undefined && flatListRef && flatListRef?.current) {
       flatListRef?.current?.scrollToIndex({ index });
     }
   };
+
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
     if (index?.index !== undefined) {
@@ -118,6 +130,7 @@ function WalletDetails({ route }) {
       setWalletIndex(index?.index);
     }
   });
+
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 20 });
   const pullDownRefresh = () => {
     setPullRefresh(true);
@@ -135,6 +148,7 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
+        wallets={wallets}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
