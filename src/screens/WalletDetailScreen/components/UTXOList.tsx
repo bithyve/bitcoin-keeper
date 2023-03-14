@@ -12,6 +12,8 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
+import useLabels from 'src/hooks/useLabels';
+import { LabelType } from 'src/core/wallets/enums';
 
 const UtxoLabels = [
   {
@@ -50,7 +52,8 @@ function UTXOElement({
   item,
   enableSelection,
   selectionTotal,
-  setUtxoState,
+  selectedUTXOMap,
+  setSelectedUTXOMap,
   utxoState,
   setSelectionTotal,
   navigation,
@@ -59,22 +62,28 @@ function UTXOElement({
   currentCurrency,
   exchangeRates,
   satsEnabled,
+  labels,
 }: any) {
+  const utxoId = `${item.txId}${item.vout}`;
   return (
     <TouchableOpacity
       style={styles.utxoCardContainer}
       onPress={() => {
         if (enableSelection) {
-          let utxoSum = selectionTotal;
-          setUtxoState(
-            utxoState.map((utxo) => {
-              if (utxo.txId === item.txId) {
-                utxoSum = utxo.selected ? utxoSum - utxo.value : utxoSum + utxo.value;
-                return { ...utxo, selected: !utxo.selected };
-              }
-              return utxo;
-            })
-          );
+          const mapToUpdate = selectedUTXOMap;
+          if (selectedUTXOMap[utxoId]) {
+            delete mapToUpdate[utxoId];
+          } else {
+            mapToUpdate[utxoId] = true;
+          }
+          setSelectedUTXOMap(mapToUpdate);
+          let utxoSum = 0;
+          utxoState.forEach((utxo) => {
+            const utxoId = `${utxo.txId}${utxo.vout}`;
+            if (mapToUpdate[utxoId]) {
+              utxoSum += utxo.value;
+            }
+          });
           setSelectionTotal(utxoSum);
         } else {
           navigation.dispatch(CommonActions.navigate('UTXOLabeling', { utxo: item }));
@@ -88,7 +97,7 @@ function UTXOElement({
               <Box
                 style={[
                   styles.selectionView,
-                  { backgroundColor: item.selected ? 'orange' : 'white' },
+                  { backgroundColor: selectedUTXOMap[utxoId] ? 'orange' : 'white' },
                 ]}
               />
             </Box>
@@ -116,19 +125,18 @@ function UTXOElement({
             </Box>
           </Box>
           <Box style={styles.labelList}>
-            {UtxoLabels &&
-              UtxoLabels.slice(0, 3).map((item) => (
-                <Box
-                  style={[
-                    styles.utxoLabelView,
-                    { backgroundColor: item.type === 0 ? '#E3BE96' : '#52C9B2' },
-                  ]}
-                >
-                  <Text>{item.label}</Text>
-                </Box>
-              ))}
+            {labels.map((item) => (
+              <Box
+                style={[
+                  styles.utxoLabelView,
+                  { backgroundColor: item.type === LabelType.USER ? '#E3BE96' : '#52C9B2' },
+                ]}
+              >
+                <Text>{item.name}</Text>
+              </Box>
+            ))}
             <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-              <Text>+{UtxoLabels && UtxoLabels.length - 3} more</Text>
+              <Text>+{labels && labels.length - 3} more</Text>
             </Box>
           </Box>
         </Box>
@@ -137,23 +145,33 @@ function UTXOElement({
   );
 }
 
-function UTXOList({ utxoState, setUtxoState, enableSelection, selectionTotal, setSelectionTotal }) {
+function UTXOList({
+  utxoState,
+  enableSelection,
+  selectionTotal,
+  setSelectionTotal,
+  selectedUTXOMap,
+  setSelectedUTXOMap,
+}) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { labels } = useLabels({ utxos: utxoState });
 
   return (
     <FlatList
       data={utxoState}
       renderItem={({ item }) => (
         <UTXOElement
+          labels={labels ? labels[`${item.txId}${item.vout}`] : []}
           item={item}
           enableSelection={enableSelection}
           selectionTotal={selectionTotal}
-          setUtxoState={setUtxoState}
+          selectedUTXOMap={selectedUTXOMap}
+          setSelectedUTXOMap={setSelectedUTXOMap}
           utxoState={utxoState}
           setSelectionTotal={setSelectionTotal}
           navigation={navigation}
