@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unstable-nested-components */
-/* eslint-disable react/function-component-definition */
 import React, { useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -31,7 +30,6 @@ function UTXOLabeling() {
   const [label, setLabel] = useState('');
   const [addLabelModal, setAddLabelModal] = useState(false);
   const { labels } = useLabels({ utxos: [utxo] });
-
   const closeLabelModal = () => {
     setAddLabelModal(false);
   };
@@ -58,7 +56,7 @@ function UTXOLabeling() {
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title="Select UTXOs Label"
+        title="Modify UTXO Labels"
         subtitle="Lorem ipsum sit"
         onPressHandler={() => navigation.goBack()}
       />
@@ -72,9 +70,9 @@ function UTXOLabeling() {
       </TouchableOpacity>
       <FlatList
         style={{ marginTop: 20 }}
-        data={labels ? labels[`${utxo.txId}${utxo.vout}`] : []}
+        data={labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []}
         renderItem={labelRenderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => `${item.txId}${item.vout}`}
         showsVerticalScrollIndicator={false}
       />
       <Box style={styles.ctaBtnWrapper}>

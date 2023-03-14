@@ -15,39 +15,6 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useLabels from 'src/hooks/useLabels';
 import { LabelType } from 'src/core/wallets/enums';
 
-const UtxoLabels = [
-  {
-    id: 1,
-    label: 'Work Expenses',
-    type: 0,
-  },
-  {
-    id: 2,
-    label: 'Wallet',
-    type: 1,
-  },
-  {
-    id: 3,
-    label: 'Salary Txns',
-    type: 0,
-  },
-  {
-    id: 4,
-    label: 'Family',
-    type: 0,
-  },
-  {
-    id: 5,
-    label: 'Personal',
-    type: 0,
-  },
-  {
-    id: 6,
-    label: 'Traveling',
-    type: 0,
-  },
-];
-
 function UTXOElement({
   item,
   enableSelection,
@@ -166,7 +133,7 @@ function UTXOList({
       data={utxoState}
       renderItem={({ item }) => (
         <UTXOElement
-          labels={labels ? labels[`${item.txId}${item.vout}`] : []}
+          labels={labels ? labels[`${item.txId}${item.vout}`] || [] : []}
           item={item}
           enableSelection={enableSelection}
           selectionTotal={selectionTotal}
