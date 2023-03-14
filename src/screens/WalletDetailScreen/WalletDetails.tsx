@@ -1,5 +1,5 @@
-import { Platform, StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { Platform, StyleSheet, View } from 'react-native';
+import { Box, Pressable } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import _ from 'lodash';
@@ -24,7 +24,8 @@ import UTXOFooter from './components/UTXOFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
-
+import KeeperModal from 'src/components/KeeperModal';
+import BTC from 'src/assets/images/btc_wallet.svg';
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
   tab,
@@ -86,6 +87,7 @@ function WalletDetails({ route }) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
+  const [selectAccount, setselectAccount] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
   const [tab, setActiveTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
@@ -98,7 +100,7 @@ function WalletDetails({ route }) {
         utxo.selected = false;
         return utxo;
       })) ||
-      []
+    []
   );
   const [enableSelection, setEnableSelection] = useState(false);
   const { autoRefresh } = route?.params || {};
@@ -126,6 +128,68 @@ function WalletDetails({ route }) {
   };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
+  const AccountComponent = ({ title, balance, onPress }) => {
+    return (
+      <Pressable style={{
+        marginTop: hp(20),
+        paddingHorizontal: wp(15),
+        paddingVertical: hp(10),
+        height: hp(55),
+        width: wp(270),
+        alignSelf: 'center',
+        justifyContent: 'center',
+        borderRadius: hp(5),
+      }}
+        backgroundColor="light.lightAccent"
+        onPress={onPress}
+      >
+        <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ fontSize: 13, letterSpacing: 1 }}>
+            {title}
+          </Text>
+          <Box flexDirection={'row'}>
+            <Box
+              style={{
+                marginRight: 3, marginTop: 3
+              }}
+            >
+              <BTC />
+            </Box>
+            <Text style={{ fontSize: 20, letterSpacing: 1 }}>
+              {balance}
+            </Text>
+          </Box>
+        </Box>
+      </Pressable>
+    );
+  }
+
+  function SelectAccountContent() {
+    return (
+      <View >
+        <AccountComponent
+          title={'Deposit'}
+          balance={'0.000024'}
+          onPress={() => { }} />
+
+        <AccountComponent
+          title={'PreMix Account'}
+          balance={'0.000024'}
+          onPress={() => { }} />
+
+        <AccountComponent
+          title={'PostMix Account'}
+          balance={'0.000024'}
+          onPress={() => { }} />
+
+        <AccountComponent
+          title={'Bad bank Account'}
+          balance={'0.000024'}
+          onPress={() => { }} />
+      </View>
+    );
+  }
+
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
@@ -135,6 +199,7 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
+        setselectAccount={setselectAccount}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
@@ -175,6 +240,15 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
+      <KeeperModal
+        visible={selectAccount}
+        close={() => {
+          setselectAccount(false)
+        }}
+        title="Select Account"
+        subTitle="Select Account Type"
+        Content={SelectAccountContent}
+      />
     </ScreenWrapper>
   );
 }
