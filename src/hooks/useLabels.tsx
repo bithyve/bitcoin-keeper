@@ -26,7 +26,7 @@ const useLabels = ({ utxos }: { utxos: UTXO[] }) => {
       labels[labelId] = utxoLabels;
     });
     setLabels(labels);
-  }, [utxos]);
+  }, []);
   return { labels };
 };
 
