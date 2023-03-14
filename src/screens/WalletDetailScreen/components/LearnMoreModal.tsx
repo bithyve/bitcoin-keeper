@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
@@ -6,6 +6,7 @@ import { Box } from 'native-base';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
+import Text from 'src/components/KeeperText';
 
 function LinkedWalletContent() {
   return (

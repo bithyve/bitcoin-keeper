@@ -33,10 +33,11 @@ function TransactionsAndUTXOs({
   pullRefresh,
   currentWallet,
   utxoState,
-  setUtxoState,
   enableSelection,
   selectionTotal,
   setSelectionTotal,
+  selectedUTXOMap,
+  setSelectedUTXOMap,
 }) {
   return (
     <Box style={styles.transactionsListContainer}>
@@ -50,10 +51,11 @@ function TransactionsAndUTXOs({
       ) : (
         <UTXOList
           utxoState={utxoState}
-          setUtxoState={setUtxoState}
           enableSelection={enableSelection}
           selectionTotal={selectionTotal}
           setSelectionTotal={setSelectionTotal}
+          selectedUTXOMap={selectedUTXOMap}
+          setSelectedUTXOMap={setSelectedUTXOMap}
         />
       )}
     </Box>
@@ -79,16 +81,10 @@ function WalletDetails({ route }) {
   const [tab, setActiveTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
-  const utxos = _.clone(currentWallet && currentWallet.specs && currentWallet.specs.confirmedUTXOs);
+  const utxos = wallets[walletIndex]?.specs?.confirmedUTXOs || [];
   const [selectionTotal, setSelectionTotal] = useState(0);
-  const [utxoState, setUtxoState] = useState(
-    (utxos &&
-      utxos.map((utxo) => {
-        utxo.selected = false;
-        return utxo;
-      })) ||
-      []
-  );
+  const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
+
   const [enableSelection, setEnableSelection] = useState(false);
   const { autoRefresh } = route?.params || {};
   useEffect(() => {
@@ -134,8 +130,9 @@ function WalletDetails({ route }) {
             setPullRefresh={setPullRefresh}
             pullRefresh={pullRefresh}
             currentWallet={currentWallet}
-            utxoState={utxoState}
-            setUtxoState={setUtxoState}
+            utxoState={utxos}
+            selectedUTXOMap={selectedUTXOMap}
+            setSelectedUTXOMap={setSelectedUTXOMap}
             enableSelection={enableSelection}
             selectionTotal={selectionTotal}
             setSelectionTotal={setSelectionTotal}

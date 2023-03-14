@@ -12,6 +12,7 @@ const useLabels = ({ utxos }: { utxos: UTXO[] }) => {
   const utxoInfoTable = useQuery(RealmSchema.UTXOInfo);
   const wallets = useQuery(RealmSchema.Wallet);
   useEffect(() => {
+    const labels = {};
     utxos.forEach((utxo) => {
       const labelId = `${utxo.txId}${utxo.vout}`;
       const utxoInfo: UTXOInfo = utxoInfoTable
@@ -22,12 +23,10 @@ const useLabels = ({ utxos }: { utxos: UTXO[] }) => {
         .filtered(`id == "${utxoInfo.walletId}"`)
         .map(getJSONFromRealmObject)[0];
       utxoLabels.push({ name: wallet.presentationData.name, type: LabelType.SYSTEM });
-      const updatedLabel = labels
-        ? { [labelId]: utxoLabels, ...labels }
-        : { [labelId]: utxoLabels };
-      setLabels(updatedLabel);
+      labels[labelId] = utxoLabels;
     });
-  }, []);
+    setLabels(labels);
+  }, [utxos]);
   return { labels };
 };
 
