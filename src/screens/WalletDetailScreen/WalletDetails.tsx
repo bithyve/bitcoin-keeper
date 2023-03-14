@@ -12,11 +12,7 @@ import BadBank from 'src/assets/images/icon_badbank.svg';
 import Deposit from 'src/assets/images/icon_deposit.svg';
 // data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Text from 'src/components/KeeperText';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -89,7 +85,7 @@ function Footer({
 
 function WalletDetails({ route }) {
   const dispatch = useDispatch();
-  const { wallets } = useWallets({ getAll: true });
+  const { wallets } = useWallets({ whirlpoolStruct: true });
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
