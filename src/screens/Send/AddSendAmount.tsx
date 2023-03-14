@@ -292,7 +292,7 @@ function AddSendAmount({ route }) {
                   return;
                 }
                 navigation.dispatch(
-                  CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                  CommonActions.navigate('UTXOSelection', { sender, amount, address, note })
                 );
               }}
               secondaryDisable={Boolean(!amount || error)}
