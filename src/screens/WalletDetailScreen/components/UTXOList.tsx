@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React from 'react';
+import React, { useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
@@ -15,6 +15,36 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import Selected from 'src/assets/images/selected.svg'
 import useLabels from 'src/hooks/useLabels';
 import { LabelType } from 'src/core/wallets/enums';
+
+function UTXOLabel(props) {
+  const [extraLabelCount, setExtraLabelCount] = useState(0)
+  const onLayout = (event) => {
+    const { y } = event.nativeEvent.layout;
+    if (y > 9) {
+      setExtraLabelCount(extraLabelCount + 1)
+    }
+  }
+  return (
+    <Box style={{ flexDirection: 'row', }}>
+      <Box style={styles.labelList}>
+        {props.labels.map((item) => (
+          <Box
+            onLayout={(event) => onLayout(event)}
+            style={[
+              styles.utxoLabelView,
+              { backgroundColor: item.type === LabelType.USER ? '#E3BE96' : '#52C9B2' },
+            ]}
+          >
+            <Text>{item.name}</Text>
+          </Box>
+        ))}
+      </Box>
+      <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
+        <Text>+{extraLabelCount}</Text>
+      </Box>
+    </Box>
+  )
+}
 
 function UTXOElement({
   item,
@@ -86,21 +116,8 @@ function UTXOElement({
               </Text>
             </Box>
           </Box>
-          <Box style={styles.labelList}>
-            {labels.map((item) => (
-              <Box
-                style={[
-                  styles.utxoLabelView,
-                  { backgroundColor: item.type === LabelType.USER ? '#E3BE96' : '#52C9B2' },
-                ]}
-              >
-                <Text>{item.name}</Text>
-              </Box>
-            ))}
-            <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-              <Text>+{labels && labels.length - 3} more</Text>
-            </Box>
-          </Box>
+          {/*  */}
+          <UTXOLabel labels={labels} />
         </Box>
         <Box style={[styles.amountWrapper, { width: '45%' }]}>
           <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
@@ -178,7 +195,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   utxoCardWrapper: {
-    width: '49%',
+    width: '48%',
   },
   utxoInnerView: {
     flexDirection: 'row',
@@ -222,12 +239,14 @@ const styles = StyleSheet.create({
   labelList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: '100%',
-    paddingTop: 5,
+    overflow: 'hidden',
+    width: '90%',
+    maxHeight: 38
   },
   utxoLabelView: {
     padding: 5,
     borderRadius: 5,
     margin: 3,
+    marginTop: 5,
   },
 });
