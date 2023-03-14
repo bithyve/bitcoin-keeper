@@ -549,7 +549,7 @@ function WalletDetails({ route }) {
                                 refreshControl={
                                     <RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />
                                 }
-                                data={transections.concat(transections)}
+                                data={transections}
                                 renderItem={renderTransactionElement}
                                 keyExtractor={(item) => item}
                                 showsVerticalScrollIndicator={false}
