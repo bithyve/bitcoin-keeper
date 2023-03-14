@@ -15,6 +15,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import Selected from 'src/assets/images/selected.svg'
 import useLabels from 'src/hooks/useLabels';
 import { LabelType } from 'src/core/wallets/enums';
+import Colors from 'src/theme/Colors';
 
 function UTXOLabel(props) {
   const [extraLabelCount, setExtraLabelCount] = useState(0)
@@ -32,15 +33,15 @@ function UTXOLabel(props) {
             onLayout={(event) => onLayout(event)}
             style={[
               styles.utxoLabelView,
-              { backgroundColor: item.type === LabelType.USER ? '#E3BE96' : '#52C9B2' },
+              { backgroundColor: '#23A289' },
             ]}
           >
-            <Text>{item.name}</Text>
+            <Text style={{ color: Colors.White }}>{item.name}</Text>
           </Box>
         ))}
       </Box>
       {extraLabelCount > 0 && <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-        <Text>+{extraLabelCount}</Text>
+        <Text style={{ color: Colors.White }}>+{extraLabelCount}</Text>
       </Box>}
     </Box>
   )
