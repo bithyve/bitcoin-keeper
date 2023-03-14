@@ -1,0 +1,67 @@
+import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { Box } from 'native-base';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import Recieve from 'src/assets/images/receive.svg';
+import Send from 'src/assets/images/send.svg';
+import IconSettings from 'src/assets/images/icon_settings.svg';
+import BuyBitcoin from 'src/assets/images/icon_buy.svg';
+import BottomMenuItem from '../BottomMenuItem';
+
+function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
+  const navigation = useNavigation();
+  return (
+    <Box style={styles.footerContainer}>
+      <Box style={styles.border} borderColor="light.GreyText" />
+      <Box style={styles.footerItemContainer}>
+        <BottomMenuItem
+          onPress={() =>
+            navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet }))
+          }
+          icon={<Send />}
+          title="Send"
+        />
+        <BottomMenuItem
+          onPress={() =>
+            navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
+          }
+          icon={<Recieve />}
+          title="Receive"
+        />
+        <BottomMenuItem onPress={onPressBuyBitcoin} icon={<BuyBitcoin />} title="Buy Bitcoin" />
+        <BottomMenuItem
+          onPress={() =>
+            navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet: currentWallet }))
+          }
+          icon={<IconSettings />}
+          title="Settings"
+        />
+      </Box>
+    </Box>
+  );
+}
+
+export default TransactionFooter;
+
+const styles = StyleSheet.create({
+  footerContainer: {
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 5 : 0,
+    width: wp(375),
+    height: '11%',
+    paddingHorizontal: 5,
+  },
+  border: {
+    borderWidth: 0.5,
+    borderRadius: 20,
+    opacity: 0.2,
+  },
+  footerItemContainer: {
+    flexDirection: 'row',
+    paddingTop: windowHeight > 850 ? 15 : 5,
+    marginBottom: windowHeight > 850 ? hp(10) : 0,
+    justifyContent: 'space-evenly',
+    marginHorizontal: 16,
+  },
+});
