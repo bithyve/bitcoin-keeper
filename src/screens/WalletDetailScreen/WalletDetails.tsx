@@ -60,11 +60,22 @@ function TransactionsAndUTXOs({
   );
 }
 
-function Footer({ tab, currentWallet, onPressBuyBitcoin, setEnableSelection, enableSelection }) {
+function Footer({
+  tab,
+  currentWallet,
+  onPressBuyBitcoin,
+  setEnableSelection,
+  enableSelection,
+  utxos,
+}) {
   return tab === 'Transactions' ? (
     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
   ) : (
-    <UTXOFooter setEnableSelection={setEnableSelection} enableSelection={enableSelection} />
+    <UTXOFooter
+      setEnableSelection={setEnableSelection}
+      enableSelection={enableSelection}
+      utxos={utxos}
+    />
   );
 }
 
@@ -146,6 +157,7 @@ function WalletDetails({ route }) {
             onPressBuyBitcoin={onPressBuyBitcoin}
             setEnableSelection={setEnableSelection}
             enableSelection={enableSelection}
+            utxos={utxoState}
           />
         </>
       ) : (
