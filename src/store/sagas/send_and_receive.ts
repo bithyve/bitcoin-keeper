@@ -155,6 +155,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       case EntityKind.VAULT:
         if (!serializedPSBTEnvelops.length)
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
+        if (note) wallet.specs.txNote[txid] = note;
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
