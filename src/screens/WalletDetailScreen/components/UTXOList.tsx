@@ -12,6 +12,7 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
+import Selected from 'src/assets/images/selected.svg'
 
 const UtxoLabels = [
   {
@@ -85,12 +86,15 @@ function UTXOElement({
         {enableSelection ? (
           <Box style={{ width: '7%' }}>
             <Box style={styles.selectionViewWrapper}>
-              <Box
-                style={[
-                  styles.selectionView,
-                  { backgroundColor: item.selected ? 'orange' : 'white' },
-                ]}
-              />
+              {item.selected ?
+                <Selected />
+                :
+                <Box
+                  style={[
+                    styles.selectionView,
+                    { backgroundColor: 'white' },
+                  ]}
+                />}
             </Box>
           </Box>
         ) : null}
