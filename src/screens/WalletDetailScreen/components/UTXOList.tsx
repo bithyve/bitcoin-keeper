@@ -39,9 +39,9 @@ function UTXOLabel(props) {
           </Box>
         ))}
       </Box>
-      <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
+      {extraLabelCount > 0 && <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
         <Text>+{extraLabelCount}</Text>
-      </Box>
+      </Box>}
     </Box>
   )
 }
