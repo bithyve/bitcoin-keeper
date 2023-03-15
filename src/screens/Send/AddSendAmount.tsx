@@ -53,6 +53,8 @@ function AddSendAmount({ route }) {
 
   const [amount, setAmount] = useState(prefillAmount || '');
   const [amountToSend, setAmountToSend] = useState('');
+  const [note, setNote] = useState('');
+  const [label, setLabel] = useState('');
 
   const [error, setError] = useState(false); // this state will handle error
   const recipientCount = 1;
@@ -259,7 +261,26 @@ function AddSendAmount({ route }) {
         </Box>
 
         <Box style={styles.addNoteWrapper}>
-          <TextInput placeholder="Add a note" style={styles.textInput} />
+          <TextInput
+            placeholder="Add a note"
+            placeholderTextColor="light.greenText"
+            style={styles.textInput}
+            value={note}
+            onChangeText={(value) => {
+              setNote(value)
+            }}
+          />
+        </Box>
+        <Box style={styles.addNoteWrapper}>
+          <TextInput
+            placeholder="Add a lable"
+            placeholderTextColor="light.greenText"
+            style={styles.textInput}
+            value={label}
+            onChangeText={(value) => {
+              setLabel(value)
+            }}
+          />
         </Box>
         <Box style={styles.ctaBtnWrapper}>
           <Box ml={windowWidth * -0.09}>
@@ -271,7 +292,7 @@ function AddSendAmount({ route }) {
                   return;
                 }
                 navigation.dispatch(
-                  CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                  CommonActions.navigate('UTXOSelection', { sender, amount, address, note })
                 );
               }}
               secondaryDisable={Boolean(!amount || error)}
@@ -282,9 +303,13 @@ function AddSendAmount({ route }) {
           </Box>
         </Box>
       </Box>
+      <Box style={styles.infoNoteWrapper}>
+        <Text style={styles.infoNoteText}><Text style={styles.infoText}>Info : </Text>Contact labels help to keep your future activity private and organised. The information is not shared with anyone</Text>
+      </Box>
     </ScreenWrapper>
   );
 }
+
 const styles = ScaledSheet.create({
   Container: {
     flex: 1,
@@ -295,6 +320,9 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginVertical: 5
   },
   transWrapper: {
     marginVertical: hp(5),
@@ -343,5 +371,25 @@ const styles = ScaledSheet.create({
     width: '110%',
     marginLeft: '-5%',
   },
+  infoNoteWrapper: {
+    marginTop: hp(35),
+    backgroundColor: Colors.Bisque,
+    opacity: 0.8,
+    paddingHorizontal: 10,
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10
+  },
+  infoNoteText: {
+    fontSize: 12,
+    fontWeight: '300',
+    opacity: 1
+  },
+  infoText: {
+    color: Colors.Black,
+    fontWeight: 'bold',
+    opacity: 1
+  }
 });
 export default AddSendAmount;
