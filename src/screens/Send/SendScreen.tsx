@@ -43,6 +43,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/core/wallets/operations';
+import { UTXO } from 'src/core/wallets/interfaces';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
@@ -50,7 +51,11 @@ function SendScreen({ route }) {
   const dispatch = useDispatch();
   const { useQuery } = useContext(RealmWrapperContext);
 
-  const { sender } = route.params as { sender: Wallet | Vault };
+  const { sender, selectedUTXOs } = route.params as {
+    sender: Wallet | Vault;
+    selectedUTXOs?: UTXO[];
+  };
+
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -133,6 +138,7 @@ function SendScreen({ route }) {
       address,
       amount,
       transferType,
+      selectedUTXOs,
     });
   };
 

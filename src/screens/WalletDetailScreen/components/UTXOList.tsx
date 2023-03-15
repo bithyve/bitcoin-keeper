@@ -12,45 +12,48 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
-import Selected from 'src/assets/images/selected.svg'
+import Selected from 'src/assets/images/selected.svg';
 import useLabels from 'src/hooks/useLabels';
 import { LabelType } from 'src/core/wallets/enums';
 import Colors from 'src/theme/Colors';
 
-function UTXOLabel(props) {
-  const [extraLabelCount, setExtraLabelCount] = useState(0)
+function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
+  const { labels } = props;
+  const [extraLabelCount, setExtraLabelCount] = useState(0);
   const onLayout = (event) => {
     const { y } = event.nativeEvent.layout;
     if (y > 9) {
-      setExtraLabelCount(extraLabelCount + 1)
+      setExtraLabelCount(extraLabelCount + 1);
     }
-  }
+  };
   return (
-    <Box style={{ flexDirection: 'row', }}>
+    <Box style={{ flexDirection: 'row' }}>
       <Box style={styles.labelList}>
-        {props.labels.map((item) => (
+        {labels.map((item) => (
           <Box
+            key={item.name}
             onLayout={(event) => onLayout(event)}
             style={[
               styles.utxoLabelView,
-              { backgroundColor: '#23A289' },
+              { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
             ]}
           >
             <Text style={{ color: Colors.White }}>{item.name}</Text>
           </Box>
         ))}
       </Box>
-      {extraLabelCount > 0 && <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-        <Text style={{ color: Colors.White }}>+{extraLabelCount}</Text>
-      </Box>}
+      {extraLabelCount > 0 && (
+        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
+          <Text style={{ color: Colors.White }}>+{extraLabelCount}</Text>
+        </Box>
+      )}
     </Box>
-  )
+  );
 }
 
 function UTXOElement({
   item,
   enableSelection,
-  selectionTotal,
   selectedUTXOMap,
   setSelectedUTXOMap,
   utxoState,
@@ -62,7 +65,7 @@ function UTXOElement({
   exchangeRates,
   satsEnabled,
   labels,
-  currentWallet
+  currentWallet,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   return (
@@ -86,27 +89,25 @@ function UTXOElement({
           });
           setSelectionTotal(utxoSum);
         } else {
-          navigation.dispatch(CommonActions.navigate('UTXOLabeling', { utxo: item, wallet: currentWallet }));
+          navigation.dispatch(
+            CommonActions.navigate('UTXOLabeling', { utxo: item, wallet: currentWallet })
+          );
         }
       }}
     >
       <Box style={styles.utxoInnerView}>
         {enableSelection ? (
-          <Box style={{ width: '7%' }}>
+          <Box style={{ width: '7%', paddingHorizontal: 15 }}>
             <Box style={styles.selectionViewWrapper}>
-              {selectedUTXOMap[utxoId] ?
+              {selectedUTXOMap[utxoId] ? (
                 <Selected />
-                :
-                <Box
-                  style={[
-                    styles.selectionView,
-                    { backgroundColor: 'white' },
-                  ]}
-                />}
+              ) : (
+                <Box style={[styles.selectionView, { backgroundColor: 'transparent' }]} />
+              )}
             </Box>
           </Box>
         ) : null}
-        <Box style={styles.utxoCardWrapper}>
+        <Box style={{ width: enableSelection ? '46%' : '55%' }}>
           <Box style={styles.rowCenter}>
             <Box style={{ width: '100%' }}>
               <Text
@@ -118,7 +119,6 @@ function UTXOElement({
               </Text>
             </Box>
           </Box>
-          {/*  */}
           <UTXOLabel labels={labels} />
         </Box>
         <Box style={[styles.amountWrapper, { width: '45%' }]}>
@@ -138,7 +138,6 @@ function UTXOElement({
 function UTXOList({
   utxoState,
   enableSelection,
-  selectionTotal,
   setSelectionTotal,
   selectedUTXOMap,
   setSelectedUTXOMap,
@@ -160,7 +159,6 @@ function UTXOList({
           labels={labels ? labels[`${item.txId}${item.vout}`] || [] : []}
           item={item}
           enableSelection={enableSelection}
-          selectionTotal={selectionTotal}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
           utxoState={utxoState}
@@ -191,20 +189,18 @@ export default UTXOList;
 
 const styles = StyleSheet.create({
   utxoCardContainer: {
-    backgroundColor: '#FDF7F0',
     marginVertical: 5,
     borderRadius: 10,
     padding: 6,
-    paddingVertical: 15,
+    paddingVertical: 5,
     width: '100%',
   },
-  utxoCardWrapper: {
-    width: '48%',
-  },
+  utxoCardWrapper: {},
   utxoInnerView: {
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   selectionViewWrapper: {
     alignItems: 'center',
@@ -234,7 +230,7 @@ const styles = StyleSheet.create({
   transactionIdText: {
     fontSize: 13,
     letterSpacing: 0.6,
-    marginRight: 5,
+    marginLeft: 7,
   },
   unitText: {
     letterSpacing: 0.6,
@@ -245,12 +241,15 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     overflow: 'hidden',
     width: '90%',
-    maxHeight: 38
+    maxHeight: 30,
   },
   utxoLabelView: {
     padding: 5,
+    paddingVertical: 2,
     borderRadius: 5,
-    margin: 3,
+    marginHorizontal: 3,
     marginTop: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

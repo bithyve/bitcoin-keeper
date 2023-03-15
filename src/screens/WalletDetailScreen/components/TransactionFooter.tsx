@@ -12,7 +12,7 @@ import BottomMenuItem from '../BottomMenuItem';
 function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
   const navigation = useNavigation();
   return (
-    <Box style={styles.footerContainer}>
+    <Box style={styles.footerContainer} borderColor="light.primaryBackground">
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
         <BottomMenuItem
