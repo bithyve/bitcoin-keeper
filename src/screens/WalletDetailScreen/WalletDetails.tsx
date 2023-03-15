@@ -24,6 +24,7 @@ import UTXOFooter from './components/UTXOFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
+import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
@@ -123,7 +124,8 @@ function WalletDetails({ route }) {
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
-          <WalletDetailsTabView setActiveTab={setActiveTab} />
+          {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? <UTXOSelectionTotal selectionTotal={selectionTotal}/>
+            : <WalletDetailsTabView setActiveTab={setActiveTab} />}
           <TransactionsAndUTXOs
             tab={tab}
             transections={transections}
