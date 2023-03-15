@@ -152,29 +152,29 @@ export function* addWhirlpoolWalletsWatcher({
       },
     },
   };
+
+  const whirlpoolConfig: WhirlpoolConfig = {
+    whirlpoolWalletDetails: [
+      {
+        walletId: hash256(`${depositWallet.id}${WalletType.PRE_MIX}`),
+        walletType: WalletType.PRE_MIX,
+      },
+      {
+        walletId: hash256(`${depositWallet.id}${WalletType.POST_MIX}`),
+        walletType: WalletType.POST_MIX,
+      },
+      {
+        walletId: hash256(`${depositWallet.id}${WalletType.BAD_BANK}`),
+        walletType: WalletType.BAD_BANK,
+      },
+    ],
+  };
+  yield call(updateWalletsPropertyWorker, {
+    payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
+  });
+  //TO-DO bind the APIs together
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
-  const isWalletAdded = yield call(addNewWalletsWorker, { payload: newWalletsInfo });
-  if (isWalletAdded) {
-    const whirlpoolConfig: WhirlpoolConfig = {
-      whirlpoolWalletDetails: [
-        {
-          walletId: hash256(`${depositWallet.id}${WalletType.PRE_MIX}`),
-          walletType: WalletType.PRE_MIX,
-        },
-        {
-          walletId: hash256(`${depositWallet.id}${WalletType.POST_MIX}`),
-          walletType: WalletType.POST_MIX,
-        },
-        {
-          walletId: hash256(`${depositWallet.id}${WalletType.BAD_BANK}`),
-          walletType: WalletType.BAD_BANK,
-        },
-      ],
-    };
-    yield call(updateWalletsPropertyWorker, {
-      payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
-    });
-  }
+  yield call(addNewWalletsWorker, { payload: newWalletsInfo });
 }
 
 export const addWhirlpoolWalletsWorker = createWatcher(

@@ -4,12 +4,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import _ from 'lodash';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import BTC from 'src/assets/images/btc_wallet.svg';
-import KeeperModal from 'src/components/KeeperModal';
-import PreMix from 'src/assets/images/icon_premix.svg';
-import PostMix from 'src/assets/images/icon_postmix.svg';
-import BadBank from 'src/assets/images/icon_badbank.svg';
-import Deposit from 'src/assets/images/icon_deposit.svg';
+
 // data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
@@ -28,6 +23,7 @@ import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 import useWallets from 'src/hooks/useWallets';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
@@ -89,9 +85,17 @@ function WalletDetails({ route }) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
-  const [selectAccount, setselectAccount] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
   const [tab, setActiveTab] = useState('Transactions');
+
+  useEffect(() => {
+    console.log(walletIndex, 'render');
+    // if !whirlpool then current wallet (wallet[index])
+
+    //if whirlpool then set  current wallet (wallet[index])
+    // if account cuurent wallet()
+  }, [walletIndex]);
+
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
   const utxos = _.clone(currentWallet && currentWallet.specs && currentWallet.specs.confirmedUTXOs);
@@ -105,6 +109,7 @@ function WalletDetails({ route }) {
       []
   );
   const [enableSelection, setEnableSelection] = useState(false);
+
   // const [selectAccount, setselectAccount] = useState(false);
   // const { translations } = useContext(LocalizationContext);
   // const { wallet } = translations;
@@ -143,90 +148,16 @@ function WalletDetails({ route }) {
   };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
-  const AccountComponent = ({ title, balance, onPress, icon }) => {
-    return (
-      <Pressable
-        style={{
-          marginTop: hp(20),
-          paddingHorizontal: wp(15),
-          paddingVertical: hp(10),
-          height: hp(55),
-          width: wp(270),
-          alignSelf: 'center',
-          justifyContent: 'center',
-          borderRadius: hp(5),
-        }}
-        backgroundColor="light.lightAccent"
-        onPress={onPress}
-      >
-        <Box
-          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-            {icon}
-            <Text style={{ fontSize: 13, letterSpacing: 1, marginLeft: wp(10) }}>{title}</Text>
-          </Box>
-          <Box flexDirection={'row'}>
-            <Box
-              style={{
-                marginRight: 3,
-                marginTop: 3,
-              }}
-            >
-              <BTC />
-            </Box>
-            <Text style={{ fontSize: 20, letterSpacing: 1 }}>{balance}</Text>
-          </Box>
-        </Box>
-      </Pressable>
-    );
-  };
-
-  function SelectAccountContent() {
-    return (
-      <View>
-        <AccountComponent
-          title={'Deposit'}
-          balance={'0.000024'}
-          onPress={() => {}}
-          icon={<Deposit />}
-        />
-
-        <AccountComponent
-          title={'PreMix Account'}
-          balance={'0.000024'}
-          onPress={() => {}}
-          icon={<PreMix />}
-        />
-
-        <AccountComponent
-          title={'PostMix Account'}
-          balance={'0.000024'}
-          onPress={() => {}}
-          icon={<PostMix />}
-        />
-
-        <AccountComponent
-          title={'Bad bank Account'}
-          balance={'0.000024'}
-          onPress={() => {}}
-          icon={<BadBank />}
-        />
-      </View>
-    );
-  }
-
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
-      <WalletInfo />
+      <WalletInfo wallets={wallets} />
       <WalletList
         flatListRef={flatListRef}
         walletIndex={walletIndex}
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
-        setselectAccount={setselectAccount}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
@@ -267,15 +198,6 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
-      <KeeperModal
-        visible={selectAccount}
-        close={() => {
-          setselectAccount(false);
-        }}
-        title="Select Account"
-        subTitle="Select Account Type"
-        Content={SelectAccountContent}
-      />
     </ScreenWrapper>
   );
 }

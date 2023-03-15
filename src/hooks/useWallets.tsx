@@ -6,13 +6,14 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import { WalletType } from 'src/core/wallets/enums';
 import _ from 'lodash';
+export const whirlpoolWalletTypeMap = {
+  [WalletType.DEFAULT]: 'deposiWallet',
+  [WalletType.PRE_MIX]: 'premixWallet',
+  [WalletType.POST_MIX]: 'postmixWallet',
+  [WalletType.BAD_BANK]: 'badbankWallet',
+};
 
 export const getWalletsData = (wallets: Wallet[]) => {
-  const typeMap = {
-    [WalletType.PRE_MIX]: 'premixWallet',
-    [WalletType.POST_MIX]: 'postmixWallet',
-    [WalletType.BAD_BANK]: 'badbankWallet',
-  };
   let walletsDBdata: Wallet[] = _.clone(wallets);
   let walletsData = [];
   walletsDBdata.forEach((wallet) => {
@@ -22,7 +23,7 @@ export const getWalletsData = (wallets: Wallet[]) => {
         (defaultWallet) => defaultWallet.id === wallet.depositWalletId
       );
       if (parentWallet) {
-        parentWallet.whirlpoolConfig[typeMap[wallet.type]] = wallet;
+        parentWallet.whirlpoolConfig[whirlpoolWalletTypeMap[wallet.type]] = wallet;
       }
     }
   });
