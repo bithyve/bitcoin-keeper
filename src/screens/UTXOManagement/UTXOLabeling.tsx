@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -10,6 +10,9 @@ import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
+import { LabelType } from 'src/core/wallets/enums';
+import { useDispatch } from 'react-redux';
+import { addLabels } from 'src/store/sagaActions/utxos';
 
 const labelRenderItem = ({ item }) => (
   <Box style={styles.itemWrapper}>
@@ -25,13 +28,29 @@ const labelRenderItem = ({ item }) => (
 function UTXOLabeling() {
   const navigation = useNavigation();
   const {
-    params: { utxo },
-  } = useRoute() as { params: { utxo: UTXO } };
+    params: { utxo, wallet },
+  } = useRoute() as { params: { utxo: UTXO; wallet: any } };
   const [label, setLabel] = useState('');
   const [addLabelModal, setAddLabelModal] = useState(false);
   const { labels } = useLabels({ utxos: [utxo] });
+  const [existingLabels, setExistingLabels] = useState([]);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    // setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
+    setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
+  }, [labels]);
+
+  useEffect(() => {    
+  }, [existingLabels]);
+
   const closeLabelModal = () => {
     setAddLabelModal(false);
+  };
+  const onAddClick = () => {
+    closeLabelModal();
+    existingLabels.push({ name: label, type: LabelType.USER });
+    setLabel('');
   };
   function AddLabelInput() {
     return (
@@ -53,6 +72,13 @@ function UTXOLabeling() {
       </Box>
     );
   }
+  const onSaveChangeClick = () => {
+    const names: string[] = [];
+    existingLabels.map((item) => {
+      if (item.type !== LabelType.SYSTEM) names.push(item.name);
+    });
+    dispatch(addLabels({ walletId: wallet?.id, names, UTXO: utxo}));
+  };
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -70,14 +96,14 @@ function UTXOLabeling() {
       </TouchableOpacity>
       <FlatList
         style={{ marginTop: 20 }}
-        data={labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []}
+        data={existingLabels}
         renderItem={labelRenderItem}
         keyExtractor={(item) => `${item.txId}${item.vout}`}
         showsVerticalScrollIndicator={false}
       />
       <Box style={styles.ctaBtnWrapper}>
         <Box ml={windowWidth * -0.09}>
-          <Buttons primaryText="Save Changes" />
+          <Buttons primaryCallback={onSaveChangeClick} primaryText="Save Changes" />
         </Box>
       </Box>
       <KeeperModal
@@ -90,6 +116,7 @@ function UTXOLabeling() {
         textColor="light.primaryText"
         Content={AddLabelInput}
         justifyContent="center"
+        buttonCallback={onAddClick}
       />
     </ScreenWrapper>
   );
