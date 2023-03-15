@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -37,12 +37,8 @@ function UTXOLabeling() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
     setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
-  }, [labels]);
-
-  useEffect(() => {    
-  }, [existingLabels]);
+  }, []);
 
   const closeLabelModal = () => {
     setAddLabelModal(false);
@@ -52,8 +48,8 @@ function UTXOLabeling() {
     existingLabels.push({ name: label, type: LabelType.USER });
     setLabel('');
   };
-  function AddLabelInput() {
-    return (
+  const AddLabelInput = useCallback(
+    () => (
       <Box>
         <Input
           onChangeText={(text) => {
@@ -70,14 +66,15 @@ function UTXOLabeling() {
           autoCorrect={false}
         />
       </Box>
-    );
-  }
+    ),
+    []
+  );
   const onSaveChangeClick = () => {
     const names: string[] = [];
     existingLabels.map((item) => {
       if (item.type !== LabelType.SYSTEM) names.push(item.name);
     });
-    dispatch(addLabels({ walletId: wallet?.id, names, UTXO: utxo}));
+    dispatch(addLabels({ walletId: wallet?.id, names, UTXO: utxo }));
   };
   return (
     <ScreenWrapper>

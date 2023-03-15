@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { UTXO, UTXOInfo } from 'src/core/wallets/interfaces';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -7,11 +7,11 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { LabelType } from 'src/core/wallets/enums';
 
 const useLabels = ({ utxos }: { utxos: UTXO[] }) => {
-  const [labels, setLabels] = useState<any>(null);
   const { useQuery } = useContext(RealmWrapperContext);
   const utxoInfoTable = useQuery(RealmSchema.UTXOInfo);
   const wallets = useQuery(RealmSchema.Wallet);
-  useEffect(() => {
+
+  const labels = useMemo(() => {
     const labels = {};
     utxos.forEach((utxo) => {
       const labelId = `${utxo.txId}${utxo.vout}`;
@@ -25,8 +25,9 @@ const useLabels = ({ utxos }: { utxos: UTXO[] }) => {
       utxoLabels.push({ name: wallet.presentationData.name, type: LabelType.SYSTEM });
       labels[labelId] = utxoLabels;
     });
-    setLabels(labels);
-  }, []);
+    return labels;
+  }, [utxos]);
+
   return { labels };
 };
 
