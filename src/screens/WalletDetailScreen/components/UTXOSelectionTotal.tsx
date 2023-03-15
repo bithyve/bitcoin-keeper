@@ -4,8 +4,13 @@ import { Box } from 'native-base'
 import Text from 'src/components/KeeperText'
 import { hp } from 'src/common/data/responsiveness/responsive'
 import BtcBlack from 'src/assets/images/btc_black.svg';
+import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin'
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode'
+import { useAppSelector } from 'src/store/hooks'
 
 function UTXOSelectionTotal(props) {
+    const currencyCode = useCurrencyCode();
+    const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
     return (
         <Box style={styles.tabWrapper}>
             <Box style={styles.selectionWrapper}>
@@ -14,7 +19,7 @@ function UTXOSelectionTotal(props) {
             <Box style={styles.totalWrapper}>
                 <Text style={styles.selectionTotalText}>Total</Text>
                 <Box style={styles.totalView}>
-                    <BtcBlack />
+                    {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
                     <Text style={styles.selectionText}>&nbsp;{props.selectionTotal}</Text>
                 </Box>
             </Box>
