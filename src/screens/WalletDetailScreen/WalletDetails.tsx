@@ -56,6 +56,7 @@ function TransactionsAndUTXOs({
           setSelectionTotal={setSelectionTotal}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
+          currentWallet={currentWallet}
         />
       )}
     </Box>

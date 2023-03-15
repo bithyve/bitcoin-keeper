@@ -14,6 +14,7 @@ function* addLabelsWorker({
 }) {
   const { UTXO, walletId, names } = payload;
   const { txId, vout } = UTXO;
+  console.log('skk inside name', JSON.stringify(names))
   yield call(dbManager.createObject, RealmSchema.UTXOInfo, {
     id: `${txId}${vout}`,
     txId,

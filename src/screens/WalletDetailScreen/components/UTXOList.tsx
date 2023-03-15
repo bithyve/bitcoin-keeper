@@ -30,6 +30,7 @@ function UTXOElement({
   exchangeRates,
   satsEnabled,
   labels,
+  currentWallet
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   return (
@@ -53,7 +54,7 @@ function UTXOElement({
           });
           setSelectionTotal(utxoSum);
         } else {
-          navigation.dispatch(CommonActions.navigate('UTXOLabeling', { utxo: item }));
+          navigation.dispatch(CommonActions.navigate('UTXOLabeling', { utxo: item, wallet: currentWallet }));
         }
       }}
     >
@@ -119,6 +120,7 @@ function UTXOList({
   setSelectionTotal,
   selectedUTXOMap,
   setSelectedUTXOMap,
+  currentWallet,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -147,6 +149,7 @@ function UTXOList({
           currentCurrency={currentCurrency}
           exchangeRates={exchangeRates}
           satsEnabled={satsEnabled}
+          currentWallet={currentWallet}
         />
       )}
       keyExtractor={(item: UTXO) => item.txId}
