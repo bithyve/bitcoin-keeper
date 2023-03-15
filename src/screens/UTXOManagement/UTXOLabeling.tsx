@@ -42,7 +42,8 @@ function UTXOLabeling() {
   }, [labels]);
 
   useEffect(() => {
-    console.log('skk exis labels', JSON.stringify(existingLabels));
+    // console.log('skk exis labels', JSON.stringify(existingLabels));
+    
   }, [existingLabels]);
 
   const closeLabelModal = () => {
@@ -74,14 +75,14 @@ function UTXOLabeling() {
     );
   }
   const onSaveChangeClick = () => {
-    console.log('skk wallet', JSON.stringify(wallet));
-    console.log('skk utxo', JSON.stringify(utxo));
+    // console.log('skk wallet', JSON.stringify(wallet));
+    // console.log('skk utxo', JSON.stringify(utxo));
     const names: string[] = [];
     existingLabels.map((item) => {
       if (item.type !== LabelType.SYSTEM) names.push(item.name);
     });
-    console.log('skk names', JSON.stringify(names));
-    dispatch(addLabels({ walletId: wallet?.id, names, UTXO: utxo }));
+    // console.log('skk names', JSON.stringify(names));
+    dispatch(addLabels({ walletId: wallet?.id, names, UTXO: utxo}));
   };
   return (
     <ScreenWrapper>
