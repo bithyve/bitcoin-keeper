@@ -21,9 +21,10 @@ export default class WhirlpoolClient {
     return { agent, endpoints };
   };
 
-  static getPools = async (api: WhirlpoolAPI): Array<PoolData> => MOCK_POOL_DATA;
+  static getPools = async (api: WhirlpoolAPI): Promise<PoolData[]> => MOCK_POOL_DATA;
 
-  static getTx0Data = async (api: WhirlpoolAPI, scode?: string): Array<TX0Data> => MOCK_TX0_DATA;
+  static getTx0Data = async (api: WhirlpoolAPI, scode?: string): Promise<TX0Data[]> =>
+    MOCK_TX0_DATA;
 
   /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
@@ -77,13 +78,13 @@ export default class WhirlpoolClient {
   static getTx0FromPreview = (
     preview: Preview,
     tx0data: TX0Data,
-    inputs: InputUTXOs,
-    deposit: Wallet, // for mock only(not required for the rust client)
+    inputs: InputUTXOs[],
     outputProvider: {
       // for mock only(output provider for rust-client works differently)
       premix: string[]; // count: preview.n_premix_outputs
       badbank: string;
-    }
+    },
+    deposit: Wallet // for mock only(not required for the rust client)
   ): string => {
     // preview.into_psbt -> constructs the psbt and does the validation
 
