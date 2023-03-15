@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 import { InputUTXOs } from 'src/core/wallets/interfaces';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Network, PoolData, Preview, TorConfig, TX0Data, WhirlpoolAPI } from './interface';
 import { MOCK_POOL_DATA, MOCK_TX0_DATA } from './mock';
-import { getAPIEndpoints } from './utils';
+import { generateMockTransaction, getAPIEndpoints } from './utils';
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
@@ -20,9 +21,9 @@ export default class WhirlpoolClient {
     return { agent, endpoints };
   };
 
-  static getPools = (api: WhirlpoolAPI): Array<PoolData> => MOCK_POOL_DATA;
+  static getPools = async (api: WhirlpoolAPI): Array<PoolData> => MOCK_POOL_DATA;
 
-  static getTx0Data = (api: WhirlpoolAPI, scode: string): Array<TX0Data> => MOCK_TX0_DATA;
+  static getTx0Data = async (api: WhirlpoolAPI, scode?: string): Array<TX0Data> => MOCK_TX0_DATA;
 
   /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
@@ -73,9 +74,24 @@ export default class WhirlpoolClient {
    * Constructs Tx0 from Preview and returns the correspodning serializedPSBT for signing
    * Note: we are merging getTx0FromPreview w/ getTx0Preview as passing the preview struct from JS to Rust could be an issue
    */
-  static getTx0FromPreview = (preview: Preview, tx0data: TX0Data, inputs: InputUTXOs): string => {
+  static getTx0FromPreview = (
+    preview: Preview,
+    tx0data: TX0Data,
+    inputs: InputUTXOs,
+    deposit: Wallet, // for mock only(not required for the rust client)
+    outputProvider: {
+      // for mock only(output provider for rust-client works differently)
+      premix: string[]; // count: preview.n_premix_outputs
+      badbank: string;
+    }
+  ): string => {
     // preview.into_psbt -> constructs the psbt and does the validation
-    const serializedPSBT = '';
+
+    if (outputProvider.premix.length !== preview.n_premix_outputs)
+      throw new Error(`Please supply enough(${preview.n_premix_outputs}) premix addresses`);
+
+    const PSBT = generateMockTransaction(inputs, preview, tx0data, deposit, outputProvider);
+    const serializedPSBT = PSBT.toBase64();
     return serializedPSBT;
   };
 }
