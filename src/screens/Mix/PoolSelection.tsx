@@ -118,10 +118,9 @@ export default function PoolSelection({ route, navigation }) {
       />
 
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
-
-      <Box backgroundColor="light.primaryBackground" style={styles.poolSelection}>
-        <Text color="#017963">Pool</Text>
-        {availablePools && availablePools.length > 0 && utxoTotal > minMixAmount ? (
+      {availablePools && availablePools.length > 0 && utxoTotal > minMixAmount ? (
+        <Box backgroundColor="light.primaryBackground" style={styles.poolSelection}>
+          <Text color="#017963">Pool</Text>
           <TouchableOpacity onPress={() => setShowPools(true)}>
             <Box style={{ flexDirection: 'row' }}>
               <Box style={styles.poolTextDirection}>
@@ -137,13 +136,18 @@ export default function PoolSelection({ route, navigation }) {
               </Box>
             </Box>
           </TouchableOpacity>
-        ) : (
-          <Text color="rgba(255,0,51,1)">
-            No available pools. Need minimum {minMixAmount} sats for premix
+        </Box>
+      ) : (
+        <Box
+          backgroundColor="light.primaryBackground"
+          style={[styles.poolSelection, styles.poolErrorContainer]}
+        >
+          <Text style={styles.poolErrorText}>
+            Pools not available. Min <Text style={{ fontWeight: 'bold' }}>{minMixAmount}</Text> sats
+            required
           </Text>
-        )}
-      </Box>
-
+        </Box>
+      )}
       <Box style={styles.textArea}>
         <Text color="#017963">Anonset</Text>
         <Text color="light.secondaryText">
@@ -242,6 +246,14 @@ const styles = StyleSheet.create({
     paddingTop: 4,
     fontSize: 16,
     fontFamily: Fonts.RobotoCondensedRegular,
+  },
+  poolErrorContainer: {
+    borderColor: '#F58E6F',
+    borderWidth: 1,
+  },
+  poolErrorText: {
+    color: '#F58E6F',
+    padding: 5,
   },
   denominatorText: {
     fontSize: 12,
