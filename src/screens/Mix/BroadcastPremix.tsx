@@ -51,11 +51,10 @@ const broadcastModalContent = (onBroadcastModalCallback) => {
 };
 
 export default function BroadcastPremix({ route, navigation }) {
-  const { scode, fee, utxos, utxoCount, utxoTotal, pool, premixOutputCount } = route.params;
+  const { scode, utxos, utxoCount, utxoTotal, tx0Preview } = route.params;
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [premixOutputs, setPremixOutputs] = useState([]);
-  const [badbankChange, setBadbankChange] = useState(0);
 
   useEffect(() => {
     setPremixOutputsAndBadbank();
@@ -63,13 +62,10 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
-    for (let i = 0; i < premixOutputCount; i++) {
-      outputs.push({ amount: pool.must_mix_balance_cap });
+    for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
+      outputs.push(tx0Preview.premix_value);
     }
     setPremixOutputs(outputs);
-    setBadbankChange(
-      utxoTotal - fee.averageTxFee - pool.fee_value - pool.must_mix_balance_cap * premixOutputCount
-    );
   };
 
   const onBroadcastPremix = () => {
@@ -108,7 +104,9 @@ export default function BroadcastPremix({ route, navigation }) {
           Whirlpool Fee
         </Text>
         <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(pool?.fee_value)}</Text>
+          <Text color="light.secondaryText">
+            {valueByPreferredUnit(tx0Preview.coordinator_fee)}
+          </Text>
           <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
             {getPreferredUnit()}
           </Text>
@@ -119,7 +117,7 @@ export default function BroadcastPremix({ route, navigation }) {
           Badbank Change
         </Text>
         <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(badbankChange)}</Text>
+          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
           <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
             {getPreferredUnit()}
           </Text>
@@ -133,7 +131,7 @@ export default function BroadcastPremix({ route, navigation }) {
                 Premix #{index + 1}
               </Text>
               <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{valueByPreferredUnit(output.amount)}</Text>
+                <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
                 <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
                   {getPreferredUnit()}
                 </Text>
@@ -146,7 +144,7 @@ export default function BroadcastPremix({ route, navigation }) {
           Fee
         </Text>
         <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(fee?.averageTxFee)}</Text>
+          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.miner_fee)}</Text>
           <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
             {getPreferredUnit()}
           </Text>

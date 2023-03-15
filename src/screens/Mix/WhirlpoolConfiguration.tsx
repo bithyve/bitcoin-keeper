@@ -131,8 +131,9 @@ export default function WhirlpoolConfiguration({ route }) {
   const onProceed = () => {
     navigation.navigate('PoolSelection', {
       scode,
-      fee: selectedFee,
-      utxo: utxos,
+      premixFee: selectedFee,
+      minerFee: fees[0],
+      utxos,
       utxoCount,
       utxoTotal,
     });

@@ -15,7 +15,10 @@ import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import UtxoSummary from './UtxoSummary';
 import PageIndicator from 'src/components/PageIndicator';
 import Fonts from 'src/common/Fonts';
-import { mixingPools } from './tempPoolData';
+import WhirlpoolClient, { TOR_CONFIG } from 'src/core/services/whirlpool/client';
+import config from 'src/core/config';
+import { NetworkType } from 'src/core/wallets/enums';
+import { Network } from 'src/core/services/whirlpool/interface';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => {
   return (
@@ -40,7 +43,7 @@ const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => {
 };
 
 export default function PoolSelection({ route, navigation }) {
-  const { scode, fee, utxos, utxoCount, utxoTotal } = route.params;
+  const { scode, premixFee, minerFee, utxos, utxoCount, utxoTotal } = route.params;
   const [showPools, setShowPools] = useState(false);
   const [availablePools, setAvailablePools] = useState([]);
   const [selectedPool, setSelectedPool] = useState('');
@@ -48,29 +51,45 @@ export default function PoolSelection({ route, navigation }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [premixOutput, setPremixOutput] = useState(0);
   const [minMixAmount, setMinMixAmount] = useState(0);
+  const [whirlpoolApi, setWhirlpoolApi] = useState(null);
+  const [tx0Data, setTx0Data] = useState(null);
+  const [tx0Preview, setTx0Preview] = useState(null);
 
   useEffect(() => {
-    setPools();
-    console.log(scode, fee);
+    initWhirlpoolClient();
+    initPoolData();
   }, []);
 
-  const setPools = async () => {
+  const initWhirlpoolClient = async () => {
+    try {
+      const api = WhirlpoolClient.initiateAPI(
+        TOR_CONFIG,
+        config.NETWORK_TYPE === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin
+      );
+      setWhirlpoolApi(api);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const initPoolData = async () => {
     try {
       setPoolSelectionText('Fetching Pools...');
-      const response: any = await mixingPools();
+      const response: any = await WhirlpoolClient.getPools(whirlpoolApi);
       const sortedPools = response?.sort((a, b) => a.denomination - b.denomination);
 
-      setMinMixAmount(sortedPools[0].must_mix_balance_cap + fee.averageTxFee);
+      setMinMixAmount(sortedPools[0].must_mix_balance_cap + premixFee.averageTxFee);
 
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
+
+      const tx0 = await WhirlpoolClient.getTx0Data(whirlpoolApi, utxos);
+      setTx0Data(tx0);
 
       if (filteredByUtxoTotal.length > 0) {
         setSelectedPool(filteredByUtxoTotal[0]);
         onPoolSelectionCallback(filteredByUtxoTotal[0]);
       }
-
-      setPoolSelectionText('Select Pool');
     } catch (error) {
       console.log(error);
     }
@@ -83,19 +102,25 @@ export default function PoolSelection({ route, navigation }) {
   const onPreviewMix = () => {
     navigation.navigate('BroadcastPremix', {
       scode,
-      fee,
       utxos,
       utxoCount,
       utxoTotal,
-      pool: selectedPool,
-      premixOutputCount: premixOutput,
+      tx0Preview,
     });
   };
 
   const onPoolSelectionCallback = (pool) => {
     setSelectedPool(pool);
-    const premixOutputs = Math.floor(utxoTotal / pool.denomination);
-    setPremixOutput(premixOutputs);
+    const tx0Preview = WhirlpoolClient.getTx0Preview(
+      tx0Data,
+      pool,
+      premixFee.feePerByte,
+      minerFee.feePerByte,
+      utxos
+    );
+    console.log('tx0Preview', tx0Preview);
+    setPremixOutput(tx0Preview?.n_premix_outputs);
+    setTx0Preview(tx0Preview);
     setShowPools(false);
   };
 
