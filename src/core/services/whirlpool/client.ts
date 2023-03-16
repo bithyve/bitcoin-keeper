@@ -84,7 +84,7 @@ export default class WhirlpoolClient {
     //     n_pool_max_outputs: u16
     //     )
 
-    const minerFee = 256; // paying average tx fee for now(should be calculated using miner_fee_per_byte)
+    const minerFee = 1000; // paying average tx fee for now(should be calculated using miner_fee_per_byte)
     const n_premix_outputs = Math.floor(
       (inputs_value - pool.fee_value - minerFee) / pool.must_mix_balance_min
     );
@@ -143,7 +143,7 @@ export default class WhirlpoolClient {
     PSBT: bitcoinJS.Psbt
   ): bitcoinJS.Transaction => {
     const { signedPSBT } = WalletOperations.signTransaction(deposit, inputs, PSBT);
-    return signedPSBT.extractTransaction();
+    return signedPSBT.finalizeAllInputs().extractTransaction();
   };
 
   /**
@@ -175,7 +175,7 @@ export default class WhirlpoolClient {
 
     const network = WalletUtilities.getNetworkByType(premix.networkType);
     const outputsToPostmix: OutputUTXOs[] = [];
-    for (let i = 0; i < outputsToPostmix.length; i++) {
+    for (let i = 0; i < premixUTXOs.length; i++) {
       outputsToPostmix.push({
         address: WalletUtilities.getAddressByIndex(postmix.specs.xpub, false, i, network),
         value: pool.denomination,
@@ -190,7 +190,7 @@ export default class WhirlpoolClient {
 
     const { signedPSBT } = WalletOperations.signTransaction(premix, premixUTXOs, PSBT);
 
-    const txHex = signedPSBT.extractTransaction().toHex();
+    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const txid = await ElectrumClient.broadcast(txHex);
     return txid;
   };
