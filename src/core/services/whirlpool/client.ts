@@ -1,10 +1,12 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 import * as bitcoinJS from 'bitcoinjs-lib';
 import WalletOperations from 'src/core/wallets/operations';
 import ElectrumClient from 'src/core/services/electrum/client';
-import { InputUTXOs } from 'src/core/wallets/interfaces';
+import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletUtilities from 'src/core/wallets/operations/utils';
 import { Network, PoolData, Preview, TorConfig, TX0Data, WhirlpoolAPI } from './interface';
 import { MOCK_POOL_DATA, MOCK_TX0_DATA } from './mock';
 import { generateMockTransaction, getAPIEndpoints } from './utils';
@@ -152,6 +154,43 @@ export default class WhirlpoolClient {
    */
   static broadcastTx0 = async (tx0: bitcoinJS.Transaction, pool_id: string): Promise<string> => {
     const txHex = tx0.toHex();
+    const txid = await ElectrumClient.broadcast(txHex);
+    return txid;
+  };
+
+  /**
+   * mixing mock: whirlpooling from premix to postmix
+   * @param  {Wallet} premix
+   * @param  {Wallet} postmix
+   * @param  {PoolData} pool
+   * @returns {Promise} txid
+   */
+  static premixToPostmix = async (
+    premix: Wallet,
+    postmix: Wallet,
+    pool: PoolData
+  ): Promise<string> => {
+    const premixUTXOs = premix.specs.confirmedUTXOs;
+    if (premixUTXOs.length === 0) throw new Error('Premix wallet has no confirmed Tx0');
+
+    const network = WalletUtilities.getNetworkByType(premix.networkType);
+    const outputsToPostmix: OutputUTXOs[] = [];
+    for (let i = 0; i < outputsToPostmix.length; i++) {
+      outputsToPostmix.push({
+        address: WalletUtilities.getAddressByIndex(postmix.specs.xpub, false, i, network),
+        value: pool.denomination,
+      });
+    }
+
+    const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
+      network,
+    });
+    for (const input of premixUTXOs) WalletOperations.addInputToPSBT(PSBT, premix, input, network);
+    for (const output of outputsToPostmix) PSBT.addOutput(output);
+
+    const { signedPSBT } = WalletOperations.signTransaction(premix, premixUTXOs, PSBT);
+
+    const txHex = signedPSBT.extractTransaction().toHex();
     const txid = await ElectrumClient.broadcast(txHex);
     return txid;
   };
