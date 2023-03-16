@@ -70,6 +70,8 @@ function SendConfirmation({ route }) {
     walletId,
     transferType,
     uaiSetActionFalse,
+    note,
+    label,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -79,6 +81,8 @@ function SendConfirmation({ route }) {
     uiMetaData: any;
     transferType: TransferType;
     uaiSetActionFalse: any;
+    note: string;
+    label: string;
   } = route.params;
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -192,6 +196,8 @@ function SendConfirmation({ route }) {
         sendPhaseTwo({
           wallet: sender,
           txnPriority: transactionPriority,
+          note,
+          label,
         })
       );
     }
@@ -291,7 +297,6 @@ function SendConfirmation({ route }) {
         return '฿';
       }
       return currencyCode;
-
     };
 
     const getCardDetails = () => {

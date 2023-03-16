@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from 'react-native';
 import { Box } from 'native-base';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
@@ -29,7 +29,7 @@ import FinalizeFooter from './components/FinalizeFooter';
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
   tab,
-  transections,
+  transactions,
   setPullRefresh,
   pullRefresh,
   currentWallet,
@@ -43,7 +43,7 @@ function TransactionsAndUTXOs({
     <Box style={styles.transactionsListContainer}>
       {tab === 'Transactions' ? (
         <Transactions
-          transections={transections}
+          transactions={transactions}
           setPullRefresh={setPullRefresh}
           pullRefresh={pullRefresh}
           currentWallet={currentWallet}
@@ -94,7 +94,7 @@ function WalletDetails({ route }) {
   const [pullRefresh, setPullRefresh] = useState(false);
   const [tab, setActiveTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
-  const transections = wallets[walletIndex]?.specs?.transactions || [];
+  const transactions = wallets[walletIndex]?.specs?.transactions || [];
   const utxos = wallets[walletIndex]?.specs?.confirmedUTXOs || [];
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
@@ -102,30 +102,27 @@ function WalletDetails({ route }) {
   const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
 
   const { autoRefresh } = route?.params || {};
-  const cleanUp = () => {
+  const cleanUp = useCallback(() => {
     setSelectedUTXOMap({});
     setSelectionTotal(0);
-  };
-  const setEnableSelection = (value) => {
-    _setEnableSelection(value);
-    if (!value) {
-      cleanUp();
-    }
-  };
+  }, []);
+  const setEnableSelection = useCallback(
+    (value) => {
+      _setEnableSelection(value);
+      if (!value) {
+        cleanUp();
+      }
+    },
+    [cleanUp]
+  );
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
-  const flatListRef = useRef(null);
-  const handleScrollToIndex = (index) => {
-    if (index !== undefined && flatListRef && flatListRef?.current) {
-      flatListRef?.current?.scrollToIndex({ index });
-    }
-  };
+
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
     if (index?.index !== undefined) {
-      handleScrollToIndex(index?.index);
       setWalletIndex(index?.index);
     }
   });
@@ -141,12 +138,7 @@ function WalletDetails({ route }) {
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
       <WalletInfo />
-      <WalletList
-        flatListRef={flatListRef}
-        walletIndex={walletIndex}
-        onViewRef={onViewRef}
-        viewConfigRef={viewConfigRef}
-      />
+      <WalletList walletIndex={walletIndex} onViewRef={onViewRef} viewConfigRef={viewConfigRef} />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
           {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? (
@@ -156,7 +148,7 @@ function WalletDetails({ route }) {
           )}
           <TransactionsAndUTXOs
             tab={tab}
-            transections={transections}
+            transactions={transactions}
             setPullRefresh={setPullRefresh}
             pullRefresh={pullRefresh}
             currentWallet={currentWallet}
