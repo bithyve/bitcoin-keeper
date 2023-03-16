@@ -163,6 +163,7 @@ export interface SendPhaseTwoAction extends Action {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
     note?: string;
+    label?: string;
   };
 }
 
@@ -171,6 +172,7 @@ export const sendPhaseTwo = (payload: {
   txnPriority: TxPriority;
   token?: number;
   note?: string;
+  label?: string;
 }): SendPhaseTwoAction => ({
   type: SEND_PHASE_TWO,
   payload,

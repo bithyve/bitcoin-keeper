@@ -22,7 +22,7 @@ function TransactionItem({ item, navigation }) {
   );
 }
 
-function Transactions({ transections, setPullRefresh, pullRefresh, currentWallet }) {
+function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
@@ -34,7 +34,7 @@ function Transactions({ transections, setPullRefresh, pullRefresh, currentWallet
   return (
     <FlatList
       refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
-      data={transections}
+      data={transactions}
       renderItem={({ item }) => <TransactionItem item={item} navigation={navigation} />}
       keyExtractor={(item) => item}
       showsVerticalScrollIndicator={false}

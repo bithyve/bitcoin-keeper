@@ -6,7 +6,7 @@ import { Shadow } from 'react-native-shadow-2';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Text from 'src/components/KeeperText';
@@ -166,7 +166,7 @@ function WalletItem({
   );
 }
 
-function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef }: any) {
+function WalletList({ walletIndex, onViewRef, viewConfigRef }: any) {
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
   const exchangeRates = useExchangeRates();
@@ -178,10 +178,13 @@ function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef }: any)
   return (
     <Box style={styles.walletsContainer}>
       <FlatList
-        ref={flatListRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         data={wallets.concat({ isEnd: true })}
+        disableIntervalMomentum
+        decelerationRate="fast"
+        snapToInterval={windowWidth * 0.8 + 15}
+        snapToAlignment="start"
         renderItem={({ item, index }) => (
           <WalletItem
             item={item}
@@ -197,7 +200,6 @@ function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef }: any)
         )}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewConfigRef.current}
-        snapToAlignment="start"
       />
     </Box>
   );
@@ -211,7 +213,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%',
   },
-
   center: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   },
   walletContainer: {
     borderRadius: hp(10),
-    width: wp(310),
+    width: windowWidth * 0.8,
     height: hp(windowHeight > 700 ? 145 : 150),
     padding: wp(15),
     position: 'relative',
