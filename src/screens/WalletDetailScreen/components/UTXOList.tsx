@@ -16,6 +16,8 @@ import Selected from 'src/assets/images/selected.svg';
 import useLabels from 'src/hooks/useLabels';
 import { LabelType } from 'src/core/wallets/enums';
 import Colors from 'src/theme/Colors';
+import { useDispatch } from 'react-redux';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
 
 function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
   const { labels } = props;
@@ -149,11 +151,14 @@ function UTXOList({
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const { labels } = useLabels({ utxos: utxoState });
-
+  const { labels, syncing } = useLabels({ utxos: utxoState, wallet: currentWallet });
+  const dispatch = useDispatch();
+  const pullDownRefresh = () => dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
   return (
     <FlatList
       data={utxoState}
+      refreshing={syncing}
+      onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
         <UTXOElement
           labels={labels ? labels[`${item.txId}${item.vout}`] || [] : []}

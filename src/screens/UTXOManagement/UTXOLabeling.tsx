@@ -32,7 +32,7 @@ function UTXOLabeling() {
   } = useRoute() as { params: { utxo: UTXO; wallet: any } };
   const [label, setLabel] = useState('');
   const [addLabelModal, setAddLabelModal] = useState(false);
-  const { labels } = useLabels({ utxos: [utxo] });
+  const { labels } = useLabels({ utxos: [utxo], wallet });
   const [existingLabels, setExistingLabels] = useState([]);
   const dispatch = useDispatch();
 

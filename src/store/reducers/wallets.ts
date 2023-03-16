@@ -20,6 +20,8 @@ export type WalletsState = {
 
   resetTwoFALoader: boolean;
   introModal: boolean;
+
+  syncing: boolean;
 };
 
 const initialState: WalletsState = {
@@ -38,6 +40,8 @@ const initialState: WalletsState = {
 
   resetTwoFALoader: false,
   introModal: true,
+
+  syncing: false,
 };
 
 const walletSlice = createSlice({
@@ -59,6 +63,9 @@ const walletSlice = createSlice({
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
     },
+    setSyncing: (state, action: PayloadAction<boolean>) => {
+      state.syncing = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -75,6 +82,7 @@ export const {
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
+  setSyncing,
 } = walletSlice.actions;
 
 const walletPersistConfig = {
