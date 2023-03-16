@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, Modal, StyleSheet } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -21,7 +21,7 @@ const utxos = [
   { transactionId: 5, amount: 0.0001 },
 ];
 
-const broadcastModalContent = (onBroadcastModalCallback) => {
+const broadcastModalContent = (loading, onBroadcastModalCallback) => {
   return (
     <Box>
       <Box>
@@ -43,6 +43,11 @@ const broadcastModalContent = (onBroadcastModalCallback) => {
           them with mixed funds.
         </Text>
       </Box>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+        <Box style={styles.activityIndicator}>
+          <ActivityIndicator color="#017963" size="large" />
+        </Box>
+      </Modal>
       <Box style={styles.modalFooter}>
         <Buttons primaryText="Proceed" primaryCallback={() => onBroadcastModalCallback()} />
       </Box>
@@ -51,10 +56,11 @@ const broadcastModalContent = (onBroadcastModalCallback) => {
 };
 
 export default function BroadcastPremix({ route, navigation }) {
-  const { scode, utxos, utxoCount, utxoTotal, tx0Preview } = route.params;
+  const { scode, utxos, utxoCount, utxoTotal, tx0Preview, wallet, WhirlpoolClient } = route.params;
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [premixOutputs, setPremixOutputs] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setPremixOutputsAndBadbank();
@@ -76,7 +82,17 @@ export default function BroadcastPremix({ route, navigation }) {
     setShowBroadcastModal(false);
   };
 
-  const onBroadcastModalCallback = () => {
+  const onBroadcastModalCallback = async () => {
+    console.log('onBroadcastModalCallback');
+    console.log('wallet', wallet);
+    console.log('utxos', utxos);
+    console.log('tx0Preview', tx0Preview);
+    setLoading(true);
+    const tx = WhirlpoolClient.signTx0(wallet, utxos, tx0Preview);
+    console.log('tx', tx);
+    const txid = await WhirlpoolClient.broadcastTx0(wallet, tx);
+    console.log('txid', txid);
+    setLoading(false);
     setShowBroadcastModal(false);
     navigation.navigate('WalletDetails');
   };
@@ -173,7 +189,7 @@ export default function BroadcastPremix({ route, navigation }) {
         buttonTextColor="#FAFAFA"
         buttonCallback={closeBroadcastModal}
         closeOnOverlayClick={false}
-        Content={() => broadcastModalContent(onBroadcastModalCallback)}
+        Content={() => broadcastModalContent(loading, onBroadcastModalCallback)}
       />
     </ScreenWrapper>
   );
@@ -215,5 +231,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     marginTop: 10,
     marginBottom: 10,
+  },
+  activityIndicator: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

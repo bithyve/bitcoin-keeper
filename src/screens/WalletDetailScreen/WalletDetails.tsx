@@ -81,6 +81,7 @@ function Footer({
       setEnableSelection={setEnableSelection}
       enableSelection={enableSelection}
       utxos={utxos}
+      wallet={currentWallet}
     />
   );
 }
@@ -105,7 +106,7 @@ function WalletDetails({ route }) {
         utxo.selected = false;
         return utxo;
       })) ||
-    []
+      []
   );
   const [enableSelection, setEnableSelection] = useState(false);
   const { autoRefresh } = route?.params || {};
@@ -135,69 +136,73 @@ function WalletDetails({ route }) {
 
   const AccountComponent = ({ title, balance, onPress, icon }) => {
     return (
-      <Pressable style={{
-        marginTop: hp(20),
-        paddingHorizontal: wp(15),
-        paddingVertical: hp(10),
-        height: hp(55),
-        width: wp(270),
-        alignSelf: 'center',
-        justifyContent: 'center',
-        borderRadius: hp(5),
-      }}
+      <Pressable
+        style={{
+          marginTop: hp(20),
+          paddingHorizontal: wp(15),
+          paddingVertical: hp(10),
+          height: hp(55),
+          width: wp(270),
+          alignSelf: 'center',
+          justifyContent: 'center',
+          borderRadius: hp(5),
+        }}
         backgroundColor="light.lightAccent"
         onPress={onPress}
       >
-        <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Box
+          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+        >
           <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
             {icon}
-            <Text style={{ fontSize: 13, letterSpacing: 1, marginLeft: wp(10) }}>
-              {title}
-            </Text>
+            <Text style={{ fontSize: 13, letterSpacing: 1, marginLeft: wp(10) }}>{title}</Text>
           </Box>
           <Box flexDirection={'row'}>
             <Box
               style={{
-                marginRight: 3, marginTop: 3
+                marginRight: 3,
+                marginTop: 3,
               }}
             >
               <BTC />
             </Box>
-            <Text style={{ fontSize: 20, letterSpacing: 1 }}>
-              {balance}
-            </Text>
+            <Text style={{ fontSize: 20, letterSpacing: 1 }}>{balance}</Text>
           </Box>
         </Box>
       </Pressable>
     );
-  }
+  };
 
   function SelectAccountContent() {
     return (
-      <View >
+      <View>
         <AccountComponent
           title={'Deposit'}
           balance={'0.000024'}
-          onPress={() => { }}
-          icon={<Deposit />} />
+          onPress={() => {}}
+          icon={<Deposit />}
+        />
 
         <AccountComponent
           title={'PreMix Account'}
           balance={'0.000024'}
-          onPress={() => { }}
-          icon={<PreMix />} />
+          onPress={() => {}}
+          icon={<PreMix />}
+        />
 
         <AccountComponent
           title={'PostMix Account'}
           balance={'0.000024'}
-          onPress={() => { }}
-          icon={<PostMix />} />
+          onPress={() => {}}
+          icon={<PostMix />}
+        />
 
         <AccountComponent
           title={'Bad bank Account'}
           balance={'0.000024'}
-          onPress={() => { }}
-          icon={<BadBank />} />
+          onPress={() => {}}
+          icon={<BadBank />}
+        />
       </View>
     );
   }
@@ -255,7 +260,7 @@ function WalletDetails({ route }) {
       <KeeperModal
         visible={selectAccount}
         close={() => {
-          setselectAccount(false)
+          setselectAccount(false);
         }}
         title="Select Account"
         subTitle="Select Account Type"

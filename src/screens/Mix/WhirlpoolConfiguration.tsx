@@ -63,7 +63,7 @@ function WhirlpoolContent() {
 }
 
 export default function WhirlpoolConfiguration({ route }) {
-  const { utxos } = route.params;
+  const { utxos, wallet } = route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const whirlpoolModal = useAppSelector((state) => state.wallet.whirlpoolModal) || false;
@@ -136,6 +136,7 @@ export default function WhirlpoolConfiguration({ route }) {
       utxos,
       utxoCount,
       utxoTotal,
+      wallet,
     });
   };
 

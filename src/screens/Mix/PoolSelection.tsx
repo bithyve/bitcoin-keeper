@@ -43,7 +43,7 @@ const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => {
 };
 
 export default function PoolSelection({ route, navigation }) {
-  const { scode, premixFee, minerFee, utxos, utxoCount, utxoTotal } = route.params;
+  const { scode, premixFee, minerFee, utxos, utxoCount, utxoTotal, wallet } = route.params;
   const [showPools, setShowPools] = useState(false);
   const [availablePools, setAvailablePools] = useState([]);
   const [selectedPool, setSelectedPool] = useState('');
@@ -106,6 +106,8 @@ export default function PoolSelection({ route, navigation }) {
       utxoCount,
       utxoTotal,
       tx0Preview,
+      wallet,
+      WhirlpoolClient,
     });
   };
 
