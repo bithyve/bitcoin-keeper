@@ -16,7 +16,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -32,7 +32,10 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
-import WalletDetails from './WalletDetails';
+import { UTXO } from 'src/core/wallets/interfaces';
+import config from 'src/core/config';
+import { TxPriority } from 'src/core/wallets/enums';
+import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -43,12 +46,14 @@ function AddSendAmount({ route }) {
     address,
     amount: prefillAmount,
     transferType,
+    selectedUTXOs,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
     address: string;
     amount: string;
     transferType: TransferType;
+    selectedUTXOs: UTXO[];
   } = route.params;
 
   const [amount, setAmount] = useState(prefillAmount || '');
@@ -56,15 +61,18 @@ function AddSendAmount({ route }) {
   const [note, setNote] = useState('');
   const [label, setLabel] = useState('');
 
-  const [error, setError] = useState(false); // this state will handle error
+  const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
   const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
+  const { averageTxFees } = useAppSelector((state) => state.network);
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
+  const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+  const utxoTotal = selectedUTXOs ? SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0)) : 0;
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -83,14 +91,25 @@ function AddSendAmount({ route }) {
     const sendMaxBalance = confirmBalance - sendMaxFee;
 
     if (Number(amount) > SatsToBtc(sendMaxBalance)) {
-      setError(true);
+      setErrorMessage('Amount entered is more than available to spend');
     } else {
-      setError(false);
+      setErrorMessage('');
     }
     if (currentCurrency === CurrencyKind.BITCOIN) {
       setAmountToSend(BtcToSats(parseFloat(amount)));
     } else {
       setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+    }
+    if (selectedUTXOs && selectedUTXOs.length) {
+      if (
+        Number(utxoTotal) > Number(amount) &&
+        Number(utxoTotal) < Number(amount) + Number(SatsToBtc(minimumAvgFeeRequired))
+      ) {
+        setErrorMessage('Please select enough UTXOs to accommodate fee');
+      }
+      if (Number(utxoTotal) < Number(amount)) {
+        setErrorMessage('Please select enough UTXOs to send');
+      }
     }
   }, [amount]);
 
@@ -131,6 +150,7 @@ function AddSendAmount({ route }) {
       sendPhaseOne({
         wallet: sender,
         recipients,
+        UTXOs: selectedUTXOs,
       })
     );
   };
@@ -163,7 +183,8 @@ function AddSendAmount({ route }) {
           marginVertical: hp(5),
         }}
       >
-        <WalletDetails
+        <WalletSendInfo
+          selectedUTXOs={selectedUTXOs}
           availableAmt={getAmt(
             sender?.specs.balances.confirmed,
             exchangeRates,
@@ -189,7 +210,7 @@ function AddSendAmount({ route }) {
           paddingHorizontal: 10,
         }}
       >
-        {error && (
+        {errorMessage && (
           <Text
             color="light.indicator"
             style={{
@@ -200,12 +221,12 @@ function AddSendAmount({ route }) {
               marginRight: 10,
             }}
           >
-            Amount entered is more than available to spend
+            {errorMessage}
           </Text>
         )}
         <Box
           backgroundColor="light.primaryBackground"
-          borderColor={error ? 'light.indicator' : 'transparent'}
+          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
           style={styles.inputWrapper}
         >
           <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
@@ -267,7 +288,7 @@ function AddSendAmount({ route }) {
             style={styles.textInput}
             value={note}
             onChangeText={(value) => {
-              setNote(value)
+              setNote(value);
             }}
           />
         </Box>
@@ -278,33 +299,30 @@ function AddSendAmount({ route }) {
             style={styles.textInput}
             value={label}
             onChangeText={(value) => {
-              setLabel(value)
+              setLabel(value);
             }}
           />
         </Box>
         <Box style={styles.ctaBtnWrapper}>
           <Box ml={windowWidth * -0.09}>
             <Buttons
-              secondaryText="Manually Select UTXOs"
+              secondaryText="Cancel"
               secondaryCallback={() => {
-                if (!amountToSend) {
-                  showToast('Please enter a valid amount');
-                  return;
-                }
-                navigation.dispatch(
-                  CommonActions.navigate('UTXOSelection', { sender, amount, address, note })
-                );
+                navigation.goBack();
               }}
-              secondaryDisable={Boolean(!amount || error)}
+              secondaryDisable={Boolean(!amount || errorMessage)}
               primaryText="Send"
-              primaryDisable={Boolean(!amount || error)}
+              primaryDisable={Boolean(!amount || errorMessage)}
               primaryCallback={executeSendPhaseOne}
             />
           </Box>
         </Box>
       </Box>
       <Box style={styles.infoNoteWrapper}>
-        <Text style={styles.infoNoteText}><Text style={styles.infoText}>Info : </Text>Contact labels help to keep your future activity private and organised. The information is not shared with anyone</Text>
+        <Text style={styles.infoNoteText}>
+          <Text style={styles.infoText}>Info : </Text>Contact labels help to keep your future
+          activity private and organised. The information is not shared with anyone
+        </Text>
       </Box>
     </ScreenWrapper>
   );
@@ -322,7 +340,7 @@ const styles = ScaledSheet.create({
     padding: 20,
     fontSize: 14,
     fontWeight: 'bold',
-    marginVertical: 5
+    marginVertical: 5,
   },
   transWrapper: {
     marginVertical: hp(5),
@@ -379,17 +397,17 @@ const styles = ScaledSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10
+    borderRadius: 10,
   },
   infoNoteText: {
     fontSize: 12,
     fontWeight: '300',
-    opacity: 1
+    opacity: 1,
   },
   infoText: {
     color: Colors.Black,
     fontWeight: 'bold',
-    opacity: 1
-  }
+    opacity: 1,
+  },
 });
 export default AddSendAmount;

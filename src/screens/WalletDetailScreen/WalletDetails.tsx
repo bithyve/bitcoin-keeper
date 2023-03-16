@@ -2,7 +2,6 @@ import { Platform, StyleSheet } from 'react-native';
 import { Box } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import _ from 'lodash';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -25,6 +24,7 @@ import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
+import FinalizeFooter from './components/FinalizeFooter';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
@@ -35,7 +35,6 @@ function TransactionsAndUTXOs({
   currentWallet,
   utxoState,
   enableSelection,
-  selectionTotal,
   setSelectionTotal,
   selectedUTXOMap,
   setSelectedUTXOMap,
@@ -53,7 +52,6 @@ function TransactionsAndUTXOs({
         <UTXOList
           utxoState={utxoState}
           enableSelection={enableSelection}
-          selectionTotal={selectionTotal}
           setSelectionTotal={setSelectionTotal}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
@@ -64,9 +62,23 @@ function TransactionsAndUTXOs({
   );
 }
 
-function Footer({ tab, currentWallet, onPressBuyBitcoin, setEnableSelection, enableSelection }) {
+function Footer({
+  tab,
+  currentWallet,
+  onPressBuyBitcoin,
+  setEnableSelection,
+  enableSelection,
+  selectedUTXOs,
+}) {
+  // eslint-disable-next-line no-nested-ternary
   return tab === 'Transactions' ? (
     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
+  ) : enableSelection ? (
+    <FinalizeFooter
+      currentWallet={currentWallet}
+      selectedUTXOs={selectedUTXOs}
+      setEnableSelection={setEnableSelection}
+    />
   ) : (
     <UTXOFooter setEnableSelection={setEnableSelection} enableSelection={enableSelection} />
   );
@@ -86,9 +98,21 @@ function WalletDetails({ route }) {
   const utxos = wallets[walletIndex]?.specs?.confirmedUTXOs || [];
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
+  const [enableSelection, _setEnableSelection] = useState(false);
+  const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
 
-  const [enableSelection, setEnableSelection] = useState(false);
   const { autoRefresh } = route?.params || {};
+  const cleanUp = () => {
+    setSelectedUTXOMap({});
+    setSelectionTotal(0);
+  };
+  const setEnableSelection = (value) => {
+    _setEnableSelection(value);
+    if (!value) {
+      cleanUp();
+    }
+  };
+
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
@@ -125,8 +149,11 @@ function WalletDetails({ route }) {
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
-          {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? <UTXOSelectionTotal selectionTotal={selectionTotal}/>
-            : <WalletDetailsTabView setActiveTab={setActiveTab} />}
+          {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? (
+            <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
+          ) : (
+            <WalletDetailsTabView setActiveTab={setActiveTab} />
+          )}
           <TransactionsAndUTXOs
             tab={tab}
             transections={transections}
@@ -137,7 +164,6 @@ function WalletDetails({ route }) {
             selectedUTXOMap={selectedUTXOMap}
             setSelectedUTXOMap={setSelectedUTXOMap}
             enableSelection={enableSelection}
-            selectionTotal={selectionTotal}
             setSelectionTotal={setSelectionTotal}
           />
           <Footer
@@ -146,6 +172,7 @@ function WalletDetails({ route }) {
             onPressBuyBitcoin={onPressBuyBitcoin}
             setEnableSelection={setEnableSelection}
             enableSelection={enableSelection}
+            selectedUTXOs={selectedUTXOs}
           />
         </>
       ) : (

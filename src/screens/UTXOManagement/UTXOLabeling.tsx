@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -22,7 +22,7 @@ function UTXOLabeling() {
   } = useRoute() as { params: { utxo: UTXO; wallet: any } };
   const [label, setLabel] = useState('');
   const [addLabelModal, setAddLabelModal] = useState(false);
-  const { labels } = useLabels({ utxos: [utxo] });
+  const { labels } = useLabels({ utxos: [utxo], wallet });
   const [existingLabels, setExistingLabels] = useState([]);
   const [labelTitle, setLabelTitle] = useState('Add New Label');
   const [labelButtonText, setLabelButtonText] = useState('Add');
@@ -31,7 +31,6 @@ function UTXOLabeling() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
     setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
   }, [labels]);
 
@@ -104,8 +103,8 @@ function UTXOLabeling() {
     setExistingLabels(existingLabels);
     setLabel('');
   };
-  function AddLabelInput() {
-    return (
+  const AddLabelInput = useCallback(
+    () => (
       <Box>
         <Input
           onChangeText={(text) => {
@@ -122,8 +121,9 @@ function UTXOLabeling() {
           autoCorrect={false}
         />
       </Box>
-    );
-  }
+    ),
+    []
+  );
   const onSaveChangeClick = () => {
     const names: string[] = [];
     existingLabels.map((item) => {

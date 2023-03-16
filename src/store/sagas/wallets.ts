@@ -21,6 +21,7 @@ import {
 import { call, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
+  setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
 } from 'src/store/reducers/wallets';
@@ -401,6 +402,7 @@ function* refreshWalletsWorker({
     options: { hardRefresh?: boolean };
   };
 }) {
+  yield put(setSyncing(true));
   const { wallets } = payload;
   const { options } = payload;
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
@@ -440,6 +442,7 @@ function* refreshWalletsWorker({
 
   yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
   yield put(setNetBalance(netBalance));
+  yield put(setSyncing(false));
 }
 
 export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH_WALLETS);
