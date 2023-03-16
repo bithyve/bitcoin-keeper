@@ -12,7 +12,7 @@ import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
 import { LabelType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
-import { addLabels } from 'src/store/sagaActions/utxos';
+import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import EditIcon from 'src/assets/images/edit.svg';
 
 function UTXOLabeling() {
@@ -58,7 +58,7 @@ function UTXOLabeling() {
           <Text>{item.name}</Text>
         </Box>
         {item.type === LabelType.USER && (
-          <Box style={{flexDirection: 'row'}}>
+          <Box style={{ flexDirection: 'row' }}>
             <TouchableOpacity
               onPress={() => onEditClick(item, index)}
               style={{
@@ -94,7 +94,7 @@ function UTXOLabeling() {
 
   const closeLabelModal = () => {
     setAddLabelModal(false);
-    setLabel('')
+    setLabel('');
   };
   const onAddClick = () => {
     closeLabelModal();
@@ -125,11 +125,11 @@ function UTXOLabeling() {
     []
   );
   const onSaveChangeClick = () => {
-    const names: string[] = [];
-    existingLabels.map((item) => {
-      if (item.type !== LabelType.SYSTEM) names.push(item.name);
-    });
-    dispatch(addLabels({ walletId: wallet?.id, names, UTXO: utxo }));
+    // const names: string[] = [];
+    // existingLabels.map((item) => {
+    //   if (item.type !== LabelType.SYSTEM) names.push(item.name);
+    // });
+    dispatch(bulkUpdateLabels({ labels: existingLabels, UTXO: utxo }));
     navigation.goBack();
   };
   return (
