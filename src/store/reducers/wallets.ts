@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { reduxStorage } from 'src/storage';
 import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
@@ -21,6 +22,8 @@ export type WalletsState = {
   resetTwoFALoader: boolean;
   introModal: boolean;
   whirlpoolModal: boolean;
+
+  whirlpoolWallets?: Wallet[];
 };
 
 const initialState: WalletsState = {
@@ -39,7 +42,7 @@ const initialState: WalletsState = {
 
   resetTwoFALoader: false,
   introModal: true,
-  whirlpoolModal: true
+  whirlpoolModal: true,
 };
 
 const walletSlice = createSlice({
@@ -63,7 +66,14 @@ const walletSlice = createSlice({
     },
     setWhirlpoolModal: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolModal = action.payload;
-    }
+    },
+    setWhirlpoolWallets: (state, action: PayloadAction<Wallet[]>) => {
+      state.whirlpoolWallets = action.payload;
+    },
+
+    resetWhirlpoolWallets: (state) => {
+      state.whirlpoolWallets = null;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -80,7 +90,9 @@ export const {
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
-  setWhirlpoolModal
+  setWhirlpoolModal,
+  setWhirlpoolWallets,
+  resetWhirlpoolWallets,
 } = walletSlice.actions;
 
 const walletPersistConfig = {
