@@ -90,7 +90,10 @@ function UTXOLabeling() {
   };
 
   const onSaveChangeClick = () => {
-    dispatch(bulkUpdateLabels({ labels: existingLabels, UTXO: utxo }));
+    const finalLabels = existingLabels.filter(
+      (label) => !(label.type === LabelType.SYSTEM && label.name === wallet.presentationData.name) // ignore the wallet label since they are internal references
+    );
+    dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
     navigation.goBack();
   };
   return (
