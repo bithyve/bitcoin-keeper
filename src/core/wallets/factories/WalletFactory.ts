@@ -46,6 +46,7 @@ export const generateWallet = async ({
   let mnemonic: string;
   let xDerivationPath: string;
   let bip85Config: BIP85Config;
+  let depositWalletId: string;
 
   if (type === WalletType.IMPORTED) {
     if (!importDetails) throw new Error('Import details are missing');
@@ -68,7 +69,8 @@ export const generateWallet = async ({
   let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
 
   if (whirlPoolWalletTypes.includes(type)) {
-    id = hash256(`id${type}`);
+    depositWalletId = id;
+    id = hash256(`${id}${type}`);
   }
 
   // derive extended keys
@@ -112,7 +114,6 @@ export const generateWallet = async ({
     hasNewUpdates: false,
     lastSynched: 0,
   };
-
   const wallet: Wallet = {
     id,
     entityKind: EntityKind.WALLET,
@@ -124,6 +125,7 @@ export const generateWallet = async ({
     specs,
     scriptType: ScriptTypes.P2WPKH,
     transferPolicy,
+    depositWalletId,
   };
   wallet.specs.receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   return wallet;

@@ -36,7 +36,10 @@ export interface WhirlpoolWalletDetails {
   walletType: WalletType;
 }
 export interface WhirlpoolConfig {
-  whirlpoolWalletDetails: WhirlpoolWalletDetails[];
+  whirlpoolWalletDetails: WhirlpoolWalletDetails[]; // deatils for DB
+  premixWallet?: Wallet; //Details for UI
+  postmixWallet?: Wallet; //Details for UI
+  badbankWallet?: Wallet; //Details for UI
 }
 
 export interface WalletSpecs {
