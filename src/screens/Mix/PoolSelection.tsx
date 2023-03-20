@@ -83,7 +83,7 @@ export default function PoolSelection({ route, navigation }) {
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
 
-      const tx0 = await WhirlpoolClient.getTx0Data(whirlpoolApi, utxos);
+      const tx0 = await WhirlpoolClient.getTx0Data(whirlpoolApi, scode);
       setTx0Data(tx0);
 
       if (filteredByUtxoTotal.length > 0) {
@@ -101,11 +101,12 @@ export default function PoolSelection({ route, navigation }) {
 
   const onPreviewMix = () => {
     navigation.navigate('BroadcastPremix', {
-      scode,
       utxos,
       utxoCount,
       utxoTotal,
       tx0Preview,
+      tx0Data,
+      selectedPool,
       wallet,
       WhirlpoolClient,
     });
@@ -113,14 +114,15 @@ export default function PoolSelection({ route, navigation }) {
 
   const onPoolSelectionCallback = (pool) => {
     setSelectedPool(pool);
+    const correspondingTx0Data = tx0Data?.filter((data) => data.pool_id === pool.id)[0];
+
     const tx0Preview = WhirlpoolClient.getTx0Preview(
-      tx0Data,
+      correspondingTx0Data,
       pool,
       premixFee.feePerByte,
       minerFee.feePerByte,
       utxos
     );
-    console.log('tx0Preview', tx0Preview);
     setPremixOutput(tx0Preview?.n_premix_outputs);
     setTx0Preview(tx0Preview);
     setShowPools(false);

@@ -67,7 +67,9 @@ export const generateMockTransaction = (
   });
 
   for (const input of inputs) WalletOperations.addInputToPSBT(PSBT, deposit, input, network);
-  for (const output of outputUTXOs) PSBT.addOutput(output);
+  for (const output of outputUTXOs) {
+    if (output.address && output.value) PSBT.addOutput(output);
+  }
 
   return PSBT;
 };
