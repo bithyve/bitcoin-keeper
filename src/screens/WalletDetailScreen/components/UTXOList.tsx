@@ -18,6 +18,7 @@ import { LabelType } from 'src/core/wallets/enums';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
+import UnconfirmedIcon from 'src/assets/images/pending.svg';
 
 function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
   const { labels } = props;
@@ -70,11 +71,12 @@ function UTXOElement({
   currentWallet,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
+  const allowSelection = enableSelection && item.confirmed;
   return (
     <TouchableOpacity
       style={styles.utxoCardContainer}
       onPress={() => {
-        if (enableSelection) {
+        if (allowSelection) {
           const mapToUpdate = selectedUTXOMap;
           if (selectedUTXOMap[utxoId]) {
             delete mapToUpdate[utxoId];
@@ -98,7 +100,7 @@ function UTXOElement({
       }}
     >
       <Box style={styles.utxoInnerView}>
-        {enableSelection ? (
+        {allowSelection ? (
           <Box style={{ width: '7%', paddingHorizontal: 15 }}>
             <Box style={styles.selectionViewWrapper}>
               {selectedUTXOMap[utxoId] ? (
@@ -109,7 +111,7 @@ function UTXOElement({
             </Box>
           </Box>
         ) : null}
-        <Box style={{ width: enableSelection ? '46%' : '55%' }}>
+        <Box style={{ width: allowSelection ? '46%' : '55%' }}>
           <Box style={styles.rowCenter}>
             <Box style={{ width: '100%' }}>
               <Text
@@ -124,6 +126,11 @@ function UTXOElement({
           <UTXOLabel labels={labels} />
         </Box>
         <Box style={[styles.amountWrapper, { width: '45%' }]}>
+          {item.confirmed ? null : (
+            <Box paddingX={3}>
+              <UnconfirmedIcon />
+            </Box>
+          )}
           <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
           <Text style={styles.amountText} numberOfLines={1}>
             {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}

@@ -1,4 +1,4 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -95,7 +95,23 @@ function WalletDetails({ route }) {
   const [tab, setActiveTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
   const transactions = wallets[walletIndex]?.specs?.transactions || [];
-  const utxos = wallets[walletIndex]?.specs?.confirmedUTXOs || [];
+  const { confirmedUTXOs, unconfirmedUTXOs } = wallets[walletIndex]?.specs || {
+    confirmedUTXOs: [],
+    unconfirmedUTXOs: [],
+  };
+  const utxos =
+    confirmedUTXOs
+      .map((utxo) => {
+        utxo.confirmed = true;
+        return utxo;
+      })
+      .concat(
+        unconfirmedUTXOs.map((utxo) => {
+          utxo.confirmed = false;
+          return utxo;
+        })
+      ) || [];
+
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const [enableSelection, _setEnableSelection] = useState(false);
@@ -197,7 +213,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: Platform.OS === 'ios' ? '45%' : '43%',
+    height: '45%',
     position: 'relative',
   },
   addNewWalletText: {
