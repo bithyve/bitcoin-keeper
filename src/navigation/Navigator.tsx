@@ -57,7 +57,6 @@ import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
-import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
@@ -158,7 +157,6 @@ function AppStack() {
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
-        <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
