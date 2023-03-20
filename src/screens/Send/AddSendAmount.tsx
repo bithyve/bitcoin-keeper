@@ -149,6 +149,7 @@ function AddSendAmount({ route }) {
     recipients.push({
       address,
       amount: amountToSend, // should be denominated in sats
+      name: recipient.presentationData.name,
     });
     dispatch(
       sendPhaseOne({
@@ -287,6 +288,7 @@ function AddSendAmount({ route }) {
 
         <Box style={styles.addNoteWrapper}>
           <TextInput
+            autoCapitalize="sentences"
             placeholder="Add a note"
             placeholderTextColor="light.greenText"
             style={styles.textInput}
@@ -298,6 +300,7 @@ function AddSendAmount({ route }) {
         </Box>
         <Box style={styles.addNoteWrapper}>
           <TextInput
+            autoCapitalize="sentences"
             placeholder="Add a lable"
             placeholderTextColor="light.greenText"
             style={styles.textInput}

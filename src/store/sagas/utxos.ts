@@ -33,5 +33,24 @@ function* bulkUpdateLabelsWorker({
   });
 }
 
+export function* createUTXOReferenceWorker({
+  payload,
+}: {
+  payload: { labels: Array<{ name: string; type: LabelType }>; txId: string; vout: number };
+}) {
+  const { txId, vout, labels } = payload;
+  yield call(dbManager.createObject, RealmSchema.UTXOInfo, {
+    id: `${txId}${vout}`,
+    txId,
+    vout,
+    walletId: 'ABC123',
+    labels,
+  });
+}
+
 export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);
 export const bulkUpdateLabelWatcher = createWatcher(bulkUpdateLabelsWorker, BULK_UPDATE_LABELS);
+export const createUTXOReferenceWatcher = createWatcher(
+  createUTXOReferenceWorker,
+  BULK_UPDATE_LABELS
+);

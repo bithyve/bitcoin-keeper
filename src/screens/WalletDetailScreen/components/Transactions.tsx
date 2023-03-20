@@ -7,7 +7,7 @@ import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
-function TransactionItem({ item, navigation }) {
+function TransactionItem({ item, wallet, navigation }) {
   return (
     <TransactionElement
       transaction={item}
@@ -15,6 +15,7 @@ function TransactionItem({ item, navigation }) {
         navigation.dispatch(
           CommonActions.navigate('TransactionDetails', {
             transaction: item,
+            wallet,
           })
         );
       }}
@@ -35,7 +36,9 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
     <FlatList
       refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
       data={transactions}
-      renderItem={({ item }) => <TransactionItem item={item} navigation={navigation} />}
+      renderItem={({ item }) => (
+        <TransactionItem item={item} navigation={navigation} wallet={currentWallet} />
+      )}
       keyExtractor={(item) => item}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={

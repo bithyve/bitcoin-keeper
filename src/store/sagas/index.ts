@@ -53,7 +53,7 @@ import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
 import { updateVersionHistoryWatcher } from './upgrade';
-import { addLabelsWatcher, bulkUpdateLabelWatcher } from './utxos';
+import { addLabelsWatcher, bulkUpdateLabelWatcher, createUTXOReferenceWatcher } from './utxos';
 
 const rootSaga = function* () {
   const sagas = [
@@ -120,6 +120,7 @@ const rootSaga = function* () {
     // utxos
     addLabelsWatcher,
     bulkUpdateLabelWatcher,
+    createUTXOReferenceWatcher,
   ];
 
   yield all(
