@@ -98,6 +98,6 @@ export const {
 const walletPersistConfig = {
   key: 'wallet',
   storage: reduxStorage,
-  blacklist: ['testCoinsReceived', 'testCoinsFailed'],
+  blacklist: ['testCoinsReceived', 'testCoinsFailed', 'whirlpoolWallets'],
 };
 export default persistReducer(walletPersistConfig, walletSlice.reducer);
