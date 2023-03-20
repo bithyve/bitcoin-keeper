@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
@@ -23,27 +23,33 @@ import UnconfirmedIcon from 'src/assets/images/pending.svg';
 function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
   const { labels } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
-  const onLayout = (event) => {
+  const extraLabelMap = new Map();
+  const onLayout = (event, index) => {
     const { y } = event.nativeEvent.layout;
     if (y > 9) {
-      setExtraLabelCount(extraLabelCount + 1);
+      extraLabelMap.set(index, true);
+    } else {
+      extraLabelMap.delete(index);
     }
+    setExtraLabelCount(extraLabelMap.size);
   };
   return (
     <Box style={{ flexDirection: 'row' }}>
       <Box style={styles.labelList}>
-        {labels.map((item) => (
-          <Box
-            key={item.name}
-            onLayout={(event) => onLayout(event)}
-            style={[
-              styles.utxoLabelView,
-              { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
-            ]}
-          >
-            <Text style={{ color: Colors.White }}>{item.name}</Text>
-          </Box>
-        ))}
+        {labels
+          .sort((a, b) => (a.type > b.type ? 1 : a.type < b.type ? -1 : 0))
+          .map((item, index) => (
+            <Box
+              key={item.name}
+              onLayout={(event) => onLayout(event, index)}
+              style={[
+                styles.utxoLabelView,
+                { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
+              ]}
+            >
+              <Text style={{ color: Colors.White }}>{item.name}</Text>
+            </Box>
+          ))}
       </Box>
       {extraLabelCount > 0 && (
         <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
