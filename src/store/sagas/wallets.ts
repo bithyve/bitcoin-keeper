@@ -66,6 +66,7 @@ import {
   UPDATE_SIGNER_DETAILS,
   UPDATE_WALLET_PROPERTY,
   ADD_WHIRLPOOL_WALLETS,
+  ADD_WHIRLPOOL_WALLETS_LOCAL,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -167,7 +168,7 @@ export function* addWhirlpoolWalletsLocalWorker({
 
 export const addWhirlpoolWalletsLocalWatcher = createWatcher(
   addWhirlpoolWalletsLocalWorker,
-  ADD_WHIRLPOOL_WALLETS
+  ADD_WHIRLPOOL_WALLETS_LOCAL
 );
 
 export function* addWhirlpoolWalletsWorker({
