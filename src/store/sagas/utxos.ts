@@ -5,7 +5,7 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import { LabelType } from 'src/core/wallets/enums';
 import { createWatcher } from '../utilities';
 
-import { ADD_LABELS, BULK_UPDATE_LABELS } from '../sagaActions/utxos';
+import { ADD_LABELS, BULK_UPDATE_LABELS, CREATE_UTXO_REFERENCE } from '../sagaActions/utxos';
 
 function* addLabelsWorker({
   payload,
@@ -52,5 +52,5 @@ export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);
 export const bulkUpdateLabelWatcher = createWatcher(bulkUpdateLabelsWorker, BULK_UPDATE_LABELS);
 export const createUTXOReferenceWatcher = createWatcher(
   createUTXOReferenceWorker,
-  BULK_UPDATE_LABELS
+  CREATE_UTXO_REFERENCE
 );
