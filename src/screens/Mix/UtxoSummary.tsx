@@ -14,7 +14,9 @@ export default function UtxoSummary({ utxoCount, totalAmount }) {
 
   return (
     <Box style={styles.utxo}>
-      <WalletIcon />
+      <Box style={styles.icon}>
+        <WalletIcon />
+      </Box>
       <Box style={styles.utxoSummary}>
         <Box style={styles.utxoTextDirection}>
           <Text style={styles.noOfUtxo}>{utxoCount} </Text>
@@ -38,6 +40,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     marginTop: 20,
     marginLeft: 20,
+  },
+  icon: {
+    marginRight: 10,
+    marginTop: 5,
   },
   utxoSummary: {
     marginTop: 10,
