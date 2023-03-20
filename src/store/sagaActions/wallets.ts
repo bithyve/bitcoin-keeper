@@ -31,6 +31,7 @@ export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
 export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
+export const ADD_WHIRLPOOL_WALLETS_LOCAL = 'ADD_WHIRLPOOL_WALLETS_LOCAL';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -158,6 +159,11 @@ export const addNewWallets = (payload: NewWalletInfo[]) => ({
 
 export const addNewWhirlpoolWallets = (payload: { depositWallet: Wallet }) => ({
   type: ADD_WHIRLPOOL_WALLETS,
+  payload,
+});
+
+export const addWhirlpoolWalletsLocal = (payload: { depositWallet: Wallet }) => ({
+  type: ADD_WHIRLPOOL_WALLETS_LOCAL,
   payload,
 });
 

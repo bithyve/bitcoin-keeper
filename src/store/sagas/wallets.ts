@@ -25,6 +25,7 @@ import {
   setNetBalance,
   setTestCoinsFailed,
   setTestCoinsReceived,
+  setWhirlpoolWallets,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -109,7 +110,67 @@ export interface NewWalletInfo {
   importDetails?: WalletImportDetails;
 }
 
-export function* addWhirlpoolWalletsWatcher({
+export function* addWhirlpoolWalletsLocalWorker({
+  payload,
+}: {
+  payload: {
+    depositWallet: Wallet;
+  };
+}) {
+  const { depositWallet } = payload;
+  const instanceNum = depositWallet.derivationDetails.instanceNum;
+
+  const preMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.PRE_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483645),
+      },
+    },
+  };
+  const postMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.POST_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483646),
+      },
+    },
+  };
+  const badBankWalletInfo: NewWalletInfo = {
+    walletType: WalletType.BAD_BANK,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483644),
+      },
+    },
+  };
+
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
+
+  let wallets = [];
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
+    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
+    wallets.push(wallet);
+  }
+  yield call(setWhirlpoolWallets, wallets);
+}
+
+export const addWhirlpoolWalletsLocalWatcher = createWatcher(
+  addWhirlpoolWalletsLocalWorker,
+  ADD_WHIRLPOOL_WALLETS
+);
+
+export function* addWhirlpoolWalletsWorker({
   payload,
 }: {
   payload: {
@@ -169,16 +230,18 @@ export function* addWhirlpoolWalletsWatcher({
       },
     ],
   };
+
   yield call(updateWalletsPropertyWorker, {
     payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
   });
+
   //TO-DO bind the APIs together
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
   yield call(addNewWalletsWorker, { payload: newWalletsInfo });
 }
 
-export const addWhirlpoolWalletsWorker = createWatcher(
-  addWhirlpoolWalletsWatcher,
+export const addWhirlpoolWalletsWatcher = createWatcher(
+  addWhirlpoolWalletsWorker,
   ADD_WHIRLPOOL_WALLETS
 );
 
