@@ -8,22 +8,34 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../BottomMenuItem';
 import { useNavigation } from '@react-navigation/native';
 
-function UTXOFooter({ setEnableSelection, enableSelection, utxos, wallet }) {
+function UTXOFooter({
+  setEnableSelection,
+  enableSelection,
+  enableMixSelection,
+  setEnableMixSelection,
+  utxos,
+  wallet,
+}) {
   const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets();
 
   const handleMix = () => {
+    setEnableMixSelection(true);
     console.log(utxos);
-    navigation.navigate('WhirlpoolConfiguration', {
-      utxos: utxos?.filter((item) => item.selected) || [],
-      wallet,
-    });
+    // navigation.navigate('WhirlpoolConfiguration', {
+    //   utxos: utxos?.filter((item) => item.selected) || [],
+    //   wallet,
+    // });
   };
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
-        <BottomMenuItem onPress={() => handleMix()} icon={<MixIcon />} title="Mix Selected" />
+        <BottomMenuItem
+          onPress={() => setEnableMixSelection(!enableMixSelection)}
+          icon={<MixIcon />}
+          title="Mix Selected"
+        />
         <BottomMenuItem
           onPress={() => setEnableSelection(!enableSelection)}
           icon={<Send />}
