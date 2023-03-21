@@ -23,7 +23,7 @@ export const BIP85ConfigSchema: ObjectSchema = {
 export const LabelSchema: ObjectSchema = {
   name: RealmSchema.Label,
   properties: {
-    name: 'int',
+    name: 'string',
     type: 'string',
   },
 };

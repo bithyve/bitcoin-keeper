@@ -7,12 +7,18 @@ import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import BuyBitcoin from 'src/assets/images/icon_buy.svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../BottomMenuItem';
 
 function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
   const navigation = useNavigation();
+  const { bottom } = useSafeAreaInsets();
+
   return (
-    <Box style={styles.footerContainer}>
+    <Box
+      style={[styles.footerContainer, { marginBottom: bottom }]}
+      borderColor="light.primaryBackground"
+    >
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
         <BottomMenuItem
@@ -49,8 +55,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 5 : 0,
     width: wp(375),
-    height: '11%',
     paddingHorizontal: 5,
+    justifyContent: 'center',
   },
   border: {
     borderWidth: 0.5,

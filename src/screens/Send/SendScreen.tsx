@@ -41,13 +41,18 @@ import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/core/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
+import { UTXO } from 'src/core/wallets/interfaces';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
 
-  const { sender } = route.params as { sender: Wallet | Vault };
+  const { sender, selectedUTXOs } = route.params as {
+    sender: Wallet | Vault;
+    selectedUTXOs?: UTXO[];
+  };
+
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -130,6 +135,7 @@ function SendScreen({ route }) {
       address,
       amount,
       transferType,
+      selectedUTXOs,
     });
   };
 

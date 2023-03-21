@@ -52,9 +52,9 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
+import WalletOperations from 'src/core/wallets/operations';
 import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import WalletOperations from 'src/core/wallets/operations';
 
 function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
@@ -188,7 +188,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
   );
 }
 
-function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
+function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) {
   const navigation = useNavigation();
 
   const renderTransactionElement = ({ item }) => (
@@ -198,6 +198,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         navigation.dispatch(
           CommonActions.navigate('TransactionDetails', {
             transaction: item,
+            wallet: vault,
           })
         );
       }}
@@ -578,6 +579,7 @@ function VaultDetails({ route, navigation }) {
           transactions={transactions}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
+          vault={vault}
         />
         <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
       </VStack>

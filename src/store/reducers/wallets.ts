@@ -24,6 +24,8 @@ export type WalletsState = {
   whirlpoolModal: boolean;
 
   whirlpoolWallets?: Wallet[];
+
+  syncing: boolean;
 };
 
 const initialState: WalletsState = {
@@ -43,6 +45,8 @@ const initialState: WalletsState = {
   resetTwoFALoader: false,
   introModal: true,
   whirlpoolModal: true,
+
+  syncing: false,
 };
 
 const walletSlice = createSlice({
@@ -74,6 +78,9 @@ const walletSlice = createSlice({
     resetWhirlpoolWallets: (state) => {
       state.whirlpoolWallets = null;
     },
+    setSyncing: (state, action: PayloadAction<boolean>) => {
+      state.syncing = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -93,6 +100,7 @@ export const {
   setWhirlpoolModal,
   setWhirlpoolWallets,
   resetWhirlpoolWallets,
+  setSyncing,
 } = walletSlice.actions;
 
 const walletPersistConfig = {

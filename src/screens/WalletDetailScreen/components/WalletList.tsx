@@ -5,7 +5,7 @@ import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/
 import { Shadow } from 'react-native-shadow-2';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
@@ -404,7 +404,7 @@ function WalletItem({
   );
 }
 
-function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef, wallets }: any) {
+function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets }: any) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -415,10 +415,13 @@ function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef, wallet
   return (
     <Box style={styles.walletsContainer}>
       <FlatList
-        ref={flatListRef}
         horizontal
         showsHorizontalScrollIndicator={false}
         data={wallets.concat({ isEnd: true })}
+        disableIntervalMomentum
+        decelerationRate="fast"
+        snapToInterval={windowWidth * 0.8 + 15}
+        snapToAlignment="start"
         renderItem={({ item, index }) => (
           <WalletItem
             item={item}
@@ -434,7 +437,6 @@ function WalletList({ flatListRef, walletIndex, onViewRef, viewConfigRef, wallet
         )}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewConfigRef.current}
-        snapToAlignment="start"
       />
     </Box>
   );
@@ -448,7 +450,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%',
   },
-
   center: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -465,7 +466,7 @@ const styles = StyleSheet.create({
   },
   walletContainer: {
     borderRadius: hp(10),
-    width: wp(310),
+    width: windowWidth * 0.8,
     height: hp(windowHeight > 700 ? 145 : 150),
     padding: wp(15),
     position: 'relative',
