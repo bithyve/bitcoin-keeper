@@ -14,6 +14,7 @@ import VaultHeader from './components/VaultHeader';
 import SignerList from './components/SignerList';
 import TransactionsAndUTXOs from './components/TransactionsAndUTXOs';
 import VaultModals from './components/VaultModals';
+import WalletDetailsTabView from '../WalletDetailScreen/components/WalletDetailsTabView';
 
 function Wrapper({ children }) {
   const { top } = useSafeAreaInsets();
@@ -35,7 +36,25 @@ function VaultDetails({ route }) {
   const vault: Vault = useVault().activeVault;
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+  const [tab, setActiveTab] = useState('Transactions');
   const transactions = vault?.specs?.transactions || [];
+  const { confirmedUTXOs, unconfirmedUTXOs } = vault?.specs || {
+    confirmedUTXOs: [],
+    unconfirmedUTXOs: [],
+  };
+  const utxos =
+    confirmedUTXOs
+      .map((utxo) => {
+        utxo.confirmed = true;
+        return utxo;
+      })
+      .concat(
+        unconfirmedUTXOs.map((utxo) => {
+          utxo.confirmed = false;
+          return utxo;
+        })
+      ) || [];
+  console.log('utxos', utxos)
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
     if (currentScheme.m > subscriptionScheme.m) {
@@ -63,7 +82,10 @@ function VaultDetails({ route }) {
         justifyContent="space-between"
         paddingBottom={windowHeight > 800 ? 5 : 0}
       >
-        <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} />
+        <VStack style={{ paddingTop: windowHeight * 0.09 }}>
+          <WalletDetailsTabView setActiveTab={setActiveTab} />
+        </VStack>
+        <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} tab={tab} utxoState={utxos} />
         <VaultFooter onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
         <VaultModals
           showBuyRampModal={showBuyRampModal}
