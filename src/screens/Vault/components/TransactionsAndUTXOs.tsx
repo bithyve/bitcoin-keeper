@@ -11,16 +11,22 @@ import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import { useDispatch } from 'react-redux';
+import UTXOList from './UTXOList';
 
 function TransactionsAndUTXOs({
+  tab,
   transactions,
   vault,
   autoRefresh,
+  utxoState,
 }: {
+  tab: string;
   vault: Vault;
   transactions: any[];
   autoRefresh: boolean;
+  utxoState: any
 }) {
+  console.log('tab', tab)
   const [pullRefresh, setPullRefresh] = useState(false);
   const dispatch = useDispatch();
   const syncVault = () => {
@@ -49,12 +55,12 @@ function TransactionsAndUTXOs({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.09 }}>
+      <VStack>
         <HStack justifyContent="space-between">
-          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          {/* <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
-          </Text>
-          {transactions.length ? (
+          </Text> */}
+          {/* {transactions.length ? (
             <TouchableOpacity>
               <HStack alignItems="center">
                 <TouchableOpacity
@@ -80,10 +86,10 @@ function TransactionsAndUTXOs({
                 <IconArrowBlack />
               </HStack>
             </TouchableOpacity>
-          ) : null}
+          ) : null} */}
         </HStack>
       </VStack>
-      <FlatList
+      {tab === 'Transactions' ? (<FlatList
         refreshControl={<RefreshControl onRefresh={syncVault} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
@@ -96,7 +102,15 @@ function TransactionsAndUTXOs({
             subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
           />
         }
-      />
+      />):
+      <UTXOList
+      utxoState={utxoState}
+      enableSelection={false}
+      setSelectionTotal={0}
+      selectedUTXOMap={[]}
+      setSelectedUTXOMap={0}
+      currentWallet={vault}
+    />}
     </>
   );
 }
