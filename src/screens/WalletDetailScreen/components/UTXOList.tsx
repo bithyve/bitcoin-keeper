@@ -170,7 +170,7 @@ function UTXOList({
   return (
     <FlatList
       data={utxoState}
-      refreshing={syncing}
+      refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
         <UTXOElement
