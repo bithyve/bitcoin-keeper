@@ -3,8 +3,6 @@ import { StyleSheet } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-
-// data
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -12,6 +10,10 @@ import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
+import useWallets, { whirlpoolWalletTypeMap } from 'src/hooks/useWallets';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { WalletType } from 'src/core/wallets/enums';
 import WalletDetailsTabView from './components/WalletDetailsTabView';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
@@ -21,12 +23,8 @@ import UTXOFooter from './components/UTXOFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
-import useWallets, { whirlpoolWalletTypeMap } from 'src/hooks/useWallets';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 import FinalizeFooter from './components/FinalizeFooter';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { WalletType } from 'src/core/wallets/enums';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
@@ -74,38 +72,33 @@ function Footer({
   selectedUTXOs,
 }) {
   const navigation = useNavigation();
-  const [enableMixSelection, setEnableMixSelection] = useState(false);
-  // eslint-disable-next-line no-nested-ternary
+  const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
+
   return tab === 'Transactions' ? (
     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
   ) : enableSelection ? (
     <FinalizeFooter
+      initiateWhirlpool={initiateWhirlpool}
       setEnableSelection={setEnableSelection}
-      primaryText={'Send'}
-      secondaryText={'Cancel'}
+      setInitiateWhirlpool={setInitiateWhirlpool}
+      secondaryText="Cancel"
       footerCallback={() =>
-        navigation.dispatch(
-          CommonActions.navigate('Send', { sender: currentWallet, selectedUTXOs })
-        )
+        initiateWhirlpool
+          ? navigation.dispatch(
+              CommonActions.navigate('WhirlpoolConfiguration', {
+                utxos: selectedUTXOs || [],
+                wallet: currentWallet,
+              })
+            )
+          : navigation.dispatch(
+              CommonActions.navigate('Send', { sender: currentWallet, selectedUTXOs })
+            )
       }
-    />
-  ) : enableMixSelection ? (
-    <FinalizeFooter
-      setEnableSelection={setEnableMixSelection}
-      primaryText={'Mix'}
-      secondaryText={'Cancel'}
-      footerCallback={() => {
-        navigation.navigate('WhirlpoolConfiguration', {
-          utxos: selectedUTXOs || [],
-          wallet: currentWallet,
-        });
-      }}
     />
   ) : (
     <UTXOFooter
       setEnableSelection={setEnableSelection}
-      setEnableMixSelection={setEnableMixSelection}
-      enableMixSelection={enableMixSelection}
+      setInitiateWhirlpool={setInitiateWhirlpool}
       enableSelection={enableSelection}
       utxos={utxos}
       wallet={currentWallet}

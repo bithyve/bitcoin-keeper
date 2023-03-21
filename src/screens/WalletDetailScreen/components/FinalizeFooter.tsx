@@ -5,15 +5,25 @@ import Buttons from 'src/components/Buttons';
 import { Box } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-function FinalizeFooter({ setEnableSelection, footerCallback, primaryText, secondaryText }) {
+function FinalizeFooter({
+  setEnableSelection,
+  footerCallback,
+  initiateWhirlpool,
+  setInitiateWhirlpool,
+  secondaryText,
+}) {
   const { bottom } = useSafeAreaInsets();
-
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
-        primaryText={primaryText}
+        primaryText={initiateWhirlpool ? 'Mix' : 'Send'}
         secondaryText={secondaryText}
-        secondaryCallback={() => setEnableSelection(false)}
+        secondaryCallback={() => {
+          if (initiateWhirlpool) {
+            setInitiateWhirlpool(false);
+          }
+          setEnableSelection(false);
+        }}
         primaryCallback={footerCallback}
       />
     </Box>
