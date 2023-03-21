@@ -19,7 +19,6 @@ function UTXOFooter({ setEnableSelection, enableSelection, utxos, wallet }) {
       wallet,
     });
   };
-
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Box style={styles.border} borderColor="light.GreyText" />
