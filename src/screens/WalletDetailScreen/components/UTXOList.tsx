@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
@@ -170,7 +170,7 @@ function UTXOList({
   return (
     <FlatList
       data={utxoState}
-      refreshing={syncing}
+      refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
         <UTXOElement

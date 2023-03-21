@@ -64,9 +64,11 @@ const AccountComponent = ({ title, balance, onPress, icon }) => {
 function SelectAccountContent({
   depositWallet,
   setSelectedAccount,
+  close,
 }: {
   depositWallet: Wallet;
   setSelectedAccount: any;
+  close: any;
 }) {
   return (
     <View>
@@ -75,6 +77,7 @@ function SelectAccountContent({
         balance={'0.000024'}
         onPress={() => {
           setSelectedAccount(WalletType.DEFAULT);
+          close();
         }}
         icon={<Deposit />}
       />
@@ -84,6 +87,7 @@ function SelectAccountContent({
         balance={'0.000024'}
         onPress={() => {
           setSelectedAccount(WalletType.PRE_MIX);
+          close();
         }}
         icon={<PreMix />}
       />
@@ -91,14 +95,20 @@ function SelectAccountContent({
       <AccountComponent
         title={depositWallet?.whirlpoolConfig?.postmixWallet?.presentationData?.name}
         balance={'0.000024'}
-        onPress={() => {}}
+        onPress={() => {
+          setSelectedAccount(WalletType.POST_MIX);
+          close();
+        }}
         icon={<PostMix />}
       />
 
       <AccountComponent
         title={depositWallet?.whirlpoolConfig?.badbankWallet?.presentationData?.name}
         balance={'0.000024'}
-        onPress={() => {}}
+        onPress={() => {
+          setSelectedAccount(WalletType.BAD_BANK);
+          close();
+        }}
         icon={<BadBank />}
       />
     </View>
@@ -201,11 +211,11 @@ const WhirlpoolWalletTile = ({
                 {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
               </Box>
               <Text color="light.white" style={{ fontSize: 20, letterSpacing: 1 }}>
-                {selectedWallet?.presentationData?.name}
+                {selectedWallet?.specs?.balances?.confirmed}
               </Text>
             </Box>
             <Text color="light.white" style={{ fontSize: 13, letterSpacing: 1 }}>
-              Unconfirmed 0.00050
+              Unconfirmed {selectedWallet?.specs?.balances?.unconfirmed}
             </Text>
           </Box>
         </Box>
@@ -315,6 +325,7 @@ function WalletItem({
   satsEnabled,
   navigation,
   translations,
+  setCurrentWallet,
 }: {
   item: Wallet;
   index: number;
@@ -323,6 +334,7 @@ function WalletItem({
   currencyCode: string;
   currentCurrency: any;
   satsEnabled: boolean;
+  setCurrentWallet: any;
   navigation;
   translations;
 }) {
@@ -335,14 +347,22 @@ function WalletItem({
   const [accountSelectionModalVisible, setAccountSelectionModalVisible] = useState(false);
   const [selectedWallet, setSelectedWallet] = useState<Wallet>();
   const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const closeAccountModal = () => {
+    setAccountSelectionModalVisible(false);
+  };
 
   useEffect(() => {
     if (isWhirlpoolWallet) {
       if (selectedAccount === WalletType.DEFAULT) {
         setSelectedWallet(item);
-      } else setSelectedWallet(item.whirlpoolConfig[whirlpoolWalletTypeMap[selectedAccount]]);
+        setCurrentWallet(item);
+      } else {
+        setSelectedWallet(item.whirlpoolConfig[whirlpoolWalletTypeMap[selectedAccount]]);
+        setCurrentWallet(item.whirlpoolConfig[whirlpoolWalletTypeMap[selectedAccount]]);
+      }
     } else {
       setSelectedWallet(item);
+      setCurrentWallet(item);
     }
   }, [selectedAccount]);
 
@@ -390,13 +410,15 @@ function WalletItem({
         </Box>
         <KeeperModal
           visible={accountSelectionModalVisible}
-          close={() => {
-            setAccountSelectionModalVisible(false);
-          }}
+          close={closeAccountModal}
           title="Select Account"
           subTitle="Select Account Type"
           Content={() => (
-            <SelectAccountContent depositWallet={item} setSelectedAccount={setSelectedAccount} />
+            <SelectAccountContent
+              depositWallet={item}
+              setSelectedAccount={setSelectedAccount}
+              close={closeAccountModal}
+            />
           )}
         />
       </View>
@@ -404,7 +426,7 @@ function WalletItem({
   );
 }
 
-function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets }: any) {
+function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, setCurrentWallet }: any) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -433,6 +455,7 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets }: any) {
             satsEnabled={satsEnabled}
             navigation={navigation}
             translations={translations}
+            setCurrentWallet={setCurrentWallet}
           />
         )}
         onViewableItemsChanged={onViewRef.current}

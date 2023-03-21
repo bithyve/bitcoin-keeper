@@ -129,7 +129,7 @@ export function* addWhirlpoolWalletsLocalWorker({
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483645),
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483645),
       },
     },
   };
@@ -140,7 +140,7 @@ export function* addWhirlpoolWalletsLocalWorker({
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483646),
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483646),
       },
     },
   };
@@ -151,7 +151,7 @@ export function* addWhirlpoolWalletsLocalWorker({
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483644),
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483644),
       },
     },
   };
@@ -189,7 +189,7 @@ export function* addWhirlpoolWalletsWorker({
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483645),
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483645),
       },
     },
   };
@@ -200,7 +200,7 @@ export function* addWhirlpoolWalletsWorker({
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483646),
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483646),
       },
     },
   };
@@ -211,7 +211,7 @@ export function* addWhirlpoolWalletsWorker({
       instanceNum,
       derivationConfig: {
         purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, NetworkType.MAINNET, 2147483644),
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483644),
       },
     },
   };

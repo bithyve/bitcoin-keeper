@@ -96,19 +96,19 @@ function WalletDetails({ route }) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
+  const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [transactions, setTransactions] = useState([]);
   const [tab, setActiveTab] = useState('Transactions');
 
   useEffect(() => {
-    console.log(walletIndex, 'render');
-    // if !whirlpool then current wallet (wallet[index])
-
-    //if whirlpool then set  current wallet (wallet[index])
-    // if account cuurent wallet()
+    setCurrentWallet(wallets[walletIndex]);
   }, [walletIndex]);
 
-  const currentWallet = wallets[walletIndex];
-  const transactions = wallets[walletIndex]?.specs?.transactions || [];
+  useEffect(() => {
+    setTransactions(currentWallet?.specs?.transactions || []);
+  }, [currentWallet]);
+
   const { confirmedUTXOs, unconfirmedUTXOs } = wallets[walletIndex]?.specs || {
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
@@ -152,12 +152,6 @@ function WalletDetails({ route }) {
 
   const flatListRef = useRef(null);
 
-  const handleScrollToIndex = (index) => {
-    if (index !== undefined && flatListRef && flatListRef?.current) {
-      flatListRef?.current?.scrollToIndex({ index });
-    }
-  };
-
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
     if (index?.index !== undefined) {
@@ -183,6 +177,7 @@ function WalletDetails({ route }) {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
+        setCurrentWallet={setCurrentWallet}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
