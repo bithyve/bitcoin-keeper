@@ -11,7 +11,7 @@ import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import { useDispatch } from 'react-redux';
-import UTXOList from './UTXOList';
+import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 
 function TransactionsAndUTXOs({
   tab,
@@ -102,15 +102,16 @@ function TransactionsAndUTXOs({
             subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
           />
         }
-      />):
-      <UTXOList
-      utxoState={utxoState}
-      enableSelection={false}
-      setSelectionTotal={0}
-      selectedUTXOMap={[]}
-      setSelectedUTXOMap={0}
-      currentWallet={vault}
-    />}
+      />) :
+        <UTXOList
+          utxoState={utxoState}
+          enableSelection={false}
+          setSelectionTotal={0}
+          selectedUTXOMap={[]}
+          setSelectedUTXOMap={0}
+          currentWallet={vault}
+          emptyIcon={NoVaultTransactionIcon}
+        />}
     </>
   );
 }

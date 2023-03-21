@@ -14,10 +14,11 @@ import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
+import UTXOList from 'src/components/UTXOsComponents/UTXOList';
+import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import UTXOsTransactionTabView from '../../components/UTXOsComponents/UTXOsTransactionTabView';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
-import UTXOList from './components/UTXOList';
 import TransactionFooter from './components/TransactionFooter';
 import UTXOFooter from './components/UTXOFooter';
 import RampModal from './components/RampModal';
@@ -56,6 +57,7 @@ function TransactionsAndUTXOs({
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
           currentWallet={currentWallet}
+          emptyIcon={NoTransactionIcon}
         />
       )}
     </Box>
