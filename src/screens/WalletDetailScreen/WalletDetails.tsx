@@ -75,6 +75,7 @@ function Footer({
       setEnableSelection={setEnableSelection}
       enableSelection={enableSelection}
       utxos={utxos}
+      wallet={currentWallet}
     />
   );
 }

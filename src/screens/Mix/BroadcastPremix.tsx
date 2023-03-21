@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
-import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -12,16 +12,16 @@ import PageIndicator from 'src/components/PageIndicator';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import WalletOperations from 'src/core/wallets/operations';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { LocalizationContext } from 'src/common/content/LocContext';
+import SuccessIcon from 'src/assets/images/successSvg.svg';
+import { useDispatch } from 'react-redux';
+import { addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
+import { WalletType } from 'src/core/wallets/enums';
 
-const utxos = [
-  { transactionId: 1, amount: 0.0001 },
-  { transactionId: 2, amount: 0.0001 },
-  { transactionId: 3, amount: 0.0001 },
-  { transactionId: 4, amount: 0.0001 },
-  { transactionId: 5, amount: 0.0001 },
-];
-
-const broadcastModalContent = (onBroadcastModalCallback) => {
+const broadcastModalContent = (loading, onBroadcastModalCallback) => {
   return (
     <Box>
       <Box>
@@ -44,32 +44,62 @@ const broadcastModalContent = (onBroadcastModalCallback) => {
         </Text>
       </Box>
       <Box style={styles.modalFooter}>
-        <Buttons primaryText="Proceed" primaryCallback={() => onBroadcastModalCallback()} />
+        <Buttons
+          primaryText="Proceed"
+          primaryLoading={loading}
+          primaryCallback={() => onBroadcastModalCallback()}
+        />
       </Box>
     </Box>
   );
 };
 
+function SendSuccessfulContent() {
+  return (
+    <View>
+      <Box alignSelf="center">
+        <SuccessIcon />
+      </Box>
+      <Text color="light.greenText" fontSize={13} padding={2}>
+        You can view the confirmation status of the transaction on any block explorer or when the
+        vault transaction list is refreshed
+      </Text>
+    </View>
+  );
+}
+
 export default function BroadcastPremix({ route, navigation }) {
-  const { scode, fee, utxos, utxoCount, utxoTotal, pool, premixOutputCount } = route.params;
+  const {
+    utxos,
+    utxoCount,
+    utxoTotal,
+    tx0Preview,
+    tx0Data,
+    selectedPool,
+    wallet,
+    WhirlpoolClient,
+  } = route.params;
+  const { translations } = useContext(LocalizationContext);
+  const walletTransactions = translations.wallet;
+  const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { whirlpoolWallets } = useAppSelector((state) => state.wallet);
   const [premixOutputs, setPremixOutputs] = useState([]);
-  const [badbankChange, setBadbankChange] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [successModal, setSuccessModal] = useState(false);
 
   useEffect(() => {
     setPremixOutputsAndBadbank();
+    setLoading(false);
   }, []);
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
-    for (let i = 0; i < premixOutputCount; i++) {
-      outputs.push({ amount: pool.must_mix_balance_cap });
+    for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
+      outputs.push(tx0Preview.premix_value);
     }
     setPremixOutputs(outputs);
-    setBadbankChange(
-      utxoTotal - fee.averageTxFee - pool.fee_value - pool.must_mix_balance_cap * premixOutputCount
-    );
   };
 
   const onBroadcastPremix = () => {
@@ -80,9 +110,52 @@ export default function BroadcastPremix({ route, navigation }) {
     setShowBroadcastModal(false);
   };
 
-  const onBroadcastModalCallback = () => {
-    setShowBroadcastModal(false);
-    navigation.navigate('WalletDetails');
+  const onBroadcastModalCallback = async () => {
+    try {
+      setLoading(true);
+      const network = WalletUtilities.getNetworkByType(wallet.networkType);
+      const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
+        [wallet],
+        network
+      );
+      const syncedWallet = synchedWallets[0] as Wallet;
+
+      dispatch(addWhirlpoolWalletsLocal({ depositWallet: syncedWallet }));
+
+      const premixWallet = whirlpoolWallets.filter((w) => w.type === WalletType.PRE_MIX)[0];
+      const badBank = whirlpoolWallets.filter((w) => w.type === WalletType.BAD_BANK)[0];
+
+      const premixAddresses = [];
+      for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
+        premixAddresses.push(
+          WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)
+        );
+      }
+
+      const outputProvider = {
+        premix: premixAddresses,
+        badbank: badBank.specs.receivingAddress,
+      };
+
+      const correspondingTx0Data = tx0Data?.filter((data) => data.pool_id === selectedPool.id);
+
+      const psbt = WhirlpoolClient.getTx0FromPreview(
+        tx0Preview,
+        correspondingTx0Data,
+        utxos,
+        outputProvider,
+        syncedWallet
+      );
+
+      const tx = WhirlpoolClient.signTx0(syncedWallet, utxos, psbt);
+      const txid = await WhirlpoolClient.broadcastTx0(tx);
+
+      setLoading(false);
+      setShowBroadcastModal(false);
+      setSuccessModal(true);
+    } catch (e) {
+      console.log('onBroadcastModalCallback error', e);
+    }
   };
 
   const valueByPreferredUnit = (value) => {
@@ -93,6 +166,10 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const getPreferredUnit = () => {
     return satsEnabled ? 'sats' : 'btc';
+  };
+  const navigateToWalletDetails = () => {
+    setSuccessModal(false);
+    navigation.navigate('WalletDetails');
   };
 
   return (
@@ -108,7 +185,9 @@ export default function BroadcastPremix({ route, navigation }) {
           Whirlpool Fee
         </Text>
         <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(pool?.fee_value)}</Text>
+          <Text color="light.secondaryText">
+            {valueByPreferredUnit(tx0Preview.coordinator_fee)}
+          </Text>
           <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
             {getPreferredUnit()}
           </Text>
@@ -119,7 +198,7 @@ export default function BroadcastPremix({ route, navigation }) {
           Badbank Change
         </Text>
         <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(badbankChange)}</Text>
+          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
           <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
             {getPreferredUnit()}
           </Text>
@@ -133,7 +212,7 @@ export default function BroadcastPremix({ route, navigation }) {
                 Premix #{index + 1}
               </Text>
               <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{valueByPreferredUnit(output.amount)}</Text>
+                <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
                 <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
                   {getPreferredUnit()}
                 </Text>
@@ -146,7 +225,7 @@ export default function BroadcastPremix({ route, navigation }) {
           Fee
         </Text>
         <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(fee?.averageTxFee)}</Text>
+          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.miner_fee)}</Text>
           <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
             {getPreferredUnit()}
           </Text>
@@ -175,7 +254,18 @@ export default function BroadcastPremix({ route, navigation }) {
         buttonTextColor="#FAFAFA"
         buttonCallback={closeBroadcastModal}
         closeOnOverlayClick={false}
-        Content={() => broadcastModalContent(onBroadcastModalCallback)}
+        Content={() => broadcastModalContent(loading, onBroadcastModalCallback)}
+      />
+      <KeeperModal
+        visible={successModal}
+        close={() => navigateToWalletDetails()}
+        title="Transaction Broadcasted"
+        subTitle="The transaction has been successfully broadcasted"
+        buttonText={walletTransactions.ViewDetails}
+        buttonCallback={() => navigateToWalletDetails()}
+        textColor="light.greenText"
+        buttonTextColor="light.white"
+        Content={SendSuccessfulContent}
       />
     </ScreenWrapper>
   );

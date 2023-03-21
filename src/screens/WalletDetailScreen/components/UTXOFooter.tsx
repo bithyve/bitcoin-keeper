@@ -7,13 +7,14 @@ import Send from 'src/assets/images/send.svg';
 import BottomMenuItem from '../BottomMenuItem';
 import { useNavigation } from '@react-navigation/native';
 
-function UTXOFooter({ setEnableSelection, enableSelection, utxos }) {
+function UTXOFooter({ setEnableSelection, enableSelection, utxos, wallet }) {
   const navigation = useNavigation();
 
   const handleMix = () => {
     console.log(utxos);
     navigation.navigate('WhirlpoolConfiguration', {
       utxos: utxos?.filter((item) => item.selected) || [],
+      wallet,
     });
   };
 
