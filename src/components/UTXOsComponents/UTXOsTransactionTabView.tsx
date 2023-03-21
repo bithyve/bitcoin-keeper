@@ -5,7 +5,7 @@ import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/common/data/responsiveness/responsive';
 
-function WalletDetailsTabView({
+function UTXOsTransactionTabView({
   setActiveTab,
 }: {
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
@@ -43,4 +43,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-export default WalletDetailsTabView;
+export default UTXOsTransactionTabView;

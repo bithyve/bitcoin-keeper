@@ -8,13 +8,13 @@ import { VaultMigrationType } from 'src/core/wallets/enums';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
+import UTXOsTransactionTabView from 'src/components/UTXOsComponents/UTXOsTransactionTabView';
 import VaultInfo from './components/VaultInfo';
 import VaultFooter from './components/VaultFooter';
 import VaultHeader from './components/VaultHeader';
 import SignerList from './components/SignerList';
 import TransactionsAndUTXOs from './components/TransactionsAndUTXOs';
 import VaultModals from './components/VaultModals';
-import WalletDetailsTabView from '../WalletDetailScreen/components/WalletDetailsTabView';
 
 function Wrapper({ children }) {
   const { top } = useSafeAreaInsets();
@@ -83,7 +83,7 @@ function VaultDetails({ route }) {
         paddingBottom={windowHeight > 800 ? 5 : 0}
       >
         <VStack style={{ paddingTop: windowHeight * 0.09 }}>
-          <WalletDetailsTabView setActiveTab={setActiveTab} />
+          <UTXOsTransactionTabView setActiveTab={setActiveTab} />
         </VStack>
         <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} tab={tab} utxoState={utxos} />
         <VaultFooter onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />

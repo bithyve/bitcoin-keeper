@@ -14,7 +14,7 @@ import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import WalletDetailsTabView from './components/WalletDetailsTabView';
+import UTXOsTransactionTabView from '../../components/UTXOsComponents/UTXOsTransactionTabView';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
 import UTXOList from './components/UTXOList';
@@ -160,7 +160,7 @@ function WalletDetails({ route }) {
           {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? (
             <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
           ) : (
-            <WalletDetailsTabView setActiveTab={setActiveTab} />
+            <UTXOsTransactionTabView setActiveTab={setActiveTab} />
           )}
           <TransactionsAndUTXOs
             tab={tab}
