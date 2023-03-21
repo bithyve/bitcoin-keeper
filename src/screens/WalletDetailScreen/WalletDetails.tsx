@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: '45%',
+    height: '39%',
     position: 'relative',
   },
   addNewWalletText: {
