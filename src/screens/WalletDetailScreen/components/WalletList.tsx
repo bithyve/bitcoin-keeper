@@ -74,7 +74,7 @@ function SelectAccountContent({
     <View>
       <AccountComponent
         title={'Deposit Wallet'}
-        balance={'0.000024'}
+        balance={depositWallet.specs.balances.confirmed}
         onPress={() => {
           setSelectedAccount(WalletType.DEFAULT);
           close();
@@ -84,7 +84,7 @@ function SelectAccountContent({
 
       <AccountComponent
         title={depositWallet?.whirlpoolConfig?.premixWallet?.presentationData?.name}
-        balance={'0.000024'}
+        balance={depositWallet.whirlpoolConfig.premixWallet.specs.balances.confirmed}
         onPress={() => {
           setSelectedAccount(WalletType.PRE_MIX);
           close();
@@ -94,7 +94,7 @@ function SelectAccountContent({
 
       <AccountComponent
         title={depositWallet?.whirlpoolConfig?.postmixWallet?.presentationData?.name}
-        balance={'0.000024'}
+        balance={depositWallet.whirlpoolConfig.postmixWallet.specs.balances.confirmed}
         onPress={() => {
           setSelectedAccount(WalletType.POST_MIX);
           close();
@@ -104,7 +104,7 @@ function SelectAccountContent({
 
       <AccountComponent
         title={depositWallet?.whirlpoolConfig?.badbankWallet?.presentationData?.name}
-        balance={'0.000024'}
+        balance={depositWallet.whirlpoolConfig.badbankWallet.specs.balances.confirmed}
         onPress={() => {
           setSelectedAccount(WalletType.BAD_BANK);
           close();
