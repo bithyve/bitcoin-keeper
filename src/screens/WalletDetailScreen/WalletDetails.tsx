@@ -1,8 +1,7 @@
-import { Platform, StyleSheet, View } from 'react-native';
-import { Box, Pressable } from 'native-base';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Box } from 'native-base';
+import { StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import _ from 'lodash';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 
 // data
@@ -24,25 +23,27 @@ import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 import useWallets from 'src/hooks/useWallets';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import UTXOSelectionTotal from './components/UTXOSelectionTotal';
+import FinalizeFooter from './components/FinalizeFooter';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
   tab,
-  transections,
+  transactions,
   setPullRefresh,
   pullRefresh,
   currentWallet,
   utxoState,
-  setUtxoState,
   enableSelection,
-  selectionTotal,
   setSelectionTotal,
+  selectedUTXOMap,
+  setSelectedUTXOMap,
 }) {
   return (
     <Box style={styles.transactionsListContainer}>
       {tab === 'Transactions' ? (
         <Transactions
-          transections={transections}
+          transactions={transactions}
           setPullRefresh={setPullRefresh}
           pullRefresh={pullRefresh}
           currentWallet={currentWallet}
@@ -50,10 +51,11 @@ function TransactionsAndUTXOs({
       ) : (
         <UTXOList
           utxoState={utxoState}
-          setUtxoState={setUtxoState}
           enableSelection={enableSelection}
-          selectionTotal={selectionTotal}
           setSelectionTotal={setSelectionTotal}
+          selectedUTXOMap={selectedUTXOMap}
+          setSelectedUTXOMap={setSelectedUTXOMap}
+          currentWallet={currentWallet}
         />
       )}
     </Box>
@@ -67,9 +69,17 @@ function Footer({
   setEnableSelection,
   enableSelection,
   utxos,
+  selectedUTXOs,
 }) {
+  // eslint-disable-next-line no-nested-ternary
   return tab === 'Transactions' ? (
     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
+  ) : enableSelection ? (
+    <FinalizeFooter
+      currentWallet={currentWallet}
+      selectedUTXOs={selectedUTXOs}
+      setEnableSelection={setEnableSelection}
+    />
   ) : (
     <UTXOFooter
       setEnableSelection={setEnableSelection}
@@ -86,57 +96,65 @@ function WalletDetails({ route }) {
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
+  const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [transactions, setTransactions] = useState([]);
   const [tab, setActiveTab] = useState('Transactions');
 
   useEffect(() => {
-    console.log(walletIndex, 'render');
-    // if !whirlpool then current wallet (wallet[index])
-
-    //if whirlpool then set  current wallet (wallet[index])
-    // if account cuurent wallet()
+    setCurrentWallet(wallets[walletIndex]);
   }, [walletIndex]);
 
-  const currentWallet = wallets[walletIndex];
-  const transections = wallets[walletIndex]?.specs?.transactions || [];
-  const utxos = _.clone(currentWallet && currentWallet.specs && currentWallet.specs.confirmedUTXOs);
-  const [selectionTotal, setSelectionTotal] = useState(0);
-  const [utxoState, setUtxoState] = useState(
-    (utxos &&
-      utxos.map((utxo) => {
-        utxo.selected = false;
-        return utxo;
-      })) ||
-      []
-  );
-  const [enableSelection, setEnableSelection] = useState(false);
+  useEffect(() => {
+    setTransactions(currentWallet?.specs?.transactions || []);
+  }, [currentWallet]);
 
-  // const [selectAccount, setselectAccount] = useState(false);
-  // const { translations } = useContext(LocalizationContext);
-  // const { wallet } = translations;
-  // const [walletIndex, setWalletIndex] = useState<number>(0);
-  // const [pullRefresh, setPullRefresh] = useState(false);
-  // const currentWallet: Wallet = wallets[walletIndex];
-  // const isWhirlpoolWallet = !!currentWallet.whirlpoolConfig.whirlpoolWalletDetails.length;
-  // const transections = isWhirlpoolWalletwallets[walletIndex]?.specs?.transactions || [];
+  const { confirmedUTXOs, unconfirmedUTXOs } = wallets[walletIndex]?.specs || {
+    confirmedUTXOs: [],
+    unconfirmedUTXOs: [],
+  };
+  const utxos =
+    confirmedUTXOs
+      .map((utxo) => {
+        utxo.confirmed = true;
+        return utxo;
+      })
+      .concat(
+        unconfirmedUTXOs.map((utxo) => {
+          utxo.confirmed = false;
+          return utxo;
+        })
+      ) || [];
+
+  const [selectionTotal, setSelectionTotal] = useState(0);
+  const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
+  const [enableSelection, _setEnableSelection] = useState(false);
+  const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
 
   const { autoRefresh } = route?.params || {};
+  const cleanUp = useCallback(() => {
+    setSelectedUTXOMap({});
+    setSelectionTotal(0);
+  }, []);
+  const setEnableSelection = useCallback(
+    (value) => {
+      _setEnableSelection(value);
+      if (!value) {
+        cleanUp();
+      }
+    },
+    [cleanUp]
+  );
+
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
 
   const flatListRef = useRef(null);
 
-  const handleScrollToIndex = (index) => {
-    if (index !== undefined && flatListRef && flatListRef?.current) {
-      flatListRef?.current?.scrollToIndex({ index });
-    }
-  };
-
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
     if (index?.index !== undefined) {
-      handleScrollToIndex(index?.index);
       setWalletIndex(index?.index);
     }
   });
@@ -159,20 +177,25 @@ function WalletDetails({ route }) {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
+        setCurrentWallet={setCurrentWallet}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
-          <WalletDetailsTabView setActiveTab={setActiveTab} />
+          {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? (
+            <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
+          ) : (
+            <WalletDetailsTabView setActiveTab={setActiveTab} />
+          )}
           <TransactionsAndUTXOs
             tab={tab}
-            transections={transections}
+            transactions={transactions}
             setPullRefresh={setPullRefresh}
             pullRefresh={pullRefresh}
             currentWallet={currentWallet}
-            utxoState={utxoState}
-            setUtxoState={setUtxoState}
+            utxoState={utxos}
+            selectedUTXOMap={selectedUTXOMap}
+            setSelectedUTXOMap={setSelectedUTXOMap}
             enableSelection={enableSelection}
-            selectionTotal={selectionTotal}
             setSelectionTotal={setSelectionTotal}
           />
           <Footer
@@ -181,7 +204,8 @@ function WalletDetails({ route }) {
             onPressBuyBitcoin={onPressBuyBitcoin}
             setEnableSelection={setEnableSelection}
             enableSelection={enableSelection}
-            utxos={utxoState}
+            utxos={utxos}
+            selectedUTXOs={selectedUTXOs}
           />
         </>
       ) : (
@@ -214,7 +238,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: Platform.OS === 'ios' ? '45%' : '43%',
+    height: '45%',
     position: 'relative',
   },
   addNewWalletText: {

@@ -4,11 +4,13 @@ import { Box } from 'native-base';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../BottomMenuItem';
 import { useNavigation } from '@react-navigation/native';
 
 function UTXOFooter({ setEnableSelection, enableSelection, utxos, wallet }) {
   const navigation = useNavigation();
+  const { bottom } = useSafeAreaInsets();
 
   const handleMix = () => {
     console.log(utxos);
@@ -19,7 +21,7 @@ function UTXOFooter({ setEnableSelection, enableSelection, utxos, wallet }) {
   };
 
   return (
-    <Box style={styles.footerContainer}>
+    <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
         <BottomMenuItem onPress={() => handleMix()} icon={<MixIcon />} title="Mix Selected" />
@@ -40,7 +42,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 5 : 0,
     width: wp(375),
-    height: '11%',
     paddingHorizontal: 5,
   },
   border: {

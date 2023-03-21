@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { EntityKind, TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, LabelType, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -42,6 +42,7 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
+import { createUTXOReferenceWorker } from './utxos';
 
 function* fetchFeeRatesWorker() {
   try {
@@ -122,7 +123,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
-  const { wallet, txnPriority, note } = payload;
+  const { wallet, txnPriority, note, label } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
@@ -136,11 +137,15 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       recipients
       // customTxPrerequisites
     );
-
+    const systemLableOnSend = [{ name: wallet.presentationData.name, type: LabelType.SYSTEM }];
+    let labels = systemLableOnSend;
     switch (wallet.entityKind) {
       case EntityKind.WALLET:
         if (!txid) throw new Error('Send failed: unable to generate txid');
         if (note) wallet.specs.txNote[txid] = note;
+        if (label) {
+          labels = labels.concat([{ name: label, type: LabelType.USER }]);
+        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -155,6 +160,10 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       case EntityKind.VAULT:
         if (!serializedPSBTEnvelops.length)
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
+        if (note) wallet.specs.txNote[txid] = note;
+        if (label) {
+          labels = labels.concat([{ name: label, type: LabelType.USER }]);
+        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -166,6 +175,16 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       default:
         throw new Error('Invalid Entity: not a Vault/Wallet');
     }
+    const vout = txPrerequisites[txnPriority].outputs.findIndex(
+      (o) => o.address === recipients[0].address
+    );
+    yield call(createUTXOReferenceWorker, {
+      payload: {
+        labels,
+        txId: txid,
+        vout,
+      },
+    });
   } catch (err) {
     yield put(
       sendPhaseTwoExecuted({
