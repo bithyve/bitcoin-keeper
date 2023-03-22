@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -14,9 +14,8 @@ import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import WalletOperations from 'src/core/wallets/operations';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import { useDispatch } from 'react-redux';
-import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setTx0Complete, setWalletDetailsUI, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -39,8 +38,9 @@ export default function BroadcastPremix({ route, navigation }) {
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { whirlpoolWallets, tx0completed } = useAppSelector((state) => state.wallet);
-  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
-    useAppSelector((state) => state.bhr);
+  const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
   const [premixOutputs, setPremixOutputs] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -64,7 +64,6 @@ export default function BroadcastPremix({ route, navigation }) {
     if (relayWalletUpdate && tx0completed) {
       dispatch(resetRealyWalletState());
       setLoading(false);
-      setShowBroadcastModal(false);
       dispatch(setWalletDetailsUI({ walletId: wallet.id, walletType: WalletType.PRE_MIX }));
     }
     return () => {
@@ -237,10 +236,18 @@ export default function BroadcastPremix({ route, navigation }) {
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText="View Premix Account"
         buttonTextColor="#FAFAFA"
-        buttonCallback={() => navigateToWalletDetails()}
         closeOnOverlayClick={false}
+        Content={() => (
+          <Box style={styles.modalFooter}>
+            <Box style={{ alignSelf: 'flex-end' }}>
+              <Buttons
+                primaryText="View Premix Account"
+                primaryCallback={() => navigateToWalletDetails()}
+              />
+            </Box>
+          </Box>
+        )}
       />
     </ScreenWrapper>
   );
@@ -277,10 +284,10 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
   modalFooter: {
-    width: '100%',
+    marginTop: 80,
     flexDirection: 'row',
+    alignContent: 'flex-end',
     justifyContent: 'flex-end',
-    marginTop: 10,
-    marginBottom: 10,
+    width: '100%',
   },
 });
