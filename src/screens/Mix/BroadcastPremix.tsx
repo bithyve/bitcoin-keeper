@@ -169,17 +169,25 @@ export default function BroadcastPremix({ route, navigation }) {
       const txid = await WhirlpoolClient.broadcastTx0(tx);
       if (txid) {
         const outputs = psbt.txOutputs;
-        const vout = outputs.findIndex((o) => o.address === premixAddresses[0].address);
+        const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
+        const voutBadBank = outputs.findIndex((o) => o.address === badBank.specs.receivingAddress);
         dispatch(
           createUTXOReference({
             labels: [{ name: 'Deposit', type: LabelType.SYSTEM }],
             txId: txid,
-            vout,
+            vout: voutPremix,
           })
         );
-      }
-      console.log({ txid });
-      if (true) {
+        dispatch(
+          createUTXOReference({
+            labels: [
+              { name: 'Deposit', type: LabelType.SYSTEM },
+              { name: 'Doxxic Change', type: LabelType.SYSTEM },
+            ],
+            txId: txid,
+            vout: voutBadBank,
+          })
+        );
         dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
       } else {
         // error modals
