@@ -25,6 +25,8 @@ import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 import FinalizeFooter from './components/FinalizeFooter';
+import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import { conforms } from 'lodash';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -74,6 +76,7 @@ function TransactionsAndUTXOs({
 
 function Footer({
   tab,
+  depositWallet,
   currentWallet,
   onPressBuyBitcoin,
   setEnableSelection,
@@ -83,7 +86,8 @@ function Footer({
 }) {
   const navigation = useNavigation();
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
-
+  const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
+  const { walletPoolMap } = useAppSelector((state) => state.wallet);
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
     navigation.dispatch(
@@ -94,6 +98,24 @@ function Footer({
     );
   };
 
+  console.log(walletPoolMap);
+  const inititateWhirlpoolMixProcess = async () => {
+    // try {
+    //   console.log(currentWallet.type);
+    //   console.log();
+    //   for (const utxo of utxos) {
+    //     const txid = await WhirlpoolClient.premixToPostmix(
+    //       utxo,
+    //       depositWallet.specs.receivingAddress,
+    //       walletPoolMap[depositWallet.id],
+    //       currentWallet
+    //     );
+    //   }
+    // } catch (err) {
+    //   console.log(err);
+    // }
+  };
+
   return tab === 'Transactions' ? (
     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
   ) : enableSelection ? (
@@ -101,10 +123,14 @@ function Footer({
       initiateWhirlpool={initiateWhirlpool}
       setEnableSelection={setEnableSelection}
       setInitiateWhirlpool={setInitiateWhirlpool}
+      initateWhirlpoolMix={initateWhirlpoolMix}
+      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       secondaryText="Cancel"
       footerCallback={() =>
         initiateWhirlpool
           ? goToWhirlpoolConfiguration()
+          : initateWhirlpoolMix
+          ? inititateWhirlpoolMixProcess()
           : navigation.dispatch(
               CommonActions.navigate('Send', { sender: currentWallet, selectedUTXOs })
             )
@@ -114,6 +140,7 @@ function Footer({
     <UTXOFooter
       setEnableSelection={setEnableSelection}
       setInitiateWhirlpool={setInitiateWhirlpool}
+      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       enableSelection={enableSelection}
       utxos={utxos}
       wallet={currentWallet}
@@ -131,6 +158,7 @@ function WalletDetails({ route }) {
 
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
+  const [depositWallet, setDepositWallet] = useState<Wallet>();
   const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
 
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -143,6 +171,7 @@ function WalletDetails({ route }) {
       const accountType = walletDetailsUI[defaultWallet.id];
       if (accountType && accountType !== WalletType.DEFAULT) {
         if (defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]) {
+          setDepositWallet(defaultWallet);
           setCurrentWallet(defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
           dispatch(
             refreshWallets(
@@ -254,6 +283,7 @@ function WalletDetails({ route }) {
           />
           <Footer
             tab={tab}
+            depositWallet={depositWallet}
             currentWallet={currentWallet}
             onPressBuyBitcoin={onPressBuyBitcoin}
             setEnableSelection={setEnableSelection}

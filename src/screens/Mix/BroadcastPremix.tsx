@@ -19,7 +19,7 @@ import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { setTx0Complete, setWalletDetailsUI } from 'src/store/reducers/wallets';
+import { setTx0Complete, setWalletDetailsUI, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { Psbt } from 'bitcoinjs-lib';
@@ -189,6 +189,7 @@ export default function BroadcastPremix({ route, navigation }) {
           })
         );
         dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
+        dispatch(setWalletPoolMap({ walletId: wallet.id, pool: selectedPool?.denomination }));
       } else {
         // error modals
       }

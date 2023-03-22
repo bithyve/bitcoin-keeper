@@ -11,16 +11,21 @@ function FinalizeFooter({
   initiateWhirlpool,
   setInitiateWhirlpool,
   secondaryText,
+  initateWhirlpoolMix,
+  setInitateWhirlpoolMix,
 }) {
   const { bottom } = useSafeAreaInsets();
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
-        primaryText={initiateWhirlpool ? 'Mix' : 'Send'}
+        primaryText={initiateWhirlpool ? 'Mix' : initateWhirlpoolMix ? 'Start Mix' : 'Send'}
         secondaryText={secondaryText}
         secondaryCallback={() => {
           if (initiateWhirlpool) {
             setInitiateWhirlpool(false);
+          }
+          if (initateWhirlpoolMix) {
+            setInitateWhirlpoolMix(false);
           }
           setEnableSelection(false);
         }}

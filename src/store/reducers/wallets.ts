@@ -28,6 +28,7 @@ export type WalletsState = {
   syncing: boolean;
   tx0completed: boolean;
   walletDetailsUI: any;
+  walletPoolMap: any;
 };
 
 const initialState: WalletsState = {
@@ -50,12 +51,18 @@ const initialState: WalletsState = {
 
   syncing: false,
   walletDetailsUI: {},
+  walletPoolMap: {},
   tx0completed: false,
 };
 
 export type WalletDeatilsUIPayload = {
   walletId: string;
   walletType: string;
+};
+
+export type WalletPoolPayload = {
+  walletId: string;
+  pool: number;
 };
 
 const walletSlice = createSlice({
@@ -99,6 +106,11 @@ const walletSlice = createSlice({
       const prev = state.walletDetailsUI;
       state.walletDetailsUI = { ...prev, [walletId]: walletType };
     },
+    setWalletPoolMap: (state, action: PayloadAction<WalletPoolPayload>) => {
+      const { walletId, pool } = action.payload;
+      const prev = state.walletPoolMap;
+      state.walletPoolMap = { ...prev, [walletId]: pool };
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -121,6 +133,7 @@ export const {
   setWalletDetailsUI,
   setSyncing,
   setTx0Complete,
+  setWalletPoolMap,
 } = walletSlice.actions;
 
 const walletPersistConfig = {

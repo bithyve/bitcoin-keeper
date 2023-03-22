@@ -7,8 +7,15 @@ import Send from 'src/assets/images/send.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../BottomMenuItem';
 import { allowedMixTypes, allowedSendTypes } from '../WalletDetails';
+import { WalletType } from 'src/core/wallets/enums';
 
-function UTXOFooter({ setEnableSelection, enableSelection, setInitiateWhirlpool, utxos, wallet }) {
+function UTXOFooter({
+  setEnableSelection,
+  enableSelection,
+  setInitiateWhirlpool,
+  setInitateWhirlpoolMix,
+  wallet,
+}) {
   const { bottom } = useSafeAreaInsets();
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
@@ -22,6 +29,16 @@ function UTXOFooter({ setEnableSelection, enableSelection, setInitiateWhirlpool,
             }}
             icon={<MixIcon />}
             title="Mix Selected"
+          />
+        )}
+        {wallet.type === WalletType.PRE_MIX && (
+          <BottomMenuItem
+            onPress={() => {
+              setEnableSelection(!enableSelection);
+              setInitateWhirlpoolMix(true);
+            }}
+            icon={<MixIcon />}
+            title="Start Mix "
           />
         )}
         {allowedSendTypes.includes(wallet.type) && (
