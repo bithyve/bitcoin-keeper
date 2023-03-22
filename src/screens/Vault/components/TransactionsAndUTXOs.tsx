@@ -1,13 +1,10 @@
-import { FlatList, RefreshControl, TouchableOpacity } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { HStack, VStack } from 'native-base';
-import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import { useDispatch } from 'react-redux';
