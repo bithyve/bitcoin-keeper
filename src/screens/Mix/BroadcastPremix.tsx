@@ -7,7 +7,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
-import UtxoSummary from './UtxoSummary';
 import PageIndicator from 'src/components/PageIndicator';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
@@ -19,42 +18,43 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
-import { WalletType } from 'src/core/wallets/enums';
+import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setTx0Complete, setWalletDetailsUI } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import { createUTXOReference } from 'src/store/sagaActions/utxos';
+import { Psbt } from 'bitcoinjs-lib';
+import UtxoSummary from './UtxoSummary';
 
-const broadcastModalContent = (loading, onBroadcastModalCallback) => {
-  return (
+const broadcastModalContent = (loading, onBroadcastModalCallback) => (
+  <Box>
     <Box>
-      <Box>
-        <Text color="light.secondaryText" style={styles.premixInstructionText}>
-          <Text style={{ fontWeight: 'bold' }}>Premix</Text> This wallet contains the UTXOs from
-          your premix transaction (also called the Tx0). Your premix transaction splits your UTXOs
-          into equal amounts ready for mixing.
-        </Text>
-        <Text color="light.secondaryText" style={styles.premixInstructionText}>
-          <Text style={{ fontWeight: 'bold' }}>Postmix</Text> This wallet contains the UTXOs from
-          your mixes. Whirlpool will select UTXOs from both the Premix and the Postmix wallets to
-          include in coinjoin transactions. Funds in this wallet can be considered mixed and are
-          safe to spend anonymously, especially after a number of mixing rounds.
-        </Text>
-        <Text color="light.secondaryText" style={styles.premixInstructionText}>
-          <Text style={{ fontWeight: 'bold' }}>Badbank</Text> This wallet contains the change from
-          your premix (Tx0) transaction - whatever is left over from splitting your input UTXOs into
-          equal amounts. Consider mixing any UTXOs here if they are large enough, but do not combine
-          them with mixed funds.
-        </Text>
-      </Box>
-      <Box style={styles.modalFooter}>
-        <Buttons
-          primaryText="Proceed"
-          primaryLoading={loading}
-          primaryCallback={() => onBroadcastModalCallback()}
-        />
-      </Box>
+      <Text color="light.secondaryText" style={styles.premixInstructionText}>
+        <Text style={{ fontWeight: 'bold' }}>Premix</Text> This wallet contains the UTXOs from your
+        premix transaction (also called the Tx0). Your premix transaction splits your UTXOs into
+        equal amounts ready for mixing.
+      </Text>
+      <Text color="light.secondaryText" style={styles.premixInstructionText}>
+        <Text style={{ fontWeight: 'bold' }}>Postmix</Text> This wallet contains the UTXOs from your
+        mixes. Whirlpool will select UTXOs from both the Premix and the Postmix wallets to include
+        in coinjoin transactions. Funds in this wallet can be considered mixed and are safe to spend
+        anonymously, especially after a number of mixing rounds.
+      </Text>
+      <Text color="light.secondaryText" style={styles.premixInstructionText}>
+        <Text style={{ fontWeight: 'bold' }}>Badbank</Text> This wallet contains the change from
+        your premix (Tx0) transaction - whatever is left over from splitting your input UTXOs into
+        equal amounts. Consider mixing any UTXOs here if they are large enough, but do not combine
+        them with mixed funds.
+      </Text>
     </Box>
-  );
-};
+    <Box style={styles.modalFooter}>
+      <Buttons
+        primaryText="Proceed"
+        primaryLoading={loading}
+        primaryCallback={() => onBroadcastModalCallback()}
+      />
+    </Box>
+  </Box>
+);
 
 function SendSuccessfulContent() {
   return (
@@ -163,12 +163,31 @@ export default function BroadcastPremix({ route, navigation }) {
         utxos,
         outputProvider,
         syncedWallet
-      );
+      ) as Psbt;
 
       const tx = WhirlpoolClient.signTx0(syncedWallet, utxos, psbt);
       const txid = await WhirlpoolClient.broadcastTx0(tx);
-      console.log({ txid });
-      if (true) {
+      if (txid) {
+        const outputs = psbt.txOutputs;
+        const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
+        const voutBadBank = outputs.findIndex((o) => o.address === badBank.specs.receivingAddress);
+        dispatch(
+          createUTXOReference({
+            labels: [{ name: 'Deposit', type: LabelType.SYSTEM }],
+            txId: txid,
+            vout: voutPremix,
+          })
+        );
+        dispatch(
+          createUTXOReference({
+            labels: [
+              { name: 'Deposit', type: LabelType.SYSTEM },
+              { name: 'Doxxic Change', type: LabelType.SYSTEM },
+            ],
+            txId: txid,
+            vout: voutBadBank,
+          })
+        );
         dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
       } else {
         // error modals
@@ -184,9 +203,7 @@ export default function BroadcastPremix({ route, navigation }) {
     return valueInPreferredUnit;
   };
 
-  const getPreferredUnit = () => {
-    return satsEnabled ? 'sats' : 'btc';
-  };
+  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
   const navigateToWalletDetails = () => {
     setSuccessModal(false);
     navigation.navigate('WalletDetails', {
@@ -227,21 +244,19 @@ export default function BroadcastPremix({ route, navigation }) {
         </Box>
       </Box>
       {premixOutputs &&
-        premixOutputs.map((output, index) => {
-          return (
-            <Box style={styles.textArea}>
-              <Text color="#017963" style={styles.textWidth}>
-                Premix #{index + 1}
+        premixOutputs.map((output, index) => (
+          <Box style={styles.textArea}>
+            <Text color="#017963" style={styles.textWidth}>
+              Premix #{index + 1}
+            </Text>
+            <Box style={styles.textDirection}>
+              <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
+              <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+                {getPreferredUnit()}
               </Text>
-              <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
-                <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-                  {getPreferredUnit()}
-                </Text>
-              </Box>
             </Box>
-          );
-        })}
+          </Box>
+        ))}
       <Box style={styles.textArea}>
         <Text color="#017963" style={styles.textWidth}>
           Fee
