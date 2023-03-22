@@ -26,6 +26,7 @@ import {
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
+  setTx0Complete,
   setWhirlpoolWallets,
 } from 'src/store/reducers/wallets';
 
@@ -120,6 +121,7 @@ export function* addWhirlpoolWalletsLocalWorker({
   };
 }) {
   const { depositWallet } = payload;
+  console.log('depositWallet', depositWallet.id);
   const instanceNum = depositWallet.derivationDetails.instanceNum;
 
   const preMixWalletInfo: NewWalletInfo = {
@@ -164,7 +166,7 @@ export function* addWhirlpoolWalletsLocalWorker({
     const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
     wallets.push(wallet);
   }
-  yield call(setWhirlpoolWallets, wallets);
+  yield put(setWhirlpoolWallets(wallets));
 }
 
 export const addWhirlpoolWalletsLocalWatcher = createWatcher(
@@ -240,6 +242,7 @@ export function* addWhirlpoolWalletsWorker({
   //TO-DO bind the APIs together
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
   yield call(addNewWalletsWorker, { payload: newWalletsInfo });
+  yield put(setTx0Complete(true));
 }
 
 export const addWhirlpoolWalletsWatcher = createWatcher(

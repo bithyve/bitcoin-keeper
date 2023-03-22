@@ -26,6 +26,8 @@ export type WalletsState = {
   whirlpoolWallets?: Wallet[];
 
   syncing: boolean;
+  tx0completed: boolean;
+  walletDetailsUI: any;
 };
 
 const initialState: WalletsState = {
@@ -47,6 +49,13 @@ const initialState: WalletsState = {
   whirlpoolModal: true,
 
   syncing: false,
+  walletDetailsUI: {},
+  tx0completed: false,
+};
+
+export type WalletDeatilsUIPayload = {
+  walletId: string;
+  walletType: string;
 };
 
 const walletSlice = createSlice({
@@ -81,6 +90,15 @@ const walletSlice = createSlice({
     setSyncing: (state, action: PayloadAction<boolean>) => {
       state.syncing = action.payload;
     },
+    setTx0Complete: (state, action: PayloadAction<boolean>) => {
+      state.tx0completed = action.payload;
+    },
+
+    setWalletDetailsUI: (state, action: PayloadAction<WalletDeatilsUIPayload>) => {
+      const { walletId, walletType } = action.payload;
+      const prev = state.walletDetailsUI;
+      state.walletDetailsUI = { ...prev, [walletId]: walletType };
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -100,12 +118,20 @@ export const {
   setWhirlpoolModal,
   setWhirlpoolWallets,
   resetWhirlpoolWallets,
+  setWalletDetailsUI,
   setSyncing,
+  setTx0Complete,
 } = walletSlice.actions;
 
 const walletPersistConfig = {
   key: 'wallet',
   storage: reduxStorage,
-  blacklist: ['testCoinsReceived', 'testCoinsFailed', 'whirlpoolWallets'],
+  blacklist: [
+    'testCoinsReceived',
+    'testCoinsFailed',
+    'whirlpoolWallets',
+    'walletDetailsUI',
+    'tx0completed',
+  ],
 };
 export default persistReducer(walletPersistConfig, walletSlice.reducer);
