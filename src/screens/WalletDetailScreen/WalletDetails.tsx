@@ -182,7 +182,7 @@ function WalletDetails({ route }) {
   const [tab, setActiveTab] = useState('Transactions');
 
   useEffect(() => {
-    selectedTab ? setActiveTab(selectedTab) : 'Transactions';
+    setActiveTab(selectedTab || 'Transactions');
     if (walletIndex !== wallets.length) {
       const defaultWallet: Wallet = wallets[walletIndex];
       const accountType = walletDetailsUI[defaultWallet.id];
