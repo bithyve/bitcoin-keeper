@@ -9,11 +9,11 @@ import IconSettings from 'src/assets/images/icon_settings.svg';
 import BuyBitcoin from 'src/assets/images/icon_buy.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../BottomMenuItem';
+import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 
 function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
   const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets();
-
   return (
     <Box
       style={[styles.footerContainer, { marginBottom: bottom }]}
@@ -21,21 +21,27 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
     >
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
-        <BottomMenuItem
-          onPress={() =>
-            navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet }))
-          }
-          icon={<Send />}
-          title="Send"
-        />
-        <BottomMenuItem
-          onPress={() =>
-            navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
-          }
-          icon={<Recieve />}
-          title="Receive"
-        />
-        <BottomMenuItem onPress={onPressBuyBitcoin} icon={<BuyBitcoin />} title="Buy Bitcoin" />
+        {allowedSendTypes.includes(currentWallet.type) && (
+          <BottomMenuItem
+            onPress={() =>
+              navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet }))
+            }
+            icon={<Send />}
+            title="Send"
+          />
+        )}
+        {allowedRecieveTypes.includes(currentWallet.type) && (
+          <BottomMenuItem
+            onPress={() =>
+              navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
+            }
+            icon={<Recieve />}
+            title="Receive"
+          />
+        )}
+        {allowedRecieveTypes.includes(currentWallet.type) && (
+          <BottomMenuItem onPress={onPressBuyBitcoin} icon={<BuyBitcoin />} title="Buy Bitcoin" />
+        )}
         <BottomMenuItem
           onPress={() =>
             navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet: currentWallet }))
