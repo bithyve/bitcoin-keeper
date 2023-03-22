@@ -30,7 +30,7 @@ function VaultModals({
   hasPlanChanged: any;
 }) {
   const route = useRoute();
-  const { vaultTransferSuccessful = false } = route.params as any;
+  const { vaultTransferSuccessful } = (route.params as any) || { vaultTransferSuccessful: false };
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const introModal = useAppSelector((state) => state.vault.introModal);

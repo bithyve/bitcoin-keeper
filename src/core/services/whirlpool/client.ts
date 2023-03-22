@@ -170,7 +170,7 @@ export default class WhirlpoolClient {
     destinationAddress: string,
     denomination: number,
     premix: Wallet
-  ): Promise<string> => {
+  ): Promise<{ txid: string; PSBT: bitcoinJS.Psbt }> => {
     if (!premixInput && !premixInput.height) throw new Error('Premix input is not confirmed');
     const network = WalletUtilities.getNetworkByType(premix.networkType);
     const postMixOutput: OutputUTXOs = {
@@ -188,6 +188,6 @@ export default class WhirlpoolClient {
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const txid = await ElectrumClient.broadcast(txHex);
-    return txid;
+    return { txid, PSBT };
   };
 }

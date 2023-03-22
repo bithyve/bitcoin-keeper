@@ -6,14 +6,16 @@ import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { setIntroModal } from 'src/store/reducers/wallets';
+import { setIntroModal, setWalletDetailsUI } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import useWallets, { whirlpoolWalletTypeMap } from 'src/hooks/useWallets';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { WalletType } from 'src/core/wallets/enums';
+import { LabelType, WalletType } from 'src/core/wallets/enums';
+import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import WalletDetailsTabView from './components/WalletDetailsTabView';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
@@ -25,7 +27,6 @@ import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 import FinalizeFooter from './components/FinalizeFooter';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -84,6 +85,7 @@ function Footer({
   selectedUTXOs,
 }) {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const { walletPoolMap } = useAppSelector((state) => state.wallet);
@@ -99,22 +101,31 @@ function Footer({
 
   console.log(walletPoolMap);
   const inititateWhirlpoolMixProcess = async () => {
-    console.log('inititateWhirlpoolMixProcess');
     try {
       const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
       const destination = postmix.specs.receivingAddress;
-      const pool_denomination = walletPoolMap[depositWallet.id];
-
+      const poolDenomination = walletPoolMap[depositWallet.id];
+      // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       for (const utxo of utxos) {
-        const txid = await WhirlpoolClient.premixToPostmix(
+        const { txid, PSBT } = await WhirlpoolClient.premixToPostmix(
           utxo,
           destination,
-          pool_denomination,
+          poolDenomination,
           currentWallet
         );
-        console.log('txid', txid);
         if (txid) {
-          //dispatch(refreshWallets());
+          const outputs = PSBT.txOutputs;
+          const voutPostmix = outputs.findIndex((o) => o.address === destination);
+          dispatch(
+            createUTXOReference({
+              labels: [{ name: 'Premix', type: LabelType.SYSTEM }],
+              txId: txid,
+              vout: voutPostmix,
+            })
+          );
+          dispatch(
+            setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.POST_MIX })
+          );
         }
       }
     } catch (err) {
@@ -171,7 +182,7 @@ function WalletDetails({ route }) {
   const [tab, setActiveTab] = useState('Transactions');
 
   useEffect(() => {
-    selectedTab ? setActiveTab(selectedTab) : 'Transactions';
+    setActiveTab(selectedTab || 'Transactions');
     if (walletIndex !== wallets.length) {
       const defaultWallet: Wallet = wallets[walletIndex];
       const accountType = walletDetailsUI[defaultWallet.id];
