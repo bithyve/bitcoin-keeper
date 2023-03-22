@@ -157,7 +157,16 @@ const executeWhirlpoolFlow = async (
   });
 
   premix = await syncWallet(premix);
-  const mixingTxid = await WhirlpoolClient.premixToPostmix(premix, postmix, selectedPool);
+
+  const inputToMix = premix.specs?.confirmedUTXOs[0];
+  const destination = postmix.specs.receivingAddress;
+  const pool_denomination = selectedPool.denomination;
+  const mixingTxid = await WhirlpoolClient.premixToPostmix(
+    inputToMix,
+    destination,
+    pool_denomination,
+    premix
+  );
   console.log({ mixingTxid });
 };
 
