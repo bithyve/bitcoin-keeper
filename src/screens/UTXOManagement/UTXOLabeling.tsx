@@ -11,8 +11,9 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import { LabelType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
-import EditIcon from 'src/assets/images/edit.svg';
+// import EditIcon from 'src/assets/images/edit.svg';
 import LinkIcon from 'src/assets/images/link.svg';
+import DeleteCross from 'src/assets/images/deletelabel.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
@@ -72,34 +73,11 @@ function UTXOLabeling() {
   return (
     <ScreenWrapper>
       <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
-      <View
-        style={{
-          flexDirection: 'row',
-          marginHorizontal: 20,
-          marginTop: 38,
-        }}
-      >
+      <View style={styles.subHeader}>
         <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontSize: 14,
-              color: '#00715B',
-              marginEnd: 5,
-            }}
-          >
-            Transaction ID
-          </Text>
+          <Text style={styles.subHeaderTitle}>Transaction ID</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text
-              style={{
-                color: '#4F5955',
-                fontSize: 12,
-                marginEnd: 5,
-                letterSpacing: 2.4,
-                width: '50%',
-              }}
-              numberOfLines={1}
-            >
+            <Text style={styles.subHeaderValue} numberOfLines={1}>
               {utxo.txId}
             </Text>
             <Box style={{ margin: 5 }}>
@@ -108,27 +86,12 @@ function UTXOLabeling() {
           </View>
         </View>
         <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              fontSize: 14,
-              color: '#00715B',
-              marginStart: 5,
-            }}
-          >
-            UTXO Value
-          </Text>
+          <Text style={styles.subHeaderTitle}>UTXO Value</Text>
           <View style={{ flexDirection: 'row' }}>
             <Box style={{ marginTop: 5, marginLeft: 5 }}>
               {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
             </Box>
-            <Text
-              style={{
-                color: '#4F5955',
-                fontSize: 12,
-                marginStart: 5,
-              }}
-              numberOfLines={1}
-            >
+            <Text style={styles.subHeaderValue} numberOfLines={1}>
               {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
               <Text color={`${colorMode}.dateText`} style={styles.unitText}>
                 {getUnit(currentCurrency, satsEnabled)}
@@ -137,65 +100,37 @@ function UTXOLabeling() {
           </View>
         </View>
       </View>
-      <View
-        style={{
-          marginTop: 18,
-          marginHorizontal: 5,
-          paddingHorizontal: 15,
-          paddingVertical: 12,
-          backgroundColor: '#FDF7F0',
-          borderRadius: 10,
-        }}
-      >
+      <View style={styles.listContainer}>
         <View style={{ flexDirection: 'row' }}>
-          <Text
-            style={{
-              flex: 1,
-              color: '#00715B',
-              fontSize: 14,
-            }}
-          >
-            Labels
-          </Text>
-          <Box>
+          <Text style={styles.listHeader}>Labels</Text>
+          {/* <Box>
             <EditIcon />
-          </Box>
+          </Box> */}
         </View>
-        <View style={{ flexWrap: 'wrap', marginBottom: 20, flexDirection: 'row' }}>
+        <View style={styles.listSubContainer}>
           {existingLabels.map((item, index) => (
             <View
               key={`${item}`}
-              style={{
-                borderRadius: 5,
-                backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486',
-                paddingHorizontal: 5,
-                flexDirection: 'row',
-                marginTop: 15,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginEnd: 10,
-              }}
+              style={[
+                styles.labelView,
+                {
+                  backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486',
+                },
+              ]}
             >
               <TouchableOpacity
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                style={styles.labelEditContainer}
                 activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
                 onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
               >
-                <Text
-                  style={{
-                    color: '#fff',
-                    fontSize: 11,
-                  }}
-                  bold
-                >
+                <Text style={styles.itemText} bold>
                   {item.name.toUpperCase()}
                   {item.type === LabelType.USER ? (
-                    <Text bold color="light.white" onPress={() => onCloseClick(index)}>
-                      x
-                    </Text>
+                    <TouchableOpacity onPress={() => onCloseClick(index)}>
+                      <Box style={styles.deleteContainer}>
+                        <DeleteCross />
+                      </Box>
+                    </TouchableOpacity>
                   ) : null}
                 </Text>
               </TouchableOpacity>
@@ -276,6 +211,62 @@ const styles = StyleSheet.create({
   unitText: {
     letterSpacing: 0.6,
     fontSize: hp(12),
+  },
+  subHeader: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 38,
+  },
+  subHeaderTitle: {
+    fontSize: 14,
+    color: '#00715B',
+    marginEnd: 5,
+  },
+  subHeaderValue: {
+    color: '#4F5955',
+    fontSize: 12,
+    marginEnd: 5,
+    letterSpacing: 2.4,
+    width: '50%',
+  },
+  listHeader: {
+    flex: 1,
+    color: '#00715B',
+    fontSize: 14,
+  },
+  listContainer: {
+    marginTop: 18,
+    marginHorizontal: 5,
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    backgroundColor: '#FDF7F0',
+    borderRadius: 10,
+  },
+  labelView: {
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    flexDirection: 'row',
+    marginTop: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginEnd: 10,
+  },
+  listSubContainer: {
+    flexWrap: 'wrap',
+    marginBottom: 20,
+    flexDirection: 'row',
+  },
+  labelEditContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemText: {
+    color: '#fff',
+    fontSize: 11,
+  },
+  deleteContainer: { 
+    paddingHorizontal: 4, 
+    marginBottom: 3 
   },
 });
 
