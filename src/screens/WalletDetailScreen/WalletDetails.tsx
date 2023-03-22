@@ -162,7 +162,7 @@ function WalletDetails({ route }) {
     }
   }, [walletIndex, walletDetailsUI]);
 
-  const { confirmedUTXOs, unconfirmedUTXOs } = wallets[walletIndex]?.specs || {
+  const { confirmedUTXOs, unconfirmedUTXOs } = currentWallet?.specs || {
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],
   };
@@ -188,6 +188,7 @@ function WalletDetails({ route }) {
     setSelectedUTXOMap({});
     setSelectionTotal(0);
   }, []);
+
   const setEnableSelection = useCallback(
     (value) => {
       _setEnableSelection(value);
@@ -212,6 +213,7 @@ function WalletDetails({ route }) {
   });
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 20 });
+
   const pullDownRefresh = () => {
     setPullRefresh(true);
     dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
