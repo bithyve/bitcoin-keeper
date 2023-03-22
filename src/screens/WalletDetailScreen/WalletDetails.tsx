@@ -6,7 +6,7 @@ import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { setIntroModal } from 'src/store/reducers/wallets';
+import { setIntroModal, setWalletDetailsUI } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -84,6 +84,7 @@ function Footer({
   selectedUTXOs,
 }) {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const { walletPoolMap } = useAppSelector((state) => state.wallet);
@@ -99,12 +100,11 @@ function Footer({
 
   console.log(walletPoolMap);
   const inititateWhirlpoolMixProcess = async () => {
-    console.log('inititateWhirlpoolMixProcess');
     try {
       const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
       const destination = postmix.specs.receivingAddress;
       const pool_denomination = walletPoolMap[depositWallet.id];
-
+      //To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       for (const utxo of utxos) {
         const txid = await WhirlpoolClient.premixToPostmix(
           utxo,
@@ -112,9 +112,10 @@ function Footer({
           pool_denomination,
           currentWallet
         );
-        console.log('txid', txid);
         if (txid) {
-          //dispatch(refreshWallets());
+          dispatch(
+            setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.POST_MIX })
+          );
         }
       }
     } catch (err) {
