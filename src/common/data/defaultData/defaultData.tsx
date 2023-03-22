@@ -15,7 +15,7 @@ export const securityTips = [
     subTitle:
       'Devices with Register Vault tag provide additional checks when you are sending funds from your Vault',
     assert: <SecutityTip />,
-    message: 'These provide additional security checks when you make an outgoing transaction',
+    message: 'The checks help enhance security when you make an outgoing transaction',
   },
   {
     title: 'Security Tip',

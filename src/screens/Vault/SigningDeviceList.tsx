@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '400',
     letterSpacing: 1.3,
-    marginTop: hp(5),
+    marginTop: hp(2),
   },
   dividerStyle: {
     opacity: 0.1,

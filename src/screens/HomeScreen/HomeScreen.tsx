@@ -60,7 +60,7 @@ function InheritanceComponent() {
   };
 
   return (
-    <Box alignItems="center" marginTop={hp(19.96)}>
+    <Box alignItems="center" marginTop={hp(10)}>
       <Box
         style={styles.bottomCard}
         backgroundColor={{
@@ -502,6 +502,7 @@ function HomeScreen({ navigation }) {
         }}
       />
       <Box style={styles.bottomContainer}>
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
         <Pressable
           onPress={() => {
             navigation.navigate('SetupInheritance');
@@ -509,7 +510,6 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

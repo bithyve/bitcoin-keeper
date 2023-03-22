@@ -14,9 +14,9 @@ export const UsNumberFormat = (amount, decimalCount = 0, decimal = '.', thousand
       i.substring(j).replace(/(\d{3})(?=\d)/g, `$1${thousands}`) +
       (decimalCount
         ? decimal +
-          Math.abs(amount - i)
-            .toFixed(decimalCount)
-            .slice(2)
+        Math.abs(amount - i)
+          .toFixed(decimalCount)
+          .slice(2)
         : '')
     );
   } catch (e) {
@@ -100,10 +100,10 @@ export function numberWithCommas(x: string) {
 
 export const getPlaceholder = (index: number) => {
   const mainIndex = index + 1;
-  if (mainIndex === 1) return `${mainIndex}st`;
-  if (mainIndex === 2) return `${mainIndex}nd`;
-  if (mainIndex === 3) return `${mainIndex}rd`;
-  return `${mainIndex}th`;
+  if (mainIndex === 1) return `${mainIndex}ˢᵗ`;
+  if (mainIndex === 2) return `${mainIndex}ⁿᵈ`;
+  if (mainIndex === 3) return `${mainIndex}ʳᵈ`;
+  return `${mainIndex}ᵗʰ`;
 };
 
 /**

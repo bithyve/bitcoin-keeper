@@ -422,10 +422,9 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
-        subTitleColor="light.secondaryText"
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
