@@ -27,6 +27,8 @@ import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 import FinalizeFooter from './components/FinalizeFooter';
+import Buttons from 'src/components/Buttons';
+import KeeperModal from 'src/components/KeeperModal';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -83,6 +85,7 @@ function Footer({
   enableSelection,
   utxos,
   selectedUTXOs,
+  setShowMixSuccessModal,
 }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -99,20 +102,21 @@ function Footer({
     );
   };
 
-  console.log(walletPoolMap);
   const inititateWhirlpoolMixProcess = async () => {
     try {
       const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
       const destination = postmix.specs.receivingAddress;
       const poolDenomination = walletPoolMap[depositWallet.id];
       // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
-      for (const utxo of utxos) {
+      let isBroadcasted = true;
+      for (const utxo of selectedUTXOs) {
         const { txid, PSBT } = await WhirlpoolClient.premixToPostmix(
           utxo,
           destination,
           poolDenomination,
           currentWallet
         );
+        console.log('txid', txid);
         if (txid) {
           const outputs = PSBT.txOutputs;
           const voutPostmix = outputs.findIndex((o) => o.address === destination);
@@ -123,11 +127,9 @@ function Footer({
               vout: voutPostmix,
             })
           );
-          dispatch(
-            setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.POST_MIX })
-          );
-        }
+        } else isBroadcasted = false;
       }
+      if (isBroadcasted) setShowMixSuccessModal(true);
     } catch (err) {
       console.log(err);
     }
@@ -180,6 +182,7 @@ function WalletDetails({ route }) {
 
   const [pullRefresh, setPullRefresh] = useState(false);
   const [tab, setActiveTab] = useState('Transactions');
+  const [showMixSuccessModal, setShowMixSuccessModal] = useState(false);
 
   useEffect(() => {
     setActiveTab(selectedTab || 'Transactions');
@@ -247,6 +250,8 @@ function WalletDetails({ route }) {
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
+
+    setShowMixSuccessModal(false);
   }, [autoRefresh]);
 
   const flatListRef = useRef(null);
@@ -266,6 +271,16 @@ function WalletDetails({ route }) {
     setPullRefresh(false);
   };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+
+  const goToPostMixWallet = () => {
+    setShowMixSuccessModal(false);
+    dispatch(
+      setWalletDetailsUI({
+        walletId: depositWallet.id,
+        walletType: WalletType.POST_MIX,
+      })
+    );
+  };
 
   return (
     <ScreenWrapper>
@@ -307,6 +322,7 @@ function WalletDetails({ route }) {
             enableSelection={enableSelection}
             utxos={utxos}
             selectedUTXOs={selectedUTXOs}
+            setShowMixSuccessModal={setShowMixSuccessModal}
           />
         </>
       ) : (
@@ -324,6 +340,30 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
+      <KeeperModal
+        justifyContent="flex-end"
+        visible={showMixSuccessModal}
+        close={() => {
+          () => goToPostMixWallet();
+        }}
+        title="Mix broadcasted"
+        subTitle="Your mix is now being broadcasted to the Bitcoin network."
+        subTitleColor="#5F6965"
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonTextColor="#FAFAFA"
+        closeOnOverlayClick={false}
+        Content={() => (
+          <Box style={styles.mixSuccesModalFooter}>
+            <Box style={{ alignSelf: 'flex-end' }}>
+              <Buttons
+                primaryText="View Postmix Account"
+                primaryCallback={() => goToPostMixWallet()}
+              />
+            </Box>
+          </Box>
+        )}
+      />
     </ScreenWrapper>
   );
 }
@@ -354,6 +394,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+  },
+  mixSuccesModalFooter: {
+    marginTop: 80,
+    flexDirection: 'row',
+    alignContent: 'flex-end',
+    justifyContent: 'flex-end',
+    width: '100%',
   },
 });
 export default WalletDetails;
