@@ -11,7 +11,6 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import { LabelType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
-// import EditIcon from 'src/assets/images/edit.svg';
 import LinkIcon from 'src/assets/images/link.svg';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
@@ -103,9 +102,6 @@ function UTXOLabeling() {
       <View style={styles.listContainer}>
         <View style={{ flexDirection: 'row' }}>
           <Text style={styles.listHeader}>Labels</Text>
-          {/* <Box>
-            <EditIcon />
-          </Box> */}
         </View>
         <View style={styles.listSubContainer}>
           {existingLabels.map((item, index) => (
@@ -264,9 +260,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 11,
   },
-  deleteContainer: { 
-    paddingHorizontal: 4, 
-    marginBottom: 3 
+  deleteContainer: {
+    paddingHorizontal: 4,
+    marginBottom: 3,
   },
 });
 
