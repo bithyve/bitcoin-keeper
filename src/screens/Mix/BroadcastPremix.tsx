@@ -18,8 +18,10 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { useDispatch } from 'react-redux';
-import { addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
 import { WalletType } from 'src/core/wallets/enums';
+import { setTx0Complete, setWalletDetailsUI } from 'src/store/reducers/wallets';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
 const broadcastModalContent = (loading, onBroadcastModalCallback) => {
   return (
@@ -84,7 +86,9 @@ export default function BroadcastPremix({ route, navigation }) {
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const { whirlpoolWallets } = useAppSelector((state) => state.wallet);
+  const { whirlpoolWallets, tx0completed } = useAppSelector((state) => state.wallet);
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
   const [premixOutputs, setPremixOutputs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [successModal, setSuccessModal] = useState(false);
@@ -110,6 +114,22 @@ export default function BroadcastPremix({ route, navigation }) {
     setShowBroadcastModal(false);
   };
 
+  useEffect(() => {
+    if (relayWalletError) {
+      dispatch(resetRealyWalletState());
+    }
+    if (relayWalletUpdate && tx0completed) {
+      dispatch(resetRealyWalletState());
+      setLoading(false);
+      setShowBroadcastModal(false);
+      setSuccessModal(true);
+      dispatch(setWalletDetailsUI({ walletId: wallet.id, walletType: WalletType.PRE_MIX }));
+    }
+    return () => {
+      dispatch(setTx0Complete(false));
+    };
+  }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage, tx0completed]);
+
   const onBroadcastModalCallback = async () => {
     try {
       setLoading(true);
@@ -119,8 +139,6 @@ export default function BroadcastPremix({ route, navigation }) {
         network
       );
       const syncedWallet = synchedWallets[0] as Wallet;
-
-      dispatch(addWhirlpoolWalletsLocal({ depositWallet: syncedWallet }));
 
       const premixWallet = whirlpoolWallets.filter((w) => w.type === WalletType.PRE_MIX)[0];
       const badBank = whirlpoolWallets.filter((w) => w.type === WalletType.BAD_BANK)[0];
@@ -149,10 +167,12 @@ export default function BroadcastPremix({ route, navigation }) {
 
       const tx = WhirlpoolClient.signTx0(syncedWallet, utxos, psbt);
       const txid = await WhirlpoolClient.broadcastTx0(tx);
-
-      setLoading(false);
-      setShowBroadcastModal(false);
-      setSuccessModal(true);
+      console.log({ txid });
+      if (true) {
+        dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
+      } else {
+        // error modals
+      }
     } catch (e) {
       console.log('onBroadcastModalCallback error', e);
     }
@@ -169,7 +189,9 @@ export default function BroadcastPremix({ route, navigation }) {
   };
   const navigateToWalletDetails = () => {
     setSuccessModal(false);
-    navigation.navigate('WalletDetails');
+    navigation.navigate('WalletDetails', {
+      selectedTab: 'Transactions',
+    });
   };
 
   return (
