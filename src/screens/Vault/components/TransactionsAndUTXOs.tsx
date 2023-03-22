@@ -18,7 +18,8 @@ function TransactionsAndUTXOs({
   utxoState,
   selectedUTXOMap,
   setSelectedUTXOMap,
-  selectionTotal
+  selectionTotal,
+  enableSelection
 }: {
   tab: string;
   vault: Vault;
@@ -28,6 +29,7 @@ function TransactionsAndUTXOs({
   selectedUTXOMap: any;
   setSelectedUTXOMap: any;
   selectionTotal: any;
+  enableSelection: boolean
 }) {
   const [pullRefresh, setPullRefresh] = useState(false);
   const dispatch = useDispatch();
@@ -107,7 +109,7 @@ function TransactionsAndUTXOs({
       />) :
         <UTXOList
           utxoState={utxoState}
-          enableSelection={false}
+          enableSelection={enableSelection}
           setSelectionTotal={selectionTotal}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}

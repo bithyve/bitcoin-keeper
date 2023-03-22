@@ -140,8 +140,9 @@ function VaultDetails({ route }) {
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
           selectionTotal={selectionTotal}
+          enableSelection={enableSelection}
         />
-        <Footer tab={tab} onPressBuy={() => setShowBuyRampModal(true)} vault={vault} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} />
+        <Footer tab={tab} onPressBuy={() => setShowBuyRampModal(true)} vault={vault} setEnableSelection={() => setEnableSelection(true)} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} />
         <VaultModals
           showBuyRampModal={showBuyRampModal}
           setShowBuyRampModal={setShowBuyRampModal}
