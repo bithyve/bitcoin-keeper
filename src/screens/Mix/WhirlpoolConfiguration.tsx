@@ -148,11 +148,7 @@ export default function WhirlpoolConfiguration({ route }) {
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle
-        paddingLeft={25}
-        title="Configure Whirlpool"
-        subtitle="Configure Whirlpool using the fields below. You can enter a Samurai SCODE for reduced cost mixing."
-      />
+      <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
       <Box style={styles.scode}>

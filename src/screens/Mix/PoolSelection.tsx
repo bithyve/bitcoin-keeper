@@ -147,7 +147,7 @@ export default function PoolSelection({ route, navigation }) {
       <HeaderTitle
         paddingLeft={25}
         title="Selecting Pool"
-        subtitle="Choose which pool to use below. You will then be able to preview your premix transaction."
+        subtitle="Choose a pool based on total sats shown below"
       />
 
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
@@ -231,7 +231,7 @@ export default function PoolSelection({ route, navigation }) {
         visible={showPools}
         close={closePoolSelectionModal}
         title="Select Pool"
-        subTitle="Select a pool to use for your premix transaction."
+        subTitle="Determins the pool you want to mix your sats in. Bigger the pool, lesser the Doxxic"
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
