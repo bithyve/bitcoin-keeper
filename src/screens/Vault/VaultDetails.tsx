@@ -98,7 +98,7 @@ function VaultDetails({ route }) {
         paddingBottom={windowHeight > 800 ? 5 : 0}
       >
         <VStack style={{ paddingTop: windowHeight * 0.09 }}>
-          <UTXOsTransactionTabView setActiveTab={setActiveTab} />
+          <UTXOsTransactionTabView activeTab={tab} setActiveTab={setActiveTab} />
         </VStack>
         <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} tab={tab} utxoState={utxos} />
         <Footer tab={tab} onPressBuy={() => setShowBuyRampModal(true)} vault={vault} setEnableSelection={setEnableSelection} enableSelection={enableSelection} />

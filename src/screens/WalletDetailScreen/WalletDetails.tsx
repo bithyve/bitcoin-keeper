@@ -162,7 +162,7 @@ function WalletDetails({ route }) {
           {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? (
             <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
           ) : (
-            <UTXOsTransactionTabView setActiveTab={setActiveTab} />
+            <UTXOsTransactionTabView activeTab={tab} setActiveTab={setActiveTab} />
           )}
           <TransactionsAndUTXOs
             tab={tab}
