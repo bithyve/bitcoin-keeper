@@ -23,7 +23,6 @@ function TransactionsAndUTXOs({
   autoRefresh: boolean;
   utxoState: any
 }) {
-  console.log('tab', tab)
   const [pullRefresh, setPullRefresh] = useState(false);
   const dispatch = useDispatch();
   const syncVault = () => {
@@ -105,7 +104,7 @@ function TransactionsAndUTXOs({
           enableSelection={false}
           setSelectionTotal={0}
           selectedUTXOMap={{}}
-          setSelectedUTXOMap={()=>{}}
+          setSelectedUTXOMap={() => { }}
           currentWallet={vault}
           emptyIcon={NoVaultTransactionIcon}
         />}
