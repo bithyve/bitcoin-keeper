@@ -15,7 +15,6 @@ import WalletOperations from 'src/core/wallets/operations';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
@@ -24,51 +23,6 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { Psbt } from 'bitcoinjs-lib';
 import UtxoSummary from './UtxoSummary';
-
-const broadcastModalContent = (loading, onBroadcastModalCallback) => (
-  <Box>
-    <Box>
-      <Text color="light.secondaryText" style={styles.premixInstructionText}>
-        <Text style={{ fontWeight: 'bold' }}>Premix</Text> This wallet contains the UTXOs from your
-        premix transaction (also called the Tx0). Your premix transaction splits your UTXOs into
-        equal amounts ready for mixing.
-      </Text>
-      <Text color="light.secondaryText" style={styles.premixInstructionText}>
-        <Text style={{ fontWeight: 'bold' }}>Postmix</Text> This wallet contains the UTXOs from your
-        mixes. Whirlpool will select UTXOs from both the Premix and the Postmix wallets to include
-        in coinjoin transactions. Funds in this wallet can be considered mixed and are safe to spend
-        anonymously, especially after a number of mixing rounds.
-      </Text>
-      <Text color="light.secondaryText" style={styles.premixInstructionText}>
-        <Text style={{ fontWeight: 'bold' }}>Badbank</Text> This wallet contains the change from
-        your premix (Tx0) transaction - whatever is left over from splitting your input UTXOs into
-        equal amounts. Consider mixing any UTXOs here if they are large enough, but do not combine
-        them with mixed funds.
-      </Text>
-    </Box>
-    <Box style={styles.modalFooter}>
-      <Buttons
-        primaryText="Proceed"
-        primaryLoading={loading}
-        primaryCallback={() => onBroadcastModalCallback()}
-      />
-    </Box>
-  </Box>
-);
-
-function SendSuccessfulContent() {
-  return (
-    <View>
-      <Box alignSelf="center">
-        <SuccessIcon />
-      </Box>
-      <Text color="light.greenText" fontSize={13} padding={2}>
-        You can view the confirmation status of the transaction on any block explorer or when the
-        vault transaction list is refreshed
-      </Text>
-    </View>
-  );
-}
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -81,8 +35,6 @@ export default function BroadcastPremix({ route, navigation }) {
     wallet,
     WhirlpoolClient,
   } = route.params;
-  const { translations } = useContext(LocalizationContext);
-  const walletTransactions = translations.wallet;
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
@@ -91,7 +43,6 @@ export default function BroadcastPremix({ route, navigation }) {
     useAppSelector((state) => state.bhr);
   const [premixOutputs, setPremixOutputs] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [successModal, setSuccessModal] = useState(false);
 
   useEffect(() => {
     setPremixOutputsAndBadbank();
@@ -106,14 +57,6 @@ export default function BroadcastPremix({ route, navigation }) {
     setPremixOutputs(outputs);
   };
 
-  const onBroadcastPremix = () => {
-    setShowBroadcastModal(true);
-  };
-
-  const closeBroadcastModal = async () => {
-    setShowBroadcastModal(false);
-  };
-
   useEffect(() => {
     if (relayWalletError) {
       dispatch(resetRealyWalletState());
@@ -122,7 +65,6 @@ export default function BroadcastPremix({ route, navigation }) {
       dispatch(resetRealyWalletState());
       setLoading(false);
       setShowBroadcastModal(false);
-      setSuccessModal(true);
       dispatch(setWalletDetailsUI({ walletId: wallet.id, walletType: WalletType.PRE_MIX }));
     }
     return () => {
@@ -190,10 +132,13 @@ export default function BroadcastPremix({ route, navigation }) {
         );
         dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
         dispatch(setWalletPoolMap({ walletId: wallet.id, pool: selectedPool?.denomination }));
+        setLoading(false);
+        setShowBroadcastModal(true);
       } else {
         // error modals
       }
     } catch (e) {
+      setLoading(false);
       console.log('onBroadcastModalCallback error', e);
     }
   };
@@ -206,7 +151,7 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
   const navigateToWalletDetails = () => {
-    setSuccessModal(false);
+    setShowBroadcastModal(false);
     navigation.navigate('WalletDetails', {
       selectedTab: 'Transactions',
     });
@@ -216,8 +161,8 @@ export default function BroadcastPremix({ route, navigation }) {
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
         paddingLeft={25}
-        title="Broadcast Premix Transaction"
-        subtitle="Your premix transaction is ready to be broadcast. Please review the details below and click the button to broadcast your transaction."
+        title="Preview Premix"
+        subtitle="Review the parameters of your Tx0."
       />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
       <Box style={styles.textArea}>
@@ -275,35 +220,27 @@ export default function BroadcastPremix({ route, navigation }) {
             <PageIndicator currentPage={2} totalPage={2} />
           </Box>
           <Box style={styles.footerItemContainer}>
-            <Buttons primaryText="Broadcast Premix" primaryCallback={() => onBroadcastPremix()} />
+            <Buttons
+              primaryText="Broadcast Tx0"
+              primaryLoading={loading}
+              primaryCallback={() => onBroadcastModalCallback()}
+            />
           </Box>
         </Box>
       </Box>
       <KeeperModal
         justifyContent="flex-end"
         visible={showBroadcastModal}
-        close={closeBroadcastModal}
-        title="Broadcast Premix"
-        subTitle="Initiating your first coinjoin will add three new wallets to your existing wallet: Premix, Postmix and Badbank."
+        close={() => navigateToWalletDetails()}
+        title="Broadcasting Tx0"
+        subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool. The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but are encouraged to mix the sats before hodling or spending them."
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
-        buttonText=""
+        buttonText="View Premix Account"
         buttonTextColor="#FAFAFA"
-        buttonCallback={closeBroadcastModal}
-        closeOnOverlayClick={false}
-        Content={() => broadcastModalContent(loading, onBroadcastModalCallback)}
-      />
-      <KeeperModal
-        visible={successModal}
-        close={() => navigateToWalletDetails()}
-        title="Transaction Broadcasted"
-        subTitle="The transaction has been successfully broadcasted"
-        buttonText={walletTransactions.ViewDetails}
         buttonCallback={() => navigateToWalletDetails()}
-        textColor="light.greenText"
-        buttonTextColor="light.white"
-        Content={SendSuccessfulContent}
+        closeOnOverlayClick={false}
       />
     </ScreenWrapper>
   );

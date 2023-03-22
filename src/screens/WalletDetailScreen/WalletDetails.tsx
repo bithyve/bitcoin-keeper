@@ -26,7 +26,6 @@ import WalletInfo from './components/WalletInfo';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 import FinalizeFooter from './components/FinalizeFooter';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import { conforms } from 'lodash';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -100,20 +99,27 @@ function Footer({
 
   console.log(walletPoolMap);
   const inititateWhirlpoolMixProcess = async () => {
-    // try {
-    //   console.log(currentWallet.type);
-    //   console.log();
-    //   for (const utxo of utxos) {
-    //     const txid = await WhirlpoolClient.premixToPostmix(
-    //       utxo,
-    //       depositWallet.specs.receivingAddress,
-    //       walletPoolMap[depositWallet.id],
-    //       currentWallet
-    //     );
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
+    console.log('inititateWhirlpoolMixProcess');
+    try {
+      const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
+      const destination = postmix.specs.receivingAddress;
+      const pool_denomination = walletPoolMap[depositWallet.id];
+
+      for (const utxo of utxos) {
+        const txid = await WhirlpoolClient.premixToPostmix(
+          utxo,
+          destination,
+          pool_denomination,
+          currentWallet
+        );
+        console.log('txid', txid);
+        if (txid) {
+          //dispatch(refreshWallets());
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return tab === 'Transactions' ? (
