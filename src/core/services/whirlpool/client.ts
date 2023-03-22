@@ -166,29 +166,25 @@ export default class WhirlpoolClient {
    * @returns {Promise} txid
    */
   static premixToPostmix = async (
-    premix: Wallet,
-    postmix: Wallet,
-    pool: PoolData
+    premixInput: InputUTXOs,
+    destinationAddress: string,
+    denomination: number,
+    premix: Wallet
   ): Promise<string> => {
-    const premixUTXOs = premix.specs.confirmedUTXOs;
-    if (premixUTXOs.length === 0) throw new Error('Premix wallet has no confirmed Tx0');
-
+    if (!premixInput && !premixInput.height) throw new Error('Premix input is not confirmed');
     const network = WalletUtilities.getNetworkByType(premix.networkType);
-    const outputsToPostmix: OutputUTXOs[] = [];
-    for (let i = 0; i < premixUTXOs.length; i++) {
-      outputsToPostmix.push({
-        address: WalletUtilities.getAddressByIndex(postmix.specs.xpub, false, i, network),
-        value: pool.denomination,
-      });
-    }
+    const postMixOutput: OutputUTXOs = {
+      address: destinationAddress,
+      value: denomination,
+    };
 
     const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
       network,
     });
-    for (const input of premixUTXOs) WalletOperations.addInputToPSBT(PSBT, premix, input, network);
-    for (const output of outputsToPostmix) PSBT.addOutput(output);
+    WalletOperations.addInputToPSBT(PSBT, premix, premixInput, network);
+    PSBT.addOutput(postMixOutput);
 
-    const { signedPSBT } = WalletOperations.signTransaction(premix, premixUTXOs, PSBT);
+    const { signedPSBT } = WalletOperations.signTransaction(premix, [premixInput], PSBT);
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const txid = await ElectrumClient.broadcast(txHex);
