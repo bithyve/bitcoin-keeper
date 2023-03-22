@@ -26,6 +26,16 @@ import WalletInfo from './components/WalletInfo';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 import FinalizeFooter from './components/FinalizeFooter';
 
+export const allowedSendTypes = [
+  WalletType.DEFAULT,
+  WalletType.IMPORTED,
+  WalletType.POST_MIX,
+  WalletType.BAD_BANK,
+];
+export const allowedRecieveTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
+
+export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
+
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
   tab,
@@ -74,6 +84,16 @@ function Footer({
   const navigation = useNavigation();
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
 
+  const goToWhirlpoolConfiguration = () => {
+    setEnableSelection(false);
+    navigation.dispatch(
+      CommonActions.navigate('WhirlpoolConfiguration', {
+        utxos: selectedUTXOs || [],
+        wallet: currentWallet,
+      })
+    );
+  };
+
   return tab === 'Transactions' ? (
     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
   ) : enableSelection ? (
@@ -84,12 +104,7 @@ function Footer({
       secondaryText="Cancel"
       footerCallback={() =>
         initiateWhirlpool
-          ? navigation.dispatch(
-              CommonActions.navigate('WhirlpoolConfiguration', {
-                utxos: selectedUTXOs || [],
-                wallet: currentWallet,
-              })
-            )
+          ? goToWhirlpoolConfiguration()
           : navigation.dispatch(
               CommonActions.navigate('Send', { sender: currentWallet, selectedUTXOs })
             )
@@ -108,35 +123,44 @@ function Footer({
 
 function WalletDetails({ route }) {
   const dispatch = useDispatch();
-  const { autoRefresh, accountType, walletId } = route?.params || {};
+  const { autoRefresh } = route?.params || {};
+  const selectedTab = route?.params?.selectedtab;
   const { wallets } = useWallets({ whirlpoolStruct: true });
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
+  const { walletDetailsUI } = useAppSelector((state) => state.wallet);
+
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
-  const [whirlpoolAccountType, setWhirlpoolAccountType] = useState<String>(WalletType.DEFAULT);
+
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [transactions, setTransactions] = useState([]);
   const [tab, setActiveTab] = useState('Transactions');
 
   useEffect(() => {
+    selectedTab ? setActiveTab(selectedTab) : 'Transactions';
     if (walletIndex !== wallets.length) {
-      if (accountType && wallets[walletIndex]?.id === walletId) {
-        console.log(accountType, wallets[walletIndex]?.id, walletId);
-        console.log('here');
-        setWhirlpoolAccountType(accountType);
-        setCurrentWallet(wallets[walletIndex].whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
+      const defaultWallet: Wallet = wallets[walletIndex];
+      const accountType = walletDetailsUI[defaultWallet.id];
+      if (accountType && accountType !== WalletType.DEFAULT) {
+        if (defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]) {
+          setCurrentWallet(defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
+          dispatch(
+            refreshWallets(
+              [
+                defaultWallet,
+                defaultWallet?.whirlpoolConfig.premixWallet,
+                defaultWallet?.whirlpoolConfig.postmixWallet,
+                defaultWallet?.whirlpoolConfig.badbankWallet,
+              ],
+              { hardRefresh: true }
+            )
+          );
+        }
       } else {
-        setWhirlpoolAccountType(WalletType.DEFAULT);
-        setCurrentWallet(wallets[walletIndex]);
+        setCurrentWallet(defaultWallet);
       }
     }
-  }, [walletIndex]);
-
-  useEffect(() => {
-    console.log(currentWallet.id);
-    setTransactions(currentWallet?.specs?.transactions || []);
-  }, [currentWallet]);
+  }, [walletIndex, walletDetailsUI]);
 
   const { confirmedUTXOs, unconfirmedUTXOs } = wallets[walletIndex]?.specs || {
     confirmedUTXOs: [],
@@ -205,7 +229,6 @@ function WalletDetails({ route }) {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
-        whirlpoolAccountType={whirlpoolAccountType}
         setCurrentWallet={setCurrentWallet}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
@@ -217,7 +240,7 @@ function WalletDetails({ route }) {
           )}
           <TransactionsAndUTXOs
             tab={tab}
-            transactions={transactions}
+            transactions={currentWallet?.specs.transactions}
             setPullRefresh={setPullRefresh}
             pullRefresh={pullRefresh}
             currentWallet={currentWallet}
