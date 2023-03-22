@@ -17,7 +17,7 @@ function UTXOsTransactionTabView({
       <TouchableOpacity style={styles.transTabWrapper} onPress={() => setActiveTab('Transactions')}>
         <Text style={[styles.tabTitleText, { color: activeTab === 'Transactions' ? '#041513' : '#8B7860', fontWeight: activeTab === 'Transactions' ? 'bold' : '400' }]}>Transactions</Text>
       </TouchableOpacity>
-      <Box style={{ width: '4%' }}>
+      <Box style={styles.verticalDashWrapper}>
         <Text style={styles.verticalDash}>|</Text>
       </Box>
       <TouchableOpacity style={styles.utxoTabWrapper} onPress={() => setActiveTab('UTXOs')}>
@@ -34,15 +34,20 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   transTabWrapper: {
-    width: '48%',
+    width: '46%',
     alignItems: 'center',
   },
   utxoTabWrapper: {
-    width: '48%',
+    width: '46%',
     alignItems: 'center',
   },
   tabTitleText: {
     fontSize: 15
+  },
+  verticalDashWrapper: {
+    width: '8%', 
+    justifyContent: 'center', 
+    alignItems: 'center',
   },
   verticalDash: {
     color: '#E3BE96',
