@@ -107,8 +107,8 @@ function TransactionsAndUTXOs({
           utxoState={utxoState}
           enableSelection={false}
           setSelectionTotal={0}
-          selectedUTXOMap={[]}
-          setSelectedUTXOMap={0}
+          selectedUTXOMap={{}}
+          setSelectedUTXOMap={()=>{}}
           currentWallet={vault}
           emptyIcon={NoVaultTransactionIcon}
         />}
