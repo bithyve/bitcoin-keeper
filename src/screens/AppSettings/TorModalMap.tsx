@@ -6,7 +6,7 @@ import { Box } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 // Asserts
-import TOR from 'src/assets/images/TorAssert.svg';
+import TOR from 'src/components/Loader';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
