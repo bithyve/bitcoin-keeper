@@ -4,7 +4,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { LabelType } from 'src/core/wallets/enums';
+import { EntityKind, LabelType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -13,7 +13,8 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const utxoInfoTable = useQuery(RealmSchema.UTXOInfo);
-  const wallets = useQuery(RealmSchema.Wallet);
+  const Schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
+  const wallets = useQuery(Schema);
   const { syncing } = useAppSelector((state) => state.wallet);
   const dispatch = useDispatch();
 
@@ -26,7 +27,7 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
         .map(getJSONFromRealmObject)[0];
       if (utxoInfo) {
         const utxoLabels = utxoInfo.labels;
-        const wallet: Wallet = wallets
+        const wallet: Wallet | Vault = wallets
           .filtered(`id == "${utxoInfo.walletId}"`)
           .map(getJSONFromRealmObject)[0];
         utxoLabels.push({ name: wallet.presentationData.name, type: LabelType.SYSTEM });
