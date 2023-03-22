@@ -13,7 +13,9 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import useWallets, { whirlpoolWalletTypeMap } from 'src/hooks/useWallets';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { WalletType } from 'src/core/wallets/enums';
+import { LabelType, WalletType } from 'src/core/wallets/enums';
+import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import WalletDetailsTabView from './components/WalletDetailsTabView';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
@@ -25,7 +27,6 @@ import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 import UTXOSelectionTotal from './components/UTXOSelectionTotal';
 import FinalizeFooter from './components/FinalizeFooter';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -103,16 +104,25 @@ function Footer({
     try {
       const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
       const destination = postmix.specs.receivingAddress;
-      const pool_denomination = walletPoolMap[depositWallet.id];
-      //To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
+      const poolDenomination = walletPoolMap[depositWallet.id];
+      // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       for (const utxo of utxos) {
-        const txid = await WhirlpoolClient.premixToPostmix(
+        const { txid, PSBT } = await WhirlpoolClient.premixToPostmix(
           utxo,
           destination,
-          pool_denomination,
+          poolDenomination,
           currentWallet
         );
         if (txid) {
+          const outputs = PSBT.txOutputs;
+          const voutPostmix = outputs.findIndex((o) => o.address === destination);
+          dispatch(
+            createUTXOReference({
+              labels: [{ name: 'Premix', type: LabelType.SYSTEM }],
+              txId: txid,
+              vout: voutPostmix,
+            })
+          );
           dispatch(
             setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.POST_MIX })
           );
