@@ -80,7 +80,7 @@ function AddSendAmount({ route }) {
     const confirmBalance = sender.specs.balances.confirmed;
     const sendMaxBalance = confirmBalance - sendMaxFee;
 
-    if (Number(amountToSend) > sendMaxBalance) {
+    if (Number(amount) > sendMaxBalance) {
       setError(true);
     } else {
       setError(false);
@@ -90,7 +90,7 @@ function AddSendAmount({ route }) {
     } else {
       setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
     }
-  }, [amount, amountToSend]);
+  }, [amount]);
 
   useEffect(() => {
     const confirmBalance = sender.specs.balances.confirmed;
