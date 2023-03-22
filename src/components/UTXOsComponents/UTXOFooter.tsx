@@ -5,7 +5,7 @@ import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive'
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import BottomMenuItem from '../BottomMenuItem';
+import BottomMenuItem from '../../screens/WalletDetailScreen/BottomMenuItem';
 
 function UTXOFooter({ setEnableSelection, enableSelection }) {
   const { bottom } = useSafeAreaInsets();
@@ -13,7 +13,7 @@ function UTXOFooter({ setEnableSelection, enableSelection }) {
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
-        <BottomMenuItem onPress={() => {}} icon={<MixIcon />} title="Mix Selected" />
+        <BottomMenuItem onPress={() => { }} icon={<MixIcon />} title="Mix Selected" />
         <BottomMenuItem
           onPress={() => setEnableSelection(!enableSelection)}
           icon={<Send />}
