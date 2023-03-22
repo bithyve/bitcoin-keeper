@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
 import UTXOsTransactionTabView from 'src/components/UTXOsComponents/UTXOsTransactionTabView';
+import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import VaultInfo from './components/VaultInfo';
 import VaultFooter from './components/VaultFooter';
 import VaultHeader from './components/VaultHeader';
@@ -30,12 +31,27 @@ function Wrapper({ children }) {
     </LinearGradient>
   );
 }
+function Footer({
+  tab,
+  onPressBuy,
+  vault,
+  setEnableSelection,
+  enableSelection,
+}) {
+  // eslint-disable-next-line no-nested-ternary
+  return tab === 'Transactions' ? (
+    <VaultFooter onPressBuy={onPressBuy} vault={vault} />
+  ) : (
+    <UTXOFooter setEnableSelection={setEnableSelection} enableSelection={enableSelection} />
+  );
+}
 
 function VaultDetails({ route }) {
   const { autoRefresh } = route.params || {};
   const vault: Vault = useVault().activeVault;
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+  const [enableSelection, setEnableSelection] = useState(false);
   const [tab, setActiveTab] = useState('Transactions');
   const transactions = vault?.specs?.transactions || [];
   const { confirmedUTXOs, unconfirmedUTXOs } = vault?.specs || {
@@ -54,7 +70,6 @@ function VaultDetails({ route }) {
           return utxo;
         })
       ) || [];
-  console.log('utxos', utxos)
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
     if (currentScheme.m > subscriptionScheme.m) {
@@ -86,7 +101,7 @@ function VaultDetails({ route }) {
           <UTXOsTransactionTabView setActiveTab={setActiveTab} />
         </VStack>
         <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} tab={tab} utxoState={utxos} />
-        <VaultFooter onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
+        <Footer tab={tab} onPressBuy={() => setShowBuyRampModal(true)} vault={vault} setEnableSelection={setEnableSelection} enableSelection={enableSelection} />
         <VaultModals
           showBuyRampModal={showBuyRampModal}
           setShowBuyRampModal={setShowBuyRampModal}
