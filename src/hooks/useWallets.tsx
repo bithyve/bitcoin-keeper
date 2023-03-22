@@ -15,7 +15,7 @@ export const whirlpoolWalletTypeMap = {
 
 export const getWalletsData = (wallets: Wallet[]) => {
   let walletsDBdata: Wallet[] = _.clone(wallets);
-  let walletsData = [];
+  let walletsData: Wallet | any = [];
   walletsDBdata.forEach((wallet) => {
     if (wallet.type === WalletType.DEFAULT) walletsData.push(wallet);
     if (whirlPoolWalletTypes.includes(wallet.type)) {
