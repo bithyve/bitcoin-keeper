@@ -16,6 +16,25 @@ export enum MixStatus {
   Fail = 'Fail',
 }
 
+export enum Step {
+  WaitingForCoordinator = 'WaitingForCoordinator',
+  Connecting = 'Connecting',
+  Subscribing = 'Subscribing',
+  RegisteringInput = 'RegisteringInput',
+  ConfirmingInput = 'ConfirmingInput',
+  CheckingOutput = 'CheckingOutput',
+  RegisteringOutput = 'RegisteringOutput',
+  Signing = 'Signing',
+  RevealingOutput = 'RevealingOutput',
+}
+
+export enum Info {
+  Working = 'Working',
+  Success = 'Success',
+  Failure = 'Failure',
+  Error = 'Error',
+}
+
 export interface TorConfig {
   host: string;
   port: number;

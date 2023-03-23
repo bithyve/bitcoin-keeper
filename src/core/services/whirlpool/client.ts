@@ -7,9 +7,18 @@ import ElectrumClient from 'src/core/services/electrum/client';
 import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { Network, PoolData, Preview, TorConfig, TX0Data, WhirlpoolAPI } from './interface';
+import {
+  Info,
+  Network,
+  PoolData,
+  Preview,
+  Step,
+  TorConfig,
+  TX0Data,
+  WhirlpoolAPI,
+} from './interface';
 import { MOCK_POOL_DATA, MOCK_TX0_DATA } from './mock';
-import { generateMockTransaction, getAPIEndpoints } from './utils';
+import { generateMockTransaction, getAPIEndpoints, sleep } from './utils';
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
@@ -169,25 +178,48 @@ export default class WhirlpoolClient {
     premixInput: InputUTXOs,
     destinationAddress: string,
     denomination: number,
-    premix: Wallet
+    premix: Wallet,
+    notify: Function
   ): Promise<string> => {
     if (!premixInput && !premixInput.height) throw new Error('Premix input is not confirmed');
+
+    await sleep();
+    notify(Info.Working, Step.WaitingForCoordinator);
+
+    await sleep();
+    notify(Info.Working, Step.Connecting);
+
     const network = WalletUtilities.getNetworkByType(premix.networkType);
     const postMixOutput: OutputUTXOs = {
       address: destinationAddress,
       value: denomination,
     };
 
+    await sleep();
+    notify(Info.Working, Step.Subscribing);
+
     const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
       network,
     });
+
+    await sleep();
+    notify(Info.Working, Step.RegisteringInput);
+
+    await sleep();
+    notify(Info.Working, Step.ConfirmingInput);
     WalletOperations.addInputToPSBT(PSBT, premix, premixInput, network);
+
+    await sleep();
+    notify(Info.Working, Step.RegisteringOutput);
     PSBT.addOutput(postMixOutput);
 
+    await sleep();
+    notify(Info.Working, Step.Signing);
     const { signedPSBT } = WalletOperations.signTransaction(premix, [premixInput], PSBT);
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const txid = await ElectrumClient.broadcast(txHex);
+    notify(Info.Success);
     return txid;
   };
 }

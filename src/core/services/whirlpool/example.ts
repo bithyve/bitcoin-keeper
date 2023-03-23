@@ -7,7 +7,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import WhirlpoolClient, { TOR_CONFIG } from './client';
-import { Network } from './interface';
+import { Info, Network, Step } from './interface';
 
 const generateWhirlpoolAccounts = async () => {
   // sample:
@@ -20,7 +20,7 @@ const generateWhirlpoolAccounts = async () => {
     instanceNum: 0,
     walletName: 'Whirlpool:Deposit',
     walletDescription: 'Whirlpool Deposit Account',
-    primaryMnemonic: 'achieve blue dish mule rate evil arrange sound round cannon battle stereo',
+    primaryMnemonic: 'copy flat any grace have spread shove hair dynamic organ filter wage',
     networkType: NetworkType.TESTNET,
     transferPolicy: {
       id: '1238dsfh',
@@ -161,16 +161,26 @@ const executeWhirlpoolFlow = async (
   const inputToMix = premix.specs?.confirmedUTXOs[0];
   const destination = postmix.specs.receivingAddress;
   const pool_denomination = selectedPool.denomination;
+
+  const notify = (info: Info, step?: Step) => {
+    console.log({ info, step }); // capture step updates
+  };
+
   const mixingTxid = await WhirlpoolClient.premixToPostmix(
     inputToMix,
     destination,
     pool_denomination,
-    premix
+    premix,
+    notify
   );
   console.log({ mixingTxid });
 };
 
 export const runMockWhirlpool = async () => {
-  const { deposit, premix, postmix, badBank } = await generateWhirlpoolAccounts(); // works only w/ mnemonic modification in wallet factory method
-  return executeWhirlpoolFlow(deposit, premix, postmix, badBank);
+  try {
+    const { deposit, premix, postmix, badBank } = await generateWhirlpoolAccounts(); // works only w/ mnemonic modification in wallet factory method
+    return executeWhirlpoolFlow(deposit, premix, postmix, badBank);
+  } catch (err) {
+    console.log({ err });
+  }
 };
