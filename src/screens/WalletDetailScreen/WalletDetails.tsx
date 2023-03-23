@@ -1,5 +1,5 @@
 import { Box } from 'native-base';
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
@@ -103,6 +103,10 @@ function Footer({
   };
 
   const inititateWhirlpoolMixProcess = async () => {
+    if (selectedUTXOs.length === 0) {
+      Alert.alert('Please select atleast one UTXO');
+      return;
+    }
     try {
       const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
       const destination = postmix.specs.receivingAddress;
@@ -118,6 +122,15 @@ function Footer({
         );
         console.log('txid', txid);
         if (txid) {
+          dispatch(
+            refreshWallets(
+              [
+                depositWallet?.whirlpoolConfig.premixWallet,
+                depositWallet?.whirlpoolConfig.postmixWallet,
+              ],
+              { hardRefresh: true }
+            )
+          );
           const outputs = PSBT.txOutputs;
           const voutPostmix = outputs.findIndex((o) => o.address === destination);
           dispatch(
