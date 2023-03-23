@@ -57,7 +57,6 @@ import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
-import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
@@ -72,9 +71,14 @@ import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
-import Login from '../screens/LoginScreen/Login';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
+import PoolSelection from 'src/screens/Mix/PoolSelection';
+import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
+import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
+import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
+import Login from '../screens/LoginScreen/Login';
+
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -154,9 +158,9 @@ function AppStack() {
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
+        <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
-        <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
@@ -194,6 +198,9 @@ function AppStack() {
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
+        <Stack.Screen name="PoolSelection" component={PoolSelection} />
+        <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
+        <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -216,7 +223,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />

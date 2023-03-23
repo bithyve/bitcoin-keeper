@@ -14,6 +14,8 @@ import {
   updateWalletSettingsWatcher,
   updateSignerDetails,
   updateWalletsPropertyWatcher,
+  addWhirlpoolWalletsWatcher,
+  addWhirlpoolWalletsLocalWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -53,6 +55,7 @@ import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
 import { updateVersionHistoryWatcher } from './upgrade';
+import { addLabelsWatcher, bulkUpdateLabelWatcher, createUTXOReferenceWatcher } from './utxos';
 
 const rootSaga = function* () {
   const sagas = [
@@ -70,6 +73,8 @@ const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
+    addWhirlpoolWalletsWatcher,
+    addWhirlpoolWalletsLocalWatcher,
     autoWalletsSyncWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
@@ -115,6 +120,11 @@ const rootSaga = function* () {
 
     // upgrade
     updateVersionHistoryWatcher,
+
+    // utxos
+    addLabelsWatcher,
+    bulkUpdateLabelWatcher,
+    createUTXOReferenceWatcher,
   ];
 
   yield all(

@@ -34,8 +34,8 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
+import useWallets from 'src/hooks/useWallets';
 
 type Props = {
   title: string;
@@ -73,7 +73,7 @@ function WalletSettings({ route }) {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];

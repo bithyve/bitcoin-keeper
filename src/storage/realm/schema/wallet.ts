@@ -20,6 +20,26 @@ export const BIP85ConfigSchema: ObjectSchema = {
   },
 };
 
+export const LabelSchema: ObjectSchema = {
+  name: RealmSchema.Label,
+  properties: {
+    name: 'string',
+    type: 'string',
+  },
+};
+
+export const UTXOInfoSchema: ObjectSchema = {
+  name: RealmSchema.UTXOInfo,
+  properties: {
+    id: 'string',
+    txId: 'string',
+    vout: 'int',
+    walletId: 'string',
+    labels: { type: 'list', objectType: `${RealmSchema.Label}` },
+  },
+  primaryKey: 'id',
+};
+
 export const UTXOSchema: ObjectSchema = {
   name: RealmSchema.UTXO,
   embedded: true,
@@ -109,6 +129,23 @@ export const WalletSpecsSchema: ObjectSchema = {
   },
 };
 
+export const WhirlpoolWalletDetailsSchema: ObjectSchema = {
+  name: RealmSchema.WhirlpoolWalletDetails,
+  embedded: true,
+  properties: {
+    walletId: 'string',
+    walletType: 'string',
+  },
+};
+
+export const WhirlpoolConfigSchema: ObjectSchema = {
+  name: RealmSchema.WhirlpoolConfig,
+  embedded: true,
+  properties: {
+    whirlpoolWalletDetails: `${RealmSchema.WhirlpoolWalletDetails}[]`,
+  },
+};
+
 export const WalletSchema: ObjectSchema = {
   name: RealmSchema.Wallet,
   properties: {
@@ -121,7 +158,9 @@ export const WalletSchema: ObjectSchema = {
     presentationData: RealmSchema.WalletPresentationData,
     specs: RealmSchema.WalletSpecs,
     scriptType: 'string',
-    transferPolicy: `${RealmSchema.TransferPolicy}`,
+    transferPolicy: `${RealmSchema.TransferPolicy}?`,
+    depositWalletId: `string?`,
+    whirlpoolConfig: `${RealmSchema.WhirlpoolConfig}?`,
   },
   primaryKey: 'id',
 };

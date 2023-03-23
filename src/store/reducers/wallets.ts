@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { reduxStorage } from 'src/storage';
 import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
@@ -20,6 +21,14 @@ export type WalletsState = {
 
   resetTwoFALoader: boolean;
   introModal: boolean;
+  whirlpoolModal: boolean;
+
+  whirlpoolWallets?: Wallet[];
+
+  syncing: boolean;
+  tx0completed: boolean;
+  walletDetailsUI: any;
+  walletPoolMap: any;
 };
 
 const initialState: WalletsState = {
@@ -38,6 +47,22 @@ const initialState: WalletsState = {
 
   resetTwoFALoader: false,
   introModal: true,
+  whirlpoolModal: true,
+
+  syncing: false,
+  walletDetailsUI: {},
+  walletPoolMap: {},
+  tx0completed: false,
+};
+
+export type WalletDeatilsUIPayload = {
+  walletId: string;
+  walletType: string;
+};
+
+export type WalletPoolPayload = {
+  walletId: string;
+  pool: number;
 };
 
 const walletSlice = createSlice({
@@ -59,6 +84,33 @@ const walletSlice = createSlice({
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
     },
+    setWhirlpoolModal: (state, action: PayloadAction<boolean>) => {
+      state.whirlpoolModal = action.payload;
+    },
+    setWhirlpoolWallets: (state, action: PayloadAction<Wallet[]>) => {
+      state.whirlpoolWallets = action.payload;
+    },
+
+    resetWhirlpoolWallets: (state) => {
+      state.whirlpoolWallets = null;
+    },
+    setSyncing: (state, action: PayloadAction<boolean>) => {
+      state.syncing = action.payload;
+    },
+    setTx0Complete: (state, action: PayloadAction<boolean>) => {
+      state.tx0completed = action.payload;
+    },
+
+    setWalletDetailsUI: (state, action: PayloadAction<WalletDeatilsUIPayload>) => {
+      const { walletId, walletType } = action.payload;
+      const prev = state.walletDetailsUI;
+      state.walletDetailsUI = { ...prev, [walletId]: walletType };
+    },
+    setWalletPoolMap: (state, action: PayloadAction<WalletPoolPayload>) => {
+      const { walletId, pool } = action.payload;
+      const prev = state.walletPoolMap;
+      state.walletPoolMap = { ...prev, [walletId]: pool };
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_NEW_WALLETS, (state) => {
@@ -75,11 +127,24 @@ export const {
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
+  setWhirlpoolModal,
+  setWhirlpoolWallets,
+  resetWhirlpoolWallets,
+  setWalletDetailsUI,
+  setSyncing,
+  setTx0Complete,
+  setWalletPoolMap,
 } = walletSlice.actions;
 
 const walletPersistConfig = {
   key: 'wallet',
   storage: reduxStorage,
-  blacklist: ['testCoinsReceived', 'testCoinsFailed'],
+  blacklist: [
+    'testCoinsReceived',
+    'testCoinsFailed',
+    'whirlpoolWallets',
+    'walletDetailsUI',
+    'tx0completed',
+  ],
 };
 export default persistReducer(walletPersistConfig, walletSlice.reducer);
