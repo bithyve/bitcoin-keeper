@@ -129,9 +129,9 @@ function* uaiChecksWorker({ payload }) {
       );
       for (const wallet of wallets) {
         const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
-        if (wallet.specs.balances.confirmed >= Number(wallet.transferPolicy.threshold)) {
+        if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
           if (uai) {
-            if (wallet.specs.balances.confirmed >= Number(wallet.transferPolicy.threshold)) {
+            if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
               yield put(uaiActionedEntity(uai.entityId, false));
             }
           } else {
