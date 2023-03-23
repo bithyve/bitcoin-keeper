@@ -83,7 +83,8 @@ function VaultDetails({ route }) {
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
-
+  console.log('selectedUTXOs', selectedUTXOs)
+  // console.log('selectedUTXOMap', selectedUTXOMap)
   const cleanUp = useCallback(() => {
     setSelectedUTXOMap({});
     setSelectionTotal(0);
@@ -136,10 +137,12 @@ function VaultDetails({ route }) {
           transactions={transactions}
           vault={vault}
           autoRefresh={autoRefresh}
-          tab={tab} utxoState={utxos}
+          tab={tab}
+          utxoState={utxos}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
           selectionTotal={selectionTotal}
+          setSelectionTotal={setSelectionTotal}
           enableSelection={enableSelection}
         />
         <Footer tab={tab} onPressBuy={() => setShowBuyRampModal(true)} vault={vault} setEnableSelection={() => setEnableSelection(true)} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} />
