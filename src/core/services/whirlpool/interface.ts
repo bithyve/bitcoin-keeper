@@ -81,3 +81,10 @@ export interface Preview {
   coordinator_fee: number;
   change: number;
 }
+
+/// Used during TX0 fee computation. Needed because different script types have different lengths.
+export interface InputStructure {
+  n_p2pkh_inputs: number;
+  n_p2sh_p2wpkh_inputs: number;
+  n_p2wpkh_inputs: number;
+}

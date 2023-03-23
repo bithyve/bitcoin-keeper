@@ -9,6 +9,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import {
   Info,
+  InputStructure,
   Network,
   PoolData,
   Preview,
@@ -93,6 +94,23 @@ export default class WhirlpoolClient {
     //     n_pool_max_outputs: u16
     //     )
 
+    // const input_structure: InputStructure = { // TODO: generate based on UTXO type
+    //   n_p2pkh_inputs: 0,
+    //   n_p2sh_p2wpkh_inputs: 0,
+    //   n_p2wpkh_inputs: inputs.length,
+    // };
+
+    // console.log({
+    //   inputs_value,
+    //   pool, // to construct premix_value using PremixValue::new
+    //   premix_fee_per_byte, // to construct premix_value using PremixValue::new,
+    //   input_structure,
+    //   miner_fee_per_byte,
+    //   coordinator_fee: tx0data.fee_value,
+    //   n_wanted_max_outputs: null,
+    //   n_pool_max_outputs: pool.tx0_max_outputs,
+    // });
+
     const minerFee = 1000; // paying average tx fee for now(should be calculated using miner_fee_per_byte)
     const n_premix_outputs = Math.floor(
       (inputs_value - pool.fee_value - minerFee) / pool.must_mix_balance_min
@@ -100,7 +118,7 @@ export default class WhirlpoolClient {
     const preview: Preview = {
       premix_value: pool.must_mix_balance_min, // low premix priority
       n_premix_outputs,
-      coordinator_fee: pool.fee_value,
+      coordinator_fee: tx0data.fee_value,
       miner_fee: minerFee,
       change:
         inputs_value - pool.fee_value - minerFee - n_premix_outputs * pool.must_mix_balance_min, // bad bank
