@@ -83,8 +83,7 @@ function VaultDetails({ route }) {
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
-  console.log('selectedUTXOs', selectedUTXOs)
-  // console.log('selectedUTXOMap', selectedUTXOMap)
+
   const cleanUp = useCallback(() => {
     setSelectedUTXOMap({});
     setSelectionTotal(0);
