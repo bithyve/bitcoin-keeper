@@ -1,5 +1,7 @@
 package com.hexa_keeper;
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 
 import com.facebook.react.bridge.Promise;
@@ -24,12 +26,23 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void hello_world(Promise promise) {
-        promise.resolve(WhirlpoolBridge.helloWorld());
+    public void sayHello(String name,Promise promise) {
+        promise.resolve(WhirlpoolBridge.helloWorld(name));
     }
 
     @ReactMethod
-    public void initiate(Promise promise) {
-        promise.resolve(WhirlpoolBridge.initiate());
+    public void initiate(String torPort, Promise promise) {
+        Toast.makeText(getReactApplicationContext(), "PORT: "+ torPort, Toast.LENGTH_SHORT).show();
+        promise.resolve(WhirlpoolBridge.initiate(torPort));
+    }
+
+    @ReactMethod
+    public void getTx0Data(String torPort, Promise promise) {
+        promise.resolve(WhirlpoolBridge.get_tx0_data(torPort));
+    }
+
+    @ReactMethod
+    public void getPools(String torPort, Promise promise) {
+        promise.resolve(WhirlpoolBridge.get_pools(torPort));
     }
 }

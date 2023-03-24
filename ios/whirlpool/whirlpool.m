@@ -15,14 +15,22 @@
 
 RCT_EXPORT_MODULE();
 
-RCT_EXPORT_METHOD(hello_world:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(sayHello:(NSString*) name
+                  get:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper helloWorldWithCallback:^(NSString * _Nonnull jsonContent) {
-     NSLog(@"jsonContent",jsonContent);
-     resolve(jsonContent);
+  [helper helloWorldWithName:name callback:^(NSString * _Nonnull response) {
+    resolve(response);
   }];
 }
 
+RCT_EXPORT_METHOD(initiate:(NSString*) torPort
+                  get:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject){
+  WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
+  [helper initiateClientWithTorPort:torPort callback:^(NSString * _Nonnull response) {
+    resolve(response);
+  }];
+}
 
 @end
