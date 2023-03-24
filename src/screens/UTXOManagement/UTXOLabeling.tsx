@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, useColorMode } from 'native-base';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Box, Input, KeyboardAvoidingView, useColorMode } from 'native-base';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
@@ -19,6 +19,7 @@ import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import Text from 'src/components/KeeperText';
+import Selected from 'src/assets/images/selected.svg';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -72,95 +73,108 @@ function UTXOLabeling() {
   return (
     <ScreenWrapper>
       <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
-      <View style={styles.subHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.subHeaderTitle}>Transaction ID</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.subHeaderValue} numberOfLines={1}>
-              {utxo.txId}
-            </Text>
-            <Box style={{ margin: 5 }}>
-              <LinkIcon />
-            </Box>
-          </View>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.subHeaderTitle}>UTXO Value</Text>
-          <View style={{ flexDirection: 'row' }}>
-            <Box style={{ marginTop: 5, marginLeft: 5 }}>
-              {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
-            </Box>
-            <Text style={styles.subHeaderValue} numberOfLines={1}>
-              {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-              <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                {getUnit(currentCurrency, satsEnabled)}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        enabled
+        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+        style={styles.scrollViewWrapper}
+      >
+        <View style={styles.subHeader}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.subHeaderTitle}>Transaction ID</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.subHeaderValue} numberOfLines={1}>
+                {utxo.txId}
               </Text>
-            </Text>
+              <Box style={{ margin: 5 }}>
+                <LinkIcon />
+              </Box>
+            </View>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.subHeaderTitle}>UTXO Value</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Box style={{ marginTop: 5, marginLeft: 5 }}>
+                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
+              </Box>
+              <Text style={styles.subHeaderValue} numberOfLines={1}>
+                {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                  {getUnit(currentCurrency, satsEnabled)}
+                </Text>
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-      <View style={styles.listContainer}>
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={styles.listHeader}>Labels</Text>
-        </View>
-        <View style={styles.listSubContainer}>
-          {existingLabels.map((item, index) => (
-            <View
-              key={`${item}`}
-              style={[
-                styles.labelView,
-                {
-                  backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486',
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.labelEditContainer}
-                activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
-                onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+        <View style={styles.listContainer}>
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={styles.listHeader}>Labels</Text>
+          </View>
+          <View style={styles.listSubContainer}>
+            {existingLabels.map((item, index) => (
+              <View
+                key={`${item}`}
+                style={[
+                  styles.labelView,
+                  {
+                    backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486',
+                  },
+                ]}
               >
-                <Text style={styles.itemText} bold>
-                  {item.name.toUpperCase()}
-                  {item.type === LabelType.USER ? (
-                    <TouchableOpacity onPress={() => onCloseClick(index)}>
-                      <Box style={styles.deleteContainer}>
-                        <DeleteCross />
-                      </Box>
-                    </TouchableOpacity>
-                  ) : null}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+                <TouchableOpacity
+                  style={styles.labelEditContainer}
+                  activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
+                  onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+                >
+                  <Text style={styles.itemText} bold>
+                    {item.name.toUpperCase()}
+                    {item.type === LabelType.USER ? (
+                      <TouchableOpacity onPress={() => onCloseClick(index)}>
+                        <Box style={styles.deleteContainer}>
+                          <DeleteCross />
+                        </Box>
+                      </TouchableOpacity>
+                    ) : null}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+          <Box style={styles.inputLabeWrapper}>
+            <Box style={styles.inputLabelBox}>
+              <Input
+                onChangeText={(text) => {
+                  setLabel(text);
+                }}
+                style={styles.inputLabel}
+                borderWidth={0}
+                height={hp(40)}
+                placeholder="Add Label"
+                color="#E0B486"
+                value={label}
+                autoCorrect={false}
+                // returnKeyType="done"
+                // onSubmitEditing={onAdd}
+                autoCapitalize="characters"
+              />
+            </Box>
+            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
+              <Selected />
+            </TouchableOpacity>
+          </Box>
         </View>
-        <Input
-          onChangeText={(text) => {
-            setLabel(text);
-          }}
-          style={styles.inputLabelBox}
-          borderWidth={0}
-          height={hp(40)}
-          placeholder="Add Label"
-          color="#E0B486"
-          backgroundColor="#F7F2EC"
-          value={label}
-          autoCorrect={false}
-          returnKeyType="done"
-          onSubmitEditing={onAdd}
-          autoCapitalize="characters"
-        />
-      </View>
-      <View style={{ flex: 1 }} />
-      <Box style={styles.ctaBtnWrapper}>
-        <Box ml={windowWidth * -0.09}>
-          <Buttons
-            primaryCallback={onSaveChangeClick}
-            primaryText="Save Changes"
-            secondaryCallback={navigation.goBack}
-            secondaryText="Cancel"
-          />
+        <View style={{ flex: 1 }} />
+        <Box style={styles.ctaBtnWrapper}>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              primaryCallback={onSaveChangeClick}
+              primaryText="Save Changes"
+              secondaryCallback={navigation.goBack}
+              secondaryText="Cancel"
+            />
+          </Box>
         </Box>
-      </Box>
+      </KeyboardAvoidingView>
     </ScreenWrapper>
   );
 }
@@ -199,10 +213,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
-  inputLabelBox: {
+  inputLabeWrapper: {
+    flexDirection: 'row',
+    height: 50,
+    width: '100%',
+    alignItems: 'center',
     borderRadius: 10,
+    backgroundColor: "#F7F2EC",
+  },
+  inputLabelBox: {
+    width: '90%',
+
+  },
+  inputLabel: {
     fontSize: 13,
     fontWeight: '900',
+  },
+  addBtnWrapper: {
+    width: '10%'
   },
   unitText: {
     letterSpacing: 0.6,
