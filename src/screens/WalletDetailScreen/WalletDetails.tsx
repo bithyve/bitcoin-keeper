@@ -72,7 +72,6 @@ function Footer({
   enableSelection,
   selectedUTXOs,
 }) {
-  // eslint-disable-next-line no-nested-ternary
   return tab === 'Transactions' ? (
     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
   ) : enableSelection ? (

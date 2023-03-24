@@ -141,7 +141,7 @@ function VaultDetails({ route }) {
           tab={tab}
           onPressBuy={() => setShowBuyRampModal(true)}
           vault={vault}
-          setEnableSelection={() => setEnableSelection(true)}
+          setEnableSelection={setEnableSelection}
           enableSelection={enableSelection}
           selectedUTXOs={selectedUTXOs}
         />
