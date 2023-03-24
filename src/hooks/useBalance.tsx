@@ -18,7 +18,7 @@ const useBalance = () => {
     return getUnit(currentCurrency, satsEnabled)
   }
 
-  const getCurrencyIcon = (Icon: any, variation: 'light' | 'green' | 'dark') => {
+  const getCurrencyIcon = (Icon: any, variation: 'light' | 'green' | 'dark' | 'grey') => {
     return getCurrencyImageByRegion(currencyCode, variation, currentCurrency, Icon)
   }
 

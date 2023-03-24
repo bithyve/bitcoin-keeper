@@ -154,7 +154,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                {getCurrencyIcon(BTC, 'light',)}
+                {getCurrencyIcon(BTC, 'grey',)}
               </Box>
               <Text
                 color="light.white"
@@ -183,14 +183,15 @@ function LinkedWallets(props) {
                 alignItems: 'center',
               }}
             >
-              {getCurrencyIcon(BTC, 'light',)}
-              &nbsp;
+              {getCurrencyIcon(BTC, 'grey')}
+              & nbsp;
               <Hidden />
-            </Box>
-          )}
-        </Pressable>
-      </Box>
-    </Pressable>
+            </Box >
+          )
+          }
+        </Pressable >
+      </Box >
+    </Pressable >
   );
 }
 
@@ -317,7 +318,7 @@ function VaultStatus(props) {
             </Box>
 
             <HStack style={styles.vaultBalanceContainer}>
-              {getCurrencyIcon(BTC, 'light')}
+              {getCurrencyIcon(BTC, 'grey')}
               <Pressable>
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
@@ -339,7 +340,7 @@ function VaultStatus(props) {
                   </Box>
                 )}
               </Pressable>
-            </HStack>
+            </HStack >
             <Pressable
               backgroundColor="light.accent"
               style={styles.balanceToggleContainer}
@@ -349,10 +350,10 @@ function VaultStatus(props) {
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
-          </Box>
-        </TouchableOpacity>
-      </ImageBackground>
-    </Box>
+          </Box >
+        </TouchableOpacity >
+      </ImageBackground >
+    </Box >
   );
 }
 
