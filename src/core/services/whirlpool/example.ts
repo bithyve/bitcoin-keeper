@@ -6,8 +6,9 @@ import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import * as bitcoinJS from 'bitcoinjs-lib';
 import WhirlpoolClient, { TOR_CONFIG } from './client';
-import { Info, Network, Step } from './interface';
+import { BitcoinRustInput, Info, Network, OutputTemplate, Step } from './interface';
 
 const generateWhirlpoolAccounts = async () => {
   // sample:
@@ -111,8 +112,8 @@ const executeWhirlpoolFlow = async (
   const correspondingTx0Data = tx0Data.filter((data) => data.pool_id === selectedPoolId)[0];
 
   deposit = await syncWallet(deposit);
-  const premix_fee_per_byte = 12;
-  const miner_fee_per_byte = 1;
+  const premix_fee_per_byte = 20;
+  const miner_fee_per_byte = 10;
   const inputsForTx0 = [...deposit.specs.confirmedUTXOs, ...deposit.specs.unconfirmedUTXOs];
   console.log({ inputsForTx0 });
 
@@ -144,6 +145,58 @@ const executeWhirlpoolFlow = async (
     deposit
   );
   console.log({ PSBT });
+
+  // const bitcoinRustInputs: BitcoinRustInput[] = inputsForTx0.map((input) => {
+  //   const rustInput: BitcoinRustInput = {
+  //     outpoint: {
+  //       txid: input.txId, // use
+  //       vout: input.vout,
+  //     },
+  //     prev_txout: {
+  //       value: input.value,
+  //       script_pubkey: bitcoinJS.address.toOutputScript(input.address, network).toString('hex'),
+  //     },
+  //     fields: {},
+  //   };
+  //   return rustInput;
+  // });
+
+  // const output_supplier_addresses = {
+  //   address_bank: premixAddresses,
+  //   change_addr: badBank.specs.receivingAddress,
+  // };
+  // let nextFreePremixAddressIndex = 0;
+  // const output_supplier = (change: Boolean): OutputTemplate => {
+  //   // If `true` is passed to `output_supplier`,
+  //   // it is supposed to return a change output template.
+  //   // otherwise premix output template.
+  //   if (change) {
+  //     return {
+  //       address: output_supplier_addresses.change_addr, // use Address::from_str to convert to bitcoin_rust's Address
+  //       fields: {},
+  //     };
+  //   }
+
+  //   const address = output_supplier_addresses[nextFreePremixAddressIndex];
+  //   nextFreePremixAddressIndex++;
+  //   return {
+  //     address, // use from_str to convert to bitcoin_rust's Address
+  //     fields: {},
+  //   };
+  // };
+
+  // console.log(
+  //   JSON.stringify(
+  //     {
+  //       preview,
+  //       tx0_data: correspondingTx0Data,
+  //       inputs: bitcoinRustInputs,
+  //       output_supplier_addresses,
+  //     },
+  //     null,
+  //     4
+  //   )
+  // );
 
   const tx0 = WhirlpoolClient.signTx0(deposit, inputsForTx0, PSBT);
   console.log({ tx0 });

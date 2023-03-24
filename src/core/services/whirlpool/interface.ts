@@ -88,3 +88,29 @@ export interface InputStructure {
   n_p2sh_p2wpkh_inputs: number;
   n_p2wpkh_inputs: number;
 }
+
+export interface BitcoinRustInput {
+  /// Outpoint used by this input.
+  outpoint: {
+    /// The referenced transaction's txid.
+    txid: string;
+    /// The index of the referenced output in its transaction's vout.
+    vout: number;
+  };
+  /// Previous txout used by this input.
+  prev_txout: {
+    /// The value of the output, in satoshis.
+    value: number;
+    /// The script which must be satisfied for the output to be spent.
+    script_pubkey: string;
+  };
+  /// Arbitrary per-input PSBT fields for use by the signer.
+  fields: {};
+}
+
+export interface OutputTemplate {
+  /// Address that this output is sending to.
+  address: string;
+  /// Arbitrary per-output PSBT fields for use by the signer.
+  fields: {};
+}
