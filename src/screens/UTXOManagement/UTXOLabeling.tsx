@@ -8,7 +8,7 @@ import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
-import { LabelType } from 'src/core/wallets/enums';
+import { LabelType, NetworkType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
@@ -19,6 +19,8 @@ import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import Text from 'src/components/KeeperText';
+import openLink from 'src/utils/OpenLink';
+import config from 'src/core/config';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -69,6 +71,13 @@ function UTXOLabeling() {
     navigation.goBack();
   };
 
+  const redirectToBlockExplorer = () => {
+    openLink(
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      }/tx/${utxo.txId}`
+    );
+  };
+
   return (
     <ScreenWrapper>
       <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
@@ -79,9 +88,9 @@ function UTXOLabeling() {
             <Text style={styles.subHeaderValue} numberOfLines={1}>
               {utxo.txId}
             </Text>
-            <Box style={{ margin: 5 }}>
+            <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
               <LinkIcon />
-            </Box>
+            </TouchableOpacity>
           </View>
         </View>
         <View style={{ flex: 1 }}>
