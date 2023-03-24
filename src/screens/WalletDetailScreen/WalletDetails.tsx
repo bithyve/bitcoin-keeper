@@ -14,17 +14,18 @@ import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import WalletDetailsTabView from './components/WalletDetailsTabView';
+import UTXOList from 'src/components/UTXOsComponents/UTXOList';
+import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
+import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
+import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
+import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
+import UTXOsTransactionTabView from '../../components/UTXOsComponents/UTXOsTransactionTabView';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
-import UTXOList from './components/UTXOList';
 import TransactionFooter from './components/TransactionFooter';
-import UTXOFooter from './components/UTXOFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
-import UTXOSelectionTotal from './components/UTXOSelectionTotal';
-import FinalizeFooter from './components/FinalizeFooter';
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({
@@ -56,6 +57,7 @@ function TransactionsAndUTXOs({
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
           currentWallet={currentWallet}
+          emptyIcon={NoTransactionIcon}
         />
       )}
     </Box>
@@ -161,7 +163,7 @@ function WalletDetails({ route }) {
           {Object.values(selectedUTXOMap).length && tab === 'UTXOs' ? (
             <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
           ) : (
-            <WalletDetailsTabView setActiveTab={setActiveTab} />
+            <UTXOsTransactionTabView activeTab={tab} setActiveTab={setActiveTab} />
           )}
           <TransactionsAndUTXOs
             tab={tab}
@@ -214,7 +216,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: '45%',
+    height: '39%',
     position: 'relative',
   },
   addNewWalletText: {

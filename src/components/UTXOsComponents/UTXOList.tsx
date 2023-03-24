@@ -3,7 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
+import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
@@ -157,6 +157,7 @@ function UTXOList({
   selectedUTXOMap,
   setSelectedUTXOMap,
   currentWallet,
+  emptyIcon
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -194,7 +195,7 @@ function UTXOList({
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         <EmptyStateView
-          IllustartionImage={NoTransactionIcon}
+          IllustartionImage={emptyIcon}
           title="No transactions yet."
           subTitle="Pull down to refresh"
         />
