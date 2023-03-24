@@ -96,7 +96,8 @@ function WalletDetails({ route }) {
   const [pullRefresh, setPullRefresh] = useState(false);
   const [tab, setActiveTab] = useState('Transactions');
   const currentWallet = wallets[walletIndex];
-  const transactions = wallets[walletIndex]?.specs?.transactions || [];
+  const transactions = currentWallet?.specs?.transactions || [];
+
   const { confirmedUTXOs, unconfirmedUTXOs } = wallets[walletIndex]?.specs || {
     confirmedUTXOs: [],
     unconfirmedUTXOs: [],

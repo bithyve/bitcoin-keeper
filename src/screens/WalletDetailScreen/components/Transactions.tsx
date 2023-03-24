@@ -6,6 +6,7 @@ import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Transaction } from 'src/core/wallets/interfaces';
 
 function TransactionItem({ item, wallet, navigation }) {
   return (
@@ -39,7 +40,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
       renderItem={({ item }) => (
         <TransactionItem item={item} navigation={navigation} wallet={currentWallet} />
       )}
-      keyExtractor={(item) => item}
+      keyExtractor={(item: Transaction) => `${item.txid}${item.transactionType}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         <EmptyStateView

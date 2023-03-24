@@ -191,7 +191,7 @@ function UTXOList({
           currentWallet={currentWallet}
         />
       )}
-      keyExtractor={(item: UTXO) => item.txId}
+      keyExtractor={(item: UTXO) => `${item.txId}${item.vout}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         <EmptyStateView
