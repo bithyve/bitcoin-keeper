@@ -276,7 +276,7 @@ function AppSettings({ navigation }) {
 
         <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
           <Box style={styles.socialMediaLinkWrapper2}>
-            <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
+            <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
               <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
