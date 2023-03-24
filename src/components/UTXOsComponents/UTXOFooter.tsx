@@ -1,16 +1,14 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box } from 'native-base';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../../screens/WalletDetailScreen/BottomMenuItem';
 
 function UTXOFooter({ setEnableSelection, enableSelection }) {
-  const { bottom } = useSafeAreaInsets();
   return (
-    <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
+    <Box style={styles.footerContainer}>
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
         <BottomMenuItem onPress={() => { }} icon={<MixIcon />} title="Select for Mix" />
@@ -28,10 +26,8 @@ export default UTXOFooter;
 
 const styles = StyleSheet.create({
   footerContainer: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 5 : 0,
-    width: wp(375),
-    paddingHorizontal: 5,
+    width: '100%',
+    justifyContent: 'space-around'
   },
   border: {
     borderWidth: 0.5,
