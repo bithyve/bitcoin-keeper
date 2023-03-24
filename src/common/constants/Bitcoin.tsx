@@ -8,6 +8,7 @@ import React from 'react';
 // asserts
 import DolarWhite from 'src/assets/images/icon_dollar_white.svg';
 import DolarGreen from 'src/assets/images/icon_dollar_green.svg';
+import DolarGrey from 'src/assets/images/icon_dollar_grey.svg';
 import Dolar from 'src/assets/images/icon_dollar.svg';
 import CurrencyKind from '../data/enums/CurrencyKind';
 
@@ -102,7 +103,7 @@ export const isTestnet = () => {
 
 export const getCurrencyImageByRegion = (
   currencyCode: string,
-  type: 'light' | 'green' | 'dark',
+  type: 'light' | 'green' | 'dark' | 'grey',
   currentCurrency: CurrencyKind,
   BTCIcon: any
 ) => {
@@ -147,6 +148,9 @@ export const getCurrencyImageByRegion = (
     }
     if (type === 'green') {
       return <DolarGreen />;
+    }
+    if (type === 'grey') {
+      return <DolarGrey />;
     }
     if (type === 'dark') {
       return <Dolar />;

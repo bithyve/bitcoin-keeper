@@ -158,7 +158,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+                {getCurrencyImageByRegion(currencyCode, 'grey', currentCurrency, BTC)}
               </Box>
               <Text
                 color="light.white"
@@ -187,7 +187,7 @@ function LinkedWallets(props) {
                 alignItems: 'center',
               }}
             >
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+              {getCurrencyImageByRegion(currencyCode, 'grey', currentCurrency, BTC)}
               &nbsp;
               <Hidden />
             </Box>
@@ -323,7 +323,7 @@ function VaultStatus(props) {
             </Box>
 
             <HStack style={styles.vaultBalanceContainer}>
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+              {getCurrencyImageByRegion(currencyCode, 'grey', currentCurrency, BTC)}
               <Pressable>
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
