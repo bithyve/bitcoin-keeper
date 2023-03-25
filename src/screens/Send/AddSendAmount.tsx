@@ -90,16 +90,22 @@ function AddSendAmount({ route }) {
     const confirmBalance = sender.specs.balances.confirmed;
     const sendMaxBalance = confirmBalance - sendMaxFee;
 
-    if (Number(amount) > SatsToBtc(sendMaxBalance)) {
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      if (satsEnabled) {
+        setAmountToSend(amount)
+      } else {
+        setAmountToSend(BtcToSats(parseFloat(amount)).toString());
+      }
+    } else {
+      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+    }
+
+    if (Number(amountToSend) > sendMaxBalance) {
       setErrorMessage('Amount entered is more than available to spend');
     } else {
       setErrorMessage('');
     }
-    if (currentCurrency === CurrencyKind.BITCOIN) {
-      setAmountToSend(BtcToSats(parseFloat(amount)));
-    } else {
-      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
-    }
+
     if (selectedUTXOs && selectedUTXOs.length) {
       if (
         Number(utxoTotal) > Number(amount) &&
@@ -118,7 +124,11 @@ function AddSendAmount({ route }) {
     if (sendMaxFee && confirmBalance) {
       const sendMaxBalance = confirmBalance - sendMaxFee;
       if (currentCurrency === CurrencyKind.BITCOIN) {
-        setAmount(`${SatsToBtc(sendMaxBalance)}`);
+        if (satsEnabled) {
+          setAmount(sendMaxBalance.toString())
+        } else {
+          setAmount(`${SatsToBtc(sendMaxBalance)}`);
+        }
       } else {
         setAmount(convertSatsToFiat(sendMaxBalance).toString());
       }
