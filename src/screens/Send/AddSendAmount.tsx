@@ -58,6 +58,7 @@ function AddSendAmount({ route }) {
   const recipientCount = 1;
   const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
   const sendPhaseOneState = useAppSelector((state) => state.sendAndReceive.sendPhaseOne);
+  const satsMode = useAppSelector((state) => state.settings.satsEnabled);
 
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -80,16 +81,22 @@ function AddSendAmount({ route }) {
     const confirmBalance = sender.specs.balances.confirmed;
     const sendMaxBalance = confirmBalance - sendMaxFee;
 
-    if (Number(amount) > sendMaxBalance) {
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      if (satsEnabled) {
+        setAmountToSend(amount)
+      } else {
+        setAmountToSend(BtcToSats(parseFloat(amount)).toString());
+      }
+    } else {
+      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+    }
+
+    if (Number(amountToSend) > sendMaxBalance) {
       setError(true);
     } else {
       setError(false);
     }
-    if (currentCurrency === CurrencyKind.BITCOIN) {
-      setAmountToSend(BtcToSats(parseFloat(amount)));
-    } else {
-      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
-    }
+
   }, [amount]);
 
   useEffect(() => {
@@ -97,7 +104,11 @@ function AddSendAmount({ route }) {
     if (sendMaxFee && confirmBalance) {
       const sendMaxBalance = confirmBalance - sendMaxFee;
       if (currentCurrency === CurrencyKind.BITCOIN) {
-        setAmount(`${SatsToBtc(sendMaxBalance)}`);
+        if (satsMode) {
+          setAmount(sendMaxBalance.toString())
+        } else {
+          setAmount(`${SatsToBtc(sendMaxBalance)}`);
+        }
       } else {
         setAmount(convertSatsToFiat(sendMaxBalance).toString());
       }
