@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/core/wallets/interfaces';
@@ -195,11 +195,13 @@ function UTXOList({
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
-        <EmptyStateView
-          IllustartionImage={emptyIcon}
-          title="No transactions yet."
-          subTitle="Pull down to refresh"
-        />
+        <Box style={{ paddingTop: windowHeight > 800 ? hp(75) : hp(100) }}>
+          <EmptyStateView
+            IllustartionImage={emptyIcon}
+            title="No transactions yet."
+            subTitle="Pull down to refresh"
+          />
+        </Box>
       }
     />
   );
@@ -261,7 +263,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     overflow: 'hidden',
     width: '90%',
-    maxHeight: 30,
+    maxHeight: 28,
   },
   utxoLabelView: {
     paddingHorizontal: 5,

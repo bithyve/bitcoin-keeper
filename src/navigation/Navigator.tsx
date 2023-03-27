@@ -74,6 +74,7 @@ import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
+import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -166,6 +167,7 @@ function AppStack() {
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
+        <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
@@ -216,7 +218,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />
