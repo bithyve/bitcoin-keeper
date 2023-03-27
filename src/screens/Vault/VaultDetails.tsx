@@ -73,7 +73,7 @@ function VaultDetails({ route }) {
         paddingBottom={windowHeight > 800 ? 5 : 0}
       >
         <VStack style={{ paddingTop: windowHeight * 0.09 }}>
-          <UTXOsManageNavBox onPress={() => navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })} />
+          <UTXOsManageNavBox onClick={() => navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })} />
           <TransactionsAndUTXOs
             transactions={transactions}
             vault={vault}
