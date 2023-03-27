@@ -15,6 +15,7 @@ function FinalizeFooter({ setEnableSelection, selectedUTXOs, currentWallet }) {
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
+        primaryDisable={!selectedUTXOs.length}
         primaryText="Send"
         secondaryText="Cancel"
         secondaryCallback={() => setEnableSelection(false)}

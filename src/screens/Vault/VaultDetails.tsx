@@ -33,15 +33,7 @@ function Wrapper({ children }) {
     </LinearGradient>
   );
 }
-function Footer({
-  tab,
-  onPressBuy,
-  vault,
-  setEnableSelection,
-  enableSelection,
-  selectedUTXOs
-}) {
-  // eslint-disable-next-line no-nested-ternary
+function Footer({ tab, onPressBuy, vault, setEnableSelection, enableSelection, selectedUTXOs }) {
   return tab === 'Transactions' ? (
     <VaultFooter onPressBuy={onPressBuy} vault={vault} />
   ) : enableSelection ? (
@@ -80,6 +72,7 @@ function VaultDetails({ route }) {
           return utxo;
         })
       ) || [];
+
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
@@ -144,7 +137,14 @@ function VaultDetails({ route }) {
           setSelectionTotal={setSelectionTotal}
           enableSelection={enableSelection}
         />
-        <Footer tab={tab} onPressBuy={() => setShowBuyRampModal(true)} vault={vault} setEnableSelection={() => setEnableSelection(true)} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} />
+        <Footer
+          tab={tab}
+          onPressBuy={() => setShowBuyRampModal(true)}
+          vault={vault}
+          setEnableSelection={setEnableSelection}
+          enableSelection={enableSelection}
+          selectedUTXOs={selectedUTXOs}
+        />
         <VaultModals
           showBuyRampModal={showBuyRampModal}
           setShowBuyRampModal={setShowBuyRampModal}

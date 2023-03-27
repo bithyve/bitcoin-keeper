@@ -11,7 +11,7 @@ function UTXOFooter({ setEnableSelection, enableSelection }) {
     <Box style={styles.footerContainer}>
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
-        <BottomMenuItem onPress={() => { }} icon={<MixIcon />} title="Select for Mix" />
+        <BottomMenuItem onPress={() => {}} icon={<MixIcon />} title="Select for Mix" />
         <BottomMenuItem
           onPress={() => setEnableSelection(!enableSelection)}
           icon={<Send />}

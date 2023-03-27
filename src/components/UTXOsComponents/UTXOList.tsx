@@ -1,9 +1,8 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
@@ -47,7 +46,9 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
                 { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
               ]}
             >
-              <Text style={{ color: Colors.White }}>{item.name}</Text>
+              <Text style={styles.labelText} bold>
+                {item.name.toUpperCase()}
+              </Text>
             </Box>
           ))}
       </Box>
@@ -157,7 +158,7 @@ function UTXOList({
   selectedUTXOMap,
   setSelectedUTXOMap,
   currentWallet,
-  emptyIcon
+  emptyIcon,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -263,12 +264,16 @@ const styles = StyleSheet.create({
     maxHeight: 30,
   },
   utxoLabelView: {
-    padding: 5,
-    paddingVertical: 2,
+    paddingHorizontal: 5,
     borderRadius: 5,
     marginHorizontal: 3,
     marginTop: 5,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  labelText: {
+    color: Colors.White,
+    fontSize: 11,
+    lineHeight: 18,
   },
 });
