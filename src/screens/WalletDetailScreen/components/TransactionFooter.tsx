@@ -52,7 +52,6 @@ export default TransactionFooter;
 
 const styles = StyleSheet.create({
   footerContainer: {
-    position: 'absolute',
     bottom: Platform.OS === 'ios' ? 5 : 0,
     width: wp(375),
     paddingHorizontal: 5,

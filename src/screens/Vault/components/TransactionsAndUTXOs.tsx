@@ -1,4 +1,4 @@
-import { FlatList, RefreshControl } from 'react-native';
+import { FlatList, RefreshControl, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import TransactionElement from 'src/components/TransactionElement';
@@ -7,31 +7,19 @@ import { HStack, VStack } from 'native-base';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { useDispatch } from 'react-redux';
-import UTXOList from 'src/components/UTXOsComponents/UTXOList';
+import Text from 'src/components/KeeperText';
+import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
 function TransactionsAndUTXOs({
-  tab,
   transactions,
   vault,
   autoRefresh,
-  utxoState,
-  selectedUTXOMap,
-  setSelectedUTXOMap,
-  selectionTotal,
-  enableSelection,
-  setSelectionTotal
 }: {
-  tab: string;
   vault: Vault;
   transactions: any[];
   autoRefresh: boolean;
-  utxoState: any
-  selectedUTXOMap: any;
-  setSelectedUTXOMap: any;
-  selectionTotal: any;
-  enableSelection: boolean;
-  setSelectionTotal: any;
 }) {
   const [pullRefresh, setPullRefresh] = useState(false);
   const dispatch = useDispatch();
@@ -63,10 +51,10 @@ function TransactionsAndUTXOs({
     <>
       <VStack>
         <HStack justifyContent="space-between">
-          {/* <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
-          </Text> */}
-          {/* {transactions.length ? (
+          </Text>
+          {transactions.length ? (
             <TouchableOpacity>
               <HStack alignItems="center">
                 <TouchableOpacity
@@ -92,10 +80,11 @@ function TransactionsAndUTXOs({
                 <IconArrowBlack />
               </HStack>
             </TouchableOpacity>
-          ) : null} */}
+          ) : null}
         </HStack>
       </VStack>
-      {tab === 'Transactions' ? (<FlatList
+      <FlatList
+        style={{ height: windowHeight > 800 ? '60%' : '30%' }}
         refreshControl={<RefreshControl onRefresh={syncVault} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
@@ -108,16 +97,7 @@ function TransactionsAndUTXOs({
             subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
           />
         }
-      />) :
-        <UTXOList
-          utxoState={utxoState}
-          enableSelection={enableSelection}
-          setSelectionTotal={setSelectionTotal}
-          selectedUTXOMap={selectedUTXOMap}
-          setSelectedUTXOMap={setSelectedUTXOMap}
-          currentWallet={vault}
-          emptyIcon={NoVaultTransactionIcon}
-        />}
+      />
     </>
   );
 }
