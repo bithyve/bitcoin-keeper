@@ -101,27 +101,5 @@ const getStyles = (top) =>
       justifyContent: 'space-between',
       flex: 1,
     },
-    // manageUTXOsWrapper: {
-    //   flexDirection: 'row',
-    //   width: '100%',
-    //   alignItems: 'center',
-    //   padding: 10,
-    //   borderRadius: 5,
-    //   marginBottom: 15
-    // },
-    // titleViewWrapper: {
-    //   width: '95%'
-    // },
-    // titleText: {
-    //   color: '#725436',
-    //   fontSize: 14
-    // },
-    // subTitleText: {
-    //   color: '#725436',
-    //   fontSize: 12
-    // },
-    // arrowViewWrapper: {
-    //   width: '5%'
-    // }
   });
 export default VaultDetails;
