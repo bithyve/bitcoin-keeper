@@ -3,6 +3,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import NoTransactionIcon from 'src/assets/images/noUtxos.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import LinkedWallet from 'src/assets/images/linked_wallet.svg';
 import { Box, HStack, VStack } from 'native-base';
@@ -92,7 +93,7 @@ function UTXOManagement({ route }) {
                     selectedUTXOMap={selectedUTXOMap}
                     setSelectedUTXOMap={setSelectedUTXOMap}
                     currentWallet={data}
-                    emptyIcon={NoVaultTransactionIcon}
+                    emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
                 />
             </Box>
             <Footer vault={data} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} />
