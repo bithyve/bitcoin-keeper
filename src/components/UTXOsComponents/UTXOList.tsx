@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     overflow: 'hidden',
     width: '90%',
-    maxHeight: 30,
+    maxHeight: 28,
   },
   utxoLabelView: {
     paddingHorizontal: 5,
