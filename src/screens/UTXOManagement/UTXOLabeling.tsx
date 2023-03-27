@@ -52,7 +52,6 @@ function UTXOLabeling() {
   };
 
   const onAdd = () => {
-    console.log('editingIndex', editingIndex)
     if (editingIndex !== -1) {
       existingLabels[editingIndex] = { name: label, type: LabelType.USER };
     } else {
@@ -61,7 +60,7 @@ function UTXOLabeling() {
     }
     setExistingLabels(existingLabels);
     setLabel('');
-    
+
   };
 
   const onSaveChangeClick = () => {
@@ -71,7 +70,6 @@ function UTXOLabeling() {
     dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
     navigation.goBack();
   };
-console.log('existingLabels', existingLabels.length)
   return (
     <ScreenWrapper>
       <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
