@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { HStack, VStack } from 'native-base';
-import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { useDispatch } from 'react-redux';
+import Text from 'src/components/KeeperText';
+import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
 function TransactionsAndUTXOs({
   transactions,
@@ -49,7 +49,7 @@ function TransactionsAndUTXOs({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.09 }}>
+      <VStack>
         <HStack justifyContent="space-between">
           <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
@@ -84,6 +84,7 @@ function TransactionsAndUTXOs({
         </HStack>
       </VStack>
       <FlatList
+        style={{ height: windowHeight > 800 ? '60%' : '30%' }}
         refreshControl={<RefreshControl onRefresh={syncVault} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}

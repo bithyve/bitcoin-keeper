@@ -30,6 +30,8 @@ function FinalizeFooter({
           setEnableSelection(false);
         }}
         primaryCallback={footerCallback}
+        // secondaryCallback={() => setEnableSelection(false)}
+        // primaryCallback={goToSend}
       />
     </Box>
   );

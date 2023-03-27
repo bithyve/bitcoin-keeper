@@ -3,9 +3,8 @@ import { Box, useColorMode } from 'native-base';
 import React, { useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/core/wallets/interfaces';
@@ -47,7 +46,9 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
                 { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
               ]}
             >
-              <Text style={{ color: Colors.White }}>{item.name}</Text>
+              <Text style={styles.labelText} bold>
+                {item.name.toUpperCase()}
+              </Text>
             </Box>
           ))}
       </Box>
@@ -157,6 +158,7 @@ function UTXOList({
   selectedUTXOMap,
   setSelectedUTXOMap,
   currentWallet,
+  emptyIcon,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -193,11 +195,13 @@ function UTXOList({
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
-        <EmptyStateView
-          IllustartionImage={NoTransactionIcon}
-          title="No transactions yet."
-          subTitle="Pull down to refresh"
-        />
+        <Box style={{ paddingTop: windowHeight > 800 ? hp(75) : hp(100) }}>
+          <EmptyStateView
+            IllustartionImage={emptyIcon}
+            title="No transactions yet."
+            subTitle="Pull down to refresh"
+          />
+        </Box>
       }
     />
   );
@@ -259,15 +263,19 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     overflow: 'hidden',
     width: '90%',
-    maxHeight: 30,
+    maxHeight: 28,
   },
   utxoLabelView: {
-    padding: 5,
-    paddingVertical: 2,
+    paddingHorizontal: 5,
     borderRadius: 5,
     marginHorizontal: 3,
     marginTop: 5,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  labelText: {
+    color: Colors.White,
+    fontSize: 11,
+    lineHeight: 18,
   },
 });
