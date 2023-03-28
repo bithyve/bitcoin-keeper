@@ -23,11 +23,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
-        padding: windowHeight > 800 ? 10 : 5,
-        paddingHorizontal: windowHeight > 800 ? 0 : 10,
+        padding: windowHeight > 815 ? 10 : 5,
+        paddingHorizontal: windowHeight > 815 ? 0 : 10,
         borderRadius: 5,
-        marginBottom: windowHeight > 800 ? 15 : 5,
-        marginTop: windowHeight > 800 ? 0 : 10
+        marginBottom: windowHeight > 815 ? 15 : 5,
+        marginTop: windowHeight > 815 ? 0 : 10
     },
     titleViewWrapper: {
         width: '95%'

@@ -71,7 +71,7 @@ function UTXOManagement({ route }) {
         <ScreenWrapper>
             <HeaderTitle learnMore />
             <Box style={styles.dailySpendingWrapper}>
-                <HStack>
+                <HStack style={styles.dailySpendingView}>
                     <Box paddingRight={3}>
                         {routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
                     </Box>
@@ -113,7 +113,10 @@ const getStyles = () =>
         },
         dailySpendingWrapper: {
             marginLeft: wp(20),
-            marginVertical: hp(20)
+            marginVertical: hp(20),
+        },
+        dailySpendingView: {
+            alignItems: 'center'
         }
     });
 export default UTXOManagement
