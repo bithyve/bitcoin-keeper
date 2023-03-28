@@ -30,26 +30,22 @@ export const getWalletsData = (wallets: Wallet[]) => {
   return walletsData;
 };
 const useWallets = ({
-  walletIds,
+  walletId,
   getAll = false,
   whirlpoolStruct = false,
-}: { walletIds?: string[]; getAll?: boolean; whirlpoolStruct?: boolean } = {}) => {
+}: { walletId?: string; getAll?: boolean; whirlpoolStruct?: boolean } = {}) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
-
-  if (walletIds) {
-    console.log({ walletIds });
-    const wallets: Wallet[] =
-      useQuery(RealmSchema.Wallet)
-        .map(getJSONFromRealmObject)
-        .map((wallet) => {
-          if (walletIds.includes(wallet.id)) return wallet;
-        }) || [];
-    return { wallets };
+  const whirlpoolStructerdData = getWalletsData(wallets);
+  if (walletId) {
+    console.log(walletId);
+    const walletsFiltered: Wallet[] = whirlpoolStructerdData.find(
+      (wallet) => wallet.id === walletId
+    );
+    return { wallet: walletsFiltered };
   } else if (getAll) {
     return { wallets };
   } else if (whirlpoolStruct) {
-    const whirlpoolStructerdData = getWalletsData(wallets);
     return { wallets: whirlpoolStructerdData };
   } else {
     const wallets: Wallet[] =

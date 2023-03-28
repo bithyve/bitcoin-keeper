@@ -11,17 +11,20 @@ import PageIndicator from 'src/components/PageIndicator';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
-import WalletOperations from 'src/core/wallets/operations';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
+import {
+  addNewWhirlpoolWallets,
+  addWhirlpoolWalletsLocal,
+  refreshWallets,
+} from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setTx0Complete, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { Psbt } from 'bitcoinjs-lib';
 import UtxoSummary from './UtxoSummary';
+import useWallets from 'src/hooks/useWallets';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -43,10 +46,17 @@ export default function BroadcastPremix({ route, navigation }) {
   );
   const [premixOutputs, setPremixOutputs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
+  const valueByPreferredUnit = (value) => {
+    if (!value) return '';
+    const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
+    return valueInPreferredUnit;
+  };
+  const { wallet: depositWallet } = useWallets({ walletId: wallet.id });
 
   useEffect(() => {
     setLoading(true);
-    dispatch(addWhirlpoolWalletsLocal({ depositWallet: wallet }));
+    dispatch(addWhirlpoolWalletsLocal({ depositWallet }));
     setPremixOutputsAndBadbank();
     setLoading(false);
   }, []);
@@ -65,6 +75,17 @@ export default function BroadcastPremix({ route, navigation }) {
     }
     if (relayWalletUpdate && tx0completed) {
       dispatch(resetRealyWalletState());
+      dispatch(
+        refreshWallets(
+          [
+            depositWallet,
+            depositWallet?.whirlpoolConfig.premixWallet,
+            depositWallet?.whirlpoolConfig.postmixWallet,
+            depositWallet?.whirlpoolConfig.badbankWallet,
+          ],
+          { hardRefresh: true }
+        )
+      );
       setShowBroadcastModal(true);
       setLoading(false);
     }
@@ -75,29 +96,19 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const onBroadcastModalCallback = async () => {
     try {
-      setLoading(true);
-      const network = WalletUtilities.getNetworkByType(wallet.networkType);
-      const { synchedWallets } = await WalletOperations.syncWalletsViaElectrumClient(
-        [wallet],
-        network
-      );
-      const syncedWallet = synchedWallets[0] as Wallet;
-
+      const network = WalletUtilities.getNetworkByType(depositWallet.networkType);
       const premixWallet = whirlpoolWallets.filter((w) => w.type === WalletType.PRE_MIX)[0];
       const badBank = whirlpoolWallets.filter((w) => w.type === WalletType.BAD_BANK)[0];
-
       const premixAddresses = [];
       for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
         premixAddresses.push(
           WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)
         );
       }
-
       const outputProvider = {
         premix: premixAddresses,
         badbank: badBank.specs.receivingAddress,
       };
-
       const correspondingTx0Data = tx0Data?.filter((data) => data.pool_id === selectedPool.id);
 
       const psbt = WhirlpoolClient.getTx0FromPreview(
@@ -105,10 +116,9 @@ export default function BroadcastPremix({ route, navigation }) {
         correspondingTx0Data,
         utxos,
         outputProvider,
-        syncedWallet
+        depositWallet
       ) as Psbt;
-
-      const tx = WhirlpoolClient.signTx0(syncedWallet, utxos, psbt);
+      const tx = WhirlpoolClient.signTx0(depositWallet, utxos, psbt);
       const txid = await WhirlpoolClient.broadcastTx0(tx);
       if (txid) {
         const outputs = psbt.txOutputs;
@@ -131,9 +141,10 @@ export default function BroadcastPremix({ route, navigation }) {
             vout: voutBadBank,
           })
         );
-        dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
-        dispatch(setWalletPoolMap({ walletId: wallet.id, pool: selectedPool?.denomination }));
-        setLoading(false);
+        dispatch(addNewWhirlpoolWallets({ depositWallet }));
+        dispatch(
+          setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool?.denomination })
+        );
       } else {
         // error modals
       }
@@ -143,17 +154,10 @@ export default function BroadcastPremix({ route, navigation }) {
     }
   };
 
-  const valueByPreferredUnit = (value) => {
-    if (!value) return '';
-    const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
-    return valueInPreferredUnit;
-  };
-
-  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
   const navigateToWalletDetails = () => {
     setShowBroadcastModal(false);
     navigation.navigate('UTXOManagement', {
-      data: wallet,
+      data: depositWallet,
       routeName: 'Wallet',
       accountType: WalletType.PRE_MIX,
     });
@@ -225,7 +229,10 @@ export default function BroadcastPremix({ route, navigation }) {
             <Buttons
               primaryText="Broadcast Tx0"
               primaryLoading={loading}
-              primaryCallback={() => onBroadcastModalCallback()}
+              primaryCallback={() => {
+                setLoading(true);
+                onBroadcastModalCallback();
+              }}
             />
           </Box>
         </Box>

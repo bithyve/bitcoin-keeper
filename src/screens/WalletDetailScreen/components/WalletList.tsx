@@ -152,7 +152,6 @@ function WalletItem({
   currencyCode: string;
   currentCurrency: any;
   satsEnabled: boolean;
-  setCurrentWallet: any;
   navigation;
   translations;
 }) {
@@ -201,7 +200,7 @@ function WalletItem({
   );
 }
 
-function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, setCurrentWallet }: any) {
+function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets }: any) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -230,7 +229,6 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, setCurrent
             satsEnabled={satsEnabled}
             navigation={navigation}
             translations={translations}
-            setCurrentWallet={setCurrentWallet}
           />
         )}
         onViewableItemsChanged={onViewRef.current}
