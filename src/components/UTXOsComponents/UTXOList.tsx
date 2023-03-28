@@ -46,7 +46,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
                 { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
               ]}
             >
-              <Text style={styles.labelText} bold>
+              <Text style={styles.labelText} bold testID={`text_${item.name.replace(/ /g, '_')}`}>
                 {item.name.toUpperCase()}
               </Text>
             </Box>
@@ -54,7 +54,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
       </Box>
       {extraLabelCount > 0 && (
         <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-          <Text style={{ color: Colors.White }}>+{extraLabelCount}</Text>
+          <Text style={{ color: Colors.White }} testID="text_extraLabelCount">+{extraLabelCount}</Text>
         </Box>
       )}
     </Box>
