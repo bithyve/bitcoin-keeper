@@ -296,7 +296,6 @@ const styles = StyleSheet.create({
   },
   deleteContainer: {
     paddingHorizontal: 4,
-    marginBottom: 3,
   },
 });
 
