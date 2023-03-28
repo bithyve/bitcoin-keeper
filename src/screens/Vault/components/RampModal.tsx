@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/core/wallets/operations';
@@ -34,66 +34,37 @@ function RampBuyContent({
   };
 
   return (
-    <Box padding={1}>
-      <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
+    <Box style={styles.modalWrapper}>
+      <Text color="#073B36" style={styles.contentParaText}>
         By proceeding, you understand that Ramp will process the payment and transfer for the
         purchased bitcoin
       </Text>
       <Box
-        my={4}
-        alignItems="center"
-        borderRadius={10}
-        p={4}
+        style={styles.vaultDetailsWrapper}
         backgroundColor="#FDF7F0"
-        flexDirection="row"
+
       >
         <VaultIcon />
-        <Box mx={4}>
-          <Text fontSize={12} color="#5F6965">
+        <Box style={styles.vaultTitleWrapper}>
+          <Text style={styles.vaultTitle}>
             Bitcoin will be transferred to
           </Text>
-          <Text fontSize={19} letterSpacing={1.28} color="#041513">
+          <Text style={styles.vaultPresntName}>
             {vault.presentationData.name}
           </Text>
-          <Text
-            fontStyle="italic"
-            fontSize={12}
-            color="#00836A"
-          >{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
+          <Text style={styles.balanceText}>{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
         </Box>
       </Box>
 
-      <Box
-        my={4}
-        alignItems="center"
-        borderRadius={10}
-        px={4}
-        py={6}
-        backgroundColor="#FDF7F0"
-        flexDirection="row"
-      >
-        <Box
-          backgroundColor="#FAC48B"
-          borderRadius={20}
-          height={10}
-          width={10}
-          justifyItems="center"
-          alignItems="center"
-        >
-          <Text fontSize={22}>@</Text>
+      <Box style={styles.addressWrapper}>
+        <Box style={styles.atWrapper}>
+          <Text style={styles.atText}>@</Text>
         </Box>
-        <Box mx={4}>
-          <Text fontSize={12} color="#5F6965">
+        <Box style={styles.addressTitleWrapper}>
+          <Text style={styles.addressTitleText}>
             Address for ramp transactions
           </Text>
-          <Text
-            width={wp(200)}
-            ellipsizeMode="middle"
-            numberOfLines={1}
-            fontSize={19}
-            letterSpacing={1.28}
-            color="#041513"
-          >
+          <Text style={styles.buyAddressText} ellipsizeMode="middle" numberOfLines={1}>
             {buyAddress}
           </Text>
         </Box>
@@ -106,7 +77,7 @@ function RampBuyContent({
         primaryText="Buy Bitcoin"
         primaryCallback={() => buyWithRamp(buyAddress)}
       />
-    </Box>
+    </Box >
   );
 }
 
@@ -129,5 +100,73 @@ function RampModal({ vault, showBuyRampModal, setShowBuyRampModal }: any) {
     />
   );
 }
+
+const styles = StyleSheet.create({
+  modalWrapper: {
+    padding: 1,
+  },
+  contentParaText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    marginVertical: 1
+  },
+  vaultDetailsWrapper: {
+    marginVertical: 5,
+    alignItems: "center",
+    borderRadius: 10,
+    padding: 5,
+    flexDirection: "row"
+  },
+  vaultTitleWrapper: {
+    marginHorizontal: 10
+  },
+  vaultTitle: {
+    fontSize: 12,
+    color: "#5F6965"
+  },
+  vaultPresntName: {
+    fontSize: 19,
+    letterSpacing: 1.28,
+    color: "#041513"
+  },
+  balanceText: {
+    fontStyle: "italic",
+    fontSize: 12,
+    color: "#00836A"
+  },
+  addressWrapper: {
+    marginVertical: 4,
+    alignItems: "center",
+    borderRadius: 10,
+    paddingHorizontal: 4,
+    paddingVertical: 6,
+    backgroundColor: "#FDF7F0",
+    flexDirection: "row"
+  },
+  atWrapper: {
+    backgroundColor: "#FAC48B",
+    borderRadius: 45,
+    height: 45,
+    width: 45,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  atText: {
+    fontSize: 22,
+  },
+  addressTitleWrapper: {
+    marginHorizontal: 10
+  },
+  addressTitleText: {
+    fontSize: 12,
+    color: "#5F6965"
+  },
+  buyAddressText: {
+    width: wp(200),
+    fontSize: 19,
+    letterSpacing: 1.28,
+    color: "#041513"
+  }
+})
 
 export default RampModal;
