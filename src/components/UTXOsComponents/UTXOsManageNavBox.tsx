@@ -4,7 +4,6 @@ import { Box, Pressable } from 'native-base';
 import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import Text from '../KeeperText';
-import { background } from 'native-base/lib/typescript/theme/styled-system';
 
 function UTXOsManageNavBox({ onClick }: any) {
   return (

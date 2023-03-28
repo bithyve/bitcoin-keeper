@@ -5,7 +5,7 @@ import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import NoTransactionIcon from 'src/assets/images/noUtxos.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import LinkedWallet from 'src/assets/images/linked_wallet.svg';
+import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import { Box, HStack, VStack } from 'native-base';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
@@ -71,26 +71,21 @@ function UTXOManagement({ route }) {
     <ScreenWrapper>
       <HeaderTitle learnMore />
       <Box style={styles.dailySpendingWrapper}>
-        {/* <HStack>
-                    <Box paddingRight={3}>
-                        {routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
-                    </Box>
-                    <VStack>
-                        <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]} >
-                            Daily Spending
-                        </Text>
-                        <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
-                            Lorem ipsum dolor sit amet
-                        </Text>
-                    </VStack>
-                </HStack> */}
+        <HStack style={styles.dailySpendingView}>
+          <Box paddingRight={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
+          <VStack>
+            <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
+              Daily Spending
+            </Text>
+            <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
+              Lorem ipsum dolor sit amet
+            </Text>
+          </VStack>
+        </HStack>
         {/* this is account switch tab */}
-        <AccountSelectionTab
-          selectedAccount={selectedAccount}
-          setSelectedAccount={setSelectedAccount}
-        />
+        {/* <AccountSelectionTab selectedAccount={selectedAccount} setSelectedAccount={setSelectedAccount} /> */}
       </Box>
-      <Box style={{ height: '66%' }}>
+      <Box style={{ height: '65%' }}>
         {Object.values(selectedUTXOMap).length ? (
           <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
         ) : null}
@@ -120,7 +115,11 @@ const getStyles = () =>
       letterSpacing: 1.28,
     },
     dailySpendingWrapper: {
-      marginVertical: hp(10),
+      marginLeft: wp(20),
+      marginVertical: hp(20),
+    },
+    dailySpendingView: {
+      alignItems: 'center',
     },
   });
 export default UTXOManagement;

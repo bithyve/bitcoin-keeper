@@ -125,7 +125,7 @@ function UTXOLabeling() {
                 style={[
                   styles.labelView,
                   {
-                    backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486',
+                    backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : ((editingIndex !== index) ? '#E0B486' : '#A88763'),
                   },
                 ]}
               >
@@ -157,7 +157,7 @@ function UTXOLabeling() {
                 style={styles.inputLabel}
                 borderWidth={0}
                 height={hp(40)}
-                placeholder="Add Label"
+                placeholder="Type to add label or Select to edit"
                 color="#E0B486"
                 value={label}
                 autoCorrect={false}
@@ -296,7 +296,6 @@ const styles = StyleSheet.create({
   },
   deleteContainer: {
     paddingHorizontal: 4,
-    marginBottom: 3,
   },
 });
 
