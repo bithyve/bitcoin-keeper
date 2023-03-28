@@ -19,8 +19,6 @@ import WhirlpoolClient, { TOR_CONFIG } from 'src/core/services/whirlpool/client'
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import { Network } from 'src/core/services/whirlpool/interface';
-import { addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => {
   return (
@@ -56,7 +54,6 @@ export default function PoolSelection({ route, navigation }) {
   const [whirlpoolApi, setWhirlpoolApi] = useState(null);
   const [tx0Data, setTx0Data] = useState(null);
   const [tx0Preview, setTx0Preview] = useState(null);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     initWhirlpoolClient();
@@ -103,7 +100,6 @@ export default function PoolSelection({ route, navigation }) {
   };
 
   const onPreviewMix = () => {
-    dispatch(addWhirlpoolWalletsLocal({ depositWallet: wallet }));
     navigation.navigate('BroadcastPremix', {
       utxos,
       utxoCount,

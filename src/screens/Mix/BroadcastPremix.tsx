@@ -15,7 +15,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setTx0Complete, setWalletDetailsUI, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -45,6 +45,8 @@ export default function BroadcastPremix({ route, navigation }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+    dispatch(addWhirlpoolWalletsLocal({ depositWallet: wallet }));
     setPremixOutputsAndBadbank();
     setLoading(false);
   }, []);
