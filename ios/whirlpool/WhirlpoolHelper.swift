@@ -12,15 +12,22 @@ import Foundation
       super.init()
     }
   
-  @objc func helloWorld(name: String, callback: @escaping ((String) -> Void)) {
+  @objc func hello(name: String, callback: @escaping ((String) -> Void)) {
     let result = hello_world(name)
     let str =  String(cString: result!)
     callback(str)
   }
   
-  @objc func initiateClient(torPort: String, callback: @escaping ((String)-> Void)){
-    let result = initiate(torPort)
+  @objc func initiateClient(callback: @escaping ((String)-> Void)){
+    let result = initiate()
+    let str =  String(cString: result!)
+    callback(str)
+  }
+
+  @objc func getPools(callback: @escaping ((String)-> Void)){
+    let result = pools()
     let str =  String(cString: result!)
     callback(str)
   }
 }
+

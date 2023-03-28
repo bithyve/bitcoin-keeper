@@ -15,8 +15,6 @@
 		18788ED8284652050002EFFD /* (null) in Resources */ = {isa = PBXBuildFile; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
 		18BD1AA02834FA4100DB19E0 /* (null) in Resources */ = {isa = PBXBuildFile; };
-		1F04EB0D29BFB10100326473 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F04EB0C29BFB10100326473 /* File.swift */; };
-		1F04EB0E29BFB10100326473 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F04EB0C29BFB10100326473 /* File.swift */; };
 		1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
 		1F9F460F29BF980E006C129F /* libwhirlpool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9F460E29BF980E006C129F /* libwhirlpool.a */; };
 		1F9F461029BF980E006C129F /* libwhirlpool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9F460E29BF980E006C129F /* libwhirlpool.a */; };
@@ -71,7 +69,6 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = hexa_keeper/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = hexa_keeper/main.m; sourceTree = "<group>"; };
 		18B4D55E2847898D004AB91F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		1F04EB0C29BFB10100326473 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		1F04EB0F29BFB13600326473 /* hexa_keeper-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "hexa_keeper-Bridging-Header.h"; sourceTree = "<group>"; };
 		1F9F460E29BF980E006C129F /* libwhirlpool.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwhirlpool.a; sourceTree = "<group>"; };
 		1F9F461129BF981C006C129F /* whirlpoollib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whirlpoollib.h; sourceTree = "<group>"; };
@@ -205,7 +202,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				1F04EB0C29BFB10100326473 /* File.swift */,
 				1F9F461229BF9D5D006C129F /* whirlpool */,
 				13B07FAE1A68108700A75B9A /* hexa_keeper */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -662,7 +658,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F04EB0D29BFB10100326473 /* File.swift in Sources */,
 				1F9F461B29BF9E9C006C129F /* WhirlpoolHelper.swift in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
@@ -674,7 +669,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1F04EB0E29BFB10100326473 /* File.swift in Sources */,
 				1F9F461C29BF9E9C006C129F /* WhirlpoolHelper.swift in Sources */,
 				F49B77E32848DF5200F9AFBD /* AppDelegate.mm in Sources */,
 				F49B77E42848DF5200F9AFBD /* main.m in Sources */,
@@ -1253,6 +1247,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.hexawallet.hexakeeper.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "hexa_keeper-Swift.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1383,6 +1379,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = io.hexawallet.hexakeeper.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "whirlpool/hexa_keeper-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "hexa_keeper-Swift.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};

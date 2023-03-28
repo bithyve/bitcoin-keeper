@@ -15,11 +15,11 @@
 
 RCT_EXPORT_MODULE();
 
-RCT_EXPORT_METHOD(sayHello:(NSString*) name
+RCT_EXPORT_METHOD(hello:(NSString*) name
                   get:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper helloWorldWithName:name callback:^(NSString * _Nonnull response) {
+  [helper helloWithName:name callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
@@ -28,7 +28,16 @@ RCT_EXPORT_METHOD(initiate:(NSString*) torPort
                   get:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper initiateClientWithTorPort:torPort callback:^(NSString * _Nonnull response) {
+  [helper initiateClientWithCallback:^(NSString * _Nonnull response) {
+    resolve(response);
+  }];
+}
+
+RCT_EXPORT_METHOD(getPools:(NSString*) random
+                  get:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject){
+  WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
+  [helper getPoolsWithCallback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
