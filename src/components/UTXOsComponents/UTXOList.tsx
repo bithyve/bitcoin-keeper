@@ -104,6 +104,7 @@ function UTXOElement({
           );
         }
       }}
+      testID="btn_selectUtxos"
     >
       <Box style={styles.utxoInnerView}>
         {allowSelection ? (
@@ -124,6 +125,7 @@ function UTXOElement({
                 color={`${colorMode}.GreyText`}
                 style={styles.transactionIdText}
                 numberOfLines={1}
+                testID={`text_${item.txId}`}
               >
                 {item.txId}
               </Text>
@@ -133,7 +135,7 @@ function UTXOElement({
         </Box>
         <Box style={[styles.amountWrapper, { width: '45%' }]}>
           {item.confirmed ? null : (
-            <Box paddingX={3}>
+            <Box paddingX={3} testID="view_unconfirmIcon">
               <UnconfirmedIcon />
             </Box>
           )}
