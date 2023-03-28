@@ -1,6 +1,7 @@
 import { VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import LinearGradient from 'src/components/KeeperGradient';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -8,6 +9,7 @@ import { VaultMigrationType } from 'src/core/wallets/enums';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
+import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';
 import VaultInfo from './components/VaultInfo';
 import VaultFooter from './components/VaultFooter';
 import VaultHeader from './components/VaultHeader';
@@ -29,13 +31,19 @@ function Wrapper({ children }) {
     </LinearGradient>
   );
 }
+function Footer({ onPressBuy, vault }) {
+  return <VaultFooter onPressBuy={onPressBuy} vault={vault} />
+}
 
 function VaultDetails({ route }) {
+  const navigation = useNavigation();
   const { autoRefresh } = route.params || {};
   const vault: Vault = useVault().activeVault;
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+
   const transactions = vault?.specs?.transactions || [];
+
   const hasPlanChanged = (): VaultMigrationType => {
     const currentScheme = vault.scheme;
     if (currentScheme.m > subscriptionScheme.m) {
@@ -46,6 +54,7 @@ function VaultDetails({ route }) {
     }
     return VaultMigrationType.CHANGE;
   };
+
   return (
     <Wrapper>
       <VStack zIndex={1}>
@@ -63,8 +72,18 @@ function VaultDetails({ route }) {
         justifyContent="space-between"
         paddingBottom={windowHeight > 800 ? 5 : 0}
       >
-        <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} />
-        <VaultFooter onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
+        <VStack style={{ paddingTop: windowHeight * 0.09 }}>
+          <UTXOsManageNavBox onClick={() => navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })} />
+          <TransactionsAndUTXOs
+            transactions={transactions}
+            vault={vault}
+            autoRefresh={autoRefresh}
+          />
+          <Footer
+            onPressBuy={() => setShowBuyRampModal(true)}
+            vault={vault}
+          />
+        </VStack>
         <VaultModals
           showBuyRampModal={showBuyRampModal}
           setShowBuyRampModal={setShowBuyRampModal}
