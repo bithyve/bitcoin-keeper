@@ -14,6 +14,8 @@ import {
   updateWalletSettingsWatcher,
   updateSignerDetails,
   updateWalletsPropertyWatcher,
+  addWhirlpoolWalletsWatcher,
+  addWhirlpoolWalletsLocalWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -71,6 +73,8 @@ const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
+    addWhirlpoolWalletsWatcher,
+    addWhirlpoolWalletsLocalWatcher,
     autoWalletsSyncWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,

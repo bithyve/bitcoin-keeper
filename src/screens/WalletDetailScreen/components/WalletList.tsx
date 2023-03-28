@@ -1,18 +1,14 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
-import React, { useContext } from 'react';
+import { Box, Pressable, View } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import { Shadow } from 'react-native-shadow-2';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
-
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Text from 'src/components/KeeperText';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -20,6 +16,123 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import GradientIcon from './GradientIcon';
+import KeeperModal from 'src/components/KeeperModal';
+
+const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
+  return (
+    <TouchableOpacity
+      style={styles.addWalletContainer}
+      onPress={() =>
+        navigation.navigate('EnterWalletDetail', {
+          name: `Wallet ${walletIndex + 1}`,
+          description: 'Single-sig Wallet',
+          type: WalletType.DEFAULT,
+        })
+      }
+    >
+      <GradientIcon
+        Icon={AddSCardIcon}
+        height={40}
+        gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+      />
+
+      <Text color="light.white" style={styles.addWalletText}>
+        {wallet.AddNewWallet}
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
+const WalletTile = ({
+  isActive,
+  wallet,
+  currentCurrency,
+  currencyCode,
+  exchangeRates,
+  satsEnabled,
+  balances,
+}) => {
+  return (
+    <Box>
+      <Box style={styles.walletCard}>
+        <Box style={styles.walletInnerView}>
+          <GradientIcon
+            Icon={WalletInsideGreen}
+            height={35}
+            gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+          />
+          <Box
+            style={{
+              marginLeft: 10,
+            }}
+          >
+            <Text color="light.white" style={styles.walletName}>
+              {wallet?.presentationData?.name}
+            </Text>
+            <Text
+              color="light.white"
+              style={styles.walletDescription}
+              ellipsizeMode="tail"
+              numberOfLines={1}
+            >
+              {wallet?.presentationData?.name}
+            </Text>
+          </Box>
+        </Box>
+        <Box>
+          <Text color="light.white" style={styles.unconfirmedText}>
+            Unconfirmed
+          </Text>
+          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Box
+              style={{
+                marginRight: 3,
+              }}
+            >
+              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+            </Box>
+            <Text color="light.white" style={styles.unconfirmedBalance}>
+              {getAmt(
+                balances?.unconfirmed,
+                exchangeRates,
+                currencyCode,
+                currentCurrency,
+                satsEnabled
+              )}
+            </Text>
+          </Box>
+        </Box>
+      </Box>
+
+      <Box style={styles.walletBalance}>
+        <Text color="light.white" style={styles.walletName}>
+          Available Balance
+        </Text>
+        <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Box
+            style={{
+              marginRight: 3,
+            }}
+          >
+            {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+          </Box>
+          <Text color="light.white" style={styles.availableBalance}>
+            {getAmt(
+              balances?.confirmed + balances?.unconfirmed,
+              exchangeRates,
+              currencyCode,
+              currentCurrency,
+              satsEnabled
+            )}
+            <Text color="light.textColor" style={styles.balanceUnit}>
+              {getUnit(currentCurrency, satsEnabled)}
+            </Text>
+          </Text>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
 
 function WalletItem({
   item,
@@ -39,19 +152,16 @@ function WalletItem({
   currencyCode: string;
   currentCurrency: any;
   satsEnabled: boolean;
+  setCurrentWallet: any;
   navigation;
   translations;
 }) {
   if (!item) {
     return null;
   }
-  const { wallet } = translations;
-  const walletName = item?.presentationData?.name;
-  const walletDescription = item?.presentationData?.description;
-  const balances = item?.specs?.balances;
-  const walletBalance = balances?.confirmed + balances?.unconfirmed;
-  const isActive = index === walletIndex;
 
+  const isActive = index === walletIndex;
+  const { wallet } = translations;
   return (
     <Shadow
       distance={9}
@@ -62,119 +172,43 @@ function WalletItem({
         marginRight: 15,
       }}
     >
-      <Box
-        variant={isActive ? 'linearGradient' : 'InactiveGradient'}
-        style={styles.walletContainer}
-      >
-        {!(item?.presentationData && item?.specs) ? (
-          <TouchableOpacity
-            style={styles.addWalletContainer}
-            onPress={() =>
-              navigation.navigate('EnterWalletDetail', {
-                name: `Wallet ${walletIndex + 1}`,
-                description: 'Single-sig Wallet',
-                type: WalletType.DEFAULT,
-              })
-            }
-          >
-            <GradientIcon
-              Icon={AddSCardIcon}
-              height={40}
-              gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+      <View>
+        <Box
+          variant={isActive ? 'linearGradient' : 'InactiveGradient'}
+          style={styles.walletContainer}
+        >
+          {!(item?.presentationData && item?.specs) ? (
+            <AddNewWalletTile
+              walletIndex={walletIndex}
+              isActive={isActive}
+              wallet={wallet}
+              navigation={navigation}
             />
-
-            <Text color="light.white" style={styles.addWalletText}>
-              {wallet.AddNewWallet}
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <Box>
-            <Box style={styles.walletCard}>
-              <Box style={styles.walletInnerView}>
-                <GradientIcon
-                  Icon={WalletInsideGreen}
-                  height={35}
-                  gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-                />
-                <Box
-                  style={{
-                    marginLeft: 10,
-                  }}
-                >
-                  <Text color="light.white" style={styles.walletName}>
-                    {walletName}
-                  </Text>
-                  <Text
-                    color="light.white"
-                    style={styles.walletDescription}
-                    ellipsizeMode="tail"
-                    numberOfLines={1}
-                  >
-                    {walletDescription}
-                  </Text>
-                </Box>
-              </Box>
-              <Box>
-                <Text color="light.white" style={styles.unconfirmedText}>
-                  Unconfirmed
-                </Text>
-                <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Box
-                    style={{
-                      marginRight: 3,
-                    }}
-                  >
-                    {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
-                  </Box>
-                  <Text color="light.white" style={styles.unconfirmedBalance}>
-                    {getAmt(
-                      balances?.unconfirmed,
-                      exchangeRates,
-                      currencyCode,
-                      currentCurrency,
-                      satsEnabled
-                    )}
-                  </Text>
-                </Box>
-              </Box>
-            </Box>
-
-            <Box style={styles.walletBalance}>
-              <Text color="light.white" style={styles.walletName}>
-                Available Balance
-              </Text>
-              <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Box
-                  style={{
-                    marginRight: 3,
-                  }}
-                >
-                  {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
-                </Box>
-                <Text color="light.white" style={styles.availableBalance}>
-                  {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-                  <Text color="light.textColor" style={styles.balanceUnit}>
-                    {getUnit(currentCurrency, satsEnabled)}
-                  </Text>
-                </Text>
-              </Box>
-            </Box>
-          </Box>
-        )}
-      </Box>
+          ) : (
+            <WalletTile
+              isActive={isActive}
+              wallet={item}
+              currentCurrency={currentCurrency}
+              currencyCode={currencyCode}
+              exchangeRates={exchangeRates}
+              satsEnabled={satsEnabled}
+              balances={item?.specs?.balances}
+            />
+          )}
+        </Box>
+      </View>
     </Shadow>
   );
 }
 
-function WalletList({ walletIndex, onViewRef, viewConfigRef }: any) {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, setCurrentWallet }: any) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
+
   return (
     <Box style={styles.walletsContainer}>
       <FlatList
@@ -196,6 +230,7 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef }: any) {
             satsEnabled={satsEnabled}
             navigation={navigation}
             translations={translations}
+            setCurrentWallet={setCurrentWallet}
           />
         )}
         onViewableItemsChanged={onViewRef.current}

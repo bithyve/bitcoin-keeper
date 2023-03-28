@@ -3,23 +3,33 @@ import React from 'react';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { Box } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-function FinalizeFooter({ setEnableSelection, selectedUTXOs, currentWallet }) {
-  const navigation = useNavigation();
+function FinalizeFooter({
+  setEnableSelection,
+  footerCallback,
+  initiateWhirlpool,
+  setInitiateWhirlpool,
+  secondaryText,
+  initateWhirlpoolMix,
+  setInitateWhirlpoolMix,
+}) {
   const { bottom } = useSafeAreaInsets();
-
-  const goToSend = () =>
-    navigation.dispatch(CommonActions.navigate('Send', { sender: currentWallet, selectedUTXOs }));
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
-        primaryDisable={!selectedUTXOs.length}
-        primaryText="Send"
-        secondaryText="Cancel"
-        secondaryCallback={() => setEnableSelection(false)}
-        primaryCallback={goToSend}
+        primaryText={initiateWhirlpool ? 'Mix' : initateWhirlpoolMix ? 'Start Mix' : 'Send'}
+        secondaryText={secondaryText}
+        secondaryCallback={() => {
+          if (initiateWhirlpool) {
+            setInitiateWhirlpool(false);
+          }
+          if (initateWhirlpoolMix) {
+            setInitateWhirlpoolMix(false);
+          }
+          setEnableSelection(false);
+        }}
+        primaryCallback={footerCallback}
       />
     </Box>
   );

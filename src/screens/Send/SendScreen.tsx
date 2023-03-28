@@ -24,14 +24,11 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { PaymentInfoKind } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -43,13 +40,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/core/wallets/operations';
+import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
   const { sender, selectedUTXOs } = route.params as {
     sender: Wallet | Vault;
@@ -62,7 +59,7 @@ function SendScreen({ route }) {
   const [paymentInfo, setPaymentInfo] = useState('');
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
-  const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { wallets: allWallets } = useWallets();
   const otherWallets: Wallet[] = allWallets.filter(
     (existingWallet) => existingWallet.id !== sender.id
   );

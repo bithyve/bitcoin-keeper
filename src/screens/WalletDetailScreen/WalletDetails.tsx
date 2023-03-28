@@ -1,20 +1,20 @@
-import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { Alert, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Text from 'src/components/KeeperText';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
+import useWallets from 'src/hooks/useWallets';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { useNavigation } from '@react-navigation/native';
+import { WalletType } from 'src/core/wallets/enums';
+
 import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
@@ -22,6 +22,16 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
+
+export const allowedSendTypes = [
+  WalletType.DEFAULT,
+  WalletType.IMPORTED,
+  WalletType.POST_MIX,
+  WalletType.BAD_BANK,
+];
+export const allowedRecieveTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
+
+export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, currentWallet }) {
@@ -44,20 +54,48 @@ function Footer({ currentWallet, onPressBuyBitcoin }) {
 function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const { autoRefresh } = route?.params || {};
+  const { wallets } = useWallets({ whirlpoolStruct: true });
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
+
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
-  const [pullRefresh, setPullRefresh] = useState(false);
-  const currentWallet = wallets[walletIndex];
-  const transactions = currentWallet?.specs?.transactions || [];
+  const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
 
-  const { autoRefresh } = route?.params || {};
+  const [pullRefresh, setPullRefresh] = useState(false);
+
+  // useEffect(() => {
+  //   setActiveTab(selectedTab || 'Transactions');
+  //   if (walletIndex !== wallets.length) {
+  //     const defaultWallet: Wallet = wallets[walletIndex];
+  //     const accountType = walletDetailsUI[defaultWallet.id];
+  //     if (accountType && accountType !== WalletType.DEFAULT) {
+  //       if (defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]) {
+  //         setDepositWallet(defaultWallet);
+  //         setCurrentWallet(defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
+  //         dispatch(
+  //           refreshWallets(
+  //             [
+  //               defaultWallet,
+  //               defaultWallet?.whirlpoolConfig.premixWallet,
+  //               defaultWallet?.whirlpoolConfig.postmixWallet,
+  //               defaultWallet?.whirlpoolConfig.badbankWallet,
+  //             ],
+  //             { hardRefresh: true }
+  //           )
+  //         );
+  //       }
+  //     } else {
+  //       setCurrentWallet(defaultWallet);
+  //     }
+  //   }
+  // }, [walletIndex, walletDetailsUI]);
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
   }, [autoRefresh]);
+
+  const flatListRef = useRef(null);
 
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
@@ -65,7 +103,9 @@ function WalletDetails({ route }) {
       setWalletIndex(index?.index);
     }
   });
+
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 20 });
+
   const pullDownRefresh = () => {
     setPullRefresh(true);
     dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
@@ -76,17 +116,28 @@ function WalletDetails({ route }) {
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
-      <WalletInfo />
-      <WalletList walletIndex={walletIndex} onViewRef={onViewRef} viewConfigRef={viewConfigRef} />
+      <WalletInfo wallets={wallets} />
+      <WalletList
+        flatListRef={flatListRef}
+        walletIndex={walletIndex}
+        onViewRef={onViewRef}
+        viewConfigRef={viewConfigRef}
+        wallets={wallets}
+        setCurrentWallet={setCurrentWallet}
+      />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
           <UTXOsManageNavBox
             onClick={() =>
-              navigation.navigate('UTXOManagement', { data: currentWallet, routeName: 'Wallet' })
+              navigation.navigate('UTXOManagement', {
+                data: currentWallet,
+                routeName: 'Wallet',
+                accountType: WalletType.DEFAULT,
+              })
             }
           />
           <TransactionsAndUTXOs
-            transactions={transactions}
+            transactions={currentWallet?.specs.transactions}
             setPullRefresh={setPullRefresh}
             pullRefresh={pullRefresh}
             currentWallet={currentWallet}

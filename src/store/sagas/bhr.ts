@@ -51,16 +51,18 @@ import semver from 'semver';
 import { applyRestoreSequence } from './restoreUpgrade';
 
 export function* updateAppImageWorker({ payload }) {
-  const { wallet } = payload;
+  const { wallets } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
-  if (wallet) {
-    const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-    walletObject[wallet.id] = encrytedWallet;
+  if (wallets) {
+    for (const wallet of wallets) {
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+      walletObject[wallet.id] = encrytedWallet;
+    }
   } else {
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {

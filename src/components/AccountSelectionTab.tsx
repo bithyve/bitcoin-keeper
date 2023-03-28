@@ -10,39 +10,32 @@ import PreMix from 'src/assets/images/icon_premix.svg';
 import PostMix from 'src/assets/images/icon_postmix.svg';
 import Deposit from 'src/assets/images/icon_deposit.svg';
 import BadBank from 'src/assets/images/icon_badbank.svg';
-
-export const enum AccountTypes {
-  DEPOSIT = 'DEPOSIT',
-  PREMIX = 'PREMIX',
-  POSTMIX = 'POSTMIX',
-  BADBANK = 'BADBANK',
-}
+import { WalletType } from 'src/core/wallets/enums';
 
 const AccountTabs = [
   {
     title: 'Deposit Account',
     Icon: Deposit,
-    type: AccountTypes.DEPOSIT,
+    type: WalletType.DEFAULT,
   },
   {
     title: 'Premix Account',
     Icon: PreMix,
-    type: AccountTypes.PREMIX,
+    type: WalletType.PRE_MIX,
   },
   {
     title: 'Postmix Account',
     Icon: PostMix,
-    type: AccountTypes.POSTMIX,
+    type: WalletType.POST_MIX,
   },
   {
     title: 'BadBank Account',
     Icon: BadBank,
-    type: AccountTypes.BADBANK,
-    isLast: true,
+    type: WalletType.BAD_BANK,
   },
 ];
 
-const SingleAccount = ({ title, Icon, gradient, bold = false, onPress, isLast }) => {
+const SingleAccount = ({ title, Icon, gradient, bold = false, onPress, index }) => {
   return (
     <Box style={{ flexDirection: 'row' }}>
       <Pressable style={{ alignItems: 'center' }} onPress={onPress}>
@@ -51,7 +44,7 @@ const SingleAccount = ({ title, Icon, gradient, bold = false, onPress, isLast })
           {title}
         </Text>
       </Pressable>
-      {isLast ? null : <Divider />}
+      {index === AccountTabs.length - 1 ? null : <Divider />}
     </Box>
   );
 };
@@ -64,11 +57,10 @@ export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => 
   return (
     <HStack>
       <Box style={styles.container}>
-        {AccountTabs.map((account) => {
+        {AccountTabs.map((account, index) => {
           return (
             <Box>
               <SingleAccount
-                isLast={account.isLast}
                 title={account.title}
                 Icon={account.Icon}
                 bold={account.type === selectedAccount}
@@ -78,6 +70,7 @@ export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => 
                     : ['#BFBFBF', '#BFBFBF']
                 }
                 onPress={() => setSelectedAccount(account.type)}
+                index={index}
               />
             </Box>
           );

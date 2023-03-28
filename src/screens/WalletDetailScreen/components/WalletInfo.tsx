@@ -6,21 +6,15 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import { hp } from 'src/common/data/responsiveness/responsive';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import BTC from 'src/assets/images/btc_wallet.svg';
 import Text from 'src/components/KeeperText';
 
-function WalletInfo() {
+function WalletInfo({ wallets }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
-  const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
 
   return (
     <Box style={styles.headerContainer}>
