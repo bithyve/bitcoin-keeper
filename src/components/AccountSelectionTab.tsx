@@ -55,7 +55,6 @@ export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => 
     <HStack>
       <Box style={styles.container}>
         {AccountTabs.map((account) => {
-          console.log({ selectedAccount });
           return (
             <Box style={{ flexDirection: 'row' }}>
               <SingleAccount
