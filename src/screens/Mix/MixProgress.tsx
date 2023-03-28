@@ -7,46 +7,47 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import SettingUp from 'src/assets/images/settingup.svg'; // Actual assert was missing in XD link  
+import Colors from 'src/theme/Colors';
+import WhirlpoolLoader from 'src/assets/images/whirlpool_loader.svg'; // Actual assert was missing in XD link
+import GradientIcon from '../WalletDetailScreen/components/GradientIcon';
 
 export const enum MixStatus {
   COMPLETED = 'COMPLETED',
   INPROGRESS = 'INPROGRESS',
   NOTSTARTED = 'NOTSTARTED',
-  CANCELED = 'CANCELED'
+  CANCELED = 'CANCELED',
 }
 
 const DATA = [
   {
     id: '1',
     title: 'Connecting to Whirlpool',
-    status: MixStatus.COMPLETED
+    status: MixStatus.COMPLETED,
   },
   {
     id: '2',
     title: 'Waiting for a mix',
-    status: MixStatus.COMPLETED
+    status: MixStatus.COMPLETED,
   },
   {
     id: '3',
     title: 'Trying to join a mix',
-    status: MixStatus.COMPLETED
+    status: MixStatus.COMPLETED,
   },
   {
     id: '4',
     title: 'Registering output',
-    status: MixStatus.INPROGRESS
+    status: MixStatus.INPROGRESS,
   },
   {
     id: '5',
     title: 'Signing',
-    status: MixStatus.NOTSTARTED
+    status: MixStatus.NOTSTARTED,
   },
   {
     id: '6',
     title: 'Signed',
-    status: MixStatus.NOTSTARTED
+    status: MixStatus.NOTSTARTED,
   },
   {
     id: '7',
@@ -59,36 +60,59 @@ const DATA = [
 const getBackgroungColor = (status: MixStatus) => {
   switch (status) {
     case MixStatus.NOTSTARTED:
-      return 'light.dustySageGreen'
+      return 'light.dustySageGreen';
     case MixStatus.COMPLETED:
-      return 'light.forestGreen'
+      return 'light.forestGreen';
     case MixStatus.INPROGRESS:
-      return null
+      return null;
     default:
-      return null
+      return null;
   }
-}
+};
 
 const TimeLine = ({ title, isLast, status }) => {
   return (
-    <Box style={styles.contentWrapper}>
-      <Box style={styles.timeLineWrapper}>
-        <Box style={styles.circularborder}>
-          {status === MixStatus.INPROGRESS ?
-            <SettingUp /> :
-            <Box backgroundColor={getBackgroungColor(status)} style={styles.greentDot} />
-          }
-        </Box>
-        {isLast ? null : (
-          <Box style={styles.verticalBorderWrapper}>
-            <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
-            <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
-            <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+    <>
+      {status === MixStatus.INPROGRESS ? (
+        <Box style={styles.whirlpoolLoaderMainWrapper}>
+          <Box style={styles.dottedBorderContainer}>
+            <Box style={styles.whirlpoolLoaderSolidBorder}>
+              <GradientIcon
+                height={hp(30)}
+                gradient={['#00836A', '#073E39']}
+                Icon={WhirlpoolLoader}
+              />
+            </Box>
+            <Box style={styles.verticalBorderWrapper}>
+              <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+              <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+              <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+            </Box>
           </Box>
-        )}
-      </Box>
-      <Text color='light.secondaryText' style={styles.timeLineTitle}>{title}</Text>
-    </Box>
+          <Text color="light.secondaryText" style={[styles.timeLineTitle, styles.settingUpTitle]}>
+            {title}
+          </Text>
+        </Box>
+      ) : (
+        <Box style={styles.contentWrapper}>
+          <Box style={styles.timeLineWrapper}>
+            <Box style={styles.circularborder}>
+              <Box backgroundColor={getBackgroungColor(status)} style={styles.greentDot} />
+            </Box>
+            {isLast ? null : (
+              <Box style={styles.verticalBorderWrapper}>
+                <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+                <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+                <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+              </Box>
+            )}
+          </Box>
+          <Text color="light.secondaryText" style={styles.timeLineTitle}>
+            {title}
+          </Text>
+        </Box>
+      )}
+    </>
   );
 };
 
@@ -128,24 +152,38 @@ const MixProgress = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 5
   },
   timeLineContainer: {
-    paddingHorizontal: wp(5),
+    paddingHorizontal: wp(10),
   },
   flatList: {
-    marginTop: hp(55),
+    marginTop: hp(50),
+    paddingBottom: 70,
   },
   circularborder: {
     borderRadius: 50,
     borderWidth: 1,
-    borderColor: Colors.fadedblue,
+    borderColor: Colors.Black,
     borderStyle: 'dotted',
     justifyContent: 'center',
     alignItems: 'center',
     width: hp(25),
     height: hp(25),
-    zIndex: 999
+    zIndex: 999,
+  },
+  whirlpoolLoaderSolidBorder: {
+    borderWidth: 1,
+    borderColor: Colors.Black,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 50,
+    padding: 3,
+  },
+  dottedBorderContainer: {
+    alignItems: 'center',
+  },
+  whirlpoolLoaderMainWrapper: {
+    flexDirection: 'row',
   },
   greentDot: {
     width: hp(19),
@@ -162,7 +200,7 @@ const styles = StyleSheet.create({
   },
   timeLineWrapper: {
     alignItems: 'center',
-    marginHorizontal: wp(10)
+    marginHorizontal: wp(10),
   },
   contentWrapper: {
     flexDirection: 'row',
@@ -171,14 +209,18 @@ const styles = StyleSheet.create({
     fontSize: 17,
     letterSpacing: 0.5,
     marginLeft: wp(25),
+    marginTop: hp(3),
+  },
+  settingUpTitle: {
+    marginTop: hp(12),
   },
   note: {
     position: 'absolute',
-    bottom: hp(20),
-    marginLeft: wp(30),
-    width: wp(300),
-    height: hp(70)
-  }
+    bottom: hp(0),
+    left: wp(40),
+    width: '100%',
+    height: hp(70),
+  },
 });
 
 export default MixProgress;
