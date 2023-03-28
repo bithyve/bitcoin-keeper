@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, useColorMode } from 'native-base';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Box, Input, KeyboardAvoidingView, useColorMode } from 'native-base';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
@@ -21,6 +21,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import config from 'src/core/config';
+import Done from 'src/assets/images/selected.svg';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -36,6 +37,15 @@ function UTXOLabeling() {
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
+  const lablesUpdated =
+    labels[`${utxo.txId}${utxo.vout}`].reduce((a, c) => {
+      a += c.name;
+      return a;
+    }, '') !==
+    existingLabels.reduce((a, c) => {
+      a += c.name;
+      return a;
+    }, '');
 
   const dispatch = useDispatch();
 
@@ -58,9 +68,9 @@ function UTXOLabeling() {
     } else {
       existingLabels.push({ name: label, type: LabelType.USER });
     }
+    setEditingIndex(-1);
     setExistingLabels(existingLabels);
     setLabel('');
-    setEditingIndex(-1);
   };
 
   const onSaveChangeClick = () => {
@@ -92,84 +102,89 @@ function UTXOLabeling() {
               <LinkIcon />
             </TouchableOpacity>
           </View>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.subHeaderTitle}>UTXO Value</Text>
-          <View style={{ flexDirection: 'row' }}>
-            <Box style={{ marginTop: 5, marginLeft: 5 }}>
-              {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
-            </Box>
-            <Text style={styles.subHeaderValue} numberOfLines={1}>
-              {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-              <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                {getUnit(currentCurrency, satsEnabled)}
+          <View style={{ flex: 1 }}>
+            <Text style={styles.subHeaderTitle}>UTXO Value</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Box style={{ marginTop: 5, marginLeft: 5 }}>
+                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
+              </Box>
+              <Text style={styles.subHeaderValue} numberOfLines={1}>
+                {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                  {getUnit(currentCurrency, satsEnabled)}
+                </Text>
               </Text>
-            </Text>
+            </View>
           </View>
         </View>
-      </View>
-      <View style={styles.listContainer}>
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={styles.listHeader}>Labels</Text>
-        </View>
-        <View style={styles.listSubContainer}>
-          {existingLabels.map((item, index) => (
-            <View
-              key={`${item}`}
-              style={[
-                styles.labelView,
-                {
-                  backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486',
-                },
-              ]}
-            >
-              <TouchableOpacity
-                style={styles.labelEditContainer}
-                activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
-                onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+        <View style={styles.listContainer}>
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={styles.listHeader}>Labels</Text>
+          </View>
+          <View style={styles.listSubContainer}>
+            {existingLabels.map((item, index) => (
+              <View
+                key={`${item}`}
+                style={[
+                  styles.labelView,
+                  {
+                    backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : ((editingIndex !== index) ? '#E0B486' : '#A88763'),
+                  },
+                ]}
               >
-                <Text style={styles.itemText} bold>
-                  {item.name.toUpperCase()}
-                  {item.type === LabelType.USER ? (
-                    <TouchableOpacity onPress={() => onCloseClick(index)}>
-                      <Box style={styles.deleteContainer}>
-                        <DeleteCross />
-                      </Box>
-                    </TouchableOpacity>
-                  ) : null}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+                <TouchableOpacity
+                  style={styles.labelEditContainer}
+                  activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
+                  onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+                >
+                  <Text style={styles.itemText} bold>
+                    {item.name.toUpperCase()}
+                    {item.type === LabelType.USER ? (
+                      <TouchableOpacity onPress={() => onCloseClick(index)}>
+                        <Box style={styles.deleteContainer}>
+                          <DeleteCross />
+                        </Box>
+                      </TouchableOpacity>
+                    ) : null}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+          <Box style={styles.inputLabeWrapper}>
+            <Box style={styles.inputLabelBox}>
+              <Input
+                onChangeText={(text) => {
+                  setLabel(text);
+                }}
+                style={styles.inputLabel}
+                borderWidth={0}
+                height={hp(40)}
+                placeholder="Type to add label or Select to edit"
+                color="#E0B486"
+                value={label}
+                autoCorrect={false}
+                autoCapitalize="characters"
+              />
+            </Box>
+            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
+              <Done />
+            </TouchableOpacity>
+          </Box>
         </View>
-        <Input
-          onChangeText={(text) => {
-            setLabel(text);
-          }}
-          style={styles.inputLabelBox}
-          borderWidth={0}
-          height={hp(40)}
-          placeholder="Add Label"
-          color="#E0B486"
-          backgroundColor="#F7F2EC"
-          value={label}
-          autoCorrect={false}
-          returnKeyType="done"
-          onSubmitEditing={onAdd}
-          autoCapitalize="characters"
-        />
-      </View>
-      <View style={{ flex: 1 }} />
-      <Box style={styles.ctaBtnWrapper}>
-        <Box ml={windowWidth * -0.09}>
-          <Buttons
-            primaryCallback={onSaveChangeClick}
-            primaryText="Save Changes"
-            secondaryCallback={navigation.goBack}
-            secondaryText="Cancel"
-          />
+        <View style={{ flex: 1 }} />
+        <Box style={styles.ctaBtnWrapper}>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              primaryDisable={!lablesUpdated}
+              primaryCallback={onSaveChangeClick}
+              primaryText="Save Changes"
+              secondaryCallback={navigation.goBack}
+              secondaryText="Cancel"
+            />
+          </Box>
         </Box>
-      </Box>
+      </KeyboardAvoidingView>
     </ScreenWrapper>
   );
 }
@@ -208,10 +223,23 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
-  inputLabelBox: {
+  inputLabeWrapper: {
+    flexDirection: 'row',
+    height: 50,
+    width: '100%',
+    alignItems: 'center',
     borderRadius: 10,
+    backgroundColor: '#F7F2EC',
+  },
+  inputLabelBox: {
+    width: '90%',
+  },
+  inputLabel: {
     fontSize: 13,
     fontWeight: '900',
+  },
+  addBtnWrapper: {
+    width: '10%',
   },
   unitText: {
     letterSpacing: 0.6,
@@ -271,7 +299,6 @@ const styles = StyleSheet.create({
   },
   deleteContainer: {
     paddingHorizontal: 4,
-    marginBottom: 3,
   },
 });
 

@@ -77,6 +77,7 @@ import PoolSelection from 'src/screens/Mix/PoolSelection';
 import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
 import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
+import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
 import Login from '../screens/LoginScreen/Login';
 import MixProgress from 'src/screens/Mix/MixProgress';
 
@@ -170,6 +171,7 @@ function AppStack() {
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
+        <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />

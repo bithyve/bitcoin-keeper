@@ -15,9 +15,9 @@ import WalletOperations from 'src/core/wallets/operations';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets, addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { setTx0Complete, setWalletDetailsUI, setWalletPoolMap } from 'src/store/reducers/wallets';
+import { setTx0Complete, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { Psbt } from 'bitcoinjs-lib';
@@ -45,6 +45,8 @@ export default function BroadcastPremix({ route, navigation }) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+    dispatch(addWhirlpoolWalletsLocal({ depositWallet: wallet }));
     setPremixOutputsAndBadbank();
     setLoading(false);
   }, []);
@@ -63,8 +65,8 @@ export default function BroadcastPremix({ route, navigation }) {
     }
     if (relayWalletUpdate && tx0completed) {
       dispatch(resetRealyWalletState());
+      setShowBroadcastModal(true);
       setLoading(false);
-      dispatch(setWalletDetailsUI({ walletId: wallet.id, walletType: WalletType.PRE_MIX }));
     }
     return () => {
       dispatch(setTx0Complete(false));
@@ -132,7 +134,6 @@ export default function BroadcastPremix({ route, navigation }) {
         dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
         dispatch(setWalletPoolMap({ walletId: wallet.id, pool: selectedPool?.denomination }));
         setLoading(false);
-        setShowBroadcastModal(true);
       } else {
         // error modals
       }
@@ -151,8 +152,10 @@ export default function BroadcastPremix({ route, navigation }) {
   const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
   const navigateToWalletDetails = () => {
     setShowBroadcastModal(false);
-    navigation.navigate('WalletDetails', {
-      selectedTab: 'Transactions',
+    navigation.navigate('UTXOManagement', {
+      data: wallet,
+      routeName: 'Wallet',
+      accountType: WalletType.PRE_MIX,
     });
   };
 

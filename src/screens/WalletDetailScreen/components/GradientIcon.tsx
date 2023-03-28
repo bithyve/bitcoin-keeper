@@ -10,8 +10,8 @@ function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }: any) 
       start={[0, 0]}
       end={[1, 1]}
       style={{
-        height: hp(height),
-        width: hp(height),
+        height: height,
+        width: height,
         borderRadius: height,
         ...styles.center,
       }}

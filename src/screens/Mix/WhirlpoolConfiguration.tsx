@@ -18,7 +18,7 @@ import openLink from 'src/utils/OpenLink';
 import { setWhirlpoolModal } from 'src/store/reducers/wallets';
 import { useDispatch } from 'react-redux';
 import config from 'src/core/config';
-import { TxPriority } from 'src/core/wallets/enums';
+import { TxPriority, WalletType } from 'src/core/wallets/enums';
 import { AverageTxFees } from 'src/core/wallets/interfaces';
 
 const feesContent = (fees, onFeeSelectionCallback) => {
