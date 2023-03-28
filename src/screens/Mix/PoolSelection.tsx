@@ -144,7 +144,7 @@ export default function PoolSelection({ route, navigation }) {
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={25}
+        paddingLeft={10}
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
       />
@@ -246,15 +246,16 @@ export default function PoolSelection({ route, navigation }) {
 
 const styles = StyleSheet.create({
   poolSelection: {
-    marginLeft: 40,
+    marginLeft: 32,
     marginTop: 30,
     marginBottom: 10,
     padding: 10,
     borderRadius: 10,
+    width: '85%',
   },
   textArea: {
     marginTop: 20,
-    marginLeft: 50,
+    marginLeft: 40,
   },
   footerContainer: {
     position: 'absolute',

@@ -148,7 +148,7 @@ export default function WhirlpoolConfiguration({ route }) {
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" />
+      <HeaderTitle paddingLeft={10} title="Configure Whirlpool" subtitle="Prepare to start a mix" />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
       <Box style={styles.scode}>
@@ -160,6 +160,7 @@ export default function WhirlpoolConfiguration({ route }) {
           borderWidth={0}
           height="12"
           fontSize={13}
+          width="95%"
           value={scode}
           autoCorrect={false}
           autoComplete="off"
@@ -242,13 +243,14 @@ export default function WhirlpoolConfiguration({ route }) {
 const styles = StyleSheet.create({
   scode: {
     marginTop: 20,
-    marginLeft: 40,
+    marginLeft: 30,
   },
   feeSelection: {
-    marginLeft: 40,
+    marginLeft: 30,
     marginTop: 40,
     padding: 10,
     borderRadius: 10,
+    width: '87%',
   },
   feeDetail: {
     flexDirection: 'row',
@@ -269,8 +271,9 @@ const styles = StyleSheet.create({
     color: '#656565',
   },
   changePriority: {
-    marginLeft: 40,
+    marginLeft: 30,
     borderRadius: 10,
+    width: '87%',
   },
   changePriorityDirection: {
     flexDirection: 'row',

@@ -162,7 +162,7 @@ export default function BroadcastPremix({ route, navigation }) {
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={25}
+        paddingLeft={10}
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
       />
@@ -259,7 +259,7 @@ export default function BroadcastPremix({ route, navigation }) {
 const styles = StyleSheet.create({
   textArea: {
     marginTop: 20,
-    marginLeft: 50,
+    marginLeft: 40,
     flexDirection: 'row',
   },
   textWidth: {
