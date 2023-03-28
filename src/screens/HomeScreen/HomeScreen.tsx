@@ -48,7 +48,6 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { urlParamsToObj } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
-import { initiateWhirlpool, pools } from 'src/nativemodules/Whirlpool';
 import useWallets from 'src/hooks/useWallets';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
@@ -464,8 +463,6 @@ function HomeScreen({ navigation }) {
 
   useEffect(() => {
     handleDeepLinking();
-    initiateWhirlpool();
-    pools();
   }, []);
 
   async function handleDeepLinking() {
@@ -513,7 +510,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
