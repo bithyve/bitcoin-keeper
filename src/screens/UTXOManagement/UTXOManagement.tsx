@@ -49,6 +49,7 @@ function Footer({
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { walletPoolMap } = useAppSelector((state) => state.wallet);
+
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
     navigation.dispatch(
@@ -139,14 +140,13 @@ function UTXOManagement({ route }) {
     accountType,
   }: { data: Wallet | Vault; routeName: string; accountType: string } = route.params || {};
 
+  console.log({ data, accountType });
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const isWhirlpoolWallet = Boolean(data?.whirlpoolConfig?.whirlpoolWalletDetails);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(data);
-  const [selectedAccount, setSelectedAccount] = useState(
-    accountType ? accountType : WalletType.DEFAULT
-  );
+  const [selectedAccount, setSelectedAccount] = useState<string>();
   const [depositWallet, setDepositWallet] = useState<any>();
   const [utxos, setUtxos] = useState([]);
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
@@ -154,16 +154,39 @@ function UTXOManagement({ route }) {
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showMixSuccessModal, setShowMixSuccessModal] = useState(false);
 
+  const dispatch = useDispatch();
+
   const goToPostMixWallet = () => {
-    console.log('goToPostMixWallet');
+    setEnableSelection(false);
+    setSelectedAccount(WalletType.POST_MIX);
+    setShowMixSuccessModal(false);
   };
+
+  useEffect(() => {
+    accountType ? setSelectedAccount(accountType) : setSelectedAccount(WalletType.DEFAULT);
+    if (isWhirlpoolWallet) {
+      dispatch(
+        refreshWallets(
+          [
+            data,
+            data?.whirlpoolConfig.premixWallet,
+            data?.whirlpoolConfig.postmixWallet,
+            data?.whirlpoolConfig.badbankWallet,
+          ],
+          { hardRefresh: true }
+        )
+      );
+    }
+  }, [accountType]);
 
   useEffect(() => {
     if (isWhirlpoolWallet) {
       setDepositWallet(data);
       const wallet: Wallet = getWalletBasedOnAccount(data, selectedAccount);
       setSelectedWallet(wallet);
-    } else setSelectedWallet(data);
+    } else {
+      setSelectedWallet(data);
+    }
   }, [selectedAccount]);
 
   useEffect(() => {
@@ -184,11 +207,14 @@ function UTXOManagement({ route }) {
           })
         ) || [];
     setUtxos(utxos);
+  }, [selectedWallet]);
+
+  useEffect(() => {
     const selectedUTXOsFiltered = utxos.filter(
       (utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]
     );
     setSelectedUTXOs(selectedUTXOsFiltered);
-  }, [selectedWallet]);
+  }, [utxos, selectedUTXOMap, selectionTotal]);
 
   const cleanUp = useCallback(() => {
     setSelectedUTXOMap({});
@@ -212,6 +238,7 @@ function UTXOManagement({ route }) {
           <AccountSelectionTab
             selectedAccount={selectedAccount}
             setSelectedAccount={setSelectedAccount}
+            setEnableSelection={setEnableSelection}
           />
         ) : (
           <HStack>

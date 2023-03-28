@@ -53,7 +53,11 @@ const Divider = () => {
   return <Box style={styles.divider} />;
 };
 
-export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => {
+export const AccountSelectionTab = ({
+  selectedAccount,
+  setSelectedAccount,
+  setEnableSelection,
+}) => {
   return (
     <HStack>
       <Box style={styles.container}>
@@ -69,7 +73,10 @@ export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => 
                     ? ['light.gradientStart', 'light.gradientEnd']
                     : ['#BFBFBF', '#BFBFBF']
                 }
-                onPress={() => setSelectedAccount(account.type)}
+                onPress={() => {
+                  setSelectedAccount(account.type);
+                  setEnableSelection(false);
+                }}
                 index={index}
               />
             </Box>

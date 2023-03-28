@@ -79,7 +79,7 @@ import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
 import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
 import Login from '../screens/LoginScreen/Login';
-
+import MixProgress from 'src/screens/Mix/MixProgress';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -203,6 +203,7 @@ function AppStack() {
         <Stack.Screen name="PoolSelection" component={PoolSelection} />
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
+        <Stack.Screen name="MixProgress" component={MixProgress} />
       </Stack.Navigator>
     </RealmProvider>
   );
@@ -225,7 +226,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />
