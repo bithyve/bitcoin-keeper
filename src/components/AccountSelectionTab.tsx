@@ -35,14 +35,17 @@ const AccountTabs = [
   },
 ];
 
-const SingleAccount = ({ title, Icon, gradient, bold = false, onPress }) => {
+const SingleAccount = ({ title, Icon, gradient, bold = false, onPress, index }) => {
   return (
-    <Pressable style={{ alignItems: 'center' }} onPress={onPress}>
-      <GradientIcon Icon={Icon} height={hp(30)} gradient={gradient} />
-      <Text numberOfLines={2} bold={bold} color="light.GreyText" style={styles.accountText}>
-        {title}
-      </Text>
-    </Pressable>
+    <Box style={{ flexDirection: 'row' }}>
+      <Pressable style={{ alignItems: 'center' }} onPress={onPress}>
+        <GradientIcon Icon={Icon} height={hp(45)} gradient={gradient} />
+        <Text numberOfLines={2} bold={bold} color="light.GreyText" style={styles.accountText}>
+          {title}
+        </Text>
+      </Pressable>
+      {index === AccountTabs.length - 1 ? null : <Divider />}
+    </Box>
   );
 };
 
@@ -54,9 +57,9 @@ export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => 
   return (
     <HStack>
       <Box style={styles.container}>
-        {AccountTabs.map((account) => {
+        {AccountTabs.map((account, index) => {
           return (
-            <Box style={{ flexDirection: 'row' }}>
+            <Box>
               <SingleAccount
                 title={account.title}
                 Icon={account.Icon}
@@ -67,8 +70,8 @@ export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => 
                     : ['#BFBFBF', '#BFBFBF']
                 }
                 onPress={() => setSelectedAccount(account.type)}
+                index={index}
               />
-              <Divider />
             </Box>
           );
         })}
@@ -80,7 +83,8 @@ export const AccountSelectionTab = ({ selectedAccount, setSelectedAccount }) => 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '100%',
   },
   accountText: {
@@ -94,5 +98,6 @@ const styles = StyleSheet.create({
     borderRightColor: '#005545',
     borderRightWidth: 1,
     opacity: 0.1,
+    marginHorizontal: wp(10),
   },
 });

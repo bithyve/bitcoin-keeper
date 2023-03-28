@@ -134,7 +134,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
   function SignUpModalContent() {
     return (
-      <Box style={{ width: windowWidth * 0.8 }}>
+      <Box style={{ width: windowWidth * 0.7 }}>
         <ShakingAssetsAnimation />
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
@@ -191,7 +191,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -206,7 +206,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}

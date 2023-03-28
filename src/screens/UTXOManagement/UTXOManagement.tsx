@@ -4,7 +4,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import LinkedWallet from 'src/assets/images/linked_wallet.svg';
+import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import { Box, HStack, VStack } from 'native-base';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
@@ -24,6 +24,7 @@ import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
+import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 
 const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
   if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
@@ -237,7 +238,7 @@ function UTXOManagement({ route }) {
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
           currentWallet={data}
-          emptyIcon={NoVaultTransactionIcon}
+          emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
         />
       </Box>
       <Footer
