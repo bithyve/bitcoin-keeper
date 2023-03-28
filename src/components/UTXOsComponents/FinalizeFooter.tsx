@@ -30,9 +30,9 @@ export default FinalizeFooter;
 const styles = StyleSheet.create({
   footerContainer: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 5 : 0,
+    bottom: Platform.OS === 'ios' ? 5 : 15,
     width: wp(375),
     paddingHorizontal: '10%',
-    marginBottom: '4%',
+    marginBottom: '5%',
   },
 });

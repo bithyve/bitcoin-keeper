@@ -87,7 +87,7 @@ function UTXOManagement({ route }) {
                 {/* this is account switch tab */}
                 {/* <AccountSelectionTab selectedAccount={selectedAccount} setSelectedAccount={setSelectedAccount} /> */}
             </Box>
-            <Box style={{ height: '66%' }}>
+            <Box style={{ height: '65%' }}>
                 {Object.values(selectedUTXOMap).length ?
                     <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} /> : null
                 }
