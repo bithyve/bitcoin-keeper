@@ -64,32 +64,12 @@ function WalletDetails({ route }) {
 
   const [pullRefresh, setPullRefresh] = useState(false);
 
-  // useEffect(() => {
-  //   setActiveTab(selectedTab || 'Transactions');
-  //   if (walletIndex !== wallets.length) {
-  //     const defaultWallet: Wallet = wallets[walletIndex];
-  //     const accountType = walletDetailsUI[defaultWallet.id];
-  //     if (accountType && accountType !== WalletType.DEFAULT) {
-  //       if (defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]) {
-  //         setDepositWallet(defaultWallet);
-  //         setCurrentWallet(defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
-  //         dispatch(
-  //           refreshWallets(
-  //             [
-  //               defaultWallet,
-  //               defaultWallet?.whirlpoolConfig.premixWallet,
-  //               defaultWallet?.whirlpoolConfig.postmixWallet,
-  //               defaultWallet?.whirlpoolConfig.badbankWallet,
-  //             ],
-  //             { hardRefresh: true }
-  //           )
-  //         );
-  //       }
-  //     } else {
-  //       setCurrentWallet(defaultWallet);
-  //     }
-  //   }
-  // }, [walletIndex, walletDetailsUI]);
+  useEffect(() => {
+    if (walletIndex !== wallets.length) {
+      const defaultWallet: Wallet = wallets[walletIndex];
+      setCurrentWallet(defaultWallet);
+    }
+  }, [walletIndex]);
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
