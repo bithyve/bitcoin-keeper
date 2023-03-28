@@ -29,5 +29,11 @@ import Foundation
     let str =  String(cString: result!)
     callback(str)
   }
+  
+  @objc func getTx0Data(callback: @escaping ((String)-> Void)){
+    let result = gettx0data()
+    let str =  String(cString: result!)
+    callback(str)
+  }
 }
 

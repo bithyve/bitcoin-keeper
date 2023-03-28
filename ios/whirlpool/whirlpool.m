@@ -24,8 +24,7 @@ RCT_EXPORT_METHOD(hello:(NSString*) name
   }];
 }
 
-RCT_EXPORT_METHOD(initiate:(NSString*) torPort
-                  get:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(initiate:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   [helper initiateClientWithCallback:^(NSString * _Nonnull response) {
@@ -33,11 +32,18 @@ RCT_EXPORT_METHOD(initiate:(NSString*) torPort
   }];
 }
 
-RCT_EXPORT_METHOD(getPools:(NSString*) random
-                  get:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(getPools:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   [helper getPoolsWithCallback:^(NSString * _Nonnull response) {
+    resolve(response);
+  }];
+}
+
+RCT_EXPORT_METHOD(getTx0Data:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject){
+  WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
+  [helper getTx0DataWithCallback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }

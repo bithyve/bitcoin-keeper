@@ -9,7 +9,7 @@ struct ExternError {
     char *message; // note: nullable
 };
 
-// ethkey ffi
 const char* hello_world(const char* name);
 const char* initiate();
 const char* pools();
+const char* gettx0data();
