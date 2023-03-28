@@ -5,7 +5,7 @@ import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import NoTransactionIcon from 'src/assets/images/noUtxos.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import LinkedWallet from 'src/assets/images/linked_wallet.svg';
+import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import { Box, HStack, VStack } from 'native-base';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
