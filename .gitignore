@@ -67,3 +67,6 @@ env*
 
 # test
 coverage/
+
+# Rust artifacts
+*libwhirlpool.a
