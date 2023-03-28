@@ -24,12 +24,7 @@ import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
 
 // TODO: add type definitions to all components
-function TransactionsAndUTXOs({
-  transactions,
-  setPullRefresh,
-  pullRefresh,
-  currentWallet,
-}) {
+function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, currentWallet }) {
   return (
     <Box style={styles.transactionsListContainer}>
       <Transactions
@@ -42,11 +37,8 @@ function TransactionsAndUTXOs({
   );
 }
 
-function Footer({
-  currentWallet,
-  onPressBuyBitcoin,
-}) {
-  return <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
+function Footer({ currentWallet, onPressBuyBitcoin }) {
+  return <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />;
 }
 
 function WalletDetails({ route }) {
@@ -88,17 +80,18 @@ function WalletDetails({ route }) {
       <WalletList walletIndex={walletIndex} onViewRef={onViewRef} viewConfigRef={viewConfigRef} />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
-          <UTXOsManageNavBox onClick={() => navigation.navigate('UTXOManagement', { data: currentWallet, routeName: 'Wallet' })} />
+          <UTXOsManageNavBox
+            onClick={() =>
+              navigation.navigate('UTXOManagement', { data: currentWallet, routeName: 'Wallet' })
+            }
+          />
           <TransactionsAndUTXOs
             transactions={transactions}
             setPullRefresh={setPullRefresh}
             pullRefresh={pullRefresh}
             currentWallet={currentWallet}
           />
-          <Footer
-            currentWallet={currentWallet}
-            onPressBuyBitcoin={onPressBuyBitcoin}
-          />
+          <Footer currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
         </>
       ) : (
         <Box style={styles.addNewWalletContainer}>
