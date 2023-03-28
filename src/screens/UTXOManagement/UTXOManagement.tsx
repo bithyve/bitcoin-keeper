@@ -15,16 +15,15 @@ import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTota
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
-import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
+import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
 
 const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
   if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
@@ -44,11 +43,9 @@ function Footer({
   setInitateWhirlpoolMix,
   initiateWhirlpool,
   initateWhirlpoolMix,
-  setShowMixSuccessModal,
+  setShowBatteryWarningModal,
 }) {
   const navigation = useNavigation();
-  const dispatch = useDispatch();
-  const { walletPoolMap } = useAppSelector((state) => state.wallet);
 
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
@@ -65,44 +62,7 @@ function Footer({
       Alert.alert('Please select atleast one UTXO');
       return;
     }
-    try {
-      const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
-      const destination = postmix.specs.receivingAddress;
-      const poolDenomination = walletPoolMap[depositWallet.id];
-      // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
-      let isBroadcasted = true;
-      for (const utxo of selectedUTXOs) {
-        const { txid, PSBT } = await WhirlpoolClient.premixToPostmix(
-          utxo,
-          destination,
-          poolDenomination,
-          wallet
-        );
-        if (txid) {
-          dispatch(
-            refreshWallets(
-              [
-                depositWallet?.whirlpoolConfig.premixWallet,
-                depositWallet?.whirlpoolConfig.postmixWallet,
-              ],
-              { hardRefresh: true }
-            )
-          );
-          const outputs = PSBT.txOutputs;
-          const voutPostmix = outputs.findIndex((o) => o.address === destination);
-          dispatch(
-            createUTXOReference({
-              labels: [{ name: 'Premix', type: LabelType.SYSTEM }],
-              txId: txid,
-              vout: voutPostmix,
-            })
-          );
-        } else isBroadcasted = false;
-      }
-      if (isBroadcasted) setShowMixSuccessModal(true);
-    } catch (err) {
-      console.log(err);
-    }
+    setShowBatteryWarningModal(true);
   };
 
   return enableSelection ? (
@@ -132,7 +92,7 @@ function Footer({
   );
 }
 
-function UTXOManagement({ route }) {
+function UTXOManagement({ route, navigation }) {
   const styles = getStyles();
   const {
     data,
@@ -152,14 +112,14 @@ function UTXOManagement({ route }) {
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
-  const [showMixSuccessModal, setShowMixSuccessModal] = useState(false);
+  const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
+  const { walletPoolMap } = useAppSelector((state) => state.wallet);
 
   const dispatch = useDispatch();
 
   const goToPostMixWallet = () => {
     setEnableSelection(false);
     setSelectedAccount(WalletType.POST_MIX);
-    setShowMixSuccessModal(false);
   };
 
   useEffect(() => {
@@ -230,6 +190,7 @@ function UTXOManagement({ route }) {
     },
     [cleanUp]
   );
+
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore />
@@ -245,10 +206,11 @@ function UTXOManagement({ route }) {
             <Box paddingRight={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
             <VStack>
               <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
-                {data.presentationData.name}
+                {data?.presentationData?.name}
               </Text>
               <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
-                {data.presentationData.description}
+                ``
+                {data?.presentationData?.description}
               </Text>
             </VStack>
           </HStack>
@@ -278,28 +240,54 @@ function UTXOManagement({ route }) {
         initateWhirlpoolMix={initateWhirlpoolMix}
         enableSelection={enableSelection}
         selectedUTXOs={selectedUTXOs}
-        setShowMixSuccessModal={setShowMixSuccessModal}
+        setShowBatteryWarningModal={setShowBatteryWarningModal}
       />
       <KeeperModal
         justifyContent="flex-end"
-        visible={showMixSuccessModal}
+        visible={showBatteryWarningModal}
         close={() => {
-          () => goToPostMixWallet();
+          setShowBatteryWarningModal(false);
         }}
-        title="Mix broadcasted"
-        subTitle="Your mix is now being broadcasted to the Bitcoin network."
+        title="Managing your mobile mixes"
+        subTitle="Mix might take a while to complete. Dont close the app until the mix is complete."
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (
-          <Box style={styles.mixSuccesModalFooter}>
-            <Box style={{ alignSelf: 'flex-end' }}>
-              <Buttons
-                primaryText="View Postmix Account"
-                primaryCallback={() => goToPostMixWallet()}
-              />
+          <Box>
+            <Box style={styles.batteryModalContent}>
+              <Box style={styles.batteryImage}>
+                <BatteryIllustration />
+              </Box>
+              <Box style={styles.batteryModalTextArea}>
+                <Box style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                  <Text style={styles.batteryModalText}>{'Connect to power'}</Text>
+                </Box>
+                <Box style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                  <Text style={styles.batteryModalText}>{'20% battery required'}</Text>
+                </Box>
+              </Box>
+            </Box>
+
+            <Box style={styles.mixSuccesModalFooter}>
+              <Box style={{ alignSelf: 'flex-end' }}>
+                <Buttons
+                  primaryText="Continue"
+                  primaryCallback={() => {
+                    setShowBatteryWarningModal(false);
+                    navigation.navigate('MixProgress', {
+                      selectedUTXOs,
+                      depositWallet,
+                      selectedWallet,
+                      walletPoolMap,
+                    });
+                  }}
+                />
+              </Box>
             </Box>
           </Box>
         )}
@@ -318,11 +306,32 @@ const getStyles = () =>
       marginVertical: hp(20),
     },
     mixSuccesModalFooter: {
-      marginTop: 80,
+      marginTop: 20,
       flexDirection: 'row',
       alignContent: 'flex-end',
       justifyContent: 'flex-end',
       width: '100%',
+    },
+    batteryModalContent: {
+      marginTop: 20,
+      alignContent: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    batteryImage: {
+      alignSelf: 'center',
+    },
+    batteryModalTextArea: {
+      marginTop: 40,
+    },
+    bulletPoint: {
+      paddingRight: 10,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    batteryModalText: {
+      marginTop: 10,
+      letterSpacing: 1.28,
     },
   });
 export default UTXOManagement;

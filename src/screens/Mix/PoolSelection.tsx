@@ -88,7 +88,7 @@ export default function PoolSelection({ route, navigation }) {
 
       if (filteredByUtxoTotal.length > 0) {
         setSelectedPool(filteredByUtxoTotal[0]);
-        onPoolSelectionCallback(filteredByUtxoTotal[0]);
+        onPoolSelectionCallback(filteredByUtxoTotal[0], tx0);
       }
     } catch (error) {
       console.log(error);
@@ -112,9 +112,12 @@ export default function PoolSelection({ route, navigation }) {
     });
   };
 
-  const onPoolSelectionCallback = (pool) => {
+  const onPoolSelectionCallback = (pool, tx0) => {
     setSelectedPool(pool);
-    const correspondingTx0Data = tx0Data?.filter((data) => data.pool_id === pool.id)[0];
+
+    // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
+    const tx0ToFilter = tx0 ? tx0 : tx0Data;
+    const correspondingTx0Data = tx0ToFilter?.filter((data) => data.pool_id === pool.id)[0];
 
     const tx0Preview = WhirlpoolClient.getTx0Preview(
       correspondingTx0Data,
