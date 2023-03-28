@@ -51,7 +51,7 @@ const feesContent = (fees, onFeeSelectionCallback) => {
 function WhirlpoolContent() {
   return (
     <View>
-      <Text>
+      <Text color='light.white' style={{ letterSpacing: 0.6 }}>
         Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
         These wallets are all based off the same seed that you used to create the BIP39 software
         wallet you are using. They simply use different (but well known) derivation paths to derive
