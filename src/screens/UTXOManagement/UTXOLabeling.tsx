@@ -83,7 +83,8 @@ function UTXOLabeling() {
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${utxo.txId}`
     );
   };
@@ -128,7 +129,12 @@ function UTXOLabeling() {
                 style={[
                   styles.labelView,
                   {
-                    backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : ((editingIndex !== index) ? '#E0B486' : '#A88763'),
+                    backgroundColor:
+                      item.type === LabelType.SYSTEM
+                        ? '#23A289'
+                        : editingIndex !== index
+                        ? '#E0B486'
+                        : '#A88763',
                   },
                 ]}
               >
@@ -184,7 +190,7 @@ function UTXOLabeling() {
             />
           </Box>
         </Box>
-      </KeyboardAvoidingView>
+      </View>
     </ScreenWrapper>
   );
 }
