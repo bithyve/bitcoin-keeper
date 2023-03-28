@@ -74,17 +74,12 @@ export default function PoolSelection({ route, navigation }) {
   const initPoolData = async () => {
     try {
       setPoolSelectionText('Fetching Pools...');
-      const response: any = await WhirlpoolClient.getPools();
+      const [response, tx0] = await Promise.all([WhirlpoolClient.getPools(), WhirlpoolClient.getTx0Data(scode)]);
       const sortedPools = response?.sort((a, b) => a.denomination - b.denomination);
-
       setMinMixAmount(sortedPools[0].must_mix_balance_cap + premixFee.averageTxFee);
-
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
-
-      const tx0 = await WhirlpoolClient.getTx0Data(scode);
       setTx0Data(tx0);
-
       if (filteredByUtxoTotal.length > 0) {
         setSelectedPool(filteredByUtxoTotal[0]);
         onPoolSelectionCallback(filteredByUtxoTotal[0]);
