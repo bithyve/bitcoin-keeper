@@ -16,120 +16,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import GradientIcon from './GradientIcon';
-import BTC from 'src/assets/images/btc_wallet.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import PreMix from 'src/assets/images/icon_premix.svg';
-import PostMix from 'src/assets/images/icon_postmix.svg';
-import BadBank from 'src/assets/images/icon_badbank.svg';
-import Deposit from 'src/assets/images/icon_deposit.svg';
-import { whirlpoolWalletTypeMap } from 'src/hooks/useWallets';
-import { useDispatch } from 'react-redux';
-import { setWalletDetailsUI } from 'src/store/reducers/wallets';
-
-const AccountComponent = ({ title, balance, onPress, icon }) => {
-  return (
-    <Pressable
-      style={{
-        marginTop: hp(20),
-        paddingHorizontal: wp(15),
-        paddingVertical: hp(10),
-        height: hp(55),
-        width: wp(270),
-        alignSelf: 'center',
-        justifyContent: 'center',
-        borderRadius: hp(5),
-      }}
-      backgroundColor="light.lightAccent"
-      onPress={onPress}
-    >
-      <Box style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {icon}
-          <Text style={{ fontSize: 11, letterSpacing: 1, marginLeft: wp(10) }}>{title}</Text>
-        </Box>
-        <Box flexDirection={'row'}>
-          <Box
-            style={{
-              marginRight: 3,
-              marginTop: 3,
-            }}
-          >
-            <BTC />
-          </Box>
-          <Text style={{ fontSize: 20, letterSpacing: 1 }}>{balance}</Text>
-        </Box>
-      </Box>
-    </Pressable>
-  );
-};
-
-function SelectAccountContent({ depositWallet, close }: { depositWallet: Wallet; close: any }) {
-  const dispatch = useDispatch();
-  return (
-    <View>
-      <AccountComponent
-        title={'Deposit Wallet'}
-        balance={depositWallet.specs.balances.confirmed + depositWallet.specs.balances.unconfirmed}
-        onPress={() => {
-          dispatch(
-            setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.DEFAULT })
-          );
-          // setSelectedAccount(WalletType.DEFAULT);
-          close();
-        }}
-        icon={<Deposit />}
-      />
-
-      <AccountComponent
-        title={depositWallet?.whirlpoolConfig?.premixWallet?.presentationData?.name}
-        balance={
-          depositWallet.whirlpoolConfig.premixWallet.specs.balances.confirmed +
-          depositWallet.whirlpoolConfig.premixWallet.specs.balances.unconfirmed
-        }
-        onPress={() => {
-          dispatch(
-            setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.PRE_MIX })
-          );
-          // setSelectedAccount(WalletType.PRE_MIX);
-          close();
-        }}
-        icon={<PreMix />}
-      />
-
-      <AccountComponent
-        title={depositWallet?.whirlpoolConfig?.postmixWallet?.presentationData?.name}
-        balance={
-          depositWallet.whirlpoolConfig.postmixWallet.specs.balances.confirmed +
-          depositWallet.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed
-        }
-        onPress={() => {
-          dispatch(
-            setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.POST_MIX })
-          );
-          // setSelectedAccount(WalletType.POST_MIX);
-          close();
-        }}
-        icon={<PostMix />}
-      />
-
-      <AccountComponent
-        title={depositWallet?.whirlpoolConfig?.badbankWallet?.presentationData?.name}
-        balance={
-          depositWallet.whirlpoolConfig.badbankWallet.specs.balances.confirmed +
-          depositWallet.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed
-        }
-        onPress={() => {
-          dispatch(
-            setWalletDetailsUI({ walletId: depositWallet.id, walletType: WalletType.BAD_BANK })
-          );
-          // setSelectedAccount(WalletType.BAD_BANK);
-          close();
-        }}
-        icon={<BadBank />}
-      />
-    </View>
-  );
-}
 
 const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
   return (
@@ -153,96 +40,6 @@ const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
         {wallet.AddNewWallet}
       </Text>
     </TouchableOpacity>
-  );
-};
-
-const WhirlpoolWalletTile = ({
-  depositWallet,
-  selectedAccount,
-  isActive,
-  setAccountSelectionModalVisible,
-  currentCurrency,
-  currencyCode,
-}) => {
-  const selectedWallet =
-    selectedAccount === WalletType.DEFAULT
-      ? depositWallet
-      : depositWallet.whirlpoolConfig[whirlpoolWalletTypeMap[selectedAccount]];
-
-  return (
-    <Box>
-      <Box style={{ ...styles.walletCard, height: wp(40) }}>
-        <Box style={styles.walletInnerView}>
-          <GradientIcon
-            Icon={WalletInsideGreen}
-            height={35}
-            gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-          />
-          <Box
-            style={{
-              marginLeft: 10,
-            }}
-          >
-            <Text color="light.white" style={styles.walletName}>
-              {depositWallet?.presentationData?.name}
-            </Text>
-            <Text
-              color="light.white"
-              style={styles.walletDescription}
-              ellipsizeMode="tail"
-              numberOfLines={1}
-            >
-              {depositWallet?.presentationData?.description}
-            </Text>
-          </Box>
-        </Box>
-      </Box>
-
-      <Pressable
-        style={{
-          marginTop: hp(20),
-          paddingHorizontal: wp(15),
-          paddingVertical: hp(10),
-          height: hp(55),
-          width: wp(270),
-          alignSelf: 'center',
-          justifyContent: 'center',
-          borderRadius: hp(5),
-        }}
-        backgroundColor="light.Glass"
-        onPress={() => setAccountSelectionModalVisible(true)}
-      >
-        <Box
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Text color="light.white" style={{ fontSize: 13, letterSpacing: 1 }}>
-            {selectedWallet?.presentationData?.name}
-          </Text>
-          <Box>
-            <Box flexDirection={'row'}>
-              <Box
-                style={{
-                  marginRight: 3,
-                  marginTop: 3,
-                }}
-              >
-                {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
-              </Box>
-              <Text color="light.white" style={{ fontSize: 20, letterSpacing: 1 }}>
-                {selectedWallet?.specs?.balances?.confirmed}
-              </Text>
-            </Box>
-            <Text color="light.white" style={{ fontSize: 13, letterSpacing: 1 }}>
-              Unconfirmed {selectedWallet?.specs?.balances?.unconfirmed}
-            </Text>
-          </Box>
-        </Box>
-      </Pressable>
-    </Box>
   );
 };
 
@@ -365,23 +162,6 @@ function WalletItem({
 
   const isActive = index === walletIndex;
   const { wallet } = translations;
-  const [selectedAccount, setSelectedAccount] = useState<string>();
-  const [accountSelectionModalVisible, setAccountSelectionModalVisible] = useState(false);
-  const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
-  const { walletDetailsUI } = useAppSelector((state) => state.wallet);
-
-  const closeAccountModal = () => {
-    setAccountSelectionModalVisible(false);
-  };
-
-  useEffect(() => {
-    if (walletDetailsUI[item?.id]) {
-      setSelectedAccount(walletDetailsUI[item?.id]);
-    } else {
-      setSelectedAccount(WalletType.DEFAULT);
-    }
-  }, [walletDetailsUI]);
-
   return (
     <Shadow
       distance={9}
@@ -404,15 +184,6 @@ function WalletItem({
               wallet={wallet}
               navigation={navigation}
             />
-          ) : isWhirlpoolWallet ? (
-            <WhirlpoolWalletTile
-              depositWallet={item}
-              isActive={isActive}
-              selectedAccount={selectedAccount}
-              setAccountSelectionModalVisible={setAccountSelectionModalVisible}
-              currentCurrency={currentCurrency}
-              currencyCode={currencyCode}
-            />
           ) : (
             <WalletTile
               isActive={isActive}
@@ -425,13 +196,6 @@ function WalletItem({
             />
           )}
         </Box>
-        <KeeperModal
-          visible={accountSelectionModalVisible}
-          close={closeAccountModal}
-          title="Select Account"
-          subTitle="Select Account Type"
-          Content={() => <SelectAccountContent depositWallet={item} close={closeAccountModal} />}
-        />
       </View>
     </Shadow>
   );

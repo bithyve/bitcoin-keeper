@@ -38,11 +38,11 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
 
     @ReactMethod
     public void getTx0Data(String torPort, Promise promise) {
-        promise.resolve(WhirlpoolBridge.get_tx0_data(torPort));
+        promise.resolve(WhirlpoolBridge.gettx0data(torPort));
     }
 
     @ReactMethod
     public void getPools(String torPort, Promise promise) {
-        promise.resolve(WhirlpoolBridge.get_pools(torPort));
+        promise.resolve(WhirlpoolBridge.pools(torPort));
     }
 }

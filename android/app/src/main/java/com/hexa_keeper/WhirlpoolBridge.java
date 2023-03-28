@@ -7,7 +7,7 @@ public class WhirlpoolBridge {
 
     public static native String helloWorld(String name);
     public static native String initiate(String torPort);
-    public static native String get_pools(String torPort);
-    public static native String get_tx0_data(String torPort);
+    public static native String pools(String torPort);
+    public static native String gettx0data(String torPort);
 
 }

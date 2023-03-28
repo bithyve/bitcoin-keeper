@@ -12,7 +12,6 @@ import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
-import UtxoSummary from './UtxoSummary';
 import PageIndicator from 'src/components/PageIndicator';
 import Fonts from 'src/common/Fonts';
 import WhirlpoolClient, { TOR_CONFIG } from 'src/core/services/whirlpool/client';
@@ -21,28 +20,25 @@ import { NetworkType } from 'src/core/wallets/enums';
 import { Network } from 'src/core/services/whirlpool/interface';
 import { addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
+import UtxoSummary from './UtxoSummary';
 
-const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => {
-  return (
-    <Box style={styles.poolContent}>
-      {pools &&
-        pools.map((pool) => {
-          return (
-            <TouchableOpacity onPress={() => onPoolSelectionCallback(pool)}>
-              <Box style={styles.poolItem}>
-                <Text style={styles.poolItemText} color="#073e39">
-                  {satsEnabled ? pool?.denomination : SatsToBtc(pool?.denomination)}
-                </Text>
-                <Text style={styles.poolItemUnitText} color="#073e39">
-                  {satsEnabled ? 'sats' : 'btc'}
-                </Text>
-              </Box>
-            </TouchableOpacity>
-          );
-        })}
-    </Box>
-  );
-};
+const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
+  <Box style={styles.poolContent}>
+    {pools &&
+      pools.map((pool) => (
+        <TouchableOpacity onPress={() => onPoolSelectionCallback(pool)}>
+          <Box style={styles.poolItem}>
+            <Text style={styles.poolItemText} color="#073e39">
+              {satsEnabled ? pool?.denomination : SatsToBtc(pool?.denomination)}
+            </Text>
+            <Text style={styles.poolItemUnitText} color="#073e39">
+              {satsEnabled ? 'sats' : 'btc'}
+            </Text>
+          </Box>
+        </TouchableOpacity>
+      ))}
+  </Box>
+);
 
 export default function PoolSelection({ route, navigation }) {
   const { scode, premixFee, minerFee, utxos, utxoCount, utxoTotal, wallet } = route.params;
@@ -78,17 +74,12 @@ export default function PoolSelection({ route, navigation }) {
   const initPoolData = async () => {
     try {
       setPoolSelectionText('Fetching Pools...');
-      const response: any = await WhirlpoolClient.getPools(whirlpoolApi);
+      const [response, tx0] = await Promise.all([WhirlpoolClient.getPools(), WhirlpoolClient.getTx0Data(scode)]);
       const sortedPools = response?.sort((a, b) => a.denomination - b.denomination);
-
       setMinMixAmount(sortedPools[0].must_mix_balance_cap + premixFee.averageTxFee);
-
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
-
-      const tx0 = await WhirlpoolClient.getTx0Data(whirlpoolApi, scode);
       setTx0Data(tx0);
-
       if (filteredByUtxoTotal.length > 0) {
         setSelectedPool(filteredByUtxoTotal[0]);
         onPoolSelectionCallback(filteredByUtxoTotal[0]);
@@ -138,9 +129,7 @@ export default function PoolSelection({ route, navigation }) {
     return valueInPreferredUnit;
   };
 
-  const getPreferredUnit = () => {
-    return satsEnabled ? 'sats' : 'btc';
-  };
+  const getPreferredUnit = () => satsEnabled ? 'sats' : 'btc';
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
@@ -216,9 +205,7 @@ export default function PoolSelection({ route, navigation }) {
             <Buttons
               primaryText="Preview Pre-Mix"
               primaryDisable={
-                availablePools && availablePools.length > 0 && utxoTotal > minMixAmount
-                  ? false
-                  : true
+                !(availablePools && availablePools.length > 0 && utxoTotal > minMixAmount)
               }
               primaryCallback={() => onPreviewMix()}
             />
