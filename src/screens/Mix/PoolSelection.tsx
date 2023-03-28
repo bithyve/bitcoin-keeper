@@ -175,7 +175,10 @@ export default function PoolSelection({ route, navigation }) {
           style={[styles.poolSelection, styles.poolErrorContainer]}
         >
           <Text style={styles.poolErrorText}>
-            Pools not available. Min <Text style={{ fontWeight: 'bold' }}>{minMixAmount}</Text> sats
+            Pools not available. Min{' '}
+            <Text style={{ fontWeight: 'bold' }}>
+              {valueByPreferredUnit(minMixAmount)} {getPreferredUnit()}
+            </Text>{' '}
             required
           </Text>
         </Box>
