@@ -164,7 +164,6 @@ const styles = StyleSheet.create({
   buyAddressText: {
     width: wp(200),
     fontSize: 19,
-    letterSpacing: 1.28,
     color: "#041513"
   }
 })
