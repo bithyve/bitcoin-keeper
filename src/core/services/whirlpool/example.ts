@@ -6,8 +6,9 @@ import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import * as bitcoinJS from 'bitcoinjs-lib';
 import WhirlpoolClient, { TOR_CONFIG } from './client';
-import { Network } from './interface';
+import { BitcoinRustInput, Info, Network, OutputTemplate, Step } from './interface';
 
 const generateWhirlpoolAccounts = async () => {
   // sample:
@@ -20,7 +21,7 @@ const generateWhirlpoolAccounts = async () => {
     instanceNum: 0,
     walletName: 'Whirlpool:Deposit',
     walletDescription: 'Whirlpool Deposit Account',
-    primaryMnemonic: 'achieve blue dish mule rate evil arrange sound round cannon battle stereo',
+    primaryMnemonic: 'copy flat any grace have spread shove hair dynamic organ filter wage',
     networkType: NetworkType.TESTNET,
     transferPolicy: {
       id: '1238dsfh',
@@ -111,8 +112,8 @@ const executeWhirlpoolFlow = async (
   const correspondingTx0Data = tx0Data.filter((data) => data.pool_id === selectedPoolId)[0];
 
   deposit = await syncWallet(deposit);
-  const premix_fee_per_byte = 12;
-  const miner_fee_per_byte = 1;
+  const premix_fee_per_byte = 20;
+  const miner_fee_per_byte = 10;
   const inputsForTx0 = [...deposit.specs.confirmedUTXOs, ...deposit.specs.unconfirmedUTXOs];
   console.log({ inputsForTx0 });
 
@@ -145,6 +146,58 @@ const executeWhirlpoolFlow = async (
   );
   console.log({ PSBT });
 
+  // const bitcoinRustInputs: BitcoinRustInput[] = inputsForTx0.map((input) => {
+  //   const rustInput: BitcoinRustInput = {
+  //     outpoint: {
+  //       txid: input.txId, // use
+  //       vout: input.vout,
+  //     },
+  //     prev_txout: {
+  //       value: input.value,
+  //       script_pubkey: bitcoinJS.address.toOutputScript(input.address, network).toString('hex'),
+  //     },
+  //     fields: {},
+  //   };
+  //   return rustInput;
+  // });
+
+  // const output_supplier_addresses = {
+  //   address_bank: premixAddresses,
+  //   change_addr: badBank.specs.receivingAddress,
+  // };
+  // let nextFreePremixAddressIndex = 0;
+  // const output_supplier = (change: Boolean): OutputTemplate => {
+  //   // If `true` is passed to `output_supplier`,
+  //   // it is supposed to return a change output template.
+  //   // otherwise premix output template.
+  //   if (change) {
+  //     return {
+  //       address: output_supplier_addresses.change_addr, // use Address::from_str to convert to bitcoin_rust's Address
+  //       fields: {},
+  //     };
+  //   }
+
+  //   const address = output_supplier_addresses[nextFreePremixAddressIndex];
+  //   nextFreePremixAddressIndex++;
+  //   return {
+  //     address, // use from_str to convert to bitcoin_rust's Address
+  //     fields: {},
+  //   };
+  // };
+
+  // console.log(
+  //   JSON.stringify(
+  //     {
+  //       preview,
+  //       tx0_data: correspondingTx0Data,
+  //       inputs: bitcoinRustInputs,
+  //       output_supplier_addresses,
+  //     },
+  //     null,
+  //     4
+  //   )
+  // );
+
   const tx0 = WhirlpoolClient.signTx0(deposit, inputsForTx0, PSBT);
   console.log({ tx0 });
 
@@ -161,16 +214,26 @@ const executeWhirlpoolFlow = async (
   const inputToMix = premix.specs?.confirmedUTXOs[0];
   const destination = postmix.specs.receivingAddress;
   const pool_denomination = selectedPool.denomination;
+
+  const notify = (info: Info, step?: Step) => {
+    console.log({ info, step }); // capture step updates
+  };
+
   const mixingTxid = await WhirlpoolClient.premixToPostmix(
     inputToMix,
     destination,
     pool_denomination,
-    premix
+    premix,
+    notify
   );
   console.log({ mixingTxid });
 };
 
 export const runMockWhirlpool = async () => {
-  const { deposit, premix, postmix, badBank } = await generateWhirlpoolAccounts(); // works only w/ mnemonic modification in wallet factory method
-  return executeWhirlpoolFlow(deposit, premix, postmix, badBank);
+  try {
+    const { deposit, premix, postmix, badBank } = await generateWhirlpoolAccounts(); // works only w/ mnemonic modification in wallet factory method
+    return executeWhirlpoolFlow(deposit, premix, postmix, badBank);
+  } catch (err) {
+    console.log({ err });
+  }
 };

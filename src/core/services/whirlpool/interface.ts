@@ -16,6 +16,25 @@ export enum MixStatus {
   Fail = 'Fail',
 }
 
+export enum Step {
+  WaitingForCoordinator = 'WaitingForCoordinator',
+  Connecting = 'Connecting',
+  Subscribing = 'Subscribing',
+  RegisteringInput = 'RegisteringInput',
+  ConfirmingInput = 'ConfirmingInput',
+  CheckingOutput = 'CheckingOutput',
+  RegisteringOutput = 'RegisteringOutput',
+  Signing = 'Signing',
+  RevealingOutput = 'RevealingOutput',
+}
+
+export enum Info {
+  Working = 'Working',
+  Success = 'Success',
+  Failure = 'Failure',
+  Error = 'Error',
+}
+
 export interface TorConfig {
   host: string;
   port: number;
@@ -61,4 +80,37 @@ export interface Preview {
   miner_fee: number;
   coordinator_fee: number;
   change: number;
+}
+
+/// Used during TX0 fee computation. Needed because different script types have different lengths.
+export interface InputStructure {
+  n_p2pkh_inputs: number;
+  n_p2sh_p2wpkh_inputs: number;
+  n_p2wpkh_inputs: number;
+}
+
+export interface BitcoinRustInput {
+  /// Outpoint used by this input.
+  outpoint: {
+    /// The referenced transaction's txid.
+    txid: string;
+    /// The index of the referenced output in its transaction's vout.
+    vout: number;
+  };
+  /// Previous txout used by this input.
+  prev_txout: {
+    /// The value of the output, in satoshis.
+    value: number;
+    /// The script which must be satisfied for the output to be spent.
+    script_pubkey: string;
+  };
+  /// Arbitrary per-input PSBT fields for use by the signer.
+  fields: {};
+}
+
+export interface OutputTemplate {
+  /// Address that this output is sending to.
+  address: string;
+  /// Arbitrary per-output PSBT fields for use by the signer.
+  fields: {};
 }

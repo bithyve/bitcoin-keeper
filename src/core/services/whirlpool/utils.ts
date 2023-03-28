@@ -1,3 +1,4 @@
+/* eslint-disable no-promise-executor-return */
 /* eslint-disable no-plusplus */
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { OutputUTXOs } from 'src/core/wallets/interfaces';
@@ -73,3 +74,7 @@ export const generateMockTransaction = (
 
   return PSBT;
 };
+
+export function sleep(ms = 1000) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

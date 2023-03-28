@@ -99,4 +99,17 @@ export const MOCK_TX0_DATA = [
     fee_output_signature:
       'ICI3MP51k0O1vHzvKz2TDG2mHrF7r0q+dOr5AEw6HJv1cRDNNsdzo+HIksIpDCR3FFYYksQ1FAHfQyjoSBej83k=',
   },
+  {
+    pool_id: '0.5btc',
+    fee_payment_code:
+      'PM8TJbEnXU7JpR8yMdQee9H5C4RNWTpWAgmb2TVyQ4zfnaQBDMTJ4yYVP9Re8NVsZDSwXvogYbssrqkfVwac9U1QnxdCU2G1zH7Gq6L3JJjzcuWGjB9N',
+    fee_value: 1487500,
+    fee_change: 0,
+    fee_discount_percent: 0,
+    message: null,
+    fee_payload_64: '0096101n&c00ic20000000000000000000000000000000000000000000',
+    fee_address: 'tb1qkk4ktf6zdz8xt3e7w7qptv7y23dny26cezs2av',
+    fee_output_signature:
+      'HzTej3nmr4NYYeENw3bLA+K9Eib9kKkQ50y61AIAQjS4Gi4twZyhrTPbokRZcbbVBgqXlcCAJqH/f27w77yfwW0=',
+  },
 ];
