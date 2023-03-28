@@ -18,14 +18,14 @@ function UTXOSelectionTotal(props: any) {
 
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   return (
-    <Box style={styles.tabWrapper}>
+    <Box style={styles.tabWrapper} testID="view_UTXOSelectTotal">
       <Box style={styles.selectionWrapper}>
         <Text style={styles.selectionText}>{`${selectedUTXOs.length} UTXO Selected`}</Text>
       </Box>
       <Box style={styles.totalWrapper}>
         <Text style={styles.selectionTotalText}>Total</Text>
         <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
-        <Text style={styles.selectionText}>
+        <Text style={styles.selectionText} testID="text_selectionTotal">
           {getAmt(selectionTotal, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
           <Text color={`${colorMode}.dateText`} style={styles.selectionText}>
             {getUnit(currentCurrency, satsEnabled)}

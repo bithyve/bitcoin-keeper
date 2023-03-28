@@ -76,10 +76,10 @@ function UTXOManagement({ route }) {
                         {routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}
                     </Box>
                     <VStack>
-                        <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]} >
+                        <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]} testID="text_DailySpending">
                             Daily Spending
                         </Text>
-                        <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
+                        <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]} testID="text_DailySpendSubtitle">
                             Lorem ipsum dolor sit amet
                         </Text>
                     </VStack>

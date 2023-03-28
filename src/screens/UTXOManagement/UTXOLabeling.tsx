@@ -87,7 +87,7 @@ function UTXOLabeling() {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <View style={styles.subHeader}>
+        <View style={styles.subHeader} testID="view_utxosLabelSubHeader">
           <View style={{ flex: 1 }}>
             <Text style={styles.subHeaderTitle}>Transaction ID</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -133,8 +133,9 @@ function UTXOLabeling() {
                   style={styles.labelEditContainer}
                   activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
                   onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+                  testID={`btn_${item.name}`}
                 >
-                  <Text style={styles.itemText} bold>
+                  <Text style={styles.itemText} bold testID={`text_${item.name}`}>
                     {item.name.toUpperCase()}
                     {item.type === LabelType.USER ? (
                       <TouchableOpacity onPress={() => onCloseClick(index)}>
@@ -151,6 +152,7 @@ function UTXOLabeling() {
           <Box style={styles.inputLabeWrapper}>
             <Box style={styles.inputLabelBox}>
               <Input
+                testID="input_utxoLabel"
                 onChangeText={(text) => {
                   setLabel(text);
                 }}
@@ -164,14 +166,14 @@ function UTXOLabeling() {
                 autoCapitalize="characters"
               />
             </Box>
-            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
+            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd} testID="btn_addUtxoLabel">
               <Done />
             </TouchableOpacity>
           </Box>
         </View>
         <View style={{ flex: 1 }} />
         <Box style={styles.ctaBtnWrapper}>
-          <Box ml={windowWidth * -0.09}>
+          <Box ml={windowWidth * -0.09} testID="btn_utxoLabelSaveChanges">
             <Buttons
               primaryDisable={!lablesUpdated}
               primaryCallback={onSaveChangeClick}

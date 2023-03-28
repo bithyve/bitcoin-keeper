@@ -7,12 +7,12 @@ import Text from '../KeeperText';
 
 function UTXOsManageNavBox({ onClick }: any) {
     return (
-        <Pressable style={styles.manageUTXOsWrapper} backgroundColor="light.lightAccent" onPress={onClick}>
+        <Pressable style={styles.manageUTXOsWrapper} backgroundColor="light.lightAccent" onPress={onClick} testID="btn_manageUTXOS">
             <Box style={styles.titleViewWrapper}>
-                <Text style={styles.titleText}>Manage UTXO’s</Text>
-                <Text style={styles.subTitleText}>Lorem ipsum dolor sit amet, consectetur</Text>
+                <Text style={styles.titleText} testID="text_manageUTXOSTitle">Manage UTXO’s</Text>
+                <Text style={styles.subTitleText} testID="text_manageUTXOSubTitle">Lorem ipsum dolor sit amet, consectetur</Text>
             </Box>
-            <Box style={styles.arrowViewWrapper}>
+            <Box style={styles.arrowViewWrapper} testID="view_manageUTXOArrow">
                 <ArrowIcon />
             </Box>
         </Pressable>
