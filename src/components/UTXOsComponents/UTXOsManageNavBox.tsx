@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
         width: '100%',
         alignItems: 'center',
         padding: windowHeight > 800 ? 10 : 5,
+        paddingHorizontal: windowHeight > 800 ? 0 : 10,
         borderRadius: 5,
         marginBottom: windowHeight > 800 ? 15 : 5,
         marginTop: windowHeight > 800 ? 0 : 10
