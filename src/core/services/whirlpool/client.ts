@@ -7,8 +7,8 @@ import ElectrumClient from 'src/core/services/electrum/client';
 import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import WhirlpoolServices from 'src/nativemodules/Whirlpool';
 import { Network, PoolData, Preview, TorConfig, TX0Data, WhirlpoolAPI } from './interface';
-import { MOCK_POOL_DATA, MOCK_TX0_DATA } from './mock';
 import { generateMockTransaction, getAPIEndpoints } from './utils';
 
 const LOCALHOST = '127.0.0.1';
@@ -35,19 +35,16 @@ export default class WhirlpoolClient {
 
   /**
    * whirlpool mixing pools provider: fetches pool info from the coordinator
-   * @param  {WhirlpoolAPI} api
    * @returns Promise<PoolData[]>
    */
-  static getPools = async (api: WhirlpoolAPI): Promise<PoolData[]> => MOCK_POOL_DATA;
+  static getPools = async (): Promise<PoolData[]> => WhirlpoolServices.getPools();
 
   /**
    * Fetches TX0 data from the coordinator. Needed to craft a TX0
-   * @param  {WhirlpoolAPI} api
    * @param  {string} scode?
    * @returns Promise<Tx0Data[]>
    */
-  static getTx0Data = async (api: WhirlpoolAPI, scode?: string): Promise<TX0Data[]> =>
-    MOCK_TX0_DATA;
+  static getTx0Data = async (scode?: string): Promise<TX0Data[]> => WhirlpoolServices.getTx0Data();
 
   /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
