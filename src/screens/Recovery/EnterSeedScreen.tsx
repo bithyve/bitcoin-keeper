@@ -342,8 +342,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -391,7 +391,7 @@ function EnterSeedScreen({ route }) {
               style={[
                 styles.suggestionScrollView,
                 {
-                  marginTop: getPosition(onChangeIndex) * hp(55),
+                  marginTop: getPosition(onChangeIndex) * hp(70),
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
@@ -463,7 +463,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
