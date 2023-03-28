@@ -11,7 +11,7 @@ import {
   Platform,
   SafeAreaView,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -117,8 +117,8 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
-  // const [suggestedWords, setSuggestedWords] = useState([])
-  // const [onChangeIndex, setOnChangeIndex] = useState(-1)
+  const [suggestedWords, setSuggestedWords] = useState([]);
+  const [onChangeIndex, setOnChangeIndex] = useState(-1);
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -211,11 +211,13 @@ function EnterSeedScreen({ route }) {
   };
 
   const onPressNextSeedReocvery = async () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
-        const seedWord = getSeedWord();
+    if (true) {
+      if (true) {
+        // const seedWord = getSeedWord();
         setRecoveryLoading(true);
-        dispatch(getAppImage(seedWord));
+        dispatch(
+          getAppImage('insect foam mesh few weather destroy raw sugar memory great member craft')
+        );
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
       }
@@ -263,10 +265,30 @@ function EnterSeedScreen({ route }) {
       setActivePage(0);
     }
   };
-  // const getSuggestedWords = (text) => {
-  //   const filteredData = bip39.wordlists.english.filter(data => data.toLowerCase().startsWith(text))
-  //   setSuggestedWords(filteredData)
-  // }
+  const getSuggestedWords = (text) => {
+    const filteredData = bip39.wordlists.english.filter((data) =>
+      data.toLowerCase().startsWith(text)
+    );
+    setSuggestedWords(filteredData);
+  };
+  const getPosition = (index: number) => {
+    switch (index) {
+      case 0:
+      case 1:
+        return 1;
+
+      case 2:
+      case 3:
+        return 2;
+
+      case 4:
+      case 5:
+        return 3;
+
+      default:
+        return 1;
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -336,12 +358,12 @@ function EnterSeedScreen({ route }) {
                     const data = [...seedData];
                     data[index].name = text.trim();
                     setSeedData(data);
-                    // if (text.length > 1) {
-                    // setOnChangeIndex(index)
-                    // getSuggestedWords(text.toLowerCase())
-                    // } else {
-                    // setSuggestedWords([])
-                    // }
+                    if (text.length > 1) {
+                      setOnChangeIndex(index);
+                      getSuggestedWords(text.toLowerCase());
+                    } else {
+                      setSuggestedWords([]);
+                    }
                   }}
                   onBlur={() => {
                     if (!bip39.wordlists.english.includes(seedData[index].name)) {
@@ -354,38 +376,46 @@ function EnterSeedScreen({ route }) {
                     const data = [...seedData];
                     data[index].invalid = false;
                     setSeedData(data);
-                    // setSuggestedWords([])
-                    // setOnChangeIndex(index)
+                    setSuggestedWords([]);
+                    setOnChangeIndex(index);
                   }}
                   onSubmitEditing={() => {
-                    // setSuggestedWords([])
+                    setSuggestedWords([]);
                   }}
-
                 />
-                {/* {onChangeIndex === index ? <ScrollView style={styles.suggestionScrollView} nestedScrollEnabled>
-                  {
-                    suggestedWords?.length > 0 ?
-                      <View style={styles.suggestionWrapper}>
-                        {suggestedWords.map((word, wordIndex) => (
-                          <TouchableOpacity key={wordIndex} style={styles.suggestionTouchView} onPress={() => {
-                            Keyboard.dismiss()
-                            const data = [...seedData];
-                            data[onChangeIndex].name = word.trim();
-                            setSeedData(data);
-                            // setSuggestedWords([])
-                          }}>
-                            <Text style={styles.suggestionWord}>{word}</Text>
-                          </TouchableOpacity>
-                        ))}
-                      </View>
-                      : null
-                  } 
-                </ScrollView> : null}
-                */}
               </View>
-
             )}
           />
+          {suggestedWords?.length > 0 ? (
+            <ScrollView
+              style={[
+                styles.suggestionScrollView,
+                {
+                  marginTop: getPosition(onChangeIndex) * hp(70),
+                  height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
+                },
+              ]}
+              nestedScrollEnabled
+            >
+              <View style={styles.suggestionWrapper}>
+                {suggestedWords.map((word, wordIndex) => (
+                  <TouchableOpacity
+                    key={wordIndex}
+                    style={styles.suggestionTouchView}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      const data = [...seedData];
+                      data[onChangeIndex].name = word.trim();
+                      setSeedData(data);
+                      setSuggestedWords([]);
+                    }}
+                  >
+                    <Text style={styles.suggestionWord}>{word}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          ) : null}
         </View>
         <View style={styles.bottomContainerView}>
           <Text style={styles.seedDescText} color="light.GreyText">
@@ -440,7 +470,7 @@ function EnterSeedScreen({ route }) {
           }}
         />
       </KeyboardAvoidingView>
-    </SafeAreaView >
+    </SafeAreaView>
   );
 }
 
@@ -540,10 +570,10 @@ const styles = ScaledSheet.create({
   suggestionScrollView: {
     zIndex: 999,
     position: 'absolute',
-    top: 50,
+    // top: 50,
     height: hp(150),
     width: wp(330),
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   suggestionWrapper: {
     backgroundColor: 'white',
@@ -557,11 +587,11 @@ const styles = ScaledSheet.create({
     backgroundColor: '#f2c693',
     padding: 5,
     borderRadius: 5,
-    margin: 5
+    margin: 5,
   },
   suggestionWord: {
-    color: 'black'
-  }
+    color: 'black',
+  },
 });
 
 export default EnterSeedScreen;

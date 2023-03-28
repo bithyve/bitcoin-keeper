@@ -216,6 +216,7 @@ function VaultStatus(props) {
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
       .filter((vault) => !vault.archived)[0] || [];
+
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },

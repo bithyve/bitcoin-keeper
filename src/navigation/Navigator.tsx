@@ -57,7 +57,6 @@ import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
-import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
@@ -72,9 +71,11 @@ import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
-import Login from '../screens/LoginScreen/Login';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
+import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
+import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -154,9 +155,9 @@ function AppStack() {
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
+        <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
-        <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
@@ -166,6 +167,7 @@ function AppStack() {
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
+        <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
@@ -216,7 +218,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />

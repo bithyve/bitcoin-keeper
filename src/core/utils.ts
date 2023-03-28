@@ -161,12 +161,12 @@ export const parseTextforVaultConfig = (secret: string) => {
     }
     const parsedResponse: ParsedVauleText = {
       signersDetails: signersDetailsList,
-      isMultisig: true,
+      isMultisig: scheme.n !== 1,
       scheme,
     };
     return parsedResponse;
   }
-  throw Error('Something went wrong!');
+  throw Error('Unsupported format!');
 };
 
 export const urlParamsToObj = (url: string): object => {

@@ -3,7 +3,6 @@ import { Box } from 'native-base';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import ImageIcon from 'src/assets/images/image.svg';
 import RNFS from 'react-native-fs';
 
 function UploadFile({ fileHandler }) {
@@ -30,7 +29,6 @@ function UploadFile({ fileHandler }) {
       }}
     >
       <Box variant="linearGradient" style={styles.container}>
-        <ImageIcon />
         <Text style={styles.text} color={'light.white'}>
           Import a BSMS or Output Descriptor File
         </Text>

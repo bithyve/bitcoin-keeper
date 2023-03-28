@@ -25,6 +25,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import { Transaction } from 'src/core/wallets/interfaces';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 function TransactionDetails({ route }) {
   const navigation = useNavigation();
@@ -34,7 +35,7 @@ function TransactionDetails({ route }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
-  const { transaction }: { transaction: Transaction } = route.params;
+  const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
 
   function InfoCard({
     title,
@@ -73,7 +74,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${transaction.txid}`
     );
   };
@@ -101,7 +103,13 @@ function TransactionDetails({ route }) {
           </Box>
           <Box>
             <Text style={styles.amountText}>
-              {`${getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency, satsEnabled)} `}
+              {`${getAmt(
+                transaction.amount,
+                exchangeRates,
+                currencyCode,
+                currentCurrency,
+                satsEnabled
+              )} `}
               <Text color="light.dateText" style={styles.unitText}>
                 {getUnit(currentCurrency, satsEnabled)}
               </Text>
@@ -144,10 +152,10 @@ function TransactionDetails({ route }) {
             showIcon={false}
             numberOfLines={transaction.senderAddresses.length}
           />
-          {transaction.notes && (
+          {wallet.specs.txNote[transaction.txid] && (
             <InfoCard
               title="Note"
-              describtion={transaction.notes}
+              describtion={wallet.specs.txNote[transaction.txid]}
               showIcon
               letterSpacing={2.4}
               Icon={<Edit />}

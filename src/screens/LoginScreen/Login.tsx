@@ -213,6 +213,9 @@ function LoginScreen({ navigation, route }) {
       if (torStatus === TorStatus.CONNECTED) {
         return loginData.message;
       }
+      if (torStatus === TorStatus.ERROR) {
+        return '';
+      }
       return 'It might take upto minute';
     }
     return loginData.message;
@@ -222,6 +225,9 @@ function LoginScreen({ navigation, route }) {
     if (torEnbled) {
       if (torStatus === TorStatus.CONNECTED) {
         return loginData.title;
+      }
+      if (torStatus === TorStatus.ERROR) {
+        return 'Error';
       }
       return 'Connecting to Tor ';
     }
@@ -233,6 +239,9 @@ function LoginScreen({ navigation, route }) {
       if (torStatus === TorStatus.CONNECTED) {
         return loginData.subTitle;
       }
+      if (torStatus === TorStatus.ERROR) {
+        return 'Failed to connect to tor';
+      }
       return 'Network calls and some functions may work slower when the Tor is enabled  ';
     }
     return loginData.subTitle;
@@ -243,6 +252,9 @@ function LoginScreen({ navigation, route }) {
       if (torEnbled) {
         if (torStatus === TorStatus.CONNECTED) {
           return 'Next';
+        }
+        if (torStatus === TorStatus.ERROR) {
+          return 'Login w/o tor';
         }
         return null;
       }
@@ -322,7 +334,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
           </Box>
 
-          <HStack justifyContent="space-between" mr={10} paddingTop="1">
+          {/* <HStack justifyContent="space-between" mr={10} paddingTop="1">
             <Text color="light.white" px="5" fontSize={13} letterSpacing={1}>
               Use tor
             </Text>
@@ -333,7 +345,7 @@ function LoginScreen({ navigation, route }) {
               onChange={toggleTor}
               defaultIsChecked={torEnbled}
             />
-          </HStack>
+          </HStack> */}
 
           <Box style={styles.btnContainer}>
             {attempts >= 1 ? (

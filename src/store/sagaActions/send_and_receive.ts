@@ -1,4 +1,4 @@
-import { TransactionPrerequisiteElements } from 'src/core/wallets/interfaces';
+import { TransactionPrerequisiteElements, UTXO } from 'src/core/wallets/interfaces';
 
 import { Action } from 'redux';
 import { Recipient } from 'src/common/data/models/interfaces/Recipient';
@@ -121,6 +121,7 @@ export interface SendPhaseOneAction extends Action {
       address: string;
       amount: number;
     }[];
+    UTXOs?: UTXO[];
   };
 }
 
@@ -130,6 +131,7 @@ export const sendPhaseOne = (payload: {
     address: string;
     amount: number;
   }[];
+  UTXOs?: UTXO[];
 }): SendPhaseOneAction => ({
   type: SEND_PHASE_ONE,
   payload,
@@ -161,6 +163,7 @@ export interface SendPhaseTwoAction extends Action {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
     note?: string;
+    label?: string;
   };
 }
 
@@ -169,6 +172,7 @@ export const sendPhaseTwo = (payload: {
   txnPriority: TxPriority;
   token?: number;
   note?: string;
+  label?: string;
 }): SendPhaseTwoAction => ({
   type: SEND_PHASE_TWO,
   payload,

@@ -21,6 +21,7 @@ import {
 import { call, put, select } from 'redux-saga/effects';
 import {
   setNetBalance,
+  setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
 } from 'src/store/reducers/wallets';
@@ -40,6 +41,7 @@ import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { generateKey } from 'src/core/services/operations/encryption';
+import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -367,12 +369,24 @@ function* syncWalletsWorker({
   const { wallets } = payload;
   const network = WalletUtilities.getNetworkByType(wallets[0].networkType);
 
-  const { synchedWallets } = yield call(
+  const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(
     WalletOperations.syncWalletsViaElectrumClient,
     wallets,
     network
   );
-
+  for (const wallet of synchedWallets) {
+    const allUTXOs = wallet.specs.confirmedUTXOs.concat(wallet.specs.unconfirmedUTXOs);
+    for (const utxo of allUTXOs) {
+      const utxoId = `${utxo.txId}${utxo.vout}`;
+      const utxoInfo: UTXOInfo = {
+        id: utxoId,
+        txId: utxo.txId,
+        vout: utxo.vout,
+        walletId: wallet.id,
+      };
+      dbManager.createObject(RealmSchema.UTXOInfo, utxoInfo);
+    }
+  }
   return {
     synchedWallets,
   };
@@ -388,6 +402,7 @@ function* refreshWalletsWorker({
     options: { hardRefresh?: boolean };
   };
 }) {
+  yield put(setSyncing(true));
   const { wallets } = payload;
   const { options } = payload;
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
@@ -427,6 +442,7 @@ function* refreshWalletsWorker({
 
   yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
   yield put(setNetBalance(netBalance));
+  yield put(setSyncing(false));
 }
 
 export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH_WALLETS);

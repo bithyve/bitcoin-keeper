@@ -42,11 +42,11 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import CustomPriorityModal from './CustomPriorityModal';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -70,6 +70,8 @@ function SendConfirmation({ route }) {
     walletId,
     transferType,
     uaiSetActionFalse,
+    note,
+    label,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -79,6 +81,8 @@ function SendConfirmation({ route }) {
     uiMetaData: any;
     transferType: TransferType;
     uaiSetActionFalse: any;
+    note: string;
+    label: string;
   } = route.params;
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -192,6 +196,8 @@ function SendConfirmation({ route }) {
         sendPhaseTwo({
           wallet: sender,
           txnPriority: transactionPriority,
+          note,
+          label,
         })
       );
     }
@@ -289,9 +295,8 @@ function SendConfirmation({ route }) {
     const getCurrencyIcon = () => {
       if (currentCurrency === CurrencyKind.BITCOIN) {
         return '฿';
-      } else {
-        return currencyCode;
       }
+      return currencyCode;
     };
 
     const getCardDetails = () => {
