@@ -195,10 +195,10 @@ function UTXOList({
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
-        <Box style={{ paddingTop: windowHeight > 800 ? hp(75) : hp(100) }}>
+        <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
           <EmptyStateView
             IllustartionImage={emptyIcon}
-            title="No transactions yet."
+            title="No UTXO’s yet."
             subTitle="Pull down to refresh"
           />
         </Box>
