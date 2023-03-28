@@ -19,7 +19,7 @@ import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import Text from 'src/components/KeeperText';
-import Selected from 'src/assets/images/selected.svg';
+import Done from 'src/assets/images/selected.svg';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -35,6 +35,15 @@ function UTXOLabeling() {
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
+  const lablesUpdated =
+    labels[`${utxo.txId}${utxo.vout}`].reduce((a, c) => {
+      a += c.name;
+      return a;
+    }, '') !==
+    existingLabels.reduce((a, c) => {
+      a += c.name;
+      return a;
+    }, '');
 
   const dispatch = useDispatch();
 
@@ -56,11 +65,10 @@ function UTXOLabeling() {
       existingLabels[editingIndex] = { name: label, type: LabelType.USER };
     } else {
       existingLabels.push({ name: label, type: LabelType.USER });
-      setEditingIndex(0);
     }
+    setEditingIndex(-1);
     setExistingLabels(existingLabels);
     setLabel('');
-
   };
 
   const onSaveChangeClick = () => {
@@ -153,13 +161,11 @@ function UTXOLabeling() {
                 color="#E0B486"
                 value={label}
                 autoCorrect={false}
-                // returnKeyType="done"
-                // onSubmitEditing={onAdd}
                 autoCapitalize="characters"
               />
             </Box>
             <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
-              <Selected />
+              <Done />
             </TouchableOpacity>
           </Box>
         </View>
@@ -167,7 +173,7 @@ function UTXOLabeling() {
         <Box style={styles.ctaBtnWrapper}>
           <Box ml={windowWidth * -0.09}>
             <Buttons
-              primaryDisable={editingIndex === -1}
+              primaryDisable={!lablesUpdated}
               primaryCallback={onSaveChangeClick}
               primaryText="Save Changes"
               secondaryCallback={navigation.goBack}
@@ -220,18 +226,17 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: "#F7F2EC",
+    backgroundColor: '#F7F2EC',
   },
   inputLabelBox: {
     width: '90%',
-
   },
   inputLabel: {
     fontSize: 13,
     fontWeight: '900',
   },
   addBtnWrapper: {
-    width: '10%'
+    width: '10%',
   },
   unitText: {
     letterSpacing: 0.6,
