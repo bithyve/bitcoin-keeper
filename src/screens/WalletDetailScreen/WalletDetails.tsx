@@ -6,17 +6,15 @@ import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { setIntroModal, setWalletDetailsUI } from 'src/store/reducers/wallets';
+import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import useWallets, { whirlpoolWalletTypeMap } from 'src/hooks/useWallets';
+import useWallets from 'src/hooks/useWallets';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import { createUTXOReference } from 'src/store/sagaActions/utxos';
-import WalletDetailsTabView from './components/WalletDetailsTabView';
+import { useNavigation } from '@react-navigation/native';
+import { WalletType } from 'src/core/wallets/enums';
+
 import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
@@ -24,9 +22,6 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
-import UTXOSelectionTotal from './components/UTXOSelectionTotal';
-import Buttons from 'src/components/Buttons';
-import KeeperModal from 'src/components/KeeperModal';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -52,111 +47,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, curre
   );
 }
 
-function Footer({
-  //   tab,
-  //   depositWallet,
-  //   currentWallet,
-  //   onPressBuyBitcoin,
-  //   setEnableSelection,
-  //   enableSelection,
-  //   utxos,
-  //   selectedUTXOs,
-  //   setShowMixSuccessModal,
-  // }) {
-  //   const navigation = useNavigation();
-  //   const dispatch = useDispatch();
-  //   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
-  //   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
-  //   const { walletPoolMap } = useAppSelector((state) => state.wallet);
-  //   const goToWhirlpoolConfiguration = () => {
-  //     setEnableSelection(false);
-  //     navigation.dispatch(
-  //       CommonActions.navigate('WhirlpoolConfiguration', {
-  //         utxos: selectedUTXOs || [],
-  //         wallet: currentWallet,
-  //       })
-  //     );
-  //   };
-
-  //   const inititateWhirlpoolMixProcess = async () => {
-  //     if (selectedUTXOs.length === 0) {
-  //       Alert.alert('Please select atleast one UTXO');
-  //       return;
-  //     }
-  //     try {
-  //       const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
-  //       const destination = postmix.specs.receivingAddress;
-  //       const poolDenomination = walletPoolMap[depositWallet.id];
-  //       // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
-  //       let isBroadcasted = true;
-  //       for (const utxo of selectedUTXOs) {
-  //         const { txid, PSBT } = await WhirlpoolClient.premixToPostmix(
-  //           utxo,
-  //           destination,
-  //           poolDenomination,
-  //           currentWallet
-  //         );
-  //         console.log('txid', txid);
-  //         if (txid) {
-  //           dispatch(
-  //             refreshWallets(
-  //               [
-  //                 depositWallet?.whirlpoolConfig.premixWallet,
-  //                 depositWallet?.whirlpoolConfig.postmixWallet,
-  //               ],
-  //               { hardRefresh: true }
-  //             )
-  //           );
-  //           const outputs = PSBT.txOutputs;
-  //           const voutPostmix = outputs.findIndex((o) => o.address === destination);
-  //           dispatch(
-  //             createUTXOReference({
-  //               labels: [{ name: 'Premix', type: LabelType.SYSTEM }],
-  //               txId: txid,
-  //               vout: voutPostmix,
-  //             })
-  //           );
-  //         } else isBroadcasted = false;
-  //       }
-  //       if (isBroadcasted) setShowMixSuccessModal(true);
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   };
-
-  //   return tab === 'Transactions' ? (
-  //     <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
-  //   ) : enableSelection ? (
-  //     <FinalizeFooter
-  //       initiateWhirlpool={initiateWhirlpool}
-  //       setEnableSelection={setEnableSelection}
-  //       setInitiateWhirlpool={setInitiateWhirlpool}
-  //       initateWhirlpoolMix={initateWhirlpoolMix}
-  //       setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-  //       secondaryText="Cancel"
-  //       footerCallback={() =>
-  //         initiateWhirlpool
-  //           ? goToWhirlpoolConfiguration()
-  //           : initateWhirlpoolMix
-  //           ? inititateWhirlpoolMixProcess()
-  //           : navigation.dispatch(
-  //               CommonActions.navigate('Send', { sender: currentWallet, selectedUTXOs })
-  //             )
-  //       }
-  //     />
-  //   ) : (
-  //     <UTXOFooter
-  //       setEnableSelection={setEnableSelection}
-  //       setInitiateWhirlpool={setInitiateWhirlpool}
-  //       setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-  //       enableSelection={enableSelection}
-  //       utxos={utxos}
-  //       wallet={currentWallet}
-  //     />
-  //   );
-  currentWallet,
-  onPressBuyBitcoin,
-}) {
+function Footer({ currentWallet, onPressBuyBitcoin }) {
   return <TransactionFooter currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />;
 }
 
@@ -164,88 +55,44 @@ function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { autoRefresh } = route?.params || {};
-  const selectedTab = route?.params?.selectedtab;
   const { wallets } = useWallets({ whirlpoolStruct: true });
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
-  const { walletDetailsUI } = useAppSelector((state) => state.wallet);
 
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
-  const [depositWallet, setDepositWallet] = useState<Wallet>();
   const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
 
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [tab, setActiveTab] = useState('Transactions');
-  const [showMixSuccessModal, setShowMixSuccessModal] = useState(false);
 
-  useEffect(() => {
-    setActiveTab(selectedTab || 'Transactions');
-    if (walletIndex !== wallets.length) {
-      const defaultWallet: Wallet = wallets[walletIndex];
-      const accountType = walletDetailsUI[defaultWallet.id];
-      if (accountType && accountType !== WalletType.DEFAULT) {
-        if (defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]) {
-          setDepositWallet(defaultWallet);
-          setCurrentWallet(defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
-          dispatch(
-            refreshWallets(
-              [
-                defaultWallet,
-                defaultWallet?.whirlpoolConfig.premixWallet,
-                defaultWallet?.whirlpoolConfig.postmixWallet,
-                defaultWallet?.whirlpoolConfig.badbankWallet,
-              ],
-              { hardRefresh: true }
-            )
-          );
-        }
-      } else {
-        setCurrentWallet(defaultWallet);
-      }
-    }
-  }, [walletIndex, walletDetailsUI]);
-
-  const { confirmedUTXOs, unconfirmedUTXOs } = currentWallet?.specs || {
-    confirmedUTXOs: [],
-    unconfirmedUTXOs: [],
-  };
-  const utxos =
-    confirmedUTXOs
-      .map((utxo) => {
-        utxo.confirmed = true;
-        return utxo;
-      })
-      .concat(
-        unconfirmedUTXOs.map((utxo) => {
-          utxo.confirmed = false;
-          return utxo;
-        })
-      ) || [];
-
-  const [selectionTotal, setSelectionTotal] = useState(0);
-  const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
-  const [enableSelection, _setEnableSelection] = useState(false);
-  const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
-
-  const cleanUp = useCallback(() => {
-    setSelectedUTXOMap({});
-    setSelectionTotal(0);
-  }, []);
-
-  const setEnableSelection = useCallback(
-    (value) => {
-      _setEnableSelection(value);
-      if (!value) {
-        cleanUp();
-      }
-    },
-    [cleanUp]
-  );
+  // useEffect(() => {
+  //   setActiveTab(selectedTab || 'Transactions');
+  //   if (walletIndex !== wallets.length) {
+  //     const defaultWallet: Wallet = wallets[walletIndex];
+  //     const accountType = walletDetailsUI[defaultWallet.id];
+  //     if (accountType && accountType !== WalletType.DEFAULT) {
+  //       if (defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]) {
+  //         setDepositWallet(defaultWallet);
+  //         setCurrentWallet(defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
+  //         dispatch(
+  //           refreshWallets(
+  //             [
+  //               defaultWallet,
+  //               defaultWallet?.whirlpoolConfig.premixWallet,
+  //               defaultWallet?.whirlpoolConfig.postmixWallet,
+  //               defaultWallet?.whirlpoolConfig.badbankWallet,
+  //             ],
+  //             { hardRefresh: true }
+  //           )
+  //         );
+  //       }
+  //     } else {
+  //       setCurrentWallet(defaultWallet);
+  //     }
+  //   }
+  // }, [walletIndex, walletDetailsUI]);
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
-
-    setShowMixSuccessModal(false);
   }, [autoRefresh]);
 
   const flatListRef = useRef(null);
@@ -266,16 +113,6 @@ function WalletDetails({ route }) {
   };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
-  const goToPostMixWallet = () => {
-    setShowMixSuccessModal(false);
-    dispatch(
-      setWalletDetailsUI({
-        walletId: depositWallet.id,
-        walletType: WalletType.POST_MIX,
-      })
-    );
-  };
-
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
@@ -292,29 +129,20 @@ function WalletDetails({ route }) {
         <>
           <UTXOsManageNavBox
             onClick={() =>
-              navigation.navigate('UTXOManagement', { data: currentWallet, routeName: 'Wallet' })
+              navigation.navigate('UTXOManagement', {
+                data: currentWallet,
+                routeName: 'Wallet',
+                accountType: WalletType.DEFAULT,
+              })
             }
           />
           <TransactionsAndUTXOs
-            tab={tab}
             transactions={currentWallet?.specs.transactions}
             setPullRefresh={setPullRefresh}
             pullRefresh={pullRefresh}
             currentWallet={currentWallet}
           />
-          <Footer
-            tab={tab}
-            depositWallet={depositWallet}
-            currentWallet={currentWallet}
-            onPressBuyBitcoin={onPressBuyBitcoin}
-            setEnableSelection={setEnableSelection}
-            enableSelection={enableSelection}
-            utxos={utxos}
-            selectedUTXOs={selectedUTXOs}
-            setShowMixSuccessModal={setShowMixSuccessModal}
-            currentWallet={currentWallet}
-            onPressBuyBitcoin={onPressBuyBitcoin}
-          />
+          <Footer currentWallet={currentWallet} onPressBuyBitcoin={onPressBuyBitcoin} />
         </>
       ) : (
         <Box style={styles.addNewWalletContainer}>
@@ -331,30 +159,6 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
-      <KeeperModal
-        justifyContent="flex-end"
-        visible={showMixSuccessModal}
-        close={() => {
-          () => goToPostMixWallet();
-        }}
-        title="Mix broadcasted"
-        subTitle="Your mix is now being broadcasted to the Bitcoin network."
-        subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonTextColor="#FAFAFA"
-        closeOnOverlayClick={false}
-        Content={() => (
-          <Box style={styles.mixSuccesModalFooter}>
-            <Box style={{ alignSelf: 'flex-end' }}>
-              <Buttons
-                primaryText="View Postmix Account"
-                primaryCallback={() => goToPostMixWallet()}
-              />
-            </Box>
-          </Box>
-        )}
-      />
     </ScreenWrapper>
   );
 }
@@ -385,13 +189,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
-  },
-  mixSuccesModalFooter: {
-    marginTop: 80,
-    flexDirection: 'row',
-    alignContent: 'flex-end',
-    justifyContent: 'flex-end',
-    width: '100%',
   },
 });
 export default WalletDetails;

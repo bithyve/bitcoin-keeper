@@ -4,10 +4,9 @@ import { Box } from 'native-base';
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../../screens/WalletDetailScreen/BottomMenuItem';
-import { allowedMixTypes, allowedSendTypes } from '../WalletDetails';
 import { WalletType } from 'src/core/wallets/enums';
+import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetailScreen/WalletDetails';
 
 function UTXOFooter({
   setEnableSelection,
@@ -16,8 +15,6 @@ function UTXOFooter({
   setInitateWhirlpoolMix,
   wallet,
 }) {
-  const { bottom } = useSafeAreaInsets();
-
   return (
     <Box style={styles.footerContainer}>
       <Box style={styles.border} borderColor="light.GreyText" />
