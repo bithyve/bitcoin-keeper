@@ -60,7 +60,6 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
     </Box>
   );
 }
-
 function UTXOElement({
   item,
   enableSelection,
