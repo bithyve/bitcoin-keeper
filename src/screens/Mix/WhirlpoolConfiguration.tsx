@@ -11,7 +11,6 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import UtxoSummary from './UtxoSummary';
 import PageIndicator from 'src/components/PageIndicator';
 import { useAppSelector } from 'src/store/hooks';
 import openLink from 'src/utils/OpenLink';
@@ -20,33 +19,30 @@ import { useDispatch } from 'react-redux';
 import config from 'src/core/config';
 import { TxPriority, WalletType } from 'src/core/wallets/enums';
 import { AverageTxFees } from 'src/core/wallets/interfaces';
+import UtxoSummary from './UtxoSummary';
 
-const feesContent = (fees, onFeeSelectionCallback) => {
-  return (
-    <Box style={styles.feeContent}>
-      <Box style={styles.feeHeaderItem}>
-        <Text style={styles.feeItemHeader}>Priority</Text>
-        <Text style={styles.feeItemHeader}>Arrival Time</Text>
-        <Text style={styles.feeItemHeader}>Fee</Text>
-      </Box>
-      {fees &&
-        fees.map((fee) => {
-          return (
-            <TouchableOpacity onPress={() => onFeeSelectionCallback(fee)}>
-              <Box style={styles.feeItem}>
-                <Text style={styles.feeItemText}>{fee?.priority}</Text>
-                <Text style={styles.feeItemText}>{fee?.time}</Text>
-                <Text style={styles.feeItemText}>
-                  {fee?.fee} {fee?.fee > 1 ? 'sats' : 'sat'}/vB
-                </Text>
-              </Box>
-              <Box style={styles.feeItemBorder} />
-            </TouchableOpacity>
-          );
-        })}
+const feesContent = (fees, onFeeSelectionCallback) => (
+  <Box style={styles.feeContent}>
+    <Box style={styles.feeHeaderItem}>
+      <Text style={styles.feeItemHeader}>Priority</Text>
+      <Text style={styles.feeItemHeader}>Arrival Time</Text>
+      <Text style={styles.feeItemHeader}>Fee</Text>
     </Box>
-  );
-};
+    {fees &&
+      fees.map((fee) => (
+        <TouchableOpacity onPress={() => onFeeSelectionCallback(fee)}>
+          <Box style={styles.feeItem}>
+            <Text style={styles.feeItemText}>{fee?.priority}</Text>
+            <Text style={styles.feeItemText}>{fee?.time}</Text>
+            <Text style={styles.feeItemText}>
+              {fee?.fee} {fee?.fee > 1 ? 'sats' : 'sat'}/vB
+            </Text>
+          </Box>
+          <Box style={styles.feeItemBorder} />
+        </TouchableOpacity>
+      ))}
+  </Box>
+);
 
 function WhirlpoolContent() {
   return (
@@ -308,7 +304,7 @@ const styles = StyleSheet.create({
   },
 
   feeContent: {
-    width: '100%',
+    width: wp(280),
   },
   feeHeaderItem: {
     width: '90%',
@@ -332,7 +328,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   feeItemBorder: {
-    width: '80%',
+    width: '100%',
     borderWidth: 0.5,
     borderColor: '#005545',
     opacity: 0.5,
