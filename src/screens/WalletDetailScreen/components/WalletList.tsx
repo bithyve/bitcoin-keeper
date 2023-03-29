@@ -9,6 +9,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsivenes
 import Text from 'src/components/KeeperText';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WhirlpoolAccount from 'src/assets/images/whirlpool_account.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -16,7 +17,6 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import GradientIcon from './GradientIcon';
-import KeeperModal from 'src/components/KeeperModal';
 
 const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
   return (
@@ -51,16 +51,26 @@ const WalletTile = ({
   exchangeRates,
   satsEnabled,
   balances,
+  isWhirlpoolWallet,
 }) => {
   return (
     <Box>
       <Box style={styles.walletCard}>
         <Box style={styles.walletInnerView}>
-          <GradientIcon
-            Icon={WalletInsideGreen}
-            height={35}
-            gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-          />
+          {isWhirlpoolWallet ? (
+            <GradientIcon
+              Icon={WhirlpoolAccount}
+              height={35}
+              gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+            />
+          ) : (
+            <GradientIcon
+              Icon={WalletInsideGreen}
+              height={35}
+              gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+            />
+          )}
+
           <Box
             style={{
               marginLeft: 10,
@@ -158,7 +168,7 @@ function WalletItem({
   if (!item) {
     return null;
   }
-
+  const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
   const isActive = index === walletIndex;
   const { wallet } = translations;
   return (
@@ -185,6 +195,7 @@ function WalletItem({
             />
           ) : (
             <WalletTile
+              isWhirlpoolWallet={isWhirlpoolWallet}
               isActive={isActive}
               wallet={item}
               currentCurrency={currentCurrency}

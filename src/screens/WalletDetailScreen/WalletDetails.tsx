@@ -60,16 +60,9 @@ function WalletDetails({ route }) {
 
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
-  const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
+  const currentWallet = wallets[walletIndex];
 
   const [pullRefresh, setPullRefresh] = useState(false);
-
-  useEffect(() => {
-    if (walletIndex !== wallets.length) {
-      const defaultWallet: Wallet = wallets[walletIndex];
-      setCurrentWallet(defaultWallet);
-    }
-  }, [walletIndex]);
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
@@ -103,18 +96,19 @@ function WalletDetails({ route }) {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
-        setCurrentWallet={setCurrentWallet}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
           <UTXOsManageNavBox
-            onClick={() =>
+            currentWallet={currentWallet}
+            isWhirlpoolWallet={Boolean(currentWallet?.whirlpoolConfig?.whirlpoolWalletDetails)}
+            onClick={() => {
               navigation.navigate('UTXOManagement', {
                 data: currentWallet,
                 routeName: 'Wallet',
                 accountType: WalletType.DEFAULT,
-              })
-            }
+              });
+            }}
           />
           <TransactionsAndUTXOs
             transactions={currentWallet?.specs.transactions}
