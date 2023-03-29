@@ -4,17 +4,19 @@ import { Box, Pressable } from 'native-base';
 import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import idx from 'idx';
 import Text from '../KeeperText';
 
 const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
-  currentWallet.specs.balances.unconfirmed +
-  currentWallet.specs.balances.confirmed +
-  currentWallet.whirlpoolConfig.premixWallet.specs.balances.unconfirmed +
-  currentWallet.whirlpoolConfig.premixWallet.specs.balances.confirmed +
-  currentWallet.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed +
-  currentWallet.whirlpoolConfig.postmixWallet.specs.balances.confirmed +
-  currentWallet.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed +
-  currentWallet.whirlpoolConfig.badbankWallet.specs.balances.confirmed;
+  idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.specs.balances.confirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
 
 function UTXOsManageNavBox({
   onClick,
@@ -23,7 +25,7 @@ function UTXOsManageNavBox({
 }: {
   onClick: any;
   isWhirlpoolWallet: boolean;
-  currentWallet: Wallet;
+  currentWallet: Wallet | Vault;
 }) {
   return (
     <Pressable

@@ -55,7 +55,7 @@ function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { autoRefresh } = route?.params || {};
-  const { wallets } = useWallets();
+  const { wallets } = useWallets({ whirlpoolStruct: true });
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
 
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
@@ -101,7 +101,9 @@ function WalletDetails({ route }) {
         <>
           <UTXOsManageNavBox
             currentWallet={currentWallet}
-            isWhirlpoolWallet={Boolean(currentWallet?.whirlpoolConfig?.whirlpoolWalletDetails)}
+            isWhirlpoolWallet={Boolean(
+              currentWallet?.whirlpoolConfig?.whirlpoolWalletDetails?.length
+            )}
             onClick={() => {
               navigation.navigate('UTXOManagement', {
                 data: currentWallet,

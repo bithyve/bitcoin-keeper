@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { useContext } from 'react';
 import { EntityKind, WalletType } from 'src/core/wallets/enums';
+import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -13,6 +14,9 @@ const useWhirlpoolWallets = ({ wallet }: { wallet: Wallet | Vault }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets = useQuery(Schema);
   const currentWallet = getJSONFromRealmObject(wallet);
+  if (whirlPoolWalletTypes.includes(wallet.type)) {
+    return { wallet: null };
+  }
   if (whirlpoolConfig) {
     const { whirlpoolWalletDetails } = whirlpoolConfig;
     whirlpoolWalletDetails.forEach((whirlpoolWalletDetail) => {

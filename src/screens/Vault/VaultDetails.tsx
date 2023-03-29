@@ -32,7 +32,7 @@ function Wrapper({ children }) {
   );
 }
 function Footer({ onPressBuy, vault }) {
-  return <VaultFooter onPressBuy={onPressBuy} vault={vault} />
+  return <VaultFooter onPressBuy={onPressBuy} vault={vault} />;
 }
 
 function VaultDetails({ route }) {
@@ -73,16 +73,19 @@ function VaultDetails({ route }) {
         paddingBottom={windowHeight > 800 ? 5 : 0}
       >
         <VStack style={{ paddingTop: windowHeight * 0.09 }}>
-          <UTXOsManageNavBox onClick={() => navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })} />
+          <UTXOsManageNavBox
+            onClick={() =>
+              navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })
+            }
+            isWhirlpoolWallet={false}
+            currentWallet={vault}
+          />
           <TransactionsAndUTXOs
             transactions={transactions}
             vault={vault}
             autoRefresh={autoRefresh}
           />
-          <Footer
-            onPressBuy={() => setShowBuyRampModal(true)}
-            vault={vault}
-          />
+          <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
         </VStack>
         <VaultModals
           showBuyRampModal={showBuyRampModal}
