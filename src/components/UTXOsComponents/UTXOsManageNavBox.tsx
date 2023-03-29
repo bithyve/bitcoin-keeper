@@ -3,19 +3,49 @@ import React from 'react';
 import { Box, Pressable } from 'native-base';
 import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import idx from 'idx';
 import Text from '../KeeperText';
 
-function UTXOsManageNavBox({ onClick }: any) {
+const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
+  idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.specs.balances.confirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
+
+function UTXOsManageNavBox({
+  onClick,
+  isWhirlpoolWallet,
+  currentWallet,
+}: {
+  onClick: any;
+  isWhirlpoolWallet: boolean;
+  currentWallet: Wallet | Vault;
+}) {
   return (
     <Pressable
       style={styles.manageUTXOsWrapper}
       backgroundColor="light.lightAccent"
       onPress={onClick}
     >
-      <Box style={styles.titleViewWrapper}>
-        <Text style={styles.titleText}>Manage UTXO’s</Text>
-        <Text style={styles.subTitleText}>Lorem ipsum dolor sit amet, consectetur</Text>
-      </Box>
+      {isWhirlpoolWallet ? (
+        <Box style={styles.titleViewWrapper}>
+          <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
+          <Text style={styles.subTitleText}>
+            Total Balance: {getTotalBalanceWhirlpoolAccount(currentWallet)}{' '}
+          </Text>
+        </Box>
+      ) : (
+        <Box style={styles.titleViewWrapper}>
+          <Text style={styles.titleText}>Manage UTXO’s</Text>
+          <Text style={styles.subTitleText}>Modify Label and choose UTXOs</Text>
+        </Box>
+      )}
       <Box>
         <ArrowIcon />
       </Box>

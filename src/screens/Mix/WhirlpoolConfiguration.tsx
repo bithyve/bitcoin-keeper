@@ -18,7 +18,7 @@ import openLink from 'src/utils/OpenLink';
 import { setWhirlpoolModal } from 'src/store/reducers/wallets';
 import { useDispatch } from 'react-redux';
 import config from 'src/core/config';
-import { TxPriority } from 'src/core/wallets/enums';
+import { TxPriority, WalletType } from 'src/core/wallets/enums';
 import { AverageTxFees } from 'src/core/wallets/interfaces';
 
 const feesContent = (fees, onFeeSelectionCallback) => {
@@ -51,7 +51,7 @@ const feesContent = (fees, onFeeSelectionCallback) => {
 function WhirlpoolContent() {
   return (
     <View>
-      <Text>
+      <Text color='light.white' style={{ letterSpacing: 0.6 }}>
         Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
         These wallets are all based off the same seed that you used to create the BIP39 software
         wallet you are using. They simply use different (but well known) derivation paths to derive
@@ -148,7 +148,7 @@ export default function WhirlpoolConfiguration({ route }) {
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" />
+      <HeaderTitle paddingLeft={10} title="Configure Whirlpool" subtitle="Prepare to start a mix" />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
       <Box style={styles.scode}>
@@ -160,6 +160,7 @@ export default function WhirlpoolConfiguration({ route }) {
           borderWidth={0}
           height="12"
           fontSize={13}
+          width="95%"
           value={scode}
           autoCorrect={false}
           autoComplete="off"
@@ -242,13 +243,14 @@ export default function WhirlpoolConfiguration({ route }) {
 const styles = StyleSheet.create({
   scode: {
     marginTop: 20,
-    marginLeft: 40,
+    marginLeft: 30,
   },
   feeSelection: {
-    marginLeft: 40,
+    marginLeft: 30,
     marginTop: 40,
     padding: 10,
     borderRadius: 10,
+    width: '87%',
   },
   feeDetail: {
     flexDirection: 'row',
@@ -269,8 +271,9 @@ const styles = StyleSheet.create({
     color: '#656565',
   },
   changePriority: {
-    marginLeft: 40,
+    marginLeft: 30,
     borderRadius: 10,
+    width: '87%',
   },
   changePriorityDirection: {
     flexDirection: 'row',

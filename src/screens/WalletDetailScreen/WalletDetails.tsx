@@ -60,36 +60,9 @@ function WalletDetails({ route }) {
 
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [walletIndex, setWalletIndex] = useState<number>(0);
-  const [currentWallet, setCurrentWallet] = useState<Wallet>(wallets[walletIndex]);
+  const currentWallet = wallets[walletIndex];
 
   const [pullRefresh, setPullRefresh] = useState(false);
-
-  // useEffect(() => {
-  //   setActiveTab(selectedTab || 'Transactions');
-  //   if (walletIndex !== wallets.length) {
-  //     const defaultWallet: Wallet = wallets[walletIndex];
-  //     const accountType = walletDetailsUI[defaultWallet.id];
-  //     if (accountType && accountType !== WalletType.DEFAULT) {
-  //       if (defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]) {
-  //         setDepositWallet(defaultWallet);
-  //         setCurrentWallet(defaultWallet?.whirlpoolConfig[whirlpoolWalletTypeMap[accountType]]);
-  //         dispatch(
-  //           refreshWallets(
-  //             [
-  //               defaultWallet,
-  //               defaultWallet?.whirlpoolConfig.premixWallet,
-  //               defaultWallet?.whirlpoolConfig.postmixWallet,
-  //               defaultWallet?.whirlpoolConfig.badbankWallet,
-  //             ],
-  //             { hardRefresh: true }
-  //           )
-  //         );
-  //       }
-  //     } else {
-  //       setCurrentWallet(defaultWallet);
-  //     }
-  //   }
-  // }, [walletIndex, walletDetailsUI]);
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
@@ -123,18 +96,21 @@ function WalletDetails({ route }) {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
-        setCurrentWallet={setCurrentWallet}
       />
       {walletIndex !== undefined && walletIndex !== wallets.length ? (
         <>
           <UTXOsManageNavBox
-            onClick={() =>
+            currentWallet={currentWallet}
+            isWhirlpoolWallet={Boolean(
+              currentWallet?.whirlpoolConfig?.whirlpoolWalletDetails?.length
+            )}
+            onClick={() => {
               navigation.navigate('UTXOManagement', {
                 data: currentWallet,
                 routeName: 'Wallet',
                 accountType: WalletType.DEFAULT,
-              })
-            }
+              });
+            }}
           />
           <TransactionsAndUTXOs
             transactions={currentWallet?.specs.transactions}

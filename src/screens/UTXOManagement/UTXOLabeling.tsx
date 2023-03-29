@@ -8,7 +8,7 @@ import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
-import { LabelType } from 'src/core/wallets/enums';
+import { LabelType, NetworkType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
@@ -19,6 +19,8 @@ import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import Text from 'src/components/KeeperText';
+import openLink from 'src/utils/OpenLink';
+import config from 'src/core/config';
 import Done from 'src/assets/images/selected.svg';
 
 function UTXOLabeling() {
@@ -78,26 +80,28 @@ function UTXOLabeling() {
     dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
     navigation.goBack();
   };
+
+  const redirectToBlockExplorer = () => {
+    openLink(
+      `https://blockstream.info${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      }/tx/${utxo.txId}`
+    );
+  };
+
   return (
     <ScreenWrapper>
       <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        enabled
-        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
-        style={styles.scrollViewWrapper}
-      >
-        <View style={styles.subHeader}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.subHeaderTitle}>Transaction ID</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {utxo.txId}
-              </Text>
-              <Box style={{ margin: 5 }}>
-                <LinkIcon />
-              </Box>
-            </View>
+      <View style={styles.subHeader}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.subHeaderTitle}>Transaction ID</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={styles.subHeaderValue} numberOfLines={1}>
+              {utxo.txId}
+            </Text>
+            <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
+              <LinkIcon />
+            </TouchableOpacity>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.subHeaderTitle}>UTXO Value</Text>
@@ -125,7 +129,12 @@ function UTXOLabeling() {
                 style={[
                   styles.labelView,
                   {
-                    backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : ((editingIndex !== index) ? '#E0B486' : '#A88763'),
+                    backgroundColor:
+                      item.type === LabelType.SYSTEM
+                        ? '#23A289'
+                        : editingIndex !== index
+                        ? '#E0B486'
+                        : '#A88763',
                   },
                 ]}
               >
@@ -181,7 +190,7 @@ function UTXOLabeling() {
             />
           </Box>
         </Box>
-      </KeyboardAvoidingView>
+      </View>
     </ScreenWrapper>
   );
 }

@@ -8,8 +8,17 @@ import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import WhirlpoolServices from 'src/nativemodules/Whirlpool';
-import { Network, PoolData, Preview, TorConfig, TX0Data, WhirlpoolAPI } from './interface';
-import { generateMockTransaction, getAPIEndpoints } from './utils';
+import {
+  Info,
+  Network,
+  PoolData,
+  Preview,
+  Step,
+  TorConfig,
+  TX0Data,
+  WhirlpoolAPI,
+} from './interface';
+import { generateMockTransaction, getAPIEndpoints, sleep } from './utils';
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
@@ -81,6 +90,23 @@ export default class WhirlpoolClient {
     //     n_pool_max_outputs: u16
     //     )
 
+    // const input_structure: InputStructure = { // TODO: generate based on UTXO type
+    //   n_p2pkh_inputs: 0,
+    //   n_p2sh_p2wpkh_inputs: 0,
+    //   n_p2wpkh_inputs: inputs.length,
+    // };
+
+    // console.log({
+    //   inputs_value,
+    //   pool, // to construct premix_value using PremixValue::new
+    //   premix_fee_per_byte, // to construct premix_value using PremixValue::new,
+    //   input_structure,
+    //   miner_fee_per_byte,
+    //   coordinator_fee: tx0data.fee_value,
+    //   n_wanted_max_outputs: null,
+    //   n_pool_max_outputs: pool.tx0_max_outputs,
+    // });
+
     const minerFee = 1000; // paying average tx fee for now(should be calculated using miner_fee_per_byte)
     const n_premix_outputs = Math.floor(
       (inputs_value - pool.fee_value - minerFee) / pool.must_mix_balance_min
@@ -88,7 +114,7 @@ export default class WhirlpoolClient {
     const preview: Preview = {
       premix_value: pool.must_mix_balance_min, // low premix priority
       n_premix_outputs,
-      coordinator_fee: pool.fee_value,
+      coordinator_fee: tx0data.fee_value,
       miner_fee: minerFee,
       change:
         inputs_value - pool.fee_value - minerFee - n_premix_outputs * pool.must_mix_balance_min, // bad bank
@@ -166,25 +192,48 @@ export default class WhirlpoolClient {
     premixInput: InputUTXOs,
     destinationAddress: string,
     denomination: number,
-    premix: Wallet
-  ): Promise<{ txid: string; PSBT: bitcoinJS.Psbt }> => {
+    premix: Wallet,
+    notify: Function
+  ): Promise<string> => {
     if (!premixInput && !premixInput.height) throw new Error('Premix input is not confirmed');
+
+    await sleep();
+    notify(Info.Working, Step.WaitingForCoordinator);
+
+    await sleep();
+    notify(Info.Working, Step.Connecting);
+
     const network = WalletUtilities.getNetworkByType(premix.networkType);
     const postMixOutput: OutputUTXOs = {
       address: destinationAddress,
       value: denomination,
     };
 
+    await sleep();
+    notify(Info.Working, Step.Subscribing);
+
     const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
       network,
     });
+
+    await sleep();
+    notify(Info.Working, Step.RegisteringInput);
+
+    await sleep();
+    notify(Info.Working, Step.ConfirmingInput);
     WalletOperations.addInputToPSBT(PSBT, premix, premixInput, network);
+
+    await sleep();
+    notify(Info.Working, Step.RegisteringOutput);
     PSBT.addOutput(postMixOutput);
 
+    await sleep();
+    notify(Info.Working, Step.Signing);
     const { signedPSBT } = WalletOperations.signTransaction(premix, [premixInput], PSBT);
 
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
     const txid = await ElectrumClient.broadcast(txHex);
-    return { txid, PSBT };
+    notify(Info.Success);
+    return txid;
   };
 }

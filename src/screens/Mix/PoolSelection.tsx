@@ -18,8 +18,6 @@ import WhirlpoolClient, { TOR_CONFIG } from 'src/core/services/whirlpool/client'
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import { Network } from 'src/core/services/whirlpool/interface';
-import { addWhirlpoolWalletsLocal } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
 import UtxoSummary from './UtxoSummary';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
@@ -52,7 +50,6 @@ export default function PoolSelection({ route, navigation }) {
   const [whirlpoolApi, setWhirlpoolApi] = useState(null);
   const [tx0Data, setTx0Data] = useState(null);
   const [tx0Preview, setTx0Preview] = useState(null);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     initWhirlpoolClient();
@@ -74,7 +71,10 @@ export default function PoolSelection({ route, navigation }) {
   const initPoolData = async () => {
     try {
       setPoolSelectionText('Fetching Pools...');
-      const [response, tx0] = await Promise.all([WhirlpoolClient.getPools(), WhirlpoolClient.getTx0Data(scode)]);
+      const [response, tx0] = await Promise.all([
+        WhirlpoolClient.getPools(),
+        WhirlpoolClient.getTx0Data(scode),
+      ]);
       const sortedPools = response?.sort((a, b) => a.denomination - b.denomination);
       setMinMixAmount(sortedPools[0].must_mix_balance_cap + premixFee.averageTxFee);
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
@@ -82,7 +82,7 @@ export default function PoolSelection({ route, navigation }) {
       setTx0Data(tx0);
       if (filteredByUtxoTotal.length > 0) {
         setSelectedPool(filteredByUtxoTotal[0]);
-        onPoolSelectionCallback(filteredByUtxoTotal[0]);
+        onPoolSelectionCallback(filteredByUtxoTotal[0], tx0);
       }
     } catch (error) {
       console.log(error);
@@ -94,7 +94,6 @@ export default function PoolSelection({ route, navigation }) {
   };
 
   const onPreviewMix = () => {
-    dispatch(addWhirlpoolWalletsLocal({ depositWallet: wallet }));
     navigation.navigate('BroadcastPremix', {
       utxos,
       utxoCount,
@@ -107,9 +106,12 @@ export default function PoolSelection({ route, navigation }) {
     });
   };
 
-  const onPoolSelectionCallback = (pool) => {
+  const onPoolSelectionCallback = (pool, tx0) => {
     setSelectedPool(pool);
-    const correspondingTx0Data = tx0Data?.filter((data) => data.pool_id === pool.id)[0];
+
+    // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
+    const tx0ToFilter = tx0 || tx0Data;
+    const correspondingTx0Data = tx0ToFilter?.filter((data) => data.pool_id === pool.id)[0];
 
     const tx0Preview = WhirlpoolClient.getTx0Preview(
       correspondingTx0Data,
@@ -129,12 +131,12 @@ export default function PoolSelection({ route, navigation }) {
     return valueInPreferredUnit;
   };
 
-  const getPreferredUnit = () => satsEnabled ? 'sats' : 'btc';
+  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={25}
+        paddingLeft={10}
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
       />
@@ -165,7 +167,10 @@ export default function PoolSelection({ route, navigation }) {
           style={[styles.poolSelection, styles.poolErrorContainer]}
         >
           <Text style={styles.poolErrorText}>
-            Pools not available. Min <Text style={{ fontWeight: 'bold' }}>{minMixAmount}</Text> sats
+            Pools not available. Min{' '}
+            <Text style={{ fontWeight: 'bold' }}>
+              {valueByPreferredUnit(minMixAmount)} {getPreferredUnit()}
+            </Text>{' '}
             required
           </Text>
         </Box>
@@ -234,15 +239,16 @@ export default function PoolSelection({ route, navigation }) {
 
 const styles = StyleSheet.create({
   poolSelection: {
-    marginLeft: 40,
+    marginLeft: 32,
     marginTop: 30,
     marginBottom: 10,
     padding: 10,
     borderRadius: 10,
+    width: '85%',
   },
   textArea: {
     marginTop: 20,
-    marginLeft: 50,
+    marginLeft: 40,
   },
   footerContainer: {
     position: 'absolute',
