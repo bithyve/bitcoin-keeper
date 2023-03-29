@@ -33,6 +33,7 @@ const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: str
 };
 
 function Footer({
+  utxos,
   depositWallet,
   wallet,
   setEnableSelection,
@@ -87,6 +88,8 @@ function Footer({
       setInitiateWhirlpool={setInitiateWhirlpool}
       setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       wallet={wallet}
+      utxos={utxos}
+      selectedUTXOs
     />
   );
 }
@@ -218,6 +221,7 @@ function UTXOManagement({ route, navigation }) {
         />
       </Box>
       <Footer
+        utxos={utxos}
         setInitiateWhirlpool={setInitiateWhirlpool}
         setInitateWhirlpoolMix={setInitateWhirlpoolMix}
         depositWallet={depositWallet}

@@ -14,6 +14,8 @@ function UTXOFooter({
   setInitiateWhirlpool,
   setInitateWhirlpoolMix,
   wallet,
+  utxos,
+  selectedUTXOs,
 }) {
   const { bottom } = useSafeAreaInsets();
   return (
@@ -24,6 +26,7 @@ function UTXOFooter({
       <Box style={styles.footerItemContainer}>
         {allowedMixTypes.includes(wallet?.type) && (
           <BottomMenuItem
+            disabled={!utxos.length}
             onPress={() => {
               setEnableSelection(!enableSelection);
               setInitiateWhirlpool(true);
@@ -34,6 +37,7 @@ function UTXOFooter({
         )}
         {wallet?.type === WalletType.PRE_MIX && (
           <BottomMenuItem
+            disabled={!utxos.length}
             onPress={() => {
               setEnableSelection(!enableSelection);
               setInitateWhirlpoolMix(true);
@@ -44,6 +48,7 @@ function UTXOFooter({
         )}
         {allowedSendTypes.includes(wallet?.type) && (
           <BottomMenuItem
+            disabled={!utxos.length}
             onPress={() => setEnableSelection(!enableSelection)}
             icon={<Send />}
             title="Send Selected"
