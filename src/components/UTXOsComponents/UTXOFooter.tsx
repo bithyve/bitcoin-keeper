@@ -5,7 +5,6 @@ import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetailScreen/WalletDetails';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomMenuItem from '../../screens/WalletDetailScreen/BottomMenuItem';
 
 function UTXOFooter({
@@ -17,12 +16,9 @@ function UTXOFooter({
   utxos,
   selectedUTXOs,
 }) {
-  const { bottom } = useSafeAreaInsets();
   return (
-    <Box
-      style={[styles.footerContainer, { bottom: bottom ? bottom / 2 : 0 }]}
-      borderColor="light.GreyText"
-    >
+    <Box style={styles.footerContainer} borderColor="light.GreyText">
+      <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
         {allowedMixTypes.includes(wallet?.type) && (
           <BottomMenuItem
@@ -65,11 +61,15 @@ const styles = StyleSheet.create({
   footerContainer: {
     width: '100%',
     justifyContent: 'space-around',
-    borderTopWidth: 0.2,
   },
   footerItemContainer: {
     marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
+  },
+  border: {
+    borderWidth: 0.5,
+    borderRadius: 20,
+    opacity: 0.2,
   },
 });

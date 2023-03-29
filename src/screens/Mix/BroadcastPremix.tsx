@@ -40,26 +40,48 @@ export default function BroadcastPremix({ route, navigation }) {
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const { whirlpoolWallets, tx0completed } = useAppSelector((state) => state.wallet);
+  const { whirlpoolWallets, tx0completed, syncing } = useAppSelector((state) => state.wallet);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
   const [premixOutputs, setPremixOutputs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [preRequistesLoading, setPreRequistesLoading] = useState(true);
   const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
   const valueByPreferredUnit = (value) => {
     if (!value) return '';
     const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
     return valueInPreferredUnit;
   };
-  const { wallet: depositWallet } = useWallets({ walletId: wallet.id });
+  const { wallets } = useWallets({ walletIds: [wallet.id], whirlpoolStruct: true });
+  const depositWallet = wallets[0];
+  const [shouldRefresh, setShoulRefresh] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
+    if (syncing) {
+      setShoulRefresh(true);
+    }
+    if (!syncing && shouldRefresh) {
+      setShowBroadcastModal(true);
+      setLoading(false);
+    }
+  }, [syncing]);
+
+  useEffect(() => {
+    if (loading) {
+    }
+  }, [loading]);
+
+  useEffect(() => {
     dispatch(addWhirlpoolWalletsLocal({ depositWallet }));
     setPremixOutputsAndBadbank();
-    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    if (premixOutputs.length) {
+      setPreRequistesLoading(false);
+    }
+  }, [premixOutputs]);
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
@@ -86,13 +108,17 @@ export default function BroadcastPremix({ route, navigation }) {
           { hardRefresh: true }
         )
       );
-      setShowBroadcastModal(true);
-      setLoading(false);
     }
     return () => {
       dispatch(setTx0Complete(false));
     };
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage, tx0completed]);
+
+  useEffect(() => {
+    if (loading) {
+      onBroadcastModalCallback();
+    }
+  }, [loading]);
 
   const onBroadcastModalCallback = async () => {
     try {
@@ -173,6 +199,17 @@ export default function BroadcastPremix({ route, navigation }) {
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
       <Box style={styles.textArea}>
         <Text color="#017963" style={styles.textWidth}>
+          Fee
+        </Text>
+        <Box style={styles.textDirection}>
+          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.miner_fee)}</Text>
+          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            {getPreferredUnit()}
+          </Text>
+        </Box>
+      </Box>
+      <Box style={styles.textArea}>
+        <Text color="#017963" style={styles.textWidth}>
           Whirlpool Fee
         </Text>
         <Box style={styles.textDirection}>
@@ -195,7 +232,13 @@ export default function BroadcastPremix({ route, navigation }) {
           </Text>
         </Box>
       </Box>
-      {premixOutputs &&
+      {preRequistesLoading ? (
+        <Box style={styles.textArea}>
+          <Text color="#017963" style={styles.textWidth}>
+            Premixes Loading......
+          </Text>
+        </Box>
+      ) : (
         premixOutputs.map((output, index) => (
           <Box style={styles.textArea}>
             <Text color="#017963" style={styles.textWidth}>
@@ -208,18 +251,8 @@ export default function BroadcastPremix({ route, navigation }) {
               </Text>
             </Box>
           </Box>
-        ))}
-      <Box style={styles.textArea}>
-        <Text color="#017963" style={styles.textWidth}>
-          Fee
-        </Text>
-        <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.miner_fee)}</Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-            {getPreferredUnit()}
-          </Text>
-        </Box>
-      </Box>
+        ))
+      )}
       <Box style={styles.footerContainer}>
         <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
@@ -227,11 +260,11 @@ export default function BroadcastPremix({ route, navigation }) {
           </Box>
           <Box style={styles.footerItemContainer}>
             <Buttons
+              primaryDisable={preRequistesLoading}
               primaryText="Broadcast Tx0"
               primaryLoading={loading}
               primaryCallback={() => {
                 setLoading(true);
-                onBroadcastModalCallback();
               }}
             />
           </Box>
