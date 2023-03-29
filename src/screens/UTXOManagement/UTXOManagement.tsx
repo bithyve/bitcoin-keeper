@@ -26,304 +26,299 @@ import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
 
 const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
-    if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
-    if (accountType === WalletType.PRE_MIX) return depositWallet?.whirlpoolConfig?.premixWallet;
-    if (accountType === WalletType.POST_MIX) return depositWallet?.whirlpoolConfig?.postmixWallet;
-    return depositWallet;
+  if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
+  if (accountType === WalletType.PRE_MIX) return depositWallet?.whirlpoolConfig?.premixWallet;
+  if (accountType === WalletType.POST_MIX) return depositWallet?.whirlpoolConfig?.postmixWallet;
+  return depositWallet;
 };
 
 function Footer({
-    utxos,
-    depositWallet,
-    wallet,
-    setEnableSelection,
-    enableSelection,
-    selectedUTXOs,
-    setInitiateWhirlpool,
-    setInitateWhirlpoolMix,
-    initiateWhirlpool,
-    initateWhirlpoolMix,
-    setShowBatteryWarningModal,
+  utxos,
+  depositWallet,
+  wallet,
+  setEnableSelection,
+  enableSelection,
+  selectedUTXOs,
+  setInitiateWhirlpool,
+  setInitateWhirlpoolMix,
+  initiateWhirlpool,
+  initateWhirlpoolMix,
+  setShowBatteryWarningModal,
 }) {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
-    const goToWhirlpoolConfiguration = () => {
-        setEnableSelection(false);
-        navigation.dispatch(
-            CommonActions.navigate('WhirlpoolConfiguration', {
-                utxos: selectedUTXOs || [],
-                wallet,
-            })
-        );
-    };
-
-    const inititateWhirlpoolMixProcess = async () => {
-        if (selectedUTXOs.length === 0) {
-            Alert.alert('Please select atleast one UTXO');
-            return;
-        }
-        setShowBatteryWarningModal(true);
-    };
-
-    return enableSelection ? (
-        <FinalizeFooter
-            initiateWhirlpool={initiateWhirlpool}
-            setEnableSelection={setEnableSelection}
-            setInitiateWhirlpool={setInitiateWhirlpool}
-            initateWhirlpoolMix={initateWhirlpoolMix}
-            setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-            secondaryText="Cancel"
-            footerCallback={() =>
-                initiateWhirlpool
-                    ? goToWhirlpoolConfiguration()
-                    : initateWhirlpoolMix
-                        ? inititateWhirlpoolMixProcess()
-                        : navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }))
-            }
-        />
-    ) : (
-        <UTXOFooter
-            setEnableSelection={setEnableSelection}
-            enableSelection={enableSelection}
-            setInitiateWhirlpool={setInitiateWhirlpool}
-            setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-            wallet={wallet}
-            utxos={utxos}
-            selectedUTXOs
-        />
+  const goToWhirlpoolConfiguration = () => {
+    setEnableSelection(false);
+    navigation.dispatch(
+      CommonActions.navigate('WhirlpoolConfiguration', {
+        utxos: selectedUTXOs || [],
+        wallet,
+      })
     );
+  };
+
+  const inititateWhirlpoolMixProcess = async () => {
+    if (selectedUTXOs.length === 0) {
+      Alert.alert('Please select atleast one UTXO');
+      return;
+    }
+    setShowBatteryWarningModal(true);
+  };
+
+  return enableSelection ? (
+    <FinalizeFooter
+      initiateWhirlpool={initiateWhirlpool}
+      setEnableSelection={setEnableSelection}
+      setInitiateWhirlpool={setInitiateWhirlpool}
+      initateWhirlpoolMix={initateWhirlpoolMix}
+      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+      secondaryText="Cancel"
+      footerCallback={() =>
+        initiateWhirlpool
+          ? goToWhirlpoolConfiguration()
+          : initateWhirlpoolMix
+          ? inititateWhirlpoolMixProcess()
+          : navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }))
+      }
+    />
+  ) : (
+    <UTXOFooter
+      setEnableSelection={setEnableSelection}
+      enableSelection={enableSelection}
+      setInitiateWhirlpool={setInitiateWhirlpool}
+      setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+      wallet={wallet}
+      utxos={utxos}
+      selectedUTXOs
+    />
+  );
 }
 
 function UTXOManagement({ route, navigation }) {
-    const styles = getStyles();
-    const {
-        data,
-        routeName,
-        accountType,
-    }: { data: Wallet | Vault; routeName: string; accountType: string } = route.params || {};
-    const [enableSelection, _setEnableSelection] = useState(false);
-    const [selectionTotal, setSelectionTotal] = useState(0);
-    const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
-    const { id, entityKind } = data;
-    const wallet =
-        entityKind === EntityKind.VAULT
-            ? useVault().activeVault
-            : useWallets({ walletIds: [id], whirlpoolStruct: true }).wallets[0];
-    const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
-    const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
-    const [selectedAccount, setSelectedAccount] = useState<string>();
-    const [depositWallet, setDepositWallet] = useState<any>();
-    const [utxos, setUtxos] = useState([]);
-    const [selectedUTXOs, setSelectedUTXOs] = useState([]);
-    const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
-    const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
-    const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
-    const { walletPoolMap } = useAppSelector((state) => state.wallet);
+  const styles = getStyles();
+  const {
+    data,
+    routeName,
+    accountType,
+  }: { data: Wallet | Vault; routeName: string; accountType: string } = route.params || {};
+  const [enableSelection, _setEnableSelection] = useState(false);
+  const [selectionTotal, setSelectionTotal] = useState(0);
+  const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
+  const { id, entityKind } = data;
+  const wallet =
+    entityKind === EntityKind.VAULT
+      ? useVault().activeVault
+      : useWallets({ walletIds: [id], whirlpoolStruct: true }).wallets[0];
+  const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
+  const [selectedAccount, setSelectedAccount] = useState<string>();
+  const [depositWallet, setDepositWallet] = useState<any>();
+  const [utxos, setUtxos] = useState([]);
+  const [selectedUTXOs, setSelectedUTXOs] = useState([]);
+  const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
+  const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
+  const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
+  const { walletPoolMap, syncing } = useAppSelector((state) => state.wallet);
 
-    const goToPostMixWallet = () => {
-        setEnableSelection(false);
-        setSelectedAccount(WalletType.POST_MIX);
+  useEffect(() => {
+    setSelectedAccount(accountType || WalletType.DEFAULT);
+  }, [accountType]);
+
+  useEffect(() => {
+    if (isWhirlpoolWallet) {
+      setDepositWallet(wallet);
+      const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+      setSelectedWallet(walletAccount);
+    } else {
+      setSelectedWallet(wallet);
+    }
+  }, [selectedAccount, syncing]);
+
+  useEffect(() => {
+    const { confirmedUTXOs, unconfirmedUTXOs } = selectedWallet?.specs || {
+      confirmedUTXOs: [],
+      unconfirmedUTXOs: [],
     };
+    const utxos =
+      confirmedUTXOs
+        .map((utxo) => {
+          utxo.confirmed = true;
+          return utxo;
+        })
+        .concat(
+          unconfirmedUTXOs.map((utxo) => {
+            utxo.confirmed = false;
+            return utxo;
+          })
+        ) || [];
+    setUtxos(utxos);
+  }, [selectedWallet]);
 
-    useEffect(() => {
-        setSelectedAccount(accountType || WalletType.DEFAULT);
-    }, [accountType]);
-
-    useEffect(() => {
-        if (isWhirlpoolWallet) {
-            setDepositWallet(wallet);
-            const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
-            setSelectedWallet(walletAccount);
-        } else {
-            setSelectedWallet(wallet);
-        }
-    }, [selectedAccount]);
-
-    useEffect(() => {
-        const { confirmedUTXOs, unconfirmedUTXOs } = selectedWallet?.specs || {
-            confirmedUTXOs: [],
-            unconfirmedUTXOs: [],
-        };
-        const utxos =
-            confirmedUTXOs
-                .map((utxo) => {
-                    utxo.confirmed = true;
-                    return utxo;
-                })
-                .concat(
-                    unconfirmedUTXOs.map((utxo) => {
-                        utxo.confirmed = false;
-                        return utxo;
-                    })
-                ) || [];
-        setUtxos(utxos);
-    }, [selectedWallet]);
-
-    useEffect(() => {
-        const selectedUTXOsFiltered = utxos.filter(
-            (utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]
-        );
-        setSelectedUTXOs(selectedUTXOsFiltered);
-    }, [utxos, selectedUTXOMap, selectionTotal]);
-
-    const cleanUp = useCallback(() => {
-        setSelectedUTXOMap({});
-        setSelectionTotal(0);
-    }, []);
-
-    const setEnableSelection = useCallback(
-        (value) => {
-            _setEnableSelection(value);
-            if (!value) {
-                cleanUp();
-            }
-        },
-        [cleanUp]
+  useEffect(() => {
+    const selectedUTXOsFiltered = utxos.filter(
+      (utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]
     );
+    setSelectedUTXOs(selectedUTXOsFiltered);
+  }, [utxos, selectedUTXOMap, selectionTotal]);
 
-    return (
-        <ScreenWrapper>
-            <HeaderTitle learnMore />
-            <Box style={styles.dailySpendingWrapper}>
-                {isWhirlpoolWallet ? (
-                    <AccountSelectionTab
-                        selectedAccount={selectedAccount}
-                        setSelectedAccount={setSelectedAccount}
-                        setEnableSelection={setEnableSelection}
-                    />
-                ) : (
-                    <HStack>
-                        <Box paddingRight={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
-                        <VStack>
-                            <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
-                                {wallet?.presentationData?.name}
-                            </Text>
-                            <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
-                                ``
-                                {wallet?.presentationData?.description}
-                            </Text>
-                        </VStack>
-                    </HStack>
-                )}
+  const cleanUp = useCallback(() => {
+    setSelectedUTXOMap({});
+    setSelectionTotal(0);
+  }, []);
+
+  const setEnableSelection = useCallback(
+    (value) => {
+      _setEnableSelection(value);
+      if (!value) {
+        cleanUp();
+      }
+    },
+    [cleanUp]
+  );
+
+  return (
+    <ScreenWrapper>
+      <HeaderTitle learnMore />
+      <Box style={styles.dailySpendingWrapper}>
+        {isWhirlpoolWallet ? (
+          <AccountSelectionTab
+            selectedAccount={selectedAccount}
+            setSelectedAccount={setSelectedAccount}
+            setEnableSelection={setEnableSelection}
+          />
+        ) : (
+          <HStack>
+            <Box paddingRight={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
+            <VStack>
+              <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
+                {wallet?.presentationData?.name}
+              </Text>
+              <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
+                ``
+                {wallet?.presentationData?.description}
+              </Text>
+            </VStack>
+          </HStack>
+        )}
+      </Box>
+      <Box style={{ height: '68%' }}>
+        {Object.values(selectedUTXOMap).length ? (
+          <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
+        ) : null}
+        <UTXOList
+          utxoState={utxos}
+          enableSelection={enableSelection}
+          setSelectionTotal={setSelectionTotal}
+          selectedUTXOMap={selectedUTXOMap}
+          setSelectedUTXOMap={setSelectedUTXOMap}
+          currentWallet={wallet}
+          emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
+        />
+      </Box>
+      <Footer
+        utxos={utxos}
+        setInitiateWhirlpool={setInitiateWhirlpool}
+        setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+        depositWallet={depositWallet}
+        wallet={selectedWallet}
+        setEnableSelection={setEnableSelection}
+        initiateWhirlpool={initiateWhirlpool}
+        initateWhirlpoolMix={initateWhirlpoolMix}
+        enableSelection={enableSelection}
+        selectedUTXOs={selectedUTXOs}
+        setShowBatteryWarningModal={setShowBatteryWarningModal}
+      />
+      <KeeperModal
+        justifyContent="flex-end"
+        visible={showBatteryWarningModal}
+        close={() => {
+          setShowBatteryWarningModal(false);
+        }}
+        title="Managing your mobile mixes"
+        subTitle="Mix might take a while to complete. Dont close the app until the mix is complete."
+        subTitleColor="#5F6965"
+        modalBackground={['#F7F2EC', '#F7F2EC']}
+        buttonBackground={['#00836A', '#073E39']}
+        buttonTextColor="#FAFAFA"
+        closeOnOverlayClick={false}
+        Content={() => (
+          <Box>
+            <Box style={styles.batteryModalContent}>
+              <Box style={styles.batteryImage}>
+                <BatteryIllustration />
+              </Box>
+              <Box style={styles.batteryModalTextArea}>
+                <Box style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                  <Text style={styles.batteryModalText}>Connect to power</Text>
+                </Box>
+                <Box style={{ flexDirection: 'row' }}>
+                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                  <Text style={styles.batteryModalText}>20% battery required</Text>
+                </Box>
+              </Box>
             </Box>
-            <Box style={{ height: '68%' }}>
-                {Object.values(selectedUTXOMap).length ? (
-                    <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
-                ) : null}
-                <UTXOList
-                    utxoState={utxos}
-                    enableSelection={enableSelection}
-                    setSelectionTotal={setSelectionTotal}
-                    selectedUTXOMap={selectedUTXOMap}
-                    setSelectedUTXOMap={setSelectedUTXOMap}
-                    currentWallet={wallet}
-                    emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
-                />
-            </Box>
-            <Footer
-                utxos={utxos}
-                setInitiateWhirlpool={setInitiateWhirlpool}
-                setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-                depositWallet={depositWallet}
-                wallet={selectedWallet}
-                setEnableSelection={setEnableSelection}
-                initiateWhirlpool={initiateWhirlpool}
-                initateWhirlpoolMix={initateWhirlpoolMix}
-                enableSelection={enableSelection}
-                selectedUTXOs={selectedUTXOs}
-                setShowBatteryWarningModal={setShowBatteryWarningModal}
-            />
-            <KeeperModal
-                justifyContent="flex-end"
-                visible={showBatteryWarningModal}
-                close={() => {
+
+            <Box style={styles.mixSuccesModalFooter}>
+              <Box style={{ alignSelf: 'flex-end' }}>
+                <Buttons
+                  primaryText="Continue"
+                  primaryCallback={() => {
                     setShowBatteryWarningModal(false);
-                }}
-                title="Managing your mobile mixes"
-                subTitle="Mix might take a while to complete. Dont close the app until the mix is complete."
-                subTitleColor="#5F6965"
-                modalBackground={['#F7F2EC', '#F7F2EC']}
-                buttonBackground={['#00836A', '#073E39']}
-                buttonTextColor="#FAFAFA"
-                closeOnOverlayClick={false}
-                Content={() => (
-                    <Box>
-                        <Box style={styles.batteryModalContent}>
-                            <Box style={styles.batteryImage}>
-                                <BatteryIllustration />
-                            </Box>
-                            <Box style={styles.batteryModalTextArea}>
-                                <Box style={{ flexDirection: 'row' }}>
-                                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                                    <Text style={styles.batteryModalText}>Connect to power</Text>
-                                </Box>
-                                <Box style={{ flexDirection: 'row' }}>
-                                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                                    <Text style={styles.batteryModalText}>20% battery required</Text>
-                                </Box>
-                            </Box>
-                        </Box>
-
-                        <Box style={styles.mixSuccesModalFooter}>
-                            <Box style={{ alignSelf: 'flex-end' }}>
-                                <Buttons
-                                    primaryText="Continue"
-                                    primaryCallback={() => {
-                                        setShowBatteryWarningModal(false);
-                                        setEnableSelection(false);
-                                        navigation.navigate('MixProgress', {
-                                            selectedUTXOs,
-                                            depositWallet,
-                                            selectedWallet,
-                                            walletPoolMap,
-                                        });
-                                    }}
-                                />
-                            </Box>
-                        </Box>
-                    </Box>
-                )}
-            />
-        </ScreenWrapper>
-    );
+                    setEnableSelection(false);
+                    navigation.navigate('MixProgress', {
+                      selectedUTXOs,
+                      depositWallet,
+                      selectedWallet,
+                      walletPoolMap,
+                    });
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+        )}
+      />
+    </ScreenWrapper>
+  );
 }
 const getStyles = () =>
-    StyleSheet.create({
-        vaultInfoText: {
-            marginLeft: wp(3),
-            letterSpacing: 1.28,
-        },
-        dailySpendingWrapper: {
-            marginLeft: wp(20),
-            marginVertical: hp(20),
-        },
-        mixSuccesModalFooter: {
-            marginTop: 20,
-            flexDirection: 'row',
-            alignContent: 'flex-end',
-            justifyContent: 'flex-end',
-            width: '100%',
-        },
-        batteryModalContent: {
-            marginTop: 20,
-            alignContent: 'center',
-            justifyContent: 'center',
-            width: '100%',
-        },
-        batteryImage: {
-            alignSelf: 'center',
-        },
-        batteryModalTextArea: {
-            marginTop: 40,
-        },
-        bulletPoint: {
-            paddingRight: 10,
-            fontSize: 16,
-            fontWeight: '600',
-        },
-        batteryModalText: {
-            marginTop: 10,
-            letterSpacing: 1.28,
-        },
-    });
+  StyleSheet.create({
+    vaultInfoText: {
+      marginLeft: wp(3),
+      letterSpacing: 1.28,
+    },
+    dailySpendingWrapper: {
+      marginLeft: wp(20),
+      marginVertical: hp(20),
+    },
+    mixSuccesModalFooter: {
+      marginTop: 20,
+      flexDirection: 'row',
+      alignContent: 'flex-end',
+      justifyContent: 'flex-end',
+      width: '100%',
+    },
+    batteryModalContent: {
+      marginTop: 20,
+      alignContent: 'center',
+      justifyContent: 'center',
+      width: '100%',
+    },
+    batteryImage: {
+      alignSelf: 'center',
+    },
+    batteryModalTextArea: {
+      marginTop: 40,
+    },
+    bulletPoint: {
+      paddingRight: 10,
+      fontSize: 16,
+      fontWeight: '600',
+    },
+    batteryModalText: {
+      marginTop: 10,
+      letterSpacing: 1.28,
+    },
+  });
 export default UTXOManagement;
