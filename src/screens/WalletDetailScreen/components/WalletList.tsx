@@ -9,7 +9,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsivenes
 import Text from 'src/components/KeeperText';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
-import WhirlpoolAccount from 'src/assets/images/whirlpool_account.svg';
+import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -59,7 +59,7 @@ const WalletTile = ({
         <Box style={styles.walletInnerView}>
           {isWhirlpoolWallet ? (
             <GradientIcon
-              Icon={WhirlpoolAccount}
+              Icon={WhirlpoolAccountIcon}
               height={35}
               gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
             />
