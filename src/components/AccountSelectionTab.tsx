@@ -55,36 +55,34 @@ function Divider() {
 
 export function AccountSelectionTab({ selectedAccount, setSelectedAccount, setEnableSelection }) {
   return (
-    <HStack>
-      <Box style={styles.container}>
-        {AccountTabs.map((account, index) => (
-          <Box>
-            <SingleAccount
-              title={account.title}
-              Icon={account.Icon}
-              bold={account.type === selectedAccount}
-              gradient={
-                account.type === selectedAccount
-                  ? ['light.gradientStart', 'light.gradientEnd']
-                  : ['#BFBFBF', '#BFBFBF']
-              }
-              onPress={() => {
-                setSelectedAccount(account.type);
-                setEnableSelection(false);
-              }}
-              index={index}
-            />
-          </Box>
-        ))}
-      </Box>
-    </HStack>
+    <Box style={styles.container}>
+      {AccountTabs.map((account, index) => (
+        <Box>
+          <SingleAccount
+            title={account.title}
+            Icon={account.Icon}
+            bold={account.type === selectedAccount}
+            gradient={
+              account.type === selectedAccount
+                ? ['light.gradientStart', 'light.gradientEnd']
+                : ['#BFBFBF', '#BFBFBF']
+            }
+            onPress={() => {
+              setSelectedAccount(account.type);
+              setEnableSelection(false);
+            }}
+            index={index}
+          />
+        </Box>
+      ))}
+    </Box>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   accountText: {

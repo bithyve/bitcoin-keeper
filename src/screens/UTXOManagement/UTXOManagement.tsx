@@ -179,29 +179,26 @@ function UTXOManagement({ route, navigation }) {
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore />
-      <Box style={styles.dailySpendingWrapper}>
-        {isWhirlpoolWallet ? (
-          <AccountSelectionTab
-            selectedAccount={selectedAccount}
-            setSelectedAccount={setSelectedAccount}
-            setEnableSelection={setEnableSelection}
-          />
-        ) : (
-          <HStack>
-            <Box paddingRight={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
-            <VStack>
-              <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
-                {wallet?.presentationData?.name}
-              </Text>
-              <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
-                ``
-                {wallet?.presentationData?.description}
-              </Text>
-            </VStack>
-          </HStack>
-        )}
-      </Box>
-      <Box style={{ height: '68%' }}>
+      {isWhirlpoolWallet ? (
+        <AccountSelectionTab
+          selectedAccount={selectedAccount}
+          setSelectedAccount={setSelectedAccount}
+          setEnableSelection={setEnableSelection}
+        />
+      ) : (
+        <HStack marginBottom={10}>
+          <Box paddingX={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
+          <VStack>
+            <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
+              {wallet?.presentationData?.name}
+            </Text>
+            <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
+              {wallet?.presentationData?.description}
+            </Text>
+          </VStack>
+        </HStack>
+      )}
+      <Box style={{ flex: 1, paddingHorizontal: 10 }}>
         {Object.values(selectedUTXOMap).length ? (
           <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
         ) : null}
@@ -287,10 +284,6 @@ const getStyles = () =>
     vaultInfoText: {
       marginLeft: wp(3),
       letterSpacing: 1.28,
-    },
-    dailySpendingWrapper: {
-      marginLeft: wp(20),
-      marginVertical: hp(20),
     },
     mixSuccesModalFooter: {
       marginTop: 20,
