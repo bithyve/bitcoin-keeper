@@ -1,18 +1,12 @@
-import _ from 'lodash';
-import { useContext } from 'react';
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
-const useWhirlpoolWallets = ({ wallet }: { wallet: Wallet | Vault }) => {
+// TODO: generalize this hook to be consumed at Vault
+const useWhirlpoolWallets = ({ wallet, wallets }: { wallet: Wallet | Vault; wallets }) => {
   const { whirlpoolConfig = null } = wallet;
-  const Schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
-  const { useQuery } = useContext(RealmWrapperContext);
-  const wallets = useQuery(Schema);
   const currentWallet = getJSONFromRealmObject(wallet);
   if (whirlPoolWalletTypes.includes(wallet.type)) {
     return { wallet: null };
