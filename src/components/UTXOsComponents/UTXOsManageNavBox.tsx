@@ -5,6 +5,10 @@ import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from '../KeeperText';
+import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { useAppSelector } from 'src/store/hooks';
 
 const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
   currentWallet.specs.balances.unconfirmed +
@@ -25,6 +29,11 @@ function UTXOsManageNavBox({
   isWhirlpoolWallet: boolean;
   currentWallet: Wallet;
 }) {
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
+
   return (
     <Pressable
       style={styles.manageUTXOsWrapper}
@@ -35,7 +44,15 @@ function UTXOsManageNavBox({
         <Box style={styles.titleViewWrapper}>
           <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
           <Text style={styles.subTitleText}>
-            Total Balance: {getTotalBalanceWhirlpoolAccount(currentWallet)}{' '}
+            Total Balance:
+            {getAmt(
+              getTotalBalanceWhirlpoolAccount(currentWallet),
+              exchangeRates,
+              currencyCode,
+              currentCurrency,
+              satsEnabled
+            )}
+            {getUnit(currentCurrency, satsEnabled)}
           </Text>
         </Box>
       ) : (
