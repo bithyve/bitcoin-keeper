@@ -14,7 +14,7 @@ function UTXOsManageNavBox({ onClick }: any) {
     >
       <Box style={styles.titleViewWrapper}>
         <Text style={styles.titleText}>Manage UTXO’s</Text>
-        <Text style={styles.subTitleText}>Lorem ipsum dolor sit amet, consectetur</Text>
+        <Text style={styles.subTitleText}>Modify Label and choose UTXOs</Text>
       </Box>
       <Box>
         <ArrowIcon />

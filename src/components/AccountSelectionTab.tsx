@@ -35,7 +35,7 @@ const AccountTabs = [
   },
 ];
 
-const SingleAccount = ({ title, Icon, gradient, bold = false, onPress, index }) => {
+function SingleAccount({ title, Icon, gradient, bold = false, onPress, index }) {
   return (
     <Box style={{ flexDirection: 'row' }}>
       <Pressable style={{ alignItems: 'center' }} onPress={onPress}>
@@ -47,52 +47,45 @@ const SingleAccount = ({ title, Icon, gradient, bold = false, onPress, index }) 
       {index === AccountTabs.length - 1 ? null : <Divider />}
     </Box>
   );
-};
+}
 
-const Divider = () => {
+function Divider() {
   return <Box style={styles.divider} />;
-};
+}
 
-export const AccountSelectionTab = ({
-  selectedAccount,
-  setSelectedAccount,
-  setEnableSelection,
-}) => {
+export function AccountSelectionTab({ selectedAccount, setSelectedAccount, setEnableSelection }) {
   return (
     <HStack>
       <Box style={styles.container}>
-        {AccountTabs.map((account, index) => {
-          return (
-            <Box>
-              <SingleAccount
-                title={account.title}
-                Icon={account.Icon}
-                bold={account.type === selectedAccount}
-                gradient={
-                  account.type === selectedAccount
-                    ? ['light.gradientStart', 'light.gradientEnd']
-                    : ['#BFBFBF', '#BFBFBF']
-                }
-                onPress={() => {
-                  setSelectedAccount(account.type);
-                  setEnableSelection(false);
-                }}
-                index={index}
-              />
-            </Box>
-          );
-        })}
+        {AccountTabs.map((account, index) => (
+          <Box>
+            <SingleAccount
+              title={account.title}
+              Icon={account.Icon}
+              bold={account.type === selectedAccount}
+              gradient={
+                account.type === selectedAccount
+                  ? ['light.gradientStart', 'light.gradientEnd']
+                  : ['#BFBFBF', '#BFBFBF']
+              }
+              onPress={() => {
+                setSelectedAccount(account.type);
+                setEnableSelection(false);
+              }}
+              index={index}
+            />
+          </Box>
+        ))}
       </Box>
     </HStack>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
   },
   accountText: {
     fontSize: 13,

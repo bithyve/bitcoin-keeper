@@ -55,7 +55,7 @@ function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { autoRefresh } = route?.params || {};
-  const { wallets } = useWallets({ whirlpoolStruct: true });
+  const { wallets } = useWallets();
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
 
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);

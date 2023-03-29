@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
@@ -15,7 +15,7 @@ import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTota
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
@@ -24,13 +24,14 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
+import useVault from 'src/hooks/useVault';
+import useWallets from 'src/hooks/useWallets';
 
 const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
   if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
-  else if (accountType === WalletType.PRE_MIX) return depositWallet?.whirlpoolConfig?.premixWallet;
-  else if (accountType === WalletType.POST_MIX)
-    return depositWallet?.whirlpoolConfig?.postmixWallet;
-  else return depositWallet;
+  if (accountType === WalletType.PRE_MIX) return depositWallet?.whirlpoolConfig?.premixWallet;
+  if (accountType === WalletType.POST_MIX) return depositWallet?.whirlpoolConfig?.postmixWallet;
+  return depositWallet;
 };
 
 function Footer({
@@ -99,13 +100,16 @@ function UTXOManagement({ route, navigation }) {
     routeName,
     accountType,
   }: { data: Wallet | Vault; routeName: string; accountType: string } = route.params || {};
-
-  console.log({ data, accountType });
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
-  const isWhirlpoolWallet = Boolean(data?.whirlpoolConfig?.whirlpoolWalletDetails);
-  const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(data);
+  const { id, entityKind } = data;
+  const wallet =
+    entityKind === EntityKind.VAULT
+      ? useVault().activeVault
+      : useWallets({ walletIds: [id], whirlpoolStruct: true }).wallets[0];
+  const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedAccount, setSelectedAccount] = useState<string>();
   const [depositWallet, setDepositWallet] = useState<any>();
   const [utxos, setUtxos] = useState([]);
@@ -123,15 +127,15 @@ function UTXOManagement({ route, navigation }) {
   };
 
   useEffect(() => {
-    accountType ? setSelectedAccount(accountType) : setSelectedAccount(WalletType.DEFAULT);
+    setSelectedAccount(accountType || WalletType.DEFAULT);
     if (isWhirlpoolWallet) {
       dispatch(
         refreshWallets(
           [
-            data,
-            data?.whirlpoolConfig.premixWallet,
-            data?.whirlpoolConfig.postmixWallet,
-            data?.whirlpoolConfig.badbankWallet,
+            wallet,
+            wallet?.whirlpoolConfig.premixWallet,
+            wallet?.whirlpoolConfig.postmixWallet,
+            wallet?.whirlpoolConfig.badbankWallet,
           ],
           { hardRefresh: true }
         )
@@ -141,11 +145,11 @@ function UTXOManagement({ route, navigation }) {
 
   useEffect(() => {
     if (isWhirlpoolWallet) {
-      setDepositWallet(data);
-      const wallet: Wallet = getWalletBasedOnAccount(data, selectedAccount);
-      setSelectedWallet(wallet);
+      setDepositWallet(wallet);
+      const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+      setSelectedWallet(walletAccount);
     } else {
-      setSelectedWallet(data);
+      setSelectedWallet(wallet);
     }
   }, [selectedAccount]);
 
@@ -206,11 +210,11 @@ function UTXOManagement({ route, navigation }) {
             <Box paddingRight={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
             <VStack>
               <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
-                {data?.presentationData?.name}
+                {wallet?.presentationData?.name}
               </Text>
               <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
                 ``
-                {data?.presentationData?.description}
+                {wallet?.presentationData?.description}
               </Text>
             </VStack>
           </HStack>
@@ -226,7 +230,7 @@ function UTXOManagement({ route, navigation }) {
           setSelectionTotal={setSelectionTotal}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
-          currentWallet={data}
+          currentWallet={wallet}
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
         />
       </Box>
@@ -264,11 +268,11 @@ function UTXOManagement({ route, navigation }) {
               <Box style={styles.batteryModalTextArea}>
                 <Box style={{ flexDirection: 'row' }}>
                   <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>{'Connect to power'}</Text>
+                  <Text style={styles.batteryModalText}>Connect to power</Text>
                 </Box>
                 <Box style={{ flexDirection: 'row' }}>
                   <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>{'20% battery required'}</Text>
+                  <Text style={styles.batteryModalText}>20% battery required</Text>
                 </Box>
               </Box>
             </Box>
