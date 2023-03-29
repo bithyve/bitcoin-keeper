@@ -118,12 +118,7 @@ function UTXOManagement({ route, navigation }) {
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
-  const { walletPoolMap } = useAppSelector((state) => state.wallet);
-
-  const goToPostMixWallet = () => {
-    setEnableSelection(false);
-    setSelectedAccount(WalletType.POST_MIX);
-  };
+  const { walletPoolMap, syncing } = useAppSelector((state) => state.wallet);
 
   useEffect(() => {
     setSelectedAccount(accountType || WalletType.DEFAULT);
@@ -137,7 +132,7 @@ function UTXOManagement({ route, navigation }) {
     } else {
       setSelectedWallet(wallet);
     }
-  }, [selectedAccount]);
+  }, [selectedAccount, syncing]);
 
   useEffect(() => {
     const { confirmedUTXOs, unconfirmedUTXOs } = selectedWallet?.specs || {
