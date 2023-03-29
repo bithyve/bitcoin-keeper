@@ -53,7 +53,12 @@ function Divider() {
   return <Box style={styles.divider} />;
 }
 
-export function AccountSelectionTab({ selectedAccount, setSelectedAccount, setEnableSelection }) {
+export function AccountSelectionTab({
+  selectedAccount,
+  setSelectedAccount,
+  updateSelectedWallet,
+  setEnableSelection,
+}) {
   return (
     <Box style={styles.container}>
       {AccountTabs.map((account, index) => (
@@ -68,6 +73,7 @@ export function AccountSelectionTab({ selectedAccount, setSelectedAccount, setEn
                 : ['#BFBFBF', '#BFBFBF']
             }
             onPress={() => {
+              updateSelectedWallet(account.type);
               setSelectedAccount(account.type);
               setEnableSelection(false);
             }}
@@ -84,6 +90,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 20,
   },
   accountText: {
     fontSize: 13,

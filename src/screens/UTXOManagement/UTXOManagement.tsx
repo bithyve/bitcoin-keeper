@@ -132,7 +132,12 @@ function UTXOManagement({ route, navigation }) {
     } else {
       setSelectedWallet(wallet);
     }
-  }, [selectedAccount, syncing]);
+  }, [syncing]);
+
+  const updateSelectedWallet = (selectedAccount) => {
+    const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+    setSelectedWallet(walletAccount);
+  };
 
   useEffect(() => {
     const { confirmedUTXOs, unconfirmedUTXOs } = selectedWallet?.specs || {
@@ -183,6 +188,7 @@ function UTXOManagement({ route, navigation }) {
         <AccountSelectionTab
           selectedAccount={selectedAccount}
           setSelectedAccount={setSelectedAccount}
+          updateSelectedWallet={updateSelectedWallet}
           setEnableSelection={setEnableSelection}
         />
       ) : (
@@ -208,7 +214,7 @@ function UTXOManagement({ route, navigation }) {
           setSelectionTotal={setSelectionTotal}
           selectedUTXOMap={selectedUTXOMap}
           setSelectedUTXOMap={setSelectedUTXOMap}
-          currentWallet={wallet}
+          currentWallet={selectedWallet}
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
         />
       </Box>
