@@ -80,7 +80,7 @@ function UTXOLabeling() {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
+      <HeaderTitle title="UTXO Details" subtitle="Easily identify specific aspects of various UTXOs" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled

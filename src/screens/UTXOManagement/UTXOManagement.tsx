@@ -77,10 +77,10 @@ function UTXOManagement({ route }) {
                     </Box>
                     <VStack>
                         <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]} >
-                            Daily Spending
+                            Your UTXO
                         </Text>
                         <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
-                            Lorem ipsum dolor sit amet
+                            Manage your UTXOs here
                         </Text>
                     </VStack>
                 </HStack>

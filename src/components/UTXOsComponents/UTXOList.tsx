@@ -197,8 +197,8 @@ function UTXOList({
         <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
           <EmptyStateView
             IllustartionImage={emptyIcon}
-            title="No UTXO’s yet."
-            subTitle="Pull down to refresh"
+            title="Your UTXOs will show up here when you"
+            subTitle="receive sats in the wallet"
           />
         </Box>
       }
