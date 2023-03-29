@@ -34,7 +34,7 @@ const useWallets = ({
       const whirlpoolWallets = [];
       for (let index = 0; index < extractedWallets.length; index += 1) {
         const element = extractedWallets[index];
-        const { wallet } = useWhirlpoolWallets({ wallet: element });
+        const { wallet } = useWhirlpoolWallets({ wallet: element, wallets });
         if (wallet) {
           whirlpoolWallets.push(wallet);
         }
@@ -47,7 +47,7 @@ const useWallets = ({
     const whirlpoolWallets = [];
     for (let index = 0; index < wallets.length; index += 1) {
       const element = wallets[index];
-      const { wallet } = useWhirlpoolWallets({ wallet: element });
+      const { wallet } = useWhirlpoolWallets({ wallet: element, wallets });
       if (wallet) {
         whirlpoolWallets.push(wallet);
       }
