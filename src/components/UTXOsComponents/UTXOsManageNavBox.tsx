@@ -3,19 +3,47 @@ import React from 'react';
 import { Box, Pressable } from 'native-base';
 import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from '../KeeperText';
 
-function UTXOsManageNavBox({ onClick }: any) {
+const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
+  currentWallet.specs.balances.unconfirmed +
+  currentWallet.specs.balances.confirmed +
+  currentWallet.whirlpoolConfig.premixWallet.specs.balances.unconfirmed +
+  currentWallet.whirlpoolConfig.premixWallet.specs.balances.confirmed +
+  currentWallet.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed +
+  currentWallet.whirlpoolConfig.postmixWallet.specs.balances.confirmed +
+  currentWallet.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed +
+  currentWallet.whirlpoolConfig.badbankWallet.specs.balances.confirmed;
+
+function UTXOsManageNavBox({
+  onClick,
+  isWhirlpoolWallet,
+  currentWallet,
+}: {
+  onClick: any;
+  isWhirlpoolWallet: boolean;
+  currentWallet: Wallet;
+}) {
   return (
     <Pressable
       style={styles.manageUTXOsWrapper}
       backgroundColor="light.lightAccent"
       onPress={onClick}
     >
-      <Box style={styles.titleViewWrapper}>
-        <Text style={styles.titleText}>Manage UTXO’s</Text>
-        <Text style={styles.subTitleText}>Modify Label and choose UTXOs</Text>
-      </Box>
+      {isWhirlpoolWallet ? (
+        <Box style={styles.titleViewWrapper}>
+          <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
+          <Text style={styles.subTitleText}>
+            Total Balance: {getTotalBalanceWhirlpoolAccount(currentWallet)}{' '}
+          </Text>
+        </Box>
+      ) : (
+        <Box style={styles.titleViewWrapper}>
+          <Text style={styles.titleText}>Manage UTXO’s</Text>
+          <Text style={styles.subTitleText}>Modify Label and choose UTXOs</Text>
+        </Box>
+      )}
       <Box>
         <ArrowIcon />
       </Box>

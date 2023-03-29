@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
@@ -19,8 +19,6 @@ import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
-import { useDispatch } from 'react-redux';
 import { useAppSelector } from 'src/store/hooks';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
@@ -119,8 +117,6 @@ function UTXOManagement({ route, navigation }) {
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
   const { walletPoolMap } = useAppSelector((state) => state.wallet);
 
-  const dispatch = useDispatch();
-
   const goToPostMixWallet = () => {
     setEnableSelection(false);
     setSelectedAccount(WalletType.POST_MIX);
@@ -128,19 +124,6 @@ function UTXOManagement({ route, navigation }) {
 
   useEffect(() => {
     setSelectedAccount(accountType || WalletType.DEFAULT);
-    if (isWhirlpoolWallet) {
-      dispatch(
-        refreshWallets(
-          [
-            wallet,
-            wallet?.whirlpoolConfig.premixWallet,
-            wallet?.whirlpoolConfig.postmixWallet,
-            wallet?.whirlpoolConfig.badbankWallet,
-          ],
-          { hardRefresh: true }
-        )
-      );
-    }
   }, [accountType]);
 
   useEffect(() => {
@@ -283,6 +266,7 @@ function UTXOManagement({ route, navigation }) {
                   primaryText="Continue"
                   primaryCallback={() => {
                     setShowBatteryWarningModal(false);
+                    setEnableSelection(false);
                     navigation.navigate('MixProgress', {
                       selectedUTXOs,
                       depositWallet,

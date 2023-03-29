@@ -22,7 +22,7 @@ function UTXOFooter({
       borderColor="light.GreyText"
     >
       <Box style={styles.footerItemContainer}>
-        {allowedMixTypes.includes(wallet.type) && (
+        {allowedMixTypes.includes(wallet?.type) && (
           <BottomMenuItem
             onPress={() => {
               setEnableSelection(!enableSelection);
@@ -32,7 +32,7 @@ function UTXOFooter({
             title="Mix Selected"
           />
         )}
-        {wallet.type === WalletType.PRE_MIX && (
+        {wallet?.type === WalletType.PRE_MIX && (
           <BottomMenuItem
             onPress={() => {
               setEnableSelection(!enableSelection);
@@ -42,7 +42,7 @@ function UTXOFooter({
             title="Start Mix "
           />
         )}
-        {allowedSendTypes.includes(wallet.type) && (
+        {allowedSendTypes.includes(wallet?.type) && (
           <BottomMenuItem
             onPress={() => setEnableSelection(!enableSelection)}
             icon={<Send />}
