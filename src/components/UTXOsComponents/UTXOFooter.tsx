@@ -20,9 +20,10 @@ function UTXOFooter({
   const { bottom } = useSafeAreaInsets();
   return (
     <Box
-      style={[styles.footerContainer, { bottom: bottom ? bottom / 2 : 0 }]}
+      style={styles.footerContainer}
       borderColor="light.GreyText"
     >
+      <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
         {allowedMixTypes.includes(wallet?.type) && (
           <BottomMenuItem
@@ -65,11 +66,15 @@ const styles = StyleSheet.create({
   footerContainer: {
     width: '100%',
     justifyContent: 'space-around',
-    borderTopWidth: 0.2,
   },
   footerItemContainer: {
     marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
+  },
+  border: {
+    borderWidth: 0.5,
+    borderRadius: 20,
+    opacity: 0.2,
   },
 });
