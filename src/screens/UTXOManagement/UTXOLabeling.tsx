@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, KeyboardAvoidingView, useColorMode } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Box, HStack, Input, useColorMode, VStack } from 'native-base';
+import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Buttons from 'src/components/Buttons';
-import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
 import { LabelType, NetworkType } from 'src/core/wallets/enums';
@@ -92,21 +92,23 @@ function UTXOLabeling() {
   return (
     <ScreenWrapper>
       <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
-      <View style={styles.subHeader}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.subHeaderTitle}>Transaction ID</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.subHeaderValue} numberOfLines={1}>
-              {utxo.txId}
-            </Text>
-            <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
-              <LinkIcon />
-            </TouchableOpacity>
-          </View>
-          <View style={{ flex: 1 }}>
+      <Box flex={1}>
+        <HStack style={{ padding: 20 }}>
+          <VStack>
+            <Text style={styles.subHeaderTitle}>Transaction ID</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.subHeaderValue} numberOfLines={1}>
+                {utxo.txId}
+              </Text>
+              <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
+                <LinkIcon />
+              </TouchableOpacity>
+            </View>
+          </VStack>
+          <View>
             <Text style={styles.subHeaderTitle}>UTXO Value</Text>
             <View style={{ flexDirection: 'row' }}>
-              <Box style={{ marginTop: 5, marginLeft: 5 }}>
+              <Box style={{ marginTop: 5 }}>
                 {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
               </Box>
               <Text style={styles.subHeaderValue} numberOfLines={1}>
@@ -117,7 +119,7 @@ function UTXOLabeling() {
               </Text>
             </View>
           </View>
-        </View>
+        </HStack>
         <View style={styles.listContainer}>
           <View style={{ flexDirection: 'row' }}>
             <Text style={styles.listHeader}>Labels</Text>
@@ -178,19 +180,20 @@ function UTXOLabeling() {
             </TouchableOpacity>
           </Box>
         </View>
-        <View style={{ flex: 1 }} />
-        <Box style={styles.ctaBtnWrapper}>
-          <Box ml={windowWidth * -0.09}>
-            <Buttons
-              primaryDisable={!lablesUpdated}
-              primaryCallback={onSaveChangeClick}
-              primaryText="Save Changes"
-              secondaryCallback={navigation.goBack}
-              secondaryText="Cancel"
-            />
-          </Box>
-        </Box>
-      </View>
+      </Box>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+        style={styles.ctaBtnWrapper}
+      >
+        <Buttons
+          primaryDisable={!lablesUpdated}
+          primaryCallback={onSaveChangeClick}
+          primaryText="Save Changes"
+          secondaryCallback={navigation.goBack}
+          secondaryText="Cancel"
+        />
+      </KeyboardAvoidingView>
     </ScreenWrapper>
   );
 }
@@ -250,11 +253,6 @@ const styles = StyleSheet.create({
   unitText: {
     letterSpacing: 0.6,
     fontSize: hp(12),
-  },
-  subHeader: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: 38,
   },
   subHeaderTitle: {
     fontSize: 14,
