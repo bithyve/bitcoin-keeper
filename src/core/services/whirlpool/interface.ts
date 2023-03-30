@@ -50,28 +50,28 @@ export interface WhirlpoolAPI {
 export interface PoolData {
   id: string;
   denomination: number;
-  fee_value: number;
-  must_mix_balance_min: number;
-  must_mix_balance_cap: number;
-  min_anonymity_set: number;
-  min_must_mix: number;
-  tx0_max_outputs: number;
-  n_registered: number;
-  mix_status: MixStatus;
-  elapsed_time: number;
-  n_confirmed: number;
+  feeValue: number;
+  mustMixBalanceMin: number;
+  mustMixBalanceCap: number;
+  minAnonymitySet: number;
+  minMustMix: number;
+  tx0MaxOutputs: number;
+  nbRegistered: number;
+  mixStatus: MixStatus;
+  elapsedTime: number;
+  nbConfirmed: number;
 }
 
 export interface TX0Data {
-  pool_id: string;
-  fee_payment_code: string;
-  fee_value: number;
-  fee_change: number;
-  fee_discount_percent: number;
+  poolId: string;
+  feePaymentCode: string;
+  feeValue: number;
+  feeChange: number;
+  feeDiscountPercent: number;
   message: string;
-  fee_payload_64: string;
-  fee_address: string;
-  fee_output_signature: string;
+  feePayload64: string;
+  feeAddress: string;
+  feeOutputSignature: string;
 }
 
 export interface Preview {

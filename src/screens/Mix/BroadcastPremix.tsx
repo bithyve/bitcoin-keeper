@@ -23,8 +23,8 @@ import { setTx0Complete, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { Psbt } from 'bitcoinjs-lib';
-import UtxoSummary from './UtxoSummary';
 import useWallets from 'src/hooks/useWallets';
+import UtxoSummary from './UtxoSummary';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -202,7 +202,7 @@ export default function BroadcastPremix({ route, navigation }) {
           Fee
         </Text>
         <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.miner_fee)}</Text>
+          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
           <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
             {getPreferredUnit()}
           </Text>

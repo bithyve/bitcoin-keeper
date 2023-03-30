@@ -76,7 +76,7 @@ export default function PoolSelection({ route, navigation }) {
         WhirlpoolClient.getTx0Data(scode),
       ]);
       const sortedPools = response?.sort((a, b) => a.denomination - b.denomination);
-      setMinMixAmount(sortedPools[0].must_mix_balance_cap + premixFee.averageTxFee);
+      setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.aaverageTxFee);
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
       setTx0Data(tx0);
@@ -111,8 +111,7 @@ export default function PoolSelection({ route, navigation }) {
 
     // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
     const tx0ToFilter = tx0 || tx0Data;
-    const correspondingTx0Data = tx0ToFilter?.filter((data) => data.pool_id === pool.id)[0];
-
+    const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
     const tx0Preview = WhirlpoolClient.getTx0Preview(
       correspondingTx0Data,
       pool,
@@ -178,7 +177,7 @@ export default function PoolSelection({ route, navigation }) {
       <Box style={styles.textArea}>
         <Text color="#017963">Anonset</Text>
         <Text color="light.secondaryText">
-          {selectedPool ? `${selectedPool?.min_anonymity_set} UTXOs` : '--'}
+          {selectedPool ? `${selectedPool?.minAnonymitySet} UTXOs` : '--'}
         </Text>
       </Box>
 
@@ -186,7 +185,7 @@ export default function PoolSelection({ route, navigation }) {
         <Text color="#017963">Pool Fee</Text>
         <Box style={styles.poolTextDirection}>
           <Text color="light.secondaryText">
-            {selectedPool ? valueByPreferredUnit(selectedPool?.fee_value) : ''}
+            {selectedPool ? valueByPreferredUnit(selectedPool?.feeValue) : ''}
           </Text>
           <Text color="light.secondaryText" style={{ paddingLeft: selectedPool ? 5 : 0 }}>
             {selectedPool ? getPreferredUnit() : '--'}

@@ -55,8 +55,8 @@ export const generateMockTransaction = (
 
   // register whirlpool fee output
   outputUTXOs.push({
-    address: tx0data.fee_address,
-    value: tx0data.fee_value,
+    address: tx0data.feeAddress,
+    value: tx0data.feeValue,
   });
 
   // TODO: OP_RETURN for the fee payload
