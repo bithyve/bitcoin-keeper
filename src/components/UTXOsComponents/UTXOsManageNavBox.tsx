@@ -6,11 +6,11 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import idx from 'idx';
-import Text from '../KeeperText';
 import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
+import Text from '../KeeperText';
 
 const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
   idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
