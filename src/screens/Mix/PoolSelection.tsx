@@ -76,7 +76,7 @@ export default function PoolSelection({ route, navigation }) {
         WhirlpoolClient.getTx0Data(scode),
       ]);
       const sortedPools = response?.sort((a, b) => a.denomination - b.denomination);
-      setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.aaverageTxFee);
+      setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.averageTxFee);
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
       setTx0Data(tx0);
