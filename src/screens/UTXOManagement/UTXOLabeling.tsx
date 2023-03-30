@@ -91,7 +91,10 @@ function UTXOLabeling() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
+      <HeaderTitle
+        title="UTXO Details"
+        subtitle="Easily identify specific aspects of various UTXOs"
+      />
       <Box flex={1}>
         <HStack style={{ padding: 20 }}>
           <VStack>

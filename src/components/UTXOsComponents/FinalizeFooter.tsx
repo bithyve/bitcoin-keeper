@@ -13,6 +13,7 @@ function FinalizeFooter({
   secondaryText,
   initateWhirlpoolMix,
   setInitateWhirlpoolMix,
+  selectedUTXOs,
 }) {
   const { bottom } = useSafeAreaInsets();
   return (
@@ -30,6 +31,7 @@ function FinalizeFooter({
           setEnableSelection(false);
         }}
         primaryCallback={footerCallback}
+        primaryDisable={!selectedUTXOs.length}
       />
     </Box>
   );
