@@ -1,4 +1,5 @@
 import { Box } from 'native-base';
+import { ScrollView } from 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
@@ -66,11 +67,6 @@ export default function BroadcastPremix({ route, navigation }) {
       setLoading(false);
     }
   }, [syncing]);
-
-  useEffect(() => {
-    if (loading) {
-    }
-  }, [loading]);
 
   useEffect(() => {
     dispatch(addWhirlpoolWalletsLocal({ depositWallet }));
@@ -197,62 +193,64 @@ export default function BroadcastPremix({ route, navigation }) {
         subtitle="Review the parameters of your Tx0."
       />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
-      <Box style={styles.textArea}>
-        <Text color="#017963" style={styles.textWidth}>
-          Fee
-        </Text>
-        <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-            {getPreferredUnit()}
-          </Text>
-        </Box>
-      </Box>
-      <Box style={styles.textArea}>
-        <Text color="#017963" style={styles.textWidth}>
-          Whirlpool Fee
-        </Text>
-        <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">
-            {valueByPreferredUnit(tx0Preview.coordinator_fee)}
-          </Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-            {getPreferredUnit()}
-          </Text>
-        </Box>
-      </Box>
-      <Box style={styles.textArea}>
-        <Text color="#017963" style={styles.textWidth}>
-          Badbank Change
-        </Text>
-        <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-            {getPreferredUnit()}
-          </Text>
-        </Box>
-      </Box>
-      {preRequistesLoading ? (
+      <ScrollView style={styles.scrollViewWrapper}>
         <Box style={styles.textArea}>
           <Text color="#017963" style={styles.textWidth}>
-            Premixes Loading......
+            Fee
           </Text>
+          <Box style={styles.textDirection}>
+            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
+            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+              {getPreferredUnit()}
+            </Text>
+          </Box>
         </Box>
-      ) : (
-        premixOutputs.map((output, index) => (
+        <Box style={styles.textArea}>
+          <Text color="#017963" style={styles.textWidth}>
+            Whirlpool Fee
+          </Text>
+          <Box style={styles.textDirection}>
+            <Text color="light.secondaryText">
+              {valueByPreferredUnit(tx0Preview.coordinator_fee)}
+            </Text>
+            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+              {getPreferredUnit()}
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.textArea}>
+          <Text color="#017963" style={styles.textWidth}>
+            Badbank Change
+          </Text>
+          <Box style={styles.textDirection}>
+            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
+            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+              {getPreferredUnit()}
+            </Text>
+          </Box>
+        </Box>
+        {preRequistesLoading ? (
           <Box style={styles.textArea}>
             <Text color="#017963" style={styles.textWidth}>
-              Premix #{index + 1}
+              Premixes Loading......
             </Text>
-            <Box style={styles.textDirection}>
-              <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
-              <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-                {getPreferredUnit()}
-              </Text>
-            </Box>
           </Box>
-        ))
-      )}
+        ) : (
+          premixOutputs.map((output, index) => (
+            <Box style={styles.textArea}>
+              <Text color="#017963" style={styles.textWidth}>
+                Premix #{index + 1}
+              </Text>
+              <Box style={styles.textDirection}>
+                <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
+                <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+                  {getPreferredUnit()}
+                </Text>
+              </Box>
+            </Box>
+          ))
+        )}
+      </ScrollView>
       <Box style={styles.footerContainer}>
         <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
@@ -332,5 +330,8 @@ const styles = StyleSheet.create({
     alignContent: 'flex-end',
     justifyContent: 'flex-end',
     width: '100%',
+  },
+  scrollViewWrapper: {
+    height: '65%',
   },
 });

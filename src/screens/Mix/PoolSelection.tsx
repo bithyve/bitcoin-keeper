@@ -50,8 +50,10 @@ export default function PoolSelection({ route, navigation }) {
   const [whirlpoolApi, setWhirlpoolApi] = useState(null);
   const [tx0Data, setTx0Data] = useState(null);
   const [tx0Preview, setTx0Preview] = useState(null);
+  const [poolLoading, setPoolLoading] = useState(true);
 
   useEffect(() => {
+    setPoolLoading(true);
     initWhirlpoolClient();
     initPoolData();
   }, []);
@@ -84,6 +86,7 @@ export default function PoolSelection({ route, navigation }) {
         setSelectedPool(filteredByUtxoTotal[0]);
         onPoolSelectionCallback(filteredByUtxoTotal[0], tx0);
       }
+      setPoolLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -141,7 +144,14 @@ export default function PoolSelection({ route, navigation }) {
       />
 
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
-      {availablePools && availablePools.length > 0 && utxoTotal > minMixAmount ? (
+      {poolLoading ? (
+        <Box
+          backgroundColor="light.primaryBackground"
+          style={[styles.poolSelection, styles.poolErrorContainer]}
+        >
+          <Text style={styles.poolErrorText}>Pools data loading......</Text>
+        </Box>
+      ) : availablePools && availablePools.length > 0 && utxoTotal > minMixAmount ? (
         <Box backgroundColor="light.primaryBackground" style={styles.poolSelection}>
           <Text color="#017963">Pool</Text>
           <TouchableOpacity onPress={() => setShowPools(true)}>
