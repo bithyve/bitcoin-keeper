@@ -16,23 +16,17 @@ import IconRecieve from 'src/assets/images/icon_received_lg.svg';
 import IconSend from 'src/assets/images/icon_send_lg.svg';
 import Link from 'src/assets/images/link.svg';
 import Edit from 'src/assets/images/edit.svg';
-import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 function TransactionDetails({ route }) {
   const navigation = useNavigation();
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance } = useBalance();
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
   const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
@@ -74,8 +68,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${transaction.txid}`
     );
   };
@@ -103,15 +96,9 @@ function TransactionDetails({ route }) {
           </Box>
           <Box>
             <Text style={styles.amountText}>
-              {`${getAmt(
-                transaction.amount,
-                exchangeRates,
-                currencyCode,
-                currentCurrency,
-                satsEnabled
-              )} `}
+              {`${getBalance(transaction.amount)} `}
               <Text color="light.dateText" style={styles.unitText}>
-                {getUnit(currentCurrency, satsEnabled)}
+                {getSatUnit()}
               </Text>
             </Text>
           </Box>
