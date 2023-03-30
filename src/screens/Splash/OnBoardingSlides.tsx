@@ -54,6 +54,17 @@ function OnBoardingSlides({ navigation }) {
       paragraph: onboarding.slide02Paragraph,
       illustration: <Illustration_2 />,
     },
+    {
+      id: '2',
+      title: (
+        <>
+          {`${onboarding.slide07Title} `}
+          <Text style={styles.info}>{onboarding.whirlpool}</Text>
+        </>
+      ),
+      paragraph: onboarding.slide07Paragraph,
+      illustration: <Illustration_2 />,
+    },
   ]);
 
   useEffect(() => {
