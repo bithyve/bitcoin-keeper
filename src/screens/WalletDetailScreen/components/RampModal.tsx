@@ -44,9 +44,6 @@ function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
             style={styles.addressTextView}
             ellipsizeMode="middle"
             numberOfLines={1}
-            fontSize={19}
-            letterSpacing={1.28}
-            color="#041513"
           >
             {wallets[walletIndex].specs.receivingAddress}
           </Text>
@@ -129,9 +126,9 @@ const styles = StyleSheet.create({
   atViewWrapper: {
     marginVertical: 4,
     alignItems: 'center',
-    borderRadius: 20,
+    borderRadius: 10,
     paddingHorizontal: 15,
-    paddingVertical: 6,
+    paddingVertical: 10,
     backgroundColor: '#FDF7F0',
     flexDirection: 'row',
   },
@@ -148,6 +145,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   addressTextView: {
-    width: wp(180),
+    width: wp(200),
+    fontSize: 19,
+    color: "#041513"
   },
 });

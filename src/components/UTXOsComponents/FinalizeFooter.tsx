@@ -16,7 +16,7 @@ function FinalizeFooter({ setEnableSelection, selectedUTXOs, currentWallet }) {
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
         primaryDisable={!selectedUTXOs.length}
-        primaryText="Send"
+        primaryText="Initiate Premix"
         secondaryText="Cancel"
         secondaryCallback={() => setEnableSelection(false)}
         primaryCallback={goToSend}
@@ -30,9 +30,9 @@ export default FinalizeFooter;
 const styles = StyleSheet.create({
   footerContainer: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 5 : 0,
+    bottom: Platform.OS === 'ios' ? 5 : 15,
     width: wp(375),
     paddingHorizontal: '10%',
-    marginBottom: '4%',
+    marginBottom: '5%',
   },
 });

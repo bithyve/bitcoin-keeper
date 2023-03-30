@@ -45,6 +45,12 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     setPasscode(passcode.slice(0, passcode.length - 1));
   };
 
+  const disableCTA = () => {
+    setTimeout(() => {
+      setBtnDisable(false);
+    }, 7000)
+  }
+
   useEffect(() => {
     if (attempts >= 3) {
       setAttempts(1);
@@ -58,10 +64,10 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
       setErrMessage('Incorrect Passcode! Try Again');
       setPasscode('');
       setAttempts(attempts + 1);
-      setBtnDisable(false);
+      disableCTA()
     } else {
-      setBtnDisable(false);
       setLoginError(false);
+      disableCTA()
     }
   }, [authenticationFailed]);
 
@@ -76,7 +82,6 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         });
         closeBottomSheet();
       }
-      setBtnDisable(false);
       dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);

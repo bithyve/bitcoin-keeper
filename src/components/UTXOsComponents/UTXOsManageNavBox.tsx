@@ -9,8 +9,8 @@ function UTXOsManageNavBox({ onClick }: any) {
     return (
         <Pressable style={styles.manageUTXOsWrapper} backgroundColor="light.lightAccent" onPress={onClick}>
             <Box style={styles.titleViewWrapper}>
-                <Text style={styles.titleText}>Manage UTXO’s</Text>
-                <Text style={styles.subTitleText}>Lorem ipsum dolor sit amet, consectetur</Text>
+                <Text style={styles.titleText}>Manage UTXOs</Text>
+                <Text style={styles.subTitleText}>Select Label and choose UTXOs</Text>
             </Box>
             <Box style={styles.arrowViewWrapper}>
                 <ArrowIcon />
@@ -23,11 +23,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         width: '100%',
         alignItems: 'center',
-        padding: windowHeight > 800 ? 10 : 5,
-        paddingHorizontal: windowHeight > 800 ? 0 : 10,
+        padding: windowHeight > 815 ? 10 : 5,
+        paddingHorizontal: 10,
         borderRadius: 5,
-        marginBottom: windowHeight > 800 ? 15 : 5,
-        marginTop: windowHeight > 800 ? 0 : 10
+        marginBottom: windowHeight > 815 ? 15 : 5,
+        marginTop: windowHeight > 815 ? 0 : 10
     },
     titleViewWrapper: {
         width: '95%'
