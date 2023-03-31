@@ -1,8 +1,9 @@
 import React from 'react';
 import { Box } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
-import Background from 'src/assets/images/background elements.svg';
-import Gear1 from 'src/assets/images/gear1.svg';
+import Background from 'src/assets/images/whirlpool_background.svg';
+import Gear0 from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
+import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
@@ -26,15 +27,19 @@ function WhirlpoolLoader() {
     outputRange: ['360deg', '0deg'],
   });
   const styles = getStyles(clock, antiClock);
+
   return (
-    <Box style={{ alignItems: 'center' }}>
-      <Box style={{ width: windowWidth * 0.5 }}>
+    <Box style={{ alignItems: 'center', position: 'relative' }}>
+      <Box style={{ width: windowWidth > 375 ? windowWidth * 0.5 : windowWidth * 0.56 }}>
         <Background />
         <Animated.View style={styles.gear2}>
           <Gear2 />
         </Animated.View>
         <Animated.View style={styles.gear1}>
           <Gear1 />
+        </Animated.View>
+        <Animated.View style={styles.gear0}>
+          <Gear0 />
         </Animated.View>
         <Animated.View style={styles.gear3}>
           <Gear3 />
@@ -50,20 +55,25 @@ const getStyles = (clock, antiClock) =>
   StyleSheet.create({
     gear3: {
       position: 'absolute',
-      bottom: '17%',
-      right: 0,
+      bottom: '24%',
+      left: '88%',
       transform: [{ rotate: antiClock }],
     },
     gear2: {
       position: 'absolute',
-      top: '10%',
-      left: '10%',
+      top: '14%',
+      left: '11%',
       transform: [{ rotate: antiClock }],
     },
     gear1: {
       position: 'absolute',
-      right: '23%',
+      right: '18%',
       top: '10%',
+    },
+    gear0: {
+      position: 'absolute',
+      top: '31%',
+      left: '49%',
       transform: [{ rotate: clock }],
     },
   });
