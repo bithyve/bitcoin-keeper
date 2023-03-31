@@ -5,7 +5,7 @@ const { Whirlpool } = NativeModules;
 export default class WhirlpoolServices {
   static hello = async (name: string): Promise<string> => {
     try {
-      const result = await Whirlpool.hello(name);
+      const result = await Whirlpool.sayHello(name);
       return result;
     } catch (error) {
       console.log('error', error);
