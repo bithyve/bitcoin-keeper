@@ -1,3 +1,4 @@
+import { Psbt } from 'bitcoinjs-lib';
 import { NativeModules } from 'react-native';
 import { InputStructure, PoolData, Preview, TX0Data } from './interface';
 
@@ -78,4 +79,105 @@ export default class WhirlpoolServices {
       throw new Error(error);
     }
   };
+
+  /**
+ * @param  {tx_str} inputsValue
+ * @param  {pool_id_str} premixFeePerByte
+ * @returns string
+ */
+  static tx0Push = async (
+    txStr: string,
+    poolIdStr: string,
+  ): Promise<string> => {
+    try {
+      const result = await Whirlpool.tx0push(
+        txStr,
+        poolIdStr,
+      );
+      if (!result) throw new Error('Unable to tx0Push');
+      return result;
+    } catch (error) {
+      console.log({ error });
+      throw new Error(error);
+    }
+  }
+
+  /**
+  * @returns Psbt
+  */
+  static intoPsbt = async (
+    previewStr: string,
+    tx0DataStr: string,
+    inputsStr: string,
+    addressBankStr: string,
+    changeAddrStr: string
+  ): Promise<Psbt> => {
+    try {
+      const result = await Whirlpool.intoPsbt(
+        previewStr,
+        tx0DataStr,
+        inputsStr,
+        addressBankStr,
+        changeAddrStr
+      );
+      if (!result) throw new Error('Unable to call intoPsbt');
+      return JSON.parse(result);
+    } catch (error) {
+      console.log({ error });
+      throw new Error(error);
+    }
+  }
+
+  /**
+  * @returns Psbt
+  */
+  static constructInput = async (
+    outpoint: string,
+    value: number,
+    scriptPubkey: string
+  ): Promise<string> => {
+    try {
+      const result = await Whirlpool.constructInput(
+        outpoint,
+        value,
+        scriptPubkey
+      );
+      if (!result) throw new Error('Unable to call intoPsbt');
+      return result;
+    } catch (error) {
+      console.log({ error });
+      throw new Error(error);
+    }
+  }
+
+  /**
+  */
+  static startMix = async (
+    input: string,
+    privateKey: string,
+    destination: string,
+    poolId: string,
+    denomination: string,
+    preUserHash: string,
+    network: string,
+    blockHeight: string
+  ): Promise<string> => {
+    try {
+      const result = await Whirlpool.blocking(
+        input,
+        privateKey,
+        destination,
+        poolId,
+        denomination,
+        preUserHash,
+        network,
+        blockHeight
+      );
+      if (!result) throw new Error('Unable to generate tx0 preview');
+      return result;
+    } catch (error) {
+      console.log({ error });
+      throw new Error(error);
+    }
+  }
 }
