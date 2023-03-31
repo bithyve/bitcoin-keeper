@@ -17,6 +17,7 @@ import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration_1 from 'src/assets/images/illustration_1.svg';
 import Illustration_2 from 'src/assets/images/illustration_2.svg';
+import Illustration_7 from 'src/assets/images/illustration_7.svg'
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -63,7 +64,7 @@ function OnBoardingSlides({ navigation }) {
         </>
       ),
       paragraph: onboarding.slide07Paragraph,
-      illustration: <Illustration_2 />,
+      illustration: <Illustration_7 />,
     },
   ]);
 
