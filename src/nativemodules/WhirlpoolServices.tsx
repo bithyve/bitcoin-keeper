@@ -1,5 +1,5 @@
 import { NativeModules } from 'react-native';
-import { PoolData, Preview, TX0Data } from './interface';
+import { InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
 
@@ -40,9 +40,9 @@ export default class WhirlpoolServices {
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
    * If err, it means that the total value of inputs is insufficient to successully construct one.
    * @param  {number} inputsValue
-   * @param  {string} poolStr
+   * @param  {PoolData} pool
    * @param  {number} premixFeePerByte
-   * @param  {string} inputStructureStr
+   * @param  {InputStructure} inputStructure
    * @param  {number} minerFeePerByte
    * @param  {number} coordinatorFee
    * @param  {string} nWantedMaxOutputsStr
@@ -51,9 +51,9 @@ export default class WhirlpoolServices {
    */
   static getTx0Preview = async (
     inputsValue: number,
-    poolStr: string,
+    pool: PoolData,
     premixFeePerByte: number,
-    inputStructureStr: string,
+    inputStructure: InputStructure,
     minerFeePerByte: number,
     coordinatorFee: number,
     nWantedMaxOutputsStr: string,
@@ -62,9 +62,9 @@ export default class WhirlpoolServices {
     try {
       const result = await Whirlpool.tx0Preview(
         inputsValue,
-        poolStr,
+        JSON.stringify(pool),
         premixFeePerByte,
-        inputStructureStr,
+        JSON.stringify(inputStructure),
         minerFeePerByte,
         coordinatorFee,
         nWantedMaxOutputsStr,

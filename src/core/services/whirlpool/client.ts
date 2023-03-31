@@ -86,9 +86,9 @@ export default class WhirlpoolClient {
 
     return WhirlpoolServices.getTx0Preview(
       inputsValue,
-      JSON.stringify(pool),
+      pool,
       premixFeePerByte,
-      JSON.stringify(inputStructure),
+      inputStructure,
       minerFeePerByte,
       tx0data.feeValue,
       null,
