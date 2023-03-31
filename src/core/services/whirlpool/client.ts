@@ -10,6 +10,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import WhirlpoolServices from 'src/nativemodules/WhirlpoolServices';
 import {
   Info,
+  InputStructure,
   Network,
   PoolData,
   Preview,
@@ -60,66 +61,39 @@ export default class WhirlpoolClient {
    * If err, it means that the total value of inputs is insufficient to successully construct one.
    * @param  {TX0Data} tx0data
    * @param  {PoolData} pool
-   * @param  {number} premix_fee_per_byte
-   * @param  {number} miner_fee_per_byte
+   * @param  {number} premixFeePerByte
+   * @param  {number} minerFeePerByte
    * @param  {InputUTXOs[]} inputs
    * @returns Preview
    */
-  static getTx0Preview = (
+  static getTx0Preview = async (
     tx0data: TX0Data,
     pool: PoolData,
-    premix_fee_per_byte: number,
-    miner_fee_per_byte: number,
+    premixFeePerByte: number,
+    minerFeePerByte: number,
     inputs: InputUTXOs[]
-  ): Preview => {
-    let inputs_value = 0;
+  ): Promise<Preview> => {
+    let inputsValue = 0;
     inputs.forEach((input) => {
-      inputs_value += input.value;
+      inputsValue += input.value;
     });
 
-    if (inputs_value < pool.mustMixBalanceMin)
-      throw new Error(`You need ${pool.mustMixBalanceMin} sats to do the mix`);
-
-    // const preview = Preview::new(
-    //     inputs_value: // construct from inputs,
-    //     premix_value: // construct using PremixValue.new(pool: &Pool, fee_per_vbyte: f64),
-    //     input_structure: &InputStructure,
-    //     miner_fee: miner_fee_per_byte,
-    //     coordinator_fee: tx0data.fee_value,
-    //     n_wanted_max_outputs: Option<u16>,
-    //     n_pool_max_outputs: u16
-    //     )
-
-    // const input_structure: InputStructure = { // TODO: generate based on UTXO type
-    //   n_p2pkh_inputs: 0,
-    //   n_p2sh_p2wpkh_inputs: 0,
-    //   n_p2wpkh_inputs: inputs.length,
-    // };
-
-    // console.log({
-    //   inputs_value,
-    //   pool, // to construct premix_value using PremixValue::new
-    //   premix_fee_per_byte, // to construct premix_value using PremixValue::new,
-    //   input_structure,
-    //   miner_fee_per_byte,
-    //   coordinator_fee: tx0data.fee_value,
-    //   n_wanted_max_outputs: null,
-    //   n_pool_max_outputs: pool.tx0_max_outputs,
-    // });
-
-    const minerFee = 1000; // paying average tx fee for now(should be calculated using miner_fee_per_byte)
-    const n_premix_outputs = Math.floor(
-      (inputs_value - pool.feeValue - minerFee) / pool.mustMixBalanceMin
-    );
-    const preview: Preview = {
-      premix_value: pool.mustMixBalanceMin, // low premix priority
-      n_premix_outputs,
-      coordinator_fee: tx0data.feeValue,
-      miner_fee: minerFee,
-      change: inputs_value - pool.feeValue - minerFee - n_premix_outputs * pool.mustMixBalanceMin, // bad bank
+    const inputStructure: InputStructure = {
+      nbP2pkhInputs: 0,
+      nbP2shP2wpkhInputs: 0,
+      nbP2wpkhInputs: inputs.length,
     };
 
-    return preview;
+    return WhirlpoolServices.getTx0Preview(
+      inputsValue,
+      JSON.stringify(pool),
+      premixFeePerByte,
+      JSON.stringify(inputStructure),
+      minerFeePerByte,
+      tx0data.feeValue,
+      null,
+      pool.tx0MaxOutputs
+    );
   };
 
   /**

@@ -75,18 +75,18 @@ export interface TX0Data {
 }
 
 export interface Preview {
-  premix_value: number;
-  n_premix_outputs: number;
-  miner_fee: number;
-  coordinator_fee: number;
+  premixValue: number;
+  nPremixOutputs: number;
+  minerFee: number;
+  coordinatorFee: number;
   change: number;
 }
 
 /// Used during TX0 fee computation. Needed because different script types have different lengths.
 export interface InputStructure {
-  n_p2pkh_inputs: number;
-  n_p2sh_p2wpkh_inputs: number;
-  n_p2wpkh_inputs: number;
+  nbP2pkhInputs: number;
+  nbP2shP2wpkhInputs: number;
+  nbP2wpkhInputs: number;
 }
 
 export interface BitcoinRustInput {

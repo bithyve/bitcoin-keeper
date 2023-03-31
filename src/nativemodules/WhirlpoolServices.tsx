@@ -37,10 +37,19 @@ export default class WhirlpoolServices {
   };
 
   /**
-   * Fetches tx0 preview from the coordinator.
-   * @returns Promise<Preview>
+   * Computes a TX0 preview containing output values that can be used to construct a real TX0.
+   * If err, it means that the total value of inputs is insufficient to successully construct one.
+   * @param  {number} inputsValue
+   * @param  {string} poolStr
+   * @param  {number} premixFeePerByte
+   * @param  {string} inputStructureStr
+   * @param  {number} minerFeePerByte
+   * @param  {number} coordinatorFee
+   * @param  {string} nWantedMaxOutputsStr
+   * @param  {number} nPoolMaxOutputs
+   * @returns Preview
    */
-  static tx0Preview = async (
+  static getTx0Preview = async (
     inputsValue: number,
     poolStr: string,
     premixFeePerByte: number,
@@ -48,13 +57,24 @@ export default class WhirlpoolServices {
     minerFeePerByte: number,
     coordinatorFee: number,
     nWantedMaxOutputsStr: string,
-    nPoolMaxOutputs: number): Promise<Preview> => {
+    nPoolMaxOutputs: number
+  ): Promise<Preview> => {
     try {
-      const result = await Whirlpool.tx0Preview(inputsValue, poolStr, premixFeePerByte, inputStructureStr, minerFeePerByte, coordinatorFee, nWantedMaxOutputsStr, nPoolMaxOutputs);
-      if (!result) throw new Error('Unable to fetch tx0 preview');
-      return JSON.parse(result)
+      const result = await Whirlpool.tx0Preview(
+        inputsValue,
+        poolStr,
+        premixFeePerByte,
+        inputStructureStr,
+        minerFeePerByte,
+        coordinatorFee,
+        nWantedMaxOutputsStr,
+        nPoolMaxOutputs
+      );
+      if (!result) throw new Error('Unable to generate tx0 preview');
+
+      return JSON.parse(result);
     } catch (error) {
-      console.log('error', error);
+      console.log({ error });
       throw new Error(error);
     }
   };
