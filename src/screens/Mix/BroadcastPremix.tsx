@@ -25,6 +25,9 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { Psbt } from 'bitcoinjs-lib';
 import useWallets from 'src/hooks/useWallets';
+import { InputUTXOs } from 'src/core/wallets/interfaces';
+import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import UtxoSummary from './UtxoSummary';
 
 export default function BroadcastPremix({ route, navigation }) {
@@ -37,7 +40,16 @@ export default function BroadcastPremix({ route, navigation }) {
     selectedPool,
     wallet,
     WhirlpoolClient,
-  } = route.params;
+  }: {
+    utxos: InputUTXOs;
+    utxoCount: number;
+    utxoTotal: number;
+    tx0Preview: Preview;
+    tx0Data: TX0Data[];
+    selectedPool: PoolData;
+    wallet: Wallet;
+    WhirlpoolClient;
+  } = route.params as any;
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
@@ -81,8 +93,8 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
-    for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
-      outputs.push(tx0Preview.premix_value);
+    for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
+      outputs.push(tx0Preview.premixValue);
     }
     setPremixOutputs(outputs);
   };
@@ -122,7 +134,7 @@ export default function BroadcastPremix({ route, navigation }) {
       const premixWallet = whirlpoolWallets.filter((w) => w.type === WalletType.PRE_MIX)[0];
       const badBank = whirlpoolWallets.filter((w) => w.type === WalletType.BAD_BANK)[0];
       const premixAddresses = [];
-      for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
+      for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
         premixAddresses.push(
           WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)
         );
@@ -131,7 +143,7 @@ export default function BroadcastPremix({ route, navigation }) {
         premix: premixAddresses,
         badbank: badBank.specs.receivingAddress,
       };
-      const correspondingTx0Data = tx0Data?.filter((data) => data.pool_id === selectedPool.id);
+      const correspondingTx0Data = tx0Data?.filter((data) => data.poolId === selectedPool.id);
 
       const psbt = WhirlpoolClient.getTx0FromPreview(
         tx0Preview,
@@ -211,7 +223,11 @@ export default function BroadcastPremix({ route, navigation }) {
           </Text>
           <Box style={styles.textDirection}>
             <Text color="light.secondaryText">
-              {valueByPreferredUnit(tx0Preview.coordinator_fee)}
+              {valueByPreferredUnit(
+                tx0Preview.coordinatorFee?.coordinator
+                  ? tx0Preview.coordinatorFee.coordinator[0]
+                  : 0
+              )}
             </Text>
             <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
               {getPreferredUnit()}

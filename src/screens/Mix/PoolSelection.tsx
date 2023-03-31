@@ -14,10 +14,8 @@ import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import PageIndicator from 'src/components/PageIndicator';
 import Fonts from 'src/common/Fonts';
-import WhirlpoolClient, { TOR_CONFIG } from 'src/core/services/whirlpool/client';
-import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
-import { Network } from 'src/nativemodules/interface';
+import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import { Preview } from 'src/nativemodules/interface';
 import UtxoSummary from './UtxoSummary';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
@@ -39,45 +37,31 @@ const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
 );
 
 export default function PoolSelection({ route, navigation }) {
-  const { scode, premixFee, minerFee, utxos, utxoCount, utxoTotal, wallet } = route.params;
+  const { scode, premixFee, minerFee, utxos, utxoCount, utxoTotal, wallet } = route.params as any;
   const [showPools, setShowPools] = useState(false);
   const [availablePools, setAvailablePools] = useState([]);
-  const [selectedPool, setSelectedPool] = useState('');
+  const [selectedPool, setSelectedPool] = useState(null);
   const [poolSelectionText, setPoolSelectionText] = useState('');
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [premixOutput, setPremixOutput] = useState(0);
   const [minMixAmount, setMinMixAmount] = useState(0);
-  const [whirlpoolApi, setWhirlpoolApi] = useState(null);
   const [tx0Data, setTx0Data] = useState(null);
   const [tx0Preview, setTx0Preview] = useState(null);
   const [poolLoading, setPoolLoading] = useState(true);
 
   useEffect(() => {
     setPoolLoading(true);
-    initWhirlpoolClient();
     initPoolData();
   }, []);
-
-  const initWhirlpoolClient = async () => {
-    try {
-      const api = WhirlpoolClient.initiateAPI(
-        TOR_CONFIG,
-        config.NETWORK_TYPE === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin
-      );
-      setWhirlpoolApi(api);
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   const initPoolData = async () => {
     try {
       setPoolSelectionText('Fetching Pools...');
-      const [response, tx0] = await Promise.all([
+      const [pools, tx0] = await Promise.all([
         WhirlpoolClient.getPools(),
         WhirlpoolClient.getTx0Data(scode),
       ]);
-      const sortedPools = response?.sort((a, b) => a.denomination - b.denomination);
+      const sortedPools = pools?.sort((a, b) => a.denomination - b.denomination);
       setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.averageTxFee);
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
@@ -109,20 +93,20 @@ export default function PoolSelection({ route, navigation }) {
     });
   };
 
-  const onPoolSelectionCallback = (pool, tx0) => {
+  const onPoolSelectionCallback = async (pool, tx0) => {
     setSelectedPool(pool);
 
     // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
     const tx0ToFilter = tx0 || tx0Data;
     const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
-    const tx0Preview = WhirlpoolClient.getTx0Preview(
+    const tx0Preview: Preview = await WhirlpoolClient.getTx0Preview(
       correspondingTx0Data,
       pool,
       premixFee.feePerByte,
       minerFee.feePerByte,
       utxos
     );
-    setPremixOutput(tx0Preview?.n_premix_outputs);
+    setPremixOutput(tx0Preview?.nPremixOutputs);
     setTx0Preview(tx0Preview);
     setShowPools(false);
   };

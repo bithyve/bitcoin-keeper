@@ -78,7 +78,10 @@ export interface Preview {
   premixValue: number;
   nPremixOutputs: number;
   minerFee: number;
-  coordinatorFee: number;
+  coordinatorFee: {
+    coordinator?: Array<any>; // value: number; address: string
+    depositBack?: number;
+  };
   change: number;
 }
 
