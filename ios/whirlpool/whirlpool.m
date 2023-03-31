@@ -48,4 +48,17 @@ RCT_EXPORT_METHOD(getTx0Data:(RCTPromiseResolveBlock)resolve
   }];
 }
 
+RCT_EXPORT_METHOD(tx0Preview:(NSInteger*) inputsValue
+                  poolStr:(NSString*) poolStr
+                  premixFeePerByte:(NSInteger*) premixFeePerByte
+                  inputStructureStr:(NSString*) inputStructureStr
+                  minerFeePerByte:(NSInteger*) minerFeePerByte
+                  coordinatorFee:(NSInteger*) coordinatorFee
+                  nWantedMaxOutputsStr:(NSString*) nWantedMaxOutputsStr
+                  get:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject){
+  WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
+
+}
+
 @end

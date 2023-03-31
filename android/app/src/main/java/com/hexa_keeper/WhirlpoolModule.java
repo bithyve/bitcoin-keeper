@@ -44,4 +44,9 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     public void getPools(Promise promise) {
         promise.resolve(WhirlpoolBridge.pools());
     }
+
+    @ReactMethod
+    public void tx0Preview(Integer inputsValue, String poolStr, Integer premixFeePerByte, String inputStructureStr,Integer minerFeePerByte,Integer coordinatorFee, String nWantedMaxOutputsStr, Integer nPoolMaxOutputs, Promise promise) {
+        promise.resolve(WhirlpoolBridge.tx0preview(inputsValue, poolStr, premixFeePerByte, inputStructureStr, minerFeePerByte, coordinatorFee,nWantedMaxOutputsStr, nPoolMaxOutputs));
+    }
 }
