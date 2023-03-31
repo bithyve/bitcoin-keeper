@@ -7,7 +7,7 @@ import ElectrumClient from 'src/core/services/electrum/client';
 import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import WhirlpoolServices from 'src/nativemodules/Whirlpool';
+import WhirlpoolServices from 'src/nativemodules/WhirlpoolServices';
 import {
   Info,
   Network,
@@ -17,7 +17,7 @@ import {
   TorConfig,
   TX0Data,
   WhirlpoolAPI,
-} from './interface';
+} from '../../../nativemodules/interface';
 import { generateMockTransaction, getAPIEndpoints, sleep } from './utils';
 
 const LOCALHOST = '127.0.0.1';

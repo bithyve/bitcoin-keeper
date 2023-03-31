@@ -1,4 +1,4 @@
-import { MixStatus } from './interface';
+import { MixStatus } from '../../../nativemodules/interface';
 
 export const MOCK_POOL_DATA = [
   {

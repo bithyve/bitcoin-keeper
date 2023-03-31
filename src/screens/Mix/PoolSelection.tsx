@@ -17,7 +17,7 @@ import Fonts from 'src/common/Fonts';
 import WhirlpoolClient, { TOR_CONFIG } from 'src/core/services/whirlpool/client';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
-import { Network } from 'src/core/services/whirlpool/interface';
+import { Network } from 'src/nativemodules/interface';
 import UtxoSummary from './UtxoSummary';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
