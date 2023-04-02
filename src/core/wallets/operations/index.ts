@@ -154,6 +154,8 @@ export default class WalletOperations {
     }
 
     for (const output of outputs) {
+      if (!output.scriptPubKey.addresses) continue; // OP_RETURN w/ no value(tx0)
+
       const outputAddress = output.scriptPubKey.addresses[0];
       if (
         externalAddresses[outputAddress] !== undefined ||
