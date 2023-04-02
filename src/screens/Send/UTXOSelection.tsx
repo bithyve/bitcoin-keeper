@@ -4,17 +4,13 @@ import React, { useCallback, useState } from 'react';
 import { TouchableOpacity, StyleSheet, FlatList } from 'react-native';
 import {
   BtcToSats,
-  getAmt,
-  getCurrencyImageByRegion,
-  getUnit,
   SatsToBtc,
 } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 
 import { hp, wp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
@@ -31,13 +27,10 @@ function UTXOSelection({ route }: any) {
   const { sender, amount, address } = route.params;
   const utxos = _.clone(sender.specs.confirmedUTXOs);
   const { colorMode } = useColorMode();
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { averageTxFees } = useAppSelector((state) => state.network);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [utxoState, setUtxoState] = useState(
     utxos.map((utxo) => {
@@ -68,11 +61,11 @@ function UTXOSelection({ route }: any) {
           style={[styles.selectionView, { backgroundColor: item.selected ? 'orange' : 'white' }]}
         />
         <Box style={styles.amountWrapper}>
-          <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+          <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
           <Text style={styles.amountText}>
-            {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+            {getBalance(item.value)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getUnit(currentCurrency, satsEnabled)}
+              {getSatUnit()}
             </Text>
           </Text>
         </Box>

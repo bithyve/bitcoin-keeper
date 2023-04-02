@@ -1,20 +1,15 @@
 import { StyleSheet } from 'react-native';
 import React, { useContext } from 'react';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { Box } from 'native-base';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import BTC from 'src/assets/images/btc_wallet.svg';
 import Text from 'src/components/KeeperText';
 
 function WalletInfo({ wallets }) {
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
     <Box style={styles.headerContainer}>
@@ -23,12 +18,12 @@ function WalletInfo({ wallets }) {
       </Text>
       <Box style={styles.headerBalanceContainer}>
         <Box style={styles.headerBTCIcon}>
-          {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTC)}
+          {getCurrencyIcon(BTC, 'dark')}
         </Box>
         <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
-          {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+          {getBalance(netBalance)}
           <Text color="light.textColorDark" style={styles.balanceUnit}>
-            {getUnit(currentCurrency, satsEnabled)}
+            {getSatUnit()}
           </Text>
         </Text>
       </Box>

@@ -13,11 +13,8 @@ import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-import useExchangeRates from 'src/hooks/useExchangeRates';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import config from 'src/core/config';
@@ -32,10 +29,7 @@ function UTXOLabeling() {
   const { labels } = useLabels({ utxos: [utxo], wallet });
   const [existingLabels, setExistingLabels] = useState([]);
   const [editingIndex, setEditingIndex] = useState(-1);
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const exchangeRates = useExchangeRates();
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { colorMode } = useColorMode();
   const lablesUpdated =
     labels[`${utxo.txId}${utxo.vout}`].reduce((a, c) => {
@@ -83,8 +77,7 @@ function UTXOLabeling() {
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${utxo.txId}`
     );
   };
@@ -112,12 +105,12 @@ function UTXOLabeling() {
             <Text style={styles.subHeaderTitle}>UTXO Value</Text>
             <View style={{ flexDirection: 'row' }}>
               <Box style={{ marginTop: 5 }}>
-                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
+                {getCurrencyIcon(BtcBlack, 'dark')}
               </Box>
               <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                {getBalance(utxo.value)}
                 <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                  {getUnit(currentCurrency, satsEnabled)}
+                  {getSatUnit()}
                 </Text>
               </Text>
             </View>
@@ -138,8 +131,8 @@ function UTXOLabeling() {
                       item.type === LabelType.SYSTEM
                         ? '#23A289'
                         : editingIndex !== index
-                        ? '#E0B486'
-                        : '#A88763',
+                          ? '#E0B486'
+                          : '#A88763',
                   },
                 ]}
               >
