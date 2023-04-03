@@ -35,6 +35,10 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
+import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import BtcGreen from 'src/assets/images/btc_round_green.svg';
+import KeeperModal from 'src/components/KeeperModal';
+import AddTags from 'src/components/UTXOsComponents/AddTags';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -60,6 +64,7 @@ function AddSendAmount({ route }) {
   const [amountToSend, setAmountToSend] = useState('');
   const [note, setNote] = useState('');
   const [label, setLabel] = useState('');
+  const [addTagsModalVisible, setAddTagsModalVisible] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
   const recipientCount = 1;
@@ -299,7 +304,7 @@ function AddSendAmount({ route }) {
           />
         </Box>
         <Box style={styles.addNoteWrapper}>
-          <TextInput
+          {/* <TextInput
             autoCapitalize="sentences"
             placeholder="Add a lable"
             placeholderTextColor="light.greenText"
@@ -308,6 +313,12 @@ function AddSendAmount({ route }) {
             onChangeText={(value) => {
               setLabel(value);
             }}
+          /> */}
+          <MenuItemButton
+            onPress={() => setAddTagsModalVisible(true)}
+            icon={<BtcGreen />}
+            title="Add Tags"
+            subTitle="Tags help you remember and identify UTXOs"
           />
         </Box>
         <Box style={styles.ctaBtnWrapper}>
@@ -331,6 +342,15 @@ function AddSendAmount({ route }) {
           activity private and organised. The information is not shared with anyone
         </Text>
       </Box>
+      <KeeperModal
+        visible={addTagsModalVisible}
+        showCloseIcon={false}
+        close={() => setAddTagsModalVisible(false)}
+        title="Add Tags"
+        subTitle="Tags help you remember and identify UTXOs"
+        textColor="light.primaryText"
+        Content={AddTags}
+      />
     </ScreenWrapper>
   );
 }
