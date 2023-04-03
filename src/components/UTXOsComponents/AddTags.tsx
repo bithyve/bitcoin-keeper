@@ -7,7 +7,7 @@ import DeleteCross from 'src/assets/images/deletelabel.svg';
 import Done from 'src/assets/images/selected.svg';
 import { LabelType } from 'src/core/wallets/enums';
 // import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
-import useLabels from 'src/hooks/useLabels';
+// import useLabels from 'src/hooks/useLabels';
 // import { useRoute } from '@react-navigation/native';
 // import { UTXO } from 'src/core/wallets/interfaces';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
