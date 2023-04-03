@@ -145,7 +145,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
   },
   scrollContainer: {
-    padding: '8%',
+    paddingHorizontal: '8%',
+    paddingVertical: '8%',
     width: Platform.select({ android: null, ios: '100%' }),
   },
   unregistered: {

@@ -6,7 +6,7 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 
@@ -23,7 +23,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
 
   const styles = getStyles(0);
   return (
-    <VStack paddingY={12}>
+    <VStack style={styles.vaultWrapper}>
       <HStack alignItems="center" justifyContent="space-between">
         <HStack>
           <Box paddingRight={3}>
@@ -80,6 +80,9 @@ const getStyles = (top) =>
     vaultInfoText: {
       marginLeft: wp(3),
       letterSpacing: 1.28,
+    },
+    vaultWrapper: {
+      marginTop: hp(30),
     },
   });
 
