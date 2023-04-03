@@ -303,24 +303,14 @@ function AddSendAmount({ route }) {
             }}
           />
         </Box>
-        <Box style={styles.addNoteWrapper}>
-          {/* <TextInput
-            autoCapitalize="sentences"
-            placeholder="Add a lable"
-            placeholderTextColor="light.greenText"
-            style={styles.textInput}
-            value={label}
-            onChangeText={(value) => {
-              setLabel(value);
-            }}
-          /> */}
+        {/* <Box style={styles.addNoteWrapper}>
           <MenuItemButton
-            onPress={() => setAddTagsModalVisible(true)}
+            onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
             icon={<BtcGreen />}
             title="Add Tags"
             subTitle="Tags help you remember and identify UTXOs"
           />
-        </Box>
+        </Box> */}
         <Box style={styles.ctaBtnWrapper}>
           <Box ml={windowWidth * -0.09}>
             <Buttons
@@ -342,15 +332,6 @@ function AddSendAmount({ route }) {
           activity private and organised. The information is not shared with anyone
         </Text>
       </Box>
-      <KeeperModal
-        visible={addTagsModalVisible}
-        showCloseIcon={false}
-        close={() => setAddTagsModalVisible(false)}
-        title="Add Tags"
-        subTitle="Tags help you remember and identify UTXOs"
-        textColor="light.primaryText"
-        Content={AddTags}
-      />
     </ScreenWrapper>
   );
 }
@@ -417,7 +398,9 @@ const styles = ScaledSheet.create({
     marginLeft: '-5%',
   },
   infoNoteWrapper: {
-    marginTop: hp(35),
+    position: 'absolute',
+    bottom: hp(20),
+    alignSelf: 'center',
     backgroundColor: Colors.Bisque,
     opacity: 0.8,
     paddingHorizontal: 10,
