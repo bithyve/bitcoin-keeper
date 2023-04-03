@@ -25,13 +25,11 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/core/wallets/operations';
-import AddTags from 'src/components/UTXOsComponents/AddTags';
 import MenuItemButton from '../../components/CustomButton/MenuItemButton';
 
 function ReceiveScreen({ route }: { route }) {
   const navigtaion = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
-  const [addTagsModalVisible, setAddTagsModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
 
   const wallet: Wallet = route?.params?.wallet;
@@ -154,12 +152,12 @@ function ReceiveScreen({ route }: { route }) {
         subTitle="Add a specific invoice amount"
       />
       {/* {Add tags component} */}
-      <MenuItemButton
-        onPress={() => setAddTagsModalVisible(true)}
+      {/* <MenuItemButton
+        onPress={() => navigtaion.navigate('UTXOLabeling', { utxo: {}, wallet })}
         icon={<BtcGreen />}
         title="Add Tags"
         subTitle="Tags help you remember and identify UTXOs"
-      />
+      /> */}
       {/* {Bottom note} */}
       <Box style={styles.Note}>
         <Note
@@ -180,15 +178,6 @@ function ReceiveScreen({ route }: { route }) {
         subTitle={home.amountdesc}
         textColor="light.primaryText"
         Content={AddAmountContent}
-      />
-      <KeeperModal
-        visible={addTagsModalVisible}
-        showCloseIcon={false}
-        close={() => setAddTagsModalVisible(false)}
-        title="Add Tags"
-        subTitle="Tags help you remember and identify UTXOs"
-        textColor="light.primaryText"
-        Content={AddTags}
       />
     </ScreenWrapper>
   );
