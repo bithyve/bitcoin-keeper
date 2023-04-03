@@ -1,18 +1,17 @@
-import { Psbt } from 'bitcoinjs-lib';
 import { NativeModules } from 'react-native';
-import { InputStructure, PoolData, Preview, TX0Data } from './interface';
+import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
 
 export default class WhirlpoolServices {
   /**
    * whirlpool mixing pools provider: fetches pool info from the coordinator
-   * @returns Promise<PoolData[]>
+   * @returns {Promise<PoolData[]>} PoolData[]
    */
   static getPools = async (): Promise<PoolData[]> => {
     try {
       const result = await Whirlpool.getPools();
-      if (!result) throw new Error('Unable to fetch pools data');
+      if (!result) throw new Error('Failed to fetch pools data');
 
       return JSON.parse(result);
     } catch (error) {
@@ -23,12 +22,12 @@ export default class WhirlpoolServices {
 
   /**
    * Fetches TX0 data from the coordinator.
-   * @returns Promise<Tx0Data[]>
+   * @returns {Promise<Tx0Data[]>} Tx0Data[]
    */
   static getTx0Data = async (): Promise<TX0Data[]> => {
     try {
       const result = await Whirlpool.getTx0Data();
-      if (!result) throw new Error('Unable to fetch tx0 data');
+      if (!result) throw new Error('Failed to fetch tx0 data');
 
       return JSON.parse(result);
     } catch (error) {
@@ -48,7 +47,7 @@ export default class WhirlpoolServices {
    * @param  {number} coordinatorFee
    * @param  {string} nWantedMaxOutputsStr
    * @param  {number} nPoolMaxOutputs
-   * @returns Preview
+   * @returns {Promise<Preview>} Preview
    */
   static getTx0Preview = async (
     inputsValue: number,
@@ -71,7 +70,7 @@ export default class WhirlpoolServices {
         nWantedMaxOutputsStr,
         nPoolMaxOutputs
       );
-      if (!result) throw new Error('Unable to generate tx0 preview');
+      if (!result) throw new Error('Failed to generate tx0 preview');
 
       return JSON.parse(result);
     } catch (error) {
@@ -81,77 +80,56 @@ export default class WhirlpoolServices {
   };
 
   /**
- * @param  {tx_str} inputsValue
- * @param  {pool_id_str} premixFeePerByte
- * @returns string
- */
-  static tx0Push = async (
-    txStr: string,
-    poolIdStr: string,
+   * Constructs Tx0 from Preview and returns the correspodning serializedPSBT for signing
+   * @param  {Preview} preview
+   * @param  {TX0Data} tx0data
+   * @param  {WhirlpoolInput[]} inputs
+   * @param  {string[]} addressBank
+   * @param  {string} changeAddress
+   * @returns {Promise<string>} PSBT(base64-hex)
+   */
+  static previewToPSBT = async (
+    preview: Preview,
+    tx0Data: TX0Data,
+    inputs: WhirlpoolInput[],
+    addressBank: string[],
+    changeAddress: string
   ): Promise<string> => {
     try {
-      const result = await Whirlpool.tx0push(
-        txStr,
-        poolIdStr,
-      );
-      if (!result) throw new Error('Unable to tx0Push');
-      return result;
-    } catch (error) {
-      console.log({ error });
-      throw new Error(error);
-    }
-  }
-
-  /**
-  * @returns Psbt
-  */
-  static intoPsbt = async (
-    previewStr: string,
-    tx0DataStr: string,
-    inputsStr: string,
-    addressBankStr: string,
-    changeAddrStr: string
-  ): Promise<Psbt> => {
-    try {
       const result = await Whirlpool.intoPsbt(
-        previewStr,
-        tx0DataStr,
-        inputsStr,
-        addressBankStr,
-        changeAddrStr
+        JSON.stringify(preview),
+        JSON.stringify(tx0Data),
+        JSON.stringify(inputs),
+        JSON.stringify(addressBank),
+        changeAddress
       );
-      if (!result) throw new Error('Unable to call intoPsbt');
+      if (!result) throw new Error('Failed to construct PSBT from Tx0 Preview');
       return JSON.parse(result);
     } catch (error) {
       console.log({ error });
       throw new Error(error);
     }
-  }
+  };
 
   /**
-  * @returns Psbt
-  */
-  static constructInput = async (
-    outpoint: string,
-    value: number,
-    scriptPubkey: string
-  ): Promise<string> => {
+   * validates and broadcasts tx0 via whirlpool coordinator
+   * @param  {string} txHex
+   * @param  {string} poolId
+   * @returns {Promise<string>} txid
+   */
+  static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
-      const result = await Whirlpool.constructInput(
-        outpoint,
-        value,
-        scriptPubkey
-      );
-      if (!result) throw new Error('Unable to call intoPsbt');
+      const result = await Whirlpool.tx0push(txHex, poolId);
+      if (!result) throw new Error('Failed to broadcast tx0');
       return result;
     } catch (error) {
       console.log({ error });
       throw new Error(error);
     }
-  }
+  };
 
   /**
-  */
+   */
   static startMix = async (
     input: string,
     privateKey: string,
@@ -179,5 +157,5 @@ export default class WhirlpoolServices {
       console.log({ error });
       throw new Error(error);
     }
-  }
+  };
 }
