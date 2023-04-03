@@ -57,7 +57,7 @@ export default function PoolSelection({ route, navigation }) {
   const initPoolData = async () => {
     try {
       setPoolSelectionText('Fetching Pools...');
-      const [pools, tx0] = await Promise.all([
+      const [pools, tx0Data] = await Promise.all([
         WhirlpoolClient.getPools(),
         WhirlpoolClient.getTx0Data(scode),
       ]);
@@ -65,10 +65,11 @@ export default function PoolSelection({ route, navigation }) {
       setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.averageTxFee);
       const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
       setAvailablePools(filteredByUtxoTotal);
-      setTx0Data(tx0);
+      setTx0Data(tx0Data);
+
       if (filteredByUtxoTotal.length > 0) {
         setSelectedPool(filteredByUtxoTotal[0]);
-        onPoolSelectionCallback(filteredByUtxoTotal[0], tx0);
+        onPoolSelectionCallback(filteredByUtxoTotal[0], tx0Data);
       }
       setPoolLoading(false);
     } catch (error) {
@@ -89,7 +90,6 @@ export default function PoolSelection({ route, navigation }) {
       tx0Data,
       selectedPool,
       wallet,
-      WhirlpoolClient,
     });
   };
 

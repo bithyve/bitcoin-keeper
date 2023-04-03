@@ -23,11 +23,11 @@ import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setTx0Complete, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
-import { Psbt } from 'bitcoinjs-lib';
 import useWallets from 'src/hooks/useWallets';
 import { InputUTXOs } from 'src/core/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import UtxoSummary from './UtxoSummary';
 
 export default function BroadcastPremix({ route, navigation }) {
@@ -39,16 +39,14 @@ export default function BroadcastPremix({ route, navigation }) {
     tx0Data,
     selectedPool,
     wallet,
-    WhirlpoolClient,
   }: {
-    utxos: InputUTXOs;
+    utxos: InputUTXOs[];
     utxoCount: number;
     utxoTotal: number;
     tx0Preview: Preview;
     tx0Data: TX0Data[];
     selectedPool: PoolData;
     wallet: Wallet;
-    WhirlpoolClient;
   } = route.params as any;
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
@@ -143,19 +141,27 @@ export default function BroadcastPremix({ route, navigation }) {
         premix: premixAddresses,
         badbank: badBank.specs.receivingAddress,
       };
-      const correspondingTx0Data = tx0Data?.filter((data) => data.poolId === selectedPool.id);
 
-      const psbt = WhirlpoolClient.getTx0FromPreview(
+      let correspondingTx0Data: TX0Data;
+      for (const data of tx0Data) {
+        if (data.poolId === selectedPool.id) {
+          correspondingTx0Data = data;
+          break;
+        }
+      }
+
+      const { serializedPSBT } = await WhirlpoolClient.getTx0FromPreview(
         tx0Preview,
         correspondingTx0Data,
         utxos,
         outputProvider,
         depositWallet
-      ) as Psbt;
-      const tx = WhirlpoolClient.signTx0(depositWallet, utxos, psbt);
-      const txid = await WhirlpoolClient.broadcastTx0(tx);
+      );
+      const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
+      const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.id);
+
       if (txid) {
-        const outputs = psbt.txOutputs;
+        const outputs = PSBT.txOutputs;
         const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
         const voutBadBank = outputs.findIndex((o) => o.address === badBank.specs.receivingAddress);
         dispatch(

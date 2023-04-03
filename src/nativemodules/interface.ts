@@ -87,9 +87,9 @@ export interface Preview {
 
 /// Used during TX0 fee computation. Needed because different script types have different lengths.
 export interface InputStructure {
-  nbP2pkhInputs: number;
-  nbP2shP2wpkhInputs: number;
-  nbP2wpkhInputs: number;
+  nP2pkhInputs: number;
+  nP2shP2wpkhInputs: number;
+  nP2wpkhInputs: number;
 }
 
 export interface WhirlpoolInput {

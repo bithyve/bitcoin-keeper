@@ -80,9 +80,9 @@ export default class WhirlpoolClient {
     });
 
     const inputStructure: InputStructure = {
-      nbP2pkhInputs: 0,
-      nbP2shP2wpkhInputs: 0,
-      nbP2wpkhInputs: inputs.length,
+      nP2pkhInputs: 0,
+      nP2shP2wpkhInputs: 0,
+      nP2wpkhInputs: inputs.length,
     };
 
     return WhirlpoolServices.getTx0Preview(
