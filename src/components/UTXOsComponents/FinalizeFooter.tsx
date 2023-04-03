@@ -4,6 +4,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { Box } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Colors from 'src/theme/Colors';
 
 function FinalizeFooter({
   setEnableSelection,
@@ -46,5 +47,6 @@ const styles = StyleSheet.create({
     width: wp(375),
     paddingHorizontal: '10%',
     marginBottom: '5%',
+    backgroundColor: Colors.LightWhite
   },
 });
