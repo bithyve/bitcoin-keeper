@@ -92,7 +92,7 @@ export interface InputStructure {
   nbP2wpkhInputs: number;
 }
 
-export interface BitcoinRustInput {
+export interface WhirlpoolInput {
   /// Outpoint used by this input.
   outpoint: {
     /// The referenced transaction's txid.

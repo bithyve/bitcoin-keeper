@@ -18,6 +18,7 @@ import {
   TorConfig,
   TX0Data,
   WhirlpoolAPI,
+  WhirlpoolInput,
 } from '../../../nativemodules/interface';
 import { generateMockTransaction, getAPIEndpoints, sleep } from './utils';
 
@@ -98,61 +99,88 @@ export default class WhirlpoolClient {
 
   /**
    * Constructs Tx0 from Preview and returns the correspodning serializedPSBT for signing
-   * Note: we are merging getTx0FromPreview w/ getTx0Preview as passing the preview struct from JS to Rust could be an issue
    * @param  {Preview} preview
    * @param  {TX0Data} tx0data
    * @param  {InputUTXOs[]} inputs
    * @param  {{premix:string[];badbank:string;}} outputProvider
-   * @param  {Wallet} deposit
-   * @returns bitcoinJS.Psbt
+   * @returns serializedPSBT(base64) bitcoinJS.Psbt
    */
-  static getTx0FromPreview = (
+  static getTx0FromPreview = async (
     preview: Preview,
     tx0data: TX0Data,
     inputs: InputUTXOs[],
     outputProvider: {
-      // for mock only(output provider for rust-client works differently)
-      premix: string[]; // count: preview.n_premix_outputs
+      premix: string[];
       badbank: string;
     },
-    deposit: Wallet // for mock only(not required for the rust client)
-  ): bitcoinJS.Psbt => {
-    // preview.into_psbt -> constructs the psbt and does the validation
+    network: bitcoinJS.Network
+  ): Promise<{ serializedPSBT: string }> => {
+    if (outputProvider.premix.length !== preview.nPremixOutputs)
+      throw new Error(`Please supply enough(${preview.nPremixOutputs}) premix addresses`);
 
-    if (outputProvider.premix.length !== preview.n_premix_outputs)
-      throw new Error(`Please supply enough(${preview.n_premix_outputs}) premix addresses`);
+    const whirlpoolInputs: WhirlpoolInput[] = inputs.map((input) => {
+      const rustInput: WhirlpoolInput = {
+        outpoint: {
+          txid: input.txId, // use
+          vout: input.vout,
+        },
+        prev_txout: {
+          value: input.value,
+          script_pubkey: bitcoinJS.address.toOutputScript(input.address, network).toString('hex'),
+        },
+        fields: {},
+      };
+      return rustInput;
+    });
 
-    const PSBT = generateMockTransaction(inputs, preview, tx0data, deposit, outputProvider);
-    return PSBT;
+    const serializedPSBT = await WhirlpoolServices.previewToPSBT(
+      preview,
+      tx0data,
+      whirlpoolInputs,
+      outputProvider.premix,
+      outputProvider.badbank
+    );
+
+    return { serializedPSBT };
   };
 
   /**
    * signs tx0
+   * @param  {string} serializedPSBT(base64)
    * @param  {Wallet} deposit
-   * @param  {InputUTXOs[]} inputs
-   * @param  {bitcoinJS.Psbt} PSBT
    * @returns bitcoinJS.Transaction
    */
   static signTx0 = (
+    serializedPSBT: string,
     deposit: Wallet,
-    inputs: InputUTXOs[],
-    PSBT: bitcoinJS.Psbt
-  ): bitcoinJS.Transaction => {
-    const { signedPSBT } = WalletOperations.signTransaction(deposit, inputs, PSBT);
-    return signedPSBT.finalizeAllInputs().extractTransaction();
+    inputUTXOs: InputUTXOs[]
+  ): { txHex: string; PSBT: bitcoinJS.Psbt } => {
+    const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, {
+      network: WalletUtilities.getNetworkByType(deposit.networkType),
+    });
+
+    const reconstructedInputsToSign: InputUTXOs[] = [];
+    for (const input of PSBT.txInputs) {
+      const txId = input.hash.toString('hex').match(/.{2}/g).reverse().join('');
+      reconstructedInputsToSign.push(...inputUTXOs.filter((input) => input.txId === txId));
+    }
+
+    const { signedPSBT } = WalletOperations.signTransaction(
+      deposit,
+      reconstructedInputsToSign,
+      PSBT
+    );
+    return { txHex: signedPSBT.finalizeAllInputs().extractTransaction().toHex(), PSBT: signedPSBT };
   };
 
   /**
    * broadcasts tx0
-   * @param  {bitcoinJS.Transaction} tx0
+   * @param  {string} tx0Hex
    * @param  {string} pool_id
    * @returns {Promise} txid
    */
-  static broadcastTx0 = async (tx0: bitcoinJS.Transaction, pool_id: string): Promise<string> => {
-    const txHex = tx0.toHex();
-    const txid = await ElectrumClient.broadcast(txHex);
-    return txid;
-  };
+  static broadcastTx0 = async (tx0Hex: string, poolId: string): Promise<string> =>
+    WhirlpoolServices.tx0Push(tx0Hex, poolId);
 
   /**
    * mixing mock: whirlpooling from premix to postmix
