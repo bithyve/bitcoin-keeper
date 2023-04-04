@@ -1,16 +1,13 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import React, { useState } from 'react';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/core/wallets/interfaces';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
-import useExchangeRates from 'src/hooks/useExchangeRates';
 import Selected from 'src/assets/images/selected.svg';
 import useLabels from 'src/hooks/useLabels';
 import { LabelType } from 'src/core/wallets/enums';
@@ -69,15 +66,13 @@ function UTXOElement({
   setSelectionTotal,
   navigation,
   colorMode,
-  currencyCode,
-  currentCurrency,
-  exchangeRates,
-  satsEnabled,
   labels,
   currentWallet,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection && item.confirmed;
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+
   return (
     <TouchableOpacity
       style={styles.utxoCardContainer}
@@ -137,11 +132,11 @@ function UTXOElement({
               <UnconfirmedIcon />
             </Box>
           )}
-          <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+          <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
           <Text style={styles.amountText} numberOfLines={1}>
-            {getAmt(item.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+            {getBalance(item.value)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getUnit(currentCurrency, satsEnabled)}
+              {getSatUnit()}
             </Text>
           </Text>
         </Box>
@@ -161,10 +156,6 @@ function UTXOList({
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const exchangeRates = useExchangeRates();
-  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { labels, syncing } = useLabels({ utxos: utxoState, wallet: currentWallet });
   const dispatch = useDispatch();
   const pullDownRefresh = () => dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
@@ -184,10 +175,6 @@ function UTXOList({
           setSelectionTotal={setSelectionTotal}
           navigation={navigation}
           colorMode={colorMode}
-          currencyCode={currencyCode}
-          currentCurrency={currentCurrency}
-          exchangeRates={exchangeRates}
-          satsEnabled={satsEnabled}
           currentWallet={currentWallet}
         />
       )}
@@ -197,8 +184,8 @@ function UTXOList({
         <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
           <EmptyStateView
             IllustartionImage={emptyIcon}
-            title="No UTXO’s yet."
-            subTitle="Pull down to refresh"
+            title="Your UTXOs will show up here when you"
+            subTitle="receive sats in the wallet"
           />
         </Box>
       }

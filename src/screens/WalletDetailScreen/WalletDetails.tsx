@@ -1,6 +1,6 @@
+import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
-import { Alert, StyleSheet } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
@@ -11,7 +11,6 @@ import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import useWallets from 'src/hooks/useWallets';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useNavigation } from '@react-navigation/native';
 import { WalletType } from 'src/core/wallets/enums';
 

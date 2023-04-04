@@ -80,6 +80,7 @@ function Footer({
           ? inititateWhirlpoolMixProcess()
           : navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }))
       }
+      selectedUTXOs={selectedUTXOs}
     />
   ) : (
     <UTXOFooter

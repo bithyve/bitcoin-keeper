@@ -7,20 +7,17 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import idx from 'idx';
 import Text from '../KeeperText';
-import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
+import useBalance from 'src/hooks/useBalance';
 
 const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
   idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
+  idx(currentWallet, (_) => _.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
 
 function UTXOsManageNavBox({
   onClick,
@@ -31,10 +28,7 @@ function UTXOsManageNavBox({
   isWhirlpoolWallet: boolean;
   currentWallet: Wallet | Vault;
 }) {
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance } = useBalance();
 
   return (
     <Pressable
@@ -47,14 +41,8 @@ function UTXOsManageNavBox({
           <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
           <Text style={styles.subTitleText}>
             Total Balance:
-            {getAmt(
-              getTotalBalanceWhirlpoolAccount(currentWallet),
-              exchangeRates,
-              currencyCode,
-              currentCurrency,
-              satsEnabled
-            )}
-            {getUnit(currentCurrency, satsEnabled)}
+            {getBalance(getTotalBalanceWhirlpoolAccount(currentWallet),)}
+            {getSatUnit()}
           </Text>
         </Box>
       ) : (
