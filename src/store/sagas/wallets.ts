@@ -238,11 +238,14 @@ export function* addWhirlpoolWalletsWorker({
   yield call(updateWalletsPropertyWorker, {
     payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
   });
-
-  //TO-DO bind the APIs together
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
-  yield call(addNewWalletsWorker, { payload: newWalletsInfo });
-  yield put(setTx0Complete(true));
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  let wallets = [];
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
+    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
+    wallets.push(wallet);
+  }
+  yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
 }
 
 export const addWhirlpoolWalletsWatcher = createWatcher(
