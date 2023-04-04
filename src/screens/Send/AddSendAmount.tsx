@@ -36,9 +36,7 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
-import BtcGreen from 'src/assets/images/btc_round_green.svg';
-import KeeperModal from 'src/components/KeeperModal';
-import AddTags from 'src/components/UTXOsComponents/AddTags';
+import TagsGreen from 'src/assets/images/tags.svg';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -307,7 +305,7 @@ function AddSendAmount({ route }) {
           <MenuItemButton
             // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
             onPress={() => showToast('Comming soon')}
-            icon={<BtcGreen />}
+            icon={<TagsGreen />}
             title="Add Tags"
             subTitle="Tags help you remember and identify UTXOs"
           />

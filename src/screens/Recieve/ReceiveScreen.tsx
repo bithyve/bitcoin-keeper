@@ -13,6 +13,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
+import TagsGreen from 'src/assets/images/tags.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -155,7 +156,7 @@ function ReceiveScreen({ route }: { route }) {
       <MenuItemButton
         // onPress={() => navigtaion.navigate('UTXOLabeling', { utxo: {}, wallet })}
         onPress={() => showToast('Comming soon')}
-        icon={<BtcGreen />}
+        icon={<TagsGreen />}
         title="Add Tags"
         subTitle="Tags help you remember and identify UTXOs"
       />
