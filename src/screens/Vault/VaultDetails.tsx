@@ -1,4 +1,4 @@
-import { VStack } from 'native-base';
+import { Box, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -69,10 +69,8 @@ function VaultDetails({ route }) {
         px={wp(28)}
         borderTopLeftRadius={20}
         flex={1}
-        justifyContent="space-between"
-        paddingBottom={windowHeight > 800 ? 5 : 0}
       >
-        <VStack style={{ paddingTop: windowHeight * 0.09 }}>
+        <Box style={{ paddingTop: windowHeight > 800 ? windowHeight * 0.11 : windowHeight * 0.13 }}>
           <UTXOsManageNavBox
             onClick={() =>
               navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })
@@ -80,13 +78,18 @@ function VaultDetails({ route }) {
             isWhirlpoolWallet={false}
             currentWallet={vault}
           />
-          <TransactionsAndUTXOs
-            transactions={transactions}
-            vault={vault}
-            autoRefresh={autoRefresh}
-          />
+        </Box>
+        <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} />
+        <Box
+          position="absolute"
+          bottom={windowHeight > 800 ? 5 : 1}
+          width="100%"
+          alignSelf="center"
+          zIndex="1"
+          backgroundColor="light.primaryBackground"
+        >
           <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
-        </VStack>
+        </Box>
         <VaultModals
           showBuyRampModal={showBuyRampModal}
           setShowBuyRampModal={setShowBuyRampModal}
