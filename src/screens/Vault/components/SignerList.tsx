@@ -10,6 +10,7 @@ import Text from 'src/components/KeeperText';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { WalletMap } from '../WalletMap';
 
 function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: VaultMigrationType }) {
@@ -66,7 +67,11 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
         const indicate =
           !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
         return (
-          <Box style={styles.signerCard} marginRight="3" key={signer.signerId}>
+          <Box
+            style={styles.signerCard}
+            marginRight="3"
+            key={signer.signerId}
+          >
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
@@ -80,36 +85,23 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
             >
               {indicate ? <Box style={styles.indicator} /> : null}
               <Box
-                margin="1"
-                width="12"
-                height="12"
-                borderRadius={30}
-                backgroundColor="#725436"
-                justifyContent="center"
-                alignItems="center"
-                alignSelf="center"
+                style={styles.signerTypeIconWrapper}
               >
                 {WalletMap(signer.type, true).Icon}
               </Box>
               <Text bold style={styles.unregistered}>
                 {indicate ? 'Not registered' : ' '}
               </Text>
-              <VStack pb={2}>
+              <VStack style={styles.signerNameFromTypeWrapper}>
                 <Text
                   color="light.textBlack"
-                  fontSize={11}
-                  letterSpacing={0.6}
-                  textAlign="center"
-                  numberOfLines={1}
+                  style={styles.signerNameFromTypeText}
                 >
                   {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
                 <Text
                   color="light.textBlack"
-                  fontSize={8}
-                  letterSpacing={0.6}
-                  textAlign="center"
-                  numberOfLines={2}
+                  style={styles.signerDescDateText}
                 >
                   {signer.signerDescription
                     ? signer.signerDescription
@@ -133,7 +125,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOpacity: 0.3,
     shadowOffset: { height: 2, width: 0 },
-    height: 130,
+    height: windowHeight > 670 ? 130 : 118,
     width: 70,
     borderTopLeftRadius: 100,
     borderTopRightRadius: 100,
@@ -141,11 +133,11 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 5,
+    padding: windowHeight > 670 ? 5 : 3,
     backgroundColor: '#FDF7F0',
   },
   scrollContainer: {
-    padding: '8%',
+    padding: windowHeight > 670 ? '8%' : '5%',
     width: Platform.select({ android: null, ios: '100%' }),
   },
   unregistered: {
@@ -168,4 +160,29 @@ const styles = StyleSheet.create({
     borderColor: 'white',
     backgroundColor: '#F86B50',
   },
+  signerNameFromTypeText: {
+    fontSize: windowHeight > 670 ? 11 : 10,
+    letterSpacing: 0.6,
+    textAlign: "center",
+    numberOfLines: 1
+  },
+  signerDescDateText: {
+    fontSize: 8,
+    letterSpacing: windowHeight > 670 ? 0.6 : 0.2,
+    textAlign: "center",
+    numberOfLines: 2
+  },
+  signerNameFromTypeWrapper: {
+    paddingBottom: 2
+  },
+  signerTypeIconWrapper: {
+    margin: 2,
+    width: 45,
+    height: 45,
+    borderRadius: 45,
+    backgroundColor: "#725436",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center"
+  }
 });

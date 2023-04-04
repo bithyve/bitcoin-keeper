@@ -77,7 +77,7 @@ function UTXOManagement({ route }) {
                     </Box>
                     <VStack>
                         <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]} >
-                            Your UTXO
+                            Daily Spending
                         </Text>
                         <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
                             Manage your UTXOs here

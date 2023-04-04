@@ -84,7 +84,7 @@ function TransactionsAndUTXOs({
         </HStack>
       </VStack>
       <FlatList
-        style={{ height: windowHeight > 800 ? '60%' : '30%' }}
+        style={{ height: windowHeight > 670 ? '56%' : '46%' }}
         refreshControl={<RefreshControl onRefresh={syncVault} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}

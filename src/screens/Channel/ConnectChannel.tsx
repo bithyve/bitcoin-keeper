@@ -29,10 +29,11 @@ import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import MockWrapper from '../Vault/MockWrapper';
 
 function ConnectChannel() {
   const route = useRoute();
-  const { title = '', subtitle = '' } = route.params as any;
+  const { title = '', subtitle = '', type: signerType } = route.params as any;
   const channel = io(config.CHANNEL_URL);
   let channelCreated = false;
 
@@ -115,25 +116,27 @@ function ConnectChannel() {
 
   return (
     <ScreenWrapper>
-      <Box flex={1}>
-        <HeaderTitle title={title} subtitle={subtitle} />
-        <Box style={styles.qrcontainer}>
-          <RNCamera
-            autoFocus="on"
-            style={styles.cameraView}
-            captureAudio={false}
-            onBarCodeRead={onBarCodeRead}
-            useNativeZoom
-          />
+      <MockWrapper signerType={signerType}>
+        <Box flex={1}>
+          <HeaderTitle title={title} subtitle={subtitle} />
+          <Box style={styles.qrcontainer}>
+            <RNCamera
+              autoFocus="on"
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={onBarCodeRead}
+              useNativeZoom
+            />
+          </Box>
+          <Box style={styles.noteWrapper}>
+            <Note
+              title={common.note}
+              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+              subtitleColor="GreyText"
+            />
+          </Box>
         </Box>
-        <Box style={styles.noteWrapper}>
-          <Note
-            title={common.note}
-            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-            subtitleColor="GreyText"
-          />
-        </Box>
-      </Box>
+      </MockWrapper>
     </ScreenWrapper>
   );
 }

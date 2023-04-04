@@ -324,7 +324,8 @@ function WalletSettings({ route }) {
           buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
-              data={JSON.stringify(getCosignerDetails(wallet, keeper?.appID))}
+              wallet={wallet}
+              appID={keeper?.appID}
               copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
