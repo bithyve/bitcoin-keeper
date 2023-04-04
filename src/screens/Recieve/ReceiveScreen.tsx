@@ -153,13 +153,13 @@ function ReceiveScreen({ route }: { route }) {
         subTitle="Add a specific invoice amount"
       />
       {/* {Add tags component} */}
-      <MenuItemButton
+      {/* <MenuItemButton
         // onPress={() => navigtaion.navigate('UTXOLabeling', { utxo: {}, wallet })}
         onPress={() => showToast('Comming soon')}
         icon={<TagsGreen />}
         title="Add Tags"
         subTitle="Tags help you remember and identify UTXOs"
-      />
+      /> */}
       {/* {Bottom note} */}
       <Box style={styles.Note}>
         <Note
