@@ -27,7 +27,6 @@ import {
   setTestCoinsFailed,
   setTestCoinsReceived,
   setTx0Complete,
-  setWhirlpoolWallets,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -86,7 +85,6 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
-import { getDerivationPath } from 'src/core/utils';
 
 export interface NewVaultDetails {
   name?: string;
@@ -246,6 +244,7 @@ export function* addWhirlpoolWalletsWorker({
     wallets.push(wallet);
   }
   yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
+  yield put(setTx0Complete(true));
 }
 
 export const addWhirlpoolWalletsWatcher = createWatcher(
