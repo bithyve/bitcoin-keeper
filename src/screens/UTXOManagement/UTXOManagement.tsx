@@ -101,7 +101,7 @@ function UTXOManagement({ route }) {
                     emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
                 />
             </Box>
-            <Footer vault={data} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} />
+            {utxos.length ? <Footer vault={data} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} /> : null}
         </ScreenWrapper>
     )
 }
