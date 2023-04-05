@@ -264,8 +264,9 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}updateAppImage`, appImage);
-      return response;
+      const res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
@@ -283,8 +284,9 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
-      return response;
+      const res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
@@ -296,7 +298,7 @@ export default class Relay {
       const res = await RestClient.post(`${RELAY}getAppImage`, {
         appId,
       });
-      const { data } = res;
+      const data = res.data || res.json;
       return data;
     } catch (err) {
       captureError(err);
@@ -306,10 +308,11 @@ export default class Relay {
 
   public static vaultCheck = async (vaultId): Promise<any> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}vaultCheck`, {
+      const res = await RestClient.post(`${RELAY}vaultCheck`, {
         vaultId,
       });
-      return response;
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('VaultCheckAPI Failed');
