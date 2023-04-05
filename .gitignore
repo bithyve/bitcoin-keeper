@@ -69,4 +69,4 @@ env*
 coverage/
 
 # Rust artifacts
-*libwhirlpool.a
+ios/libwhirlpool.a
