@@ -62,7 +62,6 @@ function VaultDetails({ route }) {
           <VaultHeader />
           <VaultInfo vault={vault} />
         </VStack>
-        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
       <VStack
         backgroundColor="light.primaryBackground"
@@ -70,7 +69,10 @@ function VaultDetails({ route }) {
         borderTopLeftRadius={20}
         flex={1}
       >
-        <Box style={{ paddingTop: windowHeight > 800 ? windowHeight * 0.11 : windowHeight * 0.13 }}>
+        <VStack zIndex={1}>
+          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
+        </VStack>
+        <Box style={{ paddingTop: windowHeight > 800 ? windowHeight * 0.11 : windowHeight * 0.14 }}>
           <UTXOsManageNavBox
             onClick={() =>
               navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })
