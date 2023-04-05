@@ -13,7 +13,7 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
-import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
+// import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
 
 function Footer({ vault, setEnableSelection, enableSelection, selectedUTXOs }) {
     return enableSelection ? (
@@ -51,7 +51,7 @@ function UTXOManagement({ route }) {
     const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
     const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
 
-    const [selectedAccount, setSelectedAccount] = useState<AccountTypes>(AccountTypes.DEPOSIT)
+    // const [selectedAccount, setSelectedAccount] = useState<AccountTypes>(AccountTypes.DEPOSIT)
 
     const cleanUp = useCallback(() => {
         setSelectedUTXOMap({});
