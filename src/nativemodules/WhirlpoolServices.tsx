@@ -73,6 +73,9 @@ export default class WhirlpoolServices {
         premixFeePerByte
       );
       if (!result) throw new Error('Failed to generate tx0 preview');
+      if (result === 'No enough sats for mixing.') {
+        return result;
+      }
       return JSON.parse(result);
     } catch (error) {
       console.log({ error });
