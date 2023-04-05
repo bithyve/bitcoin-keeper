@@ -36,8 +36,8 @@ import Foundation
     callback(str)
   }
   
-  @objc func tx0Preview(inputs_value: Int32, pool_str: String, premix_fee_per_byte: Double, fees_address:String, input_structure_str: String, miner_fee_per_byte: Int32, coordinator_fee: Int32, n_wanted_max_outputs_str: String, n_pool_max_outputs: Int32, callback: @escaping ((String) -> Void)){
-    let result = tx0_preview(inputs_value, pool_str, premix_fee_per_byte,fees_address, input_structure_str, miner_fee_per_byte, coordinator_fee, n_wanted_max_outputs_str, n_pool_max_outputs)
+  @objc func tx0Preview(inputs_value: Int32, pool_str: String, fees_address:String, input_structure_str: String, miner_fee_per_byte: Int32, coordinator_fee: Int32, n_wanted_max_outputs_str: String, n_pool_max_outputs: Int32, premix_fee_per_byte: Double, callback: @escaping ((String) -> Void)){
+    let result = tx0_preview(inputs_value, pool_str, fees_address, input_structure_str, miner_fee_per_byte, coordinator_fee, n_wanted_max_outputs_str, n_pool_max_outputs, premix_fee_per_byte)
     let str =  String(cString: result!)
     callback(str)
   }

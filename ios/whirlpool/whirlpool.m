@@ -51,13 +51,13 @@ RCT_EXPORT_METHOD(getTx0Data:(RCTPromiseResolveBlock)resolve
 
 RCT_EXPORT_METHOD(tx0Preview:(NSInteger *)inputs_value
                   pool_str:(NSString *)pool_str
-                  premix_fee_per_byte:(nonnull NSNumber *)premix_fee_per_byte
                   fees_address:(NSString *)fees_address
                   input_structure_str:(NSString *)input_structure_str
                   miner_fee_per_byte:(NSInteger *)miner_fee_per_byte
                   coordinator_fee:(NSInteger *)coordinator_fee
                   n_wanted_max_outputs_str:(NSString *)n_wanted_max_outputs_str
                   n_pool_max_outputs:(NSInteger *)n_pool_max_outputs
+                  premix_fee_per_byte:(nonnull NSNumber *)premix_fee_per_byte
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -65,7 +65,7 @@ RCT_EXPORT_METHOD(tx0Preview:(NSInteger *)inputs_value
   
   double_t premix_fee_per_byte_double = [RCTConvert double:premix_fee_per_byte];
   
-  [helper tx0PreviewWithInputs_value:inputs_value pool_str:pool_str premix_fee_per_byte:premix_fee_per_byte_double fees_address:fees_address input_structure_str:input_structure_str miner_fee_per_byte:miner_fee_per_byte coordinator_fee:coordinator_fee n_wanted_max_outputs_str:n_wanted_max_outputs_str n_pool_max_outputs:n_pool_max_outputs callback:^(NSString * _Nonnull response) {
+  [helper tx0PreviewWithInputs_value:inputs_value pool_str:pool_str fees_address:fees_address input_structure_str:input_structure_str miner_fee_per_byte:miner_fee_per_byte coordinator_fee:coordinator_fee n_wanted_max_outputs_str:n_wanted_max_outputs_str n_pool_max_outputs:n_pool_max_outputs premix_fee_per_byte:premix_fee_per_byte_double callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }

@@ -52,26 +52,27 @@ export default class WhirlpoolServices {
   static getTx0Preview = async (
     inputsValue: number,
     pool: PoolData,
-    premixFeePerByte: number,
+    feeAddress: string,
     inputStructure: InputStructure,
     minerFeePerByte: number,
     coordinatorFee: number,
     nWantedMaxOutputsStr: string,
-    nPoolMaxOutputs: number
+    nPoolMaxOutputs: number,
+    premixFeePerByte: number
   ): Promise<Preview> => {
     try {
       const result = await Whirlpool.tx0Preview(
         inputsValue,
         JSON.stringify(pool),
-        premixFeePerByte,
+        feeAddress,
         JSON.stringify(inputStructure),
         minerFeePerByte,
         coordinatorFee,
         nWantedMaxOutputsStr,
-        nPoolMaxOutputs
+        nPoolMaxOutputs,
+        premixFeePerByte
       );
       if (!result) throw new Error('Failed to generate tx0 preview');
-
       return JSON.parse(result);
     } catch (error) {
       console.log({ error });
