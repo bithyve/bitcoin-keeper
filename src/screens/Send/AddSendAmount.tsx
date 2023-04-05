@@ -178,7 +178,6 @@ function AddSendAmount({ route }) {
     },
     []
   );
-
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -302,12 +301,22 @@ function AddSendAmount({ route }) {
           />
         </Box>
         <Box style={styles.addNoteWrapper}>
-          <MenuItemButton
+          {/* <MenuItemButton
             // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
             onPress={() => showToast('Comming soon')}
             icon={<TagsGreen />}
             title="Add Tags"
             subTitle="Tags help you remember and identify UTXOs"
+          /> */}
+          <TextInput
+            autoCapitalize="sentences"
+            placeholder="Add a lable"
+            placeholderTextColor="light.greenText"
+            style={styles.textInput}
+            value={label}
+            onChangeText={(value) => {
+              setLabel(value);
+            }}
           />
         </Box>
         <Box style={styles.ctaBtnWrapper}>
