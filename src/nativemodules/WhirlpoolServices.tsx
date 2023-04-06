@@ -63,15 +63,15 @@ export default class WhirlpoolServices {
   ): Promise<Preview> => {
     try {
       const result = await Whirlpool.tx0Preview(
-        inputsValue,
+        `${inputsValue}`,
         JSON.stringify(pool),
         feeAddress,
         JSON.stringify(inputStructure),
-        minerFeePerByte,
-        coordinatorFee,
+        `${minerFeePerByte}`,
+        `${coordinatorFee}`,
         nWantedMaxOutputsStr,
-        nPoolMaxOutputs,
-        premixFeePerByte
+        `${nPoolMaxOutputs}`,
+        `${premixFeePerByte}`
       );
       if (!result) throw new Error('Failed to generate tx0 preview');
       if (result === 'No enough sats for mixing.') {
@@ -124,7 +124,7 @@ export default class WhirlpoolServices {
    */
   static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
-      const result = await Whirlpool.tx0push(txHex, poolId);
+      const result = await Whirlpool.tx0Push(txHex, poolId);
       if (!result) throw new Error('Failed to broadcast tx0');
       return result;
     } catch (error) {
