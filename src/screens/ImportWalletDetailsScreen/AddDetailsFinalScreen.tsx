@@ -1,5 +1,6 @@
 import {
   KeyboardAvoidingView,
+  Linking,
   Platform,
   ScrollView,
   Text,
@@ -7,8 +8,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 // libraries
-import { Box, Input, View } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import { Box, Input, Select, View } from 'native-base';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -34,6 +35,16 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
+import config from 'src/core/config';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
+import { parseInt } from 'lodash';
+import { addNewWallets } from 'src/store/sagaActions/wallets';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { v4 as uuidv4 } from 'uuid';
 
 function AddDetailsFinalScreen({ route }) {
   const navigation = useNavigation();
@@ -49,15 +60,88 @@ function AddDetailsFinalScreen({ route }) {
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
-    'test purpose1',
-    'test purpose2',
-    'test purpose3',
+    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
+    { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
+    { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
   ]);
+  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
+  const [purposeLbl, setPurposeLbl] = useState('P2PKH: legacy, single-sig');
+  const [path, setPath] = useState(
+    route.params?.path
+      ? route.params?.path
+      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
+  );
+  const [walletType, setWalletType] = useState(route.params?.type);
+  const [importedSeed, setImportedSeed] = useState(route.params?.seed);
+  const [walletName, setWalletName] = useState(route.params?.name);
+  const [walletDescription, setWalletDescription] = useState(route.params?.description);
+  const [transferPolicy, setTransferPolicy] = useState(route.params?.policy);
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
+    (state) => state.bhr
+  );
+  const [walletLoading, setWalletLoading] = useState(false);
+  const { appId } = useAppSelector((state) => state.storage);
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
-  const onNextClick = () => {};
+  useEffect(() => {
+    const path = WalletUtilities.getDerivationPath(
+      EntityKind.WALLET,
+      config.NETWORK_TYPE,
+      0,
+      Number(purpose)
+    );
+    setPath(path);
+  }, [purpose]);
+
+  const createNewWallet = useCallback(() => {
+    setWalletLoading(true);
+
+    const derivationConfig: DerivationConfig = {
+      path,
+      purpose: Number(purpose),
+    };
+
+    const newWallet: NewWalletInfo = {
+      walletType,
+      walletDetails: {
+        name: walletName,
+        description: walletDescription,
+        derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
+        transferPolicy: {
+          id: uuidv4(),
+          threshold: parseInt(transferPolicy),
+        },
+      },
+      importDetails: {
+        derivationConfig,
+        // eslint-disable-next-line react/prop-types
+        mnemonic: importedSeed,
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
+  }, [walletName, walletDescription, transferPolicy]);
+
+  useEffect(() => {
+    if (relayWalletUpdate) {
+      dispatch(resetRealyWalletState());
+      setWalletLoading(false);
+      if (walletType === WalletType.DEFAULT) {
+        showToast('New wallet created!', <TickIcon />);
+        navigation.goBack();
+      } else {
+        showToast('Wallet imported', <TickIcon />);
+        navigation.goBack();
+        Linking.openURL(`${appId}://backup/true`);
+      }
+    }
+    if (relayWalletError) {
+      showToast('Wallet creation failed!', <ToastErrorIcon />);
+      setWalletLoading(false);
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate, relayWalletError]);
 
   const onDropDownClick = () => {
     if (showPurpose) {
@@ -86,10 +170,21 @@ function AddDetailsFinalScreen({ route }) {
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper]}>
-              <TextInput placeholder="Derivation Path" style={styles.textInput} />
+              <TextInput
+                placeholder="Derivation Path"
+                style={styles.textInput}
+                placeholderTextColor="light.GreyText"
+                value={path}
+                onChangeText={(value) => setPath(value)}
+                // width={wp(260)}
+                autoCorrect={false}
+                // marginY={2}
+                // borderWidth="0"
+                maxLength={20}
+              />
             </Box>
             <TouchableOpacity onPress={onDropDownClick} style={styles.dropDownContainer}>
-              <Text style={styles.balanceCrossesText}>P2WKH: native segwit, single sig</Text>
+              <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
               <Box
                 style={[
                   styles.icArrow,
@@ -101,6 +196,25 @@ function AddDetailsFinalScreen({ route }) {
                 <RightArrowIcon />
               </Box>
             </TouchableOpacity>
+            {/* <Select
+              style={styles.dropDownContainer}
+              selectedValue={purpose}
+              minWidth="200"
+              accessibilityLabel="Choose Service"
+              placeholder="Choose Purpose"
+              mt={1}
+              onValueChange={(itemValue) => setPurpose(itemValue)}
+            >
+              <Select.Item label="P2PKH: legacy, single-sig" value={`${DerivationPurpose.BIP44}`} />
+              <Select.Item
+                label="P2SH-P2WPKH: wrapped segwit, single-sg"
+                value={`${DerivationPurpose.BIP49}`}
+              />
+              <Select.Item
+                label="P2WPKH: native segwit, single-sig"
+                value={`${DerivationPurpose.BIP84}`}
+              />
+            </Select> */}
           </Box>
           {showPurpose && (
             <ScrollView style={styles.langScrollViewWrapper}>
@@ -109,10 +223,12 @@ function AddDetailsFinalScreen({ route }) {
                   onPress={() => {
                     setShowPurpose(false);
                     setArrow(false);
+                    setPurpose(item.value);
+                    setPurposeLbl(item.label);
                   }}
                   style={styles.flagWrapper1}
                 >
-                  <Text style={styles.purposeText}>{item}</Text>
+                  <Text style={styles.purposeText}>{item.label}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -132,8 +248,9 @@ function AddDetailsFinalScreen({ route }) {
                   navigation.goBack();
                 }}
                 primaryText="Import"
-                primaryDisable={Boolean(!amount || error)}
-                primaryCallback={onNextClick}
+                primaryDisable={!walletName || !walletDescription}
+                primaryCallback={createNewWallet}
+                primaryLoading={walletLoading || relayWalletUpdateLoading}
               />
             </Box>
           </Box>
@@ -174,15 +291,16 @@ const styles = ScaledSheet.create({
   textInput: {
     width: '100%',
     backgroundColor: Colors.Isabelline,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
+    borderRadius: 10,
+    // borderBottomLeftRadius: 10,
     padding: 20,
     fontFamily: Fonts.RobotoCondensedRegular,
   },
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
+    borderRadius: 10,
+    // borderTopLeftRadius: 10,
+    // borderBottomLeftRadius: 10,
     paddingVertical: 20,
     marginTop: 10,
     flexDirection: 'row',

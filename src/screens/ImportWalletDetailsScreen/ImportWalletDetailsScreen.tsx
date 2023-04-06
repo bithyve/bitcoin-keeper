@@ -26,6 +26,7 @@ import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
+import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
@@ -36,15 +37,31 @@ function ImportWalletDetailsScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { home } = translations;
-  const [amount, setAmount] = useState('');
   const [error, setError] = useState(false); // this state will handle error
+
+  const name = route?.params?.name;
+  const desc = route?.params?.description;
+  const [walletName, setWalletName] = useState(name || '');
+  const [description, setDescription] = useState(desc || '');
+  const [walletType, setWalletType] = useState(route?.params?.type);
+  const [importedSeed, setImportedSeed] = useState(route?.params?.seed?.replace(/,/g, ' '));
+  const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
   const onNextClick = () => {
-    navigation.navigate('AddDetailsFinal')
+    navigation.navigate('AddDetailsFinal', {
+      type: walletType,
+      description,
+      name: walletName,
+      seed: importedSeed,
+      policy: transferPolicy,
+    });
   };
+
+  const formatNumber = (value: string) =>
+    value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground">
@@ -63,10 +80,20 @@ function ImportWalletDetailsScreen({ route }) {
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>
-              <TextInput placeholder="Enter wallet name" style={styles.textInput} />
+              <TextInput
+                placeholder="Enter wallet name"
+                style={styles.textInput}
+                value={walletName}
+                onChangeText={(text) => setWalletName(text)}
+              />
             </Box>
             <Box style={styles.textInputWrapper}>
-              <TextInput placeholder="Add Description" style={styles.textInput} />
+              <TextInput
+                placeholder="Add Description"
+                style={styles.textInput}
+                value={description}
+                onChangeText={(text) => setDescription(text)}
+              />
             </Box>
             <Text style={styles.transferText}>Auto transfer initiated at (optional)</Text>
             <Box flexDirection="row" alignItems="center" style={styles.amountWrapper}>
@@ -82,7 +109,7 @@ function ImportWalletDetailsScreen({ route }) {
               />
               <Input
                 placeholder="Enter Amount"
-                placeholderTextColor="light.greenText"
+                placeholderTextColor="light.GreyText"
                 color="light.greenText"
                 opacity={0.5}
                 width="90%"
@@ -90,18 +117,11 @@ function ImportWalletDetailsScreen({ route }) {
                 fontWeight={300}
                 letterSpacing={1.04}
                 borderWidth="0"
-                value={amount}
+                value={formatNumber(transferPolicy)}
                 onChangeText={(value) => {
-                  if (!isNaN(Number(value))) {
-                    setAmount(
-                      value
-                        .split('.')
-                        .map((el, i) => (i ? el.split('').join('') : el))
-                        .join('.')
-                    );
-                  }
+                  setTransferPolicy(value);
                 }}
-                keyboardType="decimal-pad"
+                keyboardType="numeric"
               />
             </Box>
             <Text style={styles.balanceCrossesText}>
@@ -112,11 +132,9 @@ function ImportWalletDetailsScreen({ route }) {
         </ScrollView>
         <View style={styles.dotContainer}>
           <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
-            {[1, 2, 3].map((item, index) => {
-              return (
-                <View key={index} style={1 == index ? styles.selectedDot : styles.unSelectedDot} />
-              );
-            })}
+            {[1, 2, 3].map((item, index) => (
+              <View key={index} style={index == 1 ? styles.selectedDot : styles.unSelectedDot} />
+            ))}
           </View>
           <Box style={styles.ctaBtnWrapper}>
             <Box ml={windowWidth * -0.09}>

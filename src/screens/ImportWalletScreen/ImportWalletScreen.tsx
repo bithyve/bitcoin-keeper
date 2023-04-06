@@ -1,8 +1,4 @@
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 // libraries
 import { Box, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -25,6 +21,12 @@ import { useNavigation } from '@react-navigation/native';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { WalletType } from 'src/core/wallets/enums';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 function ImportWalletScreen({ route }) {
   const navigation = useNavigation();
@@ -35,39 +37,51 @@ function ImportWalletScreen({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { home } = translations;
+  // const { sender } = route.params as { sender: Wallet | Vault };
+  // const network = WalletUtilities.getNetworkByType(sender.networkType);
+  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
 
   const handleChooseImage = () => {
-    // const options = {
-    //   quality: 1.0,
-    //   maxWidth: 500,
-    //   maxHeight: 500,
-    //   storageOptions: {
-    //     skipBackup: true,
-    //   },
-    //   mediaType: 'photo',
-    // } as ImageLibraryOptions;
+    const options = {
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: {
+        skipBackup: true,
+      },
+      mediaType: 'photo',
+    } as ImageLibraryOptions;
 
-    // launchImageLibrary(options, async (response) => {
-    //   if (response.didCancel) {
-    //     showToast('Camera device has been cancled');
-    //   } else if (response.errorCode === 'camera_unavailable') {
-    //     showToast('Camera not available on device');
-    //   } else if (response.errorCode === 'permission') {
-    //     showToast('Permission not satisfied');
-    //   } else if (response.errorCode === 'others') {
-    //     showToast(response.errorMessage);
-    //   } else {
-    //     QRreader(response.assets[0].uri)
-    //       .then((data) => {
-    //         handleTextChange(data);
-    //       })
-    //       .catch((err) => {
-    //         showToast('Invalid or No related QR code');
-    //       });
-    //   }
-    // });
+    launchImageLibrary(options, async (response) => {
+      if (response.didCancel) {
+        showToast('Camera device has been cancled');
+      } else if (response.errorCode === 'camera_unavailable') {
+        showToast('Camera not available on device');
+      } else if (response.errorCode === 'permission') {
+        showToast('Permission not satisfied');
+      } else if (response.errorCode === 'others') {
+        showToast(response.errorMessage);
+      } else {
+        QRreader(response.assets[0].uri)
+          .then((data) => {
+            handleTextChange(data);
+          })
+          .catch((err) => {
+            showToast('Invalid or No related QR code');
+          });
+      }
+    });
+  };
 
-    navigation.navigate('ImportWalletDetails');
+  const handleTextChange = (info: string) => {
+    info = info.trim();
+    console.log('skk info', JSON.stringify(info));
+    navigation.navigate('ImportWalletDetails', {
+      seed: info,
+      type: WalletType.DEFAULT,
+      name: `Wallet ${wallets.length + 1}`,
+      description: 'Single-sig Wallet',
+    });
   };
 
   return (
@@ -91,7 +105,7 @@ function ImportWalletScreen({ route }) {
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
-                  // handleTextChange(data.data);
+                  handleTextChange(data.data);
                 }}
                 notAuthorizedView={<CameraUnauthorized />}
               />
@@ -104,20 +118,15 @@ function ImportWalletScreen({ route }) {
             <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
               <Note
                 title={common.note}
-                subtitle={'Make sure that the QR is well aligned, focused and visible as a whole'}
+                subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
                 subtitleColor="GreyText"
               />
             </Box>
 
             <View style={styles.dotContainer}>
-              {[1, 2, 3].map((item, index) => {
-                return (
-                  <View
-                    key={index}
-                    style={0 == index ? styles.selectedDot : styles.unSelectedDot}
-                  />
-                );
-              })}
+              {[1, 2, 3].map((item, index) => (
+                <View key={index} style={index == 0 ? styles.selectedDot : styles.unSelectedDot} />
+              ))}
             </View>
           </Box>
         </ScrollView>
