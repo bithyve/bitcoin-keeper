@@ -58,7 +58,7 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: `${70 - Signers.length}%` }}
+      style={{ position: 'absolute', top: -50 }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -137,17 +137,18 @@ const styles = StyleSheet.create({
     width: 70,
     borderTopLeftRadius: 100,
     borderTopRightRadius: 100,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: Platform.OS === 'ios' ? 10 : 30,
+    borderBottomRightRadius: Platform.OS === 'ios' ? 10 : 30,
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 5,
     backgroundColor: '#FDF7F0',
   },
   scrollContainer: {
-    paddingHorizontal: '8%',
-    paddingVertical: '8%',
+    paddingVertical: '3%',
+    paddingHorizontal: '2%',
     width: Platform.select({ android: null, ios: '100%' }),
+    marginRight: '10%'
   },
   unregistered: {
     color: '#6E563B',

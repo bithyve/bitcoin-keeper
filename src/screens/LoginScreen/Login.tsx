@@ -265,7 +265,9 @@ function LoginScreen({ navigation, route }) {
 
   function LoginModalContent() {
     return (
-      <Box>
+      <Box
+        style={{ width: wp(280) }}
+      >
         <Box
           style={{
             width: '100%',
@@ -422,7 +424,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         subTitleColor="light.secondaryText"
@@ -431,7 +433,7 @@ function LoginScreen({ navigation, route }) {
         buttonCallback={loginModalAction}
         showButtons
         Content={LoginModalContent}
-        subTitleWidth={wp(210)}
+        subTitleWidth={wp(240)}
       />
     </LinearGradient>
   );
