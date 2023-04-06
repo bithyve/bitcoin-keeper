@@ -11,6 +11,8 @@ const char* tx0_preview(const int inputs_value, const char* pool_str, const char
 const char* into_psbt(const char* preview_str, const char* tx0_data_str, const char* inputs_str, const char* address_bank_str, const char* change_addr_str);
 const char* tx0_push(const char* tx_str, const char* pool_id_str);
 
+void free_cstring(const char* cstring);
+
 void whirlpool_destroy_string(const char* cstring);
 
 
