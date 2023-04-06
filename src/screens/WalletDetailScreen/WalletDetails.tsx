@@ -663,7 +663,7 @@ const styles = StyleSheet.create({
     marginLeft: 0,
   },
   addWalletText: {
-    fontSize: 14,
+    fontSize: 11,
     marginTop: hp(10),
   },
   walletCard: {
