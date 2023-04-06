@@ -41,12 +41,13 @@ export default class WhirlpoolServices {
    * If err, it means that the total value of inputs is insufficient to successully construct one.
    * @param  {number} inputsValue
    * @param  {PoolData} pool
-   * @param  {number} premixFeePerByte
+   * @param  {string} feeAddress
    * @param  {InputStructure} inputStructure
    * @param  {number} minerFeePerByte
    * @param  {number} coordinatorFee
    * @param  {string} nWantedMaxOutputsStr
    * @param  {number} nPoolMaxOutputs
+   * @param  {number} premixFeePerByte
    * @returns {Promise<Preview>} Preview
    */
   static getTx0Preview = async (

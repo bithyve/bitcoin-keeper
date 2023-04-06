@@ -88,12 +88,13 @@ export default class WhirlpoolClient {
     return WhirlpoolServices.getTx0Preview(
       inputsValue,
       pool,
-      premixFeePerByte,
+      tx0data.feeAddress,
       inputStructure,
       minerFeePerByte,
       tx0data.feeValue,
       null,
-      pool.tx0MaxOutputs
+      pool.tx0MaxOutputs,
+      premixFeePerByte
     );
   };
 
