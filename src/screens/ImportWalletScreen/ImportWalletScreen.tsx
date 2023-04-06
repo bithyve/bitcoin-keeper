@@ -75,10 +75,9 @@ function ImportWalletScreen({ route }) {
 
   const handleTextChange = (info: string) => {
     info = info.trim();
-    console.log('skk info', JSON.stringify(info));
     navigation.navigate('ImportWalletDetails', {
       seed: info,
-      type: WalletType.DEFAULT,
+      type: WalletType.IMPORTED,
       name: `Wallet ${wallets.length + 1}`,
       description: 'Single-sig Wallet',
     });

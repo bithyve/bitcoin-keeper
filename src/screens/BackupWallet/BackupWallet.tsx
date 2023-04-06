@@ -93,15 +93,6 @@ function BackupWallet() {
           }}
         />
       </Box>
-      <Box style={[styles.optionWrapper, { marginTop: hp(10),}]}>
-        <Option
-          title={BackupWallet.importWallet}
-          subTitle=""
-          onPress={() => {
-            navigation.navigate('ImportWallet');
-          }}
-        />
-      </Box>
       <Box>
         <ModalWrapper
           visible={healthCheckModal}

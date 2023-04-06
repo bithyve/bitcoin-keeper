@@ -272,6 +272,7 @@
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
+    "ImportAWallet": "Import a Wallet",
     "AddNewWalletDescription": "Name and description for the wallet",
     "WalletNamePlaceHolder": "Maldives Funds",
     "WalletDescriptionPlaceholder": "Single-sig",
