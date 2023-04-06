@@ -1,5 +1,6 @@
 package com.hexa_keeper;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import io.hexawallet.keeper.WhirlpoolBridge;
 public class WhirlpoolModule extends ReactContextBaseJavaModule{
 
     public static final String NAME = "Whirlpool";
+    public static final String TAG = "WhirlpoolMODULE";
 
     public WhirlpoolModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -46,8 +48,11 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void tx0Preview(Integer inputsValue, String poolStr, Integer premixFeePerByte, String inputStructureStr,Integer minerFeePerByte,Integer coordinatorFee, String nWantedMaxOutputsStr, Integer nPoolMaxOutputs, Promise promise) {
-        promise.resolve(WhirlpoolBridge.tx0preview(inputsValue, poolStr, premixFeePerByte, inputStructureStr, minerFeePerByte, coordinatorFee,nWantedMaxOutputsStr, nPoolMaxOutputs));
+    public void tx0Preview(String inputsValue, String poolStr, String feesAddress, String premixFeePerByte, String inputStructureStr,String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs, Promise promise) {
+        Log.d(TAG, "tx0Preview: feesAddress "+feesAddress);
+        Log.d(TAG, "tx0Preview: nPoolMaxOutputs "+nPoolMaxOutputs);
+
+        promise.resolve(WhirlpoolBridge.tx0preview(inputsValue, poolStr, premixFeePerByte, feesAddress, inputStructureStr, minerFeePerByte, coordinatorFee,nWantedMaxOutputsStr, nPoolMaxOutputs));
     }
 
     @ReactMethod
