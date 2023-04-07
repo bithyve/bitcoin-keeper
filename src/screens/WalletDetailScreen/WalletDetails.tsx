@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // icons and images
 import AddSCardIcon from 'src/assets/images/card_add.svg';
+import ImportCardIcon from 'src/assets/images/icon_import.svg';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import BTC from 'src/assets/images/btc_wallet.svg';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
@@ -118,26 +119,42 @@ function WalletDetails({ route }) {
           style={styles.walletContainer}
         >
           {!(item?.presentationData && item?.specs) ? (
-            <TouchableOpacity
-              style={styles.addWalletContainer}
-              onPress={() =>
-                navigation.navigate('EnterWalletDetail', {
-                  name: `Wallet ${wallets.length + 1}`,
-                  description: 'Single-sig Wallet',
-                  type: WalletType.DEFAULT,
-                })
-              }
-            >
-              <GradientIcon
-                Icon={AddSCardIcon}
-                height={40}
-                gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-              />
+            <View style={styles.addWalletContent}>
+              <TouchableOpacity
+                style={styles.addWalletView}
+                onPress={() =>
+                  navigation.navigate('EnterWalletDetail', {
+                    name: `Wallet ${wallets.length + 1}`,
+                    description: 'Single-sig Wallet',
+                    type: WalletType.DEFAULT,
+                  })
+                }
+              >
+                <GradientIcon
+                  Icon={AddSCardIcon}
+                  height={40}
+                  gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+                />
 
-              <Text color="light.white" style={styles.addWalletText}>
-                {wallet.AddNewWallet}
-              </Text>
-            </TouchableOpacity>
+                <Text color="light.white" style={styles.addWalletText}>
+                  {wallet.AddNewWallet}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addWalletContainer}
+                onPress={() => navigation.navigate('ImportWallet')}
+              >
+                <GradientIcon
+                  Icon={ImportCardIcon}
+                  height={40}
+                  gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+                />
+
+                <Text color="light.white" style={styles.addWalletText}>
+                  {wallet.ImportAWallet}
+                </Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <Box>
               <Box style={styles.walletCard}>
@@ -547,6 +564,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
+    flex: 1,
+  },
+  addWalletView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    borderRightWidth: 1,
+    borderRightColor: '#FFFFFF10',
+    flex: 1,
   },
   transferPolicyCard: {
     paddingHorizontal: wp(10),
@@ -600,7 +626,7 @@ const styles = StyleSheet.create({
     marginLeft: 0,
   },
   addWalletText: {
-    fontSize: 14,
+    fontSize: 11,
     marginTop: hp(10),
   },
   walletCard: {
@@ -765,6 +791,14 @@ const styles = StyleSheet.create({
   },
   addressTextView: {
     width: wp(180)
-  }
+  },
+  addWalletContent: {
+    // paddingRight: wp(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%',
+    marginTop: hp(20),
+  },
 });
 export default WalletDetails;
