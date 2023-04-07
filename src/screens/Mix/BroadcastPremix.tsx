@@ -25,7 +25,6 @@ import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import UtxoSummary from './UtxoSummary';
-import config from 'src/core/config';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -114,8 +113,7 @@ export default function BroadcastPremix({ route, navigation }) {
   const onBroadcastModalCallback = async () => {
     try {
       const network = WalletUtilities.getNetworkByType(depositWallet.networkType);
-      const premixWallet = depositWallet.whirlpoolConfig.premixWallet;
-      const badbankWallet = depositWallet.whirlpoolConfig.badbankWallet;
+      const { premixWallet, badbankWallet } = depositWallet.whirlpoolConfig;
       const premixAddresses = [];
       for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
         premixAddresses.push(
@@ -129,7 +127,7 @@ export default function BroadcastPremix({ route, navigation }) {
 
       let correspondingTx0Data: TX0Data;
       for (const data of tx0Data) {
-        if (data.poolId === selectedPool.id) {
+        if (data.poolId === selectedPool.poolId) {
           correspondingTx0Data = data;
           break;
         }
@@ -143,7 +141,7 @@ export default function BroadcastPremix({ route, navigation }) {
         network
       );
       const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
-      const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.id);
+      const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
 
       if (txid) {
         const outputs = PSBT.txOutputs;
