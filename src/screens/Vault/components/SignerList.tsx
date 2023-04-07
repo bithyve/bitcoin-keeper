@@ -55,7 +55,7 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
     }
     return null;
   }, [upgradeStatus]);
-
+  console.log('windowHeight', windowHeight)
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -161,13 +161,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#F86B50',
   },
   signerNameFromTypeText: {
-    fontSize: windowHeight > 670 ? 11 : 9,
+    fontSize: 9,
     letterSpacing: 0.6,
     textAlign: "center",
     numberOfLines: 1
   },
   signerDescDateText: {
-    fontSize: windowHeight > 670 ? 8 : 7.5,
+    fontSize: 7,
     letterSpacing: windowHeight > 670 ? 0.6 : 0,
     textAlign: "center",
     numberOfLines: 2
