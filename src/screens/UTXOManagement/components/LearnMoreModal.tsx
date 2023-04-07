@@ -6,6 +6,7 @@ import Illustration7 from 'src/assets/images/illustration_7.svg'
 import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
+import DotView from 'src/components/DotView';
 
 function premixContent() {
   return (
@@ -13,15 +14,36 @@ function premixContent() {
       <Box style={styles.iconWrapper}>
         <Illustration7 />
       </Box>
-      <Text style={styles.paraText01}>
-        Once Tx0 is created, it goes into a Premix Wallet.
-      </Text>
-      <Text style={styles.paraText02}>
-        Change that remains from the creation of Tx0 goes to the Bad Bank.
-      </Text>
-      <Text style={styles.paraText02}>
-        Sats after being Whirlpooled land in the Post Mix wallet
-      </Text>
+      <Box style={styles.paraViewWrapper}>
+        <Box style={styles.dotWrapper}>
+          <DotView height={1.5} width={1.5} color='white' />
+        </Box>
+        <Box style={styles.textWrapper}>
+          <Text style={styles.paraText}>
+            Once Tx0 is created, it goes into a Premix Wallet.
+          </Text>
+        </Box>
+      </Box>
+      <Box style={styles.paraViewWrapper}>
+        <Box style={styles.dotWrapper}>
+          <DotView height={1.5} width={1.5} color='white' />
+        </Box>
+        <Box style={styles.textWrapper}>
+          <Text style={styles.paraText}>
+            Change that remains from the creation of Tx0 goes to the Bad Bank.
+          </Text>
+        </Box>
+      </Box>
+      <Box style={styles.paraViewWrapper}>
+        <Box style={styles.dotWrapper}>
+          <DotView height={1.5} width={1.5} color='white' />
+        </Box>
+        <Box style={styles.textWrapper}>
+          <Text style={styles.paraText}>
+            Sats after being Whirlpooled land in the Post Mix wallet
+          </Text>
+        </Box>
+      </Box>
     </View>
   );
 }
@@ -54,14 +76,21 @@ const styles = StyleSheet.create({
   iconWrapper: {
     alignSelf: "center"
   },
-  paraText01: {
+  paraViewWrapper: {
     marginTop: hp(20),
-    color: "white",
-    fontSize: 13,
-    letterSpacing: 0.65,
-    padding: 1
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center'
   },
-  paraText02: {
+  dotWrapper: {
+    height: '100%',
+    width: '5%',
+    paddingTop: '3%'
+  },
+  textWrapper: {
+    width: '95%'
+  },
+  paraText: {
     color: "white",
     fontSize: 13,
     letterSpacing: 0.65,
