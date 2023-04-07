@@ -55,7 +55,6 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
     }
     return null;
   }, [upgradeStatus]);
-  console.log('windowHeight', windowHeight)
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
