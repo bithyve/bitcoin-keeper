@@ -17,6 +17,7 @@ import Fonts from 'src/common/Fonts';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { Preview } from 'src/nativemodules/interface';
 import UtxoSummary from './UtxoSummary';
+import LearnMoreModal from './components/LearnMoreModal';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
@@ -48,6 +49,7 @@ export default function PoolSelection({ route, navigation }) {
   const [tx0Data, setTx0Data] = useState(null);
   const [tx0Preview, setTx0Preview] = useState(null);
   const [poolLoading, setPoolLoading] = useState(true);
+  const [learnModalVisible, setLearnModalVisible] = useState(false);
 
   useEffect(() => {
     setPoolLoading(true);
@@ -125,6 +127,8 @@ export default function PoolSelection({ route, navigation }) {
         paddingLeft={10}
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
+        learnMore
+        learnMorePressed={() => setLearnModalVisible(true)}
       />
 
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
@@ -210,7 +214,7 @@ export default function PoolSelection({ route, navigation }) {
           </Box>
         </Box>
       </Box>
-
+      <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
       <KeeperModal
         justifyContent="flex-end"
         visible={showPools}
