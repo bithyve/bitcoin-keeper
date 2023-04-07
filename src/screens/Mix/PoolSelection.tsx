@@ -209,6 +209,8 @@ export default function PoolSelection({ route, navigation }) {
               primaryDisable={
                 !(availablePools && availablePools.length > 0 && utxoTotal > minMixAmount)
               }
+              secondaryText='cancel'
+              secondaryCallback={() => navigation.goBack()}
               primaryCallback={() => onPreviewMix()}
             />
           </Box>
