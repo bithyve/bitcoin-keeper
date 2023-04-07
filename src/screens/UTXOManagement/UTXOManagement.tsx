@@ -13,6 +13,7 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
+import LearnMoreModal from './components/LearnMoreModal';
 // import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
 
 function Footer({ vault, setEnableSelection, enableSelection, selectedUTXOs }) {
@@ -50,6 +51,7 @@ function UTXOManagement({ route }) {
     const [selectionTotal, setSelectionTotal] = useState(0);
     const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
     const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
+    const [learnModalVisible, setLearnModalVisible] = useState(false);
 
     // const [selectedAccount, setSelectedAccount] = useState<AccountTypes>(AccountTypes.DEPOSIT)
 
@@ -69,7 +71,7 @@ function UTXOManagement({ route }) {
     );
     return (
         <ScreenWrapper>
-            <HeaderTitle learnMore />
+            <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
             <Box style={styles.dailySpendingWrapper}>
                 <HStack style={styles.dailySpendingView}>
                     <Box paddingRight={3}>
@@ -102,6 +104,7 @@ function UTXOManagement({ route }) {
                 />
             </Box>
             {utxos.length ? <Footer vault={data} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} /> : null}
+            <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
         </ScreenWrapper>
     )
 }
