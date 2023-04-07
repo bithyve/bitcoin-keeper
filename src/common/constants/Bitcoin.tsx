@@ -11,6 +11,7 @@ import DolarGreen from 'src/assets/images/icon_dollar_green.svg';
 import DolarGrey from 'src/assets/images/icon_dollar_grey.svg';
 import Dolar from 'src/assets/images/icon_dollar.svg';
 import CurrencyKind from '../data/enums/CurrencyKind';
+import Colors from 'src/theme/Colors';
 
 export const SATOSHIS_IN_BTC = 1e8;
 
@@ -45,7 +46,13 @@ export const getAmount = (amountInSats: number, satsEnabled = false) => {
 
 const numberWithCommas = (x) => (x ? x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 0);
 
-export const getAmt = (amountInSats: number, exchangeRates, currencyCode, currentCurrency, satsEnabled = false) => {
+export const getAmt = (
+  amountInSats: number,
+  exchangeRates,
+  currencyCode,
+  currentCurrency,
+  satsEnabled = false
+) => {
   if (currentCurrency === CurrencyKind.BITCOIN) {
     return getAmount(amountInSats, satsEnabled);
   }
@@ -100,6 +107,21 @@ export const isTestnet = () => {
   }
   return false;
 };
+export const Dollar = ({ color }) => {
+  return (
+    <Text
+      style={{
+        fontSize: 12,
+        color: color,
+        letterSpacing: 0.5,
+        fontWeight: '900',
+        lineHeight: 18,
+      }}
+    >
+      $
+    </Text>
+  );
+};
 
 export const getCurrencyImageByRegion = (
   currencyCode: string,
@@ -145,18 +167,20 @@ export const getCurrencyImageByRegion = (
   if (currentCurrency !== CurrencyKind.BITCOIN && dollarCurrency.includes(currencyCode)) {
     if (type === 'light') {
       return <DolarWhite />;
+      // return <Dollar color={Colors.White} />;
     }
     if (type === 'green') {
       return <DolarGreen />;
+      // return <Dollar color={Colors.GenericViridian} />;
     }
     if (type === 'grey') {
       return <DolarGrey />;
     }
     if (type === 'dark') {
       return <Dolar />;
+      // return <Dollar color={Colors.RichGreen} />;
     }
   } else {
     return <BTCIcon />;
   }
-
 };
