@@ -9,7 +9,7 @@ function UTXOsManageNavBox({ onClick }: any) {
     return (
         <Pressable style={styles.manageUTXOsWrapper} backgroundColor="light.lightAccent" onPress={onClick}>
             <Box style={styles.titleViewWrapper}>
-                <Text style={styles.titleText}>Manage UTXOs</Text>
+                <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
                 <Text style={styles.subTitleText}>Select Label and choose UTXOs</Text>
             </Box>
             <Box style={styles.arrowViewWrapper}>
