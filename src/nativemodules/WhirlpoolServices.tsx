@@ -124,7 +124,7 @@ export default class WhirlpoolServices {
    */
   static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
-      const result = await Whirlpool.tx0Push(txHex, poolId);
+      const result = await Whirlpool.tx0push(txHex, poolId);
       if (!result) throw new Error('Failed to broadcast tx0');
       return result;
     } catch (error) {
