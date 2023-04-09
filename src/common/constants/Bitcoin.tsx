@@ -149,3 +149,26 @@ export const getCurrencyImageByRegion = (
     return <BTCIcon />;
   }
 };
+
+export const getFiatIcon = (
+  currencyCode: string,
+  type: 'light' | 'green' | 'dark' | 'grey',
+) => {
+  const currency = FiatCurrencies.find(c => c.code === currencyCode);
+  if (currency) {
+    if (type === 'light') {
+      console.log('hahaha');
+      return <CurrencyIcon color={Colors.White} symbol={currency.symbol} />;
+    }
+    if (type === 'green') {
+      return <CurrencyIcon color={Colors.GenericViridian} symbol={currency.symbol} />;
+    }
+    if (type === 'grey') {
+      return <CurrencyIcon color={Colors.PearlGrey} symbol={currency.symbol} style={{ opacity: 0.7 }} />;
+    }
+    if (type === 'dark') {
+      return <CurrencyIcon color={Colors.RichGreen} symbol={currency.symbol} />;
+    }
+  }
+  return null
+};
