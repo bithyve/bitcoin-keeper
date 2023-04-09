@@ -129,7 +129,6 @@ export const getCurrencyImageByRegion = (
 ) => {
 
   if (currentCurrency !== CurrencyKind.BITCOIN) {
-
     const currency = FiatCurrencies.find(c => c.code === currencyCode);
     if (currency) {
       if (type === 'light') {
@@ -145,6 +144,7 @@ export const getCurrencyImageByRegion = (
         return <CurrencyIcon color={Colors.RichGreen} symbol={currency.symbol} />;
       }
     }
+    return null
   } else {
     return <BTCIcon />;
   }
