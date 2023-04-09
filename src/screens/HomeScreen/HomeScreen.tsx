@@ -184,7 +184,7 @@ function LinkedWallets(props) {
               }}
             >
               {getCurrencyIcon(BTC, 'grey')}
-              & nbsp;
+              &nbsp;
               <Hidden />
             </Box >
           )
