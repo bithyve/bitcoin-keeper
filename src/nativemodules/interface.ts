@@ -48,7 +48,7 @@ export interface WhirlpoolAPI {
 }
 
 export interface PoolData {
-  id: string;
+  poolId: string;
   denomination: number;
   feeValue: number;
   mustMixBalanceMin: number;

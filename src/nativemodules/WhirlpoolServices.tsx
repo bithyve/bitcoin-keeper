@@ -109,7 +109,7 @@ export default class WhirlpoolServices {
         changeAddress
       );
       if (!result) throw new Error('Failed to construct PSBT from Tx0 Preview');
-      return JSON.parse(result);
+      return result;
     } catch (error) {
       console.log({ error });
       throw new Error(error);

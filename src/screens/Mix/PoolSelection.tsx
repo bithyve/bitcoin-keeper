@@ -102,8 +102,8 @@ export default function PoolSelection({ route, navigation }) {
     const tx0Preview: Preview = await WhirlpoolClient.getTx0Preview(
       correspondingTx0Data,
       pool,
-      premixFee.feePerByte,
-      minerFee.feePerByte,
+      premixFee.fee,
+      minerFee.fee,
       utxos
     );
     setPremixOutput(tx0Preview?.nPremixOutputs);
