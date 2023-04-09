@@ -8,7 +8,7 @@ import React from 'react';
 // asserts
 import CurrencyKind from '../data/enums/CurrencyKind';
 import Colors from 'src/theme/Colors';
-
+import FiatCurrencies from '../FiatCurrencies';
 export const SATOSHIS_IN_BTC = 1e8;
 
 export const BtcToSats = (amountInBtc: number) => {
@@ -128,99 +128,21 @@ export const getCurrencyImageByRegion = (
   BTCIcon: any
 ) => {
 
-  const dollarCurrency = ['USD', 'AUD', 'BBD', 'BSD', 'BZD', 'BMD', 'BND', 'KHR', 'CAD', 'KYD', 'XCD', 'FJD', 'GYD', 'HKD', 'JMD', 'LRD', 'NAD', 'NZD', 'SGD', 'SBD', 'SRD', 'TWD', 'USH', 'TTD', 'TVD', 'ZWD', 'MXN', 'COP', 'CLP', 'UYU', 'DOP', 'ARS']
-
-  const poundCurrency = ['EGP', 'FKP', 'GIP', 'GGP', 'IMP', 'JEP', 'SHP', 'SYP', 'GBP']
-
   if (currentCurrency !== CurrencyKind.BITCOIN) {
 
-    if (dollarCurrency.includes(currencyCode)) {
+    const currency = FiatCurrencies.find(c => c.code === currencyCode);
+    if (currency) {
       if (type === 'light') {
-        return <CurrencyIcon color={Colors.White} symbol={'$'} />;
+        return <CurrencyIcon color={Colors.White} symbol={currency.symbol} />;
       }
       if (type === 'green') {
-        return <CurrencyIcon color={Colors.GenericViridian} symbol={'$'} />;
+        return <CurrencyIcon color={Colors.GenericViridian} symbol={currency.symbol} />;
       }
       if (type === 'grey') {
-        return <CurrencyIcon color={Colors.PearlGrey} symbol={'$'} style={{ opacity: 0.7 }} />;
+        return <CurrencyIcon color={Colors.PearlGrey} symbol={currency.symbol} style={{ opacity: 0.7 }} />;
       }
       if (type === 'dark') {
-        return <CurrencyIcon color={Colors.RichGreen} symbol={'$'} />;
-      }
-    }
-
-    if (poundCurrency.includes(currencyCode)) {
-      if (type === 'light') {
-        return <CurrencyIcon color={Colors.White} symbol={'£'} />;
-      }
-      if (type === 'green') {
-        return <CurrencyIcon color={Colors.GenericViridian} symbol={'£'} />;
-      }
-      if (type === 'grey') {
-        return <CurrencyIcon color={Colors.PearlGrey} symbol={'£'} style={{ opacity: 0.7 }} />;
-      }
-      if (type === 'dark') {
-        return <CurrencyIcon color={Colors.RichGreen} symbol={'£'} />;
-      }
-    }
-
-    if (currencyCode == 'DKK' || currencyCode == 'ISK' || currencyCode == 'SEK') {
-      if (type === 'light') {
-        return <CurrencyIcon color={Colors.White} symbol={'kr'} />;
-      }
-      if (type === 'green') {
-        return <CurrencyIcon color={Colors.GenericViridian} symbol={'kr'} />;
-      }
-      if (type === 'grey') {
-        return <CurrencyIcon color={Colors.PearlGrey} symbol={'kr'} style={{ opacity: 0.7 }} />;
-      }
-      if (type === 'dark') {
-        return <CurrencyIcon color={Colors.RichGreen} symbol={'kr'} />;
-      }
-    }
-
-    if (currencyCode == 'PLN') {
-      if (type === 'light') {
-        return <CurrencyIcon color={Colors.White} symbol={'zł'} />;
-      }
-      if (type === 'green') {
-        return <CurrencyIcon color={Colors.GenericViridian} symbol={'zł'} />;
-      }
-      if (type === 'grey') {
-        return <CurrencyIcon color={Colors.PearlGrey} symbol={'zł'} style={{ opacity: 0.7 }} />;
-      }
-      if (type === 'dark') {
-        return <CurrencyIcon color={Colors.RichGreen} symbol={'zł'} />;
-      }
-    }
-
-    if (currencyCode == 'THB') {
-      if (type === 'light') {
-        return <CurrencyIcon color={Colors.White} symbol={'฿'} />;
-      }
-      if (type === 'green') {
-        return <CurrencyIcon color={Colors.GenericViridian} symbol={'฿'} />;
-      }
-      if (type === 'grey') {
-        return <CurrencyIcon color={Colors.PearlGrey} symbol={'฿'} style={{ opacity: 0.7 }} />;
-      }
-      if (type === 'dark') {
-        return <CurrencyIcon color={Colors.RichGreen} symbol={'฿'} />;
-      }
-    }
-
-    if (currencyCode == 'CHF') {
-      if (type === 'light') {
-        return <CurrencyIcon color={Colors.White} symbol={'CHF'} />;
-      }
-      if (type === 'green') {
-        return <CurrencyIcon color={Colors.GenericViridian} symbol={'CHF'} />;
-      }
-      if (type === 'grey') {
-        return <CurrencyIcon color={Colors.PearlGrey} symbol={'CHF'} style={{ opacity: 0.7 }} />;
-      }
-      if (type === 'dark') {
-        return <CurrencyIcon color={Colors.RichGreen} symbol={'CHF'} />;
+        return <CurrencyIcon color={Colors.RichGreen} symbol={currency.symbol} />;
       }
     }
   } else {
