@@ -115,7 +115,12 @@ export default function BroadcastPremix({ route, navigation }) {
       const network = WalletUtilities.getNetworkByType(depositWallet.networkType);
       const { premixWallet, badbankWallet } = depositWallet.whirlpoolConfig;
       const premixAddresses = [];
-      for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
+
+      for (
+        let i = premixWallet.specs.nextFreeAddressIndex;
+        i < premixWallet.specs.nextFreeAddressIndex + tx0Preview.nPremixOutputs;
+        i++
+      ) {
         premixAddresses.push(
           WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)
         );
