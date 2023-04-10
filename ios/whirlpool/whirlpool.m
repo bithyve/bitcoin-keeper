@@ -85,7 +85,7 @@ RCT_EXPORT_METHOD(intoPsbt:(NSString *)preview_str
   }];
 }
 
-RCT_EXPORT_METHOD(tx0push:(NSString *)tx_str
+RCT_EXPORT_METHOD(tx0Push:(NSString *)tx_str
                   pool_id_str:(NSString *)pool_id_str
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)

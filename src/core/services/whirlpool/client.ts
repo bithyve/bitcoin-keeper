@@ -92,7 +92,7 @@ export default class WhirlpoolClient {
       inputStructure,
       minerFeePerByte,
       tx0data.feeValue,
-      null,
+      '',
       pool.tx0MaxOutputs,
       premixFeePerByte
     );
