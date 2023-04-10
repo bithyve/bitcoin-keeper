@@ -48,10 +48,7 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void tx0Preview(Integer inputsValue, String poolStr, String premixFeePerByte, String feesAddress, String inputStructureStr,String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs, Promise promise) {
-        Log.d(TAG, "tx0Preview: premixFeePerByte "+premixFeePerByte);
-        Log.d(TAG, "tx0Preview: premixFeePerByte type "+premixFeePerByte.getClass().getName());
-
+    public void tx0Preview(String inputsValue, String poolStr, String premixFeePerByte, String feesAddress, String inputStructureStr,String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs, Promise promise) {
         promise.resolve(WhirlpoolBridge.tx0previewnew(inputsValue, poolStr,premixFeePerByte, feesAddress, inputStructureStr,minerFeePerByte, coordinatorFee, nWantedMaxOutputsStr, nPoolMaxOutputs));
     }
 

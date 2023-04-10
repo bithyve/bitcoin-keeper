@@ -77,7 +77,7 @@ export default class WhirlpoolServices {
         );
       } else {
         result = await Whirlpool.tx0Preview(
-          inputsValue,
+          `${inputsValue}`,
           JSON.stringify(pool),
           `${premixFeePerByte}`,
           feeAddress,
@@ -140,7 +140,7 @@ export default class WhirlpoolServices {
    */
   static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
-      const result = await Whirlpool.tx0push(txHex, poolId);
+      const result = await Whirlpool.tx0Push(txHex, poolId);
       if (!result) throw new Error('Failed to broadcast tx0');
       return result;
     } catch (error) {
