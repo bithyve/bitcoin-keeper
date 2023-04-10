@@ -150,9 +150,19 @@ export default class WhirlpoolServices {
   };
 
   /**
+   * starts a new Whirlpool mix in the current thread in a blocking manner
+   * @param  {WhirlpoolInput} input
+   * @param  {string} privateKey
+   * @param  {string} destination
+   * @param  {string} poolId
+   * @param  {string} denomination
+   * @param  {string} preUserHash
+   * @param  {string} network
+   * @param  {string} blockHeight
+   * @returns {Promise<string>} txid
    */
   static startMix = async (
-    input: string,
+    input: WhirlpoolInput,
     privateKey: string,
     destination: string,
     poolId: string,
@@ -163,7 +173,7 @@ export default class WhirlpoolServices {
   ): Promise<string> => {
     try {
       const result = await Whirlpool.blocking(
-        input,
+        JSON.stringify(input),
         privateKey,
         destination,
         poolId,
@@ -172,7 +182,7 @@ export default class WhirlpoolServices {
         network,
         blockHeight
       );
-      if (!result) throw new Error('Unable to generate tx0 preview');
+      if (!result) throw new Error('Unable to mix the current input');
       return result;
     } catch (error) {
       console.log({ error });

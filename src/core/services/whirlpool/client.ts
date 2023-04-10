@@ -8,6 +8,7 @@ import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import WhirlpoolServices from 'src/nativemodules/WhirlpoolServices';
+import { NetworkType } from 'src/core/wallets/enums';
 import {
   Info,
   InputStructure,
@@ -20,7 +21,8 @@ import {
   WhirlpoolAPI,
   WhirlpoolInput,
 } from '../../../nativemodules/interface';
-import { generateMockTransaction, getAPIEndpoints, sleep } from './utils';
+import { getAPIEndpoints, sleep } from './utils';
+import { hash256 } from '../operations/encryption';
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
@@ -122,7 +124,7 @@ export default class WhirlpoolClient {
     const whirlpoolInputs: WhirlpoolInput[] = inputs.map((input) => {
       const rustInput: WhirlpoolInput = {
         outpoint: {
-          txid: input.txId, // use
+          txid: input.txId,
           vout: input.vout,
         },
         prev_txout: {
@@ -182,6 +184,58 @@ export default class WhirlpoolClient {
    */
   static broadcastTx0 = async (tx0Hex: string, poolId: string): Promise<string> =>
     WhirlpoolServices.tx0Push(tx0Hex, poolId);
+
+  /**
+   * starts a new whirlpool mix
+   * @param  {InputUTXOs} input
+   * @param  {Wallet} premix
+   * @param  {Wallet} postmix
+   * @param  {PoolData} pool
+   * @param  {number} blockHeight
+   * @returns {Promise<string>} txid
+   */
+  static startMix = async (
+    input: InputUTXOs,
+    premix: Wallet,
+    postmix: Wallet,
+    pool: PoolData,
+    blockHeight: number
+  ): Promise<string> => {
+    if (!input && !input.height) throw new Error('Input is not confirmed');
+
+    const network = WalletUtilities.getNetworkByType(premix.networkType);
+    const rustInput: WhirlpoolInput = {
+      outpoint: {
+        txid: input.txId,
+        vout: input.vout,
+      },
+      prev_txout: {
+        value: input.value,
+        script_pubkey: bitcoinJS.address.toOutputScript(input.address, network).toString('hex'),
+      },
+      fields: {},
+    };
+
+    const { privateKey } = WalletUtilities.addressToKey(input.address, premix) as {
+      privateKey: string;
+      subPath: number[];
+    };
+    const destination = postmix.specs.receivingAddress;
+    const preUserHash = hash256(premix.derivationDetails.mnemonic);
+    const networkType: Network =
+      premix.networkType === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin;
+
+    return WhirlpoolServices.startMix(
+      rustInput,
+      privateKey,
+      destination,
+      pool.poolId,
+      pool.denomination.toString(),
+      preUserHash,
+      networkType,
+      blockHeight.toString()
+    );
+  };
 
   /**
    * mixing mock: whirlpooling from premix to postmix
