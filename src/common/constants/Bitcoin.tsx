@@ -6,11 +6,9 @@ import { HStack } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 // asserts
-import DolarWhite from 'src/assets/images/icon_dollar_white.svg';
-import DolarGreen from 'src/assets/images/icon_dollar_green.svg';
-import Dolar from 'src/assets/images/icon_dollar.svg';
 import CurrencyKind from '../data/enums/CurrencyKind';
-
+import Colors from 'src/theme/Colors';
+import FiatCurrencies from '../FiatCurrencies';
 export const SATOSHIS_IN_BTC = 1e8;
 
 export const BtcToSats = (amountInBtc: number) => {
@@ -44,7 +42,13 @@ export const getAmount = (amountInSats: number, satsEnabled = false) => {
 
 const numberWithCommas = (x) => (x ? x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 0);
 
-export const getAmt = (amountInSats: number, exchangeRates, currencyCode, currentCurrency, satsEnabled = false) => {
+export const getAmt = (
+  amountInSats: number,
+  exchangeRates,
+  currencyCode,
+  currentCurrency,
+  satsEnabled = false
+) => {
   if (currentCurrency === CurrencyKind.BITCOIN) {
     return getAmount(amountInSats, satsEnabled);
   }
@@ -99,60 +103,72 @@ export const isTestnet = () => {
   }
   return false;
 };
+export const CurrencyIcon = ({ color, symbol, style = {} }) => {
+  return (
+    <Text
+      style={{
+        ...style,
+        fontSize: 14,
+        color: color,
+        letterSpacing: 0.5,
+        fontWeight: '900',
+        lineHeight: 18,
+      }}
+      bold
+    >
+      {symbol}
+    </Text>
+  );
+};
 
 export const getCurrencyImageByRegion = (
   currencyCode: string,
-  type: 'light' | 'green' | 'dark',
+  type: 'light' | 'green' | 'dark' | 'grey',
   currentCurrency: CurrencyKind,
   BTCIcon: any
 ) => {
-  const dollarCurrency = [
-    'USD',
-    'AUD',
-    'BBD',
-    'BSD',
-    'BZD',
-    'BMD',
-    'BND',
-    'KHR',
-    'CAD',
-    'KYD',
-    'XCD',
-    'FJD',
-    'GYD',
-    'HKD',
-    'JMD',
-    'LRD',
-    'NAD',
-    'NZD',
-    'SGD',
-    'SBD',
-    'SRD',
-    'TWD',
-    'USH',
-    'TTD',
-    'TVD',
-    'ZWD',
-    'MXN',
-    'COP',
-    'CLP',
-    'UYU',
-    'DOP',
-    'ARS',
-  ];
 
-  if (currentCurrency !== CurrencyKind.BITCOIN && dollarCurrency.includes(currencyCode)) {
-    if (type === 'light') {
-      return <DolarWhite />;
+  if (currentCurrency !== CurrencyKind.BITCOIN) {
+    const currency = FiatCurrencies.find(c => c.code === currencyCode);
+    if (currency) {
+      if (type === 'light') {
+        return <CurrencyIcon color={Colors.White} symbol={currency.symbol} />;
+      }
+      if (type === 'green') {
+        return <CurrencyIcon color={Colors.GenericViridian} symbol={currency.symbol} />;
+      }
+      if (type === 'grey') {
+        return <CurrencyIcon color={Colors.PearlGrey} symbol={currency.symbol} style={{ opacity: 0.7 }} />;
+      }
+      if (type === 'dark') {
+        return <CurrencyIcon color={Colors.RichGreen} symbol={currency.symbol} />;
+      }
     }
-    if (type === 'green') {
-      return <DolarGreen />;
-    }
-    if (type === 'dark') {
-      return <Dolar />;
-    }
+    return null
   } else {
     return <BTCIcon />;
   }
+};
 
+export const getFiatIcon = (
+  currencyCode: string,
+  type: 'light' | 'green' | 'dark' | 'grey',
+) => {
+  const currency = FiatCurrencies.find(c => c.code === currencyCode);
+  if (currency) {
+    if (type === 'light') {
+      console.log('hahaha');
+      return <CurrencyIcon color={Colors.White} symbol={currency.symbol} />;
+    }
+    if (type === 'green') {
+      return <CurrencyIcon color={Colors.GenericViridian} symbol={currency.symbol} />;
+    }
+    if (type === 'grey') {
+      return <CurrencyIcon color={Colors.PearlGrey} symbol={currency.symbol} style={{ opacity: 0.7 }} />;
+    }
+    if (type === 'dark') {
+      return <CurrencyIcon color={Colors.RichGreen} symbol={currency.symbol} />;
+    }
+  }
+  return null
 };
