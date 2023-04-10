@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import KeeperModal from 'src/components/KeeperModal';
 import { Box } from 'native-base';
+
 import Illustration7 from 'src/assets/images/illustration_7.svg'
 import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
 
 function InitiateContent() {
     return (
