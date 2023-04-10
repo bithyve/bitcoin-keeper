@@ -130,7 +130,6 @@ function UTXOManagement({ route, navigation }) {
     const [learnModalVisible, setLearnModalVisible] = useState(false);
     const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
     const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
-    console.log('whirlpoolIntroModal', whirlpoolIntroModal)
 
     useEffect(() => {
         setSelectedAccount(accountType || WalletType.DEFAULT);
