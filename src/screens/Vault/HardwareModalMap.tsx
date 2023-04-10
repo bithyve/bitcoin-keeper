@@ -489,14 +489,6 @@ function HardwareModalMap({
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const bioMetricWithProgress = () => {
-    setInProgress(true)
-  }
-  useEffect(() => {
-    if (inProgress) {
-      biometricAuth()
-    }
-  }, [inProgress])
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
   const { pinHash } = useAppSelector((state) => state.storage);
@@ -611,6 +603,7 @@ function HardwareModalMap({
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
+        setInProgress(true)
         setTimeout(async () => {
           const { success, signature } = await RNBiometrics.createSignature({
             promptMessage: 'Authenticate',
@@ -618,6 +611,7 @@ function HardwareModalMap({
             cancelButtonText: 'Use PIN',
           });
           if (success) {
+            setInProgress(false)
             const res = await SecureStore.verifyBiometricAuth(signature, appId);
             if (res.success) {
               const mobileKey = await setupMobileKey({ primaryMnemonic });
@@ -630,9 +624,11 @@ function HardwareModalMap({
           }
         }, 200);
       } catch (error) {
+        setInProgress(false)
         captureError(error);
       }
     } else {
+      setInProgress(false)
       setPasswordModal(true);
     }
   };
@@ -659,7 +655,7 @@ function HardwareModalMap({
       case SignerType.POLICY_SERVER:
         return navigateToSigningServerSetup();
       case SignerType.MOBILE_KEY:
-        return bioMetricWithProgress();
+        return biometricAuth();
       case SignerType.SEED_WORDS:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:

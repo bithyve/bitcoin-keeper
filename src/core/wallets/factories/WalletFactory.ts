@@ -14,6 +14,9 @@ import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
+import { hash256 } from 'src/core/services/operations/encryption';
+
+export const whirlPoolWalletTypes = [WalletType.PRE_MIX, WalletType.POST_MIX, WalletType.BAD_BANK];
 
 export const generateWallet = async ({
   type,
@@ -25,6 +28,7 @@ export const generateWallet = async ({
   importDetails,
   networkType,
   transferPolicy,
+  parentMnemonic,
 }: {
   type: WalletType;
   instanceNum: number;
@@ -34,17 +38,21 @@ export const generateWallet = async ({
   primaryMnemonic?: string;
   importDetails?: WalletImportDetails;
   networkType: NetworkType;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
+  parentMnemonic?: string;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
 
   let mnemonic: string;
   let xDerivationPath: string;
   let bip85Config: BIP85Config;
+  let depositWalletId: string;
 
   if (type === WalletType.IMPORTED) {
     if (!importDetails) throw new Error('Import details are missing');
     mnemonic = importDetails.mnemonic;
+  } else if (whirlPoolWalletTypes.includes(type)) {
+    mnemonic = parentMnemonic;
   } else {
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
     // BIP85 derivation: primary mnemonic to bip85-child mnemonic
@@ -58,7 +66,13 @@ export const generateWallet = async ({
     xDerivationPath = importDetails.derivationConfig.path;
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
-  const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+
+  if (whirlPoolWalletTypes.includes(type)) {
+    depositWalletId = id;
+    id = hash256(`${id}${type}`);
+  }
+
   // derive extended keys
   const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
@@ -100,7 +114,6 @@ export const generateWallet = async ({
     hasNewUpdates: false,
     lastSynched: 0,
   };
-
   const wallet: Wallet = {
     id,
     entityKind: EntityKind.WALLET,
@@ -112,6 +125,7 @@ export const generateWallet = async ({
     specs,
     scriptType: ScriptTypes.P2WPKH,
     transferPolicy,
+    depositWalletId,
   };
   wallet.specs.receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   return wallet;

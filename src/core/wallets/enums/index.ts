@@ -72,6 +72,9 @@ export enum EntityKind {
 export enum WalletType {
   DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
+  PRE_MIX = 'PRE_MIX',
+  POST_MIX = 'POST_MIX',
+  BAD_BANK = 'BAD_BANK',
 }
 
 export enum VaultType {

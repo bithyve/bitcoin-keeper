@@ -2,24 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, KeyboardAvoidingView, useColorMode } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ScrollView,
+} from 'react-native';
+import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
-import { LabelType } from 'src/core/wallets/enums';
+import { LabelType, NetworkType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
+import BtcBlack from 'src/assets/images/btc_black.svg';
+import Text from 'src/components/KeeperText';
+import openLink from 'src/utils/OpenLink';
+import config from 'src/core/config';
+import Done from 'src/assets/images/selected.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
-import BtcBlack from 'src/assets/images/btc_black.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
-import Text from 'src/components/KeeperText';
-import Done from 'src/assets/images/selected.svg';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -78,9 +87,21 @@ function UTXOLabeling() {
     dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
     navigation.goBack();
   };
+
+  const redirectToBlockExplorer = () => {
+    openLink(
+      `https://blockstream.info${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      }/tx/${utxo.txId}`
+    );
+  };
+
   return (
     <ScreenWrapper>
-      <HeaderTitle title="UTXO Details" subtitle="Easily identify specific aspects of various UTXOs" />
+      <HeaderTitle
+        title="UTXO Details"
+        subtitle="Easily identify specific aspects of various UTXOs"
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
@@ -95,9 +116,9 @@ function UTXOLabeling() {
                 <Text style={styles.subHeaderValue} numberOfLines={1}>
                   {utxo.txId}
                 </Text>
-                <Box style={{ margin: 5 }}>
+                <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
                   <LinkIcon />
-                </Box>
+                </TouchableOpacity>
               </View>
             </View>
             <View style={{ flex: 1 }}>
@@ -126,7 +147,12 @@ function UTXOLabeling() {
                   style={[
                     styles.labelView,
                     {
-                      backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : ((editingIndex !== index) ? '#E0B486' : '#A88763'),
+                      backgroundColor:
+                        item.type === LabelType.SYSTEM
+                          ? '#23A289'
+                          : editingIndex !== index
+                          ? '#E0B486'
+                          : '#A88763',
                     },
                   ]}
                 >
@@ -171,7 +197,6 @@ function UTXOLabeling() {
             </Box>
           </View>
           <View style={{ flex: 1 }} />
-
         </ScrollView>
       </KeyboardAvoidingView>
       <Box style={styles.ctaBtnWrapper}>

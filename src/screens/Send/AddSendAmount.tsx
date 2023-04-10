@@ -22,11 +22,10 @@ import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import {
   BtcToSats,
-  getAmt,
-  getCurrencyImageByRegion,
   SATOSHIS_IN_BTC,
   SatsToBtc,
 } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
@@ -76,6 +75,7 @@ function AddSendAmount({ route }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
   const utxoTotal = selectedUTXOs ? SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0)) : 0;
+  const { getBalance, getCurrencyIcon } = useBalance();
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -192,15 +192,9 @@ function AddSendAmount({ route }) {
       >
         <WalletSendInfo
           selectedUTXOs={selectedUTXOs}
-          availableAmt={getAmt(
-            sender?.specs.balances.confirmed,
-            exchangeRates,
-            currencyCode,
-            currentCurrency,
-            satsEnabled
-          )}
+          availableAmt={getBalance(sender?.specs.balances.confirmed)}
           walletName={sender?.presentationData.name}
-          currencyIcon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)}
+          currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
           isSats={satsEnabled}
         />
       </Box>
@@ -238,7 +232,7 @@ function AddSendAmount({ route }) {
         >
           <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
             <Box marginRight={2}>
-              {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BitcoinInput)}
+              {getCurrencyIcon(BitcoinInput, 'dark')}
             </Box>
             <Box
               marginLeft={2}

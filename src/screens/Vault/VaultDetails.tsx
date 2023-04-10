@@ -1,4 +1,4 @@
-import { VStack } from 'native-base';
+import { Box, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -32,7 +32,7 @@ function Wrapper({ children }) {
   );
 }
 function Footer({ onPressBuy, vault }) {
-  return <VaultFooter onPressBuy={onPressBuy} vault={vault} />
+  return <VaultFooter onPressBuy={onPressBuy} vault={vault} />;
 }
 
 function VaultDetails({ route }) {
@@ -62,24 +62,36 @@ function VaultDetails({ route }) {
           <VaultHeader />
           <VaultInfo vault={vault} />
         </VStack>
-        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
       <VStack
         backgroundColor="light.primaryBackground"
-        style={styles.bodyWrapper}
+        px={wp(28)}
+        borderTopLeftRadius={20}
+        flex={1}
       >
-        <VStack style={{ paddingTop: windowHeight > 670 ? windowHeight * 0.09 : windowHeight * 0.10 }}>
-          <UTXOsManageNavBox onClick={() => navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })} />
-          <TransactionsAndUTXOs
-            transactions={transactions}
-            vault={vault}
-            autoRefresh={autoRefresh}
-          />
-          <Footer
-            onPressBuy={() => setShowBuyRampModal(true)}
-            vault={vault}
-          />
+        <VStack zIndex={1}>
+          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
         </VStack>
+        <Box style={{ paddingTop: windowHeight > 800 ? windowHeight * 0.11 : windowHeight * 0.14 }}>
+          <UTXOsManageNavBox
+            onClick={() =>
+              navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })
+            }
+            isWhirlpoolWallet={false}
+            currentWallet={vault}
+          />
+        </Box>
+        <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} />
+        <Box
+          position="absolute"
+          bottom={windowHeight > 800 ? 5 : 1}
+          width="100%"
+          alignSelf="center"
+          zIndex="1"
+          backgroundColor="light.primaryBackground"
+        >
+          <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
+        </Box>
         <VaultModals
           showBuyRampModal={showBuyRampModal}
           setShowBuyRampModal={setShowBuyRampModal}
@@ -99,14 +111,14 @@ const getStyles = (top) =>
     },
     vaultHeaderWrapper: {
       marginHorizontal: '8%',
-      marginTop: windowHeight > 670 ? 5 : 0
+      marginTop: windowHeight > 670 ? 5 : 0,
     },
     bodyWrapper: {
       paddingHorizontal: wp(28),
       borderTopLeftRadius: 20,
       flex: 1,
-      justifyContent: "space-between",
-      paddingBottom: windowHeight > 800 ? 5 : 0
-    }
+      justifyContent: 'space-between',
+      paddingBottom: windowHeight > 800 ? 5 : 0,
+    },
   });
 export default VaultDetails;
