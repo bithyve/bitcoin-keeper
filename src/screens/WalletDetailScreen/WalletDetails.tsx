@@ -1,17 +1,16 @@
+import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
-import { Alert, StyleSheet } from 'react-native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets, refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import useWallets from 'src/hooks/useWallets';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useNavigation } from '@react-navigation/native';
 import { WalletType } from 'src/core/wallets/enums';
 
@@ -85,6 +84,14 @@ function WalletDetails({ route }) {
     setPullRefresh(false);
   };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const createWhirlpoolWallets = (wallet: Wallet) => {
+    const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
+    if (isWhirlpoolWallet) {
+      if (!wallet?.whirlpoolConfig?.premixWallet) {
+        dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
+      }
+    }
+  };
 
   return (
     <ScreenWrapper>
@@ -105,6 +112,7 @@ function WalletDetails({ route }) {
               currentWallet?.whirlpoolConfig?.whirlpoolWalletDetails?.length
             )}
             onClick={() => {
+              createWhirlpoolWallets(currentWallet);
               navigation.navigate('UTXOManagement', {
                 data: currentWallet,
                 routeName: 'Wallet',

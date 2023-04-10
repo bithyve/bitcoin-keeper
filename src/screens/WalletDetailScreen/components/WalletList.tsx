@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, Pressable, View } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import { Box, View } from 'native-base';
+import React, { useContext } from 'react';
+import useBalance from 'src/hooks/useBalance';
 import { Shadow } from 'react-native-shadow-2';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
@@ -13,9 +13,7 @@ import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
+
 import GradientIcon from './GradientIcon';
 
 const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
@@ -46,13 +44,12 @@ const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
 const WalletTile = ({
   isActive,
   wallet,
-  currentCurrency,
-  currencyCode,
-  exchangeRates,
-  satsEnabled,
   balances,
   isWhirlpoolWallet,
 }) => {
+
+  const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
+
   return (
     <Box>
       <Box style={styles.walletCard}>
@@ -99,16 +96,10 @@ const WalletTile = ({
                 marginRight: 3,
               }}
             >
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+              {getCurrencyIcon(BtcWallet, 'light')}
             </Box>
             <Text color="light.white" style={styles.unconfirmedBalance}>
-              {getAmt(
-                balances?.unconfirmed,
-                exchangeRates,
-                currencyCode,
-                currentCurrency,
-                satsEnabled
-              )}
+              {getBalance(balances?.unconfirmed)}
             </Text>
           </Box>
         </Box>
@@ -124,18 +115,12 @@ const WalletTile = ({
               marginRight: 3,
             }}
           >
-            {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+            {getCurrencyIcon(BtcWallet, 'light')}
           </Box>
           <Text color="light.white" style={styles.availableBalance}>
-            {getAmt(
-              balances?.confirmed + balances?.unconfirmed,
-              exchangeRates,
-              currencyCode,
-              currentCurrency,
-              satsEnabled
-            )}
+            {getBalance(balances?.confirmed + balances?.unconfirmed)}
             <Text color="light.textColor" style={styles.balanceUnit}>
-              {getUnit(currentCurrency, satsEnabled)}
+              {getSatUnit()}
             </Text>
           </Text>
         </Box>
@@ -148,20 +133,12 @@ function WalletItem({
   item,
   index,
   walletIndex,
-  exchangeRates,
-  currencyCode,
-  currentCurrency,
-  satsEnabled,
   navigation,
   translations,
 }: {
   item: Wallet;
   index: number;
   walletIndex: number;
-  exchangeRates: any;
-  currencyCode: string;
-  currentCurrency: any;
-  satsEnabled: boolean;
   navigation;
   translations;
 }) {
@@ -198,10 +175,6 @@ function WalletItem({
               isWhirlpoolWallet={isWhirlpoolWallet}
               isActive={isActive}
               wallet={item}
-              currentCurrency={currentCurrency}
-              currencyCode={currencyCode}
-              exchangeRates={exchangeRates}
-              satsEnabled={satsEnabled}
               balances={item?.specs?.balances}
             />
           )}
@@ -212,10 +185,6 @@ function WalletItem({
 }
 
 function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets }: any) {
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
 
@@ -234,10 +203,6 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets }: any) {
             item={item}
             index={index}
             walletIndex={walletIndex}
-            exchangeRates={exchangeRates}
-            currencyCode={currencyCode}
-            currentCurrency={currentCurrency}
-            satsEnabled={satsEnabled}
             navigation={navigation}
             translations={translations}
           />

@@ -9,15 +9,15 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import WhirlpoolLoader from 'src/assets/images/whirlpool_loader.svg'; // Actual assert was missing in XD link
-import GradientIcon from '../WalletDetailScreen/components/GradientIcon';
 import { useDispatch } from 'react-redux';
-import { Info, Step } from 'src/core/services/whirlpool/interface';
+import { Info, Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import GradientIcon from '../WalletDetailScreen/components/GradientIcon';
 
 export const enum MixStatus {
   COMPLETED = 'COMPLETED',
@@ -91,7 +91,7 @@ const getBackgroungColor = (status: MixStatus) => {
   }
 };
 
-const TimeLine = ({ title, isLast, status }) => {
+function TimeLine({ title, isLast, status }) {
   return (
     <>
       {status === MixStatus.INPROGRESS ? (
@@ -105,9 +105,9 @@ const TimeLine = ({ title, isLast, status }) => {
               />
             </Box>
             <Box style={styles.verticalBorderWrapper}>
-              <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
-              <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
-              <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
             </Box>
           </Box>
           <Text color="light.secondaryText" style={[styles.timeLineTitle, styles.settingUpTitle]}>
@@ -122,9 +122,9 @@ const TimeLine = ({ title, isLast, status }) => {
             </Box>
             {isLast ? null : (
               <Box style={styles.verticalBorderWrapper}>
-                <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
-                <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
-                <Box backgroundColor={'light.fadedblue'} style={styles.verticalBorder} />
+                <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+                <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+                <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               </Box>
             )}
           </Box>
@@ -135,9 +135,9 @@ const TimeLine = ({ title, isLast, status }) => {
       )}
     </>
   );
-};
+}
 
-const MixProgress = ({ route, navigation }) => {
+function MixProgress({ route, navigation }) {
   const { selectedUTXOs, depositWallet, selectedWallet, walletPoolMap } = route.params;
   const dispatch = useDispatch();
   const [currentUtxo, setCurrentUtxo] = React.useState('');
@@ -156,14 +156,14 @@ const MixProgress = ({ route, navigation }) => {
           ...item,
           status: MixStatus.INPROGRESS,
         };
-      } else if (item.referenceCode === 'Success') {
+      }
+      if (item.referenceCode === 'Success') {
         return {
           ...item,
           status: MixStatus.COMPLETED,
         };
-      } else {
-        return item;
       }
+      return item;
     });
     console.log({ info, step }); // capture step updates
     setData(updatedData);
@@ -174,7 +174,7 @@ const MixProgress = ({ route, navigation }) => {
       const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
       const destination = postmix.specs.receivingAddress;
       const poolDenomination = walletPoolMap[depositWallet.id];
-      let unsucccessfulUtxos = [];
+      const unsucccessfulUtxos = [];
 
       // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       let isBroadcasted = true;
@@ -201,7 +201,7 @@ const MixProgress = ({ route, navigation }) => {
           dispatch(
             createUTXOReference({
               labels: [{ name: 'Premix', type: LabelType.SYSTEM }],
-              txId: txId,
+              txId,
               vout: poolDenomination,
             })
           );
@@ -255,18 +255,18 @@ const MixProgress = ({ route, navigation }) => {
             data={data}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
-            nestedScrollEnabled={true}
+            nestedScrollEnabled
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.flatList}
           />
         </Box>
       </ScreenWrapper>
-      <Box backgroundColor={'light.mainBackground'} style={styles.note}>
+      <Box backgroundColor="light.mainBackground" style={styles.note}>
         <Note title="Note:" subtitle="Make sure your phone is sufficiently charged" />
       </Box>
     </Box>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

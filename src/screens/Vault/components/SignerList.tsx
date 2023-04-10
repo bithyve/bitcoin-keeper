@@ -58,7 +58,7 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: `${70 - Signers.length}%` }}
+      style={{ position: 'absolute', top: -50 }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -66,11 +66,7 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
         const indicate =
           !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
         return (
-          <Box
-            style={styles.signerCard}
-            marginRight="3"
-            key={signer.signerId}
-          >
+          <Box style={styles.signerCard} marginRight="3" key={signer.signerId}>
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
@@ -83,25 +79,15 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
               }}
             >
               {indicate ? <Box style={styles.indicator} /> : null}
-              <Box
-                style={styles.signerTypeIconWrapper}
-              >
-                {WalletMap(signer.type, true).Icon}
-              </Box>
+              <Box style={styles.signerTypeIconWrapper}>{WalletMap(signer.type, true).Icon}</Box>
               <Text bold style={styles.unregistered}>
                 {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack style={styles.signerNameFromTypeWrapper}>
-                <Text
-                  color="light.textBlack"
-                  style={styles.signerNameFromTypeText}
-                >
+                <Text color="light.textBlack" style={styles.signerNameFromTypeText}>
                   {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
-                <Text
-                  color="light.textBlack"
-                  style={styles.signerDescDateText}
-                >
+                <Text color="light.textBlack" style={styles.signerDescDateText}>
                   {signer.signerDescription
                     ? signer.signerDescription
                     : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
@@ -128,16 +114,18 @@ const styles = StyleSheet.create({
     width: 70,
     borderTopLeftRadius: 100,
     borderTopRightRadius: 100,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: Platform.OS === 'ios' ? 10 : 30,
+    borderBottomRightRadius: Platform.OS === 'ios' ? 10 : 30,
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: windowHeight > 670 ? 5 : 2,
     backgroundColor: '#FDF7F0',
   },
   scrollContainer: {
-    padding: windowHeight > 670 ? '8%' : '5%',
+    paddingVertical: '3%',
+    paddingHorizontal: '2%',
     width: Platform.select({ android: null, ios: '100%' }),
+    marginRight: '10%',
   },
   unregistered: {
     color: '#6E563B',
@@ -162,26 +150,26 @@ const styles = StyleSheet.create({
   signerNameFromTypeText: {
     fontSize: 9,
     letterSpacing: 0.6,
-    textAlign: "center",
-    numberOfLines: 1
+    textAlign: 'center',
+    numberOfLines: 1,
   },
   signerDescDateText: {
     fontSize: 7,
     letterSpacing: windowHeight > 670 ? 0.6 : 0,
-    textAlign: "center",
-    numberOfLines: 2
+    textAlign: 'center',
+    numberOfLines: 2,
   },
   signerNameFromTypeWrapper: {
-    paddingBottom: 2
+    paddingBottom: 2,
   },
   signerTypeIconWrapper: {
     margin: 2,
     width: windowHeight > 670 ? 45 : 40,
     height: windowHeight > 670 ? 45 : 40,
     borderRadius: 45,
-    backgroundColor: "#725436",
-    justifyContent: "center",
-    alignItems: "center",
-    alignSelf: "center"
-  }
+    backgroundColor: '#725436',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
+  },
 });

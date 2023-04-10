@@ -1,4 +1,4 @@
-import { VStack } from 'native-base';
+import { Box, VStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
@@ -62,12 +62,17 @@ function VaultDetails({ route }) {
           <VaultHeader />
           <VaultInfo vault={vault} />
         </VStack>
-        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
-      <VStack backgroundColor="light.primaryBackground" style={styles.bodyWrapper}>
-        <VStack
-          style={{ paddingTop: windowHeight > 670 ? windowHeight * 0.09 : windowHeight * 0.1 }}
-        >
+      <VStack
+        backgroundColor="light.primaryBackground"
+        px={wp(28)}
+        borderTopLeftRadius={20}
+        flex={1}
+      >
+        <VStack zIndex={1}>
+          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
+        </VStack>
+        <Box style={{ paddingTop: windowHeight > 800 ? windowHeight * 0.11 : windowHeight * 0.14 }}>
           <UTXOsManageNavBox
             onClick={() =>
               navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })
@@ -75,13 +80,18 @@ function VaultDetails({ route }) {
             isWhirlpoolWallet={false}
             currentWallet={vault}
           />
-          <TransactionsAndUTXOs
-            transactions={transactions}
-            vault={vault}
-            autoRefresh={autoRefresh}
-          />
+        </Box>
+        <TransactionsAndUTXOs transactions={transactions} vault={vault} autoRefresh={autoRefresh} />
+        <Box
+          position="absolute"
+          bottom={windowHeight > 800 ? 5 : 1}
+          width="100%"
+          alignSelf="center"
+          zIndex="1"
+          backgroundColor="light.primaryBackground"
+        >
           <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
-        </VStack>
+        </Box>
         <VaultModals
           showBuyRampModal={showBuyRampModal}
           setShowBuyRampModal={setShowBuyRampModal}

@@ -135,7 +135,7 @@ function UTXOManagement({ route, navigation }) {
     } else {
       setSelectedWallet(wallet);
     }
-  }, [syncing]);
+  }, [syncing, selectedAccount]);
 
   const updateSelectedWallet = (selectedAccount) => {
     const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);

@@ -3,12 +3,9 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 
 import IconRecieve from 'src/assets/images/icon_received.svg';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
@@ -25,10 +22,7 @@ function TransactionElement({
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mmA');
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
     <TouchableOpacity onPress={onPress}>
@@ -54,11 +48,11 @@ function TransactionElement({
               <UnconfirmedIcon />
             </Box>
           )}
-          <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+          <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
           <Text style={styles.amountText}>
-            {getAmt(transaction?.amount, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+            {getBalance(transaction?.amount)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getUnit(currentCurrency, satsEnabled)}
+              {getSatUnit()}
             </Text>
           </Text>
         </Box>

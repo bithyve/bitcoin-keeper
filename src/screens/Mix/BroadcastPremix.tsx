@@ -1,4 +1,5 @@
 import { Box } from 'native-base';
+import { ScrollView } from 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
@@ -13,18 +14,18 @@ import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import {
-  addNewWhirlpoolWallets,
-  addWhirlpoolWalletsLocal,
-  refreshWallets,
-} from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setTx0Complete, setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
-import { Psbt } from 'bitcoinjs-lib';
-import UtxoSummary from './UtxoSummary';
 import useWallets from 'src/hooks/useWallets';
+import { InputUTXOs } from 'src/core/wallets/interfaces';
+import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import UtxoSummary from './UtxoSummary';
+import config from 'src/core/config';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -35,12 +36,19 @@ export default function BroadcastPremix({ route, navigation }) {
     tx0Data,
     selectedPool,
     wallet,
-    WhirlpoolClient,
-  } = route.params;
+  }: {
+    utxos: InputUTXOs[];
+    utxoCount: number;
+    utxoTotal: number;
+    tx0Preview: Preview;
+    tx0Data: TX0Data[];
+    selectedPool: PoolData;
+    wallet: Wallet;
+  } = route.params as any;
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const { whirlpoolWallets, tx0completed, syncing } = useAppSelector((state) => state.wallet);
+  const { tx0completed } = useAppSelector((state) => state.wallet);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -54,102 +62,95 @@ export default function BroadcastPremix({ route, navigation }) {
     return valueInPreferredUnit;
   };
   const { wallets } = useWallets({ walletIds: [wallet.id], whirlpoolStruct: true });
-  const depositWallet = wallets[0];
-  const [shouldRefresh, setShoulRefresh] = useState(false);
-
-  useEffect(() => {
-    if (syncing) {
-      setShoulRefresh(true);
-    }
-    if (!syncing && shouldRefresh) {
-      setShowBroadcastModal(true);
-      setLoading(false);
-    }
-  }, [syncing]);
-
-  useEffect(() => {
-    if (loading) {
-    }
-  }, [loading]);
-
-  useEffect(() => {
-    dispatch(addWhirlpoolWalletsLocal({ depositWallet }));
-    setPremixOutputsAndBadbank();
-  }, []);
-
-  useEffect(() => {
-    if (premixOutputs.length) {
-      setPreRequistesLoading(false);
-    }
-  }, [premixOutputs]);
+  const depositWallet: Wallet = wallets[0];
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
-    for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
-      outputs.push(tx0Preview.premix_value);
+    for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
+      outputs.push(tx0Preview.premixValue);
     }
     setPremixOutputs(outputs);
   };
 
   useEffect(() => {
-    if (relayWalletError) {
-      dispatch(resetRealyWalletState());
+    if (!wallet?.whirlpoolConfig?.premixWallet) {
+      dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
     }
-    if (relayWalletUpdate && tx0completed) {
-      dispatch(resetRealyWalletState());
-      dispatch(
-        refreshWallets(
-          [
-            depositWallet,
-            depositWallet?.whirlpoolConfig.premixWallet,
-            depositWallet?.whirlpoolConfig.postmixWallet,
-            depositWallet?.whirlpoolConfig.badbankWallet,
-          ],
-          { hardRefresh: true }
-        )
-      );
+    setPremixOutputsAndBadbank();
+  }, []);
+
+  useEffect(() => {
+    if (
+      premixOutputs.length &&
+      depositWallet?.whirlpoolConfig?.premixWallet &&
+      depositWallet?.whirlpoolConfig?.postmixWallet
+    ) {
+      setPreRequistesLoading(false);
     }
-    return () => {
-      dispatch(setTx0Complete(false));
-    };
-  }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage, tx0completed]);
+  }, [premixOutputs, depositWallet]);
 
   useEffect(() => {
     if (loading) {
       onBroadcastModalCallback();
     }
   }, [loading]);
+  useEffect(() => {
+    if (relayWalletError || relayWalletUpdate) {
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
+
+  useEffect(() => {
+    console.log({ tx0completed });
+    if (tx0completed) {
+      setLoading(false);
+      setShowBroadcastModal(true);
+    }
+    return () => {
+      dispatch(setTx0Complete(false));
+    };
+  }, [tx0completed]);
 
   const onBroadcastModalCallback = async () => {
     try {
       const network = WalletUtilities.getNetworkByType(depositWallet.networkType);
-      const premixWallet = whirlpoolWallets.filter((w) => w.type === WalletType.PRE_MIX)[0];
-      const badBank = whirlpoolWallets.filter((w) => w.type === WalletType.BAD_BANK)[0];
+      const premixWallet = depositWallet.whirlpoolConfig.premixWallet;
+      const badbankWallet = depositWallet.whirlpoolConfig.badbankWallet;
       const premixAddresses = [];
-      for (let i = 0; i < tx0Preview.n_premix_outputs; i++) {
+      for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
         premixAddresses.push(
           WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)
         );
       }
       const outputProvider = {
         premix: premixAddresses,
-        badbank: badBank.specs.receivingAddress,
+        badbank: badbankWallet.specs.receivingAddress,
       };
-      const correspondingTx0Data = tx0Data?.filter((data) => data.pool_id === selectedPool.id);
 
-      const psbt = WhirlpoolClient.getTx0FromPreview(
+      let correspondingTx0Data: TX0Data;
+      for (const data of tx0Data) {
+        if (data.poolId === selectedPool.id) {
+          correspondingTx0Data = data;
+          break;
+        }
+      }
+
+      const { serializedPSBT } = await WhirlpoolClient.getTx0FromPreview(
         tx0Preview,
         correspondingTx0Data,
         utxos,
         outputProvider,
-        depositWallet
-      ) as Psbt;
-      const tx = WhirlpoolClient.signTx0(depositWallet, utxos, psbt);
-      const txid = await WhirlpoolClient.broadcastTx0(tx);
+        network
+      );
+      const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
+      const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.id);
+
       if (txid) {
-        const outputs = psbt.txOutputs;
+        const outputs = PSBT.txOutputs;
         const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
-        const voutBadBank = outputs.findIndex((o) => o.address === badBank.specs.receivingAddress);
+        const voutBadBank = outputs.findIndex(
+          (o) => o.address === badbankWallet.specs.receivingAddress
+        );
         dispatch(
           createUTXOReference({
             labels: [{ name: 'Deposit', type: LabelType.SYSTEM }],
@@ -167,15 +168,16 @@ export default function BroadcastPremix({ route, navigation }) {
             vout: voutBadBank,
           })
         );
-        dispatch(addNewWhirlpoolWallets({ depositWallet }));
         dispatch(
           setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool?.denomination })
         );
+        dispatch(setTx0Complete(true));
       } else {
         // error modals
       }
     } catch (e) {
       setLoading(false);
+
       console.log('onBroadcastModalCallback error', e);
     }
   };
@@ -197,62 +199,68 @@ export default function BroadcastPremix({ route, navigation }) {
         subtitle="Review the parameters of your Tx0."
       />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
-      <Box style={styles.textArea}>
-        <Text color="#017963" style={styles.textWidth}>
-          Fee
-        </Text>
-        <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.miner_fee)}</Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-            {getPreferredUnit()}
-          </Text>
-        </Box>
-      </Box>
-      <Box style={styles.textArea}>
-        <Text color="#017963" style={styles.textWidth}>
-          Whirlpool Fee
-        </Text>
-        <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">
-            {valueByPreferredUnit(tx0Preview.coordinator_fee)}
-          </Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-            {getPreferredUnit()}
-          </Text>
-        </Box>
-      </Box>
-      <Box style={styles.textArea}>
-        <Text color="#017963" style={styles.textWidth}>
-          Badbank Change
-        </Text>
-        <Box style={styles.textDirection}>
-          <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-            {getPreferredUnit()}
-          </Text>
-        </Box>
-      </Box>
-      {preRequistesLoading ? (
+      <ScrollView style={styles.scrollViewWrapper}>
         <Box style={styles.textArea}>
           <Text color="#017963" style={styles.textWidth}>
-            Premixes Loading......
+            Fee
           </Text>
+          <Box style={styles.textDirection}>
+            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
+            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+              {getPreferredUnit()}
+            </Text>
+          </Box>
         </Box>
-      ) : (
-        premixOutputs.map((output, index) => (
+        <Box style={styles.textArea}>
+          <Text color="#017963" style={styles.textWidth}>
+            Whirlpool Fee
+          </Text>
+          <Box style={styles.textDirection}>
+            <Text color="light.secondaryText">
+              {valueByPreferredUnit(
+                tx0Preview.coordinatorFee?.coordinator
+                  ? tx0Preview.coordinatorFee.coordinator[0]
+                  : 0
+              )}
+            </Text>
+            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+              {getPreferredUnit()}
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.textArea}>
+          <Text color="#017963" style={styles.textWidth}>
+            Badbank Change
+          </Text>
+          <Box style={styles.textDirection}>
+            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
+            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+              {getPreferredUnit()}
+            </Text>
+          </Box>
+        </Box>
+        {preRequistesLoading ? (
           <Box style={styles.textArea}>
             <Text color="#017963" style={styles.textWidth}>
-              Premix #{index + 1}
+              Premixes Loading......
             </Text>
-            <Box style={styles.textDirection}>
-              <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
-              <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-                {getPreferredUnit()}
-              </Text>
-            </Box>
           </Box>
-        ))
-      )}
+        ) : (
+          premixOutputs.map((output, index) => (
+            <Box style={styles.textArea}>
+              <Text color="#017963" style={styles.textWidth}>
+                Premix #{index + 1}
+              </Text>
+              <Box style={styles.textDirection}>
+                <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
+                <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+                  {getPreferredUnit()}
+                </Text>
+              </Box>
+            </Box>
+          ))
+        )}
+      </ScrollView>
       <Box style={styles.footerContainer}>
         <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
@@ -332,5 +340,8 @@ const styles = StyleSheet.create({
     alignContent: 'flex-end',
     justifyContent: 'flex-end',
     width: '100%',
+  },
+  scrollViewWrapper: {
+    height: '65%',
   },
 });

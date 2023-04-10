@@ -27,7 +27,6 @@ import {
   setTestCoinsFailed,
   setTestCoinsReceived,
   setTx0Complete,
-  setWhirlpoolWallets,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -86,7 +85,6 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
-import { getDerivationPath } from 'src/core/utils';
 
 export interface NewVaultDetails {
   name?: string;
@@ -238,10 +236,14 @@ export function* addWhirlpoolWalletsWorker({
   yield call(updateWalletsPropertyWorker, {
     payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
   });
-
-  //TO-DO bind the APIs together
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
-  yield call(addNewWalletsWorker, { payload: newWalletsInfo });
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  let wallets = [];
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
+    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
+    wallets.push(wallet);
+  }
+  yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
   yield put(setTx0Complete(true));
 }
 

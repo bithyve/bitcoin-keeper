@@ -4,7 +4,7 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import { OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletOperations from 'src/core/wallets/operations';
-import { Preview, TX0Data } from './interface';
+import { Preview, TX0Data } from '../../../nativemodules/interface';
 
 export const baseServer = (onion: boolean, mainnet: boolean) => {
   if (onion) {
@@ -55,8 +55,8 @@ export const generateMockTransaction = (
 
   // register whirlpool fee output
   outputUTXOs.push({
-    address: tx0data.fee_address,
-    value: tx0data.fee_value,
+    address: tx0data.feeAddress,
+    value: tx0data.feeValue,
   });
 
   // TODO: OP_RETURN for the fee payload

@@ -8,7 +8,13 @@ import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import WhirlpoolClient, { TOR_CONFIG } from './client';
-import { BitcoinRustInput, Info, Network, OutputTemplate, Step } from './interface';
+import {
+  BitcoinRustInput,
+  Info,
+  Network,
+  OutputTemplate,
+  Step,
+} from '../../../nativemodules/interface';
 
 const generateWhirlpoolAccounts = async () => {
   // sample:
