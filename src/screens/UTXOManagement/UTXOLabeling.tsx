@@ -10,7 +10,7 @@ import {
   View,
   ScrollView,
 } from 'react-native';
-import { Box, Input, useColorMode, HStack, VStack } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
@@ -20,12 +20,15 @@ import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
-import useBalance from 'src/hooks/useBalance';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import config from 'src/core/config';
 import Done from 'src/assets/images/selected.svg';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { useAppSelector } from 'src/store/hooks';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -36,7 +39,10 @@ function UTXOLabeling() {
   const { labels } = useLabels({ utxos: [utxo], wallet });
   const [existingLabels, setExistingLabels] = useState([]);
   const [editingIndex, setEditingIndex] = useState(-1);
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const exchangeRates = useExchangeRates();
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
   const lablesUpdated =
     labels[`${utxo.txId}${utxo.vout}`].reduce((a, c) => {
