@@ -1,4 +1,4 @@
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion, getFiatIcon, getUnit } from 'src/common/constants/Bitcoin';
 import { useAppSelector } from 'src/store/hooks';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from './useExchangeRates';
@@ -18,11 +18,15 @@ const useBalance = () => {
     return getUnit(currentCurrency, satsEnabled)
   }
 
-  const getCurrencyIcon = (Icon: any, variation: 'light' | 'green' | 'dark') => {
+  const getCurrencyIcon = (Icon: any, variation: 'light' | 'green' | 'dark' | 'grey') => {
     return getCurrencyImageByRegion(currencyCode, variation, currentCurrency, Icon)
   }
 
-  return { getBalance, getSatUnit, getCurrencyIcon };
+  const getFiatCurrencyIcon = (variation: 'light' | 'green' | 'dark' | 'grey') => {
+    return getFiatIcon(currencyCode, variation)
+  }
+
+  return { getBalance, getSatUnit, getCurrencyIcon, getFiatCurrencyIcon };
 };
 
 export default useBalance;
