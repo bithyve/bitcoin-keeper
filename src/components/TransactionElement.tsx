@@ -44,7 +44,7 @@ function TransactionElement({
         </Box>
         <Box style={styles.rowCenter}>
           {transaction.confirmations > 0 ? null : (
-            <Box paddingX={3}>
+            <Box style={styles.unconfirmIconWrapper}>
               <UnconfirmedIcon />
             </Box>
           )}
@@ -103,5 +103,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     fontSize: hp(12),
   },
+  unconfirmIconWrapper: {
+    paddingHorizontal: 5
+  }
 });
 export default TransactionElement;

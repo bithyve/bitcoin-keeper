@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity } from 'react-native';
@@ -9,16 +9,21 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import Note from '../Note/Note';
 
 function ShowXPub({
+  wallet,
+  appID,
   data,
   copy = () => { },
   subText,
   noteSubText,
   copyable = true,
 }: {
-  data: string;
+  wallet?: any;
+  appID?: string;
+  data?: string;
   copy: Function;
   subText: string;
   noteSubText: string;
@@ -26,7 +31,15 @@ function ShowXPub({
 }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const [cosignerDetails, setCosignerDetails] = useState('');
+  useEffect(() => {
+    if (data) {
+      setCosignerDetails(data)
+    } else {
+      setCosignerDetails(JSON.stringify(getCosignerDetails(wallet, appID)))
+    }
 
+  }, [])
   return (
     <>
       <Box justifyContent="center" alignItems="center" width={wp(275)}>
@@ -63,7 +76,7 @@ function ShowXPub({
             >
               <Box py={2} alignItems="center">
                 <Text fontSize={12} numberOfLines={1} px={3}>
-                  {data}
+                  {cosignerDetails}
                 </Text>
               </Box>
 

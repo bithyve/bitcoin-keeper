@@ -34,6 +34,8 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
+import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import TagsGreen from 'src/assets/images/tags.svg';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -59,6 +61,7 @@ function AddSendAmount({ route }) {
   const [amountToSend, setAmountToSend] = useState('');
   const [note, setNote] = useState('');
   const [label, setLabel] = useState('');
+  const [addTagsModalVisible, setAddTagsModalVisible] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
   const recipientCount = 1;
@@ -175,7 +178,6 @@ function AddSendAmount({ route }) {
     },
     []
   );
-
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -293,6 +295,13 @@ function AddSendAmount({ route }) {
           />
         </Box>
         <Box style={styles.addNoteWrapper}>
+          {/* <MenuItemButton
+            // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
+            onPress={() => showToast('Comming soon')}
+            icon={<TagsGreen />}
+            title="Add Tags"
+            subTitle="Tags help you remember and identify UTXOs"
+          /> */}
           <TextInput
             autoCapitalize="sentences"
             placeholder="Add a lable"
@@ -391,7 +400,9 @@ const styles = ScaledSheet.create({
     marginLeft: '-5%',
   },
   infoNoteWrapper: {
-    marginTop: hp(35),
+    position: 'absolute',
+    bottom: hp(20),
+    alignSelf: 'center',
     backgroundColor: Colors.Bisque,
     opacity: 0.8,
     paddingHorizontal: 10,

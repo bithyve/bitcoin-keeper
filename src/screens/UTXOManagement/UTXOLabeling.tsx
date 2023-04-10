@@ -2,10 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, HStack, Input, useColorMode, VStack } from 'native-base';
-import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ScrollView,
+} from 'react-native';
+import { Box, Input, useColorMode, HStack, VStack } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
 import { LabelType, NetworkType } from 'src/core/wallets/enums';
@@ -77,7 +84,8 @@ function UTXOLabeling() {
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${
+        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${utxo.txId}`
     );
   };
@@ -88,108 +96,114 @@ function UTXOLabeling() {
         title="UTXO Details"
         subtitle="Easily identify specific aspects of various UTXOs"
       />
-      <Box flex={1}>
-        <HStack style={{ padding: 20 }}>
-          <VStack>
-            <Text style={styles.subHeaderTitle}>Transaction ID</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {utxo.txId}
-              </Text>
-              <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
-                <LinkIcon />
-              </TouchableOpacity>
-            </View>
-          </VStack>
-          <View>
-            <Text style={styles.subHeaderTitle}>UTXO Value</Text>
-            <View style={{ flexDirection: 'row' }}>
-              <Box style={{ marginTop: 5 }}>
-                {getCurrencyIcon(BtcBlack, 'dark')}
-              </Box>
-              <Text style={styles.subHeaderValue} numberOfLines={1}>
-                {getBalance(utxo.value)}
-                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                  {getSatUnit()}
-                </Text>
-              </Text>
-            </View>
-          </View>
-        </HStack>
-        <View style={styles.listContainer}>
-          <View style={{ flexDirection: 'row' }}>
-            <Text style={styles.listHeader}>Labels</Text>
-          </View>
-          <View style={styles.listSubContainer}>
-            {existingLabels.map((item, index) => (
-              <View
-                key={`${item}`}
-                style={[
-                  styles.labelView,
-                  {
-                    backgroundColor:
-                      item.type === LabelType.SYSTEM
-                        ? '#23A289'
-                        : editingIndex !== index
-                          ? '#E0B486'
-                          : '#A88763',
-                  },
-                ]}
-              >
-                <TouchableOpacity
-                  style={styles.labelEditContainer}
-                  activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
-                  onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
-                >
-                  <Text style={styles.itemText} bold>
-                    {item.name.toUpperCase()}
-                    {item.type === LabelType.USER ? (
-                      <TouchableOpacity onPress={() => onCloseClick(index)}>
-                        <Box style={styles.deleteContainer}>
-                          <DeleteCross />
-                        </Box>
-                      </TouchableOpacity>
-                    ) : null}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-          <Box style={styles.inputLabeWrapper}>
-            <Box style={styles.inputLabelBox}>
-              <Input
-                onChangeText={(text) => {
-                  setLabel(text);
-                }}
-                style={styles.inputLabel}
-                borderWidth={0}
-                height={hp(40)}
-                placeholder="Type to add label or Select to edit"
-                color="#E0B486"
-                value={label}
-                autoCorrect={false}
-                autoCapitalize="characters"
-              />
-            </Box>
-            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
-              <Done />
-            </TouchableOpacity>
-          </Box>
-        </View>
-      </Box>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
+        enabled
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
-        style={styles.ctaBtnWrapper}
+        style={styles.scrollViewWrapper}
       >
-        <Buttons
-          primaryDisable={!lablesUpdated}
-          primaryCallback={onSaveChangeClick}
-          primaryText="Save Changes"
-          secondaryCallback={navigation.goBack}
-          secondaryText="Cancel"
-        />
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+          <View style={styles.subHeader}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.subHeaderTitle}>Transaction ID</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text style={styles.subHeaderValue} numberOfLines={1}>
+                  {utxo.txId}
+                </Text>
+                <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
+                  <LinkIcon />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.subHeaderTitle}>UTXO Value</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Box style={{ marginHorizontal: 5 }}>
+                  {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
+                </Box>
+                <Text style={styles.subHeaderValue} numberOfLines={1}>
+                  {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                  <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                    {getUnit(currentCurrency, satsEnabled)}
+                  </Text>
+                </Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.listContainer}>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={styles.listHeader}>Labels</Text>
+            </View>
+            <View style={styles.listSubContainer}>
+              {existingLabels.map((item, index) => (
+                <View
+                  key={`${item}`}
+                  style={[
+                    styles.labelView,
+                    {
+                      backgroundColor:
+                        item.type === LabelType.SYSTEM
+                          ? '#23A289'
+                          : editingIndex !== index
+                          ? '#E0B486'
+                          : '#A88763',
+                    },
+                  ]}
+                >
+                  <TouchableOpacity
+                    style={styles.labelEditContainer}
+                    activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
+                    onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+                  >
+                    <Text style={styles.itemText} bold>
+                      {item.name.toUpperCase()}
+                      {item.type === LabelType.USER ? (
+                        <TouchableOpacity onPress={() => onCloseClick(index)}>
+                          <Box style={styles.deleteContainer}>
+                            <DeleteCross />
+                          </Box>
+                        </TouchableOpacity>
+                      ) : null}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+            <Box style={styles.inputLabeWrapper}>
+              <Box style={styles.inputLabelBox}>
+                <Input
+                  onChangeText={(text) => {
+                    setLabel(text);
+                  }}
+                  style={styles.inputLabel}
+                  borderWidth={0}
+                  height={hp(40)}
+                  placeholder="Type to add label or Select to edit"
+                  color="#E0B486"
+                  value={label}
+                  autoCorrect={false}
+                  autoCapitalize="characters"
+                />
+              </Box>
+              <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
+                <Done />
+              </TouchableOpacity>
+            </Box>
+          </View>
+          <View style={{ flex: 1 }} />
+        </ScrollView>
       </KeyboardAvoidingView>
+      <Box style={styles.ctaBtnWrapper}>
+        <Box ml={windowWidth * -0.09}>
+          <Buttons
+            primaryDisable={!lablesUpdated}
+            primaryCallback={onSaveChangeClick}
+            primaryText="Save Changes"
+            secondaryCallback={navigation.goBack}
+            secondaryText="Cancel"
+          />
+        </Box>
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -249,6 +263,11 @@ const styles = StyleSheet.create({
   unitText: {
     letterSpacing: 0.6,
     fontSize: hp(12),
+  },
+  subHeader: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginTop: 38,
   },
   subHeaderTitle: {
     fontSize: 14,
