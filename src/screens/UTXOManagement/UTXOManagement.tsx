@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
@@ -14,6 +14,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import LearnMoreModal from './components/LearnMoreModal';
+import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 // import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
 
 function Footer({ vault, setEnableSelection, enableSelection, selectedUTXOs }) {
@@ -52,8 +53,11 @@ function UTXOManagement({ route }) {
     const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
     const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
     const [learnModalVisible, setLearnModalVisible] = useState(false);
-
+    const [initiateWhirlpoolModalVisible, setInitiateWhirlpoolModalVisible] = useState(false);
     // const [selectedAccount, setSelectedAccount] = useState<AccountTypes>(AccountTypes.DEPOSIT)
+    useEffect(() => {
+        setInitiateWhirlpoolModalVisible(true)
+    }, [])
 
     const cleanUp = useCallback(() => {
         setSelectedUTXOMap({});
@@ -105,6 +109,7 @@ function UTXOManagement({ route }) {
             </Box>
             {utxos.length ? <Footer vault={data} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} /> : null}
             <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
+            <InitiateWhirlpoolModal visible={initiateWhirlpoolModalVisible} closeModal={() => setInitiateWhirlpoolModalVisible(false)} />
         </ScreenWrapper>
     )
 }
