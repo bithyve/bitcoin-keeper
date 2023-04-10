@@ -37,6 +37,7 @@ function Footer({ onPressBuy, vault }) {
 
 function VaultDetails({ route }) {
   const navigation = useNavigation();
+  const styles = getStyles(0);
   const { autoRefresh } = route.params || {};
   const vault: Vault = useVault().activeVault;
   const { subscriptionScheme } = usePlan();
@@ -54,25 +55,19 @@ function VaultDetails({ route }) {
     }
     return VaultMigrationType.CHANGE;
   };
-
   return (
     <Wrapper>
       <VStack zIndex={1}>
-        <VStack mx="8%" mt={5}>
+        <VStack style={styles.vaultHeaderWrapper}>
           <VaultHeader />
           <VaultInfo vault={vault} />
         </VStack>
         <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
       </VStack>
-      <VStack
-        backgroundColor="light.primaryBackground"
-        px={wp(28)}
-        borderTopLeftRadius={20}
-        flex={1}
-        justifyContent="space-between"
-        paddingBottom={windowHeight > 800 ? 5 : 0}
-      >
-        <VStack style={{ paddingTop: windowHeight * 0.09 }}>
+      <VStack backgroundColor="light.primaryBackground" style={styles.bodyWrapper}>
+        <VStack
+          style={{ paddingTop: windowHeight > 670 ? windowHeight * 0.09 : windowHeight * 0.1 }}
+        >
           <UTXOsManageNavBox
             onClick={() =>
               navigation.navigate('UTXOManagement', { data: vault, routeName: 'Vault' })
@@ -103,6 +98,17 @@ const getStyles = (top) =>
       paddingTop: Math.max(top, 35),
       justifyContent: 'space-between',
       flex: 1,
+    },
+    vaultHeaderWrapper: {
+      marginHorizontal: '8%',
+      marginTop: windowHeight > 670 ? 5 : 0,
+    },
+    bodyWrapper: {
+      paddingHorizontal: wp(28),
+      borderTopLeftRadius: 20,
+      flex: 1,
+      justifyContent: 'space-between',
+      paddingBottom: windowHeight > 800 ? 5 : 0,
     },
   });
 export default VaultDetails;

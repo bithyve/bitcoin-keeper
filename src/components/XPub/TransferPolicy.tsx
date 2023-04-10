@@ -20,7 +20,6 @@ import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
-
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -43,9 +42,9 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
+      close();
       showToast('Transfer Policy Changed', <TickIcon />);
       dispatch(resetRealyWalletState());
-      close();
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 

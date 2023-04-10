@@ -9,7 +9,7 @@ import { Box, HStack, VStack } from 'native-base';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/common/data/responsiveness/responsive';
 import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
@@ -24,6 +24,7 @@ import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
 import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
+import LearnMoreModal from './components/LearnMoreModal';
 
 const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
   if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
@@ -120,6 +121,7 @@ function UTXOManagement({ route, navigation }) {
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
   const { walletPoolMap, syncing } = useAppSelector((state) => state.wallet);
+  const [learnModalVisible, setLearnModalVisible] = useState(false);
 
   useEffect(() => {
     setSelectedAccount(accountType || WalletType.DEFAULT);
@@ -219,19 +221,22 @@ function UTXOManagement({ route, navigation }) {
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
         />
       </Box>
-      <Footer
-        utxos={utxos}
-        setInitiateWhirlpool={setInitiateWhirlpool}
-        setInitateWhirlpoolMix={setInitateWhirlpoolMix}
-        depositWallet={depositWallet}
-        wallet={selectedWallet}
-        setEnableSelection={setEnableSelection}
-        initiateWhirlpool={initiateWhirlpool}
-        initateWhirlpoolMix={initateWhirlpoolMix}
-        enableSelection={enableSelection}
-        selectedUTXOs={selectedUTXOs}
-        setShowBatteryWarningModal={setShowBatteryWarningModal}
-      />
+      {utxos.length ? (
+        <Footer
+          utxos={utxos}
+          setInitiateWhirlpool={setInitiateWhirlpool}
+          setInitateWhirlpoolMix={setInitateWhirlpoolMix}
+          depositWallet={depositWallet}
+          wallet={selectedWallet}
+          setEnableSelection={setEnableSelection}
+          initiateWhirlpool={initiateWhirlpool}
+          initateWhirlpoolMix={initateWhirlpoolMix}
+          enableSelection={enableSelection}
+          selectedUTXOs={selectedUTXOs}
+          setShowBatteryWarningModal={setShowBatteryWarningModal}
+        />
+      ) : null}
+      <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
       <KeeperModal
         justifyContent="flex-end"
         visible={showBatteryWarningModal}

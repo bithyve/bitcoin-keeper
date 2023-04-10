@@ -220,6 +220,8 @@ export const MOCK_SD_MNEMONIC_MAP = {
     'grass journey few toilet rhythm day provide decline position weapon pave monitor',
   [SignerType.TREZOR]:
     'equal gospel mirror humor early liberty finger breeze super celery invite proof',
+  [SignerType.BITBOX02]:
+    'journey gospel position invite winter pattern inquiry scrub sorry early enable badge',
 };
 
 export const generateMockExtendedKeyForSigner = (

@@ -275,7 +275,7 @@ function LoginScreen({ navigation, route }) {
         >
           {modelAsset}
         </Box>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(290)}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(275)}>
           {modelMessage}
         </Text>
       </Box>
@@ -422,7 +422,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         subTitleColor="light.secondaryText"
@@ -431,7 +431,7 @@ function LoginScreen({ navigation, route }) {
         buttonCallback={loginModalAction}
         showButtons
         Content={LoginModalContent}
-        subTitleWidth={wp(210)}
+        subTitleWidth={wp(275)}
       />
     </LinearGradient>
   );
