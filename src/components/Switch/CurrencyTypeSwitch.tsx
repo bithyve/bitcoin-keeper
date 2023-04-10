@@ -7,10 +7,10 @@ import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import IconBitcoin from 'src/assets/images/icon_bitcoin.svg';
 import IconBitcoinWhite from 'src/assets/images/icon_bitcoin_white.svg';
 import IconDoller from 'src/assets/images/icon_dollar.svg';
-import IconDollerWhite from 'src/assets/images/icon_dollar_white.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import useBalance from 'src/hooks/useBalance';
 
 const styles = StyleSheet.create({
   container: {
@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
 function CurrencyTypeSwitch() {
   const { currencyKind } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
+  const { getCurrencyIcon, getFiatCurrencyIcon } = useBalance();
 
   const changeType = () => {
     if (currencyKind === CurrencyKind.BITCOIN) {
@@ -65,12 +66,7 @@ function CurrencyTypeSwitch() {
             justifyContent="center"
             alignItems="center"
           >
-            {/* <FontAwesome
-              name={'dollar'}
-              size={16}
-              color={prefersBitcoin ? 'lightgray' : '#00836A'}
-            /> */}
-            {prefersBitcoin ? <IconDollerWhite /> : <IconDoller />}
+            {prefersBitcoin ? getFiatCurrencyIcon('light') : getCurrencyIcon(IconDoller, 'dark')}
           </Box>
           <Box
             height={7}
@@ -83,11 +79,6 @@ function CurrencyTypeSwitch() {
             justifyContent="center"
             alignItems="center"
           >
-            {/* <FontAwesome
-              name={'bitcoin'}
-              size={16}
-              color={prefersBitcoin ? '#00836A' : 'lightgray'}
-            /> */}
             {prefersBitcoin ? <IconBitcoin /> : <IconBitcoinWhite />}
           </Box>
         </Box>
