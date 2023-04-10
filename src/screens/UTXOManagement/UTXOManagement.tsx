@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { Box, HStack, VStack } from 'native-base';
+
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
@@ -6,15 +9,16 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import NoTransactionIcon from 'src/assets/images/noUtxos.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import LinkedWallet from 'src/assets/images/walletUtxos.svg';
-import { Box, HStack, VStack } from 'native-base';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
+
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
+import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
+
 // import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
 
 function Footer({ vault, setEnableSelection, enableSelection, selectedUTXOs }) {
@@ -54,9 +58,12 @@ function UTXOManagement({ route }) {
     const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
     const [learnModalVisible, setLearnModalVisible] = useState(false);
     const [initiateWhirlpoolModalVisible, setInitiateWhirlpoolModalVisible] = useState(false);
+    const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
+
     // const [selectedAccount, setSelectedAccount] = useState<AccountTypes>(AccountTypes.DEPOSIT)
     useEffect(() => {
         setInitiateWhirlpoolModalVisible(true)
+        // setTxoErrorModalVisible(true)
     }, [])
 
     const cleanUp = useCallback(() => {
@@ -110,6 +117,7 @@ function UTXOManagement({ route }) {
             {utxos.length ? <Footer vault={data} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} /> : null}
             <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
             <InitiateWhirlpoolModal visible={initiateWhirlpoolModalVisible} closeModal={() => setInitiateWhirlpoolModalVisible(false)} />
+            <ErrorCreateTxoModal visible={txoErrorModalVisible} closeModal={() => setTxoErrorModalVisible(false)} />
         </ScreenWrapper>
     )
 }
