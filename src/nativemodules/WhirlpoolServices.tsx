@@ -62,18 +62,18 @@ export default class WhirlpoolServices {
     premixFeePerByte: number
   ): Promise<Preview> => {
     try {
-      let result
+      let result;
       if (Platform.OS === 'ios') {
         result = await Whirlpool.tx0Preview(
-          `${inputsValue}`,
+          inputsValue,
           JSON.stringify(pool),
           feeAddress,
           JSON.stringify(inputStructure),
-          `${minerFeePerByte}`,
-          `${coordinatorFee}`,
+          minerFeePerByte,
+          coordinatorFee,
           nWantedMaxOutputsStr,
-          `${nPoolMaxOutputs}`,
-          `${premixFeePerByte}`
+          nPoolMaxOutputs,
+          premixFeePerByte
         );
       } else {
         result = await Whirlpool.tx0Preview(
@@ -85,8 +85,8 @@ export default class WhirlpoolServices {
           `${minerFeePerByte}`,
           `${coordinatorFee}`,
           nWantedMaxOutputsStr,
-          `${nPoolMaxOutputs}`,
-        )
+          `${nPoolMaxOutputs}`
+        );
       }
 
       if (!result) throw new Error('Failed to generate tx0 preview');
