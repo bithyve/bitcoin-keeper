@@ -55,7 +55,6 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
     }
     return null;
   }, [upgradeStatus]);
-
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -125,7 +124,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOpacity: 0.3,
     shadowOffset: { height: 2, width: 0 },
-    height: windowHeight > 670 ? 130 : 118,
+    height: windowHeight > 670 ? 130 : 121,
     width: 70,
     borderTopLeftRadius: 100,
     borderTopRightRadius: 100,
@@ -133,7 +132,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 30,
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: windowHeight > 670 ? 5 : 3,
+    padding: windowHeight > 670 ? 5 : 2,
     backgroundColor: '#FDF7F0',
   },
   scrollContainer: {
@@ -161,14 +160,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#F86B50',
   },
   signerNameFromTypeText: {
-    fontSize: windowHeight > 670 ? 11 : 10,
+    fontSize: 9,
     letterSpacing: 0.6,
     textAlign: "center",
     numberOfLines: 1
   },
   signerDescDateText: {
-    fontSize: 8,
-    letterSpacing: windowHeight > 670 ? 0.6 : 0.2,
+    fontSize: 7,
+    letterSpacing: windowHeight > 670 ? 0.6 : 0,
     textAlign: "center",
     numberOfLines: 2
   },
@@ -177,8 +176,8 @@ const styles = StyleSheet.create({
   },
   signerTypeIconWrapper: {
     margin: 2,
-    width: 45,
-    height: 45,
+    width: windowHeight > 670 ? 45 : 40,
+    height: windowHeight > 670 ? 45 : 40,
     borderRadius: 45,
     backgroundColor: "#725436",
     justifyContent: "center",

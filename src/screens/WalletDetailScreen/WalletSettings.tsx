@@ -384,10 +384,10 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: wp(20),
+    marginHorizontal: wp(10),
   },
   walletDetailsWrapper: {
-    width: wp(170),
+    width: wp(155),
   },
   walletName: {
     letterSpacing: 0.28,
