@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
@@ -62,17 +62,33 @@ export default class WhirlpoolServices {
     premixFeePerByte: number
   ): Promise<Preview> => {
     try {
-      const result = await Whirlpool.tx0Preview(
-        `${inputsValue}`,
-        JSON.stringify(pool),
-        feeAddress,
-        JSON.stringify(inputStructure),
-        `${minerFeePerByte}`,
-        `${coordinatorFee}`,
-        nWantedMaxOutputsStr,
-        `${nPoolMaxOutputs}`,
-        `${premixFeePerByte}`
-      );
+      let result
+      if (Platform.OS === 'ios') {
+        result = await Whirlpool.tx0Preview(
+          `${inputsValue}`,
+          JSON.stringify(pool),
+          feeAddress,
+          JSON.stringify(inputStructure),
+          `${minerFeePerByte}`,
+          `${coordinatorFee}`,
+          nWantedMaxOutputsStr,
+          `${nPoolMaxOutputs}`,
+          `${premixFeePerByte}`
+        );
+      } else {
+        result = await Whirlpool.tx0Preview(
+          inputsValue,
+          JSON.stringify(pool),
+          `${premixFeePerByte}`,
+          feeAddress,
+          JSON.stringify(inputStructure),
+          `${minerFeePerByte}`,
+          `${coordinatorFee}`,
+          nWantedMaxOutputsStr,
+          `${nPoolMaxOutputs}`,
+        )
+      }
+
       if (!result) throw new Error('Failed to generate tx0 preview');
       if (result === 'No enough sats for mixing.') {
         return result;
@@ -124,7 +140,7 @@ export default class WhirlpoolServices {
    */
   static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
-      const result = await Whirlpool.tx0Push(txHex, poolId);
+      const result = await Whirlpool.tx0push(txHex, poolId);
       if (!result) throw new Error('Failed to broadcast tx0');
       return result;
     } catch (error) {
