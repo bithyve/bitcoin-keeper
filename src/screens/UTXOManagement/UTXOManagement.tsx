@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, HStack, VStack } from 'native-base';
 
@@ -15,6 +15,8 @@ import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -33,6 +35,7 @@ function Footer({ vault, setEnableSelection, enableSelection, selectedUTXOs }) {
     );
 }
 function UTXOManagement({ route }) {
+    const dispatch = useAppDispatch();
     const styles = getStyles();
     const { data, routeName } = route.params || {};
     const [enableSelection, _setEnableSelection] = useState(false);
@@ -57,14 +60,10 @@ function UTXOManagement({ route }) {
     const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
     const selectedUTXOs = utxos.filter((utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]);
     const [learnModalVisible, setLearnModalVisible] = useState(false);
-    const [initiateWhirlpoolModalVisible, setInitiateWhirlpoolModalVisible] = useState(false);
     const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
 
+    const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
     // const [selectedAccount, setSelectedAccount] = useState<AccountTypes>(AccountTypes.DEPOSIT)
-    useEffect(() => {
-        setInitiateWhirlpoolModalVisible(true)
-        // setTxoErrorModalVisible(true)
-    }, [])
 
     const cleanUp = useCallback(() => {
         setSelectedUTXOMap({});
@@ -116,7 +115,7 @@ function UTXOManagement({ route }) {
             </Box>
             {utxos.length ? <Footer vault={data} setEnableSelection={setEnableSelection} enableSelection={enableSelection} selectedUTXOs={selectedUTXOs} /> : null}
             <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
-            <InitiateWhirlpoolModal visible={initiateWhirlpoolModalVisible} closeModal={() => setInitiateWhirlpoolModalVisible(false)} />
+            <InitiateWhirlpoolModal visible={whirlpoolIntroModal} closeModal={() => dispatch(setWhirlpoolIntro(false))} />
             <ErrorCreateTxoModal visible={txoErrorModalVisible} closeModal={() => setTxoErrorModalVisible(false)} />
         </ScreenWrapper>
     )
