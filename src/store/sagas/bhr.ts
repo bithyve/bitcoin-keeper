@@ -218,7 +218,7 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    let { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
+    let { appImage, vaultImage, UTXOinfos } = yield call(Relay.getAppImage, appID);
 
     //applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
@@ -271,6 +271,13 @@ function* getAppImageWorker({ payload }) {
         const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
+
+      //UTXOinfo restore
+      if (UTXOinfos) {
+        //TO:DO- UTXO restore to DB
+        console.log({ UTXOinfos });
+      }
+
       yield put(setAppId(appID));
       // seed confirm for recovery
       yield call(dbManager.createObject, RealmSchema.BackupHistory, {
