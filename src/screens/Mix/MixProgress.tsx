@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import React, { useEffect } from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, FlatList } from 'react-native';
@@ -10,13 +11,14 @@ import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import WhirlpoolLoader from 'src/assets/images/whirlpool_loader.svg'; // Actual assert was missing in XD link
 import { useDispatch } from 'react-redux';
-import { Info, Step } from 'src/nativemodules/interface';
+import { Info, PoolData, Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ElectrumClient from 'src/core/services/electrum/client';
 import GradientIcon from '../WalletDetailScreen/components/GradientIcon';
 
 export const enum MixStatus {
@@ -171,21 +173,20 @@ function MixProgress({ route, navigation }) {
 
   const initiateWhirlpoolMix = async () => {
     try {
-      const postmix = depositWallet?.whirlpoolConfig?.postmixWallet;
-      const destination = postmix.specs.receivingAddress;
-      const poolDenomination = walletPoolMap[depositWallet.id];
+      const pool: PoolData = walletPoolMap[depositWallet.id];
       const unsucccessfulUtxos = [];
 
       // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       let isBroadcasted = true;
+      const { height } = await ElectrumClient.getBlockchainHeaders();
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(utxo.txId);
-        const txId = await WhirlpoolClient.premixToPostmix(
+        const txId = await WhirlpoolClient.startMix(
           utxo,
-          destination,
-          poolDenomination,
-          selectedWallet,
-          notifyMixStatus
+          depositWallet?.whirlpoolConfig?.premixWallet,
+          depositWallet?.whirlpoolConfig?.postmixWallet,
+          pool,
+          height
         );
         if (txId) {
           dispatch(
@@ -202,7 +203,7 @@ function MixProgress({ route, navigation }) {
             createUTXOReference({
               labels: [{ name: 'Premix', type: LabelType.SYSTEM }],
               txId,
-              vout: poolDenomination,
+              vout: pool.denomination,
             })
           );
         } else {

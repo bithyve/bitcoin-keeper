@@ -1,6 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { PoolData } from 'src/nativemodules/interface';
 import { reduxStorage } from 'src/storage';
 import { ADD_NEW_WALLETS } from '../sagaActions/wallets';
 
@@ -55,7 +56,7 @@ const initialState: WalletsState = {
 
 export type WalletPoolPayload = {
   walletId: string;
-  pool: number;
+  pool: PoolData;
 };
 
 const walletSlice = createSlice({
