@@ -159,6 +159,7 @@ export default class WhirlpoolServices {
    * @param  {string} preUserHash
    * @param  {string} network
    * @param  {string} blockHeight
+   * @param  {string} signedRegistrationMessage
    * @returns {Promise<string>} txid
    */
   static startMix = async (
@@ -169,7 +170,8 @@ export default class WhirlpoolServices {
     denomination: string,
     preUserHash: string,
     network: string,
-    blockHeight: string
+    blockHeight: string,
+    signedRegistrationMessage: string
   ): Promise<string> => {
     try {
       const result = await Whirlpool.blocking(
@@ -180,7 +182,8 @@ export default class WhirlpoolServices {
         denomination,
         preUserHash,
         network,
-        blockHeight
+        blockHeight,
+        signedRegistrationMessage
       );
       if (!result) throw new Error('Unable to mix the current input');
       return result;

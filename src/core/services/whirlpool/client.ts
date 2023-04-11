@@ -224,6 +224,11 @@ export default class WhirlpoolClient {
     const preUserHash = hash256(premix.derivationDetails.mnemonic);
     const networkType: Network =
       premix.networkType === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin;
+    const signedRegistrationMessage = WalletUtilities.signBitcoinMessage(
+      pool.poolId,
+      privateKey,
+      network
+    );
 
     return WhirlpoolServices.startMix(
       rustInput,
@@ -233,7 +238,8 @@ export default class WhirlpoolClient {
       pool.denomination.toString(),
       preUserHash,
       networkType,
-      blockHeight.toString()
+      blockHeight.toString(),
+      signedRegistrationMessage
     );
   };
 }
