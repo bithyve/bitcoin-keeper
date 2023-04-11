@@ -60,5 +60,12 @@ import Foundation
     // free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
+  
+  @objc func startMix(input_str: String, private_key_str: String, destination_addr_str: String, pool_id: String, denomination_str: String, pre_user_hash_str: String, network_str: String, block_height_str: String, callback: @escaping ((String) -> Void)){
+    let result = start(input_str, private_key_str, destination_addr_str, pool_id, denomination_str, pre_user_hash_str, network_str, block_height_str)
+    let str =  String(cString: result!)
+//    free_cstring(UnsafeMutablePointer(mutating: result))
+    callback(str)
+  }
 }
 

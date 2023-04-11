@@ -97,4 +97,23 @@ RCT_EXPORT_METHOD(tx0Push:(NSString *)tx_str
   }];
 }
 
+RCT_EXPORT_METHOD(startMix:(NSString *)input_str
+                  private_key_str:(NSString *)private_key_str
+                  destination_addr_str:(NSString *)destination_addr_str
+                  pool_id:(NSString *)pool_id
+                  denomination_str:(NSString *)denomination_str
+                  pre_user_hash_str:(NSString *)pre_user_hash_str
+                  network_str:(NSString *)network_str
+                  block_height_str:(NSString *)block_height_str
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
+  
+  [helper startMixWithInput_str:input_str private_key_str:private_key_str destination_addr_str:destination_addr_str pool_id:pool_id denomination_str:denomination_str pre_user_hash_str:pre_user_hash_str network_str:network_str block_height_str:block_height_str callback:^(NSString * _Nonnull response) {
+    resolve(response);
+  }];
+}
+
+
 @end
