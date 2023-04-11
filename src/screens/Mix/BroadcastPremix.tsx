@@ -171,9 +171,7 @@ export default function BroadcastPremix({ route, navigation }) {
             vout: voutBadBank,
           })
         );
-        dispatch(
-          setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool?.denomination })
-        );
+        dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
         dispatch(setTx0Complete(true));
       } else {
         // error modals
