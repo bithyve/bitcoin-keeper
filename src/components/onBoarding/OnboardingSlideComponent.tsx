@@ -19,11 +19,8 @@ function OnboardingSlideComponent(props) {
       <Box style={styles.illustartionWrapper}>{props.illustration}</Box>
       <Box style={styles.paragraphWrapper}>
         <Text
-          fontSize={14}
           color="light.white"
-          textAlign="center"
-          letterSpacing={1.4}
-          maxWidth={hp(315)}
+          style={styles.paragraphText}
         >
           {props.paragraph}
         </Text>
@@ -64,6 +61,12 @@ const styles = StyleSheet.create({
     flex: 0.3,
     justifyContent: 'center',
     marginTop: hp(40),
+  },
+  paragraphText: {
+    fontSize: 14,
+    textAlign: "center",
+    letterSpacing: 1.4,
+    marginHorizontal: 5
   },
   buttonWrapper: {
     flexDirection: 'row',
