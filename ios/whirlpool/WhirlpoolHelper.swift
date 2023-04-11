@@ -15,28 +15,28 @@ import Foundation
   @objc func hello(name: String, callback: @escaping ((String) -> Void)) {
     let result = hello_world(name)
     let str =  String(cString: result!)
-    free_cstring(UnsafeMutablePointer(mutating: result))
+    // free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
 
   @objc func initiateClient(callback: @escaping ((String)-> Void)){
     let result = initiate()
     let str =  String(cString: result!)
-    free_cstring(UnsafeMutablePointer(mutating: result))
+    // free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
 
   @objc func getPools(callback: @escaping ((String)-> Void)){
     let result = pools()
     let str =  String(cString: result!)
-    free_cstring(UnsafeMutablePointer(mutating: result))
+    // free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
   
   @objc func getTx0Data(callback: @escaping ((String)-> Void)){
     let result = gettx0data()
     let str =  String(cString: result!)
-    free_cstring(UnsafeMutablePointer(mutating: result))
+    // free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
   
