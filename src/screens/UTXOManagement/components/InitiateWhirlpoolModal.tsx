@@ -7,6 +7,7 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
+import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
 
 function InitiateContent() {
     return (
@@ -20,7 +21,7 @@ function InitiateContent() {
         </Box>
     );
 }
-function InitiateWhirlpoolModal({ visible, closeModal }) {
+function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
     return (
         <KeeperModal
             visible={visible}

@@ -4,6 +4,7 @@ import { Box } from 'native-base';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import TXOErrorIcon from 'src/assets/images/TXOError.svg'
 import KeeperModal from 'src/components/KeeperModal';
+import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
 
 function InitiateContent() {
     return (
@@ -14,7 +15,7 @@ function InitiateContent() {
         </Box>
     );
 }
-function ErrorCreateTxoModal({ visible, closeModal }) {
+function ErrorCreateTxoModal({ visible, closeModal }: modalParams) {
     return (
         <KeeperModal
             visible={visible}
