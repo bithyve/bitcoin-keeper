@@ -42,7 +42,7 @@ KeeperModal.defaultProps = {
   buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
   buttonText: null,
   buttonTextColor: 'white',
-  buttonCallback: () => {},
+  buttonCallback: () => { },
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -50,7 +50,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => {},
+  learnMoreCallback: () => { },
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
@@ -120,9 +120,9 @@ function KeeperModal(props: ModalProps) {
               <Text style={styles.title} color={textColor}>
                 {title}
               </Text>
-              <Text style={styles.subTitle} color={subTitleColor}>
+              {subTitle ? <Text style={styles.subTitle} color={subTitleColor}>
                 {`${subTitle}`}
-              </Text>
+              </Text> : null}
             </Modal.Header>
             <Modal.Body>
               <Content />

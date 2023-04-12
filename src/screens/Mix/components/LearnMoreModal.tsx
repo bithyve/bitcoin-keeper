@@ -5,7 +5,7 @@ import { Box } from 'native-base';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
-import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
+import SomeDefinationIcon from 'src/assets/images/SomeDefination.svg';
 import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
 
 function mixContent() {
@@ -21,7 +21,7 @@ function mixContent() {
         This is a measure of how well hidden you are
       </Text>
       <Box style={styles.iconWrapper}>
-        <VaultSetupIcon />
+        <SomeDefinationIcon />
       </Box>
       <Text style={[styles.paraText, styles.italianText]}>Pool Fee</Text>
       <Text style={styles.paraText}>
