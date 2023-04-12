@@ -130,6 +130,7 @@ export const sendPhaseOne = (payload: {
     address: string;
     amount: number;
   }[];
+  note: string;
 }): SendPhaseOneAction => ({
   type: SEND_PHASE_ONE,
   payload,

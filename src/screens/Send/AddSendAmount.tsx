@@ -53,6 +53,7 @@ function AddSendAmount({ route }) {
 
   const [amount, setAmount] = useState(prefillAmount || '');
   const [amountToSend, setAmountToSend] = useState('');
+  const [note, setNote] = useState('');
 
   const [error, setError] = useState(false); // this state will handle error
   const recipientCount = 1;
@@ -130,6 +131,7 @@ function AddSendAmount({ route }) {
       sendPhaseOne({
         wallet: sender,
         recipients,
+        note
       })
     );
   };
@@ -260,7 +262,11 @@ function AddSendAmount({ route }) {
         </Box>
 
         <Box style={styles.addNoteWrapper}>
-          <TextInput placeholder="Add a note" style={styles.textInput} />
+          <TextInput placeholder="Add a note" style={styles.textInput}
+            value={note}
+            onChangeText={(value) => {
+              setNote(value)
+            }} />
         </Box>
         <Box style={styles.ctaBtnWrapper}>
           <Box ml={windowWidth * -0.09}>

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, View } from 'native-base';
@@ -301,68 +302,30 @@ function WalletDetails({ route }) {
     }, []);
 
     return (
-      <Box padding={1}>
-        <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
-          By proceeding, you understand that Ramp will process the payment and transfer for the
-          purchased bitcoin
+      <Box style={styles.buyBtcWrapper}>
+        <Text color='#073B36' style={styles.buyBtcContent}>
+          By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin
         </Text>
-        <Box
-          my={4}
-          alignItems="center"
-          borderRadius={10}
-          p={4}
-          backgroundColor="#FDF7F0"
-          flexDirection="row"
-        >
-          <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
-          <Box mx={4}>
-            <Text fontSize={12} color="#5F6965">
-              Bitcoin will be transferred to
-            </Text>
-            <Text fontSize={19} letterSpacing={1.28} color="#041513">
-              {wallets[walletIndex].presentationData.name}
-            </Text>
-            <Text
-              fontStyle="italic"
-              fontSize={12}
-              color="#00836A"
-            >{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
+        <Box style={styles.toWalletWrapper}>
+          <GradientIcon
+            Icon={WalletInsideGreen}
+            height={35}
+            gradient={['#FFFFFF', '#80A8A1']}
+          />
+          <Box style={styles.buyBtcCard}>
+            <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
+            <Text style={styles.presentationName}>{wallets[walletIndex].presentationData.name}</Text>
+            <Text style={styles.confirmBalanceText}>{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
           </Box>
         </Box>
 
-        <Box
-          my={4}
-          alignItems="center"
-          borderRadius={10}
-          px={4}
-          py={6}
-          backgroundColor="#FDF7F0"
-          flexDirection="row"
-        >
-          <Box
-            backgroundColor="#FAC48B"
-            borderRadius={20}
-            height={10}
-            width={10}
-            justifyItems="center"
-            alignItems="center"
-          >
-            <Text fontSize={22}>@</Text>
+        <Box style={styles.atViewWrapper}>
+          <Box style={styles.atViewWrapper02}>
+            <Text style={styles.atText}>@</Text>
           </Box>
-          <Box mx={4}>
-            <Text fontSize={12} color="#5F6965">
-              Address for ramp transactions
-            </Text>
-            <Text
-              width={wp(200)}
-              ellipsizeMode="middle"
-              numberOfLines={1}
-              fontSize={19}
-              letterSpacing={1.28}
-              color="#041513"
-            >
-              {buyAddress}
-            </Text>
+          <Box style={styles.buyBtcCard}>
+            <Text style={styles.buyBtcTitle}>Address for ramp transactions</Text>
+            <Text style={styles.addressTextView} ellipsizeMode="middle" numberOfLines={1} fontSize={19} letterSpacing={1.28} color='#041513'>{wallets[walletIndex].specs.receivingAddress}</Text>
           </Box>
         </Box>
         <Buttons
@@ -770,6 +733,64 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  // buy bitcoin
+  buyBtcWrapper: {
+    padding: 1
+  },
+  buyBtcContent: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    marginVertical: 15,
+  },
+  toWalletWrapper: {
+    marginVertical: 4,
+    alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#FDF7F0",
+    flexDirection: "row"
+  },
+  buyBtcCard: {
+    marginHorizontal: 20
+  },
+  buyBtcTitle: {
+    fontSize: 12,
+    color: '#5F6965'
+  },
+  presentationName: {
+    fontSize: 19,
+    letterSpacing: 1.28,
+    color: '#041513'
+  },
+  confirmBalanceText: {
+    fontStyle: 'italic',
+    fontSize: 12,
+    color: '#00836A'
+  },
+  atViewWrapper: {
+    marginVertical: 4,
+    alignItems: "center",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    backgroundColor: "#FDF7F0",
+    flexDirection: "row"
+  },
+  atViewWrapper02: {
+    backgroundColor: "#FAC48B",
+    borderRadius: 30,
+    height: 30,
+    width: 30,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  atText: {
+    fontSize: 21,
+    textAlign: 'center'
+  },
+  addressTextView: {
+    width: wp(180)
   },
   addWalletContent: {
     // paddingRight: wp(10),
