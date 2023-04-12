@@ -16,7 +16,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { setWalletPoolMap, setWhirlpoolCreated } from 'src/store/reducers/wallets';
+import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import useWallets from 'src/hooks/useWallets';
@@ -47,7 +47,6 @@ export default function BroadcastPremix({ route, navigation }) {
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const { whirlpoolWalletCreated } = useAppSelector((state) => state.wallet);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -99,15 +98,6 @@ export default function BroadcastPremix({ route, navigation }) {
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
-
-  useEffect(() => {
-    if (whirlpoolWalletCreated) {
-      setLoading(false);
-    }
-    return () => {
-      dispatch(setWhirlpoolCreated(false));
-    };
-  }, [whirlpoolWalletCreated]);
 
   const onBroadcastModalCallback = async () => {
     try {
@@ -172,6 +162,7 @@ export default function BroadcastPremix({ route, navigation }) {
         );
         dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
         setShowBroadcastModal(true);
+        setLoading(false);
       } else {
         // error modals
       }
