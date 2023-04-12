@@ -358,7 +358,7 @@ function AddSendAmount({ route }) {
           activity private and organised. The information is not shared with anyone
         </Text>
       </Box>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 

@@ -78,8 +78,11 @@ import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
 import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
 import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
-import Login from '../screens/LoginScreen/Login';
 import MixProgress from 'src/screens/Mix/MixProgress';
+import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
+import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
+import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -167,6 +170,9 @@ function AppStack() {
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
+        <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
+        <Stack.Screen name="ImportWalletDetails" component={ImportWalletDetailsScreen} />
+        <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
@@ -226,7 +232,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />

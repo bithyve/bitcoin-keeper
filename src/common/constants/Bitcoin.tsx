@@ -6,9 +6,10 @@ import { HStack } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 // asserts
-import CurrencyKind from '../data/enums/CurrencyKind';
 import Colors from 'src/theme/Colors';
+import CurrencyKind from '../data/enums/CurrencyKind';
 import FiatCurrencies from '../FiatCurrencies';
+
 export const SATOSHIS_IN_BTC = 1e8;
 
 export const BtcToSats = (amountInBtc: number) => {
@@ -103,13 +104,13 @@ export const isTestnet = () => {
   }
   return false;
 };
-export const CurrencyIcon = ({ color, symbol, style = {} }) => {
+export function CurrencyIcon({ color, symbol, style = {} }) {
   return (
     <Text
       style={{
         ...style,
         fontSize: 14,
-        color: color,
+        color,
         letterSpacing: 0.5,
         fontWeight: '900',
         lineHeight: 18,
@@ -119,7 +120,7 @@ export const CurrencyIcon = ({ color, symbol, style = {} }) => {
       {symbol}
     </Text>
   );
-};
+}
 
 export const getCurrencyImageByRegion = (
   currencyCode: string,
@@ -145,9 +146,9 @@ export const getCurrencyImageByRegion = (
       }
     }
     return null
-  } else {
-    return <BTCIcon />;
   }
+  return <BTCIcon />;
+
 };
 
 export const getFiatIcon = (
@@ -157,7 +158,6 @@ export const getFiatIcon = (
   const currency = FiatCurrencies.find(c => c.code === currencyCode);
   if (currency) {
     if (type === 'light') {
-      console.log('hahaha');
       return <CurrencyIcon color={Colors.White} symbol={currency.symbol} />;
     }
     if (type === 'green') {
