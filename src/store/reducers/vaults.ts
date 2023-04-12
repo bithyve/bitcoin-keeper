@@ -33,6 +33,7 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
+  whirlpoolIntro: boolean;
   tempShellId: string;
 };
 
@@ -54,6 +55,7 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
+  whirlpoolIntro: true,
   tempShellId: null,
 };
 
@@ -115,6 +117,9 @@ const vaultSlice = createSlice({
     setSdIntroModal: (state, action: PayloadAction<boolean>) => {
       state.sdIntroModal = action.payload;
     },
+    setWhirlpoolIntro: (state, action: PayloadAction<boolean>) => {
+      state.whirlpoolIntro = action.payload;
+    },
     vaultMigrationCompleted: (state, action: PayloadAction<VaultMigrationCompletionPayload>) => {
       const { isMigratingNewVault, hasMigrationSucceeded, hasMigrationFailed, error } =
         action.payload;
@@ -146,6 +151,7 @@ export const {
   removeSigningDevice,
   setIntroModal,
   setSdIntroModal,
+  setWhirlpoolIntro,
   updateSigningDevice,
   clearSigningDevice,
   resetVaultMigration,

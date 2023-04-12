@@ -7,6 +7,7 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import DotView from 'src/components/DotView';
+import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
 
 function premixContent() {
   return (
@@ -47,7 +48,7 @@ function premixContent() {
     </View>
   );
 }
-function LearnMoreModal({ visible, closeModal }) {
+function LearnMoreModal({ visible, closeModal }: modalParams) {
   return (
     <KeeperModal
       visible={visible}

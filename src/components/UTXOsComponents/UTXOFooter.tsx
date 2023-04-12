@@ -28,7 +28,7 @@ function UTXOFooter({
               setInitiateWhirlpool(true);
             }}
             icon={<MixIcon />}
-            title="Mix Selected"
+            title="Select for Mix"
           />
         )}
         {wallet?.type === WalletType.PRE_MIX && (
@@ -47,7 +47,7 @@ function UTXOFooter({
             disabled={!utxos.length}
             onPress={() => setEnableSelection(!enableSelection)}
             icon={<Send />}
-            title="Send Selected"
+            title="Select to Send"
           />
         )}
       </Box>
