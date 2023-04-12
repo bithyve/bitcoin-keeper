@@ -211,13 +211,11 @@ function EnterSeedScreen({ route }) {
   };
 
   const onPressNextSeedReocvery = async () => {
-    if (true) {
-      if (true) {
-        // const seedWord = getSeedWord();
+    if (isSeedFilled(6)) {
+      if (isSeedFilled(12)) {
+        const seedWord = getSeedWord();
         setRecoveryLoading(true);
-        dispatch(
-          getAppImage('insect foam mesh few weather destroy raw sugar memory great member craft')
-        );
+        dispatch(getAppImage(seedWord));
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
       }
@@ -342,8 +340,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -463,7 +461,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);

@@ -6,8 +6,8 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import idx from 'idx';
-import Text from '../KeeperText';
 import useBalance from 'src/hooks/useBalance';
+import Text from '../KeeperText';
 
 const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
   idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
@@ -46,7 +46,7 @@ function UTXOsManageNavBox({
         </Box>
       ) : (
         <Box style={styles.titleViewWrapper}>
-          <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
+          <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
           <Text style={styles.subTitleText}>Select Label and choose UTXOs</Text>
         </Box>
       )}

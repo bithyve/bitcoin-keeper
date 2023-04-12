@@ -119,8 +119,7 @@ export function* addWhirlpoolWalletsLocalWorker({
   };
 }) {
   const { depositWallet } = payload;
-  console.log('depositWallet', depositWallet.id);
-  const instanceNum = depositWallet.derivationDetails.instanceNum;
+  const { instanceNum } = depositWallet.derivationDetails;
 
   const preMixWalletInfo: NewWalletInfo = {
     walletType: WalletType.PRE_MIX,
@@ -159,7 +158,7 @@ export function* addWhirlpoolWalletsLocalWorker({
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
 
-  let wallets = [];
+  const wallets = [];
   for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
     const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
     wallets.push(wallet);
@@ -180,7 +179,7 @@ export function* addWhirlpoolWalletsWorker({
   };
 }) {
   const { depositWallet } = payload;
-  const instanceNum = depositWallet.derivationDetails.instanceNum;
+  const { instanceNum } = depositWallet.derivationDetails;
 
   const preMixWalletInfo: NewWalletInfo = {
     walletType: WalletType.PRE_MIX,
@@ -238,7 +237,7 @@ export function* addWhirlpoolWalletsWorker({
   });
   const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
   const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  let wallets = [];
+  const wallets = [];
   for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
     const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
     wallets.push(wallet);
@@ -304,11 +303,11 @@ function* addNewWallet(
       });
       return importedWallet;
 
-    //Whirpool wallet types premix,postmix, badbank
+    // Whirpool wallet types premix,postmix, badbank
     case WalletType.PRE_MIX:
       const preMixWallet: Wallet = yield call(generateWallet, {
         type: WalletType.PRE_MIX,
-        instanceNum, //deposit account's index
+        instanceNum, // deposit account's index
         walletName: 'Pre mix Wallet',
         walletDescription: 'Bitcoin Wallet',
         derivationConfig,
@@ -320,7 +319,7 @@ function* addNewWallet(
     case WalletType.POST_MIX:
       const postMixWallet: Wallet = yield call(generateWallet, {
         type: WalletType.POST_MIX,
-        instanceNum, //deposit account's index
+        instanceNum, // deposit account's index
         walletName: 'Post mix Wallet',
         walletDescription: 'Bitcoin Wallet',
         derivationConfig,
@@ -332,7 +331,7 @@ function* addNewWallet(
     case WalletType.BAD_BANK:
       const badBankWallet: Wallet = yield call(generateWallet, {
         type: WalletType.BAD_BANK,
-        instanceNum, //deposit account's index
+        instanceNum, // deposit account's index
         walletName: 'Bad Bank Wallet',
         walletDescription: 'Bitcoin Wallet',
         derivationConfig,
@@ -369,31 +368,28 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
         yield put(relayWalletUpdateSuccess());
         yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
         return true;
-      } else {
-        yield put(relayWalletUpdateFail(response.error));
-        return false;
       }
-    } else {
-      for (const wallet of wallets) {
-        yield put(setRelayWalletUpdateLoading(true));
-        const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
-        if (response.updated) {
-          yield put(relayWalletUpdateSuccess());
-          yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
+      yield put(relayWalletUpdateFail(response.error));
+      return false;
+    }
+    for (const wallet of wallets) {
+      yield put(setRelayWalletUpdateLoading(true));
+      const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
+      if (response.updated) {
+        yield put(relayWalletUpdateSuccess());
+        yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
 
-          if (wallet.type === WalletType.IMPORTED) {
-            yield put(
-              refreshWallets([wallet], {
-                hardRefresh: true,
-              })
-            );
-          }
-          return true;
-        } else {
-          yield put(relayWalletUpdateFail(response.error));
-          return false;
+        if (wallet.type === WalletType.IMPORTED) {
+          yield put(
+            refreshWallets([wallet], {
+              hardRefresh: true,
+            })
+          );
         }
+        return true;
       }
+      yield put(relayWalletUpdateFail(response.error));
+      return false;
     }
   } catch (err) {
     console.log(err);
@@ -577,6 +573,7 @@ function* syncWalletsWorker({
     wallets,
     network
   );
+  const UTXOInfos: UTXOInfo[] = [];
   for (const wallet of synchedWallets) {
     const allUTXOs = wallet.specs.confirmedUTXOs.concat(wallet.specs.unconfirmedUTXOs);
     for (const utxo of allUTXOs) {
@@ -587,9 +584,12 @@ function* syncWalletsWorker({
         vout: utxo.vout,
         walletId: wallet.id,
       };
-      dbManager.createObject(RealmSchema.UTXOInfo, utxoInfo);
+      UTXOInfos.push(utxoInfo);
     }
   }
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  yield call(Relay.addUTXOinfos, app.id, UTXOInfos);
+  dbManager.createObjectBulk(RealmSchema.UTXOInfo, UTXOInfos);
   return {
     synchedWallets,
   };
