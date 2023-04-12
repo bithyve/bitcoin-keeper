@@ -113,10 +113,10 @@ function ExportSeedScreen({ route, navigation }) {
                   numberOfLines={2}
                   style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
                 >
-                  Show as QR
+                  Master Recovery Phrase
                 </Text>
                 <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-                  larum epsum text
+                The QR below comprises of your 12 word Recovery Phrase
                 </Text>
               </VStack>
             </HStack>
@@ -133,8 +133,7 @@ function ExportSeedScreen({ route, navigation }) {
           { letterSpacing: 0.06, paddingHorizontal: 10, paddingBottom: 10 },
         ]}
       >
-        Use these to create any other wallet and that wallet will be linked to Keeper (will show
-        along with other wallets)
+        Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully.
       </Text>
       <Box style={styles.nextButtonWrapper}>
         {next && (
