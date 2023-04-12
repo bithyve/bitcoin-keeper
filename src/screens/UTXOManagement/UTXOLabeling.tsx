@@ -1,15 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
@@ -29,6 +22,14 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import Relay from 'src/core/services/operations/Relay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useAsync from 'src/hooks/useAsync';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -44,6 +45,8 @@ function UTXOLabeling() {
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const lablesUpdated =
     labels[`${utxo.txId}${utxo.vout}`].reduce((a, c) => {
       a += c.name;
@@ -55,6 +58,9 @@ function UTXOLabeling() {
     }, '');
 
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+
+  const { inProgress, error, data, start } = useAsync();
 
   useEffect(() => {
     setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
@@ -70,22 +76,40 @@ function UTXOLabeling() {
   };
 
   const onAdd = () => {
-    if (editingIndex !== -1) {
-      existingLabels[editingIndex] = { name: label, type: LabelType.USER };
-    } else {
-      existingLabels.push({ name: label, type: LabelType.USER });
+    if (label) {
+      if (editingIndex !== -1) {
+        existingLabels[editingIndex] = { name: label, type: LabelType.USER };
+      } else {
+        existingLabels.push({ name: label, type: LabelType.USER });
+      }
+      setEditingIndex(-1);
+      setExistingLabels(existingLabels);
+      setLabel('');
     }
-    setEditingIndex(-1);
-    setExistingLabels(existingLabels);
-    setLabel('');
   };
 
-  const onSaveChangeClick = () => {
-    const finalLabels = existingLabels.filter(
-      (label) => !(label.type === LabelType.SYSTEM && label.name === wallet.presentationData.name) // ignore the wallet label since they are internal references
-    );
-    dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
-    navigation.goBack();
+  useEffect(() => {
+    if (error) {
+      showToast(error.toString(), <ToastErrorIcon />, 3000);
+    }
+    if (data) {
+      navigation.goBack();
+    }
+  }, [data, error]);
+
+  const onSaveChangeClick = async () => {
+    await start(async () => {
+      const finalLabels = existingLabels.filter(
+        (label) => !(label.type === LabelType.SYSTEM && label.name === wallet.presentationData.name) // ignore the wallet label since they are internal references
+      );
+      const { updated } = await Relay.modifyUTXOinfo(
+        keeper.id,
+        { labels: finalLabels },
+        `${utxo.txId}${utxo.vout}`
+      );
+      if (updated) dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
+      return updated;
+    });
   };
 
   const redirectToBlockExplorer = () => {
@@ -102,106 +126,104 @@ function UTXOLabeling() {
         title="UTXO Details"
         subtitle="Easily identify specific aspects of various UTXOs"
       />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        enabled
-        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+      <ScrollView
         style={styles.scrollViewWrapper}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps
       >
-        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-          <View style={styles.subHeader}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.subHeaderTitle}>Transaction ID</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={styles.subHeaderValue} numberOfLines={1}>
-                  {utxo.txId}
+        <View style={styles.subHeader}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.subHeaderTitle}>Transaction ID</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.subHeaderValue} numberOfLines={1}>
+                {utxo.txId}
+              </Text>
+              <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
+                <LinkIcon />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.subHeaderTitle}>UTXO Value</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Box style={{ marginHorizontal: 5 }}>
+                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
+              </Box>
+              <Text style={styles.subHeaderValue} numberOfLines={1}>
+                {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                <Text color={`${colorMode}.dateText`} style={styles.unitText}>
+                  {getUnit(currentCurrency, satsEnabled)}
                 </Text>
-                <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
-                  <LinkIcon />
+              </Text>
+            </View>
+          </View>
+        </View>
+        <View style={styles.listContainer}>
+          <View style={{ flexDirection: 'row' }}>
+            <Text style={styles.listHeader}>Labels</Text>
+          </View>
+          <View style={styles.listSubContainer}>
+            {existingLabels.map((item, index) => (
+              <View
+                key={`${item}`}
+                style={[
+                  styles.labelView,
+                  {
+                    backgroundColor:
+                      item.type === LabelType.SYSTEM
+                        ? '#23A289'
+                        : editingIndex !== index
+                        ? '#E0B486'
+                        : '#A88763',
+                  },
+                ]}
+              >
+                <TouchableOpacity
+                  style={styles.labelEditContainer}
+                  activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
+                  onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+                >
+                  <Text style={styles.itemText} bold>
+                    {item.name.toUpperCase()}
+                  </Text>
+                  {item.type === LabelType.USER ? (
+                    <TouchableOpacity onPress={() => onCloseClick(index)}>
+                      <Box style={styles.deleteContainer}>
+                        <DeleteCross />
+                      </Box>
+                    </TouchableOpacity>
+                  ) : null}
                 </TouchableOpacity>
               </View>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.subHeaderTitle}>UTXO Value</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Box style={{ marginHorizontal: 5 }}>
-                  {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
-                </Box>
-                <Text style={styles.subHeaderValue} numberOfLines={1}>
-                  {getAmt(utxo.value, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-                  <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                    {getUnit(currentCurrency, satsEnabled)}
-                  </Text>
-                </Text>
-              </View>
-            </View>
+            ))}
           </View>
-          <View style={styles.listContainer}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={styles.listHeader}>Labels</Text>
-            </View>
-            <View style={styles.listSubContainer}>
-              {existingLabels.map((item, index) => (
-                <View
-                  key={`${item}`}
-                  style={[
-                    styles.labelView,
-                    {
-                      backgroundColor:
-                        item.type === LabelType.SYSTEM
-                          ? '#23A289'
-                          : editingIndex !== index
-                          ? '#E0B486'
-                          : '#A88763',
-                    },
-                  ]}
-                >
-                  <TouchableOpacity
-                    style={styles.labelEditContainer}
-                    activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
-                    onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
-                  >
-                    <Text style={styles.itemText} bold>
-                      {item.name.toUpperCase()}
-                      {item.type === LabelType.USER ? (
-                        <TouchableOpacity onPress={() => onCloseClick(index)}>
-                          <Box style={styles.deleteContainer}>
-                            <DeleteCross />
-                          </Box>
-                        </TouchableOpacity>
-                      ) : null}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-            <Box style={styles.inputLabeWrapper}>
-              <Box style={styles.inputLabelBox}>
-                <Input
-                  onChangeText={(text) => {
-                    setLabel(text);
-                  }}
-                  style={styles.inputLabel}
-                  borderWidth={0}
-                  height={hp(40)}
-                  placeholder="Type to add label or Select to edit"
-                  color="#E0B486"
-                  value={label}
-                  autoCorrect={false}
-                  autoCapitalize="characters"
-                />
-              </Box>
-              <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
-                <Done />
-              </TouchableOpacity>
+          <Box style={styles.inputLabeWrapper}>
+            <Box style={styles.inputLabelBox}>
+              <Input
+                onChangeText={(text) => {
+                  setLabel(text);
+                }}
+                style={styles.inputLabel}
+                borderWidth={0}
+                height={hp(40)}
+                placeholder="Type to add label or Select to edit"
+                color="#E0B486"
+                value={label}
+                autoCorrect={false}
+                autoCapitalize="characters"
+              />
             </Box>
-          </View>
-          <View style={{ flex: 1 }} />
-        </ScrollView>
-      </KeyboardAvoidingView>
+            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
+              <Done />
+            </TouchableOpacity>
+          </Box>
+        </View>
+        <View style={{ flex: 1 }} />
+      </ScrollView>
       <Box style={styles.ctaBtnWrapper}>
         <Box ml={windowWidth * -0.09}>
           <Buttons
+            primaryLoading={inProgress}
             primaryDisable={!lablesUpdated}
             primaryCallback={onSaveChangeClick}
             primaryText="Save Changes"
@@ -317,6 +339,7 @@ const styles = StyleSheet.create({
   labelEditContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   itemText: {
     color: '#fff',

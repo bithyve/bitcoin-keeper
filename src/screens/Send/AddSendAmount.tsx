@@ -20,11 +20,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import {
-  BtcToSats,
-  SATOSHIS_IN_BTC,
-  SatsToBtc,
-} from 'src/common/constants/Bitcoin';
+import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/common/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
@@ -95,7 +91,7 @@ function AddSendAmount({ route }) {
 
     if (currentCurrency === CurrencyKind.BITCOIN) {
       if (satsEnabled) {
-        setAmountToSend(amount)
+        setAmountToSend(amount);
       } else {
         setAmountToSend(BtcToSats(parseFloat(amount)).toString());
       }
@@ -128,7 +124,7 @@ function AddSendAmount({ route }) {
       const sendMaxBalance = confirmBalance - sendMaxFee;
       if (currentCurrency === CurrencyKind.BITCOIN) {
         if (satsEnabled) {
-          setAmount(sendMaxBalance.toString())
+          setAmount(sendMaxBalance.toString());
         } else {
           setAmount(`${SatsToBtc(sendMaxBalance)}`);
         }
@@ -241,9 +237,7 @@ function AddSendAmount({ route }) {
           style={styles.inputWrapper}
         >
           <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
-            <Box marginRight={2}>
-              {getCurrencyIcon(BitcoinInput, 'dark')}
-            </Box>
+            <Box marginRight={2}>{getCurrencyIcon(BitcoinInput, 'dark')}</Box>
             <Box
               marginLeft={2}
               width={0.5}
@@ -292,31 +286,51 @@ function AddSendAmount({ route }) {
           </Pressable>
         </Box>
 
-        <Box style={styles.addNoteWrapper}>
-          <TextInput
-            autoCapitalize="sentences"
+        <Box
+          backgroundColor="light.primaryBackground"
+          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+          style={styles.inputWrapper}
+        >
+          <Input
             placeholder="Add a note"
+            autoCapitalize="sentences"
             placeholderTextColor="light.greenText"
-            style={styles.textInput}
+            color="light.greenText"
+            opacity={note ? 1 : 0.5}
+            width="90%"
+            fontSize={14}
+            fontWeight={300}
+            letterSpacing={1.04}
+            borderWidth="0"
             value={note}
             onChangeText={(value) => {
               setNote(value);
             }}
           />
         </Box>
-        <Box style={styles.addNoteWrapper}>
-          {/* <MenuItemButton
+
+        {/* <MenuItemButton
             // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
             onPress={() => showToast('Comming soon')}
             icon={<TagsGreen />}
             title="Add Tags"
             subTitle="Tags help you remember and identify UTXOs"
           /> */}
-          <TextInput
+        <Box
+          backgroundColor="light.primaryBackground"
+          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+          style={styles.inputWrapper}
+        >
+          <Input
             autoCapitalize="sentences"
             placeholder="Add a lable"
             placeholderTextColor="light.greenText"
-            style={styles.textInput}
+            opacity={label ? 1 : 0.5}
+            width="90%"
+            fontSize={14}
+            fontWeight={300}
+            letterSpacing={1.04}
+            borderWidth="0"
             value={label}
             onChangeText={(value) => {
               setLabel(value);

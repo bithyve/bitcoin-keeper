@@ -163,7 +163,7 @@ function UTXOList({
     <FlatList
       data={utxoState}
       style={{
-        maxHeight: hp(500)
+        maxHeight: hp(500),
       }}
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}

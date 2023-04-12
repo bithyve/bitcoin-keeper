@@ -21,6 +21,7 @@ import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
+import semver from 'semver';
 import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
@@ -47,7 +48,6 @@ import {
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
-import semver from 'semver';
 import { applyRestoreSequence } from './restoreUpgrade';
 
 export function* updateAppImageWorker({ payload }) {
@@ -220,9 +220,9 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    let { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
+    const { appImage, vaultImage, UTXOinfos } = yield call(Relay.getAppImage, appID);
 
-    //applying the restore upgrade sequence if required
+    // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
     const newVersion = DeviceInfo.getVersion();
     if (semver.lt(previousVersion, newVersion)) {
@@ -273,6 +273,12 @@ function* getAppImageWorker({ payload }) {
         const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
+
+      // UTXOinfo restore
+      if (UTXOinfos) {
+        yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
+      }
+
       yield put(setAppId(appID));
       // seed confirm for recovery
       yield call(dbManager.createObject, RealmSchema.BackupHistory, {
