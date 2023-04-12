@@ -16,7 +16,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { setTx0Complete, setWalletPoolMap } from 'src/store/reducers/wallets';
+import { setWalletPoolMap, setWhirlpoolCreated } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import useWallets from 'src/hooks/useWallets';
@@ -47,7 +47,7 @@ export default function BroadcastPremix({ route, navigation }) {
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const { tx0completed } = useAppSelector((state) => state.wallet);
+  const { whirlpoolWalletCreated } = useAppSelector((state) => state.wallet);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -93,6 +93,7 @@ export default function BroadcastPremix({ route, navigation }) {
       onBroadcastModalCallback();
     }
   }, [loading]);
+
   useEffect(() => {
     if (relayWalletError || relayWalletUpdate) {
       dispatch(resetRealyWalletState());
@@ -100,15 +101,13 @@ export default function BroadcastPremix({ route, navigation }) {
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
   useEffect(() => {
-    console.log({ tx0completed });
-    if (tx0completed) {
+    if (whirlpoolWalletCreated) {
       setLoading(false);
-      setShowBroadcastModal(true);
     }
     return () => {
-      dispatch(setTx0Complete(false));
+      dispatch(setWhirlpoolCreated(false));
     };
-  }, [tx0completed]);
+  }, [whirlpoolWalletCreated]);
 
   const onBroadcastModalCallback = async () => {
     try {
@@ -172,7 +171,7 @@ export default function BroadcastPremix({ route, navigation }) {
           })
         );
         dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
-        dispatch(setTx0Complete(true));
+        setShowBroadcastModal(true);
       } else {
         // error modals
       }
