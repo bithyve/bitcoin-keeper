@@ -80,7 +80,7 @@ function OnBoardingSlides({ navigation }) {
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
   return (
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
-      <ImageBackground resizeMode="contain" style={styles.container} source={OnboardingBackImage}>
+      <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
             {currentPosition !== 1 && (

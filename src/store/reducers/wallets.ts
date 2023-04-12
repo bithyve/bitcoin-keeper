@@ -22,6 +22,7 @@ export type WalletsState = {
 
   resetTwoFALoader: boolean;
   introModal: boolean;
+  whirlpoolIntro: boolean;
   whirlpoolModal: boolean;
 
   whirlpoolWallets?: Wallet[];
@@ -47,6 +48,7 @@ const initialState: WalletsState = {
 
   resetTwoFALoader: false,
   introModal: true,
+  whirlpoolIntro: true,
   whirlpoolModal: true,
 
   syncing: false,
@@ -77,6 +79,9 @@ const walletSlice = createSlice({
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
+    },
+    setWhirlpoolIntro: (state, action: PayloadAction<boolean>) => {
+      state.whirlpoolIntro = action.payload;
     },
     setWhirlpoolModal: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolModal = action.payload;
@@ -115,6 +120,7 @@ export const {
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
+  setWhirlpoolIntro,
   setWhirlpoolModal,
   setWhirlpoolWallets,
   resetWhirlpoolWallets,
