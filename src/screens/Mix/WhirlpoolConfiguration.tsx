@@ -20,6 +20,7 @@ import config from 'src/core/config';
 import { TxPriority, WalletType } from 'src/core/wallets/enums';
 import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
+import SCodeLearnMore from './components/SCodeLearnMore';
 
 const feesContent = (fees, onFeeSelectionCallback) => (
   <Box style={styles.feeContent}>
@@ -73,6 +74,7 @@ export default function WhirlpoolConfiguration({ route }) {
   const [selectedFee, setSelectedFee] = useState(null);
   const [utxoCount, setUtxoCount] = useState(0);
   const [utxoTotal, setUtxoTotal] = useState(0);
+  const [scodeModalVisible, setScodeModalVisible] = useState(false);
 
   useEffect(() => {
     if (whirlpoolModal) {
@@ -144,7 +146,7 @@ export default function WhirlpoolConfiguration({ route }) {
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle paddingLeft={10} title="Configure Whirlpool" subtitle="Prepare to start a mix" />
+      <HeaderTitle paddingLeft={10} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
       <Box style={styles.scode}>
@@ -232,6 +234,7 @@ export default function WhirlpoolConfiguration({ route }) {
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
+      <SCodeLearnMore visible={scodeModalVisible} closeModal={() => setScodeModalVisible(false)} />
     </ScreenWrapper>
   );
 }
