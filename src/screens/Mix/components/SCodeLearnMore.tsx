@@ -34,7 +34,6 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
             modalBackground={['light.gradientStart', 'light.gradientEnd']}
             textColor="light.white"
             Content={SCodeContent}
-            showCloseIcon={false}
             learnMore
             learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
         />
