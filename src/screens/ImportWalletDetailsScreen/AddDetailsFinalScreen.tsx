@@ -121,7 +121,7 @@ function AddDetailsFinalScreen({ route }) {
       },
     };
     dispatch(addNewWallets([newWallet]));
-  }, [walletName, walletDescription, transferPolicy]);
+  }, [walletName, walletDescription, transferPolicy, path]);
 
   useEffect(() => {
     if (relayWalletUpdate) {
@@ -132,7 +132,7 @@ function AddDetailsFinalScreen({ route }) {
         navigation.goBack();
       } else {
         showToast('Wallet imported', <TickIcon />);
-        navigation.goBack();
+        navigation.replace('WalletDetails')
         Linking.openURL(`${appId}://backup/true`);
       }
     }
