@@ -8,7 +8,7 @@ export class RealmDatabase {
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 48;
+  public static schemaVersion = 49;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -89,6 +89,27 @@ export class RealmDatabase {
       this.writeTransaction(realm, () => {
         realm.create(schema, object, Realm.UpdateMode.All);
       });
+      return true;
+    } catch (err) {
+      console.log({ err });
+      return false;
+    }
+  };
+
+  /**
+   * creates an object corresponding to the provided schema
+   * @param  {RealmSchema} schema
+   * @param  {any[]} object
+   */
+  public createBulk = (schema: RealmSchema, objects: any[]) => {
+    const realm = this.getDatabase();
+    try {
+      for (const object of objects) {
+        this.writeTransaction(realm, () => {
+          realm.create(schema, object, Realm.UpdateMode.All);
+        });
+      }
+
       return true;
     } catch (err) {
       console.log({ err });

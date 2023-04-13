@@ -15,8 +15,9 @@ import LinearGradient from 'src/components/KeeperGradient';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Illustration_1 from 'src/assets/images/illustration_1.svg';
-import Illustration_2 from 'src/assets/images/illustration_2.svg';
+import Illustration1 from 'src/assets/images/illustration_1.svg';
+import Illustration2 from 'src/assets/images/illustration_2.svg';
+import Illustration7 from 'src/assets/images/illustration_7.svg'
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -41,7 +42,7 @@ function OnBoardingSlides({ navigation }) {
         </>
       ),
       paragraph: onboarding.slide01Paragraph,
-      illustration: <Illustration_1 />,
+      illustration: <Illustration1 />,
     },
     {
       id: '2',
@@ -52,7 +53,18 @@ function OnBoardingSlides({ navigation }) {
         </>
       ),
       paragraph: onboarding.slide02Paragraph,
-      illustration: <Illustration_2 />,
+      illustration: <Illustration2 />,
+    },
+    {
+      id: '2',
+      title: (
+        <>
+          {`${onboarding.slide07Title} `}
+          <Text style={styles.info}>{onboarding.whirlpool}</Text>
+        </>
+      ),
+      paragraph: onboarding.slide07Paragraph,
+      illustration: <Illustration7 />,
     },
   ]);
 
@@ -68,7 +80,7 @@ function OnBoardingSlides({ navigation }) {
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
   return (
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
-      <ImageBackground resizeMode="contain" style={styles.container} source={OnboardingBackImage}>
+      <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
             {currentPosition !== 1 && (

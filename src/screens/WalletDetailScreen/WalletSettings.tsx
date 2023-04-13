@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView } from 'native-base';
@@ -13,11 +12,10 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -35,6 +33,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
+import useWallets from 'src/hooks/useWallets';
 
 type Props = {
   title: string;
@@ -72,14 +71,12 @@ function WalletSettings({ route }) {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
+  const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getBalance, getCurrencyIcon } = useBalance();
+
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
@@ -179,14 +176,8 @@ function WalletSettings({ route }) {
         <WalletCard
           walletName={wallet?.presentationData?.name}
           walletDescription={wallet?.presentationData?.description}
-          walletBalance={getAmt(
-            wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed,
-            exchangeRates,
-            currencyCode,
-            currentCurrency,
-            satsEnabled
-          )}
-          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+          walletBalance={getBalance(wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed)}
+          Icon={getCurrencyIcon(BtcWallet, 'light')}
         />
       </Box>
       <Box style={styles.optionsListContainer}>
@@ -323,7 +314,8 @@ function WalletSettings({ route }) {
           buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
-              data={JSON.stringify(getCosignerDetails(wallet, keeper?.appID))}
+              wallet={wallet}
+              appID={keeper?.appID}
               copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
@@ -382,10 +374,10 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: wp(20),
+    marginHorizontal: wp(10),
   },
   walletDetailsWrapper: {
-    width: wp(170),
+    width: wp(155),
   },
   walletName: {
     letterSpacing: 0.28,

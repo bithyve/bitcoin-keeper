@@ -93,6 +93,7 @@ class RestClient {
         this.updateTorStatus(TorStatus.ERROR, 'Failed to connect to tor daemon');
       }
     } catch (error) {
+      console.log('tor connect error', error);
       await tor.stopIfRunning();
       this.updateTorStatus(TorStatus.ERROR, error.message);
     }

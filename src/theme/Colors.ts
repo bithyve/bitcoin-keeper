@@ -35,7 +35,11 @@ const Colors = {
   CongoPink: 'rgba(255,143,121,1)',
   OutrageousOrange: 'rgba(248,107,80,1)',
   CarmineRed: 'rgba(255,0,51,1)',
-  Seashell: 'rgba(253, 247, 240, 1)',
-  FadedGray: 'rgba(242, 237, 231, 1)',
+  Seashell: 'rgba(253,247,240,1)',
+  FadedGray: 'rgba(242,237,231,1)',
+  FadeBlue: 'rgba(183,201,196,1)',
+  DustySageGreen: 'rgba(139,160,153,1)',
+  ForestGreen: 'rgba(0,131,105,1)',
+  PearlGrey: 'rgba(250,252,252,1)'
 };
 export default Colors;

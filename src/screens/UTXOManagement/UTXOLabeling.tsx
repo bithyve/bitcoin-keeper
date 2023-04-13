@@ -1,25 +1,35 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { Box, Input, KeyboardAvoidingView, useColorMode } from 'native-base';
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
+import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
-import { LabelType } from 'src/core/wallets/enums';
+import { LabelType, NetworkType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
+import BtcBlack from 'src/assets/images/btc_black.svg';
+import Text from 'src/components/KeeperText';
+import openLink from 'src/utils/OpenLink';
+import config from 'src/core/config';
+import Done from 'src/assets/images/selected.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
-import BtcBlack from 'src/assets/images/btc_black.svg';
 import useExchangeRates from 'src/hooks/useExchangeRates';
-import Text from 'src/components/KeeperText';
-import Done from 'src/assets/images/selected.svg';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import Relay from 'src/core/services/operations/Relay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useAsync from 'src/hooks/useAsync';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -35,6 +45,8 @@ function UTXOLabeling() {
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const lablesUpdated =
     labels[`${utxo.txId}${utxo.vout}`].reduce((a, c) => {
       a += c.name;
@@ -46,6 +58,9 @@ function UTXOLabeling() {
     }, '');
 
   const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
+
+  const { inProgress, error, data, start } = useAsync();
 
   useEffect(() => {
     setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
@@ -61,31 +76,59 @@ function UTXOLabeling() {
   };
 
   const onAdd = () => {
-    if (editingIndex !== -1) {
-      existingLabels[editingIndex] = { name: label, type: LabelType.USER };
-    } else {
-      existingLabels.push({ name: label, type: LabelType.USER });
+    if (label) {
+      if (editingIndex !== -1) {
+        existingLabels[editingIndex] = { name: label, type: LabelType.USER };
+      } else {
+        existingLabels.push({ name: label, type: LabelType.USER });
+      }
+      setEditingIndex(-1);
+      setExistingLabels(existingLabels);
+      setLabel('');
     }
-    setEditingIndex(-1);
-    setExistingLabels(existingLabels);
-    setLabel('');
   };
 
-  const onSaveChangeClick = () => {
-    const finalLabels = existingLabels.filter(
-      (label) => !(label.type === LabelType.SYSTEM && label.name === wallet.presentationData.name) // ignore the wallet label since they are internal references
-    );
-    dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
-    navigation.goBack();
+  useEffect(() => {
+    if (error) {
+      showToast(error.toString(), <ToastErrorIcon />, 3000);
+    }
+    if (data) {
+      navigation.goBack();
+    }
+  }, [data, error]);
+
+  const onSaveChangeClick = async () => {
+    await start(async () => {
+      const finalLabels = existingLabels.filter(
+        (label) => !(label.type === LabelType.SYSTEM && label.name === wallet.presentationData.name) // ignore the wallet label since they are internal references
+      );
+      const { updated } = await Relay.modifyUTXOinfo(
+        keeper.id,
+        { labels: finalLabels },
+        `${utxo.txId}${utxo.vout}`
+      );
+      if (updated) dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
+      return updated;
+    });
   };
+
+  const redirectToBlockExplorer = () => {
+    openLink(
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      }/tx/${utxo.txId}`
+    );
+  };
+
   return (
     <ScreenWrapper>
-      <HeaderTitle title="UTXO Details" subtitle="Modify your labels of this UTXO" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
-        enabled
-        keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
+      <HeaderTitle
+        title="UTXO Details"
+        subtitle="Easily identify specific aspects of various UTXOs"
+      />
+      <ScrollView
         style={styles.scrollViewWrapper}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps
       >
         <View style={styles.subHeader} testID="view_utxosLabelSubHeader">
           <View style={{ flex: 1 }}>
@@ -94,15 +137,15 @@ function UTXOLabeling() {
               <Text style={styles.subHeaderValue} numberOfLines={1}>
                 {utxo.txId}
               </Text>
-              <Box style={{ margin: 5 }}>
+              <TouchableOpacity style={{ margin: 5 }} onPress={redirectToBlockExplorer}>
                 <LinkIcon />
-              </Box>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.subHeaderTitle}>UTXO Value</Text>
-            <View style={{ flexDirection: 'row' }}>
-              <Box style={{ marginTop: 5, marginLeft: 5 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Box style={{ marginHorizontal: 5 }}>
                 {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}
               </Box>
               <Text style={styles.subHeaderValue} numberOfLines={1}>
@@ -125,7 +168,12 @@ function UTXOLabeling() {
                 style={[
                   styles.labelView,
                   {
-                    backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : ((editingIndex !== index) ? '#E0B486' : '#A88763'),
+                    backgroundColor:
+                      item.type === LabelType.SYSTEM
+                        ? '#23A289'
+                        : editingIndex !== index
+                          ? '#E0B486'
+                          : '#A88763',
                   },
                 ]}
               >
@@ -137,14 +185,14 @@ function UTXOLabeling() {
                 >
                   <Text style={styles.itemText} bold testID={`text_${item.name}`}>
                     {item.name.toUpperCase()}
-                    {item.type === LabelType.USER ? (
-                      <TouchableOpacity onPress={() => onCloseClick(index)}>
-                        <Box style={styles.deleteContainer}>
-                          <DeleteCross />
-                        </Box>
-                      </TouchableOpacity>
-                    ) : null}
                   </Text>
+                  {item.type === LabelType.USER ? (
+                    <TouchableOpacity onPress={() => onCloseClick(index)}>
+                      <Box style={styles.deleteContainer}>
+                        <DeleteCross />
+                      </Box>
+                    </TouchableOpacity>
+                  ) : null}
                 </TouchableOpacity>
               </View>
             ))}
@@ -172,18 +220,19 @@ function UTXOLabeling() {
           </Box>
         </View>
         <View style={{ flex: 1 }} />
-        <Box style={styles.ctaBtnWrapper}>
-          <Box ml={windowWidth * -0.09} testID="btn_utxoLabelSaveChanges">
-            <Buttons
-              primaryDisable={!lablesUpdated}
-              primaryCallback={onSaveChangeClick}
-              primaryText="Save Changes"
-              secondaryCallback={navigation.goBack}
-              secondaryText="Cancel"
-            />
-          </Box>
+      </ScrollView>
+      <Box style={styles.ctaBtnWrapper}>
+        <Box ml={windowWidth * -0.09}>
+          <Buttons
+            primaryLoading={inProgress}
+            primaryDisable={!lablesUpdated}
+            primaryCallback={onSaveChangeClick}
+            primaryText="Save Changes"
+            secondaryCallback={navigation.goBack}
+            secondaryText="Cancel"
+          />
         </Box>
-      </KeyboardAvoidingView>
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -291,6 +340,7 @@ const styles = StyleSheet.create({
   labelEditContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   itemText: {
     color: '#fff',

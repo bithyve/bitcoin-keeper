@@ -25,9 +25,8 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { getAmt, getUnit, isTestnet, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 // asserts (svgs, pngs)
 import Arrow from 'src/assets/images/arrow.svg';
 import BTC from 'src/assets/images/btc.svg';
@@ -48,6 +47,7 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { urlParamsToObj } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
+import useWallets from 'src/hooks/useWallets';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
 
@@ -99,14 +99,10 @@ function InheritanceComponent() {
 
 function LinkedWallets(props) {
   const navigation = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const dispatch = useDispatch();
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   useEffect(() => {
     dispatch(resetRealyWalletState());
@@ -162,7 +158,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+                {getCurrencyIcon(BTC, 'grey',)}
               </Box>
               <Text
                 color="light.white"
@@ -171,7 +167,7 @@ function LinkedWallets(props) {
                   letterSpacing: 0.6,
                 }}
               >
-                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                {getBalance(netBalance)}
               </Text>
               <Text
                 color="light.white"
@@ -181,7 +177,7 @@ function LinkedWallets(props) {
                   fontSize: hp(12),
                 }}
               >
-                {getUnit(currentCurrency, satsEnabled)}
+                {getSatUnit()}
               </Text>
             </Box>
           ) : (
@@ -191,14 +187,15 @@ function LinkedWallets(props) {
                 alignItems: 'center',
               }}
             >
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+              {getCurrencyIcon(BTC, 'grey')}
               &nbsp;
               <Hidden />
-            </Box>
-          )}
-        </Pressable>
-      </Box>
-    </Pressable>
+            </Box >
+          )
+          }
+        </Pressable >
+      </Box >
+    </Pressable >
   );
 }
 
@@ -207,10 +204,7 @@ function VaultStatus(props) {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
@@ -285,19 +279,71 @@ function VaultStatus(props) {
 
   return (
     <Box style={styles.vaultStatusContainder}>
-      <Pressable testID="btn_vault">
-        <ImageBackground resizeMode="contain" source={VaultImage}>
-          <TouchableOpacity onPress={open} activeOpacity={0.7}>
-            <Box style={styles.vault}>
-              <Box style={styles.torContainer}>
-                {getTorStatusText !== 'Tor disabled' && (
-                  <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
-                    <Text color="light.primaryText" style={styles.torText} bold>
-                      {getTorStatusText}
+      <ImageBackground resizeMode="contain" source={VaultImage}>
+        <TouchableOpacity testID="btn_vault" onPress={open} activeOpacity={0.7}>
+          <Box style={styles.vault}>
+            <Box style={styles.torContainer}>
+              {getTorStatusText !== 'Tor disabled' && (
+                <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
+                  <Text color="light.primaryText" style={styles.torText} bold>
+                    {getTorStatusText}
+                  </Text>
+                </Box>
+              )}
+            </Box>
+            <Box style={styles.vaultBody}>
+              <Text color="light.white" style={styles.vaultHeading} bold>
+                Your Vault
+              </Text>
+
+              <Text color="light.white" style={styles.vaultSubHeading} bold>
+                {!signers.length
+                  ? 'Add a signing device to enable '
+                  : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
+              </Text>
+
+              {!signers.length ? (
+                <Box
+                  style={{
+                    marginTop: hp(11.5),
+                  }}
+                >
+                  <Chain />
+                </Box>
+              ) : (
+                <Box style={styles.vaultSignersContainer}>
+                  {signers.map((signer) => (
+                    <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
+                      {WalletMap(signer.type).Icon}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
+
+            <HStack style={styles.vaultBalanceContainer}>
+              {getCurrencyIcon(BTC, 'grey')}
+              <Pressable>
+                {props.showHideAmounts ? (
+                  <Box style={styles.rowCenter}>
+                    <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
+                      {getBalance(vaultBalance)}
+                    </Text>
+                    <Text color="light.white" style={styles.vaultBalanceUnit}>
+                      {getSatUnit()}
                     </Text>
                   </Box>
+                ) : (
+                  <Box
+                    style={{
+                      marginVertical: 15,
+                      marginLeft: 3,
+                    }}
+                  >
+                    <Hidden />
+                  </Box>
                 )}
-              </Box>
+              </Pressable>
               <Box style={styles.vaultBody}>
                 <Text color="light.white" style={styles.vaultHeading} bold>
                   Your Vault
@@ -362,11 +408,20 @@ function VaultStatus(props) {
                   {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
                 </Text>
               </Pressable>
-            </Box>
-          </TouchableOpacity>
-        </ImageBackground>
-      </Pressable>
-    </Box>
+            </HStack >
+            <Pressable
+              backgroundColor="light.accent"
+              style={styles.balanceToggleContainer}
+              onPress={() => props.onAmountPress()}
+            >
+              <Text color="light.sendMax" style={styles.balanceToggleText} bold>
+                {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
+              </Text>
+            </Pressable>
+          </Box >
+        </TouchableOpacity >
+      </ImageBackground >
+    </Box >
   );
 }
 
@@ -505,7 +560,13 @@ function HomeScreen({ navigation }) {
         }}
       />
       <Box style={styles.bottomContainer}>
-        <InheritanceComponent />
+        <Pressable
+          onPress={() => {
+            navigation.navigate('SetupInheritance');
+          }}
+        >
+          <InheritanceComponent />
+        </Pressable>
         <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}

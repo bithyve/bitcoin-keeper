@@ -272,6 +272,7 @@
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
+    "ImportAWallet": "Import a Wallet",
     "AddNewWalletDescription": "Name and description for the wallet",
     "WalletNamePlaceHolder": "Maldives Funds",
     "WalletDescriptionPlaceholder": "Single-sig",
@@ -472,7 +473,10 @@
     "slide05Title": "Works just with the mobile app,\nno computer needed",
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signing devices, without any intermediate step",
     "slide06Title": "Upgrade Keeper, with your bitcoin journey",
-    "slide06Paragraph": "Pleb - Hodler - Diamond Hands. Three levels for the vault with increased multi-sig security. The last tier enables inheritance."
+    "slide06Paragraph": "Pleb - Hodler - Diamond Hands. Three levels for the vault with increased multi-sig security. The last tier enables inheritance.",
+    "slide07Title": "Enhanced Privacy with",
+    "whirlpool": "\nWhirlpool",
+    "slide07Paragraph": "When you initiate a Whirlpool, Keeper creates 3 different wallets for you. Premix is for UTXOs prepared to go into pools. Postmix is for all the sats that have been mixed while Bad Bank is for sats that may have PIIs attached. Once happy with the mix, you can shift your sats into the vault."
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
@@ -491,6 +495,7 @@
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual phrase",
+    "importWallet": "Import wallet",
     "healthCheck": "Health Check",
     "enterStrongPass": "Enter App Generated Strong Password",
     "healthCheckNote": "This step ensures that you have access to the recovery of your wallet ",

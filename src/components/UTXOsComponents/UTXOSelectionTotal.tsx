@@ -4,19 +4,13 @@ import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
-import useExchangeRates from 'src/hooks/useExchangeRates';
+import useBalance from 'src/hooks/useBalance';
 
 function UTXOSelectionTotal(props: any) {
   const { selectionTotal, selectedUTXOs } = props;
-  const currencyCode = useCurrencyCode();
-  const exchangeRates = useExchangeRates();
   const { colorMode } = useColorMode();
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   return (
     <Box style={styles.tabWrapper} testID="view_UTXOSelectTotal">
       <Box style={styles.selectionWrapper}>
@@ -24,11 +18,11 @@ function UTXOSelectionTotal(props: any) {
       </Box>
       <Box style={styles.totalWrapper}>
         <Text style={styles.selectionTotalText}>Total</Text>
-        <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
-        <Text style={styles.selectionText} testID="text_selectionTotal">
-          {getAmt(selectionTotal, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+        <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
+        <Text style={styles.selectionText}>
+          {getBalance(selectionTotal)}
           <Text color={`${colorMode}.dateText`} style={styles.selectionText}>
-            {getUnit(currentCurrency, satsEnabled)}
+            {getSatUnit()}
           </Text>
         </Text>
       </Box>

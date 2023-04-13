@@ -10,6 +10,7 @@ import Text from 'src/components/KeeperText';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
+import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { WalletMap } from '../WalletMap';
 
 function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: VaultMigrationType }) {
@@ -54,11 +55,10 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
     }
     return null;
   }, [upgradeStatus]);
-
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: `${70 - Signers.length}%` }}
+      style={{ position: 'absolute', top: -50 }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
@@ -79,38 +79,15 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
               }}
             >
               {indicate ? <Box style={styles.indicator} /> : null}
-              <Box
-                margin="1"
-                width="12"
-                height="12"
-                borderRadius={30}
-                backgroundColor="#725436"
-                justifyContent="center"
-                alignItems="center"
-                alignSelf="center"
-              >
-                {WalletMap(signer.type, true).Icon}
-              </Box>
+              <Box style={styles.signerTypeIconWrapper}>{WalletMap(signer.type, true).Icon}</Box>
               <Text bold style={styles.unregistered}>
                 {indicate ? 'Not registered' : ' '}
               </Text>
-              <VStack pb={2}>
-                <Text
-                  color="light.textBlack"
-                  fontSize={11}
-                  letterSpacing={0.6}
-                  textAlign="center"
-                  numberOfLines={1}
-                >
+              <VStack style={styles.signerNameFromTypeWrapper}>
+                <Text color="light.textBlack" style={styles.signerNameFromTypeText}>
                   {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
-                <Text
-                  color="light.textBlack"
-                  fontSize={8}
-                  letterSpacing={0.6}
-                  textAlign="center"
-                  numberOfLines={2}
-                >
+                <Text color="light.textBlack" style={styles.signerDescDateText}>
                   {signer.signerDescription
                     ? signer.signerDescription
                     : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
@@ -133,20 +110,22 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOpacity: 0.3,
     shadowOffset: { height: 2, width: 0 },
-    height: 130,
+    height: windowHeight > 670 ? 130 : 121,
     width: 70,
     borderTopLeftRadius: 100,
     borderTopRightRadius: 100,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: Platform.OS === 'ios' ? 10 : 30,
+    borderBottomRightRadius: Platform.OS === 'ios' ? 10 : 30,
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 5,
+    padding: windowHeight > 670 ? 5 : 2,
     backgroundColor: '#FDF7F0',
   },
   scrollContainer: {
-    padding: '8%',
+    paddingVertical: '3%',
+    paddingHorizontal: '2%',
     width: Platform.select({ android: null, ios: '100%' }),
+    marginRight: '10%',
   },
   unregistered: {
     color: '#6E563B',
@@ -167,5 +146,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'white',
     backgroundColor: '#F86B50',
+  },
+  signerNameFromTypeText: {
+    fontSize: 9,
+    letterSpacing: 0.6,
+    textAlign: 'center',
+    numberOfLines: 1,
+  },
+  signerDescDateText: {
+    fontSize: 7,
+    letterSpacing: windowHeight > 670 ? 0.6 : 0,
+    textAlign: 'center',
+    numberOfLines: 2,
+  },
+  signerNameFromTypeWrapper: {
+    paddingBottom: 2,
+  },
+  signerTypeIconWrapper: {
+    margin: 2,
+    width: windowHeight > 670 ? 45 : 40,
+    height: windowHeight > 670 ? 45 : 40,
+    borderRadius: 45,
+    backgroundColor: '#725436',
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center',
   },
 });

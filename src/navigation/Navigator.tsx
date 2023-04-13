@@ -73,8 +73,15 @@ import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigura
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
+import PoolSelection from 'src/screens/Mix/PoolSelection';
+import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
+import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
 import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
 import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
+import MixProgress from 'src/screens/Mix/MixProgress';
+import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
+import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
+import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -163,6 +170,9 @@ function AppStack() {
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
+        <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
+        <Stack.Screen name="ImportWalletDetails" component={ImportWalletDetailsScreen} />
+        <Stack.Screen name="AddDetailsFinal" component={AddDetailsFinalScreen} />
         <Stack.Screen name="AddSendAmount" component={AddSendAmount} />
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
@@ -196,6 +206,10 @@ function AppStack() {
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
+        <Stack.Screen name="PoolSelection" component={PoolSelection} />
+        <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
+        <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
+        <Stack.Screen name="MixProgress" component={MixProgress} />
       </Stack.Navigator>
     </RealmProvider>
   );

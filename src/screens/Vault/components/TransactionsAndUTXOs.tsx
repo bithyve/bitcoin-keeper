@@ -3,14 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { HStack, VStack } from 'native-base';
+import { Box, HStack, VStack } from 'native-base';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
-import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
 function TransactionsAndUTXOs({
   transactions,
@@ -83,21 +83,25 @@ function TransactionsAndUTXOs({
           ) : null}
         </HStack>
       </VStack>
-      <FlatList
-        style={{ height: windowHeight > 800 ? '60%' : '30%' }}
-        refreshControl={<RefreshControl onRefresh={syncVault} refreshing={pullRefresh} />}
-        data={transactions}
-        renderItem={renderTransactionElement}
-        keyExtractor={(item) => item}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <EmptyStateView
-            IllustartionImage={NoVaultTransactionIcon}
-            title="Security Tip"
-            subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
-          />
-        }
-      />
+      <Box>
+        <FlatList
+          style={{
+            height: windowHeight > 800 ? '52%' : '31%',
+          }}
+          refreshControl={<RefreshControl onRefresh={syncVault} refreshing={pullRefresh} />}
+          data={transactions}
+          renderItem={renderTransactionElement}
+          keyExtractor={(item) => item}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <EmptyStateView
+              IllustartionImage={NoVaultTransactionIcon}
+              title="Security Tip"
+              subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
+            />
+          }
+        />
+      </Box>
     </>
   );
 }

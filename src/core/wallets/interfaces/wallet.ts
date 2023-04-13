@@ -31,6 +31,17 @@ export interface TransferPolicy {
   threshold: number;
 }
 
+export interface WhirlpoolWalletDetails {
+  walletId: string; //wallet id for the premix|postmix|badbank
+  walletType: WalletType;
+}
+export interface WhirlpoolConfig {
+  whirlpoolWalletDetails: WhirlpoolWalletDetails[]; // deatils for DB
+  premixWallet?: Wallet; //Details for UI
+  postmixWallet?: Wallet; //Details for UI
+  badbankWallet?: Wallet; //Details for UI
+}
+
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub
   xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
@@ -56,7 +67,9 @@ export interface Wallet {
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
   scriptType: ScriptTypes;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
+  whirlpoolConfig?: WhirlpoolConfig;
+  depositWalletId?: string; //this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
 }
 
 export interface TriggerPolicy {

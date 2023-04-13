@@ -5,6 +5,7 @@
 import {
   DerivationPurpose,
   EntityKind,
+  NetworkType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
@@ -17,6 +18,7 @@ import {
   Wallet,
   WalletImportDetails,
   WalletPresentationData,
+  WhirlpoolConfig,
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
@@ -24,6 +26,7 @@ import {
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
+  setWhirlpoolCreated,
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
@@ -40,7 +43,7 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { generateKey } from 'src/core/services/operations/encryption';
+import { generateKey, hash256 } from 'src/core/services/operations/encryption';
 import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { RootState } from '../store';
 import {
@@ -63,6 +66,8 @@ import {
   walletSettingsUpdated,
   UPDATE_SIGNER_DETAILS,
   UPDATE_WALLET_PROPERTY,
+  ADD_WHIRLPOOL_WALLETS,
+  ADD_WHIRLPOOL_WALLETS_LOCAL,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -95,7 +100,9 @@ export interface NewWalletDetails {
   name?: string;
   description?: string;
   derivationConfig?: DerivationConfig;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
+  instanceNum?: number;
+  parentMnemonic?: string;
 }
 
 export interface NewWalletInfo {
@@ -103,6 +110,146 @@ export interface NewWalletInfo {
   walletDetails?: NewWalletDetails;
   importDetails?: WalletImportDetails;
 }
+
+export function* addWhirlpoolWalletsLocalWorker({
+  payload,
+}: {
+  payload: {
+    depositWallet: Wallet;
+  };
+}) {
+  const { depositWallet } = payload;
+  const { instanceNum } = depositWallet.derivationDetails;
+
+  const preMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.PRE_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483645),
+      },
+    },
+  };
+  const postMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.POST_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483646),
+      },
+    },
+  };
+  const badBankWalletInfo: NewWalletInfo = {
+    walletType: WalletType.BAD_BANK,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483644),
+      },
+    },
+  };
+
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
+
+  const wallets = [];
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
+    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
+    wallets.push(wallet);
+  }
+  yield put(setWhirlpoolWallets(wallets));
+}
+
+export const addWhirlpoolWalletsLocalWatcher = createWatcher(
+  addWhirlpoolWalletsLocalWorker,
+  ADD_WHIRLPOOL_WALLETS_LOCAL
+);
+
+export function* addWhirlpoolWalletsWorker({
+  payload,
+}: {
+  payload: {
+    depositWallet: Wallet;
+  };
+}) {
+  const { depositWallet } = payload;
+  const { instanceNum } = depositWallet.derivationDetails;
+
+  const preMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.PRE_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483645),
+      },
+    },
+  };
+  const postMixWalletInfo: NewWalletInfo = {
+    walletType: WalletType.POST_MIX,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483646),
+      },
+    },
+  };
+  const badBankWalletInfo: NewWalletInfo = {
+    walletType: WalletType.BAD_BANK,
+    walletDetails: {
+      parentMnemonic: depositWallet.derivationDetails.mnemonic,
+      instanceNum,
+      derivationConfig: {
+        purpose: DerivationPurpose.BIP84,
+        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483644),
+      },
+    },
+  };
+
+  const whirlpoolConfig: WhirlpoolConfig = {
+    whirlpoolWalletDetails: [
+      {
+        walletId: hash256(`${depositWallet.id}${WalletType.PRE_MIX}`),
+        walletType: WalletType.PRE_MIX,
+      },
+      {
+        walletId: hash256(`${depositWallet.id}${WalletType.POST_MIX}`),
+        walletType: WalletType.POST_MIX,
+      },
+      {
+        walletId: hash256(`${depositWallet.id}${WalletType.BAD_BANK}`),
+        walletType: WalletType.BAD_BANK,
+      },
+    ],
+  };
+
+  yield call(updateWalletsPropertyWorker, {
+    payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
+  });
+  const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  const wallets = [];
+  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
+    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
+    wallets.push(wallet);
+  }
+  yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
+  yield put(setWhirlpoolCreated(true));
+}
+
+export const addWhirlpoolWalletsWatcher = createWatcher(
+  addWhirlpoolWalletsWorker,
+  ADD_WHIRLPOOL_WALLETS
+);
 
 function* addNewWallet(
   walletType: WalletType,
@@ -116,6 +263,8 @@ function* addNewWallet(
     description: walletDescription,
     derivationConfig,
     transferPolicy,
+    instanceNum,
+    parentMnemonic,
   } = walletDetails;
   const wallets: Wallet[] = yield call(
     dbManager.getObjectByIndex,
@@ -154,6 +303,43 @@ function* addNewWallet(
       });
       return importedWallet;
 
+    // Whirpool wallet types premix,postmix, badbank
+    case WalletType.PRE_MIX:
+      const preMixWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.PRE_MIX,
+        instanceNum, // deposit account's index
+        walletName: 'Pre mix Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        networkType: config.NETWORK_TYPE,
+        parentMnemonic,
+      });
+      return preMixWallet;
+
+    case WalletType.POST_MIX:
+      const postMixWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.POST_MIX,
+        instanceNum, // deposit account's index
+        walletName: 'Post mix Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        networkType: config.NETWORK_TYPE,
+        parentMnemonic,
+      });
+      return postMixWallet;
+
+    case WalletType.BAD_BANK:
+      const badBankWallet: Wallet = yield call(generateWallet, {
+        type: WalletType.BAD_BANK,
+        instanceNum, // deposit account's index
+        walletName: 'Bad Bank Wallet',
+        walletDescription: 'Bitcoin Wallet',
+        derivationConfig,
+        networkType: config.NETWORK_TYPE,
+        parentMnemonic,
+      });
+      return badBankWallet;
+
     default:
       throw new Error(`Unsupported wallet-type ${walletType}`);
   }
@@ -175,9 +361,20 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
       wallets.push(wallet);
     }
 
+    if (wallets.length > 0) {
+      yield put(setRelayWalletUpdateLoading(true));
+      const response = yield call(updateAppImageWorker, { payload: { wallets } });
+      if (response.updated) {
+        yield put(relayWalletUpdateSuccess());
+        yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
+        return true;
+      }
+      yield put(relayWalletUpdateFail(response.error));
+      return false;
+    }
     for (const wallet of wallets) {
       yield put(setRelayWalletUpdateLoading(true));
-      const response = yield call(updateAppImageWorker, { payload: { wallet } });
+      const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
       if (response.updated) {
         yield put(relayWalletUpdateSuccess());
         yield call(dbManager.createObject, RealmSchema.Wallet, wallet);
@@ -189,13 +386,15 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
             })
           );
         }
-      } else {
-        yield put(relayWalletUpdateFail(response.error));
+        return true;
       }
+      yield put(relayWalletUpdateFail(response.error));
+      return false;
     }
   } catch (err) {
     console.log(err);
     yield put(relayWalletUpdateFail(''));
+    return false;
   }
 }
 
@@ -374,6 +573,7 @@ function* syncWalletsWorker({
     wallets,
     network
   );
+  const UTXOInfos: UTXOInfo[] = [];
   for (const wallet of synchedWallets) {
     const allUTXOs = wallet.specs.confirmedUTXOs.concat(wallet.specs.unconfirmedUTXOs);
     for (const utxo of allUTXOs) {
@@ -384,9 +584,12 @@ function* syncWalletsWorker({
         vout: utxo.vout,
         walletId: wallet.id,
       };
-      dbManager.createObject(RealmSchema.UTXOInfo, utxoInfo);
+      UTXOInfos.push(utxoInfo);
     }
   }
+  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  yield call(Relay.addUTXOinfos, app.id, UTXOInfos);
+  dbManager.createObjectBulk(RealmSchema.UTXOInfo, UTXOInfos);
   return {
     synchedWallets,
   };
@@ -648,7 +851,15 @@ function* updateSignerDetailsWorker({ payload }) {
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
 
-function* updateWalletsPropertyWorker({ payload }) {
+function* updateWalletsPropertyWorker({
+  payload,
+}: {
+  payload: {
+    wallet: Wallet;
+    key: string;
+    value: any;
+  };
+}) {
   const {
     wallet,
     key,

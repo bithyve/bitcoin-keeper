@@ -20,13 +20,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import {
-  BtcToSats,
-  getAmt,
-  getCurrencyImageByRegion,
-  SATOSHIS_IN_BTC,
-  SatsToBtc,
-} from 'src/common/constants/Bitcoin';
+import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
@@ -35,6 +30,8 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
+import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import TagsGreen from 'src/assets/images/tags.svg';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -60,6 +57,7 @@ function AddSendAmount({ route }) {
   const [amountToSend, setAmountToSend] = useState('');
   const [note, setNote] = useState('');
   const [label, setLabel] = useState('');
+  const [addTagsModalVisible, setAddTagsModalVisible] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
   const recipientCount = 1;
@@ -73,6 +71,7 @@ function AddSendAmount({ route }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
   const utxoTotal = selectedUTXOs ? SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0)) : 0;
+  const { getBalance, getCurrencyIcon } = useBalance();
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -90,16 +89,22 @@ function AddSendAmount({ route }) {
     const confirmBalance = sender.specs.balances.confirmed;
     const sendMaxBalance = confirmBalance - sendMaxFee;
 
-    if (Number(amount) > SatsToBtc(sendMaxBalance)) {
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      if (satsEnabled) {
+        setAmountToSend(amount);
+      } else {
+        setAmountToSend(BtcToSats(parseFloat(amount)).toString());
+      }
+    } else {
+      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+    }
+
+    if (Number(amountToSend) > sendMaxBalance) {
       setErrorMessage('Amount entered is more than available to spend');
     } else {
       setErrorMessage('');
     }
-    if (currentCurrency === CurrencyKind.BITCOIN) {
-      setAmountToSend(BtcToSats(parseFloat(amount)));
-    } else {
-      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
-    }
+
     if (selectedUTXOs && selectedUTXOs.length) {
       if (
         Number(utxoTotal) > Number(amount) &&
@@ -118,7 +123,11 @@ function AddSendAmount({ route }) {
     if (sendMaxFee && confirmBalance) {
       const sendMaxBalance = confirmBalance - sendMaxFee;
       if (currentCurrency === CurrencyKind.BITCOIN) {
-        setAmount(`${SatsToBtc(sendMaxBalance)}`);
+        if (satsEnabled) {
+          setAmount(sendMaxBalance.toString());
+        } else {
+          setAmount(`${SatsToBtc(sendMaxBalance)}`);
+        }
       } else {
         setAmount(convertSatsToFiat(sendMaxBalance).toString());
       }
@@ -149,7 +158,7 @@ function AddSendAmount({ route }) {
     recipients.push({
       address,
       amount: amountToSend, // should be denominated in sats
-      name: recipient.presentationData.name,
+      name: recipient ? recipient.presentationData.name : '',
     });
     dispatch(
       sendPhaseOne({
@@ -175,7 +184,6 @@ function AddSendAmount({ route }) {
     },
     []
   );
-
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -190,15 +198,9 @@ function AddSendAmount({ route }) {
       >
         <WalletSendInfo
           selectedUTXOs={selectedUTXOs}
-          availableAmt={getAmt(
-            sender?.specs.balances.confirmed,
-            exchangeRates,
-            currencyCode,
-            currentCurrency,
-            satsEnabled
-          )}
+          availableAmt={getBalance(sender?.specs.balances.confirmed)}
           walletName={sender?.presentationData.name}
-          currencyIcon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTCIcon)}
+          currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
           isSats={satsEnabled}
         />
       </Box>
@@ -235,9 +237,7 @@ function AddSendAmount({ route }) {
           style={styles.inputWrapper}
         >
           <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
-            <Box marginRight={2}>
-              {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BitcoinInput)}
-            </Box>
+            <Box marginRight={2}>{getCurrencyIcon(BitcoinInput, 'dark')}</Box>
             <Box
               marginLeft={2}
               width={0.5}
@@ -286,24 +286,51 @@ function AddSendAmount({ route }) {
           </Pressable>
         </Box>
 
-        <Box style={styles.addNoteWrapper}>
-          <TextInput
-            autoCapitalize="sentences"
+        <Box
+          backgroundColor="light.primaryBackground"
+          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+          style={styles.inputWrapper}
+        >
+          <Input
             placeholder="Add a note"
+            autoCapitalize="sentences"
             placeholderTextColor="light.greenText"
-            style={styles.textInput}
+            color="light.greenText"
+            opacity={note ? 1 : 0.5}
+            width="90%"
+            fontSize={14}
+            fontWeight={300}
+            letterSpacing={1.04}
+            borderWidth="0"
             value={note}
             onChangeText={(value) => {
               setNote(value);
             }}
           />
         </Box>
-        <Box style={styles.addNoteWrapper}>
-          <TextInput
+
+        {/* <MenuItemButton
+            // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
+            onPress={() => showToast('Comming soon')}
+            icon={<TagsGreen />}
+            title="Add Tags"
+            subTitle="Tags help you remember and identify UTXOs"
+          /> */}
+        <Box
+          backgroundColor="light.primaryBackground"
+          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+          style={styles.inputWrapper}
+        >
+          <Input
             autoCapitalize="sentences"
             placeholder="Add a lable"
             placeholderTextColor="light.greenText"
-            style={styles.textInput}
+            opacity={label ? 1 : 0.5}
+            width="90%"
+            fontSize={14}
+            fontWeight={300}
+            letterSpacing={1.04}
+            borderWidth="0"
             value={label}
             onChangeText={(value) => {
               setLabel(value);
@@ -331,7 +358,7 @@ function AddSendAmount({ route }) {
           activity private and organised. The information is not shared with anyone
         </Text>
       </Box>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 
@@ -397,7 +424,9 @@ const styles = ScaledSheet.create({
     marginLeft: '-5%',
   },
   infoNoteWrapper: {
-    marginTop: hp(35),
+    position: 'absolute',
+    bottom: hp(20),
+    alignSelf: 'center',
     backgroundColor: Colors.Bisque,
     opacity: 0.8,
     paddingHorizontal: 10,

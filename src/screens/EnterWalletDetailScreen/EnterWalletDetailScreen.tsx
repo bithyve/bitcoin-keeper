@@ -193,7 +193,7 @@ function EnterWalletDetailScreen({ route }) {
             testID={`input_${walletName.replace(/ /g, '_')}`}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
-            {walletName && walletName.length}/28
+            {walletName && walletName.length}/20
           </KeeperText>
         </Box>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>

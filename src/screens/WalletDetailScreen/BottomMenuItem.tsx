@@ -3,9 +3,9 @@ import React from 'react';
 import Text from 'src/components/KeeperText';
 
 function BottomMenuItem(props) {
-  const { onPress, icon, title } = props;
+  const { onPress, icon, title, disabled = false } = props;
   return (
-    <TouchableOpacity style={styles.IconText} onPress={onPress} testID={`btn_${title.replace(/ /g, '_')}`}>
+    <TouchableOpacity style={styles.IconText} onPress={onPress} disabled={disabled} testID="btn_bottomMenu">
       {icon}
       <Text color="light.primaryText" style={styles.footerItemText}>
         {title}

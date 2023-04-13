@@ -20,13 +20,12 @@ import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
 function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
-
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const [policyText, setPolicyText] = useState(wallet.transferPolicy.threshold.toString());
+  const [policyText, setPolicyText] = useState(wallet?.transferPolicy?.threshold?.toString());
   const dispatch = useDispatch();
 
   const onPressNumber = (digit) => {
@@ -43,9 +42,9 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
+      close();
       showToast('Transfer Policy Changed', <TickIcon />);
       dispatch(resetRealyWalletState());
-      close();
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 

@@ -96,7 +96,7 @@ export default class ElectrumClient {
     await new Promise((resolve) => {
       setTimeout(resolve, ELECTRUM_CLIENT_CONFIG.reconnectDelay); // attempts reconnection after 1 second
     });
-    return await ElectrumClient.connect();
+    return ElectrumClient.connect();
   }
 
   public static forceDisconnect() {
@@ -107,8 +107,11 @@ export default class ElectrumClient {
 
   public static async serverFeatures() {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
-    return await ELECTRUM_CLIENT.electrumClient.server_features();
+    return ELECTRUM_CLIENT.electrumClient.server_features();
   }
+
+  public static getBlockchainHeaders = async (): Promise<{ height: number; hex: string }> =>
+    ELECTRUM_CLIENT.electrumClient.blockchainHeaders_subscribe();
 
   public static getActivePrivateNodeToUse(peers: NodeDetail[]) {
     const node = peers?.filter((node) => node.isConnected)[0];

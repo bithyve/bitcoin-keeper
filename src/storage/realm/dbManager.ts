@@ -34,6 +34,20 @@ const createObject = (schema: RealmSchema, object: any) => {
 };
 
 /**
+ * generic :: creates objects corresponding to provided schema
+ * @param  {RealmSchema} schema
+ * @param  {any[]} objects
+ */
+const createObjectBulk = (schema: RealmSchema, objects: any[]) => {
+  try {
+    const hasCreated = realm.createBulk(schema, objects);
+    return hasCreated;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+/**
  * generic :: fetches an object corresponding to provided schema and the supplied instance num
  * @param  {RealmSchema} schema
  */
@@ -113,6 +127,7 @@ export default {
   initializeRealm,
   deleteRealm,
   deleteObjectById,
+  createObjectBulk,
   createObject,
   getObjectByIndex,
   getObjectById,

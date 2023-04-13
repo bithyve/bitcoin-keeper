@@ -3,6 +3,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { call } from 'redux-saga/effects';
 import { UTXO } from 'src/core/wallets/interfaces';
 import { LabelType } from 'src/core/wallets/enums';
+import Relay from 'src/core/services/operations/Relay';
 import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS, CREATE_UTXO_REFERENCE } from '../sagaActions/utxos';
@@ -39,13 +40,16 @@ export function* createUTXOReferenceWorker({
   payload: { labels: Array<{ name: string; type: LabelType }>; txId: string; vout: number };
 }) {
   const { txId, vout, labels } = payload;
-  yield call(dbManager.createObject, RealmSchema.UTXOInfo, {
+  const UTXOInfo = {
     id: `${txId}${vout}`,
     txId,
     vout,
     walletId: 'ABC123',
     labels,
-  });
+  };
+  const keeper = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+  yield call(Relay.addUTXOinfos, keeper.id, [UTXOInfo]);
+  yield call(dbManager.createObject, RealmSchema.UTXOInfo, UTXOInfo);
 }
 
 export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);
