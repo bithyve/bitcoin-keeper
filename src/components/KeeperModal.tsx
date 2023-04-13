@@ -32,6 +32,7 @@ type ModalProps = {
   closeOnOverlayClick?: boolean;
   showCloseIcon?: boolean;
   justifyContent?: ResponsiveValue<string | number>;
+  pagination?: any;
 };
 
 KeeperModal.defaultProps = {
@@ -54,6 +55,7 @@ KeeperModal.defaultProps = {
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
+  pagination: null,
 };
 
 function KeeperModal(props: ModalProps) {
@@ -79,6 +81,7 @@ function KeeperModal(props: ModalProps) {
     closeOnOverlayClick,
     showCloseIcon,
     justifyContent,
+    pagination,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
@@ -149,6 +152,7 @@ function KeeperModal(props: ModalProps) {
                     </Box>
                   </TouchableOpacity>
                 )}
+                {pagination}
               </Box>
             )}
           </Box>
@@ -219,5 +223,12 @@ const getStyles = (subTitleWidth) =>
       justifyContent: 'space-between',
       alignItems: 'center',
       width: '100%',
+    },
+    selectedDot: {
+      width: 25,
+      height: 5,
+      borderRadius: 5,
+      backgroundColor: '#E3BE96',
+      marginEnd: 5,
     },
   });

@@ -26,6 +26,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import UtxoSummary from './UtxoSummary';
 import config from 'src/core/config';
+import useBalance from 'src/hooks/useBalance';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -55,7 +56,8 @@ export default function BroadcastPremix({ route, navigation }) {
   const [premixOutputs, setPremixOutputs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [preRequistesLoading, setPreRequistesLoading] = useState(true);
-  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
+  const { getSatUnit } = useBalance();
+  // const getSatUnit = () => (satsEnabled ? 'sats' : 'btc');
   const valueByPreferredUnit = (value) => {
     if (!value) return '';
     const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
@@ -207,7 +209,7 @@ export default function BroadcastPremix({ route, navigation }) {
           <Box style={styles.textDirection}>
             <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
             <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-              {getPreferredUnit()}
+              {getSatUnit()}
             </Text>
           </Box>
         </Box>
@@ -224,7 +226,7 @@ export default function BroadcastPremix({ route, navigation }) {
               )}
             </Text>
             <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-              {getPreferredUnit()}
+              {getSatUnit()}
             </Text>
           </Box>
         </Box>
@@ -235,7 +237,7 @@ export default function BroadcastPremix({ route, navigation }) {
           <Box style={styles.textDirection}>
             <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
             <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-              {getPreferredUnit()}
+              {getSatUnit()}
             </Text>
           </Box>
         </Box>
@@ -254,7 +256,7 @@ export default function BroadcastPremix({ route, navigation }) {
               <Box style={styles.textDirection}>
                 <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
                 <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
-                  {getPreferredUnit()}
+                  {getSatUnit()}
                 </Text>
               </Box>
             </Box>
