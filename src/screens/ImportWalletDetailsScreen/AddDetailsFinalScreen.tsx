@@ -121,7 +121,7 @@ function AddDetailsFinalScreen({ route }) {
       },
     };
     dispatch(addNewWallets([newWallet]));
-  }, [walletName, walletDescription, transferPolicy]);
+  }, [walletName, walletDescription, transferPolicy, path]);
 
   useEffect(() => {
     if (relayWalletUpdate) {
