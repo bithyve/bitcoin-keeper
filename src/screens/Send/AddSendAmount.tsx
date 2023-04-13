@@ -158,7 +158,7 @@ function AddSendAmount({ route }) {
     recipients.push({
       address,
       amount: amountToSend, // should be denominated in sats
-      name: recipient.presentationData.name,
+      name: recipient ? recipient.presentationData.name : '',
     });
     dispatch(
       sendPhaseOne({
