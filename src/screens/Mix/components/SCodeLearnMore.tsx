@@ -30,16 +30,13 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
             }}
             title="SCODES and Priority"
             subTitle="SCODES are discount codes periodically released by Samurai on their social media platforms. Keep an eye out for them and use them to get attractive discounts on your whirlpool fees."
+            DarkCloseIcon
             modalBackground={['light.gradientStart', 'light.gradientEnd']}
             textColor="light.white"
             Content={SCodeContent}
             showCloseIcon={false}
             learnMore
             learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-            buttonText='Okay'
-            buttonBackground={['#FFFFFF', '#80A8A1']}
-            buttonTextColor='#073E39'
-            buttonCallback={() => closeModal()}
         />
     )
 }
@@ -55,7 +52,7 @@ const styles = StyleSheet.create({
     },
     iconWrapper: {
         alignSelf: "center",
-        marginVertical: hp(20)
+        marginVertical: hp(70)
     },
 })
 

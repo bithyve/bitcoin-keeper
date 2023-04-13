@@ -34,10 +34,6 @@ function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
             DarkCloseIcon
             learnMore
             learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-            buttonText='Continue'
-            buttonBackground={['#FFFFFF', '#80A8A1']}
-            buttonTextColor='#073E39'
-            buttonCallback={() => closeModal()}
         />
     );
 }
