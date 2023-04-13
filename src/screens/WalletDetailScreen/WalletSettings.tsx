@@ -30,8 +30,6 @@ import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
 
