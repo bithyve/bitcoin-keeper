@@ -182,9 +182,28 @@ function UTXOManagement({ route, navigation }) {
     [cleanUp]
   );
 
+  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
+
+  const [showSwiperModal, setShowSwiperModal] = useState(true);
+
+  const closeShowSwiperModal = () => {
+    setShowSwiperModal(false);
+  };
+
+  const SwiperModalContent = () => {
+    return (
+      <Box style={{ width: wp(290) }}>
+        <Text bold style={styles.poolTitle}>
+          Hello Pool
+        </Text>
+        <Text style={styles.poolSubTitle}>Hello Pool</Text>
+      </Box>
+    );
+  };
+
   return (
     <ScreenWrapper>
-      <HeaderTitle learnMore />
+      <HeaderTitle learnMore learnMorePressed={() => setShowSwiperModal(true)} />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab
           selectedAccount={selectedAccount}
@@ -283,6 +302,23 @@ function UTXOManagement({ route, navigation }) {
           </Box>
         )}
       />
+      <KeeperModal
+        visible={showSwiperModal}
+        close={closeShowSwiperModal}
+        title="Some Definitions:"
+        subTitle=""
+        modalBackground={['light.gradientStart', 'light.gradientEnd']}
+        textColor="light.white"
+        buttonText="Continue"
+        buttonTextColor="light.greenText"
+        buttonBackground={['#FFF', '#80A8A1']}
+        buttonCallback={closeShowSwiperModal}
+        Content={() => {
+          return <SwiperModalContent />;
+        }}
+        DarkCloseIcon
+        learnMore
+      />
     </ScreenWrapper>
   );
 }
@@ -319,6 +355,20 @@ const getStyles = () =>
     batteryModalText: {
       marginTop: 10,
       letterSpacing: 1.28,
+    },
+    poolTitle: {
+      fontSize: 13,
+      lineHeight: 18,
+      textAlign: 'left',
+      letterSpacing: 0.5,
+      color: '#FFFFFF',
+    },
+    poolSubTitle: {
+      fontSize: 11,
+      lineHeight: 15,
+      textAlign: 'left',
+      letterSpacing: 0.5,
+      color: '#FFFFFF',
     },
   });
 export default UTXOManagement;

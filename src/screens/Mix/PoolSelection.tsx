@@ -117,8 +117,6 @@ export default function PoolSelection({ route, navigation }) {
     return valueInPreferredUnit;
   };
 
-  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
-
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
