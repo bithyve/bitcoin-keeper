@@ -214,7 +214,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}createNewApp`, {
-        AUTH_ID,
         appID,
         id,
         fcmToken,
@@ -243,7 +242,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}updateSubscription`, {
-        AUTH_ID,
         appID,
         id,
         data,
@@ -263,7 +261,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}verifyReceipt`, {
-        AUTH_ID,
         appID,
         id,
       });
@@ -282,7 +279,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}getSubscriptionDetails`, {
-        AUTH_ID,
         appID,
         id,
       });
