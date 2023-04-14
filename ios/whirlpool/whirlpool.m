@@ -49,23 +49,21 @@ RCT_EXPORT_METHOD(getTx0Data:(RCTPromiseResolveBlock)resolve
   }];
 }
 
-RCT_EXPORT_METHOD(tx0Preview:(NSInteger *)inputs_value
+RCT_EXPORT_METHOD(tx0Preview:(NSString *)inputs_value
                   pool_str:(NSString *)pool_str
                   fees_address:(NSString *)fees_address
                   input_structure_str:(NSString *)input_structure_str
-                  miner_fee_per_byte:(NSInteger *)miner_fee_per_byte
-                  coordinator_fee:(NSInteger *)coordinator_fee
+                  miner_fee_per_byte:(NSString *)miner_fee_per_byte
+                  coordinator_fee:(NSString *)coordinator_fee
                   n_wanted_max_outputs_str:(NSString *)n_wanted_max_outputs_str
-                  n_pool_max_outputs:(NSInteger *)n_pool_max_outputs
-                  premix_fee_per_byte:(nonnull NSNumber *)premix_fee_per_byte
+                  n_pool_max_outputs:(NSString *)n_pool_max_outputs
+                  premix_fee_per_byte:(NSString *)premix_fee_per_byte
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   
-  double_t premix_fee_per_byte_double = [RCTConvert double:premix_fee_per_byte];
-  
-  [helper tx0PreviewWithInputs_value:inputs_value pool_str:pool_str fees_address:fees_address input_structure_str:input_structure_str miner_fee_per_byte:miner_fee_per_byte coordinator_fee:coordinator_fee n_wanted_max_outputs_str:n_wanted_max_outputs_str n_pool_max_outputs:n_pool_max_outputs premix_fee_per_byte:premix_fee_per_byte_double callback:^(NSString * _Nonnull response) {
+  [helper tx0PreviewWithInputs_value:inputs_value pool_str:pool_str fees_address:fees_address input_structure_str:input_structure_str miner_fee_per_byte:miner_fee_per_byte coordinator_fee:coordinator_fee n_wanted_max_outputs_str:n_wanted_max_outputs_str n_pool_max_outputs:n_pool_max_outputs premix_fee_per_byte:premix_fee_per_byte callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }

@@ -65,15 +65,15 @@ export default class WhirlpoolServices {
       let result;
       if (Platform.OS === 'ios') {
         result = await Whirlpool.tx0Preview(
-          inputsValue,
+          `${inputsValue}`,
           JSON.stringify(pool),
           feeAddress,
           JSON.stringify(inputStructure),
-          minerFeePerByte,
-          coordinatorFee,
+          `${minerFeePerByte}`,
+          `${coordinatorFee}`,
           nWantedMaxOutputsStr,
-          nPoolMaxOutputs,
-          premixFeePerByte
+          `${nPoolMaxOutputs}`,
+          `${premixFeePerByte}`
         );
       } else {
         result = await Whirlpool.tx0Preview(
