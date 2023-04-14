@@ -27,6 +27,8 @@ import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import UtxoSummary from './UtxoSummary';
 import config from 'src/core/config';
 import useBalance from 'src/hooks/useBalance';
+import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
+import SwiperModal from './components/SwiperModal';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -199,6 +201,8 @@ export default function BroadcastPremix({ route, navigation }) {
         paddingLeft={10}
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
+        learnMore
+        learnMorePressed={() => { dispatch(setWhirlpoolSwiperModal(true)) }}
       />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
       <ScrollView style={styles.scrollViewWrapper}>
@@ -302,6 +306,7 @@ export default function BroadcastPremix({ route, navigation }) {
           </Box>
         )}
       />
+      <SwiperModal />
     </ScreenWrapper>
   );
 }

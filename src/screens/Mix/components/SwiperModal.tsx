@@ -7,7 +7,7 @@ import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
-import { swiperData } from './swiperModalData';
+import { swiperData } from '../swiperModalData';
 // colors, aserts
 import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
