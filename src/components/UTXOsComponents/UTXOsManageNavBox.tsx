@@ -11,13 +11,13 @@ import Text from '../KeeperText';
 
 const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
   idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
+  idx(currentWallet, (_) => _.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
 
 function UTXOsManageNavBox({
   onClick,
@@ -38,7 +38,7 @@ function UTXOsManageNavBox({
     >
       {isWhirlpoolWallet ? (
         <Box style={styles.titleViewWrapper}>
-          <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
+          <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
           <Text style={styles.subTitleText}>
             Total Balance: {getBalance(getTotalBalanceWhirlpoolAccount(currentWallet))}
             {getSatUnit()}
@@ -46,7 +46,7 @@ function UTXOsManageNavBox({
         </Box>
       ) : (
         <Box style={styles.titleViewWrapper}>
-          <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
+          <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
           <Text style={styles.subTitleText}>Select Label and choose UTXOs</Text>
         </Box>
       )}
