@@ -41,7 +41,7 @@ function ChoosePlan(props) {
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false)
   const { showToast } = useToastMessage();
-  const { id, appID, subscription: appSubscription }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
+  const { id, publicId, subscription: appSubscription }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
   const [items, setItems] = useState<SubScriptionPlan[]>([]);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isUpgrade, setIsUpgrade] = useState(false);
@@ -75,7 +75,7 @@ function ChoosePlan(props) {
 
   async function init() {
     try {
-      const getPlansResponse = await Relay.getSubscriptionDetails(id, appID)
+      const getPlansResponse = await Relay.getSubscriptionDetails(id, publicId)
       if (getPlansResponse.plans) {
         const skus = []
         getPlansResponse.plans
@@ -131,7 +131,7 @@ function ChoosePlan(props) {
     try {
       const receipt = purchase.transactionReceipt;
       const plan = items.filter(item => item.productIds.includes(purchase.productId));
-      const response = await Relay.updateSubscription(id, appID, purchase)
+      const response = await Relay.updateSubscription(id, publicId, purchase)
       setRequesting(false)
       if (response.updated) {
         const subscription: SubScription = {
@@ -220,7 +220,7 @@ function ChoosePlan(props) {
       */
       if (subscription.productType === 'free') {
         setRequesting(true)
-        const response = await Relay.updateSubscription(id, appID, { productId: subscription.productIds[0] })
+        const response = await Relay.updateSubscription(id, publicId, { productId: subscription.productIds[0] })
         setRequesting(false)
         if (response.updated) {
           const updatedSubscription: SubScription = {
@@ -291,14 +291,14 @@ function ChoosePlan(props) {
   function LoginModalContent() {
     return (
       <Box>
-        <Image
+        {/* <Image
           source={require('../../assets/video/Loader.gif')}
           style={{
             width: wp(270),
             height: hp(200),
             alignSelf: 'center',
           }}
-        />
+        /> */}
         <Text color="light.greenText" fontSize={13}>
           {choosePlan.youCanChange}
         </Text>
@@ -378,27 +378,25 @@ function ChoosePlan(props) {
         )}
 
         <Box
-          backgroundColor="light.secondaryBackground"
           position="absolute"
-          bottom={Platform.OS === 'android' ? 3 : -10}
-          justifyContent="flex-end"
           width={wp(340)}
-        // bottom={2}
-        // alignItems="center"
-        // flexDirection="row"
-        // justifyContent="space-between"
+          bottom={2}
+          alignItems="center"
+          flexDirection="row"
+          justifyContent="space-between"
         >
           <Note title="Note" subtitle={formatString(choosePlan.noteSubTitle, Platform.select({ ios: 'App Store', android: 'PlayStore' }))} subtitleColor="GreyText" />
 
-          <TouchableOpacity onPress={restorePurchases}>
+          <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases}>
             <Box
               borderColor="light.learnMoreBorder"
               backgroundColor="light.lightAccent"
               p={1}
               m={1}
-              borderRadius={8}
+              borderRadius={5}
+              borderWidth={0.7}
             >
-              <Text color="light.learnMoreBorder">
+              <Text fontSize={12} color="light.learnMoreBorder">
                 Restore Purchases
               </Text>
             </Box>
