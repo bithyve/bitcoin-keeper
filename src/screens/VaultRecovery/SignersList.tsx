@@ -24,7 +24,7 @@ import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getJadeDetails } from 'src/hardware/jade';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { crossInteractionHandler } from 'src/common/utilities';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import NFC from 'src/core/services/nfc';
@@ -39,6 +39,8 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { WalletMap } from '../Vault/WalletMap';
 import { KeeperContent } from '../SignTransaction/SignerModals';
+import BitoxImage from 'src/assets/images/bitboxSetup.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -258,6 +260,32 @@ function JadeSetupContent() {
         </Text>
       </Box>
     </View>
+  );
+}
+
+function BitBox02Content() {
+  return (
+    <Box alignItems="center">
+      <BitoxImage />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function TrezorContent() {
+  return (
+    <Box alignItems="center">
+      <TrezorSetup />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
   );
 }
 
@@ -524,6 +552,20 @@ function SignersList({ navigation }) {
       );
     };
 
+    const navigateToVerifyWithChannel = () => {
+      setVisible(false);
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ConnectChannelRecovery',
+          params: {
+            title: `Setting up ${getSignerNameFromType(type)}`,
+            subtitle: `Please visit ${config.KEEPER_HWI} to use the Keeper Hardware Interface to setup`,
+            type,
+          },
+        })
+      );
+    };
+
     return (
       <>
         <TouchableOpacity
@@ -696,6 +738,28 @@ function SignersList({ navigation }) {
           textColor="light.primaryText"
           Content={otpContent}
         />
+        <KeeperModal
+          visible={visible && type === SignerType.BITBOX02}
+          close={close}
+          title="Keep BitBox02 Ready"
+          subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with BitBox02.`}
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
+          Content={() => <BitBox02Content />}
+          buttonText="Continue"
+          buttonCallback={navigateToVerifyWithChannel}
+        />
+        <KeeperModal
+          visible={visible && type === SignerType.TREZOR}
+          close={close}
+          title="Keep Trezor Ready"
+          subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor.`}
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
+          Content={() => <TrezorContent />}
+          buttonText="Continue"
+          buttonCallback={navigateToVerifyWithChannel}
+        />
       </>
     );
   }
@@ -719,6 +783,8 @@ function SignersList({ navigation }) {
             SignerType.SEEDSIGNER,
             SignerType.PASSPORT,
             SignerType.JADE,
+            SignerType.BITBOX02,
+            SignerType.TREZOR,
             SignerType.KEYSTONE,
             SignerType.LEDGER,
             SignerType.KEEPER,

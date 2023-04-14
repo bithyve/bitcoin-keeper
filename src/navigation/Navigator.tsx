@@ -78,6 +78,7 @@ import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
+import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -137,6 +138,7 @@ function LoginStack() {
       <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
       <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
+      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannelRecovery} />
     </Stack.Navigator>
   );
 }
