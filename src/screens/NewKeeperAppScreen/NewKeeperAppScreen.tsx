@@ -3,7 +3,7 @@
 import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import App from 'src/assets/images/app.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -13,9 +13,9 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { isTestnet } from 'src/common/constants/Bitcoin';
-import { Box, Image, Pressable } from 'native-base';
+import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
+import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
@@ -25,10 +25,9 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       backgroundColor="light.primaryBackground"
       flexDirection="row"
       alignItems="center"
-      width="90%"
+      width="100%"
       testID="btn_startNew"
       style={{ marginTop: hp(20), height: hp(110) }}
-      marginLeft="5%"
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
@@ -66,7 +65,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
-  const appCreationError = useAppSelector((state) => state.login.appCreationError);
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -129,44 +127,18 @@ function NewKeeperApp({ navigation }: { navigation }) {
     }
   }
 
-  const getSignUpModalContent = () => {
-    if (!isTestnet() && false) {
-      return {
-        title: 'Multisig security for your sats',
-        subTitle:
-          'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
-        assert: {
-          loader: require('src/assets/video/Loader.gif'),
-          height: 180,
-        },
-        message:
-          'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.',
-      };
-    }
-    return {
-      title: 'Shake to send feedback',
-      subTitle: 'Shake your device to send us a bug report or a feature request',
-      assert: {
-        loader: require('src/assets/video/test-net.gif'),
-        height: 200,
-      },
-      message:
-        'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
-    };
-  };
+  const getSignUpModalContent = () => ({
+    title: 'Shake to send feedback',
+    subTitle: 'Shake your device to send us a bug report or a feature request',
+    message:
+      'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
+  });
 
   function SignUpModalContent() {
     return (
-      <Box>
-        <Image
-          source={getSignUpModalContent().assert.loader}
-          style={{
-            width: wp(270),
-            height: hp(getSignUpModalContent().assert.height),
-            alignSelf: 'center',
-          }}
-        />
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
+      <Box style={{ width: windowWidth * 0.8 }}>
+        <ShakingAssetsAnimation />
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
       </Box>
@@ -218,18 +190,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
             }}
           />
         </Box>
-        {/* <Tile
-          title="Inheritance Keeper vault"
-          subTitle="Using signing devices"
-          onPress={() => {
-            navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-          }}
-          Icon={<Inheritance />} 
-        /> */}
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -244,7 +208,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}

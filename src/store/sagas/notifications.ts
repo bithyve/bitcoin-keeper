@@ -1,9 +1,5 @@
 import { call, put, select } from 'redux-saga/effects';
 import Relay from 'src/core/services/operations/Relay';
-import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { Platform } from 'react-native';
-import dbManager from 'src/storage/realm/dbManager';
-import { RealmSchema } from 'src/storage/realm/enum';
 import { RootState } from '../store';
 import {
   notificationsFetched,
@@ -68,7 +64,7 @@ export function* getMessageWorker() {
       ({ notificationId }) => !storedMessages.find((f) => f.notificationId === notificationId)
     )
   );
-  //TO--DO: NOTIFICATION_UAI_BINDING without the notifaction schema
+  // TO--DO: NOTIFICATION_UAI_BINDING without the notifaction schema
   // for (let i = 0; i < messages.length; i++) {
   //   yield call(dbManager.createObject, RealmSchema.Notification, {
   //     ...messages[i],

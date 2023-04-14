@@ -20,11 +20,11 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
+import WalletOperations from 'src/core/wallets/operations';
 
 function ReceiveScreen({ route }: { route }) {
   const navigtaion = useNavigation();
@@ -41,7 +41,7 @@ function ReceiveScreen({ route }: { route }) {
   const { home } = translations;
 
   useEffect(() => {
-    const receivingAddress = getNextFreeAddress(wallet);
+    const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
     setReceivingAddress(receivingAddress);
   }, []);
 
@@ -61,7 +61,7 @@ function ReceiveScreen({ route }: { route }) {
       <View>
         <View style={styles.Container}>
           <View style={styles.inputParentView}>
-            <View style={[styles.inputWrapper01, { backgroundColor: 'light.primaryBackground' }]}>
+            <Box style={styles.inputWrapper01} backgroundColor="light.primaryBackground">
               <View style={styles.btcIconWrapper}>
                 <BtcInput />
               </View>
@@ -75,7 +75,7 @@ function ReceiveScreen({ route }: { route }) {
                 onChangeText={(value) => setAmount(value)}
                 onFocus={() => Keyboard.dismiss()}
               />
-            </View>
+            </Box>
 
             <View style={styles.bottomBtnView}>
               <Buttons
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     marginVertical: 5,
-    padding: 7,
+    padding: 5,
   },
   verticalDeviderLine: {
     marginLeft: 5,

@@ -1,23 +1,25 @@
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { VaultType } from 'src/core/wallets/enums';
+import { TxPriority, VaultType } from 'src/core/wallets/enums';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
-import { clearSigningDevice, updateIntrimVault } from 'src/store/reducers/vaults';
+import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { TransferType } from 'src/common/data/enums/TransferType';
-
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/core/services/sentry';
 import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
-import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import useToastMessage from 'src/hooks/useToastMessage';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { AverageTxFeesByNetwork } from 'src/core/wallets/interfaces';
+import WalletUtilities from 'src/core/wallets/operations/utils';
+import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
+import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
 function VaultMigrationController({ vaultCreating, signersState, planStatus, setCreating }: any) {
   const navigation = useNavigation();
@@ -26,7 +28,9 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
   const { activeVault } = useVault();
   const { subscriptionScheme } = usePlan();
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
-  const sendMaxFee = useAppSelector((state) => state.sendAndReceive.sendMaxFee);
+  const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
+    (state) => state.network.averageTxFees
+  );
   const { confirmed, unconfirmed } = activeVault?.specs?.balances ?? {
     confirmed: 0,
     unconfirmed: 0,
@@ -70,37 +74,13 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
     if (temporaryVault) {
       createNewVault();
     }
+    return () => {
+      dispatch(sendPhasesReset());
+    };
   }, [temporaryVault]);
 
   useEffect(() => {
-    if (sendMaxFee && temporaryVault) {
-      const sendMaxBalance = confirmed - sendMaxFee;
-      const temporaryVaultReference = JSON.parse(JSON.stringify(temporaryVault));
-      const { receivingAddress } =
-        WalletOperations.getNextFreeExternalAddress(temporaryVaultReference);
-      setRecepients([
-        {
-          address: receivingAddress,
-          amount: sendMaxBalance,
-        },
-      ]);
-      dispatch(updateIntrimVault(temporaryVaultReference as Vault));
-      dispatch(
-        sendPhaseOne({
-          wallet: activeVault,
-          recipients: [
-            {
-              address: receivingAddress,
-              amount: sendMaxBalance,
-            },
-          ],
-        })
-      );
-    }
-  }, [sendMaxFee]);
-
-  useEffect(() => {
-    if (sendPhaseOneState.isSuccessful) {
+    if (sendPhaseOneState.isSuccessful && temporaryVault) {
       navigation.dispatch(
         CommonActions.navigate('SendConfirmation', {
           sender: activeVault,
@@ -116,10 +96,30 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
   }, [sendPhaseOneState]);
 
   const initiateSweep = () => {
-    if (confirmed) {
-      dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: activeVault }));
+    if (!unconfirmed) {
+      const averageTxFeeByNetwork = averageTxFees[activeVault.networkType];
+      const { feePerByte } = averageTxFeeByNetwork[TxPriority.LOW];
+      const network = WalletUtilities.getNetworkByType(activeVault.networkType);
+      const { fee: sendMaxFee } = WalletOperations.calculateSendMaxFee(
+        activeVault,
+        1,
+        feePerByte,
+        network
+      );
+      if (sendMaxFee && temporaryVault) {
+        const maxBalance = confirmed - sendMaxFee;
+
+        const receivingAddress = WalletOperations.getNextFreeAddress(temporaryVault);
+        setRecepients([{ address: receivingAddress, amount: maxBalance }]);
+        dispatch(
+          sendPhaseOne({
+            wallet: activeVault,
+            recipients: [{ address: receivingAddress, amount: maxBalance }],
+          })
+        );
+      }
     } else {
-      showToast('You have unconfirmed balance, please try again later!', <ToastErrorIcon />);
+      showToast('You have unconfirmed balance, please try again in some time', <ToastErrorIcon />);
     }
   };
 
@@ -166,6 +166,26 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
 
   const initiateNewVault = () => {
     if (activeVault) {
+      if (unconfirmed) {
+        showToast(
+          'You have unconfirmed balance, please try again in some time',
+          <ToastErrorIcon />,
+          4000
+        );
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [
+              { name: 'NewHome' },
+              {
+                name: 'VaultDetails',
+                params: { autoRefresh: true },
+              },
+            ],
+          })
+        );
+        return;
+      }
       const freshSignersState = sanitizeSigners();
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
@@ -176,7 +196,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
           description: 'Secure your sats',
         },
       };
-      dispatch(migrateVault(vaultInfo, planStatus));
+      dispatch(migrateVault(vaultInfo, planStatus, activeVault.shellId));
     } else {
       createVault(signersState, subscriptionScheme);
     }

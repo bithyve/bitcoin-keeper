@@ -205,7 +205,7 @@ function ChoosePlan(props) {
         subscription: sub,
       });
       disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
-
+      disptach(resetVaultMigration());
       if (item.productId === SubscriptionTier.L1) {
         setIsUpgrade(false);
       } else if (
@@ -366,7 +366,7 @@ function ChoosePlan(props) {
               </Box>
               <Box mt={3}>
                 {items[currentPosition].benifits.map((i) => (
-                  <Box flexDirection="row" alignItems="center">
+                  <Box flexDirection="row" alignItems="center" key={i}>
                     <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
                       {`• ${i}`}
                     </Text>
@@ -379,10 +379,14 @@ function ChoosePlan(props) {
 
         <Box
           backgroundColor="light.secondaryBackground"
-          bottom={2}
-          alignItems="center"
-          flexDirection="row"
-          justifyContent="space-between"
+          position="absolute"
+          bottom={Platform.OS === 'android' ? 3 : -10}
+          justifyContent="flex-end"
+          width={wp(340)}
+        // bottom={2}
+        // alignItems="center"
+        // flexDirection="row"
+        // justifyContent="space-between"
         >
           <Note title="Note" subtitle={formatString(choosePlan.noteSubTitle, Platform.select({ ios: 'App Store', android: 'PlayStore' }))} subtitleColor="GreyText" />
 

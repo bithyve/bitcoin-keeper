@@ -2,6 +2,7 @@ import {
   Bytes,
   CryptoAccount,
   CryptoPSBT,
+  CryptoOutput,
   URRegistryDecoder,
 } from 'src/core/services/qr/bc-ur-registry';
 
@@ -34,6 +35,13 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
         const cryptoPsbt = CryptoPSBT.fromCBOR(ur.cbor);
         return { data: cryptoPsbt.getPSBT().toString('base64'), percentage: scanPercentage };
       }
+
+      if (ur.type === 'crypto-output') {
+        console.log('here co');
+        const cryptOutput = CryptoOutput.fromCBOR(ur.cbor);
+        return { data: cryptOutput.toString(), percentage: scanPercentage };
+      }
+
       const decoded = ur.decodeCBOR();
       // get the original message, assuming it was a JSON object
       const data = JSON.parse(decoded.toString());
@@ -60,7 +68,7 @@ export const encodeBytesUR = (data, rotation, type: BufferEncoding = 'hex') => {
   try {
     const buff = Buffer.from(data, type);
     const bytes = new Bytes(buff);
-    const encoder = bytes.toUREncoder(rotation);
+    const encoder = bytes.toUREncoder(rotation, null, rotation);
     return getFragmentedData(encoder);
   } catch (_) {}
   return [data];

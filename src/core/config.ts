@@ -6,7 +6,6 @@ import axios, { AxiosInstance } from 'axios';
 
 import DeviceInfo from 'react-native-device-info';
 import { Platform } from 'react-native';
-import _ from 'lodash';
 import config from 'react-native-config';
 import { NetworkType, WalletType } from './wallets/enums';
 
@@ -26,20 +25,30 @@ const DEFAULT_CONFIG = {
   RELAY: 'https://bithyve-dev-relay.el.r.appspot.com/',
   SIGNING_SERVER: 'https://dev-sign.bithyve.com/',
   ENC_KEY_STORAGE_IDENTIFIER: 'KEEPER-KEY',
-  AUTH_ID: '4f989d87d711830ab0162373f59bfc9b9b2d8b194f9f1065ba45d68b516efe28',
   HEXA_ID: 'b01623f1065ba45d68b516efe2873f59bfc9b9b2d8b194f94f989d87d711830a',
   SENTRY_DNS: 'https://25289533edf7432994f58edeaf6541dc@o1388909.ingest.sentry.io/6711631',
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
+  CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
+  KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
+  RAMP_BASE_URL: 'https://buy.ramp.network/',
+  RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
 };
 
 class Configuration {
   public RELAY = config.RELAY?.trim() ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
 
+  // RAMP details
+  public RAMP_BASE_URL: string = config.RAMP_BASE_URL
+    ? config.RAMP_BASE_URL.trim()
+    : DEFAULT_CONFIG.RAMP_BASE_URL;
+
+  public RAMP_REFERRAL_CODE: string = config.RAMP_REFERRAL_CODE
+    ? config.RAMP_REFERRAL_CODE.trim()
+    : DEFAULT_CONFIG.RAMP_REFERRAL_CODE;
+
   public SIGNING_SERVER = config.SIGNING_SERVER?.trim()
     ? config.SIGNING_SERVER.trim()
     : DEFAULT_CONFIG.SIGNING_SERVER;
-
-  public AUTH_ID: string = config.AUTH_ID?.trim() ? config.AUTH_ID.trim() : DEFAULT_CONFIG.AUTH_ID;
 
   public HEXA_ID: string = config.HEXA_ID?.trim() ? config.HEXA_ID.trim() : DEFAULT_CONFIG.HEXA_ID; // for legacy-relay interaction
 
@@ -91,6 +100,14 @@ class Configuration {
   public ENVIRONMENT: string;
 
   public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN?.trim() ? config.INSTABUG_TOKEN.trim() : '';
+
+  public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
+    ? config.CHANNEL_URL.trim()
+    : DEFAULT_CONFIG.CHANNEL_URL.trim();
+
+  public KEEPER_HWI: string = config.KEEPER_HWI?.trim()
+    ? config.KEEPER_HWI.trim()
+    : DEFAULT_CONFIG.KEEPER_HWI.trim();
 
   constructor() {
     this.ENVIRONMENT = config.ENVIRONMENT?.trim()

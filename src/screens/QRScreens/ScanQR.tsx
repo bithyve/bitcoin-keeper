@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -15,10 +15,10 @@ import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
-import MockWrapper from '../Vault/MockWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import CameraUnauthorized from 'src/components/CameraUnauthorized';
+import MockWrapper from '../Vault/MockWrapper';
 
-const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
 
 function ScanQR() {
@@ -29,7 +29,7 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => { },
+    onQrScan = () => {},
     setup = false,
     type,
   } = route.params as any;
@@ -105,10 +105,12 @@ function ScanQR() {
           <HeaderTitle title={title} subtitle={subtitle} />
           <Box style={styles.qrcontainer}>
             <RNCamera
+              autoFocus="on"
               style={styles.cameraView}
               captureAudio={false}
               onBarCodeRead={onBarCodeRead}
               useNativeZoom
+              notAuthorizedView={<CameraUnauthorized />}
             />
           </Box>
           <UploadImage onPress={handleChooseImage} />
@@ -146,6 +148,6 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 0,
     position: 'absolute',
-    padding: 20,
+    paddingHorizontal: 10,
   },
 });

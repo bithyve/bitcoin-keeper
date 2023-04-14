@@ -272,6 +272,7 @@
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
+    "ImportAWallet": "Import a Wallet",
     "AddNewWalletDescription": "Name and description for the wallet",
     "WalletNamePlaceHolder": "Maldives Funds",
     "WalletDescriptionPlaceholder": "Single-sig",
@@ -361,6 +362,14 @@
     "SetupDescription": "Keep your bluetooth enabled Ledger Nano X ready before proceeding",
     "ScanningBT": "Scanning for bluetooth",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
+  },
+  "bitbox": {
+    "SetupTitle": "Setting up BitBox02",
+    "SetupDescription": "Keep your BitBox02 connected to the computer before proceeding"
+  },
+  "trezor": {
+    "SetupTitle": "Setting up Trezor",
+    "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
   },
   "settings": {
     "selectCurrency": "Select currency",
@@ -481,11 +490,12 @@
     "startOver": "Start Over",
     "backupSuccessTitle": "Backup Successful",
     "backupSuccessSubTitle": "",
-    "backupSuccessParagraph": "You will again be reminded in 90 days.",
+    "backupSuccessParagraph": "You will again be reminded in 180 days.",
     "home": "Home",
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual phrase",
+    "importWallet": "Import wallet",
     "healthCheck": "Health Check",
     "enterStrongPass": "Enter App Generated Strong Password",
     "healthCheckNote": "This step ensures that you have access to the recovery of your wallet ",

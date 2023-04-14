@@ -50,7 +50,7 @@ function Option({ title, subTitle, onPress }: Props) {
         <Text color="light.primaryText" style={styles.optionTitle}>
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle}>
+        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2}>
           {subTitle}
         </Text>
       </Box>
@@ -80,6 +80,7 @@ function WalletSettings({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
@@ -110,13 +111,6 @@ function WalletSettings({ route }) {
   const getTestSats = () => {
     dispatch(testSatsRecieve(wallet));
   };
-
-  useEffect(() => {
-    if (relayWalletUpdate) {
-      showToast('Wallet details updated!', <TickIcon />);
-      dispatch(resetRealyWalletState());
-    }
-  }, [relayWalletUpdate]);
 
   useEffect(() => {
     setLoadingContent({
@@ -190,7 +184,8 @@ function WalletSettings({ route }) {
             wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            satsEnabled
           )}
           Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
@@ -224,7 +219,7 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Wallet seed words"
+            title="Wallet Seed Words"
             subTitle="Use to link external wallets to Keeper"
             onPress={() => {
               setConfirmPassVisible(true);
@@ -237,7 +232,7 @@ function WalletSettings({ route }) {
               setTransferPolicyVisible(true);
             }}
           />
-          {config.NETWORK_TYPE == NetworkType.TESTNET && (
+          {config.NETWORK_TYPE === NetworkType.TESTNET && (
             <Option
               title="Receive Test Sats"
               subTitle="Receive Test Sats to this address"
@@ -321,8 +316,8 @@ function WalletSettings({ route }) {
           visible={cosignerVisible}
           close={() => setCosignerVisible(false)}
           title="Cosigner Details"
-          subTitleWidth={wp(240)}
-          subTitle="Scan the cosigner details from another app to add this as a signer"
+          subTitleWidth={wp(260)}
+          subTitle="Scan the cosigner details from another app in order to add this as a signer"
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           buttonText="Done"
@@ -339,7 +334,10 @@ function WalletSettings({ route }) {
         />
         <KeeperModal
           visible={transferPolicyVisible}
-          close={() => setTransferPolicyVisible(false)}
+          close={() => {
+            showToast('Transfer Policy Changed', <TickIcon />);
+            setTransferPolicyVisible(false);
+          }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
           subTitleColor="light.secondaryText"
@@ -348,6 +346,7 @@ function WalletSettings({ route }) {
             <TransferPolicy
               wallet={wallet}
               close={() => {
+                showToast('Transfer Policy Changed', <TickIcon />);
                 setTransferPolicyVisible(false);
               }}
             />
@@ -422,6 +421,7 @@ const styles = ScaledSheet.create({
   optionSubtitle: {
     fontSize: 12,
     letterSpacing: 0.6,
+    width: '90%',
   },
 });
 export default WalletSettings;

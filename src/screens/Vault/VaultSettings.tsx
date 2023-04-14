@@ -112,6 +112,7 @@ function VaultSettings({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
@@ -161,7 +162,7 @@ function VaultSettings({ route }) {
           </Box>
           <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
             {vaultBalance}
-            {getUnit(currentCurrency)}
+            {getUnit(currentCurrency, satsEnabled)}
           </Text>
         </Box>
       </LinearGradient>
@@ -188,7 +189,8 @@ function VaultSettings({ route }) {
             confirmed + unconfirmed,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            satsEnabled
           )}
         />
       </Box>
@@ -197,6 +199,12 @@ function VaultSettings({ route }) {
           title="Generate Descriptors"
           subTitle="Vault configuration that needs to be stored privately"
           onPress={() => setGenratorModalVisible(true)}
+          Icon={false}
+        />
+        <Option
+          title="Archived Vault"
+          subTitle="View details of old vaults"
+          onPress={() => navigtaion.navigate('ArchivedVault')}
           Icon={false}
         />
       </Box>
@@ -228,7 +236,8 @@ const styles = ScaledSheet.create({
     position: 'relative',
   },
   moadalContainer: {
-    flex: 1,
+    // flex: 1,
+    width: wp(280),
   },
   inputWrapper: {
     borderRadius: 10,

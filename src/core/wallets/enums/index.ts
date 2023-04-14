@@ -4,6 +4,7 @@ export enum DerivationPurpose {
   BIP48 = 48, // P2WSH & P2SH-P2WSH: native and wrapped segwit, multi-sig
   BIP49 = 49, // P2SH-P2WPKH: wrapped segwit, single-sg
   BIP84 = 84, // P2WPKH: native segwit, single-sig
+  BIP86 = 86, // P2TR: taproot
 }
 
 export enum BIP48ScriptTypes {
@@ -71,7 +72,6 @@ export enum EntityKind {
 export enum WalletType {
   DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
-  READ_ONLY = 'READ_ONLY',
 }
 
 export enum VaultType {
@@ -97,6 +97,8 @@ export enum SignerType {
   MOBILE_KEY = 'MOBILE_KEY',
   SEED_WORDS = 'SEED_WORDS',
   SEEDSIGNER = 'SEEDSIGNER',
+  BITBOX02 = 'BITBOX02',
+  OTHER_SD = 'OTHER_SD',
 }
 
 export enum PaymentInfoKind {

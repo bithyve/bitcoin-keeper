@@ -8,7 +8,7 @@ import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
 import config from '../../config';
 
-const { AUTH_ID, HEXA_ID, RELAY } = config;
+const { HEXA_ID, RELAY } = config;
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -23,7 +23,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}checkCompatibility`, {
-        AUTH_ID,
         method,
         version,
       });
@@ -82,7 +81,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}fetchNotifications`, {
-        AUTH_ID,
         appID,
       });
     } catch (err) {
@@ -113,7 +111,6 @@ export default class Relay {
 
       try {
         res = await RestClient.post(`${RELAY}sendNotifications`, {
-          AUTH_ID,
           receivers,
           notification,
         });
@@ -163,14 +160,8 @@ export default class Relay {
   ) => {
     try {
       let res;
-      // const obj = {
-      //   AUTH_ID,
-      //   receivers,
-      //   notification,
-      // };
       try {
         res = await RestClient.post(`${RELAY}sendKeeperNotifications`, {
-          AUTH_ID,
           receivers,
           notification,
         });
@@ -197,7 +188,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}getMessages`, {
-        AUTH_ID,
         appID,
         timeStamp,
       });
@@ -314,7 +304,6 @@ export default class Relay {
       let res;
       try {
         res = await RestClient.post(`${RELAY}updateMessages`, {
-          AUTH_ID,
           appId,
           data,
         });
@@ -340,7 +329,6 @@ export default class Relay {
       let res;
       try {
         res = await RestClient.post(`${RELAY}v2/fetchappImage`, {
-          AUTH_ID,
           appId,
         });
       } catch (err) {
@@ -365,8 +353,9 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}updateAppImage`, appImage);
-      return response;
+      const res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
@@ -384,8 +373,9 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
-      return response;
+      const res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
@@ -397,7 +387,7 @@ export default class Relay {
       const res = await RestClient.post(`${RELAY}getAppImage`, {
         appId,
       });
-      const { data } = res;
+      const data = res.data || res.json;
       return data;
     } catch (err) {
       captureError(err);
@@ -407,10 +397,11 @@ export default class Relay {
 
   public static vaultCheck = async (vaultId): Promise<any> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}vaultCheck`, {
+      const res = await RestClient.post(`${RELAY}vaultCheck`, {
         vaultId,
       });
-      return response;
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('VaultCheckAPI Failed');
@@ -480,7 +471,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}createNewApp`, {
-        AUTH_ID,
         appID,
         publicId,
         fcmToken,

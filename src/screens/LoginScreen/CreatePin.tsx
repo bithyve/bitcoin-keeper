@@ -13,8 +13,6 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
@@ -179,7 +177,7 @@ export default function CreatePin(props) {
                         : 'transparent'
                     }
                     borderColor={
-                      passcode != confirmPasscode && confirmPasscode.length == 4
+                      passcode != confirmPasscode && confirmPasscode.length === 4
                         ? 'light.error'
                         : 'transparent'
                     }

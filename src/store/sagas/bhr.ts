@@ -28,7 +28,6 @@ import {
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
-  setBackupLoading,
   setBackupType,
   setBackupWarning,
   setInvalidPassword,
@@ -48,6 +47,8 @@ import {
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
+import semver from 'semver';
+import { applyRestoreSequence } from './restoreUpgrade';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallet } = payload;
@@ -89,8 +90,8 @@ export function* updateVaultImageWorker({
 }: {
   payload: {
     vault: Vault;
-    archiveVaultId?: String;
-    isUpdate?: Boolean;
+    archiveVaultId?: string;
+    isUpdate?: boolean;
   };
 }) {
   const { vault, archiveVaultId, isUpdate } = payload;
@@ -111,8 +112,8 @@ export function* updateVaultImageWorker({
   }
 
   const signersData: Array<{
-    signerId: String;
-    xfpHash: String;
+    signerId: string;
+    xfpHash: string;
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
@@ -143,6 +144,7 @@ export function* updateVaultImageWorker({
     if (archiveVaultId) {
       const response = yield call(Relay.updateVaultImage, {
         appID: id,
+        vaultShellId: vault.shellId,
         vaultId: vault.id,
         scheme: vault.scheme,
         signersData,
@@ -154,6 +156,7 @@ export function* updateVaultImageWorker({
     }
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
+      vaultShellId: vault.shellId,
       vaultId: vault.id,
       scheme: vault.scheme,
       signersData,
@@ -215,7 +218,21 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
+    let { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
+
+    //applying the restore upgrade sequence if required
+    const previousVersion = appImage.version;
+    const newVersion = DeviceInfo.getVersion();
+    if (semver.lt(previousVersion, newVersion)) {
+      yield call(applyRestoreSequence, {
+        previousVersion,
+        newVersion,
+        appImage,
+        vaultImage,
+        encryptionKey,
+      });
+    }
+
     if (appImage) {
       yield put(setAppImageRecoverd(true));
       const entropy = yield call(
@@ -232,13 +249,14 @@ function* getAppImageWorker({ payload }) {
         primaryMnemonic,
         imageEncryptionKey,
         subscription: JSON.parse(appImage.subscription),
-        backup: {},
+        backup: {
+          method: BackupType.SEED,
+        },
         version: DeviceInfo.getVersion(),
         networkType: config.NETWORK_TYPE,
       };
 
       yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-
       // Wallet recreation
       if (appImage.wallets) {
         for (const [key, value] of Object.entries(appImage.wallets)) {
@@ -254,6 +272,22 @@ function* getAppImageWorker({ payload }) {
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
       yield put(setAppId(appID));
+      // seed confirm for recovery
+      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+        title: BackupAction.SEED_BACKUP_CONFIRMED,
+        date: moment().unix(),
+        confirmed: true,
+        subtitle: 'Recovered using backup phrase',
+      });
+      yield put(setSeedConfirmed(true));
+      yield put(setBackupType(BackupType.SEED));
+      // create/add restored object for version
+      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+        version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+        releaseNote: '',
+        date: new Date().toString(),
+        title: 'Restored version',
+      });
     }
   } catch (err) {
     console.log(err);

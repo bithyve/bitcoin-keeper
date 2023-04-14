@@ -2,14 +2,16 @@
 /* eslint-disable react/jsx-no-bind */
 import * as bip39 from 'bip39';
 
-import { Box, View } from 'native-base';
+import { Box, ScrollView, View } from 'native-base';
 import {
   Alert,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -115,8 +117,13 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [suggestedWords, setSuggestedWords] = useState([]);
+  const [onChangeIndex, setOnChangeIndex] = useState(-1);
 
-  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
+  const openInvalidSeedsModal = () => {
+    setRecoveryLoading(false);
+    setInvalidSeedsModal(true);
+  };
   const closeInvalidSeedsModal = () => {
     setRecoveryLoading(false);
     setInvalidSeedsModal(false);
@@ -256,7 +263,30 @@ function EnterSeedScreen({ route }) {
       setActivePage(0);
     }
   };
+  const getSuggestedWords = (text) => {
+    const filteredData = bip39.wordlists.english.filter((data) =>
+      data.toLowerCase().startsWith(text)
+    );
+    setSuggestedWords(filteredData);
+  };
+  const getPosition = (index: number) => {
+    switch (index) {
+      case 0:
+      case 1:
+        return 1;
 
+      case 2:
+      case 3:
+        return 2;
+
+      case 4:
+      case 5:
+        return 3;
+
+      default:
+        return 1;
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -310,8 +340,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -326,6 +356,12 @@ function EnterSeedScreen({ route }) {
                     const data = [...seedData];
                     data[index].name = text.trim();
                     setSeedData(data);
+                    if (text.length > 1) {
+                      setOnChangeIndex(index);
+                      getSuggestedWords(text.toLowerCase());
+                    } else {
+                      setSuggestedWords([]);
+                    }
                   }}
                   onBlur={() => {
                     if (!bip39.wordlists.english.includes(seedData[index].name)) {
@@ -338,11 +374,46 @@ function EnterSeedScreen({ route }) {
                     const data = [...seedData];
                     data[index].invalid = false;
                     setSeedData(data);
+                    setSuggestedWords([]);
+                    setOnChangeIndex(index);
+                  }}
+                  onSubmitEditing={() => {
+                    setSuggestedWords([]);
                   }}
                 />
               </View>
             )}
           />
+          {suggestedWords?.length > 0 ? (
+            <ScrollView
+              style={[
+                styles.suggestionScrollView,
+                {
+                  marginTop: getPosition(onChangeIndex) * hp(55),
+                  height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
+                },
+              ]}
+              nestedScrollEnabled
+            >
+              <View style={styles.suggestionWrapper}>
+                {suggestedWords.map((word, wordIndex) => (
+                  <TouchableOpacity
+                    key={wordIndex}
+                    style={styles.suggestionTouchView}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      const data = [...seedData];
+                      data[onChangeIndex].name = word.trim();
+                      setSeedData(data);
+                      setSuggestedWords([]);
+                    }}
+                  >
+                    <Text style={styles.suggestionWord}>{word}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          ) : null}
         </View>
         <View style={styles.bottomContainerView}>
           <Text style={styles.seedDescText} color="light.GreyText">
@@ -390,7 +461,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -447,6 +518,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 1.32,
+    zIndex: 1,
   },
   inputListWrapper: {
     flexDirection: 'row',
@@ -492,6 +564,31 @@ const styles = ScaledSheet.create({
   },
   checkText: {
     fontSize: 16,
+  },
+  suggestionScrollView: {
+    zIndex: 999,
+    position: 'absolute',
+    // top: 50,
+    height: hp(150),
+    width: wp(330),
+    alignSelf: 'center',
+  },
+  suggestionWrapper: {
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    padding: 10,
+    borderRadius: 10,
+    flexWrap: 'wrap',
+    overflow: 'hidden',
+  },
+  suggestionTouchView: {
+    backgroundColor: '#f2c693',
+    padding: 5,
+    borderRadius: 5,
+    margin: 5,
+  },
+  suggestionWord: {
+    color: 'black',
   },
 });
 

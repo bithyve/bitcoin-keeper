@@ -3,6 +3,7 @@ import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
+  Linking,
   Platform,
   RefreshControl,
   StatusBar,
@@ -30,7 +31,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -48,10 +49,14 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import useVault from 'src/hooks/useVault';
+import Buttons from 'src/components/Buttons';
+import { fetchRampReservation } from 'src/services/ramp';
 import { WalletMap } from './WalletMap';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import WalletOperations from 'src/core/wallets/operations';
 
-function Footer({ vault }: { vault: Vault }) {
+function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
@@ -82,12 +87,7 @@ function Footer({ vault }: { vault: Vault }) {
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={() => {
-            showToast('Comming Soon');
-          }}
-        >
+        <TouchableOpacity style={styles.IconText} onPress={onPressBuy}>
           <Buy />
           <Text color="light.primaryText" style={styles.footerText}>
             Buy
@@ -166,23 +166,20 @@ function VaultInfo({ vault }: { vault: Vault }) {
           </Text>
           {getNetworkAmount(
             unconfirmed,
-            [styles.vaultInfoText, { fontSize: 12 }],
-            0.9,
             exchangeRates,
             currencyCode,
-            currentCurrency
+            currentCurrency,
+            [styles.vaultInfoText, { fontSize: 12 }],
+            0.9
           )}
         </VStack>
       </HStack>
       <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(
-          confirmed,
-          [styles.vaultInfoText, { fontSize: 31, lineHeight: 31 }, 2],
-          1,
-          exchangeRates,
-          currencyCode,
-          currentCurrency
-        )}
+        {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
+          styles.vaultInfoText,
+          { fontSize: 31, lineHeight: 31 },
+          2,
+        ])}
         <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
           Available Balance
         </Text>
@@ -382,14 +379,13 @@ function VaultDetails({ route, navigation }) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const vault: Vault = useVault().activeVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
   const [tireChangeModal, setTireChangeModal] = useState(false);
   const { subscriptionScheme } = usePlan();
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
 
   const onPressModalBtn = () => {
     setTireChangeModal(false);
@@ -461,6 +457,101 @@ function VaultDetails({ route, navigation }) {
     []
   );
 
+  function RampBuyContent() {
+    const [buyAddress, setBuyAddress] = useState('');
+
+    useEffect(() => {
+      const receivingAddress = WalletOperations.getNextFreeAddress(vault);
+      setBuyAddress(receivingAddress);
+    }, []);
+    return (
+      <Box padding={1}>
+        <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
+          By proceeding, you understand that Ramp will process the payment and transfer for the
+          purchased bitcoin
+        </Text>
+        <Box
+          my={4}
+          alignItems="center"
+          borderRadius={10}
+          p={4}
+          backgroundColor="#FDF7F0"
+          flexDirection="row"
+        >
+          <VaultIcon />
+          <Box mx={4}>
+            <Text fontSize={12} color="#5F6965">
+              Bitcoin will be transferred to
+            </Text>
+            <Text fontSize={19} letterSpacing={1.28} color="#041513">
+              {vault.presentationData.name}
+            </Text>
+            <Text
+              fontStyle="italic"
+              fontSize={12}
+              color="#00836A"
+            >{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
+          </Box>
+        </Box>
+
+        <Box
+          my={4}
+          alignItems="center"
+          borderRadius={10}
+          px={4}
+          py={6}
+          backgroundColor="#FDF7F0"
+          flexDirection="row"
+        >
+          <Box
+            backgroundColor="#FAC48B"
+            borderRadius={20}
+            height={10}
+            width={10}
+            justifyItems="center"
+            alignItems="center"
+          >
+            <Text fontSize={22}>@</Text>
+          </Box>
+          <Box mx={4}>
+            <Text fontSize={12} color="#5F6965">
+              Address for ramp transactions
+            </Text>
+            <Text
+              width={wp(200)}
+              ellipsizeMode="middle"
+              numberOfLines={1}
+              fontSize={19}
+              letterSpacing={1.28}
+              color="#041513"
+            >
+              {buyAddress}
+            </Text>
+          </Box>
+        </Box>
+        <Buttons
+          secondaryText="Cancel"
+          secondaryCallback={() => {
+            setShowBuyRampModal(false);
+          }}
+          primaryText="Buy Bitcoin"
+          primaryCallback={() => buyWithRamp(buyAddress)}
+        />
+      </Box>
+    );
+  }
+
+  const buyWithRamp = (address: string) => {
+    try {
+      setShowBuyRampModal(false);
+      Linking.openURL(fetchRampReservation({ receiveAddress: address }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+
   return (
     <LinearGradient
       colors={['#B17F44', '#6E4A35']}
@@ -487,16 +578,21 @@ function VaultDetails({ route, navigation }) {
           transactions={transactions}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
-          vault={vault}
         />
-        <Footer vault={vault} />
+        <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
       </VStack>
       <TierUpgradeModal
         visible={tireChangeModal}
-        close={() => setTireChangeModal(false)}
+        close={() => {
+          if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
+            return;
+          }
+          setTireChangeModal(false);
+        }}
         onPress={onPressModalBtn}
         isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
         plan={keeper.subscription.name}
+        closeOnOverlayClick={hasPlanChanged() !== VaultMigrationType.DOWNGRADE}
       />
       <KeeperModal
         visible={vaultCreated}
@@ -526,6 +622,18 @@ function VaultDetails({ route, navigation }) {
         }}
         DarkCloseIcon
         learnMore
+      />
+
+      <KeeperModal
+        visible={showBuyRampModal}
+        close={() => {
+          setShowBuyRampModal(false);
+        }}
+        title="Buy bitcoin with Ramp"
+        subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+        subTitleColor="#5F6965"
+        textColor="light.primaryText"
+        Content={RampBuyContent}
       />
     </LinearGradient>
   );

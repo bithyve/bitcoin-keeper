@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   BackHandler,
+  Linking,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable } from 'native-base';
@@ -44,6 +45,9 @@ import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { useDispatch } from 'react-redux';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import { urlParamsToObj } from 'src/core/utils';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { WalletType } from 'src/core/wallets/enums';
 import UaiDisplay from './UaiDisplay';
 import { WalletMap } from '../Vault/WalletMap';
 
@@ -78,7 +82,9 @@ function InheritanceComponent() {
               Inheritance
             </Text>
             <Text color="light.white" style={styles.bottomCardSubtitle}>
-              {plan === SubscriptionTier.L3.toUpperCase() ? 'Tools, tips and templates' : 'Upgrade to secure your vault'}
+              {plan === SubscriptionTier.L3.toUpperCase()
+                ? 'Tools, tips and templates'
+                : 'Upgrade to secure your vault'}
             </Text>
           </Box>
         </Box>
@@ -97,6 +103,7 @@ function LinkedWallets(props) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   useEffect(() => {
     dispatch(resetRealyWalletState());
@@ -160,7 +167,7 @@ function LinkedWallets(props) {
                   letterSpacing: 0.6,
                 }}
               >
-                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
+                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
               </Text>
               <Text
                 color="light.white"
@@ -170,7 +177,7 @@ function LinkedWallets(props) {
                   fontSize: hp(12),
                 }}
               >
-                {getUnit(currentCurrency)}
+                {getUnit(currentCurrency, satsEnabled)}
               </Text>
             </Box>
           ) : (
@@ -199,6 +206,8 @@ function VaultStatus(props) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
+
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
@@ -213,7 +222,7 @@ function VaultStatus(props) {
 
   const open = () => {
     if (signers.length) {
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails', params: {} }));
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
     } else {
       navigateToHardwareSetup();
     }
@@ -276,7 +285,7 @@ function VaultStatus(props) {
           <Box style={styles.vault}>
             <Box style={styles.torContainer}>
               {getTorStatusText !== 'Tor disabled' && (
-                <Box backgroundColor={getTorStatusColor}>
+                <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
                   <Text color="light.primaryText" style={styles.torText} bold>
                     {getTorStatusText}
                   </Text>
@@ -319,16 +328,23 @@ function VaultStatus(props) {
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
                     <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency)}
+                      {getAmt(
+                        vaultBalance,
+                        exchangeRates,
+                        currencyCode,
+                        currentCurrency,
+                        satsEnabled
+                      )}
                     </Text>
                     <Text color="light.white" style={styles.vaultBalanceUnit}>
-                      {getUnit(currentCurrency)}
+                      {getUnit(currentCurrency, satsEnabled)}
                     </Text>
                   </Box>
                 ) : (
                   <Box
                     style={{
                       marginVertical: 15,
+                      marginLeft: 3,
                     }}
                   >
                     <Hidden />
@@ -442,12 +458,39 @@ function TransVaultSuccessfulContent() {
 function HomeScreen({ navigation }) {
   const [showHideAmounts, setShowHideAmounts] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
+  const { showToast } = useToastMessage();
 
   useEffect(() => {
-    const backAction = () => true;
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    return () => backHandler.remove();
+    handleDeepLinking();
   }, []);
+
+  async function handleDeepLinking() {
+    try {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        if (initialUrl.includes('backup')) {
+          const splits = initialUrl.split('backup/');
+          const decoded = Buffer.from(splits[1], 'base64').toString();
+          const params = urlParamsToObj(decoded);
+          if (params.seed) {
+            navigation.navigate('EnterWalletDetail', {
+              seed: params.seed,
+              name: params.name,
+              path: params.path,
+              appId: params.appId,
+              description: `Imported from ${params.name}`,
+              type: WalletType.IMPORTED,
+            });
+          } else {
+            showToast('Invalid deeplink');
+          }
+        } else if (initialUrl.includes('create/')) {
+        }
+      }
+    } catch (error) {
+      //
+    }
+  }
 
   return (
     <Box style={styles.container}>
@@ -466,7 +509,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
@@ -560,14 +603,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   torContainer: {
-    paddingHorizontal: 10,
-    marginTop: hp(30),
+    marginTop: hp(25),
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: hp(14),
   },
   torText: {
-    letterSpacing: 1,
+    letterSpacing: 0.75,
     fontSize: 11,
     textAlign: 'center',
     textTransform: 'uppercase',

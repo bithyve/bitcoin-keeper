@@ -14,7 +14,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
-import { removeSigningDeviceBhr, setRelayVaultRecoveryAppId } from 'src/store/reducers/bhr';
+import { removeSigningDeviceBhr, setRelayVaultRecoveryShellId } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
@@ -30,6 +30,7 @@ import { hash256 } from 'src/core/services/operations/encryption';
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
 import { WalletMap } from '../Vault/WalletMap';
+import { setTempShellId } from 'src/store/reducers/vaults';
 
 const allowedSignerLength = [1, 3, 5];
 
@@ -46,7 +47,7 @@ function AddSigningDevice({ error }) {
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
       }
     >
-      <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12">
+      <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12" marginTop={5}>
         <HStack style={styles.signerItem}>
           <HStack alignItems="center">
             <AddIcon />
@@ -131,8 +132,9 @@ function SuccessModalContent() {
 
 function VaultRecovery({ navigation }) {
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultUpdateLoading } =
-    useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultError, relayVaultUpdate } = useAppSelector(
+    (state) => state.bhr
+  );
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState(signingDevices);
@@ -211,15 +213,23 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const getMetaData = async () => {
-    const xfpHash = hash256(signersList[0].masterFingerprint);
-    const response = await Relay.getVaultMetaData(xfpHash);
-    if (response?.appId) {
-      dispatch(setRelayVaultRecoveryAppId(response.appId));
+    try {
       setError(false);
-    } else if (response.error) {
-      setError(true);
-      Alert.alert('No vault is assocaited with this signer, try with another signer');
-    } else {
+      const xfpHash = hash256(signersList[0].masterFingerprint);
+
+      const response = await Relay.getVaultMetaData(xfpHash);
+      if (response?.vaultShellId) {
+        dispatch(setRelayVaultRecoveryShellId(response.vaultShellId));
+        dispatch(setTempShellId(response.vaultShellId));
+      } else if (!response?.vaultShellId && response?.appId) {
+        dispatch(setRelayVaultRecoveryShellId(response.appId));
+        dispatch(setTempShellId(response.appId));
+      } else if (response.error) {
+        setError(true);
+        Alert.alert('No vault is assocaited with this signer, try with another signer');
+      }
+    } catch (err) {
+      console.log(err);
       setError(true);
       Alert.alert('Something Went Wrong!');
     }
@@ -243,21 +253,22 @@ function VaultRecovery({ navigation }) {
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
       />
-      <View style={{ flex: 1, justifyContent: 'space-between' }}>
+      <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>
             <FlatList
+              showsVerticalScrollIndicator={false}
               data={signersList}
               keyExtractor={(item, index) => item?.signerId ?? index}
               renderItem={renderSigner}
               style={{
-                marginTop: hp(52),
+                marginTop: hp(32),
               }}
             />
             <AddSigningDevice error={error} />
           </Box>
         ) : (
-          <Box alignItems="center" style={{ flex: 1, justifyContent: 'center' }}>
+          <Box alignItems="center">
             <TouchableOpacity
               onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
             >
@@ -270,8 +281,10 @@ function VaultRecovery({ navigation }) {
             </Text>
           </Box>
         )}
+      </Box>
+      <Box style={styles.bottomViewWrapper}>
         {signingDevices.length > 0 && (
-          <Box position="absolute" bottom={10} width="100%" marginBottom={10}>
+          <Box width="100%">
             <Buttons
               primaryText="Recover Vault"
               primaryCallback={startRecovery}
@@ -283,7 +296,7 @@ function VaultRecovery({ navigation }) {
           title="Note"
           subtitle="Signing Server cannot be used as the first signing device while recovering"
         />
-      </View>
+      </Box>
       <KeeperModal
         visible={successModalVisible}
         title="Vault Recovered!"
@@ -312,6 +325,16 @@ const styles = ScaledSheet.create({
     borderRadius: 5,
     backgroundColor: '#FAC48B',
     justifyContent: 'center',
+  },
+  scrollViewWrapper: {
+    flex: 0.7,
+    justifyContent: 'space-between',
+  },
+  bottomViewWrapper: {
+    position: 'absolute',
+    bottom: 5,
+    width: '100%',
+    marginHorizontal: 20,
   },
 });
 

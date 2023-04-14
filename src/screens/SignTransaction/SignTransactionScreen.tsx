@@ -45,7 +45,7 @@ function SignTransactionScreen() {
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const { signers, id: vaultId, scheme } = defaultVault;
+  const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -56,6 +56,8 @@ function SignTransactionScreen() {
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
   const [keeperModal, setKeeperModal] = useState(false);
+  const [trezorModal, setTrezorModal] = useState(false);
+  const [bitbox02Modal, setBitbox02Modal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -71,6 +73,9 @@ function SignTransactionScreen() {
   );
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
+  const sendFailedMessage = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
+  );
   const [broadcasting, setBroadcasting] = useState(false);
   const textRef = useRef(null);
   const dispatch = useDispatch();
@@ -83,7 +88,7 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'NewHome' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+          { name: 'VaultDetails', params: { vaultTransferSuccessful: true, autoRefresh: true } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -105,7 +110,7 @@ function SignTransactionScreen() {
       navigation.dispatch(
         CommonActions.reset({
           index: 1,
-          routes: [{ name: 'NewHome' }, { name: 'VaultDetails' }],
+          routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
         })
       );
     }
@@ -117,6 +122,13 @@ function SignTransactionScreen() {
     },
     []
   );
+
+  useEffect(() => {
+    if (sendFailedMessage && broadcasting) {
+      setBroadcasting(false);
+      showToast(sendFailedMessage);
+    }
+  }, [sendFailedMessage, broadcasting]);
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -192,6 +204,7 @@ function SignTransactionScreen() {
             signingServerOTP,
             serializedPSBT,
             SigningServer,
+            shellId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.SEED_WORDS === signerType) {
@@ -267,6 +280,16 @@ function SignTransactionScreen() {
       case SignerType.KEEPER:
         setKeeperModal(true);
         break;
+      case SignerType.TREZOR:
+        if (defaultVault.isMultiSig) {
+          showToast('Signing with trezor for multisig transactions is coming soon!', null, 4000);
+          return;
+        }
+        setTrezorModal(true);
+        break;
+      case SignerType.BITBOX02:
+        setBitbox02Modal(true);
+        break;
       default:
         showToast(`action not set for ${type}`);
         break;
@@ -329,9 +352,13 @@ function SignTransactionScreen() {
         seedSignerModal={seedSignerModal}
         keystoneModal={keystoneModal}
         jadeModal={jadeModal}
+        keeperModal={keeperModal}
+        trezorModal={trezorModal}
+        bitbox02Modal={bitbox02Modal}
+        setTrezorModal={setTrezorModal}
+        setBitbox02Modal={setBitbox02Modal}
         setJadeModal={setJadeModal}
         setKeystoneModal={setKeystoneModal}
-        keeperModal={keeperModal}
         setSeedSignerModal={setSeedSignerModal}
         setPassportModal={setPassportModal}
         setKeeperModal={setKeeperModal}

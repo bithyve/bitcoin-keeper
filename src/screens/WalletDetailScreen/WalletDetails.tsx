@@ -1,5 +1,6 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
-import { FlatList, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Pressable, View } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
@@ -8,11 +9,13 @@ import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // icons and images
 import AddSCardIcon from 'src/assets/images/card_add.svg';
+import ImportCardIcon from 'src/assets/images/icon_import.svg';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import BTC from 'src/assets/images/btc_wallet.svg';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
+import BuyBitcoin from 'src/assets/images/icon_buy.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
 import Arrow from 'src/assets/images/arrow_brown.svg';
@@ -42,6 +45,10 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { WalletType } from 'src/core/wallets/enums';
+import Buttons from 'src/components/Buttons';
+import { fetchRampReservation } from 'src/services/ramp';
+import WalletOperations from 'src/core/wallets/operations';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -55,10 +62,11 @@ function WalletDetails({ route }) {
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   const netBalance = useAppSelector((state) => state.wallet.netBalance) || 0;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
-
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { wallet } = translations;
 
@@ -111,20 +119,42 @@ function WalletDetails({ route }) {
           style={styles.walletContainer}
         >
           {!(item?.presentationData && item?.specs) ? (
-            <TouchableOpacity
-              style={styles.addWalletContainer}
-              onPress={() => navigation.navigate('EnterWalletDetail', wallets.length)}
-            >
-              <GradientIcon
-                Icon={AddSCardIcon}
-                height={40}
-                gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-              />
+            <View style={styles.addWalletContent}>
+              <TouchableOpacity
+                style={styles.addWalletView}
+                onPress={() =>
+                  navigation.navigate('EnterWalletDetail', {
+                    name: `Wallet ${wallets.length + 1}`,
+                    description: 'Single-sig Wallet',
+                    type: WalletType.DEFAULT,
+                  })
+                }
+              >
+                <GradientIcon
+                  Icon={AddSCardIcon}
+                  height={40}
+                  gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+                />
 
-              <Text color="light.white" style={styles.addWalletText}>
-                {wallet.AddNewWallet}
-              </Text>
-            </TouchableOpacity>
+                <Text color="light.white" style={styles.addWalletText}>
+                  {wallet.AddNewWallet}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addWalletContainer}
+                onPress={() => navigation.navigate('ImportWallet')}
+              >
+                <GradientIcon
+                  Icon={ImportCardIcon}
+                  height={40}
+                  gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
+                />
+
+                <Text color="light.white" style={styles.addWalletText}>
+                  {wallet.ImportAWallet}
+                </Text>
+              </TouchableOpacity>
+            </View>
           ) : (
             <Box>
               <Box style={styles.walletCard}>
@@ -142,7 +172,12 @@ function WalletDetails({ route }) {
                     <Text color="light.white" style={styles.walletName}>
                       {walletName}
                     </Text>
-                    <Text color="light.white" style={styles.walletDescription}>
+                    <Text
+                      color="light.white"
+                      style={styles.walletDescription}
+                      ellipsizeMode="tail"
+                      numberOfLines={1}
+                    >
                       {walletDescription}
                     </Text>
                   </Box>
@@ -160,7 +195,13 @@ function WalletDetails({ route }) {
                       {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                     </Box>
                     <Text color="light.white" style={styles.unconfirmedBalance}>
-                      {getAmt(balances?.unconfirmed, exchangeRates, currencyCode, currentCurrency)}
+                      {getAmt(
+                        balances?.unconfirmed,
+                        exchangeRates,
+                        currencyCode,
+                        currentCurrency,
+                        satsEnabled
+                      )}
                     </Text>
                   </Box>
                 </Box>
@@ -179,9 +220,15 @@ function WalletDetails({ route }) {
                     {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
                   </Box>
                   <Text color="light.white" style={styles.availableBalance}>
-                    {getAmt(walletBalance, exchangeRates, currencyCode, currentCurrency)}
+                    {getAmt(
+                      walletBalance,
+                      exchangeRates,
+                      currencyCode,
+                      currentCurrency,
+                      satsEnabled
+                    )}
                     <Text color="light.textColor" style={styles.balanceUnit}>
-                      {getUnit(currentCurrency)}
+                      {getUnit(currentCurrency, satsEnabled)}
                     </Text>
                   </Text>
                 </Box>
@@ -247,6 +294,63 @@ function WalletDetails({ route }) {
     );
   }
 
+  function RampBuyContent() {
+    const [buyAddress, setBuyAddress] = useState('');
+    useEffect(() => {
+      const receivingAddress = WalletOperations.getNextFreeAddress(wallets[walletIndex]);
+      setBuyAddress(receivingAddress);
+    }, []);
+
+    return (
+      <Box style={styles.buyBtcWrapper}>
+        <Text color='#073B36' style={styles.buyBtcContent}>
+          By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin
+        </Text>
+        <Box style={styles.toWalletWrapper}>
+          <GradientIcon
+            Icon={WalletInsideGreen}
+            height={35}
+            gradient={['#FFFFFF', '#80A8A1']}
+          />
+          <Box style={styles.buyBtcCard}>
+            <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
+            <Text style={styles.presentationName}>{wallets[walletIndex].presentationData.name}</Text>
+            <Text style={styles.confirmBalanceText}>{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
+          </Box>
+        </Box>
+
+        <Box style={styles.atViewWrapper}>
+          <Box style={styles.atViewWrapper02}>
+            <Text style={styles.atText}>@</Text>
+          </Box>
+          <Box style={styles.buyBtcCard}>
+            <Text style={styles.buyBtcTitle}>Address for ramp transactions</Text>
+            <Text style={styles.addressTextView} ellipsizeMode="middle" numberOfLines={1} fontSize={19} letterSpacing={1.28} color='#041513'>{wallets[walletIndex].specs.receivingAddress}</Text>
+          </Box>
+        </Box>
+        <Buttons
+          secondaryText="Cancel"
+          secondaryCallback={() => {
+            setShowBuyRampModal(false);
+          }}
+          primaryText="Buy Bitcoin"
+          primaryCallback={() => buyWithRamp(buyAddress)}
+        />
+      </Box>
+    );
+  }
+
+  const buyWithRamp = (address: string) => {
+    try {
+      setShowBuyRampModal(false);
+      Linking.openURL(fetchRampReservation({ receiveAddress: address }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
@@ -260,9 +364,9 @@ function WalletDetails({ route }) {
             {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BTC)}
           </Box>
           <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
-            {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency)}
+            {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
             <Text color="light.textColorDark" style={styles.balanceUnit}>
-              {getUnit(currentCurrency)}
+              {getUnit(currentCurrency, satsEnabled)}
             </Text>
           </Text>
         </Box>
@@ -294,7 +398,7 @@ function WalletDetails({ route }) {
                     wallet: currentWallet,
                     editPolicy: true,
                   });
-                } else showToast('Vault is not created', <ToastErrorIcon />);
+                } else showToast('Create a vault to transfer', <ToastErrorIcon />);
               }}
             >
               <Box style={styles.transferPolicyContent}>
@@ -326,9 +430,10 @@ function WalletDetails({ route }) {
                       wallets[walletIndex].transferPolicy.threshold,
                       exchangeRates,
                       currencyCode,
-                      currentCurrency
+                      currentCurrency,
+                      satsEnabled
                     )}
-                    {getUnit(currentCurrency)}
+                    {getUnit(currentCurrency, satsEnabled)}
                   </Text>
                 </Box>
                 <Box>
@@ -387,6 +492,12 @@ function WalletDetails({ route }) {
                   Receive
                 </Text>
               </TouchableOpacity>
+              <TouchableOpacity style={styles.IconText} onPress={onPressBuyBitcoin}>
+                <BuyBitcoin />
+                <Text color="light.primaryText" style={styles.footerItemText}>
+                  Buy Bitcoin
+                </Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.IconText}
                 onPress={() => {
@@ -409,6 +520,17 @@ function WalletDetails({ route }) {
           </Text>
         </Box>
       )}
+      <KeeperModal
+        visible={showBuyRampModal}
+        close={() => {
+          setShowBuyRampModal(false);
+        }}
+        title="Buy bitcoin with Ramp"
+        subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+        subTitleColor="#5F6965"
+        textColor="light.primaryText"
+        Content={RampBuyContent}
+      />
       <KeeperModal
         visible={introModal}
         close={() => {
@@ -442,6 +564,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
+    flex: 1,
+  },
+  addWalletView: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    borderRightWidth: 1,
+    borderRightColor: '#FFFFFF10',
+    flex: 1,
   },
   transferPolicyCard: {
     paddingHorizontal: wp(10),
@@ -495,7 +626,7 @@ const styles = StyleSheet.create({
     marginLeft: 0,
   },
   addWalletText: {
-    fontSize: 14,
+    fontSize: 11,
     marginTop: hp(10),
   },
   walletCard: {
@@ -587,7 +718,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   unconfirmedBalance: {
-    fontSize: 14,
+    fontSize: 17,
     letterSpacing: 0.6,
     alignSelf: 'flex-end',
   },
@@ -602,6 +733,72 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
+  },
+  // buy bitcoin
+  buyBtcWrapper: {
+    padding: 1
+  },
+  buyBtcContent: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    marginVertical: 15,
+  },
+  toWalletWrapper: {
+    marginVertical: 4,
+    alignItems: "center",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#FDF7F0",
+    flexDirection: "row"
+  },
+  buyBtcCard: {
+    marginHorizontal: 20
+  },
+  buyBtcTitle: {
+    fontSize: 12,
+    color: '#5F6965'
+  },
+  presentationName: {
+    fontSize: 19,
+    letterSpacing: 1.28,
+    color: '#041513'
+  },
+  confirmBalanceText: {
+    fontStyle: 'italic',
+    fontSize: 12,
+    color: '#00836A'
+  },
+  atViewWrapper: {
+    marginVertical: 4,
+    alignItems: "center",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 6,
+    backgroundColor: "#FDF7F0",
+    flexDirection: "row"
+  },
+  atViewWrapper02: {
+    backgroundColor: "#FAC48B",
+    borderRadius: 30,
+    height: 30,
+    width: 30,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  atText: {
+    fontSize: 21,
+    textAlign: 'center'
+  },
+  addressTextView: {
+    width: wp(180)
+  },
+  addWalletContent: {
+    // paddingRight: wp(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%',
+    marginTop: hp(20),
   },
 });
 export default WalletDetails;

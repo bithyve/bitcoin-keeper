@@ -45,8 +45,7 @@ describe('Wallet primitives', () => {
   });
 
   test('wallet operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(wallet);
-    wallet = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
     expect(receivingAddress).toEqual('tb1qvmww6r6zlf98a7rwp2mw7afpg32qe2j22c76tq');
   });
 

@@ -1,5 +1,16 @@
+import { DerivationConfig } from 'src/store/sagas/wallets';
 import { Balances, BIP85Config, UTXO, Transaction } from '.';
 import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
+
+export interface WalletImportDetails {
+  // importing via mnemonic
+  mnemonic?: string;
+
+  // importing via xpriv/xpub
+  // extendedKey?: string;
+
+  derivationConfig: DerivationConfig;
+}
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType
@@ -25,6 +36,7 @@ export interface WalletSpecs {
   xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  receivingAddress?: string; // current receiving address(external chain)
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances

@@ -1,7 +1,11 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import { generateEncryptionKey, hash256 } from 'src/core/services/operations/encryption';
+import {
+  generateEncryptionKey,
+  generateKey,
+  hash256,
+} from 'src/core/services/operations/encryption';
 import {
   EntityKind,
   NetworkType,
@@ -20,6 +24,7 @@ import {
 
 import WalletUtilities from '../operations/utils';
 import config from '../../config';
+import WalletOperations from '../operations';
 
 const crypto = require('crypto');
 
@@ -42,6 +47,7 @@ export const generateVault = ({
   scheme,
   signers,
   networkType,
+  vaultShellId,
 }: {
   type: VaultType;
   vaultName: string;
@@ -49,9 +55,11 @@ export const generateVault = ({
   scheme: VaultScheme;
   signers: VaultSigner[];
   networkType: NetworkType;
+  vaultShellId?: string;
 }): Vault => {
   const id = generateVaultId(signers, networkType);
   const xpubs = signers.map((signer) => signer.xpub);
+  const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
   const presentationData: VaultPresentationData = {
     name: vaultName,
@@ -59,6 +67,11 @@ export const generateVault = ({
     visibility: VisibilityType.DEFAULT,
     shell: defaultShell,
   };
+
+  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
+
+  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
+  const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
 
   const specs: VaultSpecs = {
     xpubs,
@@ -76,12 +89,9 @@ export const generateVault = ({
     lastSynched: 0,
   };
 
-  if (scheme.m > scheme.n) throw new Error(`scheme error: m:${scheme.m} > n:${scheme.n}`);
-
-  const isMultiSig = scheme.n !== 1; // single xpub vaults are treated as single-sig wallet
-  const scriptType = isMultiSig ? ScriptTypes.P2WPKH : ScriptTypes.P2WSH;
   const vault: Vault = {
     id,
+    shellId,
     entityKind: EntityKind.VAULT,
     type,
     networkType,
@@ -94,6 +104,7 @@ export const generateVault = ({
     archived: false,
     scriptType,
   };
+  vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
   return vault;
 };
 
@@ -209,6 +220,8 @@ export const MOCK_SD_MNEMONIC_MAP = {
     'grass journey few toilet rhythm day provide decline position weapon pave monitor',
   [SignerType.TREZOR]:
     'equal gospel mirror humor early liberty finger breeze super celery invite proof',
+  [SignerType.BITBOX02]:
+    'journey gospel position invite winter pattern inquiry scrub sorry early enable badge',
 };
 
 export const generateMockExtendedKeyForSigner = (

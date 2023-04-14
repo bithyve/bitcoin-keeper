@@ -63,7 +63,7 @@ export const WalletDerivationDetailsSchema: ObjectSchema = {
   name: RealmSchema.WalletDerivationDetails,
   embedded: true,
   properties: {
-    instanceNum: 'int',
+    instanceNum: 'int?',
     mnemonic: 'string',
     bip85Config: `${RealmSchema.BIP85Config}?`,
     xDerivationPath: 'string',
@@ -98,6 +98,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     xpriv: 'string?',
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
+    receivingAddress: 'string?',
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
