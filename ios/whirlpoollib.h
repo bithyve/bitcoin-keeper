@@ -39,5 +39,5 @@ char *start(const char *input_str,
             const char *pre_user_hash_str,
             const char *network_str,
             const char *block_height_str,
-            const char *signed_registration_message_str);
-
+            const char *signed_registration_message_str,
+            const char *app_id);

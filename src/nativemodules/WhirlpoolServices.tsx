@@ -171,7 +171,8 @@ export default class WhirlpoolServices {
     preUserHash: string,
     network: string,
     blockHeight: string,
-    signedRegistrationMessage: string
+    signedRegistrationMessage: string,
+    appId: string
   ): Promise<string> => {
     try {
       const result = await Whirlpool.blocking(
@@ -183,7 +184,8 @@ export default class WhirlpoolServices {
         preUserHash,
         network,
         blockHeight,
-        signedRegistrationMessage
+        signedRegistrationMessage,
+        appId
       );
       if (!result) throw new Error('Unable to mix the current input');
       return result;

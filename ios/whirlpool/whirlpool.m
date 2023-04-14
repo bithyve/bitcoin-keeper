@@ -104,12 +104,13 @@ RCT_EXPORT_METHOD(blocking:(NSString *)input_str
                   network_str:(NSString *)network_str
                   block_height_str:(NSString *)block_height_str
                   signedRegistrationMessage:(NSString *)signedRegistrationMessage
+                  app_id:(NSString *)app_id
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   
-  [helper blockingWithInput_str:input_str private_key_str:private_key_str destination_addr_str:destination_addr_str pool_id:pool_id denomination_str:denomination_str pre_user_hash_str:pre_user_hash_str network_str:network_str block_height_str:block_height_str signedRegistrationMessage:signedRegistrationMessage callback:^(NSString * _Nonnull response) {
+  [helper blockingWithInput_str:input_str private_key_str:private_key_str destination_addr_str:destination_addr_str pool_id:pool_id denomination_str:denomination_str pre_user_hash_str:pre_user_hash_str network_str:network_str block_height_str:block_height_str signedRegistrationMessage:signedRegistrationMessage app_id:app_id callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }

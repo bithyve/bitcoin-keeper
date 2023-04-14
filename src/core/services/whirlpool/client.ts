@@ -199,7 +199,8 @@ export default class WhirlpoolClient {
     premix: Wallet,
     postmix: Wallet,
     pool: PoolData,
-    blockHeight: number
+    blockHeight: number,
+    appId: string
   ): Promise<string> => {
     if (!input && !input.height) throw new Error('Input is not confirmed');
 
@@ -239,7 +240,8 @@ export default class WhirlpoolClient {
       preUserHash,
       networkType,
       blockHeight.toString(),
-      signedRegistrationMessage
+      signedRegistrationMessage,
+      appId
     );
   };
 }
