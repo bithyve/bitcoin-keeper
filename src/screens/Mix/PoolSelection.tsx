@@ -10,7 +10,7 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useAppSelector } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import PageIndicator from 'src/components/PageIndicator';
 import Fonts from 'src/common/Fonts';
@@ -18,6 +18,8 @@ import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { Preview } from 'src/nativemodules/interface';
 import UtxoSummary from './UtxoSummary';
 import useBalance from 'src/hooks/useBalance';
+import SwiperModal from './SwiperModal';
+import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
@@ -50,6 +52,7 @@ export default function PoolSelection({ route, navigation }) {
   const [tx0Preview, setTx0Preview] = useState(null);
   const [poolLoading, setPoolLoading] = useState(true);
   const { getSatUnit } = useBalance();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setPoolLoading(true);
@@ -125,6 +128,8 @@ export default function PoolSelection({ route, navigation }) {
         paddingLeft={10}
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
+        learnMore
+        learnMorePressed={() => { dispatch(setWhirlpoolSwiperModal(true)) }}
       />
 
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
@@ -226,6 +231,8 @@ export default function PoolSelection({ route, navigation }) {
         closeOnOverlayClick={false}
         Content={() => poolContent(availablePools, onPoolSelectionCallback, satsEnabled)}
       />
+
+      <SwiperModal />
     </ScreenWrapper>
   );
 }

@@ -5,12 +5,12 @@ import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import LinkedWallet from 'src/assets/images/walletUtxos.svg';
-import { Box, HStack, Icon, VStack } from 'native-base';
+import { Box, HStack, VStack } from 'native-base';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { Alert, StyleSheet, FlatList, Dimensions } from 'react-native';
+import { wp } from 'src/common/data/responsiveness/responsive';
+import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -21,14 +21,10 @@ import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import { useAppSelector } from 'src/store/hooks';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
-import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
 import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
-import Colors from 'src/theme/Colors';
-import { isNull } from 'lodash';
-
-const { width } = Dimensions.get('window');
+import SwiperModal from '../Mix/SwiperModal';
 
 const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
   if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
@@ -82,8 +78,8 @@ function Footer({
         initiateWhirlpool
           ? goToWhirlpoolConfiguration()
           : initateWhirlpoolMix
-          ? inititateWhirlpoolMixProcess()
-          : navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }))
+            ? inititateWhirlpoolMixProcess()
+            : navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }))
       }
       selectedUTXOs={selectedUTXOs}
     />
@@ -125,13 +121,6 @@ function UTXOManagement({ route, navigation }) {
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
   const { walletPoolMap, syncing } = useAppSelector((state) => state.wallet);
-  const [currentPosition, setCurrentPosition] = useState(0);
-
-  const onViewRef = React.useRef((viewableItems) => {
-    setCurrentPosition(viewableItems.changed[0].index);
-  });
-  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
-  console.log(currentPosition, 'index');
 
   useEffect(() => {
     setSelectedAccount(accountType || WalletType.DEFAULT);
@@ -194,116 +183,9 @@ function UTXOManagement({ route, navigation }) {
     [cleanUp]
   );
 
-  const [showSwiperModal, setShowSwiperModal] = useState(true);
-
-  const closeShowSwiperModal = () => {
-    setShowSwiperModal(false);
-  };
-
-  const SwiperModalContent = ({ contentTitle, contentSubTitle }) => {
-    return (
-      <Box style={styles.contentContaner}>
-        <Box>
-          <Text bold italic style={styles.modalTitle}>
-            {contentTitle}
-          </Text>
-          <Text style={styles.modalSubTitle}>{contentSubTitle}</Text>
-        </Box>
-      </Box>
-    );
-  };
-
-  const DATA = [
-    {
-      id: '1',
-      firstContentHeading: {
-        contentTitle: 'Pool',
-        contentSubTitle: 'The denonination of the pool you have selected for this mix.',
-      },
-      secondContentHeading: {
-        contentTitle: 'UTXO’s created',
-        contentSubTitle: 'The number of unspent outputs that will be created with fresh histories.',
-      },
-      firstContentFooter: {
-        contentTitle: 'Deterministic links',
-        contentSubTitle:
-          'The number of deterministically linked inputs and outputs in the resulting mix transaction',
-      },
-      secondContentFooter: {
-        contentTitle: 'Combinations',
-        contentSubTitle:
-          'The number of potential combinations when attempting to link inputs to outputs of a single mix transaction',
-      },
-    },
-    {
-      id: '2',
-      firstContentHeading: {
-        contentTitle: 'Entropy',
-        contentSubTitle:
-          'The score of the resulting transaction when measured with the Boltzmann transaction analyzer tool.',
-      },
-      secondContentHeading: {
-        contentTitle: 'Pool Fee',
-        contentSubTitle: 'The fixed fee required to enter the pool',
-      },
-      firstContentFooter: {
-        contentTitle: 'Total Premix Fee',
-        contentSubTitle: 'The total miner fees for the Premix outputs created',
-      },
-      secondContentFooter: {
-        contentTitle: 'Miner Fee',
-        contentSubTitle: 'The miner fee for the Tx0 transaction being created',
-      },
-    },
-  ];
-
-  const renderItem = ({ item }) => {
-    return (
-      <Box>
-        <SwiperModalContent
-          contentTitle={item.firstContentHeading.contentTitle}
-          contentSubTitle={item.firstContentHeading.contentSubTitle}
-        />
-        <SwiperModalContent
-          contentTitle={item.secondContentHeading.contentTitle}
-          contentSubTitle={item.secondContentHeading.contentSubTitle}
-        />
-        <Box style={styles.swiperModalIcon}>
-          <SwiperModalIcon />
-        </Box>
-        <SwiperModalContent
-          contentTitle={item.firstContentFooter.contentTitle}
-          contentSubTitle={item.firstContentFooter.contentSubTitle}
-        />
-        <SwiperModalContent
-          contentTitle={item.secondContentFooter.contentTitle}
-          contentSubTitle={item.secondContentFooter.contentSubTitle}
-        />
-      </Box>
-    );
-  };
-
-  const List = () => {
-    return (
-      <Box>
-        <FlatList
-          data={DATA}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          nestedScrollEnabled={true}
-          horizontal
-          snapToInterval={width}
-          showsHorizontalScrollIndicator={false}
-          onViewableItemsChanged={onViewRef.current}
-          viewabilityConfig={viewConfigRef.current}
-        />
-      </Box>
-    );
-  };
-
   return (
     <ScreenWrapper>
-      <HeaderTitle learnMore learnMorePressed={() => setShowSwiperModal(true)} />
+      <HeaderTitle />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab
           selectedAccount={selectedAccount}
@@ -402,30 +284,6 @@ function UTXOManagement({ route, navigation }) {
           </Box>
         )}
       />
-      <KeeperModal
-        visible={showSwiperModal}
-        close={closeShowSwiperModal}
-        title="Some Definitions:"
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
-        buttonTextColor="light.greenText"
-        buttonBackground={['#FFF', '#80A8A1']}
-        buttonCallback={closeShowSwiperModal}
-        Content={() => {
-          return <List />;
-        }}
-        DarkCloseIcon
-        learnMore
-        buttonText={currentPosition !== 0 && 'continue'}
-        pagination={
-          currentPosition === 0 && (
-            <Box style={styles.paginationDots}>
-              <Box style={styles.selectedDot} />
-              <Box style={styles.unSelectedDot} />
-            </Box>
-          )
-        }
-      />
     </ScreenWrapper>
   );
 }
@@ -462,48 +320,6 @@ const getStyles = () =>
     batteryModalText: {
       marginTop: 10,
       letterSpacing: 1.28,
-    },
-    modalTitle: {
-      fontSize: 13,
-      lineHeight: 18,
-      textAlign: 'left',
-      letterSpacing: 0.65,
-      color: Colors.White,
-    },
-    modalSubTitle: {
-      fontSize: 13,
-      lineHeight: 18,
-      textAlign: 'left',
-      letterSpacing: 0.65,
-      color: Colors.White,
-      marginBottom: hp(15),
-      maxWidth: hp(270),
-    },
-    swiperModalIcon: {
-      alignSelf: 'center',
-      marginTop: hp(-15),
-      marginBottom: hp(8),
-    },
-    contentContaner: {
-      width: hp(290),
-    },
-    paginationDots: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    selectedDot: {
-      width: 25,
-      height: 5,
-      borderRadius: 5,
-      backgroundColor: '#E3BE96',
-      marginEnd: 5,
-    },
-    unSelectedDot: {
-      width: 6,
-      height: 5,
-      borderRadius: 5,
-      backgroundColor: '#89AEA7',
-      marginEnd: 5,
     },
   });
 export default UTXOManagement;
