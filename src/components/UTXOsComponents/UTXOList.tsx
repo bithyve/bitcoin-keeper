@@ -43,7 +43,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
                 { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
               ]}
             >
-              <Text style={styles.labelText} bold>
+              <Text style={styles.labelText} bold testID={`text_${item.name.replace(/ /g, '_')}`}>
                 {item.name.toUpperCase()}
               </Text>
             </Box>
@@ -51,7 +51,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
       </Box>
       {extraLabelCount > 0 && (
         <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-          <Text style={{ color: Colors.White }}>+{extraLabelCount}</Text>
+          <Text style={{ color: Colors.White }} testID="text_extraLabelCount">+{extraLabelCount}</Text>
         </Box>
       )}
     </Box>
@@ -99,6 +99,7 @@ function UTXOElement({
           );
         }
       }}
+      testID="btn_selectUtxos"
     >
       <Box style={styles.utxoInnerView}>
         {allowSelection ? (
@@ -119,6 +120,7 @@ function UTXOElement({
                 color={`${colorMode}.GreyText`}
                 style={styles.transactionIdText}
                 numberOfLines={1}
+                testID={`text_${item.txId}`}
               >
                 {item.txId}
               </Text>
@@ -128,7 +130,7 @@ function UTXOElement({
         </Box>
         <Box style={[styles.amountWrapper, { width: '45%' }]}>
           {item.confirmed ? null : (
-            <Box paddingX={3}>
+            <Box paddingX={3} testID="view_unconfirmIcon">
               <UnconfirmedIcon />
             </Box>
           )}

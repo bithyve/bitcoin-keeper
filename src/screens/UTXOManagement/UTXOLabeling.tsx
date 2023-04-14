@@ -114,8 +114,7 @@ function UTXOLabeling() {
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${
-        config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
+      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
       }/tx/${utxo.txId}`
     );
   };
@@ -131,7 +130,7 @@ function UTXOLabeling() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps
       >
-        <View style={styles.subHeader}>
+        <View style={styles.subHeader} testID="view_utxosLabelSubHeader">
           <View style={{ flex: 1 }}>
             <Text style={styles.subHeaderTitle}>Transaction ID</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -173,8 +172,8 @@ function UTXOLabeling() {
                       item.type === LabelType.SYSTEM
                         ? '#23A289'
                         : editingIndex !== index
-                        ? '#E0B486'
-                        : '#A88763',
+                          ? '#E0B486'
+                          : '#A88763',
                   },
                 ]}
               >
@@ -182,8 +181,9 @@ function UTXOLabeling() {
                   style={styles.labelEditContainer}
                   activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
                   onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
+                  testID={`btn_${item.name}`}
                 >
-                  <Text style={styles.itemText} bold>
+                  <Text style={styles.itemText} bold testID={`text_${item.name}`}>
                     {item.name.toUpperCase()}
                   </Text>
                   {item.type === LabelType.USER ? (
@@ -200,6 +200,7 @@ function UTXOLabeling() {
           <Box style={styles.inputLabeWrapper}>
             <Box style={styles.inputLabelBox}>
               <Input
+                testID="input_utxoLabel"
                 onChangeText={(text) => {
                   setLabel(text);
                 }}
@@ -213,7 +214,7 @@ function UTXOLabeling() {
                 autoCapitalize="characters"
               />
             </Box>
-            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd}>
+            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd} testID="btn_addUtxoLabel">
               <Done />
             </TouchableOpacity>
           </Box>

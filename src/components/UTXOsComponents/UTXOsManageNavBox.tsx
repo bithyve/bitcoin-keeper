@@ -11,13 +11,13 @@ import Text from '../KeeperText';
 
 const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
   idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
-    idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
+  idx(currentWallet, (_) => _.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
+  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
 
 function UTXOsManageNavBox({
   onClick,

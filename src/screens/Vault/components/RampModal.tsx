@@ -34,7 +34,7 @@ function RampBuyContent({
   };
 
   return (
-    <Box style={styles.modalWrapper}>
+    <Box style={styles.modalWrapper} testID="view_rampModal">
       <Text color="#073B36" style={styles.contentParaText}>
         By proceeding, you understand that Ramp will process the payment and transfer for the
         purchased bitcoin
@@ -45,11 +45,11 @@ function RampBuyContent({
 
       >
         <VaultIcon />
-        <Box style={styles.vaultTitleWrapper}>
+        <Box style={styles.vaultTitleWrapper} testID="view_rampModalPresentName">
           <Text style={styles.vaultTitle}>
             Bitcoin will be transferred to
           </Text>
-          <Text style={styles.vaultPresntName}>
+          <Text style={styles.vaultPresntName} testID="text_rampModalPresentName">
             {vault.presentationData.name}
           </Text>
           <Text style={styles.balanceText}>{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>

@@ -29,7 +29,7 @@ function HeaderTitle({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   titleFontSize = 16,
 }: Props) {
   const navigation = useNavigation();
@@ -46,7 +46,7 @@ function HeaderTitle({
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
-            <TouchableOpacity onPress={learnMorePressed}>
+            <TouchableOpacity onPress={learnMorePressed} testID={'btn_learnMore'}>
               <Box
                 borderColor="light.learnMoreBorder"
                 backgroundColor="light.lightAccent"
