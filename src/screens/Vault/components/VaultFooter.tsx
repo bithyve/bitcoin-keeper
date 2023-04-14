@@ -20,6 +20,7 @@ function VaultFooter({ vault, onPressBuy }: { vault: Vault; onPressBuy: () => vo
           onPress={() => {
             navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
           }}
+          testID="btn_vaultFooterSend"
         >
           <Send />
           <Text color="light.primaryText" style={styles.footerText}>
@@ -31,13 +32,14 @@ function VaultFooter({ vault, onPressBuy }: { vault: Vault; onPressBuy: () => vo
           onPress={() => {
             navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
           }}
+          testID="btn_vaultFooterReceive"
         >
           <Recieve />
           <Text color="light.primaryText" style={styles.footerText}>
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText} onPress={onPressBuy}>
+        <TouchableOpacity style={styles.IconText} onPress={onPressBuy} testID="btn_vaultFooterBuy">
           <Buy />
           <Text color="light.primaryText" style={styles.footerText}>
             Buy
@@ -48,6 +50,7 @@ function VaultFooter({ vault, onPressBuy }: { vault: Vault; onPressBuy: () => vo
           onPress={() => {
             navigation.dispatch(CommonActions.navigate('VaultSettings'));
           }}
+          testID="btn_vaultFooterSettings"
         >
           <IconSettings />
           <Text color="light.primaryText" style={styles.footerText}>
