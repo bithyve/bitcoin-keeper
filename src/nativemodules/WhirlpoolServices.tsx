@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import { R } from 'react-native-shadow-2';
 import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
@@ -8,15 +9,16 @@ export default class WhirlpoolServices {
    * whirlpool mixing pools provider: fetches pool info from the coordinator
    * @returns {Promise<PoolData[]>} PoolData[]
    */
-  static getPools = async (): Promise<PoolData[]> => {
+  static getPools = async (): Promise<PoolData[] | boolean> => {
     try {
-      const result = await Whirlpool.getPools();
-      if (!result) throw new Error('Failed to fetch pools data');
-
-      return JSON.parse(result);
+      let result = await Whirlpool.getPools();
+      result = JSON.parse(result);
+      if (result.length > 0) {
+        return result;
+      } else return false;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
@@ -24,15 +26,15 @@ export default class WhirlpoolServices {
    * Fetches TX0 data from the coordinator.
    * @returns {Promise<Tx0Data[]>} Tx0Data[]
    */
-  static getTx0Data = async (): Promise<TX0Data[]> => {
+  static getTx0Data = async (): Promise<TX0Data[] | boolean> => {
     try {
-      const result = await Whirlpool.getTx0Data();
-      if (!result) throw new Error('Failed to fetch tx0 data');
-
-      return JSON.parse(result);
+      let result = await Whirlpool.getTx0Data();
+      result = JSON.parse(result);
+      if (result.length > 0) return result;
+      else return false;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
@@ -60,7 +62,7 @@ export default class WhirlpoolServices {
     nWantedMaxOutputsStr: string,
     nPoolMaxOutputs: number,
     premixFeePerByte: number
-  ): Promise<Preview> => {
+  ): Promise<Preview | false> => {
     try {
       let result;
       if (Platform.OS === 'ios') {
@@ -88,15 +90,15 @@ export default class WhirlpoolServices {
           `${nPoolMaxOutputs}`
         );
       }
-
-      if (!result) throw new Error('Failed to generate tx0 preview');
-      if (result === 'No enough sats for mixing.') {
-        return result;
+      if (!result) {
+        throw new Error('Failed to generate tx0 preview');
       }
-      return JSON.parse(result);
+      result = JSON.parse(result);
+      if (result.premixValue) return result;
+      else return false;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
@@ -115,7 +117,7 @@ export default class WhirlpoolServices {
     inputs: WhirlpoolInput[],
     addressBank: string[],
     changeAddress: string
-  ): Promise<string> => {
+  ): Promise<string | false> => {
     try {
       const result = await Whirlpool.intoPsbt(
         JSON.stringify(preview),
@@ -124,11 +126,11 @@ export default class WhirlpoolServices {
         JSON.stringify(addressBank),
         changeAddress
       );
-      if (!result) throw new Error('Failed to construct PSBT from Tx0 Preview');
+      if (!result) return false;
       return result;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
