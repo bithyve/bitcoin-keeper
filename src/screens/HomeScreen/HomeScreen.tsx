@@ -72,8 +72,7 @@ function InheritanceComponent() {
             },
           }}
         >
-
-          <Box style={styles.bottomCardContent} >
+          <Box style={styles.bottomCardContent}>
             <Inheritance />
             <Box
               style={{
@@ -115,7 +114,7 @@ function LinkedWallets(props) {
         marginTop: hp(8),
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
-      testID='btn_LinkedWallet'
+      testID="btn_LinkedWallet"
     >
       <Box
         backgroundColor={{
@@ -158,7 +157,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                {getCurrencyIcon(BTC, 'grey',)}
+                {getCurrencyIcon(BTC, 'grey')}
               </Box>
               <Text
                 color="light.white"
@@ -190,12 +189,11 @@ function LinkedWallets(props) {
               {getCurrencyIcon(BTC, 'grey')}
               &nbsp;
               <Hidden />
-            </Box >
-          )
-          }
-        </Pressable >
-      </Box >
-    </Pressable >
+            </Box>
+          )}
+        </Pressable>
+      </Box>
+    </Pressable>
   );
 }
 
@@ -344,71 +342,7 @@ function VaultStatus(props) {
                   </Box>
                 )}
               </Pressable>
-              <Box style={styles.vaultBody}>
-                <Text color="light.white" style={styles.vaultHeading} bold>
-                  Your Vault
-                </Text>
-
-                <Text color="light.white" style={styles.vaultSubHeading} bold>
-                  {!signers.length
-                    ? 'Add a signing device to enable '
-                    : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
-                </Text>
-
-                {!signers.length ? (
-                  <Box
-                    style={{
-                      marginTop: hp(11.5),
-                    }}
-                  >
-                    <Chain />
-                  </Box>
-                ) : (
-                  <Box style={styles.vaultSignersContainer}>
-                    {signers.map((signer) => (
-                      <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
-                        {WalletMap(signer.type).Icon}
-                      </Box>
-                    ))}
-                  </Box>
-                )}
-              </Box>
-
-              <HStack style={styles.vaultBalanceContainer}>
-                {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
-                <Pressable>
-                  {props.showHideAmounts ? (
-                    <Box style={styles.rowCenter}>
-                      <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                        {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
-                      </Text>
-                      <Text color="light.white" style={styles.vaultBalanceUnit}>
-                        {getUnit(currentCurrency, satsEnabled)}
-                      </Text>
-                    </Box>
-                  ) : (
-                    <Box
-                      style={{
-                        marginVertical: 15,
-                        marginLeft: 3,
-                      }}
-                    >
-                      <Hidden />
-                    </Box>
-                  )}
-                </Pressable>
-              </HStack>
-              <Pressable
-                backgroundColor="light.accent"
-                style={styles.balanceToggleContainer}
-                onPress={() => props.onAmountPress()}
-                testID={`btn_${!props.showHideAmounts ? 'Show_Balances' : 'Hide_Balances'}`}
-              >
-                <Text color="light.sendMax" style={styles.balanceToggleText} bold>
-                  {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
-                </Text>
-              </Pressable>
-            </HStack >
+            </HStack>
             <Pressable
               backgroundColor="light.accent"
               style={styles.balanceToggleContainer}
@@ -418,10 +352,10 @@ function VaultStatus(props) {
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
-          </Box >
-        </TouchableOpacity >
-      </ImageBackground >
-    </Box >
+          </Box>
+        </TouchableOpacity>
+      </ImageBackground>
+    </Box>
   );
 }
 
@@ -475,7 +409,10 @@ function VaultInfo() {
             </Pressable>
             {isTestnet() && <TestnetIndicator />}
           </Box>
-          <Pressable testID="btn_AppSettings" onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
+          <Pressable
+            testID="btn_AppSettings"
+            onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+          >
             <SettingIcon />
           </Pressable>
         </Box>
@@ -567,7 +504,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
