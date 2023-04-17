@@ -243,6 +243,7 @@ function MixProgress({ route, navigation }) {
             })
           );
         } else {
+          showToast('Error in initating the mix', <ToastErrorIcon />, 3000);
           unsucccessfulUtxos.push(utxo.txId);
           isBroadcasted = false;
         }

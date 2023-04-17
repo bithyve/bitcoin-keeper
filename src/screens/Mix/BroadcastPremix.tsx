@@ -28,6 +28,8 @@ import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -58,6 +60,8 @@ export default function BroadcastPremix({ route, navigation }) {
   const [preRequistesLoading, setPreRequistesLoading] = useState(true);
   const { getSatUnit } = useBalance();
   // const getSatUnit = () => (satsEnabled ? 'sats' : 'btc');
+
+  const { showToast } = useToastMessage();
   const valueByPreferredUnit = (value) => {
     if (!value) return '';
     const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
@@ -138,37 +142,43 @@ export default function BroadcastPremix({ route, navigation }) {
         outputProvider,
         network
       );
-      const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
-      const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
+      if (serializedPSBT) {
+        const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
+        const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
 
-      if (txid) {
-        const outputs = PSBT.txOutputs;
-        const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
-        const voutBadBank = outputs.findIndex(
-          (o) => o.address === badbankWallet.specs.receivingAddress
-        );
-        dispatch(
-          createUTXOReference({
-            labels: [{ name: 'Deposit', type: LabelType.SYSTEM }],
-            txId: txid,
-            vout: voutPremix,
-          })
-        );
-        dispatch(
-          createUTXOReference({
-            labels: [
-              { name: 'Deposit', type: LabelType.SYSTEM },
-              { name: 'Doxxic Change', type: LabelType.SYSTEM },
-            ],
-            txId: txid,
-            vout: voutBadBank,
-          })
-        );
-        dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
-        setShowBroadcastModal(true);
-        setLoading(false);
+        if (txid) {
+          const outputs = PSBT.txOutputs;
+          const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
+          const voutBadBank = outputs.findIndex(
+            (o) => o.address === badbankWallet.specs.receivingAddress
+          );
+          dispatch(
+            createUTXOReference({
+              labels: [{ name: 'Deposit', type: LabelType.SYSTEM }],
+              txId: txid,
+              vout: voutPremix,
+            })
+          );
+          dispatch(
+            createUTXOReference({
+              labels: [
+                { name: 'Deposit', type: LabelType.SYSTEM },
+                { name: 'Doxxic Change', type: LabelType.SYSTEM },
+              ],
+              txId: txid,
+              vout: voutBadBank,
+            })
+          );
+          dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
+          setShowBroadcastModal(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
+        }
       } else {
-        // error modals
+        setLoading(false);
+        showToast('Error in creating SerializedPSBT ', <ToastErrorIcon />, 3000);
       }
     } catch (e) {
       setLoading(false);
