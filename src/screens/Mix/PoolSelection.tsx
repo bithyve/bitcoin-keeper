@@ -18,6 +18,7 @@ import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { Preview } from 'src/nativemodules/interface';
 import UtxoSummary from './UtxoSummary';
 import LearnMoreModal from './components/LearnMoreModal';
+import useBalance from 'src/hooks/useBalance';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
@@ -50,6 +51,7 @@ export default function PoolSelection({ route, navigation }) {
   const [tx0Preview, setTx0Preview] = useState(null);
   const [poolLoading, setPoolLoading] = useState(true);
   const [learnModalVisible, setLearnModalVisible] = useState(false);
+  const { getSatUnit } = useBalance();
 
   useEffect(() => {
     setPoolLoading(true);
@@ -119,8 +121,6 @@ export default function PoolSelection({ route, navigation }) {
     return valueInPreferredUnit;
   };
 
-  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
-
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
@@ -150,7 +150,7 @@ export default function PoolSelection({ route, navigation }) {
                     ? valueByPreferredUnit(selectedPool?.denomination)
                     : poolSelectionText}
                 </Text>
-                <Text style={styles.denominatorText}>{selectedPool ? getPreferredUnit() : ''}</Text>
+                <Text style={styles.denominatorText}>{selectedPool ? getSatUnit() : ''}</Text>
               </Box>
               <Box style={styles.arrowIcon}>
                 <RightArrowIcon />
@@ -166,7 +166,7 @@ export default function PoolSelection({ route, navigation }) {
           <Text style={styles.poolErrorText}>
             Pools not available. Min{' '}
             <Text style={{ fontWeight: 'bold' }}>
-              {valueByPreferredUnit(minMixAmount)} {getPreferredUnit()}
+              {valueByPreferredUnit(minMixAmount)} {getSatUnit()}
             </Text>{' '}
             required
           </Text>
@@ -186,7 +186,7 @@ export default function PoolSelection({ route, navigation }) {
             {selectedPool ? valueByPreferredUnit(selectedPool?.feeValue) : ''}
           </Text>
           <Text color="light.secondaryText" style={{ paddingLeft: selectedPool ? 5 : 0 }}>
-            {selectedPool ? getPreferredUnit() : '--'}
+            {selectedPool ? getSatUnit() : '--'}
           </Text>
         </Box>
       </Box>

@@ -41,11 +41,9 @@ export const securityTips = [
   },
   {
     title: 'Introducing Whirlpool',
-    subTitle:
-      'Whirlpool helps you safeguard your privacy by disociating your PIIs from your bitcoin.',
+    subTitle: 'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones.',
     assert: <WhirlpoolLoader />,
-    message:
-      'For increased privacy and security, remix sats a few times and stow away in the Vault.',
+    message: 'For increased privacy and security, remix sats a few times, then transfer them to the Vault.',
   },
 ];
 export const getSecurityTip = () => {

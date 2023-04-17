@@ -21,6 +21,7 @@ import { TxPriority, WalletType } from 'src/core/wallets/enums';
 import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
+import LearnMoreModal from '../UTXOManagement/components/LearnMoreModal';
 
 const feesContent = (fees, onFeeSelectionCallback) => (
   <Box style={styles.feeContent}>
@@ -45,19 +46,19 @@ const feesContent = (fees, onFeeSelectionCallback) => (
   </Box>
 );
 
-function WhirlpoolContent() {
-  return (
-    <View>
-      <Text color='light.white' style={{ letterSpacing: 0.6 }}>
-        Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
-        These wallets are all based off the same seed that you used to create the BIP39 software
-        wallet you are using. They simply use different (but well known) derivation paths to derive
-        other addresses. That means that you can always recover all your funds so long as you have
-        the seed.
-      </Text>
-    </View>
-  );
-}
+// function WhirlpoolContent() {
+//   return (
+//     <View>
+//       <Text color='light.white' style={{ letterSpacing: 0.6 }}>
+//         Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
+//         These wallets are all based off the same seed that you used to create the BIP39 software
+//         wallet you are using. They simply use different (but well known) derivation paths to derive
+//         other addresses. That means that you can always recover all your funds so long as you have
+//         the seed.
+//       </Text>
+//     </View>
+//   );
+// }
 
 export default function WhirlpoolConfiguration({ route }) {
   const { utxos, wallet } = route.params;
@@ -219,7 +220,7 @@ export default function WhirlpoolConfiguration({ route }) {
         Content={() => feesContent(fees, onFeeSelectionCallback)}
       />
 
-      <KeeperModal
+      {/* <KeeperModal
         visible={showWhirlpoolModal}
         close={() => {
           setShowWhirlpoolModal(false);
@@ -233,7 +234,13 @@ export default function WhirlpoolConfiguration({ route }) {
         DarkCloseIcon
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-      />
+      /> */}
+      <LearnMoreModal
+        visible={showWhirlpoolModal}
+        closeModal={() => {
+          setShowWhirlpoolModal(false);
+          dispatch(setWhirlpoolModal(false));
+        }} />
       <SCodeLearnMore visible={scodeModalVisible} closeModal={() => setScodeModalVisible(false)} />
     </ScreenWrapper>
   );

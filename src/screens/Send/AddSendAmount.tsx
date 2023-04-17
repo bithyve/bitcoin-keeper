@@ -116,7 +116,7 @@ function AddSendAmount({ route }) {
         setErrorMessage('Please select enough UTXOs to send');
       }
     }
-  }, [amount]);
+  }, [amount, amountToSend]);
 
   useEffect(() => {
     const confirmBalance = sender.specs.balances.confirmed;

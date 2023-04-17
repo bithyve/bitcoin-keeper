@@ -38,7 +38,7 @@ function UTXOsManageNavBox({
     >
       {isWhirlpoolWallet ? (
         <Box style={styles.titleViewWrapper}>
-          <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
+          <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
           <Text style={styles.subTitleText}>
             Total Balance: {getBalance(getTotalBalanceWhirlpoolAccount(currentWallet))}
             {getSatUnit()}
@@ -46,7 +46,7 @@ function UTXOsManageNavBox({
         </Box>
       ) : (
         <Box style={styles.titleViewWrapper}>
-          <Text style={styles.titleText}>Manage UTXO’s/Whirlpool Accounts</Text>
+          <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
           <Text style={styles.subTitleText}>Select Label and choose UTXOs</Text>
         </Box>
       )}

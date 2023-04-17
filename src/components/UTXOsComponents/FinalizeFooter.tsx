@@ -20,7 +20,7 @@ function FinalizeFooter({
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
-        primaryText={initiateWhirlpool ? 'Mix' : initateWhirlpoolMix ? 'Start Mix' : 'Send'}
+        primaryText={initiateWhirlpool ? 'Initiate Premix' : initateWhirlpoolMix ? 'Start Mix' : 'Send'}
         secondaryText={secondaryText}
         secondaryCallback={() => {
           if (initiateWhirlpool) {

@@ -31,6 +31,7 @@ function OnBoardingSlides({ navigation }) {
   const { onboarding } = translations;
   const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
+  console.log('currentPosition', currentPosition)
   const [items] = useState([
     {
       id: '1',
@@ -56,7 +57,7 @@ function OnBoardingSlides({ navigation }) {
       illustration: <Illustration2 />,
     },
     {
-      id: '2',
+      id: '3',
       title: (
         <>
           {`${onboarding.slide07Title} `}
@@ -128,7 +129,7 @@ function OnBoardingSlides({ navigation }) {
             <Box flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => {
-                  console.log(index);
+                  console.log('index', index);
                   return (
                     <Box
                       key={index}
@@ -136,26 +137,26 @@ function OnBoardingSlides({ navigation }) {
                     />
                   );
                 })
-              ) : (
-                <Box alignSelf="center" backgroundColor="transparent">
-                  <TouchableOpacity
-                    onPress={() =>
-                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
-                    }
+              ) : (<Box alignSelf="center" backgroundColor="transparent">
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                  }
+                >
+                  <LinearGradient
+                    start={[0, 0]}
+                    end={[1, 1]}
+                    colors={['#FFFFFF', '#80A8A1']}
+                    style={styles.cta}
                   >
-                    <LinearGradient
-                      start={[0, 0]}
-                      end={[1, 1]}
-                      colors={['#FFFFFF', '#80A8A1']}
-                      style={styles.cta}
-                    >
-                      <Text bold color="light.greenText" style={styles.startAppText}>
-                        Start App
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </Box>
-              )}
+                    <Text bold color="light.greenText" style={styles.startAppText}>
+                      Start App
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Box>
+              )
+              }
             </Box>
           </Box>
         </SafeAreaView>
