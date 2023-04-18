@@ -31,10 +31,10 @@ function OnBoardingSlides({ navigation }) {
   const { onboarding } = translations;
   const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
-  console.log('currentPosition', currentPosition)
+  // console.log('currentPosition', currentPosition)
   const [items] = useState([
     {
-      id: '1',
+      id: 1,
       title: (
         <>
           <Text style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
@@ -46,7 +46,7 @@ function OnBoardingSlides({ navigation }) {
       illustration: <Illustration1 />,
     },
     {
-      id: '2',
+      id: 2,
       title: (
         <>
           {`${onboarding.slide02Title} `}
@@ -57,7 +57,7 @@ function OnBoardingSlides({ navigation }) {
       illustration: <Illustration2 />,
     },
     {
-      id: '3',
+      id: 3,
       title: (
         <>
           {`${onboarding.slide07Title} `}
@@ -78,7 +78,7 @@ function OnBoardingSlides({ navigation }) {
   const onViewRef = React.useRef((viewableItems) => {
     setCurrentPosition(viewableItems.changed[0].index);
   });
-  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
@@ -128,15 +128,15 @@ function OnBoardingSlides({ navigation }) {
             </Box>
             <Box flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
-                items.map((item, index) => {
-                  console.log('index', index);
-                  return (
-                    <Box
-                      key={index}
-                      style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
-                    />
-                  );
-                })
+                items.map((item, index) =>
+                // console.log('index', index);
+                (
+                  <Box
+                    key={index}
+                    style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
+                  />
+                )
+                )
               ) : (<Box alignSelf="center" backgroundColor="transparent">
                 <TouchableOpacity
                   onPress={() =>
