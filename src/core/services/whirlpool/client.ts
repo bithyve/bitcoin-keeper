@@ -196,14 +196,14 @@ export default class WhirlpoolClient {
    */
   static startMix = async (
     input: InputUTXOs,
-    premix: Wallet,
-    postmix: Wallet,
+    source: Wallet,
+    destination: Wallet,
     pool: PoolData,
     blockHeight: number
   ): Promise<string> => {
     if (!input && !input.height) throw new Error('Input is not confirmed');
 
-    const network = WalletUtilities.getNetworkByType(premix.networkType);
+    const network = WalletUtilities.getNetworkByType(source.networkType);
     const rustInput: WhirlpoolInput = {
       outpoint: {
         txid: input.txId,
@@ -216,14 +216,14 @@ export default class WhirlpoolClient {
       fields: {},
     };
 
-    const { privateKey } = WalletUtilities.addressToKey(input.address, premix) as {
+    const { privateKey } = WalletUtilities.addressToKey(input.address, source) as {
       privateKey: string;
       subPath: number[];
     };
-    const destination = postmix.specs.receivingAddress;
-    const preUserHash = hash256(premix.derivationDetails.mnemonic);
+
+    const preUserHash = hash256(source.derivationDetails.mnemonic);
     const networkType: Network =
-      premix.networkType === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin;
+      source.networkType === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin;
     const signedRegistrationMessage = WalletUtilities.signBitcoinMessage(
       pool.poolId,
       privateKey,
@@ -233,7 +233,7 @@ export default class WhirlpoolClient {
     return WhirlpoolServices.startMix(
       rustInput,
       privateKey,
-      destination,
+      destination.specs.receivingAddress,
       pool.poolId,
       pool.denomination.toString(),
       preUserHash,

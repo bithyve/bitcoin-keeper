@@ -140,7 +140,7 @@ function TimeLine({ title, isLast, status }) {
 }
 
 function MixProgress({ route, navigation }) {
-  const { selectedUTXOs, depositWallet, selectedWallet, walletPoolMap } = route.params;
+  const { selectedUTXOs, depositWallet, selectedWallet, walletPoolMap, isRemix } = route.params;
   const dispatch = useDispatch();
   const [currentUtxo, setCurrentUtxo] = React.useState('');
   const [data, setData] = React.useState(statusData);
@@ -148,7 +148,7 @@ function MixProgress({ route, navigation }) {
 
   useEffect(() => {
     setData(statusData);
-    initiateWhirlpoolMix();
+    initiateWhirlpoolMix(isRemix);
   }, []);
 
   const notifyMixStatus = (info: Info, step?: Step) => {
@@ -171,33 +171,29 @@ function MixProgress({ route, navigation }) {
     setData(updatedData);
   };
 
-  const initiateWhirlpoolMix = async () => {
+  const initiateWhirlpoolMix = async (isRemix?: boolean) => {
     try {
       const pool: PoolData = walletPoolMap[depositWallet.id];
       const unsucccessfulUtxos = [];
-
       // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
       let isBroadcasted = true;
       const { height } = await ElectrumClient.getBlockchainHeaders();
+
+      const source = isRemix
+        ? depositWallet?.whirlpoolConfig?.postmixWallet
+        : depositWallet?.whirlpoolConfig?.premixWallet;
+      const destination = depositWallet?.whirlpoolConfig?.postmixWallet;
+
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(utxo.txId);
-        const txId = await WhirlpoolClient.startMix(
-          utxo,
-          depositWallet?.whirlpoolConfig?.premixWallet,
-          depositWallet?.whirlpoolConfig?.postmixWallet,
-          pool,
-          height
-        );
+        const txId = await WhirlpoolClient.startMix(utxo, source, destination, pool, height);
         if (txId) {
-          dispatch(
-            refreshWallets(
-              [
-                depositWallet?.whirlpoolConfig.premixWallet,
-                depositWallet?.whirlpoolConfig.postmixWallet,
-              ],
-              { hardRefresh: true }
-            )
-          );
+          setTimeout(() => {
+            // waiting for the indexer to update before fetch
+            const walletsToRefresh = [source];
+            if (!isRemix) walletsToRefresh.push(destination);
+            dispatch(refreshWallets([source, destination], { hardRefresh: true }));
+          }, 4000);
 
           dispatch(
             createUTXOReference({
