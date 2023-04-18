@@ -16,7 +16,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 
 import GradientIcon from './GradientIcon';
 
-const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
+function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
   return (
     <TouchableOpacity
       style={styles.addWalletContainer}
@@ -39,14 +39,14 @@ const AddNewWalletTile = ({ walletIndex, isActive, wallet, navigation }) => {
       </Text>
     </TouchableOpacity>
   );
-};
+}
 
-const WalletTile = ({
+function WalletTile({
   isActive,
   wallet,
   balances,
   isWhirlpoolWallet,
-}) => {
+}) {
 
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
 
@@ -82,7 +82,7 @@ const WalletTile = ({
               ellipsizeMode="tail"
               numberOfLines={1}
             >
-              {wallet?.presentationData?.name}
+              {wallet?.presentationData?.description}
             </Text>
           </Box>
         </Box>
@@ -127,7 +127,7 @@ const WalletTile = ({
       </Box>
     </Box>
   );
-};
+}
 
 function WalletItem({
   item,

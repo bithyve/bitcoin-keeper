@@ -10,7 +10,7 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 
 function TransactionsAndUTXOs({
   transactions,
@@ -86,7 +86,7 @@ function TransactionsAndUTXOs({
       <Box>
         <FlatList
           style={{
-            height: windowHeight > 800 ? '52%' : '31%',
+            height: windowHeight > 670 ? '52%' : '31%',
           }}
           refreshControl={<RefreshControl onRefresh={syncVault} refreshing={pullRefresh} />}
           data={transactions}

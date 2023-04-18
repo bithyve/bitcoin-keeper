@@ -18,6 +18,9 @@ import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { Preview } from 'src/nativemodules/interface';
 import UtxoSummary from './UtxoSummary';
 import LearnMoreModal from './components/LearnMoreModal';
+import useBalance from 'src/hooks/useBalance';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
@@ -50,6 +53,8 @@ export default function PoolSelection({ route, navigation }) {
   const [tx0Preview, setTx0Preview] = useState(null);
   const [poolLoading, setPoolLoading] = useState(true);
   const [learnModalVisible, setLearnModalVisible] = useState(false);
+  const { getSatUnit } = useBalance();
+  const { showToast } = useToastMessage();
 
   useEffect(() => {
     setPoolLoading(true);
@@ -63,16 +68,21 @@ export default function PoolSelection({ route, navigation }) {
         WhirlpoolClient.getPools(),
         WhirlpoolClient.getTx0Data(scode),
       ]);
-      const sortedPools = pools?.sort((a, b) => a.denomination - b.denomination);
-      setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.averageTxFee);
-      const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
-      setAvailablePools(filteredByUtxoTotal);
-      setTx0Data(tx0Data);
+      if (pools && tx0Data) {
+        const sortedPools = pools?.sort((a, b) => a.denomination - b.denomination);
+        setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.averageTxFee);
+        const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
+        setAvailablePools(filteredByUtxoTotal);
+        setTx0Data(tx0Data);
 
-      if (filteredByUtxoTotal.length > 0) {
-        setSelectedPool(filteredByUtxoTotal[0]);
-        onPoolSelectionCallback(filteredByUtxoTotal[0], tx0Data);
+        if (filteredByUtxoTotal.length > 0) {
+          setSelectedPool(filteredByUtxoTotal[0]);
+          onPoolSelectionCallback(filteredByUtxoTotal[0], tx0Data);
+        }
+      } else {
+        showToast('Error in fetching pools data', <ToastErrorIcon />, 3000);
       }
+
       setPoolLoading(false);
     } catch (error) {
       console.log(error);
@@ -101,16 +111,20 @@ export default function PoolSelection({ route, navigation }) {
     // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
     const tx0ToFilter = tx0 || tx0Data;
     const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
-    const tx0Preview: Preview = await WhirlpoolClient.getTx0Preview(
+    const tx0Preview: Preview | false = await WhirlpoolClient.getTx0Preview(
       correspondingTx0Data,
       pool,
       premixFee.fee,
       minerFee.fee,
       utxos
     );
-    setPremixOutput(tx0Preview?.nPremixOutputs);
-    setTx0Preview(tx0Preview);
-    setShowPools(false);
+    if (tx0Preview) {
+      setPremixOutput(tx0Preview?.nPremixOutputs);
+      setTx0Preview(tx0Preview);
+      setShowPools(false);
+    } else {
+      showToast('Error in fetching the Tx0 preview', <ToastErrorIcon />, 3000);
+    }
   };
 
   const valueByPreferredUnit = (value) => {
@@ -118,8 +132,6 @@ export default function PoolSelection({ route, navigation }) {
     const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
     return valueInPreferredUnit;
   };
-
-  const getPreferredUnit = () => (satsEnabled ? 'sats' : 'btc');
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
@@ -150,7 +162,7 @@ export default function PoolSelection({ route, navigation }) {
                     ? valueByPreferredUnit(selectedPool?.denomination)
                     : poolSelectionText}
                 </Text>
-                <Text style={styles.denominatorText}>{selectedPool ? getPreferredUnit() : ''}</Text>
+                <Text style={styles.denominatorText}>{selectedPool ? getSatUnit() : ''}</Text>
               </Box>
               <Box style={styles.arrowIcon}>
                 <RightArrowIcon />
@@ -166,7 +178,7 @@ export default function PoolSelection({ route, navigation }) {
           <Text style={styles.poolErrorText}>
             Pools not available. Min{' '}
             <Text style={{ fontWeight: 'bold' }}>
-              {valueByPreferredUnit(minMixAmount)} {getPreferredUnit()}
+              {valueByPreferredUnit(minMixAmount)} {getSatUnit()}
             </Text>{' '}
             required
           </Text>
@@ -186,7 +198,7 @@ export default function PoolSelection({ route, navigation }) {
             {selectedPool ? valueByPreferredUnit(selectedPool?.feeValue) : ''}
           </Text>
           <Text color="light.secondaryText" style={{ paddingLeft: selectedPool ? 5 : 0 }}>
-            {selectedPool ? getPreferredUnit() : '--'}
+            {selectedPool ? getSatUnit() : '--'}
           </Text>
         </Box>
       </Box>
@@ -207,9 +219,14 @@ export default function PoolSelection({ route, navigation }) {
             <Buttons
               primaryText="Preview Pre-Mix"
               primaryDisable={
-                !(availablePools && availablePools.length > 0 && utxoTotal > minMixAmount)
+                !(
+                  availablePools &&
+                  availablePools.length > 0 &&
+                  utxoTotal > minMixAmount &&
+                  tx0Preview
+                )
               }
-              secondaryText='cancel'
+              secondaryText="cancel"
               secondaryCallback={() => navigation.goBack()}
               primaryCallback={() => onPreviewMix()}
             />

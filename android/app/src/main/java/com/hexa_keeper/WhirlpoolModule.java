@@ -49,7 +49,7 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
 
     @ReactMethod
     public void tx0Preview(String inputsValue, String poolStr, String premixFeePerByte, String feesAddress, String inputStructureStr,String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs, Promise promise) {
-        promise.resolve(WhirlpoolBridge.tx0previewnew(inputsValue, poolStr,premixFeePerByte, feesAddress, inputStructureStr,minerFeePerByte, coordinatorFee, nWantedMaxOutputsStr, nPoolMaxOutputs));
+        promise.resolve(WhirlpoolBridge.tx0preview(inputsValue, poolStr,premixFeePerByte, feesAddress, inputStructureStr,minerFeePerByte, coordinatorFee, nWantedMaxOutputsStr, nPoolMaxOutputs));
     }
 
     @ReactMethod
@@ -68,7 +68,7 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, Promise promise) {
-        promise.resolve(WhirlpoolBridge.blocking(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight));
+    public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, Promise promise) {
+        promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId));
     }
 }

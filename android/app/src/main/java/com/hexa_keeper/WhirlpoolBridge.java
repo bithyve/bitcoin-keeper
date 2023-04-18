@@ -9,11 +9,9 @@ public class WhirlpoolBridge {
     public static native String initiate();
     public static native String pools();
     public static native String gettx0data();
-    public static native String tx0preview(String inputsValue, String poolStr, String premixFeePerByte, String feesAddress, String inputStructureStr,String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs);
+    public static native String tx0preview(String inputs_value, String poolStr, String premixFeePerByte, String feesAddress, String inputStructureStr, String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs);
     public static native String tx0push(String txStr, String poolIdStr);
     public static native String intopsbt(String previewStr, String tx0DataStr, String inputsStr,String addressBankStr, String changeAddrStr);
-    public static native String blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight);
+    public static native String start(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId);
     public static native String constructinput(String outpoint, Integer value, String scriptPubkey);
-    public static native String tx0previewnew(String inputs_value, String poolStr, String premixFeePerByte, String feesAddress, String inputStructureStr, String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs);
-
 }

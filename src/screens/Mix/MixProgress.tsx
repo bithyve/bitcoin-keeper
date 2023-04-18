@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, FlatList } from 'react-native';
 
@@ -19,6 +19,19 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ElectrumClient from 'src/core/services/electrum/client';
+import config from 'src/core/config';
+import { io } from 'src/core/services/channel';
+import {
+  WHIRLPOOL_ERROR,
+  WHIRLPOOL_FAILURE,
+  WHIRLPOOL_LISTEN,
+  WHIRLPOOL_SUCCESS,
+  WHIRLPOOL_WORKING,
+} from 'src/core/services/channel/constants';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import GradientIcon from '../WalletDetailScreen/components/GradientIcon';
 
 export const enum MixStatus {
@@ -145,11 +158,33 @@ function MixProgress({ route, navigation }) {
   const [currentUtxo, setCurrentUtxo] = React.useState('');
   const [data, setData] = React.useState(statusData);
   const { showToast } = useToastMessage();
+  const channel = io(config.CHANNEL_URL);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   useEffect(() => {
     setData(statusData);
     initiateWhirlpoolMix(isRemix);
+    channel.emit(WHIRLPOOL_LISTEN, { room: publicId, network: config.NETWORK_TYPE });
   }, []);
+
+  useEffect(() => {
+    channel.on(WHIRLPOOL_WORKING, async (data) => {
+      console.log(data);
+    });
+    channel.on(WHIRLPOOL_ERROR, async (data) => {
+      console.log(data);
+    });
+    channel.on(WHIRLPOOL_FAILURE, async (data) => {
+      console.log(data);
+    });
+    channel.on(WHIRLPOOL_SUCCESS, async (data) => {
+      console.log(data);
+    });
+    return () => {
+      channel.disconnect();
+    };
+  }, [channel]);
 
   const notifyMixStatus = (info: Info, step?: Step) => {
     const updatedData = data.map((item) => {
@@ -186,7 +221,14 @@ function MixProgress({ route, navigation }) {
 
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(utxo.txId);
-        const txId = await WhirlpoolClient.startMix(utxo, source, destination, pool, height);
+        const txId = await WhirlpoolClient.startMix(
+          utxo,
+          source,
+          destination,
+          pool,
+          height,
+          publicId
+        );
         if (txId) {
           setTimeout(() => {
             // waiting for the indexer to update before fetch
@@ -203,6 +245,7 @@ function MixProgress({ route, navigation }) {
             })
           );
         } else {
+          showToast('Error in initating the mix', <ToastErrorIcon />, 3000);
           unsucccessfulUtxos.push(utxo.txId);
           isBroadcasted = false;
         }

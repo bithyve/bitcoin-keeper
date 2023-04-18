@@ -16,10 +16,10 @@ function CountryCard(props) {
       {...props}
     >
       <Box flex={0.8}>
-        <Text color="light.greenText2" letterSpacing={1.12} fontSize={16}>
+        <Text color="light.greenText2" letterSpacing={1.12} fontSize={16} testID={`text_${props.title}`}>
           {props.title}
         </Text>
-        <Text color="light.GreyText" letterSpacing={0.6} fontSize={12}>
+        <Text color="light.GreyText" letterSpacing={0.6} fontSize={12} testID={`text_${props.description}`}>
           {props.description}
         </Text>
       </Box>
