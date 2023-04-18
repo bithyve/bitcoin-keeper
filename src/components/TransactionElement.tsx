@@ -11,6 +11,7 @@ import IconRecieve from 'src/assets/images/icon_received.svg';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
 import IconSent from 'src/assets/images/icon_sent.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
+import IconArrow from 'src/assets/images/icon_arrow_grey.svg'
 import Text from 'src/components/KeeperText';
 
 function TransactionElement({
@@ -55,6 +56,7 @@ function TransactionElement({
               {getSatUnit()}
             </Text>
           </Text>
+          <IconArrow />
         </Box>
       </Box>
     </TouchableOpacity>
