@@ -17,11 +17,11 @@ export enum MixStatus {
 }
 
 export enum Step {
-  WaitingForCoordinator = 'WaitingForCoordinator',
   Connecting = 'Connecting',
   Subscribing = 'Subscribing',
   RegisteringInput = 'RegisteringInput',
   ConfirmingInput = 'ConfirmingInput',
+  WaitingForCoordinator = 'WaitingForCoordinator',
   CheckingOutput = 'CheckingOutput',
   RegisteringOutput = 'RegisteringOutput',
   Signing = 'Signing',

@@ -9,9 +9,8 @@ import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
-import WhirlpoolLoader from 'src/assets/images/whirlpool_loader.svg'; // Actual assert was missing in XD link
 import { useDispatch } from 'react-redux';
-import { Info, PoolData, Step } from 'src/nativemodules/interface';
+import { PoolData, Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
@@ -32,191 +31,234 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import GradientIcon from '../WalletDetailScreen/components/GradientIcon';
+import { UTXO } from 'src/core/wallets/interfaces';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
-export const enum MixStatus {
-  COMPLETED = 'COMPLETED',
-  INPROGRESS = 'INPROGRESS',
-  NOTSTARTED = 'NOTSTARTED',
-  CANCELED = 'CANCELED',
-}
-
-const statusData = [
-  {
-    id: '1',
-    title: 'Waiting For Coordinator',
-    referenceCode: Step.WaitingForCoordinator,
-    status: MixStatus.NOTSTARTED,
-  },
-  {
-    id: '2',
-    title: 'Connecting',
-    referenceCode: Step.Connecting,
-    status: MixStatus.NOTSTARTED,
-  },
-  // {
-  //   id: '3',
-  //   title: 'Subscribing',
-  //   referenceCode: Step.Subscribing,
-  //   status: MixStatus.NOTSTARTED,
-  // },
-  {
-    id: '4',
-    title: 'Registering Input',
-    referenceCode: Step.RegisteringInput,
-    status: MixStatus.NOTSTARTED,
-  },
-  {
-    id: '5',
-    title: 'Confirming Input',
-    status: MixStatus.NOTSTARTED,
-    referenceCode: Step.ConfirmingInput,
-  },
-  {
-    id: '6',
-    title: 'Registering Output',
-    referenceCode: Step.RegisteringOutput,
-    status: MixStatus.NOTSTARTED,
-  },
-  {
-    id: '7',
-    title: 'Signing',
-    referenceCode: Step.Signing,
-    status: MixStatus.NOTSTARTED,
-  },
-  {
-    id: '8',
-    title: 'Mix completed successfully',
-    status: MixStatus.NOTSTARTED,
-    referenceCode: 'Success',
-    isLast: true,
-  },
-];
-
-const getBackgroungColor = (status: MixStatus) => {
-  switch (status) {
-    case MixStatus.NOTSTARTED:
-      return 'light.dustySageGreen';
-    case MixStatus.COMPLETED:
-      return 'light.forestGreen';
-    case MixStatus.INPROGRESS:
-      return null;
-    default:
-      return null;
+const getBackgroungColor = (completed: boolean, error: boolean): string => {
+  if (error) {
+    return 'error.500';
   }
+  if (completed) {
+    return 'light.forestGreen';
+  }
+  return 'light.dustySageGreen';
 };
 
-function TimeLine({ title, isLast, status }) {
+function TimeLine({
+  title,
+  isLast,
+  completed,
+  error,
+}: {
+  title: string;
+  isLast: boolean;
+  completed: boolean;
+  error: boolean;
+}) {
   return (
-    <>
-      {status === MixStatus.INPROGRESS ? (
-        <Box style={styles.whirlpoolLoaderMainWrapper}>
-          <Box style={styles.dottedBorderContainer}>
-            <Box style={styles.whirlpoolLoaderSolidBorder}>
-              <GradientIcon
-                height={hp(30)}
-                gradient={['#00836A', '#073E39']}
-                Icon={WhirlpoolLoader}
-              />
-            </Box>
-            <Box style={styles.verticalBorderWrapper}>
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-            </Box>
-          </Box>
-          <Text color="light.secondaryText" style={[styles.timeLineTitle, styles.settingUpTitle]}>
-            {title}
-          </Text>
+    <Box style={styles.contentWrapper}>
+      <Box style={styles.timeLineWrapper}>
+        <Box style={styles.circularborder}>
+          <Box backgroundColor={getBackgroungColor(completed, error)} style={styles.greentDot} />
         </Box>
-      ) : (
-        <Box style={styles.contentWrapper}>
-          <Box style={styles.timeLineWrapper}>
-            <Box style={styles.circularborder}>
-              <Box backgroundColor={getBackgroungColor(status)} style={styles.greentDot} />
-            </Box>
-            {isLast ? null : (
-              <Box style={styles.verticalBorderWrapper}>
-                <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-                <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-                <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-              </Box>
-            )}
+        {isLast ? null : (
+          <Box style={styles.verticalBorderWrapper}>
+            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
           </Box>
-          <Text color="light.secondaryText" style={styles.timeLineTitle}>
-            {title}
-          </Text>
-        </Box>
-      )}
-    </>
+        )}
+      </Box>
+      <Text color="light.secondaryText" style={styles.timeLineTitle}>
+        {title}
+      </Text>
+    </Box>
   );
 }
 
-function MixProgress({ route, navigation }) {
+function MixProgress({
+  route,
+  navigation,
+}: {
+  route: {
+    params: {
+      selectedUTXOs: UTXO[];
+      depositWallet: Wallet;
+      selectedWallet: any;
+      walletPoolMap: any;
+    };
+  };
+  navigation: any;
+}) {
+  const statusData = [
+    {
+      title: 'Subscribing',
+      referenceCode: Step.Subscribing,
+      completed: false,
+      error: false,
+    },
+    {
+      title: 'Registering Input',
+      referenceCode: Step.RegisteringInput,
+      completed: false,
+      error: false,
+    },
+    {
+      title: 'Confirming Input',
+      completed: false,
+      referenceCode: Step.ConfirmingInput,
+      error: false,
+    },
+    {
+      title: 'Waiting For Coordinator',
+      referenceCode: Step.WaitingForCoordinator,
+      completed: false,
+      error: false,
+    },
+    {
+      title: 'Registering Output',
+      referenceCode: Step.RegisteringOutput,
+      completed: false,
+      error: false,
+    },
+    {
+      title: 'Signing',
+      referenceCode: Step.Signing,
+      completed: false,
+      error: false,
+    },
+    {
+      title: 'Mix completed successfully',
+      completed: false,
+      referenceCode: 'Success',
+      isLast: true,
+      error: false,
+    },
+  ];
+
   const { selectedUTXOs, depositWallet, selectedWallet, walletPoolMap } = route.params;
   const dispatch = useDispatch();
   const [currentUtxo, setCurrentUtxo] = React.useState('');
-  const [data, setData] = React.useState(statusData);
+  const [mixFailed, setMixFailed] = React.useState('');
+  const [statuses, setStatus] = React.useState(statusData);
   const { showToast } = useToastMessage();
-  const channel = io(config.CHANNEL_URL);
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
-  useEffect(() => {
-    setData(statusData);
-    initiateWhirlpoolMix();
-    channel.emit(WHIRLPOOL_LISTEN, { room: publicId, network: config.NETWORK_TYPE });
-  }, []);
+  const updateStep = (step: Step) => {
+    const updatedArray = [...statuses];
+    switch (step) {
+      case Step.Subscribing:
+        updatedArray[0].completed = true;
+        setStatus(updatedArray);
+        break;
+      case Step.RegisteringInput:
+        updatedArray[1].completed = true;
+        setStatus(updatedArray);
+        break;
+      case Step.ConfirmingInput:
+        updatedArray[2].completed = true;
+        setStatus(updatedArray);
+        break;
+      case Step.WaitingForCoordinator:
+        updatedArray[3].completed = true;
+        setStatus(updatedArray);
+        break;
+      case Step.RegisteringOutput:
+        updatedArray[4].completed = true;
+        setStatus(updatedArray);
+        break;
+      case Step.Signing:
+        updatedArray[5].completed = true;
+        setStatus(updatedArray);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const pool: PoolData = walletPoolMap[depositWallet.id]; // missing?
 
   useEffect(() => {
-    channel.on(WHIRLPOOL_WORKING, async (data) => {
-      console.log(data);
+    if (mixFailed) {
+      const toastDuration = 3000;
+      showToast(
+        'Mix failed. Please try again later, our best minds are working on it.',
+        <ToastErrorIcon />,
+        toastDuration
+      );
+      setTimeout(() => {
+        navigation.goBack();
+      }, toastDuration);
+    }
+  }, [mixFailed]);
+
+  useEffect(() => {
+    const channel = io(config.CHANNEL_URL);
+    channel.emit(WHIRLPOOL_LISTEN, { room: publicId, network: config.NETWORK_TYPE });
+    channel.on(WHIRLPOOL_WORKING, ({ data }) => {
+      const { step } = data;
+      updateStep(step);
     });
-    channel.on(WHIRLPOOL_ERROR, async (data) => {
-      console.log(data);
+    channel.on(WHIRLPOOL_ERROR, ({ data }) => {
+      const updatedArray = [...statuses];
+      updatedArray[6].error = true;
+      setStatus(updatedArray);
+      setMixFailed(data);
     });
-    channel.on(WHIRLPOOL_FAILURE, async (data) => {
-      console.log(data);
+    channel.on(WHIRLPOOL_FAILURE, ({ data }) => {
+      console.log({ error: data });
+      const updatedArray = [...statuses];
+      updatedArray[6].error = true;
+      setStatus(updatedArray);
+      setMixFailed(data);
     });
-    channel.on(WHIRLPOOL_SUCCESS, async (data) => {
-      console.log(data);
+    channel.on(WHIRLPOOL_SUCCESS, ({ data }) => {
+      const { txid } = data;
+      console.log(txid);
+      if (txid) {
+        const updatedArray = [...statuses];
+        updatedArray[6].completed = true;
+        setStatus(updatedArray);
+        dispatch(
+          refreshWallets(
+            [
+              depositWallet.whirlpoolConfig.premixWallet,
+              depositWallet.whirlpoolConfig.postmixWallet,
+            ],
+            { hardRefresh: true }
+          )
+        );
+        dispatch(
+          createUTXOReference({
+            labels: [
+              { name: depositWallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
+            ],
+            txId: txid,
+            vout: pool.denomination,
+          })
+        );
+        navigation.navigate('UTXOManagement', {
+          data: depositWallet,
+          accountType: WalletType.POST_MIX,
+          routeName: 'Wallet',
+        });
+      }
     });
+
+    initiateWhirlpoolMix();
     return () => {
       channel.disconnect();
     };
-  }, [channel]);
-
-  const notifyMixStatus = (info: Info, step?: Step) => {
-    const updatedData = data.map((item) => {
-      if (item.referenceCode === step) {
-        return {
-          ...item,
-          status: MixStatus.INPROGRESS,
-        };
-      }
-      if (item.referenceCode === 'Success') {
-        return {
-          ...item,
-          status: MixStatus.COMPLETED,
-        };
-      }
-      return item;
-    });
-    console.log({ info, step }); // capture step updates
-    setData(updatedData);
-  };
+  }, []);
 
   const initiateWhirlpoolMix = async () => {
     try {
-      const pool: PoolData = walletPoolMap[depositWallet.id];
-      const unsucccessfulUtxos = [];
-
       // To-Do: Instead of taking pool_denomination from the lets create a switch case to get it based on UTXO value
-      let isBroadcasted = true;
       const { height } = await ElectrumClient.getBlockchainHeaders();
       for (const utxo of selectedUTXOs) {
-        setCurrentUtxo(utxo.txId);
-        const txId = await WhirlpoolClient.startMix(
+        setCurrentUtxo(`${utxo.txId}:${utxo.vout}`);
+        await WhirlpoolClient.startMix(
           utxo,
           depositWallet?.whirlpoolConfig?.premixWallet,
           depositWallet?.whirlpoolConfig?.postmixWallet,
@@ -224,41 +266,6 @@ function MixProgress({ route, navigation }) {
           height,
           publicId
         );
-        if (txId) {
-          dispatch(
-            refreshWallets(
-              [
-                depositWallet?.whirlpoolConfig.premixWallet,
-                depositWallet?.whirlpoolConfig.postmixWallet,
-              ],
-              { hardRefresh: true }
-            )
-          );
-
-          dispatch(
-            createUTXOReference({
-              labels: [{ name: 'Premix', type: LabelType.SYSTEM }],
-              txId,
-              vout: pool.denomination,
-            })
-          );
-        } else {
-          showToast('Error in initating the mix', <ToastErrorIcon />, 3000);
-          unsucccessfulUtxos.push(utxo.txId);
-          isBroadcasted = false;
-        }
-      }
-      if (isBroadcasted) {
-        console.log('Mix completed successfully');
-
-        navigation.navigate('UTXOManagement', {
-          data: depositWallet,
-          accountType: WalletType.POST_MIX,
-          routeName: 'Wallet',
-        });
-      } else {
-        showToast(`Failure to mix the utxo's ${unsucccessfulUtxos.join(', ')}`, <ToastErrorIcon />);
-        navigation.goBack();
       }
     } catch (err) {
       console.log(err);
@@ -266,8 +273,14 @@ function MixProgress({ route, navigation }) {
   };
 
   const renderItem = ({ item }) => (
-    <TimeLine title={item.title} status={item.status} isLast={item?.isLast} />
+    <TimeLine
+      title={item.title}
+      completed={item.completed}
+      isLast={item?.isLast}
+      error={item.error}
+    />
   );
+
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
@@ -281,18 +294,22 @@ function MixProgress({ route, navigation }) {
         />
         <Box style={styles.currentUtxo}>
           <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
-            Current UTXO :
+            {`Current UTXO: `}
           </Text>
-          <Text numberOfLines={1} color="light.secondaryText" style={styles.currentUtxoText}>
-            {' '}
+          <Text
+            numberOfLines={1}
+            color="light.secondaryText"
+            style={styles.currentUtxoText}
+            ellipsizeMode="middle"
+          >
             {currentUtxo}
           </Text>
         </Box>
         <Box style={styles.timeLineContainer}>
           <FlatList
-            data={data}
+            data={statuses}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => `${item.referenceCode}${item.completed}${item.error}`}
             nestedScrollEnabled
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.flatList}

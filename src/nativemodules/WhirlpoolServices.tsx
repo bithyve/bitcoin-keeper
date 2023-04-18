@@ -1,5 +1,4 @@
 import { NativeModules, Platform } from 'react-native';
-import { R } from 'react-native-shadow-2';
 import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
@@ -15,7 +14,8 @@ export default class WhirlpoolServices {
       result = JSON.parse(result);
       if (result.length > 0) {
         return result;
-      } else return false;
+      }
+      return false;
     } catch (error) {
       console.log({ error });
       return false;
@@ -31,7 +31,7 @@ export default class WhirlpoolServices {
       let result = await Whirlpool.getTx0Data();
       result = JSON.parse(result);
       if (result.length > 0) return result;
-      else return false;
+      return false;
     } catch (error) {
       console.log({ error });
       return false;
@@ -95,7 +95,7 @@ export default class WhirlpoolServices {
       }
       result = JSON.parse(result);
       if (result.premixValue) return result;
-      else return false;
+      return false;
     } catch (error) {
       console.log({ error });
       return false;
