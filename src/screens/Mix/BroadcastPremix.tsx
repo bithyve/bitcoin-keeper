@@ -26,10 +26,10 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
-import UtxoSummary from './UtxoSummary';
-import SwiperModal from './components/SwiperModal';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
+import UtxoSummary from './UtxoSummary';
+import SwiperModal from './components/SwiperModal';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -154,7 +154,9 @@ export default function BroadcastPremix({ route, navigation }) {
           );
           dispatch(
             createUTXOReference({
-              labels: [{ name: 'Deposit', type: LabelType.SYSTEM }],
+              labels: [
+                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
+              ],
               txId: txid,
               vout: voutPremix,
             })
@@ -162,7 +164,7 @@ export default function BroadcastPremix({ route, navigation }) {
           dispatch(
             createUTXOReference({
               labels: [
-                { name: 'Deposit', type: LabelType.SYSTEM },
+                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
                 { name: 'Doxxic Change', type: LabelType.SYSTEM },
               ],
               txId: txid,
