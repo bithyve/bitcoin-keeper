@@ -69,9 +69,7 @@ function WalletTile({
           )}
 
           <Box
-            style={{
-              marginLeft: 10,
-            }}
+            style={styles.walletDetailsWrapper}
           >
             <Text color="light.white" style={styles.walletName}>
               {wallet?.presentationData?.name}
@@ -256,10 +254,10 @@ const styles = StyleSheet.create({
   walletInnerView: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: wp(173),
+    width: wp(170),
   },
   walletDescription: {
-    letterSpacing: 0.24,
+    letterSpacing: 0.20,
     fontSize: 13,
   },
   walletName: {
@@ -300,4 +298,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
     flexDirection: 'row',
   },
+  walletDetailsWrapper: {
+    marginLeft: 10,
+    width: '68%'
+  }
 });
