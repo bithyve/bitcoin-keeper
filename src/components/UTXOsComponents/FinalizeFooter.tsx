@@ -20,7 +20,9 @@ function FinalizeFooter({
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
-        primaryText={initiateWhirlpool ? 'Initiate Premix' : initateWhirlpoolMix ? 'Start Mix' : 'Send'}
+        primaryText={
+          initiateWhirlpool ? 'Initiate Premix' : initateWhirlpoolMix ? 'Start Mix' : 'Send'
+        }
         secondaryText={secondaryText}
         secondaryCallback={() => {
           if (initiateWhirlpool) {
@@ -47,6 +49,6 @@ const styles = StyleSheet.create({
     width: wp(375),
     paddingHorizontal: '10%',
     marginBottom: '5%',
-    backgroundColor: Colors.LightWhite
+    backgroundColor: Colors.LightWhite,
   },
 });
