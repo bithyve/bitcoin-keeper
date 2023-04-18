@@ -22,7 +22,11 @@ import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
-import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
+import {
+  addNewWhirlpoolWallets,
+  refreshWallets,
+  updateSignerDetails,
+} from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
@@ -262,8 +266,11 @@ function* getAppImageWorker({ payload }) {
       // Wallet recreation
       if (appImage.wallets) {
         for (const [key, value] of Object.entries(appImage.wallets)) {
-          const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+          const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
           yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+          if (Boolean(decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails)) {
+            yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+          }
           yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
         }
       }

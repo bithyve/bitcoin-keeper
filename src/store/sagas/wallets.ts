@@ -872,7 +872,7 @@ function* updateWalletsPropertyWorker({
   try {
     wallet[key] = value;
     yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallet } });
+    const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
     if (response.updated) {
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, { [key]: value });
       yield put(relayWalletUpdateSuccess());
