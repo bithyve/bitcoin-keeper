@@ -69,17 +69,6 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
 
     @ReactMethod
     public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, Promise promise) {
-        Log.d(TAG, "blocking:input "+input);
-        Log.d(TAG, "blocking:privateKey "+privateKey);
-        Log.d(TAG, "blocking:destination "+destination);
-        Log.d(TAG, "blocking:poolId "+poolId);
-        Log.d(TAG, "blocking:denomination "+denomination);
-        Log.d(TAG, "blocking:preUserHash "+preUserHash);
-        Log.d(TAG, "blocking:network "+network);
-        Log.d(TAG, "blocking:blockHeight "+blockHeight);
-        Log.d(TAG, "blocking:signedRegistrationMessage "+signedRegistrationMessage);
-        Log.d(TAG, "blocking:appId "+appId);
-
         promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId));
     }
 }
