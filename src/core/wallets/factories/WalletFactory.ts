@@ -15,6 +15,40 @@ import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
 
+export const generateWalletSpecs = (
+  mnemonic: string,
+  network: bitcoinJS.Network,
+  xDerivationPath: string
+) => {
+  // derive extended keys
+  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed,
+    network,
+    xDerivationPath
+  );
+  const { xpriv } = extendedKeys;
+  const { xpub } = extendedKeys;
+
+  const specs: WalletSpecs = {
+    xpub,
+    xpriv,
+    nextFreeAddressIndex: 0,
+    nextFreeChangeAddressIndex: 0,
+    confirmedUTXOs: [],
+    unconfirmedUTXOs: [],
+    balances: {
+      confirmed: 0,
+      unconfirmed: 0,
+    },
+    transactions: [],
+    txNote: {},
+    hasNewUpdates: false,
+    lastSynched: 0,
+  };
+  return specs;
+};
+
 export const generateWallet = async ({
   type,
   instanceNum,
@@ -59,16 +93,6 @@ export const generateWallet = async ({
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
   const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
-  // derive extended keys
-  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
-    seed,
-    network,
-    xDerivationPath
-  );
-  const { xpriv } = extendedKeys;
-  const { xpub } = extendedKeys;
-
   const derivationDetails = {
     instanceNum,
     mnemonic,
@@ -84,22 +108,7 @@ export const generateWallet = async ({
     shell: defaultShell,
   };
 
-  const specs: WalletSpecs = {
-    xpub,
-    xpriv,
-    nextFreeAddressIndex: 0,
-    nextFreeChangeAddressIndex: 0,
-    confirmedUTXOs: [],
-    unconfirmedUTXOs: [],
-    balances: {
-      confirmed: 0,
-      unconfirmed: 0,
-    },
-    transactions: [],
-    txNote: {},
-    hasNewUpdates: false,
-    lastSynched: 0,
-  };
+  const specs: WalletSpecs = generateWalletSpecs(mnemonic, network, xDerivationPath);
 
   const wallet: Wallet = {
     id,
