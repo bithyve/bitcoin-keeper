@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { TouchableOpacity } from 'react-native';
+import { InteractionManager, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -32,19 +32,26 @@ function ShowXPub({
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [cosignerDetails, setCosignerDetails] = useState('');
-  useEffect(() => {
-    if (data) {
-      setCosignerDetails(data)
-    } else {
-      setCosignerDetails(JSON.stringify(getCosignerDetails(wallet, appID)))
-    }
 
+  useEffect(() => {
+    InteractionManager.runAfterInteractions(() => {
+      if (data) {
+        setCosignerDetails(data)
+      } else {
+        setCosignerDetails(JSON.stringify(getCosignerDetails(wallet, appID)))
+      }
+    });
   }, [])
+
+  if (!cosignerDetails) {
+    return null
+  }
+
   return (
     <>
       <Box justifyContent="center" alignItems="center" width={wp(275)}>
         <Box>
-          <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
+          <QRCode value={cosignerDetails} logoBackgroundColor="transparent" size={hp(200)} />
           <Box
             backgroundColor="light.QrCode"
             alignItems="center"
@@ -61,7 +68,7 @@ function ShowXPub({
           {copyable ? (
             <TouchableOpacity
               onPress={() => {
-                Clipboard.setString(data);
+                Clipboard.setString(cosignerDetails);
                 copy();
               }}
               style={{
