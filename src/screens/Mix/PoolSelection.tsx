@@ -50,6 +50,7 @@ export default function PoolSelection({ route, navigation }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [premixOutput, setPremixOutput] = useState(0);
   const [minMixAmount, setMinMixAmount] = useState(0);
+  const [feeDiscountPercent, setFeeDiscountPercent] = useState(0);
   const [tx0Data, setTx0Data] = useState(null);
   const [tx0Preview, setTx0Preview] = useState(null);
   const [poolLoading, setPoolLoading] = useState(true);
@@ -112,6 +113,7 @@ export default function PoolSelection({ route, navigation }) {
       // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
       const tx0ToFilter = tx0 || tx0Data;
       const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
+      setFeeDiscountPercent(correspondingTx0Data.feeDiscountPercent)
       const tx0Preview: Preview = await WhirlpoolClient.getTx0Preview(
         correspondingTx0Data,
         pool,
@@ -207,6 +209,17 @@ export default function PoolSelection({ route, navigation }) {
           </Text>
         </Box>
       </Box>
+
+      {
+        feeDiscountPercent !== 0 && (
+          <Box style={styles.textArea}>
+            <Text color="#017963">Fee Discount</Text>
+            <Text color="light.secondaryText">
+              {selectedPool ? `${feeDiscountPercent}%` : ''}
+            </Text>
+          </Box>
+        )
+      }
 
       <Box style={styles.textArea}>
         <Text color="#017963">Premix Outputs</Text>
