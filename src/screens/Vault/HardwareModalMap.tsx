@@ -210,11 +210,11 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         Illustration: <SeedWordsIllustration />,
         Instructions: [
           `Once the transaction is signed the key is not stored on the app.`,
-          `Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer.`,
+          `Make sure that you're noting down the words in private as exposing them will compromise the Seed Key`,
         ],
-        title: 'Keep your Soft Signer ready',
+        title: 'Setting up Seed Key',
         subTitle:
-          'This is the twelve word Recovery Phrase you would have noted down when creating the vault',
+          'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
       };
     case SignerType.TAPSIGNER:
       return {
