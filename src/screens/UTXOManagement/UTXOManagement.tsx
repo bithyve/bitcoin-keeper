@@ -47,6 +47,7 @@ function Footer({
   selectedUTXOs,
   setInitiateWhirlpool,
   setInitateWhirlpoolMix,
+  setIsRemix,
   initiateWhirlpool,
   initateWhirlpoolMix,
   setShowBatteryWarningModal,
@@ -95,6 +96,7 @@ function Footer({
       setEnableSelection={setEnableSelection}
       enableSelection={enableSelection}
       setInitiateWhirlpool={setInitiateWhirlpool}
+      setIsRemix={setIsRemix}
       setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       wallet={wallet}
       utxos={utxos}
@@ -125,6 +127,7 @@ function UTXOManagement({ route, navigation }) {
   const [depositWallet, setDepositWallet] = useState<any>();
   const [utxos, setUtxos] = useState([]);
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
+  const [isRemix, setIsRemix] = useState(false);
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
@@ -247,6 +250,7 @@ function UTXOManagement({ route, navigation }) {
           setEnableSelection={setEnableSelection}
           initiateWhirlpool={initiateWhirlpool}
           initateWhirlpoolMix={initateWhirlpoolMix}
+          setIsRemix={setIsRemix}
           enableSelection={enableSelection}
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
@@ -295,6 +299,7 @@ function UTXOManagement({ route, navigation }) {
                       depositWallet,
                       selectedWallet,
                       walletPoolMap,
+                      isRemix,
                     });
                   }}
                 />

@@ -12,6 +12,7 @@ function UTXOFooter({
   enableSelection,
   setInitiateWhirlpool,
   setInitateWhirlpoolMix,
+  setIsRemix,
   wallet,
   utxos,
   selectedUTXOs,
@@ -31,15 +32,16 @@ function UTXOFooter({
             title="Select for Mix"
           />
         )}
-        {wallet?.type === WalletType.PRE_MIX && (
+        {[WalletType.PRE_MIX, WalletType.POST_MIX].includes(wallet?.type) && (
           <BottomMenuItem
             disabled={!utxos.length}
             onPress={() => {
               setEnableSelection(!enableSelection);
+              setIsRemix(wallet?.type === WalletType.POST_MIX);
               setInitateWhirlpoolMix(true);
             }}
             icon={<MixIcon />}
-            title="Start Mix "
+            title={WalletType.POST_MIX ? 'Start Remix' : 'Start Mix'}
           />
         )}
         {allowedSendTypes.includes(wallet?.type) && (

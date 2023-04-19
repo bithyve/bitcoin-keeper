@@ -86,6 +86,7 @@ function MixProgress({
       depositWallet: Wallet;
       selectedWallet: any;
       walletPoolMap: any;
+      isRemix: boolean;
     };
   };
   navigation: any;
@@ -136,7 +137,7 @@ function MixProgress({
     },
   ];
 
-  const { selectedUTXOs, depositWallet, selectedWallet, walletPoolMap } = route.params;
+  const { selectedUTXOs, depositWallet, selectedWallet, walletPoolMap, isRemix } = route.params;
   const dispatch = useDispatch();
   const [currentUtxo, setCurrentUtxo] = React.useState('');
   const [mixFailed, setMixFailed] = React.useState('');
@@ -144,6 +145,10 @@ function MixProgress({
   const { showToast } = useToastMessage();
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const source = isRemix
+    ? depositWallet?.whirlpoolConfig?.postmixWallet
+    : depositWallet?.whirlpoolConfig?.premixWallet;
+  const destination = depositWallet?.whirlpoolConfig?.postmixWallet;
 
   const updateStep = (step: Step) => {
     const updatedArray = [...statuses];
@@ -220,15 +225,12 @@ function MixProgress({
         const updatedArray = [...statuses];
         updatedArray[6].completed = true;
         setStatus(updatedArray);
-        dispatch(
-          refreshWallets(
-            [
-              depositWallet.whirlpoolConfig.premixWallet,
-              depositWallet.whirlpoolConfig.postmixWallet,
-            ],
-            { hardRefresh: true }
-          )
-        );
+
+        const walletsToRefresh = [source];
+        if (!isRemix) walletsToRefresh.push(destination);
+        setTimeout(() => {
+          dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
+        }, 3000);
         dispatch(
           createUTXOReference({
             labels: [
@@ -245,7 +247,6 @@ function MixProgress({
         });
       }
     });
-
     initiateWhirlpoolMix();
     return () => {
       channel.disconnect();
@@ -258,14 +259,7 @@ function MixProgress({
       const { height } = await ElectrumClient.getBlockchainHeaders();
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(`${utxo.txId}:${utxo.vout}`);
-        await WhirlpoolClient.startMix(
-          utxo,
-          depositWallet?.whirlpoolConfig?.premixWallet,
-          depositWallet?.whirlpoolConfig?.postmixWallet,
-          pool,
-          height,
-          publicId
-        );
+        await WhirlpoolClient.startMix(utxo, source, destination, pool, height, publicId);
       }
     } catch (err) {
       console.log(err);
