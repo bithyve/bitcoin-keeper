@@ -41,8 +41,8 @@ RCT_EXPORT_METHOD(getPools:(RCTPromiseResolveBlock)resolve
   }];
 }
 
-RCT_EXPORT_METHOD(getTx0Data:(NSString*) scode
-                  :(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(getTx0Data:(NSString *)scode
+                  resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   [helper getTx0DataWithScode:scode callback:^(NSString * _Nonnull response) {

@@ -87,7 +87,6 @@ export function* updateAppImageWorker({ payload }) {
       nodesToUpdate.push(encrytedNode);
     }
   }
-  console.log('nodesToUpdate', nodesToUpdate);
   try {
     const response = yield call(Relay.updateAppImage, {
       appId: id,

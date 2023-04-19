@@ -16,11 +16,12 @@ import PageIndicator from 'src/components/PageIndicator';
 import Fonts from 'src/common/Fonts';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { Preview } from 'src/nativemodules/interface';
-import UtxoSummary from './UtxoSummary';
-import LearnMoreModal from './components/LearnMoreModal';
 import useBalance from 'src/hooks/useBalance';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { captureError } from 'src/core/services/sentry';
+import LearnMoreModal from './components/LearnMoreModal';
+import UtxoSummary from './UtxoSummary';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
@@ -82,10 +83,10 @@ export default function PoolSelection({ route, navigation }) {
       } else {
         showToast('Error in fetching pools data', <ToastErrorIcon />, 3000);
       }
-
       setPoolLoading(false);
     } catch (error) {
-      console.log(error);
+      showToast('Error in fetching pools data', <ToastErrorIcon />, 3000);
+      captureError(error);
     }
   };
 
@@ -106,24 +107,28 @@ export default function PoolSelection({ route, navigation }) {
   };
 
   const onPoolSelectionCallback = async (pool, tx0) => {
-    setSelectedPool(pool);
-
-    // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
-    const tx0ToFilter = tx0 || tx0Data;
-    const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
-    const tx0Preview: Preview | false = await WhirlpoolClient.getTx0Preview(
-      correspondingTx0Data,
-      pool,
-      premixFee.fee,
-      minerFee.fee,
-      utxos
-    );
-    if (tx0Preview) {
-      setPremixOutput(tx0Preview?.nPremixOutputs);
-      setTx0Preview(tx0Preview);
-      setShowPools(false);
-    } else {
+    try {
+      setSelectedPool(pool);
+      // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
+      const tx0ToFilter = tx0 || tx0Data;
+      const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
+      const tx0Preview: Preview = await WhirlpoolClient.getTx0Preview(
+        correspondingTx0Data,
+        pool,
+        premixFee.fee,
+        minerFee.fee,
+        utxos
+      );
+      if (tx0Preview) {
+        setPremixOutput(tx0Preview?.nPremixOutputs);
+        setTx0Preview(tx0Preview);
+        setShowPools(false);
+      } else {
+        showToast('Error in fetching the Tx0 preview', <ToastErrorIcon />, 3000);
+      }
+    } catch (error) {
       showToast('Error in fetching the Tx0 preview', <ToastErrorIcon />, 3000);
+      captureError(error);
     }
   };
 

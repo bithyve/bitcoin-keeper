@@ -28,6 +28,7 @@ import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { captureError } from 'src/core/services/sentry';
 import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
 
@@ -183,9 +184,9 @@ export default function BroadcastPremix({ route, navigation }) {
         showToast('Error in creating SerializedPSBT ', <ToastErrorIcon />, 3000);
       }
     } catch (e) {
+      showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
       setLoading(false);
-
-      console.log('onBroadcastModalCallback error', e);
+      captureError(e);
     }
   };
 
