@@ -3116,11 +3116,6 @@
   resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.2.0.tgz#cccaab758af56761eb7bf37af6f03f326dd798ad"
   integrity sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==
 
-"@types/async@^3.2.6":
-  version "3.2.18"
-  resolved "https://registry.yarnpkg.com/@types/async/-/async-3.2.18.tgz#3d93dde6eab654f7bc23e549d9af5d3fa4a5bdc5"
-  integrity sha512-/IsuXp3B9R//uRLi40VlIYoMp7OzhkunPe2fDu7jGfQXI9y3CDCx6FC4juRLSqrpmLst3vgsiK536AAGJFl4Ww==
-
 "@types/babel__core@^7.1.14":
   version "7.1.19"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.19.tgz#7b497495b7d1b4812bdb9d02804d0576f43ee460"
@@ -3750,7 +3745,7 @@ async@^2.4.0:
   dependencies:
     lodash "^4.17.14"
 
-async@^3.2.0, async@^3.2.2, async@^3.2.3:
+async@^3.2.2, async@^3.2.3:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/async/-/async-3.2.4.tgz#2d22e00f8cddeb5fde5dd33522b56d1cf569a81c"
   integrity sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==
@@ -10213,14 +10208,6 @@ react-native-tcp-socket@^5.6.2:
   dependencies:
     buffer "^5.4.3"
     eventemitter3 "^4.0.7"
-
-react-native-tor@^0.1.8:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/react-native-tor/-/react-native-tor-0.1.8.tgz#7e888aecaeb69aae5da2348639e761b6ee97c1a2"
-  integrity sha512-rRArwpqTQoUrQ3WQxc1WLkk1Eg/yjiwU775AxnSt6E7Nfy1V9H6+R9reMD5PJ/39qcuDYv3F7i3MR8Rjy7lOZA==
-  dependencies:
-    "@types/async" "^3.2.6"
-    async "^3.2.0"
 
 react-native-video@^5.2.0:
   version "5.2.0"

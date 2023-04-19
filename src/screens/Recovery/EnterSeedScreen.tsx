@@ -148,7 +148,7 @@ function EnterSeedScreen({ route }) {
   const isSeedFilled = (index: number) => {
     for (let i = 0; i < index; i++) {
       if (seedData[i].invalid) {
-        return false;
+        return true;
       }
     }
     return true;
@@ -215,7 +215,9 @@ function EnterSeedScreen({ route }) {
       if (isSeedFilled(12)) {
         const seedWord = getSeedWord();
         setRecoveryLoading(true);
-        dispatch(getAppImage(seedWord));
+        dispatch(
+          getAppImage('spoil accuse clap power photo nose vendor law power august parrot ecology')
+        );
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
       }

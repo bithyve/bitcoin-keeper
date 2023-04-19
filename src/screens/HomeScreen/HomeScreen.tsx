@@ -204,6 +204,7 @@ function VaultStatus(props) {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
+  console.log(keeper.primaryMnemonic);
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)

@@ -388,8 +388,6 @@ PODS:
   - react-native-tcp-socket (5.6.2):
     - CocoaAsyncSocket
     - React-Core
-  - react-native-tor (0.1.8):
-    - React
   - react-native-video (5.2.0):
     - React-Core
     - react-native-video/Video (= 5.2.0)
@@ -589,7 +587,6 @@ DEPENDENCIES:
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
-  - react-native-tor (from `../node_modules/react-native-tor`)
   - react-native-video (from `../node_modules/react-native-video`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -721,8 +718,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-tcp-socket:
     :path: "../node_modules/react-native-tcp-socket"
-  react-native-tor:
-    :path: "../node_modules/react-native-tor"
   react-native-video:
     :path: "../node_modules/react-native-video"
   React-perflogger:
@@ -844,7 +839,6 @@ SPEC CHECKSUMS:
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 6c12e3859b6f27b25de4fee8201cfb858432d8de
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
-  react-native-tor: 3b14e9160b2eb7fa3f310921b2dee71a5171e5b7
   react-native-video: a4c2635d0802f983594b7057e1bce8f442f0ad28
   React-perflogger: a18b4f0bd933b8b24ecf9f3c54f9bf65180f3fe6
   React-RCTActionSheet: 547fe42fdb4b6089598d79f8e1d855d7c23e2162
@@ -881,4 +875,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 4b291126e8f4983429514cc463711dc4af7dda9c
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.0
