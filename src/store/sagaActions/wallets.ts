@@ -30,6 +30,7 @@ export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
+export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_DETAILS';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -265,6 +266,19 @@ export const updateWalletDetails = (
   }
 ) => ({
   type: UPDATE_WALLET_DETAILS,
+  payload: {
+    wallet,
+    details,
+  },
+});
+export const updateWalletPathAndPurposeDetails = (
+  wallet: Wallet,
+  details: {
+    path: string;
+    purpose: string;
+  }
+) => ({
+  type: UPDATE_WALLET_PATH_PURPOSE_DETAILS,
   payload: {
     wallet,
     details,

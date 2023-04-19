@@ -17,6 +17,7 @@ import {
   Wallet,
   WalletImportDetails,
   WalletPresentationData,
+  WalletDerivationDetails,
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
@@ -61,6 +62,7 @@ import {
   walletSettingsUpdated,
   UPDATE_SIGNER_DETAILS,
   UPDATE_WALLET_PROPERTY,
+  UPDATE_WALLET_PATH_PURPOSE_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -596,7 +598,47 @@ function* updateWalletDetailsWorker({ payload }) {
     yield put(relayWalletUpdateFail('Something went wrong!'));
   }
 }
+function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
+  const {
+    wallet,
+    details,
+  }: {
+    wallet: Wallet;
+    details: {
+      path: string;
+      purpose: string;
+    };
+  } = payload;
+  try {
+    const derivationDetails: WalletDerivationDetails = {
+      xDerivationPath: details.path,
+      instanceNum: wallet.derivationDetails.instanceNum,
+      mnemonic: wallet.derivationDetails.mnemonic,
+      bip85Config:  wallet.derivationDetails.bip85Config,
+      // purpose: details.purpose,
+    };
+    yield put(setRelayWalletUpdateLoading(true));
+    // API-TO-DO: based on response call the DB
+    wallet.derivationDetails = derivationDetails;
+    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+    if (response.updated) {
+      yield put(relayWalletUpdateSuccess());
+      console.log('skkk call saga');
 
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+        derivationDetails,
+      });
+    } else {
+      yield put(relayWalletUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayWalletUpdateFail('Something went wrong!'));
+  }
+}
+export const updateWalletPathAndPuposeDetailWatcher = createWatcher(
+  updateWalletPathAndPuposeDetailsWorker,
+  UPDATE_WALLET_PATH_PURPOSE_DETAILS
+);
 export const updateWalletDetailWatcher = createWatcher(
   updateWalletDetailsWorker,
   UPDATE_WALLET_DETAILS
