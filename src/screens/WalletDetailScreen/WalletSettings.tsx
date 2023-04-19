@@ -41,12 +41,12 @@ type Props = {
 
 function Option({ title, subTitle, onPress }: Props) {
   return (
-    <Pressable style={styles.optionContainer} onPress={onPress}>
+    <Pressable style={styles.optionContainer} onPress={onPress} testID={`btn_${title.replace(/ /g, '_')}`}>
       <Box style={{ width: '96%' }}>
-        <Text color="light.primaryText" style={styles.optionTitle}>
+        <Text color="light.primaryText" style={styles.optionTitle} testID={`text_${title.replace(/ /g, '_')}`}>
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2}>
+        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2} testID={`text_${subTitle.replace(/ /g, '_')}`}>
           {subTitle}
         </Text>
       </Box>

@@ -190,6 +190,7 @@ function EnterWalletDetailScreen({ route }) {
             marginY={2}
             borderWidth="0"
             maxLength={20}
+            testID={`input_${walletName.replace(/ /g, '_')}`}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
             {walletName && walletName.length}/20
@@ -207,6 +208,7 @@ function EnterWalletDetailScreen({ route }) {
             borderWidth="0"
             marginY={2}
             maxLength={40}
+            testID={`input_${walletDescription.replace(/ /g, '_')}`}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
@@ -233,6 +235,7 @@ function EnterWalletDetailScreen({ route }) {
               borderWidth="0"
               letterSpacing={3}
               color="light.greenText"
+              testID={`input_${formatNumber(transferPolicy)}`}
             />
             <Box style={styles.sats}>
               <KeeperText type="bold">{common.sats}</KeeperText>

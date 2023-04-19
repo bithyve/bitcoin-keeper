@@ -38,6 +38,7 @@
     "bip32-path": "^0.4.2",
     "bip39": "^3.0.4",
     "bitcoinjs-lib": "5.2.0",
+    "bitcoinjs-message": "^2.2.0",
     "buffer": "^6.0.3",
     "buffer-reverse": "^1.0.1",
     "cktap-protocol-react-native": "git+https://github.com/bithyve/cktap-protocol-react-native.git#main",

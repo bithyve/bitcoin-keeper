@@ -26,7 +26,7 @@ function TransactionElement({
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} testID="btn_transaction">
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
           {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}

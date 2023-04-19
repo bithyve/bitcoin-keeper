@@ -5,7 +5,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
-import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
+import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
@@ -13,11 +13,10 @@ import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import availableLanguages from '../../common/content/availableLanguages';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { setSatsEnabled } from 'src/store/reducers/settings';
+import availableLanguages from '../../common/content/availableLanguages';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 
 const styles = StyleSheet.create({
   btn: {
@@ -222,7 +221,7 @@ function ChangeLanguage() {
       <HeaderTitle />
       <Box flex={1}>
         <Box marginLeft="5%">
-          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText}>
+          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText} testID={`text_${settings.LanguageCountry}`}>
             {settings.LanguageCountry}
           </Text>
           <Text fontSize={12} letterSpacing={0.6} color="light.GreyText">

@@ -1,5 +1,6 @@
 package com.hexa_keeper;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -14,6 +15,7 @@ import io.hexawallet.keeper.WhirlpoolBridge;
 public class WhirlpoolModule extends ReactContextBaseJavaModule{
 
     public static final String NAME = "Whirlpool";
+    public static final String TAG = "WhirlpoolMODULE";
 
     public WhirlpoolModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -46,8 +48,8 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void tx0Preview(Integer inputsValue, String poolStr, Integer premixFeePerByte, String inputStructureStr,Integer minerFeePerByte,Integer coordinatorFee, String nWantedMaxOutputsStr, Integer nPoolMaxOutputs, Promise promise) {
-        promise.resolve(WhirlpoolBridge.tx0preview(inputsValue, poolStr, premixFeePerByte, inputStructureStr, minerFeePerByte, coordinatorFee,nWantedMaxOutputsStr, nPoolMaxOutputs));
+    public void tx0Preview(String inputsValue, String poolStr, String premixFeePerByte, String feesAddress, String inputStructureStr,String minerFeePerByte,String coordinatorFee, String nWantedMaxOutputsStr, String nPoolMaxOutputs, Promise promise) {
+        promise.resolve(WhirlpoolBridge.tx0preview(inputsValue, poolStr,premixFeePerByte, feesAddress, inputStructureStr,minerFeePerByte, coordinatorFee, nWantedMaxOutputsStr, nPoolMaxOutputs));
     }
 
     @ReactMethod
@@ -66,7 +68,7 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, Promise promise) {
-        promise.resolve(WhirlpoolBridge.blocking(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight));
+    public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, Promise promise) {
+        promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId));
     }
 }

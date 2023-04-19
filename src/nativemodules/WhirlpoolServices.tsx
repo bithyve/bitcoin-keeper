@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
@@ -8,15 +8,17 @@ export default class WhirlpoolServices {
    * whirlpool mixing pools provider: fetches pool info from the coordinator
    * @returns {Promise<PoolData[]>} PoolData[]
    */
-  static getPools = async (): Promise<PoolData[]> => {
+  static getPools = async (): Promise<PoolData[] | boolean> => {
     try {
-      const result = await Whirlpool.getPools();
-      if (!result) throw new Error('Failed to fetch pools data');
-
-      return JSON.parse(result);
+      let result = await Whirlpool.getPools();
+      result = JSON.parse(result);
+      if (result.length > 0) {
+        return result;
+      }
+      return false;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
@@ -24,15 +26,15 @@ export default class WhirlpoolServices {
    * Fetches TX0 data from the coordinator.
    * @returns {Promise<Tx0Data[]>} Tx0Data[]
    */
-  static getTx0Data = async (): Promise<TX0Data[]> => {
+  static getTx0Data = async (): Promise<TX0Data[] | boolean> => {
     try {
-      const result = await Whirlpool.getTx0Data();
-      if (!result) throw new Error('Failed to fetch tx0 data');
-
-      return JSON.parse(result);
+      let result = await Whirlpool.getTx0Data();
+      result = JSON.parse(result);
+      if (result.length > 0) return result;
+      return false;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
@@ -60,27 +62,43 @@ export default class WhirlpoolServices {
     nWantedMaxOutputsStr: string,
     nPoolMaxOutputs: number,
     premixFeePerByte: number
-  ): Promise<Preview> => {
+  ): Promise<Preview | false> => {
     try {
-      const result = await Whirlpool.tx0Preview(
-        inputsValue,
-        JSON.stringify(pool),
-        feeAddress,
-        JSON.stringify(inputStructure),
-        minerFeePerByte,
-        coordinatorFee,
-        nWantedMaxOutputsStr,
-        nPoolMaxOutputs,
-        premixFeePerByte
-      );
-      if (!result) throw new Error('Failed to generate tx0 preview');
-      if (result === 'No enough sats for mixing.') {
-        return result;
+      let result;
+      if (Platform.OS === 'ios') {
+        result = await Whirlpool.tx0Preview(
+          `${inputsValue}`,
+          JSON.stringify(pool),
+          feeAddress,
+          JSON.stringify(inputStructure),
+          `${minerFeePerByte}`,
+          `${coordinatorFee}`,
+          nWantedMaxOutputsStr,
+          `${nPoolMaxOutputs}`,
+          `${premixFeePerByte}`
+        );
+      } else {
+        result = await Whirlpool.tx0Preview(
+          `${inputsValue}`,
+          JSON.stringify(pool),
+          `${premixFeePerByte}`,
+          feeAddress,
+          JSON.stringify(inputStructure),
+          `${minerFeePerByte}`,
+          `${coordinatorFee}`,
+          nWantedMaxOutputsStr,
+          `${nPoolMaxOutputs}`
+        );
       }
-      return JSON.parse(result);
+      if (!result) {
+        throw new Error('Failed to generate tx0 preview');
+      }
+      result = JSON.parse(result);
+      if (result.premixValue) return result;
+      return false;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
@@ -99,7 +117,7 @@ export default class WhirlpoolServices {
     inputs: WhirlpoolInput[],
     addressBank: string[],
     changeAddress: string
-  ): Promise<string> => {
+  ): Promise<string | false> => {
     try {
       const result = await Whirlpool.intoPsbt(
         JSON.stringify(preview),
@@ -108,11 +126,11 @@ export default class WhirlpoolServices {
         JSON.stringify(addressBank),
         changeAddress
       );
-      if (!result) throw new Error('Failed to construct PSBT from Tx0 Preview');
-      return JSON.parse(result);
+      if (!result) return false;
+      return result;
     } catch (error) {
       console.log({ error });
-      throw new Error(error);
+      return false;
     }
   };
 
@@ -124,7 +142,7 @@ export default class WhirlpoolServices {
    */
   static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
-      const result = await Whirlpool.tx0push(txHex, poolId);
+      const result = await Whirlpool.tx0Push(txHex, poolId);
       if (!result) throw new Error('Failed to broadcast tx0');
       return result;
     } catch (error) {
@@ -134,29 +152,44 @@ export default class WhirlpoolServices {
   };
 
   /**
+   * starts a new Whirlpool mix in the current thread in a blocking manner
+   * @param  {WhirlpoolInput} input
+   * @param  {string} privateKey
+   * @param  {string} destination
+   * @param  {string} poolId
+   * @param  {string} denomination
+   * @param  {string} preUserHash
+   * @param  {string} network
+   * @param  {string} blockHeight
+   * @param  {string} signedRegistrationMessage
+   * @returns {Promise<string>} txid
    */
   static startMix = async (
-    input: string,
+    input: WhirlpoolInput,
     privateKey: string,
     destination: string,
     poolId: string,
     denomination: string,
     preUserHash: string,
     network: string,
-    blockHeight: string
+    blockHeight: string,
+    signedRegistrationMessage: string,
+    appId: string
   ): Promise<string> => {
     try {
       const result = await Whirlpool.blocking(
-        input,
+        JSON.stringify(input),
         privateKey,
         destination,
         poolId,
         denomination,
         preUserHash,
         network,
-        blockHeight
+        blockHeight,
+        signedRegistrationMessage,
+        appId
       );
-      if (!result) throw new Error('Unable to generate tx0 preview');
+      if (!result) throw new Error('Unable to mix the current input');
       return result;
     } catch (error) {
       console.log({ error });

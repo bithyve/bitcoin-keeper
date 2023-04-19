@@ -12,7 +12,7 @@ function UTXOSelectionTotal(props: any) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
-    <Box style={styles.tabWrapper}>
+    <Box style={styles.tabWrapper} testID="view_UTXOSelectTotal">
       <Box style={styles.selectionWrapper}>
         <Text style={styles.selectionText}>{`${selectedUTXOs.length} UTXO Selected`}</Text>
       </Box>

@@ -17,11 +17,11 @@ export enum MixStatus {
 }
 
 export enum Step {
-  WaitingForCoordinator = 'WaitingForCoordinator',
   Connecting = 'Connecting',
   Subscribing = 'Subscribing',
   RegisteringInput = 'RegisteringInput',
   ConfirmingInput = 'ConfirmingInput',
+  WaitingForCoordinator = 'WaitingForCoordinator',
   CheckingOutput = 'CheckingOutput',
   RegisteringOutput = 'RegisteringOutput',
   Signing = 'Signing',
@@ -48,7 +48,7 @@ export interface WhirlpoolAPI {
 }
 
 export interface PoolData {
-  id: string;
+  poolId: string;
   denomination: number;
   feeValue: number;
   mustMixBalanceMin: number;

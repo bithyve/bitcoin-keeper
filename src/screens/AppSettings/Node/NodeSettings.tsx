@@ -24,6 +24,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 import AddNode from './AddNodeModal';
 import Node from './node';
+import { updateAppImage } from 'src/store/sagaActions/bhr';
 
 function NodeSettings() {
   const dispatch = useAppDispatch();
@@ -64,7 +65,7 @@ function NodeSettings() {
       setLoading(false);
       return;
     }
-
+    dispatch(updateAppImage(null));
     setNodeList(nodes);
     setSelectedNodeItem(node);
     setLoading(false);
@@ -82,6 +83,7 @@ function NodeSettings() {
 
   const onDelete = async (selectedItem: NodeDetail) => {
     const status = Node.delete(selectedItem?.id);
+    dispatch(updateAppImage(null));
     let nodes = [];
     if (status) {
       nodes = Node.getNodes();
@@ -91,7 +93,6 @@ function NodeSettings() {
     setSelectedNodeItem(null);
 
     if (nodes?.length === 0 || selectedItem.isConnected) {
-      console.log('defaut node');
       setConnectToNode(false);
       dispatch(setConnectToMyNode(false));
       setLoading(true);
@@ -108,9 +109,12 @@ function NodeSettings() {
     if (!selectedItem.isConnected) {
       node = await Node.connect(selectedItem, nodeList);
       Node.update(node?.id, { isConnected: node?.isConnected });
-    } else {
+      dispatch(updateAppImage(null));
+    }
+    else {
       await disconnectNode(node);
       Node.update(node?.id, { isConnected: node?.isConnected });
+      dispatch(updateAppImage(null));
       setLoading(false);
       return;
     }

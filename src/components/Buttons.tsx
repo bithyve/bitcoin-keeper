@@ -10,8 +10,8 @@ import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView'
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => {},
-  secondaryCallback = () => {},
+  primaryCallback = () => { },
+  secondaryCallback = () => { },
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
@@ -31,6 +31,7 @@ function Buttons({
       onPress={onPrimaryInteraction}
       disabled={primaryDisable}
       activeOpacity={activeOpacity}
+      testID="btn_primaryText"
     >
       <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
         <Box
@@ -64,6 +65,7 @@ function Buttons({
           onPress={secondaryCallback}
           disabled={secondaryDisable}
           activeOpacity={0.5}
+          testID="btn_secondaryText"
         >
           <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
             {secondaryText}

@@ -8,6 +8,7 @@ import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import WhirlpoolServices from 'src/nativemodules/WhirlpoolServices';
+import { NetworkType } from 'src/core/wallets/enums';
 import {
   Info,
   InputStructure,
@@ -20,7 +21,8 @@ import {
   WhirlpoolAPI,
   WhirlpoolInput,
 } from '../../../nativemodules/interface';
-import { generateMockTransaction, getAPIEndpoints, sleep } from './utils';
+import { getAPIEndpoints, sleep } from './utils';
+import { hash256 } from '../operations/encryption';
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {
@@ -48,14 +50,15 @@ export default class WhirlpoolClient {
    * whirlpool mixing pools provider: fetches pool info from the coordinator
    * @returns Promise<PoolData[]>
    */
-  static getPools = async (): Promise<PoolData[]> => WhirlpoolServices.getPools();
+  static getPools = async (): Promise<PoolData[] | boolean> => WhirlpoolServices.getPools();
 
   /**
    * Fetches TX0 data from the coordinator. Needed to craft a TX0
    * @param  {string} scode?
    * @returns Promise<Tx0Data[]>
    */
-  static getTx0Data = async (scode?: string): Promise<TX0Data[]> => WhirlpoolServices.getTx0Data();
+  static getTx0Data = async (scode?: string): Promise<TX0Data[] | boolean> =>
+    WhirlpoolServices.getTx0Data();
 
   /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
@@ -73,7 +76,7 @@ export default class WhirlpoolClient {
     premixFeePerByte: number,
     minerFeePerByte: number,
     inputs: InputUTXOs[]
-  ): Promise<Preview> => {
+  ): Promise<Preview | false> => {
     let inputsValue = 0;
     inputs.forEach((input) => {
       inputsValue += input.value;
@@ -92,7 +95,7 @@ export default class WhirlpoolClient {
       inputStructure,
       minerFeePerByte,
       tx0data.feeValue,
-      null,
+      '',
       pool.tx0MaxOutputs,
       premixFeePerByte
     );
@@ -115,14 +118,14 @@ export default class WhirlpoolClient {
       badbank: string;
     },
     network: bitcoinJS.Network
-  ): Promise<{ serializedPSBT: string }> => {
+  ): Promise<{ serializedPSBT: string | false }> => {
     if (outputProvider.premix.length !== preview.nPremixOutputs)
       throw new Error(`Please supply enough(${preview.nPremixOutputs}) premix addresses`);
 
     const whirlpoolInputs: WhirlpoolInput[] = inputs.map((input) => {
       const rustInput: WhirlpoolInput = {
         outpoint: {
-          txid: input.txId, // use
+          txid: input.txId,
           vout: input.vout,
         },
         prev_txout: {
@@ -184,58 +187,62 @@ export default class WhirlpoolClient {
     WhirlpoolServices.tx0Push(tx0Hex, poolId);
 
   /**
-   * mixing mock: whirlpooling from premix to postmix
+   * starts a new whirlpool mix
+   * @param  {InputUTXOs} input
    * @param  {Wallet} premix
    * @param  {Wallet} postmix
    * @param  {PoolData} pool
-   * @returns {Promise} txid
+   * @param  {number} blockHeight
+   * @returns {Promise<string>} txid
    */
-  static premixToPostmix = async (
-    premixInput: InputUTXOs,
-    destinationAddress: string,
-    denomination: number,
+  static startMix = async (
+    input: InputUTXOs,
     premix: Wallet,
-    notify: Function
+    postmix: Wallet,
+    pool: PoolData,
+    blockHeight: number,
+    appId: string
   ): Promise<string> => {
-    if (!premixInput && !premixInput.height) throw new Error('Premix input is not confirmed');
-
-    await sleep();
-    notify(Info.Working, Step.WaitingForCoordinator);
-
-    await sleep();
-    notify(Info.Working, Step.Connecting);
+    if (!input && !input.height) throw new Error('Input is not confirmed');
 
     const network = WalletUtilities.getNetworkByType(premix.networkType);
-    const postMixOutput: OutputUTXOs = {
-      address: destinationAddress,
-      value: denomination,
+    const rustInput: WhirlpoolInput = {
+      outpoint: {
+        txid: input.txId,
+        vout: input.vout,
+      },
+      prev_txout: {
+        value: input.value,
+        script_pubkey: bitcoinJS.address.toOutputScript(input.address, network).toString('hex'),
+      },
+      fields: {},
     };
 
-    await sleep();
-    notify(Info.Working, Step.Subscribing);
+    const { privateKey } = WalletUtilities.addressToKey(input.address, premix) as {
+      privateKey: string;
+      subPath: number[];
+    };
+    const destination = postmix.specs.receivingAddress;
+    const preUserHash = hash256(premix.derivationDetails.mnemonic);
+    const networkType: Network =
+      premix.networkType === NetworkType.TESTNET ? Network.Testnet : Network.Bitcoin;
+    const signedRegistrationMessage = WalletUtilities.signBitcoinMessage(
+      pool.poolId,
+      privateKey,
+      network
+    );
 
-    const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
-      network,
-    });
-
-    await sleep();
-    notify(Info.Working, Step.RegisteringInput);
-
-    await sleep();
-    notify(Info.Working, Step.ConfirmingInput);
-    WalletOperations.addInputToPSBT(PSBT, premix, premixInput, network);
-
-    await sleep();
-    notify(Info.Working, Step.RegisteringOutput);
-    PSBT.addOutput(postMixOutput);
-
-    await sleep();
-    notify(Info.Working, Step.Signing);
-    const { signedPSBT } = WalletOperations.signTransaction(premix, [premixInput], PSBT);
-
-    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
-    const txid = await ElectrumClient.broadcast(txHex);
-    notify(Info.Success);
-    return txid;
+    return WhirlpoolServices.startMix(
+      rustInput,
+      privateKey,
+      destination,
+      pool.poolId,
+      pool.denomination.toString(),
+      preUserHash,
+      networkType,
+      blockHeight.toString(),
+      signedRegistrationMessage,
+      appId
+    );
   };
 }

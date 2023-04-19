@@ -158,7 +158,7 @@ function AddSendAmount({ route }) {
     recipients.push({
       address,
       amount: amountToSend, // should be denominated in sats
-      name: recipient.presentationData.name,
+      name: recipient ? recipient.presentationData.name : '',
     });
     dispatch(
       sendPhaseOne({
@@ -358,7 +358,7 @@ function AddSendAmount({ route }) {
           activity private and organised. The information is not shared with anyone
         </Text>
       </Box>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 

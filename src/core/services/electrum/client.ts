@@ -10,8 +10,8 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
-import RestClient, { TorStatus } from '../rest/RestClient';
 import torrific from './torrific';
+import RestClient, { TorStatus } from '../rest/RestClient';
 
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '13.42.121.212', ssl: '50002' }],
@@ -346,8 +346,6 @@ export default class ElectrumClient {
   }
 
   public static async testConnection(host, tcpPort, sslPort) {
-    console.log('testConnection', host, tcpPort, sslPort);
-    console.log('RestClient.getTorStatus()', RestClient?.getTorStatus());
     const client = new ElectrumCli(
       host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED
         ? torrific

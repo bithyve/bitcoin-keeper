@@ -79,13 +79,15 @@ function Footer({
       initateWhirlpoolMix={initateWhirlpoolMix}
       setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       secondaryText="Cancel"
-      footerCallback={() =>
-        initiateWhirlpool
-          ? goToWhirlpoolConfiguration()
-          : initateWhirlpoolMix
-            ? inititateWhirlpoolMixProcess()
-            : navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }))
-      }
+      footerCallback={() => {
+        if (initateWhirlpoolMix) {
+          inititateWhirlpoolMixProcess();
+        } else if (initiateWhirlpool) {
+          goToWhirlpoolConfiguration();
+        } else {
+          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+        }
+      }}
       selectedUTXOs={selectedUTXOs}
     />
   ) : (
@@ -139,8 +141,14 @@ function UTXOManagement({ route, navigation }) {
     if (isWhirlpoolWallet) {
       setDepositWallet(wallet);
       const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+      if (selectedAccount === WalletType.PRE_MIX) {
+        setInitateWhirlpoolMix(true);
+      } else {
+        setInitateWhirlpoolMix(false);
+      }
       setSelectedWallet(walletAccount);
     } else {
+      setInitateWhirlpoolMix(false);
       setSelectedWallet(wallet);
     }
   }, [syncing, selectedAccount]);
@@ -296,11 +304,16 @@ function UTXOManagement({ route, navigation }) {
         )}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
-      <InitiateWhirlpoolModal visible={whirlpoolIntroModal} closeModal={() => dispatch(setWhirlpoolIntro(false))} />
-      <ErrorCreateTxoModal visible={txoErrorModalVisible} closeModal={() => setTxoErrorModalVisible(false)} />
-
+      <InitiateWhirlpoolModal
+        visible={whirlpoolIntroModal}
+        closeModal={() => dispatch(setWhirlpoolIntro(false))}
+      />
+      <ErrorCreateTxoModal
+        visible={txoErrorModalVisible}
+        closeModal={() => setTxoErrorModalVisible(false)}
+      />
     </ScreenWrapper>
-  )
+  );
 }
 const getStyles = () =>
   StyleSheet.create({

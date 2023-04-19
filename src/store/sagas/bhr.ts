@@ -22,6 +22,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
+import { NodeDetail } from 'src/core/wallets/interfaces';
 import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
@@ -71,6 +72,18 @@ export function* updateAppImageWorker({ payload }) {
       walletObject[wallet.id] = encrytedWallet;
     }
   }
+
+  const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+  const nodesToUpdate = [];
+  if (nodes && nodes.length > 0) {
+    for (const index in nodes) {
+      const node = nodes[index];
+      node.isConnected = false;
+      const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
+      nodesToUpdate.push(encrytedNode);
+    }
+  }
+  console.log('nodesToUpdate', nodesToUpdate);
   try {
     const response = yield call(Relay.updateAppImage, {
       appId: id,
@@ -79,6 +92,7 @@ export function* updateAppImageWorker({ payload }) {
       networkType,
       subscription: JSON.stringify(subscription),
       version,
+      nodes: nodesToUpdate,
     });
     return response;
   } catch (err) {
@@ -296,6 +310,13 @@ function* getAppImageWorker({ payload }) {
         date: new Date().toString(),
         title: 'Restored version',
       });
+
+      if (appImage.nodes) {
+        for (const node of appImage.nodes) {
+          const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+          yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+        }
+      }
     }
   } catch (err) {
     console.log(err);

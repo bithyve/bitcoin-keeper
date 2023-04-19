@@ -25,7 +25,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 // asserts (svgs, pngs)
 import Arrow from 'src/assets/images/arrow.svg';
@@ -61,35 +61,37 @@ function InheritanceComponent() {
 
   return (
     <Box alignItems="center" marginTop={hp(19.96)}>
-      <Box
-        style={styles.bottomCard}
-        backgroundColor={{
-          linearGradient: {
-            colors: ['light.gradientStart', 'light.gradientEnd'],
-            start: [0, 0],
-            end: [1, 1],
-          },
-        }}
-      >
-        <Box style={styles.bottomCardContent}>
-          <Inheritance />
-          <Box
-            style={{
-              marginLeft: wp(18),
-            }}
-          >
-            <Text color="light.white" style={styles.bottomCardTitle}>
-              Inheritance
-            </Text>
-            <Text color="light.white" style={styles.bottomCardSubtitle}>
-              {plan === SubscriptionTier.L3.toUpperCase()
-                ? 'Tools, tips and templates'
-                : 'Upgrade to secure your vault'}
-            </Text>
+      <Pressable onPress={onPress} testID="btn_Inheritance">
+        <Box
+          style={styles.bottomCard}
+          backgroundColor={{
+            linearGradient: {
+              colors: ['light.gradientStart', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
+            },
+          }}
+        >
+          <Box style={styles.bottomCardContent}>
+            <Inheritance />
+            <Box
+              style={{
+                marginLeft: wp(18),
+              }}
+            >
+              <Text color="light.white" style={styles.bottomCardTitle}>
+                Inheritance
+              </Text>
+              <Text color="light.white" style={styles.bottomCardSubtitle}>
+                {plan === SubscriptionTier.L3.toUpperCase()
+                  ? 'Tools, tips and templates'
+                  : 'Upgrade to secure your vault'}
+              </Text>
+            </Box>
           </Box>
+          <NextIcon pressHandler={() => onPress()} />
         </Box>
-        <NextIcon pressHandler={() => onPress()} />
-      </Box>
+      </Pressable>
     </Box>
   );
 }
@@ -112,6 +114,7 @@ function LinkedWallets(props) {
         marginTop: hp(8),
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
+      testID="btn_LinkedWallet"
     >
       <Box
         backgroundColor={{
@@ -154,7 +157,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                {getCurrencyIcon(BTC, 'grey',)}
+                {getCurrencyIcon(BTC, 'grey')}
               </Box>
               <Text
                 color="light.white"
@@ -186,12 +189,11 @@ function LinkedWallets(props) {
               {getCurrencyIcon(BTC, 'grey')}
               &nbsp;
               <Hidden />
-            </Box >
-          )
-          }
-        </Pressable >
-      </Box >
-    </Pressable >
+            </Box>
+          )}
+        </Pressable>
+      </Box>
+    </Pressable>
   );
 }
 
@@ -340,7 +342,7 @@ function VaultStatus(props) {
                   </Box>
                 )}
               </Pressable>
-            </HStack >
+            </HStack>
             <Pressable
               backgroundColor="light.accent"
               style={styles.balanceToggleContainer}
@@ -350,10 +352,10 @@ function VaultStatus(props) {
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
-          </Box >
-        </TouchableOpacity >
-      </ImageBackground >
-    </Box >
+          </Box>
+        </TouchableOpacity>
+      </ImageBackground>
+    </Box>
   );
 }
 
@@ -392,6 +394,7 @@ function VaultInfo() {
             <Pressable
               style={styles.subscriptionIcon}
               onPress={() => navigation.navigate('ChoosePlan')}
+              testID={`btn_${plan}`}
             >
               {getPlanIcon()}
               <Box
@@ -406,7 +409,10 @@ function VaultInfo() {
             </Pressable>
             {isTestnet() && <TestnetIndicator />}
           </Box>
-          <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
+          <Pressable
+            testID="btn_AppSettings"
+            onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+          >
             <SettingIcon />
           </Pressable>
         </Box>
@@ -498,7 +504,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal

@@ -16,7 +16,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { setTx0Complete, setWalletPoolMap } from 'src/store/reducers/wallets';
+import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import useWallets from 'src/hooks/useWallets';
@@ -24,10 +24,11 @@ import { InputUTXOs } from 'src/core/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import UtxoSummary from './UtxoSummary';
-import config from 'src/core/config';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
+import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
 
 export default function BroadcastPremix({ route, navigation }) {
@@ -51,7 +52,6 @@ export default function BroadcastPremix({ route, navigation }) {
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
-  const { tx0completed } = useAppSelector((state) => state.wallet);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
@@ -60,6 +60,8 @@ export default function BroadcastPremix({ route, navigation }) {
   const [preRequistesLoading, setPreRequistesLoading] = useState(true);
   const { getSatUnit } = useBalance();
   // const getSatUnit = () => (satsEnabled ? 'sats' : 'btc');
+
+  const { showToast } = useToastMessage();
   const valueByPreferredUnit = (value) => {
     if (!value) return '';
     const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
@@ -98,30 +100,24 @@ export default function BroadcastPremix({ route, navigation }) {
       onBroadcastModalCallback();
     }
   }, [loading]);
+
   useEffect(() => {
     if (relayWalletError || relayWalletUpdate) {
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
-  useEffect(() => {
-    console.log({ tx0completed });
-    if (tx0completed) {
-      setLoading(false);
-      setShowBroadcastModal(true);
-    }
-    return () => {
-      dispatch(setTx0Complete(false));
-    };
-  }, [tx0completed]);
-
   const onBroadcastModalCallback = async () => {
     try {
       const network = WalletUtilities.getNetworkByType(depositWallet.networkType);
-      const premixWallet = depositWallet.whirlpoolConfig.premixWallet;
-      const badbankWallet = depositWallet.whirlpoolConfig.badbankWallet;
+      const { premixWallet, badbankWallet } = depositWallet.whirlpoolConfig;
       const premixAddresses = [];
-      for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
+
+      for (
+        let i = premixWallet.specs.nextFreeAddressIndex;
+        i < premixWallet.specs.nextFreeAddressIndex + tx0Preview.nPremixOutputs;
+        i++
+      ) {
         premixAddresses.push(
           WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)
         );
@@ -133,7 +129,7 @@ export default function BroadcastPremix({ route, navigation }) {
 
       let correspondingTx0Data: TX0Data;
       for (const data of tx0Data) {
-        if (data.poolId === selectedPool.id) {
+        if (data.poolId === selectedPool.poolId) {
           correspondingTx0Data = data;
           break;
         }
@@ -146,38 +142,45 @@ export default function BroadcastPremix({ route, navigation }) {
         outputProvider,
         network
       );
-      const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
-      const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.id);
+      if (serializedPSBT) {
+        const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
+        const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
 
-      if (txid) {
-        const outputs = PSBT.txOutputs;
-        const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
-        const voutBadBank = outputs.findIndex(
-          (o) => o.address === badbankWallet.specs.receivingAddress
-        );
-        dispatch(
-          createUTXOReference({
-            labels: [{ name: 'Deposit', type: LabelType.SYSTEM }],
-            txId: txid,
-            vout: voutPremix,
-          })
-        );
-        dispatch(
-          createUTXOReference({
-            labels: [
-              { name: 'Deposit', type: LabelType.SYSTEM },
-              { name: 'Doxxic Change', type: LabelType.SYSTEM },
-            ],
-            txId: txid,
-            vout: voutBadBank,
-          })
-        );
-        dispatch(
-          setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool?.denomination })
-        );
-        dispatch(setTx0Complete(true));
+        if (txid) {
+          const outputs = PSBT.txOutputs;
+          const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
+          const voutBadBank = outputs.findIndex(
+            (o) => o.address === badbankWallet.specs.receivingAddress
+          );
+          dispatch(
+            createUTXOReference({
+              labels: [
+                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
+              ],
+              txId: txid,
+              vout: voutPremix,
+            })
+          );
+          dispatch(
+            createUTXOReference({
+              labels: [
+                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
+                { name: 'Doxxic Change', type: LabelType.SYSTEM },
+              ],
+              txId: txid,
+              vout: voutBadBank,
+            })
+          );
+          dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
+          setShowBroadcastModal(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
+        }
       } else {
-        // error modals
+        setLoading(false);
+        showToast('Error in creating SerializedPSBT ', <ToastErrorIcon />, 3000);
       }
     } catch (e) {
       setLoading(false);
@@ -202,7 +205,9 @@ export default function BroadcastPremix({ route, navigation }) {
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore
-        learnMorePressed={() => { dispatch(setWhirlpoolSwiperModal(true)) }}
+        learnMorePressed={() => {
+          dispatch(setWhirlpoolSwiperModal(true));
+        }}
       />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
       <ScrollView style={styles.scrollViewWrapper}>
