@@ -26,9 +26,9 @@ export default class WhirlpoolServices {
    * Fetches TX0 data from the coordinator.
    * @returns {Promise<Tx0Data[]>} Tx0Data[]
    */
-  static getTx0Data = async (): Promise<TX0Data[] | boolean> => {
+  static getTx0Data = async (scode: string): Promise<TX0Data[] | boolean> => {
     try {
-      let result = await Whirlpool.getTx0Data();
+      let result = await Whirlpool.getTx0Data(scode);
       result = JSON.parse(result);
       if (result.length > 0) return result;
       return false;

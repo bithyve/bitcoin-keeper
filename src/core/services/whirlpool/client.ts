@@ -58,7 +58,7 @@ export default class WhirlpoolClient {
    * @returns Promise<Tx0Data[]>
    */
   static getTx0Data = async (scode?: string): Promise<TX0Data[] | boolean> =>
-    WhirlpoolServices.getTx0Data();
+    WhirlpoolServices.getTx0Data(scode);
 
   /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
