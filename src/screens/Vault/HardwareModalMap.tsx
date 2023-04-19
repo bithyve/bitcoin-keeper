@@ -115,12 +115,12 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       return {
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          `To secure this key, you need the Recovery Phrase of the wallets to be backed up`,
+          `Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.`,
           `This key available for signing transactions if you confirm your passcode or biometrics`,
         ],
         title: 'Set up a Mobile Key',
         subTitle:
-          'This key available for signing transactions if you confirm your passcode or biometrics',
+          'Your passcode or biometrics act as your key for signing transactions',
       };
     case SignerType.LEDGER:
       return {
