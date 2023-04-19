@@ -33,6 +33,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { UTXO } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { captureError } from 'src/core/services/sentry';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -262,7 +263,7 @@ function MixProgress({
         await WhirlpoolClient.startMix(utxo, source, destination, pool, height, publicId);
       }
     } catch (err) {
-      console.log(err);
+      captureError(err);
     }
   };
 

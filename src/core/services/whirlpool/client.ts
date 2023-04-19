@@ -50,15 +50,15 @@ export default class WhirlpoolClient {
    * whirlpool mixing pools provider: fetches pool info from the coordinator
    * @returns Promise<PoolData[]>
    */
-  static getPools = async (): Promise<PoolData[] | boolean> => WhirlpoolServices.getPools();
+  static getPools = async (): Promise<PoolData[]> => WhirlpoolServices.getPools();
 
   /**
    * Fetches TX0 data from the coordinator. Needed to craft a TX0
    * @param  {string} scode?
    * @returns Promise<Tx0Data[]>
    */
-  static getTx0Data = async (scode?: string): Promise<TX0Data[] | boolean> =>
-    WhirlpoolServices.getTx0Data();
+  static getTx0Data = async (scode?: string): Promise<TX0Data[]> =>
+    WhirlpoolServices.getTx0Data(scode);
 
   /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
@@ -76,7 +76,7 @@ export default class WhirlpoolClient {
     premixFeePerByte: number,
     minerFeePerByte: number,
     inputs: InputUTXOs[]
-  ): Promise<Preview | false> => {
+  ): Promise<Preview> => {
     let inputsValue = 0;
     inputs.forEach((input) => {
       inputsValue += input.value;
@@ -118,7 +118,7 @@ export default class WhirlpoolClient {
       badbank: string;
     },
     network: bitcoinJS.Network
-  ): Promise<{ serializedPSBT: string | false }> => {
+  ): Promise<{ serializedPSBT: string }> => {
     if (outputProvider.premix.length !== preview.nPremixOutputs)
       throw new Error(`Please supply enough(${preview.nPremixOutputs}) premix addresses`);
 
