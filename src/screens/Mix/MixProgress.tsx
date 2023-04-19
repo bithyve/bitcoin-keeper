@@ -158,6 +158,14 @@ function MixProgress({
     }
   };
 
+  useEffect(() => {
+    getPoolsData();
+  }, []);
+
+  useEffect(() => {
+    if (poolsData.length) initiateWhirlpoolMix();
+  }, [poolsData]);
+
   const getPoolforValue = (utxoValue) => {
     let selectedPool;
     let minDiff = Infinity;
@@ -258,7 +266,7 @@ function MixProgress({
               { name: depositWallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
             ],
             txId: txid,
-            vout: pool.denomination,
+            vout: 1,
           })
         );
         navigation.navigate('UTXOManagement', {
@@ -268,7 +276,6 @@ function MixProgress({
         });
       }
     });
-    initiateWhirlpoolMix();
     return () => {
       channel.disconnect();
     };
