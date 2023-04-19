@@ -432,30 +432,28 @@ function PasswordEnter({
   };
 
   return (
-    <Box width={hp(280)}>
-      <Box>
-        <CVVInputsView
-          passCode={password}
-          passcodeFlag={false}
-          backgroundColor
-          textColor
-          length={4}
-        />
-        <Text style={styles.infoText} color="light.greenText">
-          The app will use the Mobile Key to sign on entering the correct Passcode
-        </Text>
-        <Box mt={10} alignSelf="flex-end" mr={2}>
-          <Box>
-            {inProgress ?
-              <ActivityIndicator size="small" />
-              :
-              <Buttons
-                primaryCallback={addMobileKeyWithProgress}
-                primaryText="Confirm"
-                primaryLoading={inProgress}
-              />
-            }
-          </Box>
+    <Box style={styles.passwordContainer}>
+      <CVVInputsView
+        passCode={password}
+        passcodeFlag={false}
+        backgroundColor
+        textColor
+        length={4}
+      />
+      <Text style={styles.infoText} color="light.greenText">
+        The app will use the Mobile Key to sign on entering the correct Passcode
+      </Text>
+      <Box mt={10} alignSelf="flex-end" mr={2}>
+        <Box>
+          {inProgress ?
+            <ActivityIndicator size="small" />
+            :
+            <Buttons
+              primaryCallback={addMobileKeyWithProgress}
+              primaryText="Confirm"
+              primaryLoading={inProgress}
+            />
+          }
         </Box>
       </Box>
       <KeyPadView
@@ -700,6 +698,10 @@ function HardwareModalMap({
   );
 }
 const styles = StyleSheet.create({
+  passwordContainer: {
+    width: wp(300),
+    marginLeft: wp(5)
+  },
   bulletContainer: {
     marginTop: 4,
     flexDirection: 'row',
@@ -715,7 +717,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     padding: 3,
     fontSize: 13,
-    width: windowWidth * 0.78,
+    width: wp(300),
   },
 });
 export default HardwareModalMap;
