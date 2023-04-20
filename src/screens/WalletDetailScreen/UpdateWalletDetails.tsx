@@ -37,6 +37,8 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 function UpdateWalletDetails({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
+  const { wallet } = route.params;
+
   const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
@@ -47,27 +49,25 @@ function UpdateWalletDetails({ route }) {
     { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
   ]);
-  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
-  const [purposeLbl, setPurposeLbl] = useState('P2PKH: legacy, single-sig');
-  const [path, setPath] = useState(
-    route.params?.path
-      ? route.params?.path
-      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
-  );
-  const { wallet } = route.params;
+  const getPupose = (key) => {
+    switch(key) {
+      case 'P2PKH':
+        return 'P2PKH: legacy, single-sig'
+        case 'P2SH-P2WPKH': 
+        return 'P2SH-P2WPKH: wrapped segwit, single-sg'
+      case 'P2WPKH':
+        return 'P2WPKH: native segwit, single-sig'
+        default:
+        return ''
+    }
+  }
+  const [purpose, setPurpose] = useState(wallet?.scriptType);
+  const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
+  const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
 
-  useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      Number(purpose)
-    );
-    setPath(path);
-  }, [purpose]);
 
   useEffect(() => {
     if (relayWalletError) {
@@ -81,16 +81,13 @@ function UpdateWalletDetails({ route }) {
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
-    const updateWallet = () => {
-      console.log('sskk call dispatch');
-      
-      const details = {
-        path: path,
-        purpose: purpose,
-        
-      };
-      dispatch(updateWalletPathAndPurposeDetails(wallet, details));
+  const updateWallet = () => {
+    const details = {
+      path,
+      purpose,
     };
+    dispatch(updateWalletPathAndPurposeDetails(wallet, details));
+  };
 
   const onDropDownClick = () => {
     if (showPurpose) {
@@ -174,6 +171,13 @@ function UpdateWalletDetails({ route }) {
                     setArrow(false);
                     setPurpose(item.value);
                     setPurposeLbl(item.label);
+                    const path = WalletUtilities.getDerivationPath(
+                      EntityKind.WALLET,
+                      config.NETWORK_TYPE,
+                      0,
+                      Number(purpose)
+                    );
+                    setPath(path);
                   }}
                   style={styles.flagWrapper1}
                 >
