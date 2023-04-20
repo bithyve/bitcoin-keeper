@@ -22,7 +22,7 @@ import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
-import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
+import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
 import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
 import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';

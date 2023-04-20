@@ -51,7 +51,9 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
       </Box>
       {extraLabelCount > 0 && (
         <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-          <Text style={{ color: Colors.White }} testID="text_extraLabelCount">+{extraLabelCount}</Text>
+          <Text style={{ color: Colors.White }} testID="text_extraLabelCount">
+            +{extraLabelCount}
+          </Text>
         </Box>
       )}
     </Box>
@@ -189,8 +191,8 @@ function UTXOList({
         <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
           <EmptyStateView
             IllustartionImage={emptyIcon}
-            title="Your UTXOs will show up here when you"
-            subTitle="receive sats in the wallet"
+            title="No UTXOs yet"
+            subTitle="UTXOs from all your Tx0s land here."
           />
         </Box>
       }
