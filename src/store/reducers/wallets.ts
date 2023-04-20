@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import persistReducer from 'redux-persist/es/persistReducer';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { PoolData } from 'src/nativemodules/interface';
 import { reduxStorage } from 'src/storage';
@@ -27,7 +28,7 @@ export type WalletsState = {
 
   whirlpoolWallets?: Wallet[];
 
-  syncing: boolean;
+  walletSyncing: {};
   whirlpoolWalletCreated: boolean;
   walletPoolMap: any;
 };
@@ -51,7 +52,7 @@ const initialState: WalletsState = {
   whirlpoolIntro: true,
   whirlpoolModal: true,
 
-  syncing: false,
+  walletSyncing: {},
   walletPoolMap: {},
   whirlpoolWalletCreated: false,
 };
@@ -59,6 +60,11 @@ const initialState: WalletsState = {
 export type WalletPoolPayload = {
   walletId: string;
   pool: PoolData;
+};
+
+export type syncingPayload = {
+  wallets: (Wallet | Vault)[];
+  isSyncing: boolean;
 };
 
 const walletSlice = createSlice({
@@ -93,8 +99,11 @@ const walletSlice = createSlice({
     resetWhirlpoolWallets: (state) => {
       state.whirlpoolWallets = null;
     },
-    setSyncing: (state, action: PayloadAction<boolean>) => {
-      state.syncing = action.payload;
+    setSyncing: (state, action: PayloadAction<syncingPayload>) => {
+      const { wallets, isSyncing } = action.payload;
+      wallets.forEach((wallet) => {
+        state.walletSyncing = { ...state.walletSyncing, [wallet.id]: isSyncing };
+      });
     },
     setWhirlpoolCreated: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolWalletCreated = action.payload;
