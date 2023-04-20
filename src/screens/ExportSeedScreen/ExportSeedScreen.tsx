@@ -98,6 +98,7 @@ function ExportSeedScreen({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
+      {!next && (
       <Pressable
         onPress={() => {
           setShowQRVisible(true);
@@ -115,9 +116,9 @@ function ExportSeedScreen({ route, navigation }) {
                 >
                   Show as QR
                 </Text>
-                <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-                  larum epsum text
-                </Text>
+                {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
+              
+                </Text> */}
               </VStack>
             </HStack>
             <Box style={styles.backArrow}>
@@ -126,16 +127,7 @@ function ExportSeedScreen({ route, navigation }) {
           </HStack>
         </Box>
       </Pressable>
-      <Text
-        color="light.GreyText"
-        style={[
-          globalStyles.font12,
-          { letterSpacing: 0.06, paddingHorizontal: 10, paddingBottom: 10 },
-        ]}
-      >
-        Use these to create any other wallet and that wallet will be linked to Keeper (will show
-        along with other wallets)
-      </Text>
+      )}
       <Box style={styles.nextButtonWrapper}>
         {next && (
           <Box>
@@ -193,9 +185,9 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={showQRVisible}
         close={() => setShowQRVisible(false)}
-        title="Show as QR"
+        title="Recovery Phrase"
         subTitleWidth={wp(260)}
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        subTitle="The QR below comprises of your 12 word Recovery Phrase"
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
         buttonText="Done"
@@ -203,8 +195,8 @@ function ExportSeedScreen({ route, navigation }) {
         Content={() => (
           <ShowXPub
             data={JSON.stringify(words)}
-            subText="Master Recovery Phrase"
-            noteSubText="Lorem ipsum dolor sit amet, "
+            subText="wallet Recovery Phrase"
+            noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
             copyable={false}
           />
         )}
