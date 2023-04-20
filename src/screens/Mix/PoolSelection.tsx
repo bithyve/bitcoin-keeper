@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -113,7 +113,7 @@ export default function PoolSelection({ route, navigation }) {
       // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
       const tx0ToFilter = tx0 || tx0Data;
       const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
-      setFeeDiscountPercent(correspondingTx0Data.feeDiscountPercent)
+      setFeeDiscountPercent(correspondingTx0Data.feeDiscountPercent);
       const tx0Preview: Preview = await WhirlpoolClient.getTx0Preview(
         correspondingTx0Data,
         pool,
@@ -156,7 +156,8 @@ export default function PoolSelection({ route, navigation }) {
           backgroundColor="light.primaryBackground"
           style={[styles.poolSelection, styles.poolErrorContainer]}
         >
-          <Text style={styles.poolErrorText}>Pools data loading......</Text>
+          <ActivityIndicator size="small" />
+          <Text style={styles.poolErrorText}>Fetching pools...</Text>
         </Box>
       ) : availablePools && availablePools.length > 0 && utxoTotal > minMixAmount ? (
         <Box backgroundColor="light.primaryBackground" style={styles.poolSelection}>
@@ -210,16 +211,12 @@ export default function PoolSelection({ route, navigation }) {
         </Box>
       </Box>
 
-      {
-        feeDiscountPercent !== 0 && (
-          <Box style={styles.textArea}>
-            <Text color="#017963">Fee Discount</Text>
-            <Text color="light.secondaryText">
-              {selectedPool ? `${feeDiscountPercent}%` : ''}
-            </Text>
-          </Box>
-        )
-      }
+      {feeDiscountPercent !== 0 && (
+        <Box style={styles.textArea}>
+          <Text color="#017963">Fee Discount</Text>
+          <Text color="light.secondaryText">{selectedPool ? `${feeDiscountPercent}%` : ''}</Text>
+        </Box>
+      )}
 
       <Box style={styles.textArea}>
         <Text color="#017963">Premix Outputs</Text>
@@ -310,6 +307,8 @@ const styles = StyleSheet.create({
   poolErrorContainer: {
     borderColor: '#F58E6F',
     borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   poolErrorText: {
     color: '#F58E6F',

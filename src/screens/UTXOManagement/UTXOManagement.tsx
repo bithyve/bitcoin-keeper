@@ -227,7 +227,7 @@ function UTXOManagement({ route, navigation }) {
         </HStack>
       )}
       <Box style={{ flex: 1, paddingHorizontal: 10 }}>
-        {Object.values(selectedUTXOMap).length ? (
+        {enableSelection ? (
           <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
         ) : null}
         <UTXOList
@@ -238,6 +238,7 @@ function UTXOManagement({ route, navigation }) {
           setSelectedUTXOMap={setSelectedUTXOMap}
           currentWallet={selectedWallet}
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
+          selectedAccount={selectedAccount}
         />
       </Box>
       {utxos.length ? (

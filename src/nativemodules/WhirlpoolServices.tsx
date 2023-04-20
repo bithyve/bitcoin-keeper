@@ -131,12 +131,13 @@ export default class WhirlpoolServices {
         JSON.stringify(addressBank),
         changeAddress
       );
+      console.log(result);
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
         throw new Error(result.error);
       }
-      return result;
+      return result.psbt;
     } catch (error) {
       logMessage(error);
       throw error;
@@ -152,12 +153,13 @@ export default class WhirlpoolServices {
   static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
       let result = await Whirlpool.tx0Push(txHex, poolId);
+      console.log({ result });
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
         throw new Error(result.error);
       }
-      return result;
+      return result.txid;
     } catch (error) {
       logMessage(error);
       throw error;
@@ -207,7 +209,7 @@ export default class WhirlpoolServices {
         console.log({ error: result.error });
         throw new Error(result.error);
       }
-      return result;
+      return result.txid;
     } catch (error) {
       logMessage(error);
       throw error;

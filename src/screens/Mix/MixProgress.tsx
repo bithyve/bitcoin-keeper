@@ -10,7 +10,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
-import { PoolData, Step } from 'src/nativemodules/interface';
+import { Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
@@ -138,7 +138,7 @@ function MixProgress({
     },
   ];
 
-  const { selectedUTXOs, depositWallet, selectedWallet, walletPoolMap, isRemix } = route.params;
+  const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const dispatch = useDispatch();
   const [currentUtxo, setCurrentUtxo] = React.useState('');
   const [mixFailed, setMixFailed] = React.useState('');
@@ -242,7 +242,6 @@ function MixProgress({
       setMixFailed(data);
     });
     channel.on(WHIRLPOOL_FAILURE, ({ data }) => {
-      console.log({ error: data });
       const updatedArray = [...statuses];
       updatedArray[6].error = true;
       setStatus(updatedArray);
@@ -250,26 +249,28 @@ function MixProgress({
     });
     channel.on(WHIRLPOOL_SUCCESS, ({ data }) => {
       const { txid } = data;
-      console.log(txid);
       if (txid) {
         const updatedArray = [...statuses];
         updatedArray[6].completed = true;
         setStatus(updatedArray);
-
         const walletsToRefresh = [source];
         if (!isRemix) walletsToRefresh.push(destination);
-        setTimeout(() => {
+        setTimeout(async () => {
           dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
+          const transaction = await ElectrumClient.getTransactionsById([txid]);
+          const vout = transaction[txid].vout.findIndex(
+            (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
+          );
+          dispatch(
+            createUTXOReference({
+              labels: [
+                { name: depositWallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
+              ],
+              txId: txid,
+              vout,
+            })
+          );
         }, 3000);
-        dispatch(
-          createUTXOReference({
-            labels: [
-              { name: depositWallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-            ],
-            txId: txid,
-            vout: 1,
-          })
-        );
         navigation.navigate('UTXOManagement', {
           data: depositWallet,
           accountType: WalletType.POST_MIX,
@@ -292,6 +293,20 @@ function MixProgress({
         await WhirlpoolClient.startMix(utxo, source, destination, pool, height, publicId);
       }
     } catch (err) {
+      const updatedArray = [...statuses];
+      updatedArray[6].error = true;
+      setStatus(updatedArray);
+      const toastDuration = 3000;
+      showToast(
+        err.error
+          ? err.error
+          : 'Mix failed. Please try again later, our best minds are working on it.',
+        <ToastErrorIcon />,
+        toastDuration
+      );
+      setTimeout(() => {
+        navigation.goBack();
+      }, toastDuration);
       captureError(err);
     }
   };
