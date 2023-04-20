@@ -10,28 +10,18 @@ import {
 // libraries
 import { Box, Input, Select, View } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
-
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Note from 'src/components/Note/Note';
-import { RNCamera } from 'react-native-camera';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import BitcoinInput from 'src/assets/images/btc_input.svg';
 // components
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
-import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -39,24 +29,19 @@ import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enum
 import config from 'src/core/config';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { parseInt } from 'lodash';
-import { addNewWallets } from 'src/store/sagaActions/wallets';
+import { updateWalletPathAndPurposeDetails } from 'src/store/sagaActions/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { v4 as uuidv4 } from 'uuid';
 
-function AddDetailsFinalScreen({ route }) {
-  const navigation = useNavigation();
-  const { showToast } = useToastMessage();
+function UpdateWalletDetails({ route }) {
+  const navigtaion = useNavigation();
   const dispatch = useDispatch();
+  const { wallet } = route.params;
+
   const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { home } = translations;
-  const [amount, setAmount] = useState('');
-  const [error, setError] = useState(false); // this state will handle error
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
@@ -64,84 +49,45 @@ function AddDetailsFinalScreen({ route }) {
     { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
   ]);
-  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
-  const [purposeLbl, setPurposeLbl] = useState('P2PKH: legacy, single-sig');
-  const [path, setPath] = useState(
-    route.params?.path
-      ? route.params?.path
-      : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
-  );
-  const [walletType, setWalletType] = useState(route.params?.type);
-  const [importedSeed, setImportedSeed] = useState(route.params?.seed);
-  const [walletName, setWalletName] = useState(route.params?.name);
-  const [walletDescription, setWalletDescription] = useState(route.params?.description);
-  const [transferPolicy, setTransferPolicy] = useState(route.params?.policy);
-  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
-    (state) => state.bhr
-  );
-  const [walletLoading, setWalletLoading] = useState(false);
-  const { appId } = useAppSelector((state) => state.storage);
-
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-
-  useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      Number(purpose)
-    );
-    setPath(path);
-  }, [purpose]);
-
-  const createNewWallet = useCallback(() => {
-    setWalletLoading(true);
-
-    const derivationConfig: DerivationConfig = {
-      path,
-      purpose: Number(purpose),
-    };
-
-    const newWallet: NewWalletInfo = {
-      walletType,
-      walletDetails: {
-        name: walletName,
-        description: walletDescription,
-        derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: parseInt(transferPolicy),
-        },
-      },
-      importDetails: {
-        derivationConfig,
-        // eslint-disable-next-line react/prop-types
-        mnemonic: importedSeed,
-      },
-    };
-    dispatch(addNewWallets([newWallet]));
-  }, [walletName, walletDescription, transferPolicy, path]);
-
-  useEffect(() => {
-    if (relayWalletUpdate) {
-      dispatch(resetRealyWalletState());
-      setWalletLoading(false);
-      if (walletType === WalletType.DEFAULT) {
-        showToast('New wallet created!', <TickIcon />);
-        navigation.goBack();
-      } else {
-        showToast('Wallet imported', <TickIcon />);
-        navigation.replace('WalletDetails')
-        Linking.openURL(`${appId}://backup/true`);
-      }
+  const getPupose = (key) => {
+    switch(key) {
+      case 'P2PKH':
+        return 'P2PKH: legacy, single-sig'
+        case 'P2SH-P2WPKH': 
+        return 'P2SH-P2WPKH: wrapped segwit, single-sg'
+      case 'P2WPKH':
+        return 'P2WPKH: native segwit, single-sig'
+        default:
+        return ''
     }
+  }
+  const [purpose, setPurpose] = useState(wallet?.scriptType);
+  const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
+  const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
+  const { showToast } = useToastMessage();
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
+
+
+  useEffect(() => {
     if (relayWalletError) {
-      showToast('Wallet creation failed!', <ToastErrorIcon />);
-      setWalletLoading(false);
+      showToast(realyWalletErrorMessage, <ToastErrorIcon />);
       dispatch(resetRealyWalletState());
     }
-  }, [relayWalletUpdate, relayWalletError]);
+    if (relayWalletUpdate) {
+      showToast('Wallet details updated', <TickIcon />);
+      dispatch(resetRealyWalletState());
+      navigtaion.goBack();
+    }
+  }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
+
+  const updateWallet = () => {
+    const details = {
+      path,
+      purpose,
+    };
+    dispatch(updateWalletPathAndPurposeDetails(wallet, details));
+  };
 
   const onDropDownClick = () => {
     if (showPurpose) {
@@ -162,8 +108,8 @@ function AddDetailsFinalScreen({ route }) {
         style={styles.scrollViewWrapper}
       >
         <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Add details"
+          title="Wallet Details"
+          subtitle="Update Path & Purpose"
           headerTitleColor={Colors.TropicalRainForest}
           paddingTop={hp(5)}
         />
@@ -225,6 +171,13 @@ function AddDetailsFinalScreen({ route }) {
                     setArrow(false);
                     setPurpose(item.value);
                     setPurposeLbl(item.label);
+                    const path = WalletUtilities.getDerivationPath(
+                      EntityKind.WALLET,
+                      config.NETWORK_TYPE,
+                      0,
+                      Number(purpose)
+                    );
+                    setPath(path);
                   }}
                   style={styles.flagWrapper1}
                 >
@@ -235,22 +188,16 @@ function AddDetailsFinalScreen({ route }) {
           )}
         </ScrollView>
         <View style={styles.dotContainer}>
-          <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
-            {[1, 2, 3].map((item, index) => (
-              <View key={index} style={index == 2 ? styles.selectedDot : styles.unSelectedDot} />
-            ))}
-          </View>
           <Box style={styles.ctaBtnWrapper}>
             <Box ml={windowWidth * -0.09}>
               <Buttons
                 secondaryText="Cancel"
                 secondaryCallback={() => {
-                  navigation.goBack();
+                  navigtaion.goBack();
                 }}
-                primaryText="Import"
-                primaryDisable={!walletName || !walletDescription}
-                primaryCallback={createNewWallet}
-                primaryLoading={walletLoading || relayWalletUpdateLoading}
+                primaryText="save"
+                primaryCallback={updateWallet}
+                primaryLoading={relayWalletUpdateLoading}
               />
             </Box>
           </Box>
@@ -343,9 +290,9 @@ const styles = ScaledSheet.create({
     marginTop: windowHeight > 680 ? hp(20) : hp(10),
   },
   dotContainer: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    // alignItems: 'center',
     marginTop: hp(20),
   },
   selectedDot: {
@@ -427,4 +374,5 @@ const styles = ScaledSheet.create({
     alignSelf: 'center',
   },
 });
-export default AddDetailsFinalScreen;
+
+export default UpdateWalletDetails;

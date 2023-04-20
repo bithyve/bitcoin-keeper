@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, HStack, Pressable, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -13,7 +13,13 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { seedBackedUp } from 'src/store/sagaActions/bhr';
 import { useNavigation } from '@react-navigation/native';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
+import QR from 'src/assets/images/qr.svg';
+import { globalStyles } from 'src/common/globalStyles';
+import KeeperModal from 'src/components/KeeperModal';
+import ShowXPub from 'src/components/XPub/ShowXPub';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function ExportSeedScreen({ route, navigation }) {
   const navigtaion = useNavigation();
@@ -26,6 +32,7 @@ function ExportSeedScreen({ route, navigation }) {
   const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
+  const [showQRVisible, setShowQRVisible] = useState(false);
   const [showWordIndex, setShowWordIndex] = useState<string | number>('');
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const seedText = translations.seed;
@@ -82,7 +89,7 @@ function ExportSeedScreen({ route, navigation }) {
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
+      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.88}>
         <FlatList
           data={words}
           numColumns={2}
@@ -91,6 +98,36 @@ function ExportSeedScreen({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
+      {!next && (
+      <Pressable
+        onPress={() => {
+          setShowQRVisible(true);
+        }}
+      >
+        <Box style={styles.qrItemContainer}>
+          <HStack style={styles.qrItem}>
+            <HStack alignItems="center">
+              <QR />
+              <VStack marginX="4" maxWidth="64">
+                <Text
+                  color="light.primaryText"
+                  numberOfLines={2}
+                  style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
+                >
+                  Show as QR
+                </Text>
+                {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
+              
+                </Text> */}
+              </VStack>
+            </HStack>
+            <Box style={styles.backArrow}>
+              <IconArrowBlack />
+            </Box>
+          </HStack>
+        </Box>
+      </Pressable>
+      )}
       <Box style={styles.nextButtonWrapper}>
         {next && (
           <Box>
@@ -145,6 +182,25 @@ function ExportSeedScreen({ route, navigation }) {
           />
         </ModalWrapper>
       </Box>
+      <KeeperModal
+        visible={showQRVisible}
+        close={() => setShowQRVisible(false)}
+        title="Recovery Phrase"
+        subTitleWidth={wp(260)}
+        subTitle="The QR below comprises of your 12 word Recovery Phrase"
+        subTitleColor="light.secondaryText"
+        textColor="light.primaryText"
+        buttonText="Done"
+        buttonCallback={() => setShowQRVisible(false)}
+        Content={() => (
+          <ShowXPub
+            data={JSON.stringify(words)}
+            subText="wallet Recovery Phrase"
+            noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
+            copyable={false}
+          />
+        )}
+      />
     </Box>
   );
 }
@@ -186,6 +242,21 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     letterSpacing: 0.6,
     marginRight: 10,
+  },
+  qrItemContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    marginBottom: hp(25),
+  },
+  qrItem: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  backArrow: {
+    width: '15%',
+    alignItems: 'center',
   },
 });
 export default ExportSeedScreen;

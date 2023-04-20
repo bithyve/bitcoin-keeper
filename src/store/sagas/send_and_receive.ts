@@ -71,7 +71,8 @@ export const fetchExchangeRatesWatcher = createWatcher(
 );
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
-  const { wallet, recipients } = payload;
+  const { wallet, recipients, note } = payload;
+  console.log('sendPhaseOneWorker note', note)
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -122,6 +123,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     (state) => state.sendAndReceive.sendPhaseOne
   );
   const { wallet, txnPriority, note } = payload;
+  console.log('sendPhaseTwoWorker note', note)
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);

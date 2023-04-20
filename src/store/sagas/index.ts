@@ -14,6 +14,7 @@ import {
   updateWalletSettingsWatcher,
   updateSignerDetails,
   updateWalletsPropertyWatcher,
+  updateWalletPathAndPuposeDetailWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -112,7 +113,7 @@ const rootSaga = function* () {
     healthCheckSignerWatcher,
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
-
+    updateWalletPathAndPuposeDetailWatcher,
     // upgrade
     updateVersionHistoryWatcher,
   ];
