@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, FlatList } from 'react-native';
 
@@ -146,10 +146,41 @@ function MixProgress({
   const { showToast } = useToastMessage();
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const [poolsData, setPoolsData] = useState([]);
   const source = isRemix
     ? depositWallet?.whirlpoolConfig?.postmixWallet
     : depositWallet?.whirlpoolConfig?.premixWallet;
   const destination = depositWallet?.whirlpoolConfig?.postmixWallet;
+
+  const getPoolsData = async () => {
+    const poolsDataResponse = await WhirlpoolClient.getPools();
+    if (poolsDataResponse) {
+      setPoolsData(poolsDataResponse);
+    }
+  };
+
+  useEffect(() => {
+    getPoolsData();
+  }, []);
+
+  useEffect(() => {
+    if (poolsData.length) initiateWhirlpoolMix();
+  }, [poolsData]);
+
+  const getPoolforValue = (utxoValue) => {
+    let selectedPool;
+    let minDiff = Infinity;
+    for (const pool of poolsData) {
+      if (utxoValue >= pool.denomination) {
+        const poolDiff = utxoValue - pool.denomination;
+        if (poolDiff < minDiff) {
+          selectedPool = pool;
+          minDiff = poolDiff;
+        }
+      }
+    }
+    return selectedPool;
+  };
 
   const updateStep = (step: Step) => {
     const updatedArray = [...statuses];
@@ -182,8 +213,6 @@ function MixProgress({
         break;
     }
   };
-
-  const pool: PoolData = walletPoolMap[depositWallet.id]; // missing?
 
   useEffect(() => {
     if (mixFailed) {
@@ -238,7 +267,7 @@ function MixProgress({
               { name: depositWallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
             ],
             txId: txid,
-            vout: pool.denomination,
+            vout: 1,
           })
         );
         navigation.navigate('UTXOManagement', {
@@ -248,7 +277,6 @@ function MixProgress({
         });
       }
     });
-    initiateWhirlpoolMix();
     return () => {
       channel.disconnect();
     };
@@ -260,6 +288,7 @@ function MixProgress({
       const { height } = await ElectrumClient.getBlockchainHeaders();
       for (const utxo of selectedUTXOs) {
         setCurrentUtxo(`${utxo.txId}:${utxo.vout}`);
+        const pool = getPoolforValue(utxo.value);
         await WhirlpoolClient.startMix(utxo, source, destination, pool, height, publicId);
       }
     } catch (err) {
