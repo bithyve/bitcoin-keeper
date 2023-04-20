@@ -78,6 +78,7 @@ import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
+import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -162,6 +163,7 @@ function AppStack() {
         <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
+        <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
