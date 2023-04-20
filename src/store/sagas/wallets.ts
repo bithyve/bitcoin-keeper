@@ -163,7 +163,6 @@ export function* addWhirlpoolWalletsLocalWorker({
     const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
     wallets.push(wallet);
   }
-  yield put(setWhirlpoolWallets(wallets));
 }
 
 export const addWhirlpoolWalletsLocalWatcher = createWatcher(
@@ -605,7 +604,6 @@ function* refreshWalletsWorker({
     options: { hardRefresh?: boolean };
   };
 }) {
-  yield put(setSyncing(true));
   const { wallets } = payload;
   const { options } = payload;
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
@@ -614,6 +612,8 @@ function* refreshWalletsWorker({
       options,
     },
   });
+
+  yield put(setSyncing({ wallets, isSyncing: true }));
 
   for (const synchedWallet of synchedWallets) {
     if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
@@ -645,7 +645,7 @@ function* refreshWalletsWorker({
 
   yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
   yield put(setNetBalance(netBalance));
-  yield put(setSyncing(false));
+  yield put(setSyncing({ wallets, isSyncing: false }));
 }
 
 export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH_WALLETS);
