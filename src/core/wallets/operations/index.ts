@@ -1,3 +1,4 @@
+/* eslint-disable no-lonely-if */
 /* eslint-disable no-continue */
 /* eslint-disable camelcase */
 /* eslint-disable guard-for-in */
@@ -276,25 +277,33 @@ export default class WalletOperations {
       if (wallet.entityKind === EntityKind.WALLET)
         purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
 
+      const addressCache = wallet.specs.addresses || { external: {}, internal: {} };
+
       // collect external(receive) chain addresses
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
         let address: string;
-        if ((wallet as Vault).isMultiSig) {
-          const { xpubs } = (wallet as Vault).specs;
-          address = WalletUtilities.createMultiSig(
-            xpubs,
-            (wallet as Vault).scheme.m,
-            network,
-            itr,
-            false
-          ).address;
-        } else {
-          let xpub = null;
-          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-          else xpub = (wallet as Wallet).specs.xpub;
 
-          address = WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose);
+        if (addressCache.external[itr]) address = addressCache.external[itr]; // cache hit
+        else {
+          // cache miss
+          if ((wallet as Vault).isMultiSig) {
+            const { xpubs } = (wallet as Vault).specs;
+            address = WalletUtilities.createMultiSig(
+              xpubs,
+              (wallet as Vault).scheme.m,
+              network,
+              itr,
+              false
+            ).address;
+          } else {
+            let xpub = null;
+            if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+            else xpub = (wallet as Wallet).specs.xpub;
+
+            address = WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose);
+          }
+          addressCache.external[itr] = address;
         }
 
         externalAddresses[address] = itr;
@@ -305,21 +314,27 @@ export default class WalletOperations {
       const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
         let address: string;
-        if ((wallet as Vault).isMultiSig) {
-          const { xpubs } = (wallet as Vault).specs;
-          address = WalletUtilities.createMultiSig(
-            xpubs,
-            (wallet as Vault).scheme.m,
-            network,
-            itr,
-            true
-          ).address;
-        } else {
-          let xpub = null;
-          if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
-          else xpub = (wallet as Wallet).specs.xpub;
 
-          address = WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose);
+        if (addressCache.internal[itr]) address = addressCache.internal[itr]; // cache hit
+        else {
+          // cache miss
+          if ((wallet as Vault).isMultiSig) {
+            const { xpubs } = (wallet as Vault).specs;
+            address = WalletUtilities.createMultiSig(
+              xpubs,
+              (wallet as Vault).scheme.m,
+              network,
+              itr,
+              true
+            ).address;
+          } else {
+            let xpub = null;
+            if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
+            else xpub = (wallet as Wallet).specs.xpub;
+
+            address = WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose);
+          }
+          addressCache.internal[itr] = address;
         }
 
         internalAddresses[address] = itr;
@@ -362,6 +377,7 @@ export default class WalletOperations {
       // update wallet w/ latest utxos, balances and transactions
       wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
       wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
+      wallet.specs.addresses = addressCache;
       wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
         entity: wallet.entityKind,
         isMultiSig: (wallet as Vault).isMultiSig,
