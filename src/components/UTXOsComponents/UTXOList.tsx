@@ -10,11 +10,12 @@ import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/core/wallets/interfaces';
 import Selected from 'src/assets/images/selected.svg';
 import useLabels from 'src/hooks/useLabels';
-import { LabelType } from 'src/core/wallets/enums';
+import { LabelType, WalletType } from 'src/core/wallets/enums';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
   const { labels } = props;
@@ -51,7 +52,9 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
       </Box>
       {extraLabelCount > 0 && (
         <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-          <Text style={{ color: Colors.White }} testID="text_extraLabelCount">+{extraLabelCount}</Text>
+          <Text style={{ color: Colors.White }} testID="text_extraLabelCount">
+            +{extraLabelCount}
+          </Text>
         </Box>
       )}
     </Box>
@@ -68,11 +71,12 @@ function UTXOElement({
   colorMode,
   labels,
   currentWallet,
+  selectedAccount,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection && item.confirmed;
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
-
+  const { showToast } = useToastMessage();
   return (
     <TouchableOpacity
       style={styles.utxoCardContainer}
@@ -82,6 +86,13 @@ function UTXOElement({
           if (selectedUTXOMap[utxoId]) {
             delete mapToUpdate[utxoId];
           } else {
+            if (
+              (selectedAccount === WalletType.PRE_MIX || selectedAccount === WalletType.POST_MIX) &&
+              Object.keys(selectedUTXOMap).length >= 1
+            ) {
+              showToast('Only a single UTXO mix allowed at a time', null, 3000);
+              return;
+            }
             mapToUpdate[utxoId] = true;
           }
           setSelectedUTXOMap(mapToUpdate);
@@ -155,6 +166,7 @@ function UTXOList({
   setSelectedUTXOMap,
   currentWallet,
   emptyIcon,
+  selectedAccount,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -181,6 +193,7 @@ function UTXOList({
           navigation={navigation}
           colorMode={colorMode}
           currentWallet={currentWallet}
+          selectedAccount={selectedAccount}
         />
       )}
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}`}

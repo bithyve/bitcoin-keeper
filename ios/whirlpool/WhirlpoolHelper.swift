@@ -33,8 +33,8 @@ import Foundation
     callback(str)
   }
   
-  @objc func getTx0Data(callback: @escaping ((String)-> Void)){
-    let result = gettx0data()
+  @objc func getTx0Data(scode: String, callback: @escaping ((String)-> Void)){
+    let result = gettx0data(scode)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)

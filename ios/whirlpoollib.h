@@ -11,7 +11,7 @@ char *initiate(void);
 
 char *pools(void);
 
-char *gettx0data(void);
+char *gettx0data(const char *scode);
 
 char *tx0_preview(const char *inputs_value,
                   const char *pool_str,

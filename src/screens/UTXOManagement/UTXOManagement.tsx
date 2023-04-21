@@ -131,7 +131,8 @@ function UTXOManagement({ route, navigation }) {
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
-  const { walletPoolMap, syncing } = useAppSelector((state) => state.wallet);
+  const { walletPoolMap, walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing = walletSyncing[wallet.id];
   const [learnModalVisible, setLearnModalVisible] = useState(false);
   const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
   const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
@@ -227,7 +228,7 @@ function UTXOManagement({ route, navigation }) {
         </HStack>
       )}
       <Box style={{ flex: 1, paddingHorizontal: 10 }}>
-        {Object.values(selectedUTXOMap).length ? (
+        {enableSelection ? (
           <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
         ) : null}
         <UTXOList
@@ -238,6 +239,7 @@ function UTXOManagement({ route, navigation }) {
           setSelectedUTXOMap={setSelectedUTXOMap}
           currentWallet={selectedWallet}
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
+          selectedAccount={selectedAccount}
         />
       </Box>
       {utxos.length ? (

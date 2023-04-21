@@ -356,7 +356,7 @@ export default class Relay {
     if (network === NetworkType.MAINNET) {
       throw new Error('Invalid network: failed to fund via testnet');
     }
-    const amount = 5000 / SATOSHIS_IN_BTC;
+    const amount = 130000 / SATOSHIS_IN_BTC;
     try {
       const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
         recipientAddress,

@@ -84,14 +84,6 @@ function WalletDetails({ route }) {
     setPullRefresh(false);
   };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-  const createWhirlpoolWallets = (wallet: Wallet) => {
-    const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
-    if (isWhirlpoolWallet) {
-      if (!wallet?.whirlpoolConfig?.premixWallet) {
-        dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
-      }
-    }
-  };
 
   return (
     <ScreenWrapper>
@@ -112,7 +104,6 @@ function WalletDetails({ route }) {
               currentWallet?.whirlpoolConfig?.whirlpoolWalletDetails?.length
             )}
             onClick={() => {
-              createWhirlpoolWallets(currentWallet);
               navigation.navigate('UTXOManagement', {
                 data: currentWallet,
                 routeName: 'Wallet',

@@ -38,8 +38,8 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void getTx0Data(Promise promise) {
-        promise.resolve(WhirlpoolBridge.gettx0data());
+    public void getTx0Data(String scode,Promise promise) {
+        promise.resolve(WhirlpoolBridge.gettx0data(scode));
     }
 
     @ReactMethod
