@@ -73,6 +73,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         navigation.navigate('ExportSeed', {
           seed: wallet?.derivationDetails?.mnemonic,
           next: false,
+          wallet
         });
         closeBottomSheet();
       }

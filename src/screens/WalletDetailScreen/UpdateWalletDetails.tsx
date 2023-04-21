@@ -33,11 +33,12 @@ import { updateWalletPathAndPurposeDetails } from 'src/store/sagaActions/wallets
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ShowXPub from 'src/components/XPub/ShowXPub';
 
 function UpdateWalletDetails({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
-  const { wallet } = route.params;
+  const { wallet, isFromSeed, words } = route.params;
 
   const { useQuery } = useContext(RealmWrapperContext);
 
@@ -50,24 +51,23 @@ function UpdateWalletDetails({ route }) {
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
   ]);
   const getPupose = (key) => {
-    switch(key) {
+    switch (key) {
       case 'P2PKH':
-        return 'P2PKH: legacy, single-sig'
-        case 'P2SH-P2WPKH': 
-        return 'P2SH-P2WPKH: wrapped segwit, single-sg'
+        return 'P2PKH: legacy, single-sig';
+      case 'P2SH-P2WPKH':
+        return 'P2SH-P2WPKH: wrapped segwit, single-sg';
       case 'P2WPKH':
-        return 'P2WPKH: native segwit, single-sig'
-        default:
-        return ''
+        return 'P2WPKH: native segwit, single-sig';
+      default:
+        return '';
     }
-  }
+  };
   const [purpose, setPurpose] = useState(wallet?.scriptType);
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
-
 
   useEffect(() => {
     if (relayWalletError) {
@@ -108,8 +108,12 @@ function UpdateWalletDetails({ route }) {
         style={styles.scrollViewWrapper}
       >
         <HeaderTitle
-          title="Wallet Details"
-          subtitle="Update Path & Purpose"
+          title={isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
+          subtitle={
+            isFromSeed
+              ? 'The QR below comprises of your 12 word Recovery Phrase'
+              : 'Update Path & Purpose'
+          }
           headerTitleColor={Colors.TropicalRainForest}
           paddingTop={hp(5)}
         />
@@ -127,6 +131,10 @@ function UpdateWalletDetails({ route }) {
                 // marginY={2}
                 // borderWidth="0"
                 maxLength={20}
+                onFocus={() => {
+                  setShowPurpose(false);
+                  setArrow(false);
+                }}
               />
             </Box>
             <TouchableOpacity onPress={onDropDownClick} style={styles.dropDownContainer}>
@@ -142,50 +150,41 @@ function UpdateWalletDetails({ route }) {
                 <RightArrowIcon />
               </Box>
             </TouchableOpacity>
-            {/* <Select
-              style={styles.dropDownContainer}
-              selectedValue={purpose}
-              minWidth="200"
-              accessibilityLabel="Choose Service"
-              placeholder="Choose Purpose"
-              mt={1}
-              onValueChange={(itemValue) => setPurpose(itemValue)}
-            >
-              <Select.Item label="P2PKH: legacy, single-sig" value={`${DerivationPurpose.BIP44}`} />
-              <Select.Item
-                label="P2SH-P2WPKH: wrapped segwit, single-sg"
-                value={`${DerivationPurpose.BIP49}`}
-              />
-              <Select.Item
-                label="P2WPKH: native segwit, single-sig"
-                value={`${DerivationPurpose.BIP84}`}
-              />
-            </Select> */}
+            {showPurpose && (
+              <ScrollView style={styles.langScrollViewWrapper}>
+                {purposeList.map((item) => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowPurpose(false);
+                      setArrow(false);
+                      setPurpose(item.value);
+                      setPurposeLbl(item.label);
+                      const path = WalletUtilities.getDerivationPath(
+                        EntityKind.WALLET,
+                        config.NETWORK_TYPE,
+                        0,
+                        Number(purpose)
+                      );
+                      setPath(path);
+                    }}
+                    style={styles.flagWrapper1}
+                  >
+                    <Text style={styles.purposeText}>{item.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+            {isFromSeed ? (
+              <Box style={{ marginTop: wp(20) }}>
+                <ShowXPub
+                  data={JSON.stringify(words)}
+                  subText="Wallet Recovery Phrase"
+                  noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
+                  copyable={false}
+                />
+              </Box>
+            ) : null}
           </Box>
-          {showPurpose && (
-            <ScrollView style={styles.langScrollViewWrapper}>
-              {purposeList.map((item) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    setShowPurpose(false);
-                    setArrow(false);
-                    setPurpose(item.value);
-                    setPurposeLbl(item.label);
-                    const path = WalletUtilities.getDerivationPath(
-                      EntityKind.WALLET,
-                      config.NETWORK_TYPE,
-                      0,
-                      Number(purpose)
-                    );
-                    setPath(path);
-                  }}
-                  style={styles.flagWrapper1}
-                >
-                  <Text style={styles.purposeText}>{item.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          )}
         </ScrollView>
         <View style={styles.dotContainer}>
           <Box style={styles.ctaBtnWrapper}>
@@ -354,6 +353,8 @@ const styles = ScaledSheet.create({
     width: '90%',
     zIndex: 10,
     backgroundColor: '#FAF4ED',
+    position: 'absolute',
+    top: hp(130),
   },
   flagWrapper1: {
     flexDirection: 'row',
