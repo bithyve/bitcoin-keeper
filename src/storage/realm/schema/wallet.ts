@@ -52,6 +52,15 @@ export const UTXOSchema: ObjectSchema = {
   },
 };
 
+export const AddressCacheSchema: ObjectSchema = {
+  name: RealmSchema.AddressCache,
+  embedded: true,
+  properties: {
+    external: '{}',
+    internal: '{}',
+  },
+};
+
 export const TransactionSchema: ObjectSchema = {
   name: RealmSchema.Transaction,
   embedded: true,
@@ -119,6 +128,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
     receivingAddress: 'string?',
+    addresses: `${RealmSchema.AddressCache}?`,
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,
