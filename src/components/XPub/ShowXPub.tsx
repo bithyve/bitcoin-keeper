@@ -42,7 +42,11 @@ function ShowXPub({
   }, [])
   return (
     <>
-      <Box justifyContent="center" alignItems="center" width={wp(275)}>
+      <Box
+        justifyContent="center"
+        alignItems="center"
+        // width={wp(275)}
+      >
         <Box>
           <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
           <Box
