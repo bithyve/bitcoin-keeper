@@ -27,10 +27,9 @@ function WhirlpoolLoader() {
     outputRange: ['360deg', '0deg'],
   });
   const styles = getStyles(clock, antiClock);
-
   return (
-    <Box style={{ alignItems: 'center', position: 'relative' }}>
-      <Box style={{ width: windowWidth > 375 ? windowWidth * 0.5 : windowWidth * 0.56 }}>
+    <Box style={{ position: 'relative' }}>
+      <Box style={{ width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65, alignItems: 'flex-start' }}>
         <Background />
         <Animated.View style={styles.gear2}>
           <Gear2 />
@@ -56,24 +55,24 @@ const getStyles = (clock, antiClock) =>
     gear3: {
       position: 'absolute',
       bottom: '24%',
-      left: '88%',
+      left: '81%',
       transform: [{ rotate: antiClock }],
     },
     gear2: {
       position: 'absolute',
       top: '14%',
-      left: '11%',
+      left: '4%',
       transform: [{ rotate: antiClock }],
     },
     gear1: {
       position: 'absolute',
-      right: '18%',
+      right: '30%',
       top: '10%',
     },
     gear0: {
       position: 'absolute',
       top: '31%',
-      left: '49%',
+      left: '43%',
       transform: [{ rotate: clock }],
     },
   });
