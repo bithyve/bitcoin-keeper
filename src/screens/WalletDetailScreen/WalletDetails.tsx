@@ -49,6 +49,7 @@ import { WalletType } from 'src/core/wallets/enums';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
+import useFeatureMap from 'src/hooks/useFeatureMap';
 
 function WalletDetails({ route }) {
   const navigation = useNavigation();
@@ -75,6 +76,8 @@ function WalletDetails({ route }) {
   const currentWallet = wallets[walletIndex];
   const transections = wallets[walletIndex]?.specs?.transactions || [];
   const { autoRefresh } = route?.params || {};
+
+  const featureMap = useFeatureMap({ walletIndex });
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
@@ -303,19 +306,20 @@ function WalletDetails({ route }) {
 
     return (
       <Box style={styles.buyBtcWrapper}>
-        <Text color='#073B36' style={styles.buyBtcContent}>
-          By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin
+        <Text color="#073B36" style={styles.buyBtcContent}>
+          By proceeding, you understand that Ramp will process the payment and transfer for the
+          purchased bitcoin
         </Text>
         <Box style={styles.toWalletWrapper}>
-          <GradientIcon
-            Icon={WalletInsideGreen}
-            height={35}
-            gradient={['#FFFFFF', '#80A8A1']}
-          />
+          <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
           <Box style={styles.buyBtcCard}>
             <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
-            <Text style={styles.presentationName}>{wallets[walletIndex].presentationData.name}</Text>
-            <Text style={styles.confirmBalanceText}>{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
+            <Text style={styles.presentationName}>
+              {wallets[walletIndex].presentationData.name}
+            </Text>
+            <Text
+              style={styles.confirmBalanceText}
+            >{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
           </Box>
         </Box>
 
@@ -325,7 +329,16 @@ function WalletDetails({ route }) {
           </Box>
           <Box style={styles.buyBtcCard}>
             <Text style={styles.buyBtcTitle}>Address for ramp transactions</Text>
-            <Text style={styles.addressTextView} ellipsizeMode="middle" numberOfLines={1} fontSize={19} letterSpacing={1.28} color='#041513'>{wallets[walletIndex].specs.receivingAddress}</Text>
+            <Text
+              style={styles.addressTextView}
+              ellipsizeMode="middle"
+              numberOfLines={1}
+              fontSize={19}
+              letterSpacing={1.28}
+              color="#041513"
+            >
+              {wallets[walletIndex].specs.receivingAddress}
+            </Text>
           </Box>
         </Box>
         <Buttons
@@ -484,7 +497,9 @@ function WalletDetails({ route }) {
               <TouchableOpacity
                 style={styles.IconText}
                 onPress={() => {
-                  navigation.navigate('Receive', { wallet: currentWallet });
+                  featureMap.walletRecieve
+                    ? navigation.navigate('Receive', { wallet: currentWallet })
+                    : showToast('Wallet Recieve not allwed for more than three wallets');
                 }}
               >
                 <Recieve />
@@ -492,7 +507,14 @@ function WalletDetails({ route }) {
                   Receive
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.IconText} onPress={onPressBuyBitcoin}>
+              <TouchableOpacity
+                style={styles.IconText}
+                onPress={() => {
+                  featureMap.walletBuy
+                    ? onPressBuyBitcoin
+                    : showToast('Please upgrade the plan to use this functionality');
+                }}
+              >
                 <BuyBitcoin />
                 <Text color="light.primaryText" style={styles.footerItemText}>
                   Buy Bitcoin
@@ -736,7 +758,7 @@ const styles = StyleSheet.create({
   },
   // buy bitcoin
   buyBtcWrapper: {
-    padding: 1
+    padding: 1,
   },
   buyBtcContent: {
     fontSize: 13,
@@ -745,52 +767,52 @@ const styles = StyleSheet.create({
   },
   toWalletWrapper: {
     marginVertical: 4,
-    alignItems: "center",
+    alignItems: 'center',
     borderRadius: 10,
     padding: 10,
-    backgroundColor: "#FDF7F0",
-    flexDirection: "row"
+    backgroundColor: '#FDF7F0',
+    flexDirection: 'row',
   },
   buyBtcCard: {
-    marginHorizontal: 20
+    marginHorizontal: 20,
   },
   buyBtcTitle: {
     fontSize: 12,
-    color: '#5F6965'
+    color: '#5F6965',
   },
   presentationName: {
     fontSize: 19,
     letterSpacing: 1.28,
-    color: '#041513'
+    color: '#041513',
   },
   confirmBalanceText: {
     fontStyle: 'italic',
     fontSize: 12,
-    color: '#00836A'
+    color: '#00836A',
   },
   atViewWrapper: {
     marginVertical: 4,
-    alignItems: "center",
+    alignItems: 'center',
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 6,
-    backgroundColor: "#FDF7F0",
-    flexDirection: "row"
+    backgroundColor: '#FDF7F0',
+    flexDirection: 'row',
   },
   atViewWrapper02: {
-    backgroundColor: "#FAC48B",
+    backgroundColor: '#FAC48B',
     borderRadius: 30,
     height: 30,
     width: 30,
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   atText: {
     fontSize: 21,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   addressTextView: {
-    width: wp(180)
+    width: wp(180),
   },
   addWalletContent: {
     // paddingRight: wp(10),
