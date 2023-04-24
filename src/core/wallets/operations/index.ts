@@ -22,6 +22,7 @@ import config from 'src/core/config';
 import { parseInt } from 'lodash';
 import ElectrumClient from 'src/core/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
+import idx from 'idx';
 import {
   AverageTxFees,
   AverageTxFeesByNetwork,
@@ -69,6 +70,9 @@ export default class WalletOperations {
   }): { receivingAddress: string } => {
     let receivingAddress;
     const network = WalletUtilities.getNetworkByType(networkType);
+
+    const cached = idx(specs, (_) => _.addresses.external[specs.nextFreeAddressIndex]); // address cache hit
+    if (cached) return { receivingAddress: cached };
 
     if (isMultiSig) {
       // case: multi-sig vault
