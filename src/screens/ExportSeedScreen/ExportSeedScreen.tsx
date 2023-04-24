@@ -27,7 +27,7 @@ function ExportSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { login } = translations;
-  const { seed } = route.params;
+  const { seed, wallet } = route.params;
   const [words] = useState(seed.split(' '));
   const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
@@ -38,7 +38,7 @@ function ExportSeedScreen({ route, navigation }) {
   const seedText = translations.seed;
 
   useEffect(() => {
-    if (backupMethod !== null) {
+    if (backupMethod !== null && next) {
       setBackupSuccessModal(true);
       setTimeout(() => {
         navigation.replace('WalletBackHistory');
@@ -99,34 +99,35 @@ function ExportSeedScreen({ route, navigation }) {
         />
       </Box>
       {!next && (
-      <Pressable
-        onPress={() => {
-          setShowQRVisible(true);
-        }}
-      >
-        <Box style={styles.qrItemContainer}>
-          <HStack style={styles.qrItem}>
-            <HStack alignItems="center">
-              <QR />
-              <VStack marginX="4" maxWidth="64">
-                <Text
-                  color="light.primaryText"
-                  numberOfLines={2}
-                  style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
-                >
-                  Show as QR
-                </Text>
-                {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
+        <Pressable
+          onPress={() => {
+            // setShowQRVisible(true);
+            navigation.navigate('UpdateWalletDetails', { wallet, isFromSeed: true, words });
+          }}
+        >
+          <Box style={styles.qrItemContainer}>
+            <HStack style={styles.qrItem}>
+              <HStack alignItems="center">
+                <QR />
+                <VStack marginX="4" maxWidth="64">
+                  <Text
+                    color="light.primaryText"
+                    numberOfLines={2}
+                    style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
+                  >
+                    Show as QR
+                  </Text>
+                  {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
               
                 </Text> */}
-              </VStack>
+                </VStack>
+              </HStack>
+              <Box style={styles.backArrow}>
+                <IconArrowBlack />
+              </Box>
             </HStack>
-            <Box style={styles.backArrow}>
-              <IconArrowBlack />
-            </Box>
-          </HStack>
-        </Box>
-      </Pressable>
+          </Box>
+        </Pressable>
       )}
       <Box style={styles.nextButtonWrapper}>
         {next && (
