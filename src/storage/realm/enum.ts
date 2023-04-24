@@ -7,6 +7,7 @@ export enum RealmSchema {
   BIP85Config = 'BIP85Config',
   UTXO = 'UTXO',
   UTXOInfo = 'UTXOInfo',
+  AddressCache = 'AddressCache',
   Label = 'Label',
   Transaction = 'Transaction',
   TransferPolicy = 'TransferPolicy',
