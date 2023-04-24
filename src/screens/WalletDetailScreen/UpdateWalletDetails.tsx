@@ -90,12 +90,14 @@ function UpdateWalletDetails({ route }) {
   };
 
   const onDropDownClick = () => {
-    if (showPurpose) {
-      setShowPurpose(false);
-      setArrow(false);
-    } else {
-      setShowPurpose(true);
-      setArrow(true);
+    if (!isFromSeed) {
+      if (showPurpose) {
+        setShowPurpose(false);
+        setArrow(false);
+      } else {
+        setShowPurpose(true);
+        setArrow(true);
+      }
     }
   };
 
@@ -119,25 +121,11 @@ function UpdateWalletDetails({ route }) {
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
-            <Box style={[styles.textInputWrapper]}>
-              <TextInput
-                placeholder="Derivation Path"
-                style={styles.textInput}
-                placeholderTextColor="light.GreyText"
-                value={path}
-                onChangeText={(value) => setPath(value)}
-                // width={wp(260)}
-                autoCorrect={false}
-                // marginY={2}
-                // borderWidth="0"
-                maxLength={20}
-                onFocus={() => {
-                  setShowPurpose(false);
-                  setArrow(false);
-                }}
-              />
-            </Box>
-            <TouchableOpacity onPress={onDropDownClick} style={styles.dropDownContainer}>
+            <TouchableOpacity
+              activeOpacity={!isFromSeed ? 0 : 1}
+              onPress={onDropDownClick}
+              style={styles.dropDownContainer}
+            >
               <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
               <Box
                 style={[
@@ -147,7 +135,7 @@ function UpdateWalletDetails({ route }) {
                   },
                 ]}
               >
-                <RightArrowIcon />
+                {!isFromSeed && <RightArrowIcon />}
               </Box>
             </TouchableOpacity>
             {showPurpose && (
@@ -159,13 +147,7 @@ function UpdateWalletDetails({ route }) {
                       setArrow(false);
                       setPurpose(item.value);
                       setPurposeLbl(item.label);
-                      const path = WalletUtilities.getDerivationPath(
-                        EntityKind.WALLET,
-                        config.NETWORK_TYPE,
-                        0,
-                        Number(purpose)
-                      );
-                      setPath(path);
+                      setPath('');
                     }}
                     style={styles.flagWrapper1}
                   >
@@ -174,10 +156,29 @@ function UpdateWalletDetails({ route }) {
                 ))}
               </ScrollView>
             )}
+            <Box style={[styles.textInputWrapper]}>
+              <TextInput
+                placeholder="Derivation Path"
+                style={styles.textInput}
+                placeholderTextColor="light.GreyText"
+                value={path}
+                onChangeText={(value) => setPath(value)}
+                // width={wp(260)}
+                autoCorrect={false}
+                // marginY={2}
+                // borderWidth="0"
+                editable={!isFromSeed}
+                maxLength={20}
+                onFocus={() => {
+                  setShowPurpose(false);
+                  setArrow(false);
+                }}
+              />
+            </Box>
             {isFromSeed ? (
               <Box style={{ marginTop: wp(20) }}>
                 <ShowXPub
-                  data={JSON.stringify(words)}
+                  data={words.toString().replace(/,/g, ' ')}
                   subText="Wallet Recovery Phrase"
                   noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
                   copyable={false}
@@ -186,21 +187,23 @@ function UpdateWalletDetails({ route }) {
             ) : null}
           </Box>
         </ScrollView>
-        <View style={styles.dotContainer}>
-          <Box style={styles.ctaBtnWrapper}>
-            <Box ml={windowWidth * -0.09}>
-              <Buttons
-                secondaryText="Cancel"
-                secondaryCallback={() => {
-                  navigtaion.goBack();
-                }}
-                primaryText="save"
-                primaryCallback={updateWallet}
-                primaryLoading={relayWalletUpdateLoading}
-              />
+        {!isFromSeed && (
+          <View style={styles.dotContainer}>
+            <Box style={styles.ctaBtnWrapper}>
+              <Box ml={windowWidth * -0.09}>
+                <Buttons
+                  secondaryText="Cancel"
+                  secondaryCallback={() => {
+                    navigtaion.goBack();
+                  }}
+                  primaryText="Save"
+                  primaryCallback={updateWallet}
+                  primaryLoading={relayWalletUpdateLoading}
+                />
+              </Box>
             </Box>
-          </Box>
-        </View>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
@@ -354,7 +357,7 @@ const styles = ScaledSheet.create({
     zIndex: 10,
     backgroundColor: '#FAF4ED',
     position: 'absolute',
-    top: hp(130),
+    top: hp(60),
   },
   flagWrapper1: {
     flexDirection: 'row',
