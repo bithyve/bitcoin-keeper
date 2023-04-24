@@ -50,7 +50,6 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
       if (scheme.m !== 1 || scheme.n !== 1) updatedFeatureMap.vaultRecieve = false;
       else updatedFeatureMap.vaultRecieve = true;
     } else {
-      console.log('gere');
       updatedFeatureMap.vaultBuy = true;
       updatedFeatureMap.vaultRecieve = true;
     }
