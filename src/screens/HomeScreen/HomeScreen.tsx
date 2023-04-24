@@ -461,9 +461,34 @@ function HomeScreen({ navigation }) {
   const { showToast } = useToastMessage();
 
   useEffect(() => {
+    Linking.addEventListener('url', handleDeepLinkEvent);
     handleDeepLinking();
+    return () => {
+      Linking.removeAllListeners('url');
+    };
   }, []);
 
+  function handleDeepLinkEvent({ url }) {
+    if (url) {
+      if (url.includes('backup')) {
+        const splits = url.split('backup/');
+        const decoded = Buffer.from(splits[1], 'base64').toString();
+        const params = urlParamsToObj(decoded);
+        if (params.seed) {
+          navigation.navigate('EnterWalletDetail', {
+            seed: params.seed,
+            name: params.name,
+            path: params.path,
+            appId: params.appId,
+            description: `Imported from ${params.name}`,
+            type: WalletType.IMPORTED,
+          });
+        } else {
+          showToast('Invalid deeplink');
+        }
+      }
+    }
+  }
   async function handleDeepLinking() {
     try {
       const initialUrl = await Linking.getInitialURL();
@@ -478,6 +503,7 @@ function HomeScreen({ navigation }) {
               name: params.name,
               path: params.path,
               appId: params.appId,
+              purpose: params.purpose,
               description: `Imported from ${params.name}`,
               type: WalletType.IMPORTED,
             });
