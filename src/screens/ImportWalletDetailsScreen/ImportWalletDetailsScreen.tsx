@@ -273,11 +273,11 @@ const styles = ScaledSheet.create({
   balanceCrossesText: {
     width: '100%',
     color: Colors.Feldgrau,
-    marginHorizontal: 20,
+    // marginHorizontal: 0,
     // padding: 20,
     fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
-    marginTop: hp(10),
+    marginTop: hp(20),
     letterSpacing: 0.6,
   },
   ctaBtnWrapper: {

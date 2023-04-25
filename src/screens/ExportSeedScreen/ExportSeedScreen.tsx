@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Pressable, VStack } from 'native-base';
+import { Box, HStack, Pressable, View, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -98,6 +98,7 @@ function ExportSeedScreen({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
+      <View style={{ flex: 1 }} />
       {!next && (
         <Pressable
           onPress={() => {
@@ -243,6 +244,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     letterSpacing: 0.6,
     marginRight: 10,
+    marginBottom: 20,
   },
   qrItemContainer: {
     flexDirection: 'row',
