@@ -19,6 +19,8 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
+import KeeperText from 'src/components/KeeperText';
+
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -121,6 +123,12 @@ function UpdateWalletDetails({ route }) {
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
+            <KeeperText
+              type="regular"
+              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(20), }]}
+            >
+              Purpose
+            </KeeperText>
             <TouchableOpacity
               activeOpacity={!isFromSeed ? 0 : 1}
               onPress={onDropDownClick}
@@ -156,6 +164,12 @@ function UpdateWalletDetails({ route }) {
                 ))}
               </ScrollView>
             )}
+            <KeeperText
+              type="regular"
+              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(15), }]}
+            >
+              Path
+            </KeeperText>
             <Box style={[styles.textInputWrapper]}>
               <TextInput
                 placeholder="Derivation Path"
@@ -214,6 +228,11 @@ const styles = ScaledSheet.create({
     borderRadius: 6,
     marginTop: hp(3),
   },
+  autoTransferText: {
+    fontSize: 12,
+    paddingHorizontal: wp(5),
+    letterSpacing: '0.6@s',
+  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -251,7 +270,7 @@ const styles = ScaledSheet.create({
     // borderTopLeftRadius: 10,
     // borderBottomLeftRadius: 10,
     paddingVertical: 20,
-    marginTop: 10,
+    // marginTop: 10,
     flexDirection: 'row',
   },
   cameraView: {
@@ -313,7 +332,7 @@ const styles = ScaledSheet.create({
   },
   textInputWrapper: {
     flexDirection: 'row',
-    marginTop: hp(15),
+    // marginTop: hp(15),
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
