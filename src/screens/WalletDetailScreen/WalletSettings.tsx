@@ -21,7 +21,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
 // icons
@@ -67,7 +67,6 @@ function WalletSettings({ route }) {
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
-  const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
@@ -343,6 +342,9 @@ function WalletSettings({ route }) {
               wallet={wallet}
               close={() => {
                 showToast('Transfer Policy Changed', <TickIcon />);
+                setTransferPolicyVisible(false);
+              }}
+              secondaryBtnPress={() => {
                 setTransferPolicyVisible(false);
               }}
             />

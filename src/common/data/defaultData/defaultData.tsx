@@ -46,8 +46,8 @@ export const securityTips = [
     message: 'For increased privacy and security, remix sats a few times, then transfer them to the Vault.',
   },
 ];
-export const getSecurityTip = () => {
+export const getSecurityTip = () =>
   // const selected = Math.floor(Math.random() * securityTips.length); //Comment for creating wallet modal WP
   // return securityTips[selected];
-  return securityTips[5];
-};
+  securityTips[5]
+  ;

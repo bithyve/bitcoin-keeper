@@ -48,9 +48,9 @@ function EditWalletSettings({ route }) {
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
+      navigtaion.goBack();
       showToast('Wallet details updated', <TickIcon />);
       dispatch(resetRealyWalletState());
-      navigtaion.goBack();
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
@@ -106,7 +106,7 @@ function EditWalletSettings({ route }) {
             }}
             primaryText="Save"
             primaryCallback={editWallet}
-            primaryLoading={relayWalletUpdateLoading}
+            primaryLoading={relayWalletUpdateLoading || relayWalletUpdate}
             primaryDisable={!walletName || !walletDescription}
           />
         </View>
