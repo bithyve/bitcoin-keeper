@@ -27,6 +27,7 @@ import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
 import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
 import { Box, HStack, VStack } from 'native-base';
+import deviceInfoModule from 'react-native-device-info';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -132,7 +133,7 @@ function UTXOManagement({ route, navigation }) {
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
   const { walletPoolMap, walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing[wallet.id];
+  const syncing = false;
   const [learnModalVisible, setLearnModalVisible] = useState(false);
   const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
   const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
@@ -271,44 +272,54 @@ function UTXOManagement({ route, navigation }) {
         buttonBackground={['#00836A', '#073E39']}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
-        Content={() => (
-          <Box>
-            <Box style={styles.batteryModalContent}>
-              <Box style={styles.batteryImage}>
-                <BatteryIllustration />
-              </Box>
-              <Box style={styles.batteryModalTextArea}>
-                <Box style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>Connect to power</Text>
-                </Box>
-                <Box style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>20% battery required</Text>
-                </Box>
-              </Box>
-            </Box>
+        Content={() => {
+          const [batteryPercentage, setBatteryPercentage] = useState(0);
+          useEffect(() => {
+            deviceInfoModule.getBatteryLevel().then((batteryLevel) => {
+              setBatteryPercentage(batteryLevel * 100);
+            });
+          }, []);
 
-            <Box style={styles.mixSuccesModalFooter}>
-              <Box style={{ alignSelf: 'flex-end' }}>
-                <Buttons
-                  primaryText="Continue"
-                  primaryCallback={() => {
-                    setShowBatteryWarningModal(false);
-                    setEnableSelection(false);
-                    navigation.navigate('MixProgress', {
-                      selectedUTXOs,
-                      depositWallet,
-                      selectedWallet,
-                      walletPoolMap,
-                      isRemix,
-                    });
-                  }}
-                />
+          return (
+            <Box>
+              <Box style={styles.batteryModalContent}>
+                <Box style={styles.batteryImage}>
+                  <BatteryIllustration />
+                </Box>
+                <Box style={styles.batteryModalTextArea}>
+                  <Box style={{ flexDirection: 'row' }}>
+                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                    <Text style={styles.batteryModalText}>Connect to power</Text>
+                  </Box>
+                  <Box style={{ flexDirection: 'row' }}>
+                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                    <Text style={styles.batteryModalText}>20% battery required</Text>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Box style={styles.mixSuccesModalFooter}>
+                <Box style={{ alignSelf: 'flex-end' }}>
+                  <Buttons
+                    primaryDisable={batteryPercentage < 20}
+                    primaryText="Continue"
+                    primaryCallback={() => {
+                      setShowBatteryWarningModal(false);
+                      setEnableSelection(false);
+                      navigation.navigate('MixProgress', {
+                        selectedUTXOs,
+                        depositWallet,
+                        selectedWallet,
+                        walletPoolMap,
+                        isRemix,
+                      });
+                    }}
+                  />
+                </Box>
               </Box>
             </Box>
-          </Box>
-        )}
+          );
+        }}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
       <InitiateWhirlpoolModal
