@@ -19,7 +19,7 @@ import Buttons from '../Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
-function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
+function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; close: () => void; secondaryBtnPress: () => void; }) {
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -107,10 +107,10 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       <Buttons
         primaryCallback={presshandler}
         primaryText={common.confirm}
-        secondaryCallback={close}
+        secondaryCallback={secondaryBtnPress}
         secondaryText={common.cancel}
         paddingHorizontal={wp(30)}
-        primaryDisable={relayWalletUpdateLoading}
+        primaryDisable={relayWalletUpdateLoading || relayWalletUpdate}
       />
       {/* keyboardview start */}
       <KeyPadView
