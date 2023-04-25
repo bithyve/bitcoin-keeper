@@ -19,6 +19,7 @@ import {
   WalletImportDetails,
   WalletPresentationData,
   WhirlpoolConfig,
+  WalletDerivationDetails,
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
@@ -40,7 +41,7 @@ import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { generateKey, hash256 } from 'src/core/services/operations/encryption';
@@ -68,6 +69,7 @@ import {
   UPDATE_WALLET_PROPERTY,
   ADD_WHIRLPOOL_WALLETS,
   ADD_WHIRLPOOL_WALLETS_LOCAL,
+  UPDATE_WALLET_PATH_PURPOSE_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -118,50 +120,76 @@ export function* addWhirlpoolWalletsLocalWorker({
     depositWallet: Wallet;
   };
 }) {
-  const { depositWallet } = payload;
-  const { instanceNum } = depositWallet.derivationDetails;
+  try {
+    const { depositWallet } = payload;
+    const { instanceNum } = depositWallet.derivationDetails;
 
-  const preMixWalletInfo: NewWalletInfo = {
-    walletType: WalletType.PRE_MIX,
-    walletDetails: {
-      parentMnemonic: depositWallet.derivationDetails.mnemonic,
-      instanceNum,
-      derivationConfig: {
-        purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483645),
+    const preMixWalletInfo: NewWalletInfo = {
+      walletType: WalletType.PRE_MIX,
+      walletDetails: {
+        parentMnemonic: depositWallet.derivationDetails.mnemonic,
+        instanceNum,
+        derivationConfig: {
+          purpose: DerivationPurpose.BIP84,
+          path: WalletUtilities.getDerivationPath(
+            EntityKind.WALLET,
+            config.NETWORK_TYPE,
+            2147483645
+          ),
+        },
       },
-    },
-  };
-  const postMixWalletInfo: NewWalletInfo = {
-    walletType: WalletType.POST_MIX,
-    walletDetails: {
-      parentMnemonic: depositWallet.derivationDetails.mnemonic,
-      instanceNum,
-      derivationConfig: {
-        purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483646),
+    };
+    const postMixWalletInfo: NewWalletInfo = {
+      walletType: WalletType.POST_MIX,
+      walletDetails: {
+        parentMnemonic: depositWallet.derivationDetails.mnemonic,
+        instanceNum,
+        derivationConfig: {
+          purpose: DerivationPurpose.BIP84,
+          path: WalletUtilities.getDerivationPath(
+            EntityKind.WALLET,
+            config.NETWORK_TYPE,
+            2147483646
+          ),
+        },
       },
-    },
-  };
-  const badBankWalletInfo: NewWalletInfo = {
-    walletType: WalletType.BAD_BANK,
-    walletDetails: {
-      parentMnemonic: depositWallet.derivationDetails.mnemonic,
-      instanceNum,
-      derivationConfig: {
-        purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483644),
+    };
+    const badBankWalletInfo: NewWalletInfo = {
+      walletType: WalletType.BAD_BANK,
+      walletDetails: {
+        parentMnemonic: depositWallet.derivationDetails.mnemonic,
+        instanceNum,
+        derivationConfig: {
+          purpose: DerivationPurpose.BIP84,
+          path: WalletUtilities.getDerivationPath(
+            EntityKind.WALLET,
+            config.NETWORK_TYPE,
+            2147483644
+          ),
+        },
       },
-    },
-  };
+    };
 
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const newWalletsInfo: NewWalletInfo[] = [
+      preMixWalletInfo,
+      postMixWalletInfo,
+      badBankWalletInfo,
+    ];
 
-  const wallets = [];
-  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
-    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
-    wallets.push(wallet);
+    const wallets = [];
+    for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
+      const wallet: Wallet = yield call(
+        addNewWallet,
+        walletType,
+        walletDetails,
+        app,
+        importDetails
+      );
+      wallets.push(wallet);
+    }
+  } catch (err) {
+    console.log('Error in Whirlpool Wallets generations:', err);
   }
 }
 
@@ -177,72 +205,98 @@ export function* addWhirlpoolWalletsWorker({
     depositWallet: Wallet;
   };
 }) {
-  const { depositWallet } = payload;
-  const { instanceNum } = depositWallet.derivationDetails;
+  try {
+    const { depositWallet } = payload;
+    const { instanceNum } = depositWallet.derivationDetails;
 
-  const preMixWalletInfo: NewWalletInfo = {
-    walletType: WalletType.PRE_MIX,
-    walletDetails: {
-      parentMnemonic: depositWallet.derivationDetails.mnemonic,
-      instanceNum,
-      derivationConfig: {
-        purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483645),
+    const preMixWalletInfo: NewWalletInfo = {
+      walletType: WalletType.PRE_MIX,
+      walletDetails: {
+        parentMnemonic: depositWallet.derivationDetails.mnemonic,
+        instanceNum,
+        derivationConfig: {
+          purpose: DerivationPurpose.BIP84,
+          path: WalletUtilities.getDerivationPath(
+            EntityKind.WALLET,
+            config.NETWORK_TYPE,
+            2147483645
+          ),
+        },
       },
-    },
-  };
-  const postMixWalletInfo: NewWalletInfo = {
-    walletType: WalletType.POST_MIX,
-    walletDetails: {
-      parentMnemonic: depositWallet.derivationDetails.mnemonic,
-      instanceNum,
-      derivationConfig: {
-        purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483646),
+    };
+    const postMixWalletInfo: NewWalletInfo = {
+      walletType: WalletType.POST_MIX,
+      walletDetails: {
+        parentMnemonic: depositWallet.derivationDetails.mnemonic,
+        instanceNum,
+        derivationConfig: {
+          purpose: DerivationPurpose.BIP84,
+          path: WalletUtilities.getDerivationPath(
+            EntityKind.WALLET,
+            config.NETWORK_TYPE,
+            2147483646
+          ),
+        },
       },
-    },
-  };
-  const badBankWalletInfo: NewWalletInfo = {
-    walletType: WalletType.BAD_BANK,
-    walletDetails: {
-      parentMnemonic: depositWallet.derivationDetails.mnemonic,
-      instanceNum,
-      derivationConfig: {
-        purpose: DerivationPurpose.BIP84,
-        path: WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 2147483644),
+    };
+    const badBankWalletInfo: NewWalletInfo = {
+      walletType: WalletType.BAD_BANK,
+      walletDetails: {
+        parentMnemonic: depositWallet.derivationDetails.mnemonic,
+        instanceNum,
+        derivationConfig: {
+          purpose: DerivationPurpose.BIP84,
+          path: WalletUtilities.getDerivationPath(
+            EntityKind.WALLET,
+            config.NETWORK_TYPE,
+            2147483644
+          ),
+        },
       },
-    },
-  };
+    };
 
-  const whirlpoolConfig: WhirlpoolConfig = {
-    whirlpoolWalletDetails: [
-      {
-        walletId: hash256(`${depositWallet.id}${WalletType.PRE_MIX}`),
-        walletType: WalletType.PRE_MIX,
-      },
-      {
-        walletId: hash256(`${depositWallet.id}${WalletType.POST_MIX}`),
-        walletType: WalletType.POST_MIX,
-      },
-      {
-        walletId: hash256(`${depositWallet.id}${WalletType.BAD_BANK}`),
-        walletType: WalletType.BAD_BANK,
-      },
-    ],
-  };
+    const whirlpoolConfig: WhirlpoolConfig = {
+      whirlpoolWalletDetails: [
+        {
+          walletId: hash256(`${depositWallet.id}${WalletType.PRE_MIX}`),
+          walletType: WalletType.PRE_MIX,
+        },
+        {
+          walletId: hash256(`${depositWallet.id}${WalletType.POST_MIX}`),
+          walletType: WalletType.POST_MIX,
+        },
+        {
+          walletId: hash256(`${depositWallet.id}${WalletType.BAD_BANK}`),
+          walletType: WalletType.BAD_BANK,
+        },
+      ],
+    };
 
-  yield call(updateWalletsPropertyWorker, {
-    payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
-  });
-  const newWalletsInfo: NewWalletInfo[] = [preMixWalletInfo, postMixWalletInfo, badBankWalletInfo];
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  const wallets = [];
-  for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
-    const wallet: Wallet = yield call(addNewWallet, walletType, walletDetails, app, importDetails);
-    wallets.push(wallet);
+    yield call(updateWalletsPropertyWorker, {
+      payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
+    });
+    const newWalletsInfo: NewWalletInfo[] = [
+      preMixWalletInfo,
+      postMixWalletInfo,
+      badBankWalletInfo,
+    ];
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const wallets = [];
+    for (const { walletType, walletDetails, importDetails } of newWalletsInfo) {
+      const wallet: Wallet = yield call(
+        addNewWallet,
+        walletType,
+        walletDetails,
+        app,
+        importDetails
+      );
+      wallets.push(wallet);
+    }
+    yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
+    yield put(setWhirlpoolCreated(true));
+  } catch (err) {
+    console.log(err);
   }
-  yield call(dbManager.createObjectBulk, RealmSchema.Wallet, wallets);
-  yield put(setWhirlpoolCreated(true));
 }
 
 export const addWhirlpoolWalletsWatcher = createWatcher(
@@ -819,6 +873,52 @@ function* updateWalletDetailsWorker({ payload }) {
 export const updateWalletDetailWatcher = createWatcher(
   updateWalletDetailsWorker,
   UPDATE_WALLET_DETAILS
+);
+
+function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
+  const {
+    wallet,
+    details,
+  }: {
+    wallet: Wallet;
+    details: {
+      path: string;
+      purpose: string;
+    };
+  } = payload;
+  try {
+    const derivationDetails: WalletDerivationDetails = {
+      ...wallet.derivationDetails,
+      xDerivationPath: details.path,
+    };
+    const specs = generateWalletSpecs(
+      derivationDetails.mnemonic,
+      WalletUtilities.getNetworkByType(wallet.networkType),
+      derivationDetails.xDerivationPath
+    ); // recreate the specs
+
+    yield put(setRelayWalletUpdateLoading(true));
+    // API-TO-DO: based on response call the DB
+    wallet.derivationDetails = derivationDetails;
+    wallet.specs = specs;
+
+    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+    if (response.updated) {
+      yield put(relayWalletUpdateSuccess());
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+        derivationDetails,
+        specs,
+      });
+    } else {
+      yield put(relayWalletUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayWalletUpdateFail('Something went wrong!'));
+  }
+}
+export const updateWalletPathAndPuposeDetailWatcher = createWatcher(
+  updateWalletPathAndPuposeDetailsWorker,
+  UPDATE_WALLET_PATH_PURPOSE_DETAILS
 );
 
 function* updateSignerDetailsWorker({ payload }) {

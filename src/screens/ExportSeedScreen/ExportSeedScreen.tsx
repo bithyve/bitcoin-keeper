@@ -27,7 +27,7 @@ function ExportSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { login } = translations;
-  const { seed } = route.params;
+  const { seed, wallet } = route.params;
   const [words] = useState(seed.split(' '));
   const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
@@ -98,44 +98,37 @@ function ExportSeedScreen({ route, navigation }) {
           keyExtractor={(item) => item}
         />
       </Box>
-      <Pressable
-        onPress={() => {
-          setShowQRVisible(true);
-        }}
-      >
-        <Box style={styles.qrItemContainer}>
-          <HStack style={styles.qrItem}>
-            <HStack alignItems="center">
-              <QR />
-              <VStack marginX="4" maxWidth="64">
-                <Text
-                  color="light.primaryText"
-                  numberOfLines={2}
-                  style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
-                >
-                  Show as QR
-                </Text>
-                <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
-                  larum epsum text
-                </Text>
-              </VStack>
+      {!next && (
+        <Pressable
+          onPress={() => {
+            // setShowQRVisible(true);
+            navigation.navigate('UpdateWalletDetails', { wallet, isFromSeed: true, words });
+          }}
+        >
+          <Box style={styles.qrItemContainer}>
+            <HStack style={styles.qrItem}>
+              <HStack alignItems="center">
+                <QR />
+                <VStack marginX="4" maxWidth="64">
+                  <Text
+                    color="light.primaryText"
+                    numberOfLines={2}
+                    style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
+                  >
+                    Show as QR
+                  </Text>
+                  {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
+              
+                </Text> */}
+                </VStack>
+              </HStack>
+              <Box style={styles.backArrow}>
+                <IconArrowBlack />
+              </Box>
             </HStack>
-            <Box style={styles.backArrow}>
-              <IconArrowBlack />
-            </Box>
-          </HStack>
-        </Box>
-      </Pressable>
-      <Text
-        color="light.GreyText"
-        style={[
-          globalStyles.font12,
-          { letterSpacing: 0.06, paddingHorizontal: 10, paddingBottom: 10 },
-        ]}
-      >
-        Use these to create any other wallet and that wallet will be linked to Keeper (will show
-        along with other wallets)
-      </Text>
+          </Box>
+        </Pressable>
+      )}
       <Box style={styles.nextButtonWrapper}>
         {next && (
           <Box>
@@ -193,9 +186,9 @@ function ExportSeedScreen({ route, navigation }) {
       <KeeperModal
         visible={showQRVisible}
         close={() => setShowQRVisible(false)}
-        title="Show as QR"
+        title="Recovery Phrase"
         subTitleWidth={wp(260)}
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+        subTitle="The QR below comprises of your 12 word Recovery Phrase"
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
         buttonText="Done"
@@ -203,8 +196,8 @@ function ExportSeedScreen({ route, navigation }) {
         Content={() => (
           <ShowXPub
             data={JSON.stringify(words)}
-            subText="Master Recovery Phrase"
-            noteSubText="Lorem ipsum dolor sit amet, "
+            subText="wallet Recovery Phrase"
+            noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
             copyable={false}
           />
         )}

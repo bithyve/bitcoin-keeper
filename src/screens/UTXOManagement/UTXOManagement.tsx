@@ -133,7 +133,7 @@ function UTXOManagement({ route, navigation }) {
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
   const { walletPoolMap, walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = false;
+  const syncing = walletSyncing[wallet?.id] || false;
   const [learnModalVisible, setLearnModalVisible] = useState(false);
   const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
   const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
