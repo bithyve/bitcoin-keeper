@@ -1,6 +1,7 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
+import { hash256 } from 'src/core/services/operations/encryption';
 import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
   TransferPolicy,
@@ -14,9 +15,42 @@ import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
-import { hash256 } from 'src/core/services/operations/encryption';
 
 export const whirlPoolWalletTypes = [WalletType.PRE_MIX, WalletType.POST_MIX, WalletType.BAD_BANK];
+
+export const generateWalletSpecs = (
+  mnemonic: string,
+  network: bitcoinJS.Network,
+  xDerivationPath: string
+) => {
+  // derive extended keys
+  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
+  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
+    seed,
+    network,
+    xDerivationPath
+  );
+  const { xpriv } = extendedKeys;
+  const { xpub } = extendedKeys;
+
+  const specs: WalletSpecs = {
+    xpub,
+    xpriv,
+    nextFreeAddressIndex: 0,
+    nextFreeChangeAddressIndex: 0,
+    confirmedUTXOs: [],
+    unconfirmedUTXOs: [],
+    balances: {
+      confirmed: 0,
+      unconfirmed: 0,
+    },
+    transactions: [],
+    txNote: {},
+    hasNewUpdates: false,
+    lastSynched: 0,
+  };
+  return specs;
+};
 
 export const generateWallet = async ({
   type,
@@ -66,23 +100,7 @@ export const generateWallet = async ({
     xDerivationPath = importDetails.derivationConfig.path;
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
-  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
-
-  if (whirlPoolWalletTypes.includes(type)) {
-    depositWalletId = id;
-    id = hash256(`${id}${type}`);
-  }
-
-  // derive extended keys
-  const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
-  const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
-    seed,
-    network,
-    xDerivationPath
-  );
-  const { xpriv } = extendedKeys;
-  const { xpub } = extendedKeys;
-
+  const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
   const derivationDetails = {
     instanceNum,
     mnemonic,
@@ -98,22 +116,8 @@ export const generateWallet = async ({
     shell: defaultShell,
   };
 
-  const specs: WalletSpecs = {
-    xpub,
-    xpriv,
-    nextFreeAddressIndex: 0,
-    nextFreeChangeAddressIndex: 0,
-    confirmedUTXOs: [],
-    unconfirmedUTXOs: [],
-    balances: {
-      confirmed: 0,
-      unconfirmed: 0,
-    },
-    transactions: [],
-    txNote: {},
-    hasNewUpdates: false,
-    lastSynched: 0,
-  };
+  const specs: WalletSpecs = generateWalletSpecs(mnemonic, network, xDerivationPath);
+
   const wallet: Wallet = {
     id,
     entityKind: EntityKind.WALLET,

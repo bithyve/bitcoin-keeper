@@ -19,6 +19,7 @@ import {
   WalletImportDetails,
   WalletPresentationData,
   WhirlpoolConfig,
+  WalletDerivationDetails,
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
@@ -40,7 +41,7 @@ import config from 'src/core/config';
 import { createWatcher } from 'src/store/utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
-import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
+import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { generateKey, hash256 } from 'src/core/services/operations/encryption';
@@ -68,6 +69,7 @@ import {
   UPDATE_WALLET_PROPERTY,
   ADD_WHIRLPOOL_WALLETS,
   ADD_WHIRLPOOL_WALLETS_LOCAL,
+  UPDATE_WALLET_PATH_PURPOSE_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -819,6 +821,52 @@ function* updateWalletDetailsWorker({ payload }) {
 export const updateWalletDetailWatcher = createWatcher(
   updateWalletDetailsWorker,
   UPDATE_WALLET_DETAILS
+);
+
+function* updateWalletPathAndPuposeDetailsWorker({ payload }) {
+  const {
+    wallet,
+    details,
+  }: {
+    wallet: Wallet;
+    details: {
+      path: string;
+      purpose: string;
+    };
+  } = payload;
+  try {
+    const derivationDetails: WalletDerivationDetails = {
+      ...wallet.derivationDetails,
+      xDerivationPath: details.path,
+    };
+    const specs = generateWalletSpecs(
+      derivationDetails.mnemonic,
+      WalletUtilities.getNetworkByType(wallet.networkType),
+      derivationDetails.xDerivationPath
+    ); // recreate the specs
+
+    yield put(setRelayWalletUpdateLoading(true));
+    // API-TO-DO: based on response call the DB
+    wallet.derivationDetails = derivationDetails;
+    wallet.specs = specs;
+
+    const response = yield call(updateAppImageWorker, { payload: { walletId: wallet.id } });
+    if (response.updated) {
+      yield put(relayWalletUpdateSuccess());
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+        derivationDetails,
+        specs,
+      });
+    } else {
+      yield put(relayWalletUpdateFail(response.error));
+    }
+  } catch (err) {
+    yield put(relayWalletUpdateFail('Something went wrong!'));
+  }
+}
+export const updateWalletPathAndPuposeDetailWatcher = createWatcher(
+  updateWalletPathAndPuposeDetailsWorker,
+  UPDATE_WALLET_PATH_PURPOSE_DETAILS
 );
 
 function* updateSignerDetailsWorker({ payload }) {

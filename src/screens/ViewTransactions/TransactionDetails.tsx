@@ -68,8 +68,9 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
-      }/tx/${transaction.txid}`
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
+      }`
     );
   };
   return (
@@ -129,15 +130,15 @@ function TransactionDetails({ route }) {
           />
           <InfoCard
             title="Inputs"
-            describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
-            showIcon={false}
-            numberOfLines={transaction.recipientAddresses.length}
-          />
-          <InfoCard
-            title="Outputs"
             describtion={transaction.senderAddresses.toString().replace(/,/g, '\n')}
             showIcon={false}
             numberOfLines={transaction.senderAddresses.length}
+          />
+          <InfoCard
+            title="Outputs"
+            describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
+            showIcon={false}
+            numberOfLines={transaction.recipientAddresses.length}
           />
           {wallet.specs.txNote[transaction.txid] && (
             <InfoCard

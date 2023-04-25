@@ -49,7 +49,11 @@ function ShowXPub({
 
   return (
     <>
-      <Box justifyContent="center" alignItems="center" width={wp(275)}>
+      <Box
+        justifyContent="center"
+        alignItems="center"
+        // width={wp(275)}
+      >
         <Box>
           <QRCode value={cosignerDetails} logoBackgroundColor="transparent" size={hp(200)} />
           <Box

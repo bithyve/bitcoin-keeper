@@ -11,7 +11,7 @@ import {
   XpubTypes,
 } from '../enums';
 
-import { WalletPresentationData } from './wallet';
+import { AddressCache, WalletPresentationData } from './wallet';
 
 export interface VaultPresentationData extends WalletPresentationData {}
 
@@ -20,6 +20,7 @@ export interface VaultSpecs {
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   receivingAddress?: string; // current receiving address(external chain)
+  addresses?: AddressCache; // cached addresses
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances

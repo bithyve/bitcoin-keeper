@@ -192,6 +192,13 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
+            title="Update Path & Purpose"
+            subTitle="Change Derivation path & purpose"
+            onPress={() => {
+              navigation.navigate('UpdateWalletDetails', { wallet });
+            }}
+          />
+          <Option
             title="Show xPub"
             subTitle="Use to create an external, watch-only wallet"
             onPress={() => {

@@ -32,14 +32,19 @@ export interface TransferPolicy {
 }
 
 export interface WhirlpoolWalletDetails {
-  walletId: string; //wallet id for the premix|postmix|badbank
+  walletId: string; // wallet id for the premix|postmix|badbank
   walletType: WalletType;
 }
 export interface WhirlpoolConfig {
   whirlpoolWalletDetails: WhirlpoolWalletDetails[]; // deatils for DB
-  premixWallet?: Wallet; //Details for UI
-  postmixWallet?: Wallet; //Details for UI
-  badbankWallet?: Wallet; //Details for UI
+  premixWallet?: Wallet; // Details for UI
+  postmixWallet?: Wallet; // Details for UI
+  badbankWallet?: Wallet; // Details for UI
+}
+
+export interface AddressCache {
+  external: {};
+  internal: {};
 }
 
 export interface WalletSpecs {
@@ -48,6 +53,7 @@ export interface WalletSpecs {
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   receivingAddress?: string; // current receiving address(external chain)
+  addresses?: AddressCache; // cached addresses
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
@@ -69,7 +75,7 @@ export interface Wallet {
   scriptType: ScriptTypes;
   transferPolicy?: TransferPolicy;
   whirlpoolConfig?: WhirlpoolConfig;
-  depositWalletId?: string; //this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
+  depositWalletId?: string; // this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
 }
 
 export interface TriggerPolicy {

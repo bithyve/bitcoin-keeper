@@ -114,8 +114,9 @@ function UTXOLabeling() {
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
-      }/tx/${utxo.txId}`
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        utxo.txId
+      }`
     );
   };
 
@@ -172,8 +173,8 @@ function UTXOLabeling() {
                       item.type === LabelType.SYSTEM
                         ? '#23A289'
                         : editingIndex !== index
-                          ? '#E0B486'
-                          : '#A88763',
+                        ? '#E0B486'
+                        : '#A88763',
                   },
                 ]}
               >
@@ -214,7 +215,11 @@ function UTXOLabeling() {
                 autoCapitalize="characters"
               />
             </Box>
-            <TouchableOpacity style={styles.addBtnWrapper} onPress={onAdd} testID="btn_addUtxoLabel">
+            <TouchableOpacity
+              style={styles.addBtnWrapper}
+              onPress={onAdd}
+              testID="btn_addUtxoLabel"
+            >
               <Done />
             </TouchableOpacity>
           </Box>
