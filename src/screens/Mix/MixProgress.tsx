@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
-import { StyleSheet, FlatList } from 'react-native';
+import { StyleSheet, FlatList, BackHandler } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -161,6 +161,8 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
+    return () => backHandler.remove();
   }, []);
 
   useEffect(() => {
