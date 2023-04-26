@@ -22,7 +22,7 @@ function SendBadBankSatsContent() {
         </Box>
     );
 }
-function SendBadBankSatsModal({ visible, closeModal }: modalParams) {
+function SendBadBankSatsModal({ visible, closeModal, onclick }: modalParams) {
     return (
         <KeeperModal
             visible={visible}
@@ -34,7 +34,7 @@ function SendBadBankSatsModal({ visible, closeModal }: modalParams) {
             buttonText='Proceed'
             buttonBackground={['#00836A', '#073E39']}
             buttonTextColor='#FAFAFA'
-            buttonCallback={() => closeModal()}
+            buttonCallback={() => onclick()}
         />
     )
 }
