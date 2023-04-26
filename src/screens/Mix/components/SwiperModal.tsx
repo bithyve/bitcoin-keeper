@@ -5,7 +5,7 @@ import { FlatList, StyleSheet } from 'react-native';
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import { swiperData } from '../swiperModalData';
 // colors, aserts
@@ -14,7 +14,7 @@ import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 
 const SwiperModalContent = ({ contentTitle, contentSubTitle }) => {
   return (
-    <Box style={styles.contentContaner}>
+    <Box>
       <Box>
         <Text bold italic style={styles.modalTitle}>
           {contentTitle}
@@ -27,7 +27,7 @@ const SwiperModalContent = ({ contentTitle, contentSubTitle }) => {
 
 const renderItem = ({ item }) => {
   return (
-    <Box>
+    <Box style={styles.contentContaner}>
       <SwiperModalContent
         contentTitle={item.firstContentHeading.contentTitle}
         contentSubTitle={item.firstContentHeading.contentSubTitle}
@@ -73,27 +73,27 @@ const List = () => {
         viewabilityConfig={viewConfigRef.current}
       />
       <Box style={styles.paginationDots}>
-        {
-          currentPosition === 0 && <>
+        {currentPosition === 0 && (
+          <>
             <Box style={styles.selectedDot} />
             <Box style={styles.unSelectedDot} />
           </>
-        }
+        )}
       </Box>
     </Box>
   );
 };
 
-
 const SwiperModal = () => {
-
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
 
   return (
     <KeeperModal
       visible={whirlpoolSwiperModal}
-      close={() => { dispatch(setWhirlpoolSwiperModal(false)) }}
+      close={() => {
+        dispatch(setWhirlpoolSwiperModal(false));
+      }}
       title="Some Definitions:"
       modalBackground={['light.gradientStart', 'light.gradientEnd']}
       textColor="light.white"
@@ -104,13 +104,13 @@ const SwiperModal = () => {
       learnMore
     />
   );
-}
+};
 
 const styles = StyleSheet.create({
   paginationDots: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    height: 6
+    height: 6,
   },
   selectedDot: {
     width: 25,
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     marginEnd: 5,
   },
   contentContaner: {
-    width: hp(290),
+    width: wp(290),
   },
   swiperModalIcon: {
     alignSelf: 'center',
@@ -148,8 +148,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     color: Colors.White,
     marginBottom: hp(15),
-    maxWidth: hp(270),
+    maxWidth: wp(270),
   },
 });
 
-export default SwiperModal
+export default SwiperModal;

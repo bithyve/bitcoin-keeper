@@ -139,7 +139,7 @@ function LinkedWallets(props) {
               {wallets?.length}
             </Text>
             <Text color="light.white" style={styles.LinkedWalletText}>
-              Linked Wallet{wallets?.length > 1 && 's'}
+              Hot Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>

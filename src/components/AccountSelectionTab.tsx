@@ -14,22 +14,22 @@ import { WalletType } from 'src/core/wallets/enums';
 
 const AccountTabs = [
   {
-    title: 'Deposit Account',
+    title: 'Deposit',
     Icon: Deposit,
     type: WalletType.DEFAULT,
   },
   {
-    title: 'Premix Account',
+    title: 'Premix',
     Icon: PreMix,
     type: WalletType.PRE_MIX,
   },
   {
-    title: 'Postmix Account',
+    title: 'Postmix',
     Icon: PostMix,
     type: WalletType.POST_MIX,
   },
   {
-    title: 'BadBank Account',
+    title: 'BadBank',
     Icon: BadBank,
     type: WalletType.BAD_BANK,
   },
