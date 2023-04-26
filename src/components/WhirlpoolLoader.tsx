@@ -72,7 +72,7 @@ const getStyles = (clock, antiClock) =>
     gear0: {
       position: 'absolute',
       top: '31%',
-      left: '43%',
+      left: '41.5%',
       transform: [{ rotate: clock }],
     },
   });
