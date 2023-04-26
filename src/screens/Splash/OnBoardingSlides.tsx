@@ -17,7 +17,7 @@ import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration1 from 'src/assets/images/illustration_1.svg';
 import Illustration2 from 'src/assets/images/illustration_2.svg';
-import Illustration7 from 'src/assets/images/illustration_7.svg'
+import Illustration7 from 'src/assets/images/illustration_7.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -37,7 +37,7 @@ function OnBoardingSlides({ navigation }) {
       id: 1,
       title: (
         <>
-          <Text style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
+          <Text italic style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
           {onboarding.security}
           {` ${onboarding.slide01Title}`}
         </>
@@ -50,7 +50,9 @@ function OnBoardingSlides({ navigation }) {
       title: (
         <>
           {`${onboarding.slide02Title} `}
-          <Text style={styles.info}>{onboarding.privacy}</Text>
+          <Text italic style={styles.info}>
+            {onboarding.privacy}
+          </Text>
         </>
       ),
       paragraph: onboarding.slide02Paragraph,
@@ -60,7 +62,7 @@ function OnBoardingSlides({ navigation }) {
       id: 3,
       title: (
         <>
-          {`${onboarding.slide07Title} `}
+          {/* {`${onboarding.slide07Title} `} */}
           <Text style={styles.info}>{onboarding.whirlpool}</Text>
         </>
       ),
@@ -128,35 +130,33 @@ function OnBoardingSlides({ navigation }) {
             </Box>
             <Box flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
-                items.map((item, index) =>
-                // console.log('index', index);
-                (
+                items.map((item, index) => (
+                  // console.log('index', index);
                   <Box
                     key={index}
                     style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                   />
-                )
-                )
-              ) : (<Box alignSelf="center" backgroundColor="transparent">
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
-                  }
-                >
-                  <LinearGradient
-                    start={[0, 0]}
-                    end={[1, 1]}
-                    colors={['#FFFFFF', '#80A8A1']}
-                    style={styles.cta}
+                ))
+              ) : (
+                <Box alignSelf="center" backgroundColor="transparent">
+                  <TouchableOpacity
+                    onPress={() =>
+                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                    }
                   >
-                    <Text bold color="light.greenText" style={styles.startAppText}>
-                      Start App
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </Box>
-              )
-              }
+                    <LinearGradient
+                      start={[0, 0]}
+                      end={[1, 1]}
+                      colors={['#FFFFFF', '#80A8A1']}
+                      style={styles.cta}
+                    >
+                      <Text bold color="light.greenText" style={styles.startAppText}>
+                        Start App
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Box>
+              )}
             </Box>
           </Box>
         </SafeAreaView>
@@ -197,7 +197,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   info: {
-    fontStyle: 'italic',
     fontWeight: '900',
   },
   bottomBtnWrapper: {

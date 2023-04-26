@@ -469,7 +469,7 @@
     "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your vault now.",
     "slide07Title": "Enhanced Privacy with",
     "whirlpool": "\nWhirlpool",
-    "slide07Paragraph": "When you initiate a Whirlpool, Keeper creates 3 different wallets for you. Premix is for UTXOs prepared to go into pools. Postmix is for all the sats that have been mixed while Bad Bank is for sats that may have PIIs attached. Once happy with the mix, you can shift your sats into the vault."
+    "slide07Paragraph": "Break the deterministic links to your bitcoin and ensure forward looking privacy with Whirlpool. You can remix your sats for free for enhanced privacy before storing them in your vault"
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
