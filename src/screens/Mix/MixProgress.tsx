@@ -14,7 +14,7 @@ import { Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { createUTXOReference } from 'src/store/sagaActions/utxos';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
+import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ElectrumClient from 'src/core/services/electrum/client';
@@ -257,6 +257,14 @@ function MixProgress({
         setStatus(updatedArray);
         const walletsToRefresh = [source];
         if (!isRemix) walletsToRefresh.push(destination);
+
+        dispatch(
+          incrementAddressIndex([destination], {
+            external: true,
+            internal: false,
+          })
+        );
+
         setTimeout(async () => {
           dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
           const transaction = await ElectrumClient.getTransactionsById([txid]);

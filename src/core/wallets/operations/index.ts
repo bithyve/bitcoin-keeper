@@ -53,7 +53,7 @@ import WalletUtilities from './utils';
 const ECPair = ECPairFactory(ecc);
 
 export default class WalletOperations {
-  private static getNextFreeExternalAddress = ({
+  public static getNextFreeExternalAddress = ({
     entity,
     isMultiSig,
     specs,

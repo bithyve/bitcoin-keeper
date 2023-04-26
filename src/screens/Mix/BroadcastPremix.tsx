@@ -14,7 +14,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
+import { addNewWhirlpoolWallets, incrementAddressIndex } from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -146,8 +146,14 @@ export default function BroadcastPremix({ route, navigation }) {
       if (serializedPSBT) {
         const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
         const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
-
         if (txid) {
+          dispatch(
+            incrementAddressIndex([premixWallet, badbankWallet], {
+              external: true,
+              internal: false,
+            })
+          );
+
           const outputs = PSBT.txOutputs;
           const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
           const voutBadBank = outputs.findIndex(
