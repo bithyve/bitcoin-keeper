@@ -52,6 +52,7 @@ function Footer({
   initiateWhirlpool,
   initateWhirlpoolMix,
   setShowBatteryWarningModal,
+  setSendBadBankModalVisible
 }) {
   const navigation = useNavigation();
 
@@ -87,7 +88,8 @@ function Footer({
         } else if (initiateWhirlpool) {
           goToWhirlpoolConfiguration();
         } else {
-          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+          setSendBadBankModalVisible()
+          // navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
         }
       }}
       selectedUTXOs={selectedUTXOs}
@@ -135,6 +137,7 @@ function UTXOManagement({ route, navigation }) {
   const { walletPoolMap, walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing[wallet.id];
   const [learnModalVisible, setLearnModalVisible] = useState(false);
+  const [sendBadBankModalVisible, setSendBadBankModalVisible] = useState(false);
   const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
   const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
 
@@ -257,6 +260,7 @@ function UTXOManagement({ route, navigation }) {
           enableSelection={enableSelection}
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
+          setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
         />
       ) : null}
       <KeeperModal
@@ -312,7 +316,7 @@ function UTXOManagement({ route, navigation }) {
         )}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
-      {/* <SendBadBankSatsModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} /> */}
+      <SendBadBankSatsModal visible={sendBadBankModalVisible} closeModal={() => setSendBadBankModalVisible(false)} onclick={() => { setSendBadBankModalVisible(false); navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs })) }} />
 
       <InitiateWhirlpoolModal
         visible={whirlpoolIntroModal}
