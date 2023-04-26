@@ -68,8 +68,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
       }`
     );
   };
@@ -80,7 +79,7 @@ function TransactionDetails({ route }) {
         <HeaderTitle
           onPressHandler={() => navigation.goBack()}
           title={transactions.TransactionDetails}
-          subtitle=""
+          subtitle="Detailed information for this UTXO"
           paddingTop={hp(20)}
         />
         <Box style={styles.transViewWrapper}>
