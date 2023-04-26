@@ -30,6 +30,7 @@ import { Box, HStack, VStack } from 'native-base';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
+import SendBadBankSatsModal from './components/SendBadBankSatsModal';
 
 const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
   if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
@@ -311,6 +312,8 @@ function UTXOManagement({ route, navigation }) {
         )}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
+      {/* <SendBadBankSatsModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} /> */}
+
       <InitiateWhirlpoolModal
         visible={whirlpoolIntroModal}
         closeModal={() => dispatch(setWhirlpoolIntro(false))}
