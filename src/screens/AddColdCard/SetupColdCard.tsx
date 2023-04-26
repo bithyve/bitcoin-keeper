@@ -4,7 +4,6 @@ import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { getColdcardDetails } from 'src/hardware/coldcard';
 
 import { Box } from 'native-base';
-import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect } from 'react';
@@ -20,6 +19,8 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import useAsync from 'src/hooks/useAsync';
+import NfcManager from 'react-native-nfc-manager';
+import DeviceInfo from 'react-native-device-info';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -31,11 +32,17 @@ function SetupColdCard() {
 
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
-  const { inProgress, start } = useAsync();
+  const { start } = useAsync();
 
   useEffect(() => {
-    addColdCardWithProgress();
-  }, [])
+    NfcManager.isSupported().then((supported) => {
+      if (supported) {
+        addColdCardWithProgress();
+      } else if (!DeviceInfo.isEmulator()) {
+        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+      }
+    });
+  }, []);
 
   const addColdCardWithProgress = async () => {
     await start(addColdCard);

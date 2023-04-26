@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   optionWrapper: {
     alignItems: 'center',
     marginTop: hp(40),
-    padding: 25,
+    paddingHorizontal: 25,
   },
 });
 export default BackupWallet;

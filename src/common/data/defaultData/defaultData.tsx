@@ -39,4 +39,4 @@ export const securityTips = [
     message: 'Testing out your setup before using it is always a good idea',
   },
 ];
-export const getSecurityTip = () => securityTips[Math.floor(Math.random() * 5)];
+export const getSecurityTip = () => securityTips[Math.floor(Math.random() * securityTips.length)];
