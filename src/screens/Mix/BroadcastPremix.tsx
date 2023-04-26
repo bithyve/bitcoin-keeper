@@ -31,6 +31,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
 import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
+import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -68,8 +69,11 @@ export default function BroadcastPremix({ route, navigation }) {
     const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
     return valueInPreferredUnit;
   };
-  const { wallets } = useWallets({ walletIds: [wallet.id], whirlpoolStruct: true });
+  const { wallets } = useWallets({ walletIds: [wallet.id] });
   const depositWallet: Wallet = wallets[0];
+  const whirlpoolWalletAccountMap = useWhirlpoolWallets({
+    wallets: [depositWallet],
+  })?.[depositWallet.id];
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
@@ -80,21 +84,17 @@ export default function BroadcastPremix({ route, navigation }) {
   };
 
   useEffect(() => {
-    if (!wallet?.whirlpoolConfig?.premixWallet) {
+    if (!whirlpoolWalletAccountMap) {
       dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
     }
     setPremixOutputsAndBadbank();
   }, []);
 
   useEffect(() => {
-    if (
-      premixOutputs.length &&
-      depositWallet?.whirlpoolConfig?.premixWallet &&
-      depositWallet?.whirlpoolConfig?.postmixWallet
-    ) {
+    if (premixOutputs.length && whirlpoolWalletAccountMap) {
       setPreRequistesLoading(false);
     }
-  }, [premixOutputs, depositWallet]);
+  }, [premixOutputs, whirlpoolWalletAccountMap]);
 
   useEffect(() => {
     if (loading) {
@@ -111,9 +111,8 @@ export default function BroadcastPremix({ route, navigation }) {
   const onBroadcastModalCallback = async () => {
     try {
       const network = WalletUtilities.getNetworkByType(depositWallet.networkType);
-      const { premixWallet, badbankWallet } = depositWallet.whirlpoolConfig;
+      const { premixWallet, badbankWallet } = whirlpoolWalletAccountMap;
       const premixAddresses = [];
-
       for (
         let i = premixWallet.specs.nextFreeAddressIndex;
         i < premixWallet.specs.nextFreeAddressIndex + tx0Preview.nPremixOutputs;

@@ -34,6 +34,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { UTXO } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { captureError } from 'src/core/services/sentry';
+import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -147,10 +148,11 @@ function MixProgress({
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [poolsData, setPoolsData] = useState([]);
-  const source = isRemix
-    ? depositWallet?.whirlpoolConfig?.postmixWallet
-    : depositWallet?.whirlpoolConfig?.premixWallet;
-  const destination = depositWallet?.whirlpoolConfig?.postmixWallet;
+  const { postmixWallet, premixWallet } = useWhirlpoolWallets({ wallets: [depositWallet] })?.[
+    depositWallet.id
+  ];
+  const source = isRemix ? postmixWallet : premixWallet;
+  const destination = postmixWallet;
 
   const getPoolsData = async () => {
     const poolsDataResponse = await WhirlpoolClient.getPools();

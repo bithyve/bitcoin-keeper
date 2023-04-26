@@ -30,12 +30,25 @@ import { Box, HStack, VStack } from 'native-base';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
+import useWhirlpoolWallets, {
+  whirlpoolWalletAccountMapInterface,
+} from 'src/hooks/useWhirlpoolWallets';
 
-const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
-  if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
-  if (accountType === WalletType.PRE_MIX) return depositWallet?.whirlpoolConfig?.premixWallet;
-  if (accountType === WalletType.POST_MIX) return depositWallet?.whirlpoolConfig?.postmixWallet;
-  return depositWallet;
+const getWalletBasedOnAccount = (
+  depositWallet: Wallet,
+  whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface,
+  accountType: string
+) => {
+  switch (accountType) {
+    case WalletType.BAD_BANK:
+      return whirlpoolWalletAccountMap.badbankWallet;
+    case WalletType.PRE_MIX:
+      return whirlpoolWalletAccountMap.premixWallet;
+    case WalletType.POST_MIX:
+      return whirlpoolWalletAccountMap.postmixWallet;
+    default:
+      return depositWallet;
+  }
 };
 
 function Footer({
@@ -120,7 +133,12 @@ function UTXOManagement({ route, navigation }) {
   const wallet =
     entityKind === EntityKind.VAULT
       ? useVault().activeVault
-      : useWallets({ walletIds: [id], whirlpoolStruct: true }).wallets[0];
+      : useWallets({ walletIds: [id] }).wallets[0];
+
+  const whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface = useWhirlpoolWallets({
+    wallets: [wallet],
+  })?.[wallet.id];
+
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedAccount, setSelectedAccount] = useState<string>();
@@ -144,7 +162,11 @@ function UTXOManagement({ route, navigation }) {
   useEffect(() => {
     if (isWhirlpoolWallet) {
       setDepositWallet(wallet);
-      const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+      const walletAccount: Wallet = getWalletBasedOnAccount(
+        wallet,
+        whirlpoolWalletAccountMap,
+        selectedAccount
+      );
       if (selectedAccount === WalletType.PRE_MIX) {
         setInitateWhirlpoolMix(true);
       } else {
@@ -158,7 +180,11 @@ function UTXOManagement({ route, navigation }) {
   }, [syncing, selectedAccount]);
 
   const updateSelectedWallet = (selectedAccount) => {
-    const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+    const walletAccount: Wallet = getWalletBasedOnAccount(
+      wallet,
+      whirlpoolWalletAccountMap,
+      selectedAccount
+    );
     setSelectedWallet(walletAccount);
   };
 
