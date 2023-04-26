@@ -14,7 +14,11 @@ import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import { addNewWhirlpoolWallets, incrementAddressIndex } from 'src/store/sagaActions/wallets';
+import {
+  addNewWhirlpoolWallets,
+  incrementAddressIndex,
+  refreshWallets,
+} from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -29,9 +33,9 @@ import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
+import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
-import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -152,6 +156,13 @@ export default function BroadcastPremix({ route, navigation }) {
               internal: false,
             })
           );
+
+          setTimeout(async () => {
+            // auto refresh post 3 seconds, allowing for the indexer to sync
+            dispatch(
+              refreshWallets([depositWallet, premixWallet, badbankWallet], { hardRefresh: true })
+            );
+          }, 3000);
 
           const outputs = PSBT.txOutputs;
           const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
