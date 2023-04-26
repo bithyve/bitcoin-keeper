@@ -62,7 +62,6 @@ function OnBoardingSlides({ navigation }) {
       id: 3,
       title: (
         <>
-          {/* {`${onboarding.slide07Title} `} */}
           <Text style={styles.info}>{onboarding.whirlpool}</Text>
         </>
       ),
@@ -131,7 +130,6 @@ function OnBoardingSlides({ navigation }) {
             <Box flexDirection="row" height={5}>
               {currentPosition < items.length - 1 ? (
                 items.map((item, index) => (
-                  // console.log('index', index);
                   <Box
                     key={index}
                     style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
