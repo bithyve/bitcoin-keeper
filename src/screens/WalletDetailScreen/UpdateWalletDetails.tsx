@@ -1,6 +1,5 @@
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
   ScrollView,
   Text,
@@ -9,7 +8,7 @@ import {
 } from 'react-native';
 // libraries
 import { Box, Input, Select, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
@@ -19,21 +18,25 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
+import KeeperText from 'src/components/KeeperText';
+
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
+import { DerivationPurpose } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { updateWalletPathAndPurposeDetails } from 'src/store/sagaActions/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShowXPub from 'src/components/XPub/ShowXPub';
+import { WalletDerivationDetails } from 'src/core/wallets/interfaces/wallet';
+import { generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { updateAppImageWorker } from 'src/store/sagas/bhr';
 
 function UpdateWalletDetails({ route }) {
   const navigtaion = useNavigation();
@@ -45,11 +48,11 @@ function UpdateWalletDetails({ route }) {
   const { translations } = useContext(LocalizationContext);
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
-  const [purposeList, setPurposeList] = useState([
+  const purposeList = [
     { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
     { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-  ]);
+  ];
   const getPupose = (key) => {
     switch (key) {
       case 'P2PKH':
@@ -82,11 +85,35 @@ function UpdateWalletDetails({ route }) {
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
   const updateWallet = () => {
-    const details = {
-      path,
-      purpose,
-    };
-    dispatch(updateWalletPathAndPurposeDetails(wallet, details));
+    try {
+      const derivationDetails: WalletDerivationDetails = {
+        ...wallet.derivationDetails,
+        xDerivationPath: path,
+      };
+      const specs = generateWalletSpecs(
+        derivationDetails.mnemonic,
+        WalletUtilities.getNetworkByType(wallet.networkType),
+        derivationDetails.xDerivationPath
+      );
+      const scriptType = purposeList.find(item => item.value === purpose).label.split(':')[0]
+      wallet.derivationDetails = derivationDetails;
+      wallet.specs = specs;
+      wallet.scriptType = scriptType;
+      const isUpdated = dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
+        derivationDetails,
+        // specs,
+        scriptType
+      })
+      if (isUpdated) {
+        updateAppImageWorker({ payload: { wallet } })
+        navigtaion.goBack()
+        showToast('Wallet details updated', <TickIcon />);
+      } else showToast("Failed to update", <ToastErrorIcon />);
+
+    } catch (error) {
+      console.log(error)
+      showToast("Failed to update", <ToastErrorIcon />);
+    }
   };
 
   const onDropDownClick = () => {
@@ -121,6 +148,12 @@ function UpdateWalletDetails({ route }) {
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
+            <KeeperText
+              type="regular"
+              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(20), }]}
+            >
+              Purpose
+            </KeeperText>
             <TouchableOpacity
               activeOpacity={!isFromSeed ? 0 : 1}
               onPress={onDropDownClick}
@@ -147,7 +180,7 @@ function UpdateWalletDetails({ route }) {
                       setArrow(false);
                       setPurpose(item.value);
                       setPurposeLbl(item.label);
-                      setPath('');
+                      // setPath('');
                     }}
                     style={styles.flagWrapper1}
                   >
@@ -156,6 +189,12 @@ function UpdateWalletDetails({ route }) {
                 ))}
               </ScrollView>
             )}
+            <KeeperText
+              type="regular"
+              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(15), }]}
+            >
+              Path
+            </KeeperText>
             <Box style={[styles.textInputWrapper]}>
               <TextInput
                 placeholder="Derivation Path"
@@ -214,6 +253,11 @@ const styles = ScaledSheet.create({
     borderRadius: 6,
     marginTop: hp(3),
   },
+  autoTransferText: {
+    fontSize: 12,
+    paddingHorizontal: wp(5),
+    letterSpacing: '0.6@s',
+  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -251,7 +295,7 @@ const styles = ScaledSheet.create({
     // borderTopLeftRadius: 10,
     // borderBottomLeftRadius: 10,
     paddingVertical: 20,
-    marginTop: 10,
+    // marginTop: 10,
     flexDirection: 'row',
   },
   cameraView: {
@@ -313,7 +357,7 @@ const styles = ScaledSheet.create({
   },
   textInputWrapper: {
     flexDirection: 'row',
-    marginTop: hp(15),
+    // marginTop: hp(15),
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
