@@ -4,7 +4,6 @@ import { Box, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-// components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -22,14 +21,14 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
-// icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
 
@@ -69,11 +68,12 @@ function WalletSettings({ route }) {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
   const { wallets } = useWallets();
-  const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
+  const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const { getBalance, getCurrencyIcon } = useBalance();
-
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
@@ -318,8 +318,9 @@ function WalletSettings({ route }) {
           buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
+              data=""
               wallet={wallet}
-              appID={keeper?.appID}
+              cosignerDetails
               copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"

@@ -38,7 +38,7 @@ function ExportSeedScreen({ route, navigation }) {
   const seedText = translations.seed;
 
   useEffect(() => {
-    if (backupMethod !== null) {
+    if (backupMethod !== null && next) {
       setBackupSuccessModal(true);
       setTimeout(() => {
         navigation.replace('WalletBackHistory');
