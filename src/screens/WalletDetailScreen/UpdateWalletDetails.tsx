@@ -95,7 +95,6 @@ function UpdateWalletDetails({ route }) {
         WalletUtilities.getNetworkByType(wallet.networkType),
         derivationDetails.xDerivationPath
       );
-      console.log('purpose', purpose)
       const scriptType = purposeList.find(item => item.value === purpose).label.split(':')[0]
       wallet.derivationDetails = derivationDetails;
       wallet.specs = specs;
