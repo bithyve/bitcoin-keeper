@@ -65,7 +65,7 @@ function UpdateWalletDetails({ route }) {
         return '';
     }
   };
-  const [purpose, setPurpose] = useState(wallet?.scriptType);
+  const [purpose, setPurpose] = useState(purposeList.find(item => item.label.split(':')[0] === wallet?.scriptType).value);
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
   const { showToast } = useToastMessage();
@@ -95,6 +95,7 @@ function UpdateWalletDetails({ route }) {
         WalletUtilities.getNetworkByType(wallet.networkType),
         derivationDetails.xDerivationPath
       );
+      console.log('purpose', purpose)
       const scriptType = purposeList.find(item => item.value === purpose).label.split(':')[0]
       wallet.derivationDetails = derivationDetails;
       wallet.specs = specs;
