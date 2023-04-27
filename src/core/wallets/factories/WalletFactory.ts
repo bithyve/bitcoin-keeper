@@ -100,7 +100,13 @@ export const generateWallet = async ({
     xDerivationPath = importDetails.derivationConfig.path;
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
-  const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+
+  if (whirlPoolWalletTypes.includes(type)) {
+    depositWalletId = id;
+    id = hash256(`${id}${type}`);
+  }
+
   const derivationDetails = {
     instanceNum,
     mnemonic,
