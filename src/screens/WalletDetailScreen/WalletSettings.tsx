@@ -199,8 +199,8 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Update Path & Purpose"
-            subTitle="Change Derivation path & purpose"
+            title="Update Path"
+            subTitle="Change Derivation path"
             onPress={() => {
               navigation.navigate('UpdateWalletDetails', { wallet });
             }}

@@ -45,6 +45,7 @@ export const generateWalletSpecs = (
     txNote: {},
     hasNewUpdates: false,
     lastSynched: 0,
+    receivingAddress: '',
   };
   return specs;
 };
