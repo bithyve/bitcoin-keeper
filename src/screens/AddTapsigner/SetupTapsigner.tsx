@@ -29,6 +29,8 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import config from 'src/core/config';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
+import NfcManager from 'react-native-nfc-manager';
+import DeviceInfo from 'react-native-device-info';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -61,7 +63,13 @@ function SetupTapsigner() {
   const { inProgress, start } = useAsync();
 
   const addTapsignerWithProgress = async () => {
-    await start(addTapsigner);
+    NfcManager.isSupported().then(async (supported) => {
+      if (supported) {
+        await start(addTapsigner);
+      } else if (!DeviceInfo.isEmulator()) {
+        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+      }
+    });
   };
 
   const addTapsigner = React.useCallback(async () => {

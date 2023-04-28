@@ -33,6 +33,9 @@ function getSDMessage({ type }: { type: SignerType }) {
     case SignerType.TREZOR: {
       return 'Manually verify addresses';
     }
+    case SignerType.OTHER_SD: {
+      return 'Varies with different signer';
+    }
     default:
       return null;
   }

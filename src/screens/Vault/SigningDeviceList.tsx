@@ -24,7 +24,7 @@ import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
 import Note from 'src/components/Note/Note';
-import { WalletMap } from './WalletMap';
+import { SDIcons } from './SigningDeviceIcons';
 import HardwareModalMap from './HardwareModalMap';
 import { getSDMessage } from './components/SDMessage';
 
@@ -151,6 +151,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
+    SignerType.OTHER_SD,
     SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
@@ -182,10 +183,10 @@ function SigningDeviceList({ navigation }: { navigation }) {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
+              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
               <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
-                {WalletMap(type).Logo}
+                {SDIcons(type).Logo}
                 <Text color="light.inActiveMsg" style={styles.messageText}>
                   {message}
                 </Text>
