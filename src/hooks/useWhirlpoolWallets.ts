@@ -24,13 +24,13 @@ type useWhirlpoolWalletsInterface = ({
 const useWhirlpoolWallets: useWhirlpoolWalletsInterface = ({ wallets }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const allWallets = useQuery(RealmSchema.Wallet);
-  let whirlpoolWalletsAccountsMap = {};
+  const whirlpoolWalletsAccountsMap = {};
   wallets.forEach((wallet) => {
     const { whirlpoolConfig = null } = wallet;
     if (whirlPoolWalletTypes.includes(wallet.type)) {
     }
     if (whirlpoolConfig) {
-      let whirlpoolAccountMap: whirlpoolWalletAccountMapInterface = {};
+      const whirlpoolAccountMap: whirlpoolWalletAccountMapInterface = {};
       const { whirlpoolWalletDetails } = whirlpoolConfig;
       whirlpoolWalletDetails.forEach((whirlpoolWalletDetail) => {
         const { walletId, walletType } = whirlpoolWalletDetail;

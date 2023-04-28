@@ -29,7 +29,12 @@ function WhirlpoolLoader() {
   const styles = getStyles(clock, antiClock);
   return (
     <Box style={{ position: 'relative' }}>
-      <Box style={{ width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65, alignItems: 'flex-start' }}>
+      <Box
+        style={{
+          width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65,
+          alignItems: 'flex-start',
+        }}
+      >
         <Background />
         <Animated.View style={styles.gear2}>
           <Gear2 />
