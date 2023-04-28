@@ -1,36 +1,27 @@
 import {
   KeyboardAvoidingView,
-  Linking,
+  // Linking,
   Platform,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-// libraries
-import { Box, Input, Select, View } from 'native-base';
+import { Box, View } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Note from 'src/components/Note/Note';
-import { RNCamera } from 'react-native-camera';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import BitcoinInput from 'src/assets/images/btc_input.svg';
 // components
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
-import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
@@ -133,7 +124,7 @@ function AddDetailsFinalScreen({ route }) {
       } else {
         showToast('Wallet imported', <TickIcon />);
         navigation.replace('WalletDetails')
-        Linking.openURL(`${appId}://backup/true`);
+        // Linking.openURL(`${appId}://backup/true`);
       }
     }
     if (relayWalletError) {
@@ -196,25 +187,6 @@ function AddDetailsFinalScreen({ route }) {
                 <RightArrowIcon />
               </Box>
             </TouchableOpacity>
-            {/* <Select
-              style={styles.dropDownContainer}
-              selectedValue={purpose}
-              minWidth="200"
-              accessibilityLabel="Choose Service"
-              placeholder="Choose Purpose"
-              mt={1}
-              onValueChange={(itemValue) => setPurpose(itemValue)}
-            >
-              <Select.Item label="P2PKH: legacy, single-sig" value={`${DerivationPurpose.BIP44}`} />
-              <Select.Item
-                label="P2SH-P2WPKH: wrapped segwit, single-sg"
-                value={`${DerivationPurpose.BIP49}`}
-              />
-              <Select.Item
-                label="P2WPKH: native segwit, single-sig"
-                value={`${DerivationPurpose.BIP84}`}
-              />
-            </Select> */}
           </Box>
           {showPurpose && (
             <ScrollView style={styles.langScrollViewWrapper}>
