@@ -30,6 +30,7 @@ import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
+import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -225,6 +226,16 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         ],
         title: tapsigner.SetupTitle,
         subTitle: tapsigner.SetupDescription,
+      };
+    case SignerType.OTHER_SD:
+      return {
+        Illustration: <OtherSDSetup />,
+        Instructions: [
+          'Manually provide the signing device details',
+          `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+        ],
+        title: 'Keep your signing device ready',
+        subTitle: 'Keep your signing device ready before proceeding',
       };
     default:
       return {
@@ -535,6 +546,14 @@ function HardwareModalMap({
     );
   };
 
+  const navigateToSetupWithOtherSD = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'SetupOtherSDScreen',
+      })
+    );
+  };
+
   const navigateToSeedWordSetup = () => {
     close();
     const mnemonic = bip39.generateMnemonic();
@@ -665,6 +684,8 @@ function HardwareModalMap({
       case SignerType.JADE:
       case SignerType.KEEPER:
         return navigateToAddQrBasedSigner();
+      case SignerType.OTHER_SD:
+        return navigateToSetupWithOtherSD();
       default:
         return null;
     }

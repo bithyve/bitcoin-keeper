@@ -49,7 +49,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
 import useWallets from 'src/hooks/useWallets';
 import UaiDisplay from './UaiDisplay';
-import { WalletMap } from '../Vault/WalletMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -312,7 +312,7 @@ function VaultStatus(props) {
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
                     <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
-                      {WalletMap(signer.type).Icon}
+                      {SDIcons(signer.type).Icon}
                     </Box>
                   ))}
                 </Box>
