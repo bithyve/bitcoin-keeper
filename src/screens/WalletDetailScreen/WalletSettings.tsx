@@ -14,10 +14,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import useBalance from 'src/hooks/useBalance';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
@@ -31,6 +28,7 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
+import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 
 type Props = {
   title: string;
@@ -173,8 +171,14 @@ function WalletSettings({ route }) {
         <WalletCard
           walletName={wallet?.presentationData?.name}
           walletDescription={wallet?.presentationData?.description}
-          walletBalance={getBalance(wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed)}
-          Icon={getCurrencyIcon(BtcWallet, 'light')}
+          walletBalance={getAmt(
+            wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed,
+            exchangeRates,
+            currencyCode,
+            currentCurrency,
+            satsEnabled
+          )}
+          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
       </Box>
       <Box style={styles.optionsListContainer}>
