@@ -65,7 +65,7 @@ function UpdateWalletDetails({ route }) {
         return '';
     }
   };
-  const [purpose, setPurpose] = useState(wallet?.scriptType);
+  const [purpose, setPurpose] = useState(purposeList.find(item => item.label.split(':')[0] === wallet?.scriptType).value);
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
   const { showToast } = useToastMessage();
@@ -93,15 +93,16 @@ function UpdateWalletDetails({ route }) {
       const specs = generateWalletSpecs(
         derivationDetails.mnemonic,
         WalletUtilities.getNetworkByType(wallet.networkType),
-        derivationDetails.xDerivationPath
+        derivationDetails.xDerivationPath,
       );
-      const scriptType = purposeList.find(item => item.value === purpose).label.split(':')[0]
+      const p = WalletUtilities.getPurpose(path)
+      const scriptType = purposeList.find(item => item.value === p).label.split(':')[0]
       wallet.derivationDetails = derivationDetails;
       wallet.specs = specs;
       wallet.scriptType = scriptType;
       const isUpdated = dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
         derivationDetails,
-        // specs,
+        specs,
         scriptType
       })
       if (isUpdated) {
@@ -141,14 +142,14 @@ function UpdateWalletDetails({ route }) {
           subtitle={
             isFromSeed
               ? 'The QR below comprises of your 12 word Recovery Phrase'
-              : 'Update Path & Purpose'
+              : 'Update Wallet Path'
           }
           headerTitleColor={Colors.TropicalRainForest}
           paddingTop={hp(5)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
-            <KeeperText
+            {/* <KeeperText
               type="regular"
               style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(20), }]}
             >
@@ -170,7 +171,7 @@ function UpdateWalletDetails({ route }) {
               >
                 {!isFromSeed && <RightArrowIcon />}
               </Box>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {showPurpose && (
               <ScrollView style={styles.langScrollViewWrapper}>
                 {purposeList.map((item) => (

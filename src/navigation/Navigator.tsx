@@ -71,14 +71,15 @@ import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
+import SetupOtherSDScreen from 'src/screens/AddOtherSD/SetupOtherSDScreen';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
-import Login from '../screens/LoginScreen/Login';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -201,6 +202,7 @@ function AppStack() {
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
+        <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
       </Stack.Navigator>
     </RealmProvider>

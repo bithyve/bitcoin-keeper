@@ -5,7 +5,6 @@ import { Box, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-// components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -23,10 +22,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import Note from 'src/components/Note/Note';
-// icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -34,7 +31,6 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 
 type Props = {
@@ -71,12 +67,10 @@ function WalletSettings({ route }) {
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
-  const { relayWalletUpdateLoading, relayWalletUpdate } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
   const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -205,8 +199,8 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Update Path & Purpose"
-            subTitle="Change Derivation path & purpose"
+            title="Update Path"
+            subTitle="Change Derivation path"
             onPress={() => {
               navigation.navigate('UpdateWalletDetails', { wallet });
             }}
@@ -331,7 +325,9 @@ function WalletSettings({ route }) {
           buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
-              data={JSON.stringify(getCosignerDetails(wallet, keeper?.appID))}
+              data=""
+              wallet={wallet}
+              cosignerDetails
               copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
@@ -390,10 +386,10 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: wp(20),
+    marginHorizontal: wp(10),
   },
   walletDetailsWrapper: {
-    width: wp(170),
+    width: wp(155),
   },
   walletName: {
     letterSpacing: 0.28,

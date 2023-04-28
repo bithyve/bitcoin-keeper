@@ -112,6 +112,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.BITBOX02:
       name = 'BitBox02';
       break;
+    case SignerType.OTHER_SD:
+      name = 'Other Signing Device';
+      break;
     default:
       name = type;
       break;
