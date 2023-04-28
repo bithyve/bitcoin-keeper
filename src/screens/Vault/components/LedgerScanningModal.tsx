@@ -11,7 +11,7 @@ import { SignerType } from 'src/core/wallets/enums';
 import Text from 'src/components/KeeperText';
 import { useNavigation } from '@react-navigation/native';
 import LoadingAnimation from 'src/components/Loader';
-import { WalletMap } from '../WalletMap';
+import { SDIcons } from '../SigningDeviceIcons';
 import MockWrapper from '../MockWrapper';
 
 function LedgerContent({
@@ -44,7 +44,7 @@ function LedgerContent({
               ]}
             >
               <HStack style={[globalStyles.centerRow]}>
-                <Box style={styles.icon}>{WalletMap(SignerType.LEDGER, true).Icon}</Box>
+                <Box style={styles.icon}>{SDIcons(SignerType.LEDGER, true).Icon}</Box>
                 <VStack style={{ paddingLeft: 20 }}>
                   <Text style={[globalStyles.font14, { letterSpacing: 1.12 }]}>{device.name}</Text>
                   <Text style={[globalStyles.font12, { letterSpacing: 0.6 }]}>

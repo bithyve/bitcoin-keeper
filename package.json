@@ -15,7 +15,11 @@
     "androidStagingDebug": "ENVFILE=.env react-native run-android --variant=stagingDebug --appIdSuffix=staging",
     "androidStagingRelease": "ENVFILE=.env react-native run-android --variant=stagingRelease --appIdSuffix=staging",
     "androidProductionDebug": "ENVFILE=.env react-native run-android --variant=productionDebug",
-    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease"
+    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease",
+    "uninstall ios": "xcrun simctl uninstall booted io.hexawallet.keeper",
+    "uninstall ios:dev": "xcrun simctl uninstall booted io.hexawallet.hexakeeper.dev",
+    "uninstall android": "adb uninstall io.hexawallet.bitcoinkeeper",
+    "uninstall android:dev": "adb uninstall io.hexawallet.keeper.development"
   },
   "dependencies": {
     "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",

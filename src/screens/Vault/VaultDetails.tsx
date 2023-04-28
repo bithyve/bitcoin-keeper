@@ -52,9 +52,9 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
-import { WalletMap } from './WalletMap';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import WalletOperations from 'src/core/wallets/operations';
+import { SDIcons } from './SigningDeviceIcons';
+import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
@@ -336,7 +336,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 alignItems="center"
                 alignSelf="center"
               >
-                {WalletMap(signer.type, true).Icon}
+                {SDIcons(signer.type, true).Icon}
               </Box>
               <Text bold style={styles.unregistered}>
                 {indicate ? 'Not registered' : ' '}
