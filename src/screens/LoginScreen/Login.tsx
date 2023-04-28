@@ -5,7 +5,7 @@ import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import TorAsset from 'src/assets/images/TorAssert.svg';
+import TorAsset from 'src/components/Loader';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
@@ -422,7 +422,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         subTitleColor="light.secondaryText"
