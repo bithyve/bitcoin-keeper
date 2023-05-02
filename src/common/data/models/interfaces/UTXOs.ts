@@ -1,4 +1,5 @@
 export interface modalParams {
     visible: boolean,
-    closeModal: () => void
+    closeModal: () => void,
+    onclick?: () => void,
 }
