@@ -52,7 +52,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
       </Box>
       {extraLabelCount > 0 && (
         <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
-          <Text style={{ color: Colors.White }} testID="text_extraLabelCount">
+          <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>
         </Box>
@@ -196,7 +196,7 @@ function UTXOList({
           selectedAccount={selectedAccount}
         />
       )}
-      keyExtractor={(item: UTXO) => `${item.txId}${item.vout}`}
+      keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
         <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     overflow: 'hidden',
-    width: '90%',
+    width: '85%',
     maxHeight: 28,
   },
   utxoLabelView: {
