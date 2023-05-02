@@ -49,7 +49,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
 import useWallets from 'src/hooks/useWallets';
 import UaiDisplay from './UaiDisplay';
-import { WalletMap } from '../Vault/WalletMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 function InheritanceComponent() {
   const navigation = useNavigation();
@@ -139,7 +139,7 @@ function LinkedWallets(props) {
               {wallets?.length}
             </Text>
             <Text color="light.white" style={styles.LinkedWalletText}>
-              Linked Wallet{wallets?.length > 1 && 's'}
+              Hot Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>
@@ -312,7 +312,7 @@ function VaultStatus(props) {
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
                     <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
-                      {WalletMap(signer.type).Icon}
+                      {SDIcons(signer.type).Icon}
                     </Box>
                   ))}
                 </Box>
@@ -456,9 +456,34 @@ function HomeScreen({ navigation }) {
   const { showToast } = useToastMessage();
 
   useEffect(() => {
+    Linking.addEventListener('url', handleDeepLinkEvent);
     handleDeepLinking();
+    return () => {
+      Linking.removeAllListeners('url');
+    };
   }, []);
 
+  function handleDeepLinkEvent({ url }) {
+    if (url) {
+      if (url.includes('backup')) {
+        const splits = url.split('backup/');
+        const decoded = Buffer.from(splits[1], 'base64').toString();
+        const params = urlParamsToObj(decoded);
+        if (params.seed) {
+          navigation.navigate('EnterWalletDetail', {
+            seed: params.seed,
+            name: params.name,
+            path: params.path,
+            appId: params.appId,
+            description: `Imported from ${params.name}`,
+            type: WalletType.IMPORTED,
+          });
+        } else {
+          showToast('Invalid deeplink');
+        }
+      }
+    }
+  }
   async function handleDeepLinking() {
     try {
       const initialUrl = await Linking.getInitialURL();
@@ -473,6 +498,7 @@ function HomeScreen({ navigation }) {
               name: params.name,
               path: params.path,
               appId: params.appId,
+              purpose: params.purpose,
               description: `Imported from ${params.name}`,
               type: WalletType.IMPORTED,
             });

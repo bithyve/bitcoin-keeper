@@ -3,6 +3,7 @@ import { Box } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import Colors from 'src/theme/Colors';
 
 function EmptyStateView({
   IllustartionImage,
@@ -16,8 +17,12 @@ function EmptyStateView({
   return (
     <Box style={styles.container}>
       {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />}
-      <Text style={styles.noTransactionTitle}>{title}</Text>
-      <Text style={styles.noTransactionSubTitle}>{subTitle}</Text>
+      <Text italic style={styles.noTransactionTitle}>
+        {title}
+      </Text>
+      <Text italic style={styles.noTransactionSubTitle}>
+        {subTitle}
+      </Text>
     </Box>
   );
 }
@@ -31,14 +36,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.6,
     opacity: 0.85,
-    fontWeight: '300',
+    fontWeight: '400',
+    marginTop: hp(20),
+    color: Colors.RichBlack,
   },
   noTransactionSubTitle: {
     fontSize: 12,
     letterSpacing: 0.6,
     opacity: 0.85,
-    fontWeight: '300',
+    fontWeight: '400',
     textAlign: 'center',
+    color: Colors.RichBlack,
   },
 });
 export default EmptyStateView;

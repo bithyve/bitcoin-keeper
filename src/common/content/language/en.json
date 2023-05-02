@@ -476,7 +476,7 @@
     "slide06Paragraph": "Pleb - Hodler - Diamond Hands. Three levels for the vault with increased multi-sig security. The last tier enables inheritance.",
     "slide07Title": "Enhanced Privacy with",
     "whirlpool": "\nWhirlpool",
-    "slide07Paragraph": "When you initiate a Whirlpool, Keeper creates 3 different wallets for you. Premix is for UTXOs prepared to go into pools. Postmix is for all the sats that have been mixed while Bad Bank is for sats that may have PIIs attached. Once happy with the mix, you can shift your sats into the vault."
+    "slide07Paragraph": "Break the deterministic links to your bitcoin and ensure forward looking privacy with Whirlpool. You can remix your sats for free for enhanced privacy before storing them in your vault"
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",

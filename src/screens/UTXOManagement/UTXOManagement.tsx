@@ -22,21 +22,35 @@ import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
-import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
+import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
 import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
 import useVault from 'src/hooks/useVault';
 import useWallets from 'src/hooks/useWallets';
 import { Box, HStack, VStack } from 'native-base';
+import deviceInfoModule from 'react-native-device-info';
+import useWhirlpoolWallets, {
+  whirlpoolWalletAccountMapInterface,
+} from 'src/hooks/useWhirlpoolWallets';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
 
-const getWalletBasedOnAccount = (depositWallet: Wallet | Vault, accountType: string) => {
-  if (accountType === WalletType.BAD_BANK) return depositWallet?.whirlpoolConfig?.badbankWallet;
-  if (accountType === WalletType.PRE_MIX) return depositWallet?.whirlpoolConfig?.premixWallet;
-  if (accountType === WalletType.POST_MIX) return depositWallet?.whirlpoolConfig?.postmixWallet;
-  return depositWallet;
+const getWalletBasedOnAccount = (
+  depositWallet: Wallet,
+  whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface,
+  accountType: string
+) => {
+  switch (accountType) {
+    case WalletType.BAD_BANK:
+      return whirlpoolWalletAccountMap.badbankWallet;
+    case WalletType.PRE_MIX:
+      return whirlpoolWalletAccountMap.premixWallet;
+    case WalletType.POST_MIX:
+      return whirlpoolWalletAccountMap.postmixWallet;
+    default:
+      return depositWallet;
+  }
 };
 
 function Footer({
@@ -123,7 +137,12 @@ function UTXOManagement({ route, navigation }) {
   const wallet =
     entityKind === EntityKind.VAULT
       ? useVault().activeVault
-      : useWallets({ walletIds: [id], whirlpoolStruct: true }).wallets[0];
+      : useWallets({ walletIds: [id] }).wallets[0];
+
+  const whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface = useWhirlpoolWallets({
+    wallets: [wallet],
+  })?.[wallet.id];
+
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedAccount, setSelectedAccount] = useState<string>();
@@ -148,7 +167,11 @@ function UTXOManagement({ route, navigation }) {
   useEffect(() => {
     if (isWhirlpoolWallet) {
       setDepositWallet(wallet);
-      const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+      const walletAccount: Wallet = getWalletBasedOnAccount(
+        wallet,
+        whirlpoolWalletAccountMap,
+        selectedAccount
+      );
       if (selectedAccount === WalletType.PRE_MIX) {
         setInitateWhirlpoolMix(true);
       } else {
@@ -162,7 +185,11 @@ function UTXOManagement({ route, navigation }) {
   }, [syncing, selectedAccount]);
 
   const updateSelectedWallet = (selectedAccount) => {
-    const walletAccount: Wallet = getWalletBasedOnAccount(wallet, selectedAccount);
+    const walletAccount: Wallet = getWalletBasedOnAccount(
+      wallet,
+      whirlpoolWalletAccountMap,
+      selectedAccount
+    );
     setSelectedWallet(walletAccount);
   };
 
@@ -276,44 +303,54 @@ function UTXOManagement({ route, navigation }) {
         buttonBackground={['#00836A', '#073E39']}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
-        Content={() => (
-          <Box>
-            <Box style={styles.batteryModalContent}>
-              <Box style={styles.batteryImage}>
-                <BatteryIllustration />
-              </Box>
-              <Box style={styles.batteryModalTextArea}>
-                <Box style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>Connect to power</Text>
-                </Box>
-                <Box style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>20% battery required</Text>
-                </Box>
-              </Box>
-            </Box>
+        Content={() => {
+          const [batteryPercentage, setBatteryPercentage] = useState(0);
+          useEffect(() => {
+            deviceInfoModule.getBatteryLevel().then((batteryLevel) => {
+              setBatteryPercentage(batteryLevel * 100);
+            });
+          }, []);
 
-            <Box style={styles.mixSuccesModalFooter}>
-              <Box style={{ alignSelf: 'flex-end' }}>
-                <Buttons
-                  primaryText="Continue"
-                  primaryCallback={() => {
-                    setShowBatteryWarningModal(false);
-                    setEnableSelection(false);
-                    navigation.navigate('MixProgress', {
-                      selectedUTXOs,
-                      depositWallet,
-                      selectedWallet,
-                      walletPoolMap,
-                      isRemix,
-                    });
-                  }}
-                />
+          return (
+            <Box>
+              <Box style={styles.batteryModalContent}>
+                <Box style={styles.batteryImage}>
+                  <BatteryIllustration />
+                </Box>
+                <Box style={styles.batteryModalTextArea}>
+                  <Box style={{ flexDirection: 'row' }}>
+                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                    <Text style={styles.batteryModalText}>Connect to power</Text>
+                  </Box>
+                  <Box style={{ flexDirection: 'row' }}>
+                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
+                    <Text style={styles.batteryModalText}>20% battery required</Text>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Box style={styles.mixSuccesModalFooter}>
+                <Box style={{ alignSelf: 'flex-end' }}>
+                  <Buttons
+                    primaryDisable={batteryPercentage < 20}
+                    primaryText="Continue"
+                    primaryCallback={() => {
+                      setShowBatteryWarningModal(false);
+                      setEnableSelection(false);
+                      navigation.navigate('MixProgress', {
+                        selectedUTXOs,
+                        depositWallet,
+                        selectedWallet,
+                        walletPoolMap,
+                        isRemix,
+                      });
+                    }}
+                  />
+                </Box>
               </Box>
             </Box>
-          </Box>
-        )}
+          );
+        }}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
       <SendBadBankSatsModal visible={sendBadBankModalVisible} closeModal={() => setSendBadBankModalVisible(false)} onclick={() => { setSendBadBankModalVisible(false); navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs })) }} />

@@ -14,7 +14,11 @@ import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import { addNewWhirlpoolWallets } from 'src/store/sagaActions/wallets';
+import {
+  addNewWhirlpoolWallets,
+  incrementAddressIndex,
+  refreshWallets,
+} from 'src/store/sagaActions/wallets';
 import { LabelType, WalletType } from 'src/core/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -29,6 +33,7 @@ import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
+import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
 
@@ -68,8 +73,11 @@ export default function BroadcastPremix({ route, navigation }) {
     const valueInPreferredUnit = satsEnabled ? value : SatsToBtc(value);
     return valueInPreferredUnit;
   };
-  const { wallets } = useWallets({ walletIds: [wallet.id], whirlpoolStruct: true });
+  const { wallets } = useWallets({ walletIds: [wallet.id] });
   const depositWallet: Wallet = wallets[0];
+  const whirlpoolWalletAccountMap = useWhirlpoolWallets({
+    wallets: [depositWallet],
+  })?.[depositWallet.id];
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
@@ -80,21 +88,17 @@ export default function BroadcastPremix({ route, navigation }) {
   };
 
   useEffect(() => {
-    if (!wallet?.whirlpoolConfig?.premixWallet) {
+    if (!whirlpoolWalletAccountMap) {
       dispatch(addNewWhirlpoolWallets({ depositWallet: wallet }));
     }
     setPremixOutputsAndBadbank();
   }, []);
 
   useEffect(() => {
-    if (
-      premixOutputs.length &&
-      depositWallet?.whirlpoolConfig?.premixWallet &&
-      depositWallet?.whirlpoolConfig?.postmixWallet
-    ) {
+    if (premixOutputs.length && whirlpoolWalletAccountMap) {
       setPreRequistesLoading(false);
     }
-  }, [premixOutputs, depositWallet]);
+  }, [premixOutputs, whirlpoolWalletAccountMap]);
 
   useEffect(() => {
     if (loading) {
@@ -111,9 +115,8 @@ export default function BroadcastPremix({ route, navigation }) {
   const onBroadcastModalCallback = async () => {
     try {
       const network = WalletUtilities.getNetworkByType(depositWallet.networkType);
-      const { premixWallet, badbankWallet } = depositWallet.whirlpoolConfig;
+      const { premixWallet, badbankWallet } = whirlpoolWalletAccountMap;
       const premixAddresses = [];
-
       for (
         let i = premixWallet.specs.nextFreeAddressIndex;
         i < premixWallet.specs.nextFreeAddressIndex + tx0Preview.nPremixOutputs;
@@ -146,8 +149,21 @@ export default function BroadcastPremix({ route, navigation }) {
       if (serializedPSBT) {
         const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
         const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
-
         if (txid) {
+          dispatch(
+            incrementAddressIndex([premixWallet, badbankWallet], {
+              external: true,
+              internal: false,
+            })
+          );
+
+          setTimeout(async () => {
+            // auto refresh post 3 seconds, allowing for the indexer to sync
+            dispatch(
+              refreshWallets([depositWallet, premixWallet, badbankWallet], { hardRefresh: true })
+            );
+          }, 3000);
+
           const outputs = PSBT.txOutputs;
           const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
           const voutBadBank = outputs.findIndex(

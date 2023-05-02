@@ -1,6 +1,5 @@
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
   ScrollView,
   Text,
@@ -9,7 +8,7 @@ import {
 } from 'react-native';
 // libraries
 import { Box, Input, Select, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
@@ -19,21 +18,25 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
+import KeeperText from 'src/components/KeeperText';
+
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
+import { DerivationPurpose } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
-import { updateWalletPathAndPurposeDetails } from 'src/store/sagaActions/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import ShowXPub from 'src/components/XPub/ShowXPub';
+import { WalletDerivationDetails } from 'src/core/wallets/interfaces/wallet';
+import { generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { updateAppImageWorker } from 'src/store/sagas/bhr';
 
 function UpdateWalletDetails({ route }) {
   const navigtaion = useNavigation();
@@ -45,11 +48,11 @@ function UpdateWalletDetails({ route }) {
   const { translations } = useContext(LocalizationContext);
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
-  const [purposeList, setPurposeList] = useState([
+  const purposeList = [
     { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
     { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
-  ]);
+  ];
   const getPupose = (key) => {
     switch (key) {
       case 'P2PKH':
@@ -62,7 +65,7 @@ function UpdateWalletDetails({ route }) {
         return '';
     }
   };
-  const [purpose, setPurpose] = useState(wallet?.scriptType);
+  const [purpose, setPurpose] = useState(purposeList.find(item => item.label.split(':')[0] === wallet?.scriptType).value);
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
   const { showToast } = useToastMessage();
@@ -82,20 +85,47 @@ function UpdateWalletDetails({ route }) {
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
   const updateWallet = () => {
-    const details = {
-      path,
-      purpose,
-    };
-    dispatch(updateWalletPathAndPurposeDetails(wallet, details));
+    try {
+      const derivationDetails: WalletDerivationDetails = {
+        ...wallet.derivationDetails,
+        xDerivationPath: path,
+      };
+      const specs = generateWalletSpecs(
+        derivationDetails.mnemonic,
+        WalletUtilities.getNetworkByType(wallet.networkType),
+        derivationDetails.xDerivationPath,
+      );
+      const p = WalletUtilities.getPurpose(path)
+      const scriptType = purposeList.find(item => item.value === p).label.split(':')[0]
+      wallet.derivationDetails = derivationDetails;
+      wallet.specs = specs;
+      wallet.scriptType = scriptType;
+      const isUpdated = dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
+        derivationDetails,
+        specs,
+        scriptType
+      })
+      if (isUpdated) {
+        updateAppImageWorker({ payload: { wallet } })
+        navigtaion.goBack()
+        showToast('Wallet details updated', <TickIcon />);
+      } else showToast("Failed to update", <ToastErrorIcon />);
+
+    } catch (error) {
+      console.log(error)
+      showToast("Failed to update", <ToastErrorIcon />);
+    }
   };
 
   const onDropDownClick = () => {
-    if (showPurpose) {
-      setShowPurpose(false);
-      setArrow(false);
-    } else {
-      setShowPurpose(true);
-      setArrow(true);
+    if (!isFromSeed) {
+      if (showPurpose) {
+        setShowPurpose(false);
+        setArrow(false);
+      } else {
+        setShowPurpose(true);
+        setArrow(true);
+      }
     }
   };
 
@@ -112,13 +142,60 @@ function UpdateWalletDetails({ route }) {
           subtitle={
             isFromSeed
               ? 'The QR below comprises of your 12 word Recovery Phrase'
-              : 'Update Path & Purpose'
+              : 'Update Wallet Path'
           }
           headerTitleColor={Colors.TropicalRainForest}
           paddingTop={hp(5)}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
+            {/* <KeeperText
+              type="regular"
+              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(20), }]}
+            >
+              Purpose
+            </KeeperText>
+            <TouchableOpacity
+              activeOpacity={!isFromSeed ? 0 : 1}
+              onPress={onDropDownClick}
+              style={styles.dropDownContainer}
+            >
+              <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
+              <Box
+                style={[
+                  styles.icArrow,
+                  {
+                    transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
+                  },
+                ]}
+              >
+                {!isFromSeed && <RightArrowIcon />}
+              </Box>
+            </TouchableOpacity> */}
+            {showPurpose && (
+              <ScrollView style={styles.langScrollViewWrapper}>
+                {purposeList.map((item) => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowPurpose(false);
+                      setArrow(false);
+                      setPurpose(item.value);
+                      setPurposeLbl(item.label);
+                      // setPath('');
+                    }}
+                    style={styles.flagWrapper1}
+                  >
+                    <Text style={styles.purposeText}>{item.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+            <KeeperText
+              type="regular"
+              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(15), }]}
+            >
+              Path
+            </KeeperText>
             <Box style={[styles.textInputWrapper]}>
               <TextInput
                 placeholder="Derivation Path"
@@ -130,6 +207,7 @@ function UpdateWalletDetails({ route }) {
                 autoCorrect={false}
                 // marginY={2}
                 // borderWidth="0"
+                editable={!isFromSeed}
                 maxLength={20}
                 onFocus={() => {
                   setShowPurpose(false);
@@ -137,47 +215,10 @@ function UpdateWalletDetails({ route }) {
                 }}
               />
             </Box>
-            <TouchableOpacity onPress={onDropDownClick} style={styles.dropDownContainer}>
-              <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
-              <Box
-                style={[
-                  styles.icArrow,
-                  {
-                    transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-                  },
-                ]}
-              >
-                <RightArrowIcon />
-              </Box>
-            </TouchableOpacity>
-            {showPurpose && (
-              <ScrollView style={styles.langScrollViewWrapper}>
-                {purposeList.map((item) => (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setShowPurpose(false);
-                      setArrow(false);
-                      setPurpose(item.value);
-                      setPurposeLbl(item.label);
-                      const path = WalletUtilities.getDerivationPath(
-                        EntityKind.WALLET,
-                        config.NETWORK_TYPE,
-                        0,
-                        Number(purpose)
-                      );
-                      setPath(path);
-                    }}
-                    style={styles.flagWrapper1}
-                  >
-                    <Text style={styles.purposeText}>{item.label}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            )}
             {isFromSeed ? (
               <Box style={{ marginTop: wp(20) }}>
                 <ShowXPub
-                  data={JSON.stringify(words)}
+                  data={words.toString().replace(/,/g, ' ')}
                   subText="Wallet Recovery Phrase"
                   noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
                   copyable={false}
@@ -186,21 +227,23 @@ function UpdateWalletDetails({ route }) {
             ) : null}
           </Box>
         </ScrollView>
-        <View style={styles.dotContainer}>
-          <Box style={styles.ctaBtnWrapper}>
-            <Box ml={windowWidth * -0.09}>
-              <Buttons
-                secondaryText="Cancel"
-                secondaryCallback={() => {
-                  navigtaion.goBack();
-                }}
-                primaryText="save"
-                primaryCallback={updateWallet}
-                primaryLoading={relayWalletUpdateLoading}
-              />
+        {!isFromSeed && (
+          <View style={styles.dotContainer}>
+            <Box style={styles.ctaBtnWrapper}>
+              <Box ml={windowWidth * -0.09}>
+                <Buttons
+                  secondaryText="Cancel"
+                  secondaryCallback={() => {
+                    navigtaion.goBack();
+                  }}
+                  primaryText="Save"
+                  primaryCallback={updateWallet}
+                  primaryLoading={relayWalletUpdateLoading}
+                />
+              </Box>
             </Box>
-          </Box>
-        </View>
+          </View>
+        )}
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
@@ -210,6 +253,11 @@ const styles = ScaledSheet.create({
   linearGradient: {
     borderRadius: 6,
     marginTop: hp(3),
+  },
+  autoTransferText: {
+    fontSize: 12,
+    paddingHorizontal: wp(5),
+    letterSpacing: '0.6@s',
   },
   cardContainer: {
     flexDirection: 'row',
@@ -248,7 +296,7 @@ const styles = ScaledSheet.create({
     // borderTopLeftRadius: 10,
     // borderBottomLeftRadius: 10,
     paddingVertical: 20,
-    marginTop: 10,
+    // marginTop: 10,
     flexDirection: 'row',
   },
   cameraView: {
@@ -310,7 +358,7 @@ const styles = ScaledSheet.create({
   },
   textInputWrapper: {
     flexDirection: 'row',
-    marginTop: hp(15),
+    // marginTop: hp(15),
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
@@ -354,7 +402,7 @@ const styles = ScaledSheet.create({
     zIndex: 10,
     backgroundColor: '#FAF4ED',
     position: 'absolute',
-    top: hp(130),
+    top: hp(60),
   },
   flagWrapper1: {
     flexDirection: 'row',

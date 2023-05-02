@@ -13,6 +13,7 @@ export const CLEAR_TRANSFER = 'CLEAR_TRANSFER';
 export const ACCUMULATIVE_BAL_AND_TX = 'ACCUMULATIVE_BAL_AND_TX';
 export const CLEAR_WALLET_SYNC_CACHE = 'CLEAR_WALLET_SYNC_CACHE';
 export const AUTO_SYNC_WALLETS = 'AUTO_SYNC_WALLETS';
+export const INCREMENT_ADDRESS_INDEX = 'INCREMENT_ADDRESS_INDEX';
 export const GENERATE_SECONDARY_XPRIV = 'GENERATE_SECONDARY_XPRIV';
 export const RESET_TWO_FA = 'RESET_TWO_FA';
 export const RUN_TEST = 'RUN_TEST';
@@ -93,6 +94,17 @@ export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => ({
   payload: {
     syncAll,
     hardRefresh,
+  },
+});
+
+export const incrementAddressIndex = (
+  wallets: (Wallet | Vault)[],
+  options: { external: boolean; internal: boolean }
+) => ({
+  type: INCREMENT_ADDRESS_INDEX,
+  payload: {
+    wallets,
+    options,
   },
 });
 

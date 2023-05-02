@@ -4,7 +4,6 @@ import { Box, Pressable, ScrollView } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-// components and functions
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -15,23 +14,21 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import useBalance from 'src/hooks/useBalance';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import Note from 'src/components/Note/Note';
-// icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
+import useExchangeRates from 'src/hooks/useExchangeRates';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
+import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 
 type Props = {
   title: string;
@@ -69,11 +66,12 @@ function WalletSettings({ route }) {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
   const { wallets } = useWallets();
-  const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
+  const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const { getBalance, getCurrencyIcon } = useBalance();
-
+  const exchangeRates = useExchangeRates();
+  const currencyCode = useCurrencyCode();
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
@@ -173,8 +171,14 @@ function WalletSettings({ route }) {
         <WalletCard
           walletName={wallet?.presentationData?.name}
           walletDescription={wallet?.presentationData?.description}
-          walletBalance={getBalance(wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed)}
-          Icon={getCurrencyIcon(BtcWallet, 'light')}
+          walletBalance={getAmt(
+            wallet?.specs?.balances?.confirmed + wallet?.specs?.balances?.unconfirmed,
+            exchangeRates,
+            currencyCode,
+            currentCurrency,
+            satsEnabled
+          )}
+          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
       </Box>
       <Box style={styles.optionsListContainer}>
@@ -192,8 +196,8 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Update Path & Purpose"
-            subTitle="Change Derivation path & purpose"
+            title="Update Path"
+            subTitle="Change Derivation path"
             onPress={() => {
               navigation.navigate('UpdateWalletDetails', { wallet });
             }}
@@ -318,8 +322,9 @@ function WalletSettings({ route }) {
           buttonCallback={() => setCosignerVisible(false)}
           Content={() => (
             <ShowXPub
+              data=""
               wallet={wallet}
-              appID={keeper?.appID}
+              cosignerDetails
               copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
