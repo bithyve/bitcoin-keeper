@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
-import { StyleSheet, FlatList, BackHandler } from 'react-native';
+import { StyleSheet, FlatList, Platform } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -22,6 +22,7 @@ import config from 'src/core/config';
 import {
   WHIRLPOOL_ERROR,
   WHIRLPOOL_FAILURE,
+  WHIRLPOOL_LISTEN,
   WHIRLPOOL_SUCCESS,
   WHIRLPOOL_WORKING,
 } from 'src/core/services/channel/constants';
@@ -34,6 +35,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
+import { io } from 'src/core/services/channel';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -231,83 +233,109 @@ function MixProgress({
     }
   }, [mixFailed]);
 
+  const onWorking = (data) => {
+    const { step } = data;
+    updateStep(step);
+  };
+
+  const onFailure = (data) => {
+    const updatedArray = [...statuses];
+    updatedArray[6].error = true;
+    setStatus(updatedArray);
+    setMixFailed(data);
+  };
+
+  const onSuccess = (data) => {
+    const { txid } = data;
+    if (txid) {
+      const updatedArray = [...statuses];
+      updatedArray[6].completed = true;
+      setStatus(updatedArray);
+      const walletsToRefresh = [source];
+      if (!isRemix) walletsToRefresh.push(destination);
+      dispatch(
+        incrementAddressIndex([destination], {
+          external: true,
+          internal: false,
+        })
+      );
+      setTimeout(async () => {
+        dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
+        const transaction = await ElectrumClient.getTransactionsById([txid]);
+        const vout = transaction[txid].vout.findIndex(
+          (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
+        );
+        dispatch(
+          createUTXOReference({
+            labels: [
+              {
+                name: depositWallet.presentationData.name.toUpperCase(),
+                type: LabelType.SYSTEM,
+              },
+            ],
+            txId: txid,
+            vout,
+          })
+        );
+      }, 3000);
+      navigation.navigate('UTXOManagement', {
+        data: depositWallet,
+        accountType: WalletType.POST_MIX,
+        routeName: 'Wallet',
+      });
+    }
+  };
+
   useEffect(() => {
-    const ws = initiateWhirlpoolSocket(publicId);
-    ws.onerror = (e) => {
-      console.log({ message: e.message });
-    };
-    ws.onclose = (e) => {
-      console.log({ code: e.code, message: e.message, reason: e.reason });
-    };
-    ws.onopen = () => {
-      ws.send(JSON.stringify({ type: 'client', network: config.NETWORK_TYPE })); // send a message
-    };
-    ws.onmessage = ({ data }) => {
-      const payload = JSON.parse(data);
-      const { event } = payload.data;
-      switch (event) {
-        case WHIRLPOOL_WORKING: {
-          const { step } = payload.data;
-          updateStep(step);
-          break;
-        }
-        case WHIRLPOOL_FAILURE:
-        case WHIRLPOOL_ERROR: {
-          const updatedArray = [...statuses];
-          updatedArray[6].error = true;
-          setStatus(updatedArray);
-          setMixFailed(data);
-          break;
-        }
-        case WHIRLPOOL_SUCCESS: {
-          const { txid } = payload.data;
-          if (txid) {
-            const updatedArray = [...statuses];
-            updatedArray[6].completed = true;
-            setStatus(updatedArray);
-            const walletsToRefresh = [source];
-            if (!isRemix) walletsToRefresh.push(destination);
-            dispatch(
-              incrementAddressIndex([destination], {
-                external: true,
-                internal: false,
-              })
-            );
-            setTimeout(async () => {
-              dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-              const transaction = await ElectrumClient.getTransactionsById([txid]);
-              const vout = transaction[txid].vout.findIndex(
-                (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
-              );
-              dispatch(
-                createUTXOReference({
-                  labels: [
-                    {
-                      name: depositWallet.presentationData.name.toUpperCase(),
-                      type: LabelType.SYSTEM,
-                    },
-                  ],
-                  txId: txid,
-                  vout,
-                })
-              );
-            }, 3000);
-            navigation.navigate('UTXOManagement', {
-              data: depositWallet,
-              accountType: WalletType.POST_MIX,
-              routeName: 'Wallet',
-            });
+    let ws;
+    let channel;
+    if (Platform.OS === 'android') {
+      ws = initiateWhirlpoolSocket(publicId, config.NETWORK_TYPE);
+      ws.onmessage = ({ data }) => {
+        const payload = JSON.parse(data);
+        const { event } = payload.data;
+        switch (event) {
+          case WHIRLPOOL_WORKING: {
+            onWorking(payload.data);
+            break;
           }
-          break;
+          case WHIRLPOOL_FAILURE:
+          case WHIRLPOOL_ERROR: {
+            onFailure(payload.data);
+            break;
+          }
+          case WHIRLPOOL_SUCCESS: {
+            onSuccess(payload.data);
+            break;
+          }
+          default: {
+            break;
+          }
         }
-        default: {
-          break;
-        }
-      }
-    };
+      };
+    } else if (Platform.OS === 'ios') {
+      channel = io(config.CHANNEL_URL);
+      channel.emit(WHIRLPOOL_LISTEN, { room: publicId, network: config.NETWORK_TYPE });
+      channel.on(WHIRLPOOL_WORKING, ({ data }) => {
+        onWorking(data);
+      });
+      channel.on(WHIRLPOOL_ERROR, ({ data }) => {
+        onFailure(data);
+      });
+      channel.on(WHIRLPOOL_FAILURE, ({ data }) => {
+        onFailure(data);
+      });
+      channel.on(WHIRLPOOL_SUCCESS, ({ data }) => {
+        onSuccess(data);
+      });
+    }
 
     return () => {
-      ws.close();
+      if (ws) {
+        ws.close();
+      } else if (channel) {
+        channel.disconnect();
+      }
     };
   }, []);
 
