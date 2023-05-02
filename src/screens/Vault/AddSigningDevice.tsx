@@ -200,7 +200,7 @@ function AddSigningDevice() {
   } else {
     preTitle = 'Signing Devices';
   }
-  const subtitle = `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} will be created`;
+  const subtitle = subscriptionScheme.n > 1 ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created` : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   return (
     <ScreenWrapper>
@@ -242,9 +242,8 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${
-                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>

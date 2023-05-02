@@ -94,7 +94,7 @@ export const readTapsigner = async (card: CKTapCard, cvc: string) => {
 export const getTapsignerErrorMessage = (error) => {
   let message;
   if (error.toString().includes('401')) {
-    message = 'Please check the cvc entered and try again!';
+    message = 'Please check the CVC entered and try again!';
   } else if (error.toString().includes('429')) {
     message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
   } else if (error.toString().includes('205')) {
