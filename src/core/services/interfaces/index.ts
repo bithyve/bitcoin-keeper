@@ -35,3 +35,13 @@ export interface SignerPolicy {
   restrictions: SignerRestriction;
   exceptions: SignerException;
 }
+
+export interface InheritancePolicy {
+  notification: {
+    target: string;
+  };
+  alert: {
+    phone?: boolean;
+    email?: boolean;
+  };
+}
