@@ -156,6 +156,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
+    SignerType.INHERITANCEKEY,
   ];
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);

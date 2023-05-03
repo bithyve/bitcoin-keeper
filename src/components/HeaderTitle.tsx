@@ -1,5 +1,4 @@
 import { Box } from 'native-base';
-
 import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -46,7 +45,7 @@ function HeaderTitle({
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
-            <TouchableOpacity onPress={learnMorePressed} testID={'btn_learnMore'}>
+            <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
               <Box
                 borderColor="light.learnMoreBorder"
                 backgroundColor="light.lightAccent"

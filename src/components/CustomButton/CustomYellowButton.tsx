@@ -8,11 +8,11 @@ export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
+  titleColor?: string;
 }
 function CustomYellowButton(props: Props) {
   return (
     <TouchableHighlight
-      style={styles.button}
       disabled={props.disabled}
       underlayColor="none"
       onPress={() => {
@@ -25,7 +25,7 @@ function CustomYellowButton(props: Props) {
         colors={['#E3BE96', '#E3BE96']}
         style={styles.linearGradient}
       >
-        <Text color="#30292F" fontSize={12} bold>
+        <Text color={props.titleColor}>
           {props.value}
         </Text>
       </LinearGradient>
@@ -34,20 +34,19 @@ function CustomYellowButton(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  button: {
-    width: 80,
-    height: 30,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   linearGradient: {
-    width: 75,
-    height: 30,
+    paddingVertical: 6,
+    paddingHorizontal: 20,
+    borderColor: '#725436',
+    borderWidth: 0.6,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  btnText: {
+    letterSpacing: 1,
+    fontSize: 12
+  }
 });
 
 export default CustomYellowButton;

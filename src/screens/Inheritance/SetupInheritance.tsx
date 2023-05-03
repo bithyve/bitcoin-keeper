@@ -3,11 +3,10 @@ import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import LinearGradient from 'src/components/KeeperGradient';
 // components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Buttons from 'src/components/Buttons';
+// import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -18,10 +17,11 @@ import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
-import Inheritance from 'src/assets/images/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import CustomYellowButton from 'src/components/CustomButton/CustomYellowButton'
+import InheritanceSupportView from './components/InheritanceSupportView';
 
 function SetupInheritance() {
   const navigtaion = useNavigation();
@@ -91,23 +91,6 @@ function SetupInheritance() {
     );
   }
 
-  function GradientIcon({ height, Icon }) {
-    return (
-      <LinearGradient
-        colors={['light.gradientStart', 'light.gradientEnd']}
-        start={[0, 0]}
-        end={[1, 1]}
-        style={{
-          ...styles.gradientIcon,
-          height: hp(height),
-          width: hp(height),
-          borderRadius: height,
-        }}
-      >
-        <Icon />
-      </LinearGradient>
-    );
-  }
   const proceedCallback = () => {
     dispatch(setInheritance(false));
     showToast('Inheritance flow coming soon', null, 1000);
@@ -123,16 +106,7 @@ function SetupInheritance() {
           }}
         />
       </Box>
-      <Box style={styles.topContainer}>
-        <GradientIcon Icon={Inheritance} height={50} />
-        <Text color="light.textWallet" style={styles.title}>
-          Inheritance Support
-        </Text>
-        <Text color="light.secondaryText" style={styles.subtitle}>
-          Keeper provides you with the tips and tools you need to include the vault in your estate
-          planning
-        </Text>
-      </Box>
+      <InheritanceSupportView title='Inheritance Support' subtitle='Keeper provides you with the tips and tools you need to include the vault in your estate planning' />
 
       <Box style={styles.bottomContainer}>
         <Assert />
@@ -140,13 +114,14 @@ function SetupInheritance() {
           {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
-          <Buttons
+          {/* <Buttons
             primaryText="Select Country"
             primaryCallback={() => {
               showToast('Inheritance flow coming soon', null, 1000);
             }}
             paddingHorizontal={wp(20)}
-          />
+          /> */}
+          <CustomYellowButton value='Upgrade Now' onPress={() => navigtaion.navigate('InheritanceStatus')} titleColor="#725436" />
         </Box>
       </Box>
       <Box style={styles.note}>
@@ -186,7 +161,6 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
     width: wp(340),
   },
-
   message: {
     opacity: 0.85,
     fontSize: 12,
@@ -204,20 +178,8 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
     paddingHorizontal: 1,
   },
-  title: {
-    fontSize: 16,
-    letterSpacing: 0.96,
-    marginTop: hp(10),
-  },
-  subtitle: {
-    textAlign: 'center',
-    width: wp(250),
-    marginTop: hp(4),
-    fontSize: 13,
-    letterSpacing: 1.3,
-  },
   header: {
-    marginBottom: -50,
+    // marginBottom: -50,
   },
   modalContainer: {
     marginBottom: hp(25),
@@ -239,10 +201,6 @@ const styles = ScaledSheet.create({
   modalTopContainer: {
     width: wp(300),
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  gradientIcon: {
-    justifyContent: 'center',
     alignItems: 'center',
   },
 });

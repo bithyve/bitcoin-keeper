@@ -102,6 +102,7 @@ export enum SignerType {
   SEEDSIGNER = 'SEEDSIGNER',
   BITBOX02 = 'BITBOX02',
   OTHER_SD = 'OTHER_SD',
+  INHERITANCEKEY = 'INHERITANCEKEY',
 }
 
 export enum PaymentInfoKind {

@@ -80,6 +80,7 @@ function ChoosePlanCarousel(props) {
                 <CustomYellowButton
                   onPress={() => props.onPress(item, index)}
                   value={getBtnTitle(item)}
+                  titleColor="#30292F"
                 />
               </Box>
             ) : null}
