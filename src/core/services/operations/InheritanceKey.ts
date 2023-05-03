@@ -70,4 +70,38 @@ export default class InheritanceKeyServer {
       updated,
     };
   };
+
+  static signPSBT = async (
+    vaultId: string,
+    serializedPSBT: string,
+    childIndexArray: Array<{
+      subPath: number[];
+      inputIdentifier: {
+        txId: string;
+        vout: number;
+        value: number;
+      };
+    }>
+  ): Promise<{
+    signedPSBT: string;
+  }> => {
+    let res: AxiosResponse;
+
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/signTransactionViaInheritanceKey`, {
+        HEXA_ID,
+        vaultId,
+        serializedPSBT,
+        childIndexArray,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { signedPSBT } = res.data;
+    return {
+      signedPSBT,
+    };
+  };
 }
