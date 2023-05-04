@@ -44,11 +44,11 @@ export default FinalizeFooter;
 
 const styles = StyleSheet.create({
   footerContainer: {
+    height: 70,
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 5 : 15,
     width: wp(375),
     paddingHorizontal: '10%',
-    marginBottom: '5%',
     backgroundColor: Colors.LightWhite,
   },
 });

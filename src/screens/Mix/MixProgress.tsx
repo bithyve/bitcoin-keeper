@@ -142,7 +142,9 @@ function MixProgress({
 
   const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const dispatch = useDispatch();
-  const [currentUtxo, setCurrentUtxo] = React.useState('');
+  const [currentUtxo, setCurrentUtxo] = React.useState(
+    selectedUTXOs.length ? `${selectedUTXOs[0].txId}:${selectedUTXOs[0].vout}` : ''
+  );
   const [mixFailed, setMixFailed] = React.useState('');
   const [statuses, setStatus] = React.useState(statusData);
   const { showToast } = useToastMessage();
