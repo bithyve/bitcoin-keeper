@@ -3,7 +3,6 @@
 /* eslint-disable camelcase */
 import * as bitcoinJS from 'bitcoinjs-lib';
 import WalletOperations from 'src/core/wallets/operations';
-import ElectrumClient from 'src/core/services/electrum/client';
 import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -21,7 +20,6 @@ import {
   WhirlpoolAPI,
   WhirlpoolInput,
 } from '../../../nativemodules/interface';
-import { getAPIEndpoints, sleep } from './utils';
 import { hash256 } from '../operations/encryption';
 
 const LOCALHOST = '127.0.0.1';
@@ -40,11 +38,11 @@ export default class WhirlpoolClient {
    * @param  {Network} network
    * @returns WhirlpoolAPI
    */
-  static initiateAPI = (tor_config: TorConfig, network: Network): WhirlpoolAPI => {
-    const agent = {};
-    const endpoints = getAPIEndpoints(!tor_config.exit_into_clearnet, network === Network.Bitcoin);
-    return { agent, endpoints };
-  };
+  // static initiateAPI = (tor_config: TorConfig, network: Network): WhirlpoolAPI => {
+  //   const agent = {};
+  //   const endpoints = getAPIEndpoints(!tor_config.exit_into_clearnet, network === Network.Bitcoin);
+  //   return { agent, endpoints };
+  // };
 
   /**
    * whirlpool mixing pools provider: fetches pool info from the coordinator
