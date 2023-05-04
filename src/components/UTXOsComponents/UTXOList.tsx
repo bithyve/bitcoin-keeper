@@ -176,7 +176,7 @@ function UTXOList({
   return (
     <FlatList
       data={utxoState}
-      contentContainerStyle={{ paddingBottom: 20 }}
+      contentContainerStyle={{ paddingBottom: 70 }}
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (

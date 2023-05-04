@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import { Box } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     height: 70,
     position: 'absolute',
     bottom: Platform.OS === 'ios' ? 5 : 15,
-    width: wp(375),
+    width: windowWidth,
     paddingHorizontal: '10%',
     backgroundColor: Colors.LightWhite,
   },
