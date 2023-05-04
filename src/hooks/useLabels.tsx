@@ -16,7 +16,7 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
   const Schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
   const wallets = useQuery(Schema);
   const { walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing[wallet.id] || false;
+  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const dispatch = useDispatch();
 
   const labels = useMemo(() => {

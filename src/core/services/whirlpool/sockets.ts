@@ -1,7 +1,7 @@
 import { NetworkType } from 'src/core/wallets/enums';
 
 export const initiateWhirlpoolSocket = (appId: string, network: NetworkType) => {
-  const ws = new WebSocket(`ws://192.168.0.113:4002/${appId}`);
+  const ws = new WebSocket(`wss://whirlpool-channel.herokuapp.com/${appId}`);
   ws.onerror = (e) => {
     console.log({ message: e.message });
   };
