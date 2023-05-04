@@ -104,4 +104,32 @@ export default class InheritanceKeyServer {
       signedPSBT,
     };
   };
+
+  static fetchInheritanceKey = async (
+    vaultId: string
+  ): Promise<{
+    policy: InheritancePolicy;
+    inheritanceXpub: string;
+    masterFingerprint: string;
+    derivationPath: string;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/fetchInheritanceKey`, {
+        HEXA_ID,
+        vaultId,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { inheritanceXpub, masterFingerprint, derivationPath, policy } = res.data;
+    return {
+      policy,
+      inheritanceXpub,
+      masterFingerprint,
+      derivationPath,
+    };
+  };
 }
