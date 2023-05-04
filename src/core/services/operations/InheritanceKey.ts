@@ -1,6 +1,10 @@
 import { AxiosResponse } from 'axios';
 import config from '../../config';
-import { InheritancePolicy } from '../interfaces';
+import {
+  InheritanceConfiguration,
+  InheritanceNotification,
+  InheritancePolicy,
+} from '../interfaces';
 import RestClient from '../rest/RestClient';
 
 const { HEXA_ID, SIGNING_SERVER } = config;
@@ -48,7 +52,11 @@ export default class InheritanceKeyServer {
    */
   static updatePolicy = async (
     vaultId: string,
-    policy: InheritancePolicy
+    updates: {
+      notification?: InheritanceNotification;
+      configuration?: InheritanceConfiguration;
+    },
+    thresholdIdentifiers: string[]
   ): Promise<{
     updated: boolean;
   }> => {
@@ -57,7 +65,8 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritancePolicy`, {
         HEXA_ID,
         vaultId,
-        policy,
+        updates,
+        thresholdIdentifiers,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -106,7 +115,8 @@ export default class InheritanceKeyServer {
   };
 
   static fetchInheritanceKey = async (
-    vaultId: string
+    vaultId: string,
+    thresholdIdentifiers: string[]
   ): Promise<{
     policy: InheritancePolicy;
     inheritanceXpub: string;
@@ -118,6 +128,7 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v2/fetchInheritanceKey`, {
         HEXA_ID,
         vaultId,
+        thresholdIdentifiers,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);

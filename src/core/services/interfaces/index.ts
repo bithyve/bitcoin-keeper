@@ -36,12 +36,17 @@ export interface SignerPolicy {
   exceptions: SignerException;
 }
 
+export interface InheritanceNotification {
+  targets: string[];
+}
+
+export interface InheritanceConfiguration {
+  m: number;
+  n: number;
+  identifiers: string[];
+}
+
 export interface InheritancePolicy {
-  notification: {
-    target: string;
-  };
-  alert: {
-    phone?: boolean;
-    email?: boolean;
-  };
+  notification: InheritanceNotification;
+  configuration: InheritanceConfiguration;
 }
