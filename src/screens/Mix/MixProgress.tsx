@@ -166,8 +166,6 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
-    // const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
-    // return () => backHandler.remove();
   }, []);
 
   useEffect(() => {

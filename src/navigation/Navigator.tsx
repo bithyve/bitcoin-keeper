@@ -213,11 +213,7 @@ function AppStack() {
         <Stack.Screen name="PoolSelection" component={PoolSelection} />
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
-        <Stack.Screen
-          options={{ gestureEnabled: false }}
-          name="MixProgress"
-          component={MixProgress}
-        />
+        <Stack.Screen name="MixProgress" component={MixProgress} />
       </Stack.Navigator>
     </RealmProvider>
   );
