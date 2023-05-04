@@ -270,23 +270,31 @@ export default function BroadcastPremix({ route, navigation }) {
         {preRequistesLoading ? (
           <Box style={styles.textArea}>
             <Text color="#017963" style={styles.textWidth}>
-              Premixes Loading......
+              Premixes Loading...
             </Text>
           </Box>
         ) : (
-          premixOutputs.map((output, index) => (
-            <Box style={styles.textArea}>
+          <>
+            <Box style={[styles.textArea, { marginTop: 30 }]}>
               <Text color="#017963" style={styles.textWidth}>
-                Premix #{index + 1}
+                Premix value
               </Text>
               <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{valueByPreferredUnit(output)}</Text>
+                <Text color="light.secondaryText">{valueByPreferredUnit(premixOutputs[0])}</Text>
                 <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
                   {getSatUnit()}
                 </Text>
               </Box>
             </Box>
-          ))
+            <Box style={styles.textArea}>
+              <Text color="#017963" style={styles.textWidth}>
+                No. of Premixes
+              </Text>
+              <Box style={styles.textDirection}>
+                <Text color="light.secondaryText">{premixOutputs.length}</Text>
+              </Box>
+            </Box>
+          </>
         )}
       </ScrollView>
       <Box style={styles.footerContainer}>
@@ -335,7 +343,7 @@ export default function BroadcastPremix({ route, navigation }) {
 
 const styles = StyleSheet.create({
   textArea: {
-    marginTop: 20,
+    marginTop: 15,
     marginLeft: 40,
     flexDirection: 'row',
   },
