@@ -35,6 +35,7 @@ import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
+import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
 import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
@@ -165,6 +166,7 @@ function AppStack() {
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
+        <Stack.Screen name="InheritanceSetupInfo" component={InheritanceSetupInfo} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
