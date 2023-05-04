@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, ScrollView } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -18,10 +18,12 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { SafeGuardTips } from 'src/common/data/inheritance/Inheritance';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
+import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 
 function InheritanceStatus() {
     const navigtaion = useNavigation();
     const dispatch = useAppDispatch();
+    const [visibleModal, setVisibleModal] = useState(false);
     return (
         <ScreenWrapper>
             <HeaderTitle
@@ -40,7 +42,8 @@ function InheritanceStatus() {
                         infoData: SafeGuardTips,
                         icon: <Vault />
                     })} />
-                <InheritanceDownloadView icon={<Vault />} title='Setup Inheritance Key' subTitle='How to store your keys securely' />
+                <InheritanceDownloadView icon={<Vault />} title='Setup Inheritance Key' subTitle='How to store your keys securely'
+                    onPress={() => setVisibleModal(true)} />
                 <Box style={styles.signingDevicesView}>
                     <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
                     <ToastErrorIcon />
@@ -67,6 +70,7 @@ function InheritanceStatus() {
                     subtitleColor="GreyText"
                 />
             </Box>
+            <IKSetupSuccessModal visible={visibleModal} closeModal={() => setVisibleModal(false)} />
         </ScreenWrapper>
     )
 }
