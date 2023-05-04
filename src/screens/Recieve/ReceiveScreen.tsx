@@ -130,7 +130,6 @@ function ReceiveScreen({ route }: { route }) {
       <TouchableOpacity
         activeOpacity={0.4}
         onPress={() => {
-          console.log(receivingAddress)
           Clipboard.setString(paymentURI || receivingAddress);
           showToast('Address Copied Successfully', <TickIcon />);
         }}
