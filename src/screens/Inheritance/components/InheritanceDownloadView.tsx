@@ -52,10 +52,10 @@ const styles = StyleSheet.create({
         width: '20%'
     },
     titleWrapper: {
-        width: '50%'
+        width: '48%'
     },
     btnWrapper: {
-        width: '30%'
+        width: '32%'
     },
     titleText: {
         fontSize: 14,
