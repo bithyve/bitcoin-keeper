@@ -57,6 +57,7 @@ import { crossInteractionHandler } from 'src/common/utilities';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { TransferType } from 'src/common/data/enums/TransferType';
 import * as SecureStore from '../../storage/secure-store';
 import { checkSigningDevice } from './AddSigningDevice';
 
@@ -584,6 +585,15 @@ function HardwareModalMap({
       })
     );
   };
+  const navigateToSendConfirmation = () => {
+    navigation.dispatch(
+      CommonActions.navigate('SendConfirmation', {
+        sender: {},
+        recipients: {},
+        transferType: TransferType.VAULT_TO_VAULT,
+      })
+    );
+  }
 
   const onQRScan = async (qrData, resetQR) => {
     let hw: VaultSigner;
@@ -697,6 +707,8 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
+      case SignerType.INHERITANCEKEY:
+        return navigateToSendConfirmation();
       default:
         return null;
     }
