@@ -17,7 +17,7 @@ function InheritanceDownloadView(props) {
                 <Text color="light.secondaryText" style={styles.subTitleText}>{props.subTitle}</Text>
             </Box>
             <Box style={styles.btnWrapper}>
-                <TouchableOpacity style={styles.downloadBtn}>
+                <TouchableOpacity style={styles.downloadBtn} onPress={props.onPress}>
                     <ToastErrorIcon />
                     <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text>
                 </TouchableOpacity>
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 20,
         alignItems: 'center',
-        marginTop: hp(20)
+        marginTop: hp(15)
     },
     downloadBtn: {
         flexDirection: 'row',
