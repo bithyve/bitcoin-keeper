@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
@@ -375,7 +376,13 @@ function MixProgress({
       error={item.error}
     />
   );
-
+  function MixDurationText() {
+    return (
+      <Text style={styles.mixingSubtitleText}>Do not exit this app, this may take
+        <Text style={styles.durationTextStyle}>&nbsp;upto 2 minutes</Text>
+      </Text>
+    )
+  }
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
@@ -385,7 +392,7 @@ function MixProgress({
           headerTitleColor=""
           titleFontSize={20}
           title="Mix Progress"
-          subtitle="Do not exit this app, this may take upto 2 minutes"
+          subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>
           <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
@@ -506,6 +513,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     width: '60%',
   },
+  mixingSubtitleText: {
+    fontSize: 12
+  },
+  durationTextStyle: {
+    fontWeight: 'bold',
+    fontStyle: 'italic'
+  }
 });
 
 export default MixProgress;
