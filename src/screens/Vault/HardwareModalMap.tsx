@@ -586,13 +586,17 @@ function HardwareModalMap({
     );
   };
   const navigateToSendConfirmation = () => {
+    // navigation.dispatch(
+    //   CommonActions.navigate('SendConfirmation', {
+    //     sender: {},
+    //     recipients: {},
+    //     transferType: TransferType.VAULT_TO_VAULT,
+    //   })
+    // );
     navigation.dispatch(
-      CommonActions.navigate('SendConfirmation', {
-        sender: {},
-        recipients: {},
-        transferType: TransferType.VAULT_TO_VAULT,
-      })
+      CommonActions.navigate('IKSAddEmailPhone')
     );
+
   }
 
   const onQRScan = async (qrData, resetQR) => {
