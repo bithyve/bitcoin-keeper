@@ -15,7 +15,13 @@ import RestClient, { TorStatus } from '../rest/RestClient';
 
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '13.42.121.212', ssl: '50002' }],
-  predefinedPeers: [{ host: '52.56.32.52', ssl: '50002' }],
+  predefinedPeers: [
+    { host: 'electrum.acinq.co', ssl: '50002' },
+    { host: 'electrum.bitaroo.net', ssl: '50002' },
+    { host: 'electrumx-core.1209k.com', ssl: '50002' },
+    { host: 'bitcoin.lukechilds.co', ssl: '50002' },
+    { host: 'electrum.hodlister.co', ssl: '50002' },
+  ],
   maxConnectionAttempt: 5,
   reconnectDelay: 1000, // 1 second
 };
