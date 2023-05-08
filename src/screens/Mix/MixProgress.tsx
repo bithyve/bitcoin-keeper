@@ -37,6 +37,7 @@ import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
 import { io } from 'src/core/services/channel';
+import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -167,6 +168,11 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
+    KeepAwake.activate()
+
+    return () => {
+      KeepAwake.deactivate()
+    }
   }, []);
 
   useEffect(() => {
