@@ -741,39 +741,40 @@ function* addressIndexIncrementWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | Vault)[];
-    options: { external: boolean; internal: boolean };
+    wallet: Wallet | Vault;
+    options: {
+      external?: { incrementBy: number };
+      internal?: { incrementBy: number };
+    };
   };
 }) {
   // increments the address index(external/internal chain)
   // usage: resolves the address reuse issues(during whirlpool) due to a slight delay in fetching updates from Fulcrum
-  const { wallets } = payload;
-  const { options } = payload;
+  const { wallet } = payload;
+  const { external, internal } = payload.options;
 
-  for (const wallet of wallets) {
-    if (options.external) {
-      wallet.specs.nextFreeAddressIndex += 1;
-      wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
-        entity: wallet.entityKind,
-        isMultiSig: (wallet as Vault).isMultiSig,
-        specs: wallet.specs,
-        networkType: wallet.networkType,
-        scheme: (wallet as Vault).scheme,
-        derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
-      }).receivingAddress;
-    }
+  if (external) {
+    wallet.specs.nextFreeAddressIndex += external.incrementBy;
+    wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
+      entity: wallet.entityKind,
+      isMultiSig: (wallet as Vault).isMultiSig,
+      specs: wallet.specs,
+      networkType: wallet.networkType,
+      scheme: (wallet as Vault).scheme,
+      derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
+    }).receivingAddress;
+  }
 
-    if (options.internal) wallet.specs.nextFreeChangeAddressIndex += 1;
+  if (internal) wallet.specs.nextFreeChangeAddressIndex += internal.incrementBy;
 
-    if (wallet.entityKind === EntityKind.VAULT) {
-      yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
-        specs: wallet.specs,
-      });
-    } else {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-        specs: wallet.specs,
-      });
-    }
+  if (wallet.entityKind === EntityKind.VAULT) {
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
+      specs: wallet.specs,
+    });
+  } else {
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+      specs: wallet.specs,
+    });
   }
 }
 

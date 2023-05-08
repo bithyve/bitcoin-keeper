@@ -168,11 +168,11 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
-    KeepAwake.activate()
+    KeepAwake.activate();
 
     return () => {
-      KeepAwake.deactivate()
-    }
+      KeepAwake.deactivate();
+    };
   }, []);
 
   useEffect(() => {
@@ -261,9 +261,8 @@ function MixProgress({
       const walletsToRefresh = [source];
       if (!isRemix) walletsToRefresh.push(destination);
       dispatch(
-        incrementAddressIndex([destination], {
-          external: true,
-          internal: false,
+        incrementAddressIndex(destination, {
+          external: { incrementBy: 1 },
         })
       );
       setTimeout(async () => {
@@ -384,10 +383,11 @@ function MixProgress({
   );
   function MixDurationText() {
     return (
-      <Text style={styles.mixingSubtitleText}>Do not exit this app, this may take
+      <Text style={styles.mixingSubtitleText}>
+        Do not exit this app, this may take
         <Text style={styles.durationTextStyle}>&nbsp;upto 2 minutes</Text>
       </Text>
-    )
+    );
   }
   return (
     <Box style={styles.container}>
@@ -520,12 +520,12 @@ const styles = StyleSheet.create({
     width: '60%',
   },
   mixingSubtitleText: {
-    fontSize: 12
+    fontSize: 12,
   },
   durationTextStyle: {
     fontWeight: 'bold',
-    fontStyle: 'italic'
-  }
+    fontStyle: 'italic',
+  },
 });
 
 export default MixProgress;

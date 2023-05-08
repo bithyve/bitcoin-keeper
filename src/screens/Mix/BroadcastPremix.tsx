@@ -150,12 +150,15 @@ export default function BroadcastPremix({ route, navigation }) {
         const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
         const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
         if (txid) {
-          dispatch(
-            incrementAddressIndex([premixWallet, badbankWallet], {
-              external: true,
-              internal: false,
-            })
-          );
+          for (const wallet of [premixWallet, badbankWallet]) {
+            let incrementBy = 1;
+            if (wallet.type === WalletType.PRE_MIX) incrementBy = premixAddresses.length;
+            dispatch(
+              incrementAddressIndex(wallet, {
+                external: { incrementBy },
+              })
+            );
+          }
 
           setTimeout(async () => {
             // auto refresh post 3 seconds, allowing for the indexer to sync
