@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 1
+    flex: 0.7
   },
   welcomeText: {
     marginLeft: 18,
