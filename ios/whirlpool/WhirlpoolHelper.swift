@@ -19,22 +19,22 @@ import Foundation
     callback(str)
   }
 
-  @objc func initiateClient(callback: @escaping ((String)-> Void)){
-    let result = initiate()
+  @objc func initiateClient(port: String, callback: @escaping ((String)-> Void)){
+    let result = initiate(port)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
 
-  @objc func getPools(callback: @escaping ((String)-> Void)){
-    let result = pools()
+  @objc func getPools(port: String, callback: @escaping ((String)-> Void)){
+    let result = pools(port)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
   
-  @objc func getTx0Data(scode: String, callback: @escaping ((String)-> Void)){
-    let result = gettx0data(scode)
+  @objc func getTx0Data(scode: String, port: String, callback: @escaping ((String)-> Void)){
+    let result = gettx0data(scode, port)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
@@ -54,15 +54,15 @@ import Foundation
     callback(str)
   }
   
-  @objc func tx0push(tx_str:String, pool_id_str:String, callback: @escaping ((String)-> Void)){
-    let result = tx0_push(tx_str, pool_id_str)
+  @objc func tx0push(tx_str:String, pool_id_str:String, port: String, callback: @escaping ((String)-> Void)){
+    let result = tx0_push(tx_str, pool_id_str, port)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
   
-  @objc func blocking(input_str: String, private_key_str: String, destination_addr_str: String, pool_id: String, denomination_str: String, pre_user_hash_str: String, network_str: String, block_height_str: String, signedRegistrationMessage: String, app_id: String, callback: @escaping ((String) -> Void)){
-    let result = start(input_str, private_key_str, destination_addr_str, pool_id, denomination_str, pre_user_hash_str, network_str, block_height_str, signedRegistrationMessage, app_id)
+  @objc func blocking(input_str: String, private_key_str: String, destination_addr_str: String, pool_id: String, denomination_str: String, pre_user_hash_str: String, network_str: String, block_height_str: String, signedRegistrationMessage: String, app_id: String, port: String, callback: @escaping ((String) -> Void)){
+    let result = start(input_str, private_key_str, destination_addr_str, pool_id, denomination_str, pre_user_hash_str, network_str, block_height_str, signedRegistrationMessage, app_id, port)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)

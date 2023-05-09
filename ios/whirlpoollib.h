@@ -7,11 +7,11 @@ void free_cstring(char *s);
 
 char *hello_world(const char *to);
 
-char *initiate(void);
+char *initiate(const char *port);
 
-char *pools(void);
+char *pools(const char *port);
 
-char *gettx0data(const char *scode);
+char *gettx0data(const char *scode, const char *port);
 
 char *tx0_preview(const char *inputs_value,
                   const char *pool_str,
@@ -29,7 +29,7 @@ char *into_psbt(const char *preview_str,
                 const char *address_bank_str,
                 const char *change_addr_str);
 
-char *tx0_push(const char *tx_str, const char *pool_id_str);
+char *tx0_push(const char *tx_str, const char *pool_id_str, const char *port);
 
 char *start(const char *input_str,
             const char *private_key_str,
@@ -40,4 +40,5 @@ char *start(const char *input_str,
             const char *network_str,
             const char *block_height_str,
             const char *signed_registration_message_str,
-            const char *app_id);
+            const char *app_id,
+            const char *port);
