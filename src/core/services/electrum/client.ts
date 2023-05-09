@@ -23,7 +23,10 @@ function shufflePeers(peers) {
 }
 
 const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: [{ host: '13.42.121.212', ssl: '50002' }],
+  predefinedTestnetPeers: shufflePeers([
+    { host: 'testnet.qtornado.com', ssl: '51002' },
+    { host: 'testnet.aranguren.org', ssl: '51002' },
+  ]),
   predefinedPeers: shufflePeers([
     { host: 'electrum.acinq.co', ssl: '50002' },
     { host: 'electrum.bitaroo.net', ssl: '50002' },
@@ -104,12 +107,14 @@ export default class ElectrumClient {
 
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
       const nextPeer = ElectrumClient.getNextPeer();
-      if (!nextPeer)
+      if (!nextPeer) {
         console.log('Could not find the working electrum server. Please try again later.');
+        return ELECTRUM_CLIENT.isClientConnected;
+      }
 
       ELECTRUM_CLIENT.activePeer = nextPeer;
       ELECTRUM_CLIENT.connectionAttempt = 1;
-      console.log(`Attempting a connection with next peer: ${nextPeer.host}`);
+      console.log(`Attempting a connection with next peer: ${nextPeer?.host}`);
       return ElectrumClient.connect();
     }
     console.log(`Reconnection attempt #${ELECTRUM_CLIENT.connectionAttempt}`);
