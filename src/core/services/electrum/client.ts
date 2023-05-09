@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable consistent-return */
 /* eslint-disable camelcase */
 /* eslint-disable no-restricted-syntax */
@@ -13,23 +14,30 @@ import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
 
+function shufflePeers(peers) {
+  for (let i = peers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [peers[i], peers[j]] = [peers[j], peers[i]];
+  }
+  return peers;
+}
+
 const ELECTRUM_CLIENT_CONFIG = {
   predefinedTestnetPeers: [{ host: '13.42.121.212', ssl: '50002' }],
-  predefinedPeers: [
+  predefinedPeers: shufflePeers([
     { host: 'electrum.acinq.co', ssl: '50002' },
     { host: 'electrum.bitaroo.net', ssl: '50002' },
     { host: 'electrumx-core.1209k.com', ssl: '50002' },
-    { host: 'bitcoin.lukechilds.co', ssl: '50002' },
     { host: 'electrum.hodlister.co', ssl: '50002' },
-  ],
-  maxConnectionAttempt: 5,
+  ]),
+  maxConnectionAttempt: 3,
   reconnectDelay: 1000, // 1 second
 };
 
 const ELECTRUM_CLIENT = {
   electrumClient: null,
   isClientConnected: false,
-  currentPeerIndex: Math.floor(Math.random() * ELECTRUM_CLIENT_CONFIG.predefinedPeers.length),
+  currentPeerIndex: -1,
   connectionAttempt: 0,
   activePeer: null,
 };
@@ -95,8 +103,14 @@ export default class ElectrumClient {
     if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
-      console.log('Could not find the working electrum server. Please try again later.');
-      return ELECTRUM_CLIENT.isClientConnected; // false
+      const nextPeer = ElectrumClient.getNextPeer();
+      if (!nextPeer)
+        console.log('Could not find the working electrum server. Please try again later.');
+
+      ELECTRUM_CLIENT.activePeer = nextPeer;
+      ELECTRUM_CLIENT.connectionAttempt = 1;
+      console.log(`Attempting a connection with next peer: ${nextPeer.host}`);
+      return ElectrumClient.connect();
     }
     console.log(`Reconnection attempt #${ELECTRUM_CLIENT.connectionAttempt}`);
     await new Promise((resolve) => {
@@ -188,9 +202,10 @@ export default class ElectrumClient {
       (isTestnet()
         ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers.length - 1
         : ELECTRUM_CLIENT_CONFIG.predefinedPeers.length - 1)
-    )
-      ELECTRUM_CLIENT.currentPeerIndex = 0; // reset(out of bounds)
-
+    ) {
+      // exhuasted all available peers
+      return null;
+    }
     const peer = ElectrumClient.getPredefinedCurrentPeer();
     return peer;
   }
