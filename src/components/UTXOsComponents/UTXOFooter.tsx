@@ -1,10 +1,13 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box } from 'native-base';
 import MixIcon from 'src/assets/images/icon_mix.svg';
 import Send from 'src/assets/images/send.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetailScreen/WalletDetails';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Colors from 'src/theme/Colors';
+import { windowWidth } from 'src/common/data/responsiveness/responsive';
 import BottomMenuItem from '../../screens/WalletDetailScreen/BottomMenuItem';
 
 function UTXOFooter({
@@ -17,8 +20,9 @@ function UTXOFooter({
   utxos,
   selectedUTXOs,
 }) {
+  const { bottom } = useSafeAreaInsets();
   return (
-    <Box style={styles.footerContainer} borderColor="light.GreyText">
+    <Box style={[styles.footerContainer, { marginBottom: bottom }]} borderColor="light.GreyText">
       <Box style={styles.border} borderColor="light.GreyText" />
       <Box style={styles.footerItemContainer}>
         {allowedMixTypes.includes(wallet?.type) && (
@@ -61,11 +65,15 @@ export default UTXOFooter;
 
 const styles = StyleSheet.create({
   footerContainer: {
-    width: '100%',
-    justifyContent: 'space-around',
+    height: 70,
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 5 : 15,
+    width: windowWidth,
+    paddingHorizontal: '10%',
+    backgroundColor: Colors.LightWhite,
   },
   footerItemContainer: {
-    marginTop: 10,
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },

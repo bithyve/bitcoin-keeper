@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
@@ -36,6 +37,7 @@ import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
 import { io } from 'src/core/services/channel';
+import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -142,7 +144,9 @@ function MixProgress({
 
   const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const dispatch = useDispatch();
-  const [currentUtxo, setCurrentUtxo] = React.useState('');
+  const [currentUtxo, setCurrentUtxo] = React.useState(
+    selectedUTXOs.length ? `${selectedUTXOs[0].txId}:${selectedUTXOs[0].vout}` : ''
+  );
   const [mixFailed, setMixFailed] = React.useState('');
   const [statuses, setStatus] = React.useState(statusData);
   const { showToast } = useToastMessage();
@@ -164,8 +168,11 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
-    // const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
-    // return () => backHandler.remove();
+    KeepAwake.activate();
+
+    return () => {
+      KeepAwake.deactivate();
+    };
   }, []);
 
   useEffect(() => {
@@ -254,9 +261,8 @@ function MixProgress({
       const walletsToRefresh = [source];
       if (!isRemix) walletsToRefresh.push(destination);
       dispatch(
-        incrementAddressIndex([destination], {
-          external: true,
-          internal: false,
+        incrementAddressIndex(destination, {
+          external: { incrementBy: 1 },
         })
       );
       setTimeout(async () => {
@@ -375,7 +381,14 @@ function MixProgress({
       error={item.error}
     />
   );
-
+  function MixDurationText() {
+    return (
+      <Text style={styles.mixingSubtitleText}>
+        Do not exit this app, this may take
+        <Text style={styles.durationTextStyle}>&nbsp;upto 2 minutes</Text>
+      </Text>
+    );
+  }
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
@@ -385,7 +398,7 @@ function MixProgress({
           headerTitleColor=""
           titleFontSize={20}
           title="Mix Progress"
-          subtitle="Do not exit this app, this may take upto 2 minutes"
+          subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>
           <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
@@ -505,6 +518,13 @@ const styles = StyleSheet.create({
   currentUtxoText: {
     fontSize: 14,
     width: '60%',
+  },
+  mixingSubtitleText: {
+    fontSize: 12,
+  },
+  durationTextStyle: {
+    fontWeight: 'bold',
+    fontStyle: 'italic',
   },
 });
 
