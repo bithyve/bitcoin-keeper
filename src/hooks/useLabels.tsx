@@ -4,7 +4,7 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { EntityKind, LabelType } from 'src/core/wallets/enums';
+import { EntityKind, LabelType, WalletType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -18,7 +18,10 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const dispatch = useDispatch();
-
+  const isWhirlpoolWallet =
+    wallet.type === WalletType.PRE_MIX ||
+    wallet.type === WalletType.POST_MIX ||
+    wallet.type === WalletType.BAD_BANK;
   const labels = useMemo(() => {
     const labels = {};
     utxos.forEach((utxo) => {
@@ -31,7 +34,12 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
         const wallet: Wallet | Vault = wallets
           .filtered(`id == "${utxoInfo.walletId}"`)
           .map(getJSONFromRealmObject)[0];
-        utxoLabels.push({ name: wallet.presentationData.name, type: LabelType.SYSTEM });
+        utxoLabels.push({
+          name: isWhirlpoolWallet
+            ? wallet.presentationData.name.replace('Wallet', '').trim()
+            : wallet.presentationData.name,
+          type: LabelType.SYSTEM,
+        });
         labels[labelId] = utxoLabels;
       } else {
         dispatch(refreshWallets([wallet], { hardRefresh: true }));

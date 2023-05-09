@@ -267,16 +267,18 @@ function MixProgress({
           (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
         );
         dispatch(
-          createUTXOReference({
-            labels: [
-              {
-                name: depositWallet.presentationData.name.toUpperCase(),
-                type: LabelType.SYSTEM,
-              },
-            ],
-            txId: txid,
-            vout,
-          })
+          createUTXOReference([
+            {
+              labels: [
+                {
+                  name: depositWallet.presentationData.name.toUpperCase(),
+                  type: LabelType.SYSTEM,
+                },
+              ],
+              txId: txid,
+              vout,
+            },
+          ])
         );
       }, 3000);
       navigation.navigate('UTXOManagement', {
@@ -378,10 +380,11 @@ function MixProgress({
   );
   function MixDurationText() {
     return (
-      <Text style={styles.mixingSubtitleText}>Do not exit this app, this may take
+      <Text style={styles.mixingSubtitleText}>
+        Do not exit this app, this may take
         <Text style={styles.durationTextStyle}>&nbsp;upto 2 minutes</Text>
       </Text>
-    )
+    );
   }
   return (
     <Box style={styles.container}>
@@ -514,12 +517,12 @@ const styles = StyleSheet.create({
     width: '60%',
   },
   mixingSubtitleText: {
-    fontSize: 12
+    fontSize: 12,
   },
   durationTextStyle: {
     fontWeight: 'bold',
-    fontStyle: 'italic'
-  }
+    fontStyle: 'italic',
+  },
 });
 
 export default MixProgress;
