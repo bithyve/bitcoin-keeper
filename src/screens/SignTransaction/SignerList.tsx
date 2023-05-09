@@ -8,7 +8,7 @@ import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
-import { WalletMap } from '../Vault/WalletMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
@@ -39,7 +39,7 @@ function SignerList({
                 alignItems="center"
                 marginX={1}
               >
-                {WalletMap(signer.type).Icon}
+                {SDIcons(signer.type).Icon}
               </Box>
             </View>
             <View style={{ flexDirection: 'column' }}>

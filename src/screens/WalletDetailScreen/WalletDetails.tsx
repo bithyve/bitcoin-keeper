@@ -8,6 +8,7 @@ import { Shadow } from 'react-native-shadow-2';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // icons and images
+import BtcBlack from 'src/assets/images/btc_black.svg';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
 import ImportCardIcon from 'src/assets/images/icon_import.svg';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
@@ -438,7 +439,7 @@ function WalletDetails({ route }) {
                       letterSpacing: 0.7,
                     }}
                   >
-                    ฿{' '}
+                    {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}{' '}
                     {getAmt(
                       wallets[walletIndex].transferPolicy.threshold,
                       exchangeRates,

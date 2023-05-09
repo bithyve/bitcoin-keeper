@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -38,7 +38,7 @@ function ExportSeedScreen({ route, navigation }) {
   const seedText = translations.seed;
 
   useEffect(() => {
-    if (backupMethod !== null) {
+    if (backupMethod !== null && next) {
       setBackupSuccessModal(true);
       setTimeout(() => {
         navigation.replace('WalletBackHistory');
@@ -89,7 +89,7 @@ function ExportSeedScreen({ route, navigation }) {
         onPressHandler={() => navigtaion.goBack()}
       />
 
-      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.88}>
+      <Box style={{ flex: 1 }}>
         <FlatList
           data={words}
           numColumns={2}
@@ -202,6 +202,7 @@ function ExportSeedScreen({ route, navigation }) {
           />
         )}
       />
+      <SafeAreaView />
     </Box>
   );
 }

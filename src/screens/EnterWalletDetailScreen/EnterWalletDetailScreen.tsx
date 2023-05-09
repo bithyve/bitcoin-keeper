@@ -43,23 +43,23 @@ function EnterWalletDetailScreen({ route }) {
   const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
-  );
-  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
+  );  
+  const [purpose, setPurpose] = useState(route.params?.purpose)
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
 
-  useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      Number(purpose)
-    );
-    setPath(path);
-  }, [purpose]);
+  // useEffect(() => {
+  //   const path = WalletUtilities.getDerivationPath(
+  //     EntityKind.WALLET,
+  //     config.NETWORK_TYPE,
+  //     0,
+  //     Number(purpose)
+  //   );
+  //   setPath(path);
+  // }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);

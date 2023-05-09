@@ -37,6 +37,8 @@ import TREZORLOGO from 'src/assets/images/trezor_logo.svg';
 import BITBOXICON from 'src/assets/images/BitBox.svg';
 import BITBOXICONLIGHT from 'src/assets/images/BitBoxLight.svg';
 import BITBOXLOGO from 'src/assets/images/bitbox_logo.svg';
+import OTHERSDICON from 'src/assets/images/other.svg';
+import OTHERSDICONLIGHT from 'src/assets/images/other_light.svg';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
@@ -48,7 +50,7 @@ const getColouredIcon = (LightComponent, DarkComponent, isLight) => {
   return DarkComponent;
 };
 
-export const WalletMap = (type: SignerType, light = false) => {
+export const SDIcons = (type: SignerType, light = false) => {
   switch (type) {
     case SignerType.COLDCARD:
       return {
@@ -131,6 +133,16 @@ export const WalletMap = (type: SignerType, light = false) => {
       return {
         Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light),
         Logo: <BITBOXLOGO />,
+        type: SignerStorage.COLD,
+      };
+    case SignerType.OTHER_SD:
+      return {
+        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
+        Logo: (
+          <Text style={styles.text} color="light.secondaryText">
+            Other Signing Device
+          </Text>
+        ),
         type: SignerStorage.COLD,
       };
     case SignerType.SEED_WORDS:
