@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   footerContainer: {
     height: 70,
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 5 : 15,
+    bottom: Platform.OS === 'ios' ? 10 : 15,
     width: windowWidth,
     paddingHorizontal: '10%',
     backgroundColor: Colors.LightWhite,

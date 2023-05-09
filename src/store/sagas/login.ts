@@ -100,7 +100,8 @@ function* credentialsStorageWorker({ payload }) {
 
     messaging().subscribeToTopic(getReleaseTopic(DeviceInfo.getVersion()));
     yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-      version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+      // version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+      version: `${DeviceInfo.getVersion()}`,
       releaseNote: '',
       date: new Date().toString(),
       title: 'Initially installed',

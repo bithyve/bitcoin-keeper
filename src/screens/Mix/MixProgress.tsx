@@ -96,6 +96,7 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const statusData = [
     {
       title: 'Subscribing',
@@ -134,7 +135,7 @@ function MixProgress({
       error: false,
     },
     {
-      title: 'Mix completed successfully',
+      title: isRemix ? 'Remix completed successfully' : 'Mix completed successfully',
       completed: false,
       referenceCode: 'Success',
       isLast: true,
@@ -142,7 +143,6 @@ function MixProgress({
     },
   ];
 
-  const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const dispatch = useDispatch();
   const [currentUtxo, setCurrentUtxo] = React.useState(
     selectedUTXOs.length ? `${selectedUTXOs[0].txId}:${selectedUTXOs[0].vout}` : ''
@@ -399,7 +399,7 @@ function MixProgress({
           paddingTop={hp(30)}
           headerTitleColor=""
           titleFontSize={20}
-          title="Mix Progress"
+          title={isRemix ? "Remix Progress" : "Mix Progress"}
           subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>
