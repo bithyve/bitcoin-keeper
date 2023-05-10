@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
-import { StyleSheet, FlatList, Platform } from 'react-native';
+import { StyleSheet, FlatList, Platform, Animated, Easing } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -18,6 +18,7 @@ import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Gear0 from 'src/assets/images/WP.svg';
 import ElectrumClient from 'src/core/services/electrum/client';
 import config from 'src/core/config';
 import {
@@ -40,6 +41,7 @@ import { io } from 'src/core/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
+  console.log('completed', completed)
   if (error) {
     return 'error.500';
   }
@@ -49,37 +51,7 @@ const getBackgroungColor = (completed: boolean, error: boolean): string => {
   return 'light.dustySageGreen';
 };
 
-function TimeLine({
-  title,
-  isLast,
-  completed,
-  error,
-}: {
-  title: string;
-  isLast: boolean;
-  completed: boolean;
-  error: boolean;
-}) {
-  return (
-    <Box style={styles.contentWrapper}>
-      <Box style={styles.timeLineWrapper}>
-        <Box style={styles.circularborder}>
-          <Box backgroundColor={getBackgroungColor(completed, error)} style={styles.greentDot} />
-        </Box>
-        {isLast ? null : (
-          <Box style={styles.verticalBorderWrapper}>
-            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-          </Box>
-        )}
-      </Box>
-      <Text color="light.secondaryText" style={styles.timeLineTitle}>
-        {title}
-      </Text>
-    </Box>
-  );
-}
+
 
 function MixProgress({
   route,
@@ -96,6 +68,21 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const spinValue = new Animated.Value(0);
+  Animated.loop(
+    Animated.timing(spinValue, {
+      toValue: 1,
+      duration: 10000,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    })
+  ).start();
+  const clock = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+  const styles = getStyles(clock);
+
   const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const statusData = [
     {
@@ -176,6 +163,7 @@ function MixProgress({
   }, []);
 
   useEffect(() => {
+    console.log('poolsData', poolsData)
     if (poolsData.length) initiateWhirlpoolMix();
   }, [poolsData]);
 
@@ -193,6 +181,51 @@ function MixProgress({
     }
     return selectedPool;
   };
+
+  function TimeLine({
+    title,
+    isLast,
+    completed,
+    error,
+    index
+  }: {
+    title: string;
+    isLast: boolean;
+    completed: boolean;
+    error: boolean;
+    index: number;
+  }) {
+    const inProgress = statuses[index].completed && !statuses[index + 1]?.completed
+    // console.log('inProgress', statuses[index + 1]?.title, inProgress)
+    return (
+      <Box style={styles.contentWrapper}>
+        <Box style={styles.timeLineWrapper}>
+          {inProgress ?
+            <Box style={styles.animatedCircularborder}>
+              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot} >
+                <Animated.View style={styles.whirlpoolIconStyle}>
+                  <Gear0 />
+                </Animated.View>
+              </Box>
+            </Box>
+            :
+            <Box style={styles.circularborder}>
+              <Box backgroundColor={getBackgroungColor(completed, error)} style={styles.greentDot} />
+            </Box>}
+          {isLast ? null : (
+            <Box style={styles.verticalBorderWrapper}>
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+            </Box>
+          )}
+        </Box>
+        <Text color="light.secondaryText" style={styles.timeLineTitle}>
+          {title}
+        </Text>
+      </Box>
+    );
+  }
 
   const updateStep = (step: Step) => {
     const updatedArray = [...statuses];
@@ -374,12 +407,13 @@ function MixProgress({
     }
   };
 
-  const renderItem = ({ item }) => (
-    <TimeLine
+  const renderItem = ({ item, index }) => (
+    < TimeLine
       title={item.title}
       completed={item.completed}
       isLast={item?.isLast}
       error={item.error}
+      index={index}
     />
   );
   function MixDurationText() {
@@ -389,6 +423,7 @@ function MixProgress({
       </Text>
     )
   }
+  console.log('statuses', statuses)
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
@@ -431,101 +466,123 @@ function MixProgress({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  timeLineContainer: {
-    paddingHorizontal: wp(10),
-  },
-  flatList: {
-    marginTop: hp(20),
-    paddingBottom: 70,
-  },
-  circularborder: {
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: Colors.Black,
-    borderStyle: 'dotted',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: hp(25),
-    height: hp(25),
-    zIndex: 999,
-  },
-  whirlpoolLoaderSolidBorder: {
-    borderWidth: 1,
-    borderColor: Colors.Black,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 50,
-    padding: 3,
-  },
-  dottedBorderContainer: {
-    alignItems: 'center',
-    paddingLeft: 3,
-  },
-  whirlpoolLoaderMainWrapper: {
-    flexDirection: 'row',
-  },
-  greentDot: {
-    width: hp(19),
-    height: hp(19),
-    borderRadius: 50,
-  },
-  verticalBorderWrapper: {
-    marginVertical: hp(5),
-  },
-  verticalBorder: {
-    width: hp(3),
-    height: hp(3),
-    marginVertical: hp(5),
-  },
-  timeLineWrapper: {
-    alignItems: 'center',
-    marginHorizontal: wp(10),
-  },
-  contentWrapper: {
-    flexDirection: 'row',
-  },
-  timeLineTitle: {
-    fontSize: 14,
-    letterSpacing: 0.5,
-    marginLeft: wp(25),
-    marginTop: hp(3),
-  },
-  settingUpTitle: {
-    marginTop: hp(12),
-    paddingLeft: 5,
-    fontWeight: 'bold',
-  },
-  note: {
-    position: 'absolute',
-    bottom: hp(0),
-    left: wp(40),
-    width: '100%',
-    height: hp(90),
-  },
-  currentUtxo: {
-    marginTop: 20,
-    marginLeft: 20,
-    flexDirection: 'row',
-  },
-  currentUtxoTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  currentUtxoText: {
-    fontSize: 14,
-    width: '60%',
-  },
-  mixingSubtitleText: {
-    fontSize: 12
-  },
-  durationTextStyle: {
-    fontWeight: 'bold',
-    fontStyle: 'italic'
-  }
-});
+const getStyles = (clock) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    timeLineContainer: {
+      paddingHorizontal: wp(10),
+    },
+    flatList: {
+      marginTop: hp(20),
+      paddingBottom: 70,
+    },
+    circularborder: {
+      borderRadius: 50,
+      borderWidth: 1,
+      borderColor: Colors.Black,
+      borderStyle: 'dotted',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: hp(25),
+      height: hp(25),
+      zIndex: 999,
+    },
+    whirlpoolLoaderSolidBorder: {
+      borderWidth: 1,
+      borderColor: Colors.Black,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 50,
+      padding: 3,
+    },
+    dottedBorderContainer: {
+      alignItems: 'center',
+      paddingLeft: 3,
+    },
+    whirlpoolLoaderMainWrapper: {
+      flexDirection: 'row',
+    },
+    greentDot: {
+      width: hp(19),
+      height: hp(19),
+      borderRadius: 50,
+    },
+    animatedCircularborder: {
+      borderRadius: 50,
+      borderWidth: 1,
+      borderColor: Colors.Black,
+      borderStyle: 'dotted',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: hp(30),
+      height: hp(30),
+      zIndex: 999,
+    },
+    animatedGreentDot: {
+      width: hp(25),
+      height: hp(25),
+      borderRadius: 50,
+      alignItems: 'center',
+      justifyContent: 'center'
+    },
+    whirlpoolIconStyle: {
+      transform: [{ rotate: clock }],
+    },
+    verticalBorderWrapper: {
+      marginVertical: hp(5),
+    },
+    verticalBorder: {
+      width: hp(3),
+      height: hp(3),
+      marginVertical: hp(5),
+    },
+    timeLineWrapper: {
+      alignItems: 'center',
+      marginHorizontal: wp(10),
+    },
+    contentWrapper: {
+      flexDirection: 'row',
+    },
+    timeLineTitle: {
+      fontSize: 14,
+      letterSpacing: 0.5,
+      marginLeft: wp(25),
+      marginTop: hp(3),
+    },
+    settingUpTitle: {
+      marginTop: hp(12),
+      paddingLeft: 5,
+      fontWeight: 'bold',
+    },
+    note: {
+      position: 'absolute',
+      bottom: hp(0),
+      left: wp(40),
+      width: '100%',
+      height: hp(90),
+    },
+    currentUtxo: {
+      marginTop: 20,
+      marginLeft: 20,
+      flexDirection: 'row',
+    },
+    currentUtxoTitle: {
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    currentUtxoText: {
+      fontSize: 14,
+      width: '60%',
+    },
+    mixingSubtitleText: {
+      fontSize: 12
+    },
+    durationTextStyle: {
+      fontWeight: 'bold',
+      fontStyle: 'italic'
+    }
+  });
 
 export default MixProgress;
