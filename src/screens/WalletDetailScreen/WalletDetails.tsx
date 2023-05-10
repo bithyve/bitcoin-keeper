@@ -101,6 +101,7 @@ function WalletDetails({ route }) {
   });
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 20 });
 
+  // eslint-disable-next-line no-underscore-dangle
   function _renderItem({ item, index }: { item; index }) {
     const walletName = item?.presentationData?.name;
     const walletDescription = item?.presentationData?.description;
@@ -512,7 +513,7 @@ function WalletDetails({ route }) {
                 style={styles.IconText}
                 onPress={() => {
                   featureMap.walletBuy
-                    ? onPressBuyBitcoin
+                    ? onPressBuyBitcoin()
                     : showToast('Please upgrade the plan to use this functionality');
                 }}
               >
