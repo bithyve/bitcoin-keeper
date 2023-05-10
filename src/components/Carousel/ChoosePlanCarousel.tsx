@@ -23,7 +23,7 @@ function ChoosePlanCarousel(props: Props) {
   const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
-  const [currentPosition, setCurrentPosition] = useState(subscription.level - 1);
+  const [currentPosition, setCurrentPosition] = useState(subscription.level);
 
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);
