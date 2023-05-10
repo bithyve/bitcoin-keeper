@@ -23,7 +23,8 @@ const styles = StyleSheet.create({
     },
     currentPlanText: {
         color: '#2D6759',
-        fontSize: 18
+        fontSize: 18,
+        fontWeight: '600'
     }
 })
 export default CurrentPlanView

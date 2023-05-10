@@ -44,7 +44,8 @@ const styles = StyleSheet.create({
     },
     skipText: {
         color: '#704E2E',
-        fontWeight: '500'
+        fontWeight: '500',
+        fontSize: 12,
     },
     addNowWrapper: {
         width: '20%'
@@ -58,7 +59,7 @@ const styles = StyleSheet.create({
     },
     addNowCTAText: {
         color: '#F7F2EC',
-        fontSize: 10,
+        fontSize: 11,
         fontWeight: '500'
     }
 })
