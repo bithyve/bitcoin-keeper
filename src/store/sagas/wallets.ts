@@ -198,6 +198,7 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
           );
         }
       } else {
+        yield put(walletGenerationFailed(response.error));
         yield put(relayWalletUpdateFail(response.error));
       }
     }
