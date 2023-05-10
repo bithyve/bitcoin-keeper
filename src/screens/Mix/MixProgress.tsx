@@ -41,7 +41,6 @@ import { io } from 'src/core/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
-  console.log('completed', completed)
   if (error) {
     return 'error.500';
   }
@@ -163,7 +162,6 @@ function MixProgress({
   }, []);
 
   useEffect(() => {
-    console.log('poolsData', poolsData)
     if (poolsData.length) initiateWhirlpoolMix();
   }, [poolsData]);
 
@@ -196,7 +194,6 @@ function MixProgress({
     index: number;
   }) {
     const inProgress = statuses[index].completed && !statuses[index + 1]?.completed
-    // console.log('inProgress', statuses[index + 1]?.title, inProgress)
     return (
       <Box style={styles.contentWrapper}>
         <Box style={styles.timeLineWrapper}>
@@ -423,7 +420,6 @@ function MixProgress({
       </Text>
     )
   }
-  console.log('statuses', statuses)
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
