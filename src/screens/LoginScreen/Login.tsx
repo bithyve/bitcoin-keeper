@@ -83,6 +83,8 @@ function LoginScreen({ navigation, route }) {
       setLoginModal(false)
     }
     if (recepitVerificationFailed) {
+      setLogging(false)
+      setLoginModal(false)
       // navigation.replace('App', { screen: 'ChoosePlan' });
       showToast('Failed to validate your subscription', null, 3000, true);
     }
