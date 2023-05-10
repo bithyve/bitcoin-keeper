@@ -31,7 +31,7 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
   });
 
   useEffect(() => {
-    let updatedFeatureMap: FeatureMap = {};
+    const updatedFeatureMap: FeatureMap = {};
     if (level < 2 && walletIndex > 2) {
       updatedFeatureMap.walletBuy = false;
       updatedFeatureMap.walletRecieve = false;
@@ -43,12 +43,14 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
   }, [walletIndex]);
 
   useEffect(() => {
-    let updatedFeatureMap: FeatureMap = {};
-    console.log(scheme);
+    const updatedFeatureMap: FeatureMap = {};
     if (level < 2) {
       updatedFeatureMap.vaultBuy = false;
-      if (scheme.m !== 1 || scheme.n !== 1) updatedFeatureMap.vaultRecieve = false;
-      else updatedFeatureMap.vaultRecieve = true;
+      if (scheme) {
+        if (scheme.m !== 1 || scheme.n !== 1) {
+          updatedFeatureMap.vaultRecieve = false;
+        } else updatedFeatureMap.vaultRecieve = true;
+      } else updatedFeatureMap.vaultRecieve = true;
     } else {
       updatedFeatureMap.vaultBuy = true;
       updatedFeatureMap.vaultRecieve = true;
@@ -57,7 +59,7 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
   }, [scheme]);
 
   useEffect(() => {
-    console.log(featureMap);
+    // console.log(featureMap);
   }, [featureMap]);
 
   return featureMap;
