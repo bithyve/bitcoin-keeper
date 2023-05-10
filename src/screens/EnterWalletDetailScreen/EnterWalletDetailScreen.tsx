@@ -26,6 +26,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { Linking } from 'react-native';
+import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -43,7 +44,10 @@ function EnterWalletDetailScreen({ route }) {
   const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
-  );  
+  );
+  const { hasNewWalletsGenerationFailed, err } = useAppSelector(
+    (state) => state.wallet
+  );
   const [purpose, setPurpose] = useState(route.params?.purpose)
   const [path, setPath] = useState(
     route.params?.path
@@ -103,7 +107,7 @@ function EnterWalletDetailScreen({ route }) {
       }
     }
     if (relayWalletError) {
-      showToast('Wallet creation failed!', <ToastErrorIcon />);
+      showToast(relayWalletError || 'Wallet creation failed', <ToastErrorIcon />);
       setWalletLoading(false);
       dispatch(resetRealyWalletState());
     }
@@ -120,6 +124,7 @@ function EnterWalletDetailScreen({ route }) {
         <Buttons
           primaryCallback={() => {
             navigtaion.replace('ChoosePlan')
+            dispatch(resetWalletStateFlags())
           }}
           primaryText="View Subsciption"
           activeOpacity={0.5}
