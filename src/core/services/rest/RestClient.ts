@@ -153,7 +153,6 @@ class RestClient {
         true
       );
     }
-    console.log(path, body, RestClient.headers);
     return axios.post(path, body, {
       headers: {
         ...RestClient.headers,
