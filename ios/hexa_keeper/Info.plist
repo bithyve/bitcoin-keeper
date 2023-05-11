@@ -53,9 +53,9 @@
 		</dict>
 	</dict>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings</string>
+	<string>Allow Keeper to use BLE to communicate with Ledger. Deny the request if you don't plan to use Ledger or want to enable later in the settings</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings</string>
+	<string>Allow Keeper to use BLE to communicate with Ledger. Deny the request if you don't plan to use Ledger or want to enable later in the settings</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
