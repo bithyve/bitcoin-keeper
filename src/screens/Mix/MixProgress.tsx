@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
-import { StyleSheet, FlatList, Platform } from 'react-native';
+import { StyleSheet, FlatList, Platform, BackHandler } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -13,8 +13,7 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { createUTXOReference } from 'src/store/sagaActions/utxos';
+import { WalletType } from 'src/core/wallets/enums';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -168,10 +167,11 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
     KeepAwake.activate();
-
     return () => {
       KeepAwake.deactivate();
+      backHandler.remove();
     };
   }, []);
 
