@@ -34,12 +34,35 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
         const wallet: Wallet | Vault = wallets
           .filtered(`id == "${utxoInfo.walletId}"`)
           .map(getJSONFromRealmObject)[0];
-        utxoLabels.push({
-          name: isWhirlpoolWallet
-            ? wallet.presentationData.name.replace('Wallet', '').trim()
-            : wallet.presentationData.name,
-          type: LabelType.SYSTEM,
-        });
+
+        if (isWhirlpoolWallet) {
+          // add the wallet label and the whirlpool label for whirlpool wallets
+          const parentWallet = wallets
+            .filtered(`id == "${wallet.depositWalletId}"`)
+            .map(getJSONFromRealmObject)[0];
+          utxoLabels.push({
+            name: wallet.presentationData.name.replace('Wallet', '').trim(),
+            type: LabelType.SYSTEM,
+          });
+          utxoLabels.push({
+            name: parentWallet.presentationData.name,
+            type: LabelType.SYSTEM,
+          });
+        } else {
+          // add only the wallet label for non-whirlpool wallets
+          utxoLabels.push({
+            name: wallet.presentationData.name,
+            type: LabelType.SYSTEM,
+          });
+          // workaround for deposit wallet as it's the default wallet and not a whirlpool wallet
+          if (wallet.type === WalletType.DEFAULT) {
+            utxoLabels.push({
+              name: 'DEPOSIT',
+              type: LabelType.SYSTEM,
+            });
+          }
+        }
+
         labels[labelId] = utxoLabels;
       } else {
         dispatch(refreshWallets([wallet], { hardRefresh: true }));

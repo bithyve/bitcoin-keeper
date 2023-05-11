@@ -100,7 +100,7 @@ function UTXOLabeling() {
   const onSaveChangeClick = async () => {
     await start(async () => {
       const finalLabels = existingLabels.filter(
-        (label) => !(label.type === LabelType.SYSTEM && label.name === wallet.presentationData.name) // ignore the wallet label since they are internal references
+        (label) => !(label.type === LabelType.SYSTEM) // ignore the system label since they are internal references
       );
       const { updated } = await Relay.modifyUTXOinfo(
         keeper.id,

@@ -2,7 +2,7 @@
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
-import { StyleSheet, FlatList, Platform } from 'react-native';
+import { StyleSheet, FlatList, Platform, BackHandler } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -13,8 +13,7 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { createUTXOReference } from 'src/store/sagaActions/utxos';
+import { WalletType } from 'src/core/wallets/enums';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -168,10 +167,11 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
     KeepAwake.activate();
-
     return () => {
       KeepAwake.deactivate();
+      backHandler.remove();
     };
   }, []);
 
@@ -267,24 +267,6 @@ function MixProgress({
       );
       setTimeout(async () => {
         dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-        const transaction = await ElectrumClient.getTransactionsById([txid]);
-        const vout = transaction[txid].vout.findIndex(
-          (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
-        );
-        dispatch(
-          createUTXOReference([
-            {
-              labels: [
-                {
-                  name: depositWallet.presentationData.name.toUpperCase(),
-                  type: LabelType.SYSTEM,
-                },
-              ],
-              txId: txid,
-              vout,
-            },
-          ])
-        );
       }, 3000);
       navigation.navigate('UTXOManagement', {
         data: depositWallet,
@@ -399,7 +381,7 @@ function MixProgress({
           paddingTop={hp(30)}
           headerTitleColor=""
           titleFontSize={20}
-          title={isRemix ? "Remix Progress" : "Mix Progress"}
+          title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>

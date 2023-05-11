@@ -5,6 +5,7 @@ import { Recipient } from 'src/common/data/models/interfaces/Recipient';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { TransferType } from 'src/common/data/enums/TransferType';
 import { Satoshis } from '../../common/data/typealiases/UnitAliases';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
@@ -162,6 +163,7 @@ export interface SendPhaseTwoAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
+    transferType: TransferType;
     note?: string;
     label?: string;
   };
@@ -170,6 +172,7 @@ export interface SendPhaseTwoAction extends Action {
 export const sendPhaseTwo = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
+  transferType: TransferType;
   token?: number;
   note?: string;
   label?: string;
