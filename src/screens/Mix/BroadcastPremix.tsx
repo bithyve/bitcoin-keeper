@@ -168,29 +168,12 @@ export default function BroadcastPremix({ route, navigation }) {
           }, 3000);
 
           const outputs = PSBT.txOutputs;
-          const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
-          const voutBadBank = outputs.findIndex(
-            (o) => o.address === badbankWallet.specs.receivingAddress
-          );
-          dispatch(
-            createUTXOReference({
-              labels: [
-                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-              ],
-              txId: txid,
-              vout: voutPremix,
-            })
-          );
-          dispatch(
-            createUTXOReference({
-              labels: [
-                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-                { name: 'Doxxic Change', type: LabelType.SYSTEM },
-              ],
-              txId: txid,
-              vout: voutBadBank,
-            })
-          );
+          const voutsPremix = [];
+          outputs.forEach((o, i) => {
+            if (premixAddresses.includes(o.address)) {
+              voutsPremix.push(i);
+            }
+          });
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           setShowBroadcastModal(true);
           setLoading(false);

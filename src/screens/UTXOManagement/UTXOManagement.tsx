@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
@@ -29,6 +29,8 @@ import { Box, HStack, VStack } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
+import RestClient from 'src/core/services/rest/RestClient';
+import { captureError } from 'src/core/services/sentry';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -65,6 +67,7 @@ function Footer({
   initateWhirlpoolMix,
   setShowBatteryWarningModal,
   setSendBadBankModalVisible,
+  selectedAccount,
 }) {
   const navigation = useNavigation();
 
@@ -99,9 +102,10 @@ function Footer({
           inititateWhirlpoolMixProcess();
         } else if (initiateWhirlpool) {
           goToWhirlpoolConfiguration();
-        } else {
+        } else if (selectedAccount === WalletType.BAD_BANK) {
           setSendBadBankModalVisible();
-          // navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+        } else {
+          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
         }
       }}
       selectedUTXOs={selectedUTXOs}
@@ -223,6 +227,22 @@ function UTXOManagement({ route, navigation }) {
     [cleanUp]
   );
 
+  const [torInitialised, setTorInitialised] = useState(false);
+
+  useEffect(() => {
+    RestClient.initWhirlpoolTor()
+      .then(() => {
+        setTorInitialised(true);
+      })
+      .catch((e) => {
+        if (RestClient.getWhirlpoolTorPort()) {
+          setTorInitialised(true);
+        } else {
+          captureError(e);
+        }
+      });
+  }, []);
+
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
@@ -261,7 +281,7 @@ function UTXOManagement({ route, navigation }) {
           selectedAccount={selectedAccount}
         />
       </Box>
-      {utxos?.length ? (
+      {torInitialised && utxos?.length ? (
         <Footer
           utxos={utxos}
           setInitiateWhirlpool={setInitiateWhirlpool}
@@ -276,6 +296,7 @@ function UTXOManagement({ route, navigation }) {
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
           setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
+          selectedAccount={selectedAccount}
         />
       ) : null}
       <KeeperModal
@@ -284,8 +305,8 @@ function UTXOManagement({ route, navigation }) {
         close={() => {
           setShowBatteryWarningModal(false);
         }}
-        title="Managing your mobile mixes"
-        subTitle="Mix might take a while to complete. Dont close the app until the mix is complete."
+        title="Caution during the mix"
+        subTitle="The mix may take some time to complete. Please do not close the app or navigate away."
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
@@ -299,12 +320,10 @@ function UTXOManagement({ route, navigation }) {
               </Box>
               <Box style={styles.batteryModalTextArea}>
                 <Box style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>Connect to power</Text>
-                </Box>
-                <Box style={{ flexDirection: 'row' }}>
-                  <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                  <Text style={styles.batteryModalText}>20% battery required</Text>
+                  {/* <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text> */}
+                  <Text style={styles.batteryModalText}>
+                    You will see the mix progress statuses in the next step.
+                  </Text>
                 </Box>
               </Box>
             </Box>

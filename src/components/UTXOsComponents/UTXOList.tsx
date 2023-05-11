@@ -51,7 +51,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
+        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96', maxHeight: 19, }]}>
           <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>

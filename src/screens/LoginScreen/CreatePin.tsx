@@ -139,7 +139,7 @@ export default function CreatePin(props) {
           <StatusBar barStyle="light-content" />
         </Box>
         <Box style={styles.wrapper}>
-          <Box mt={windowHeight > 670 ? hp('5%') : 0}>
+          <Box style={styles.titleWrapper}>
             <Box>
               <Text style={styles.welcomeText} color="light.white">
                 {login.welcome}
@@ -155,7 +155,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                      `light.error`
+                    `light.error`
                     : 'transparent'
                 }
               />
@@ -220,6 +220,10 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+  },
+  titleWrapper: {
+    marginTop: windowHeight > 670 ? hp('5%') : 0,
+    flex: 0.7
   },
   welcomeText: {
     marginLeft: 18,
