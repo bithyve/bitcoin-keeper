@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText'
-import IconSettings from 'src/assets/images/icon_settings.svg';
+import IconSettings from 'src/assets/images/new_icon_settings.svg';
 
 
 function HeaderBar() {
@@ -10,7 +10,7 @@ function HeaderBar() {
         <Box style={styles.wrapper}>
             <Box style={styles.torStatusWrapper}>
                 <Box style={styles.torStatusView}>
-                    <Text style={styles.torStatusText}>TOR ENABLED</Text>
+                    <Text style={styles.torStatusText} color='light.white'>TOR ENABLED</Text>
                 </Box>
             </Box>
             <TouchableOpacity style={styles.settingIconWrapper}>
@@ -38,9 +38,7 @@ const styles = StyleSheet.create({
         borderRadius: 10
     },
     torStatusText: {
-        color: '#F7F2EC',
         fontSize: 12
-
     },
     settingIconWrapper: {
         width: '40%',
