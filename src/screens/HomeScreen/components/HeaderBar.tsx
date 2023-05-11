@@ -2,7 +2,7 @@ import React from 'react'
 import { StyleSheet, TouchableOpacity } from 'react-native'
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText'
-import IconSettings from 'src/assets/images/icon_settings.svg';
+import IconSettings from 'src/assets/images/new_icon_settings.svg';
 
 
 function HeaderBar() {
