@@ -5,10 +5,9 @@ import HeaderBar from './components/HeaderBar';
 import CurrentPlanView from './components/CurrentPlanView';
 import UAIView from './components/UAIView';
 
-
 function HeaderDetails() {
   return (
-    <Box backgroundColor='light.white' style={styles.warpper}>
+    <Box backgroundColor="light.white" style={styles.warpper}>
       <HeaderBar />
       <CurrentPlanView />
       <UAIView />
@@ -24,6 +23,6 @@ const styles = StyleSheet.create({
     paddingVertical: 30,
     borderBottomEndRadius: 10,
     borderBottomStartRadius: 10,
-    marginHorizontal: 20
-  }
+    marginHorizontal: 20,
+  },
 });

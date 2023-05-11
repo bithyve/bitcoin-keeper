@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
 import WalletsScreen from './WalletsScreen';
 import VaultScreen from './VaultScreen';
+import HeaderDetails from './components/HeaderDetails';
 
 function TabButton({
   label,
@@ -46,54 +47,58 @@ const Tab = createBottomTabNavigator();
 
 function NewHomeScreen() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route, navigation }) => ({
-        tabBarButton: ({ onPress }) => {
-          if (route.name === 'Vault') {
-            const active = navigation.isFocused('Vault');
-            return (
-              <TabButton
-                label="Vault"
-                Icon={WalletIcon}
-                onPress={onPress}
-                active={active}
-                backgroundColorActive="#704E2E"
-                backgroundColor="transparent"
-                textColorActive="#F7F2EC"
-                textColor="#704E2E"
-              />
-            );
-          } if (route.name === 'Wallet') {
-            const active = navigation.isFocused('Wallet');
-            return (
-              <TabButton
-                label="Wallets"
-                Icon={WalletIcon}
-                onPress={onPress}
-                active={active}
-                backgroundColorActive="#2D6759"
-                backgroundColor="transparent"
-                textColorActive="#FDF8F2"
-                textColor="#2D6759"
-              />
-            );
-          }
-        },
-        tabBarStyle: {
-          paddingVertical: 5,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-          backgroundColor: '#FDF7F0',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: 70,
-        },
-        headerShown: false,
-      })}
-    >
-      <Tab.Screen name="Wallet" component={WalletsScreen} />
-      <Tab.Screen name="Vault" component={VaultScreen} />
-    </Tab.Navigator>
+    <>
+      <HeaderDetails />
+      <Tab.Navigator
+        screenOptions={({ route, navigation }) => ({
+          tabBarButton: ({ onPress }) => {
+            if (route.name === 'Vault') {
+              const active = navigation.isFocused('Vault');
+              return (
+                <TabButton
+                  label="Vault"
+                  Icon={WalletIcon}
+                  onPress={onPress}
+                  active={active}
+                  backgroundColorActive="#704E2E"
+                  backgroundColor="transparent"
+                  textColorActive="#F7F2EC"
+                  textColor="#704E2E"
+                />
+              );
+            }
+            if (route.name === 'Wallet') {
+              const active = navigation.isFocused('Wallet');
+              return (
+                <TabButton
+                  label="Wallets"
+                  Icon={WalletIcon}
+                  onPress={onPress}
+                  active={active}
+                  backgroundColorActive="#2D6759"
+                  backgroundColor="transparent"
+                  textColorActive="#FDF8F2"
+                  textColor="#2D6759"
+                />
+              );
+            }
+          },
+          tabBarStyle: {
+            paddingVertical: 5,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            backgroundColor: '#FDF7F0',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: 70,
+          },
+          headerShown: false,
+        })}
+      >
+        <Tab.Screen name="Wallet" component={WalletsScreen} />
+        <Tab.Screen name="Vault" component={VaultScreen} />
+      </Tab.Navigator>
+    </>
   );
 }
 
