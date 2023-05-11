@@ -5,7 +5,7 @@ import WalletIcon from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
 import WalletsScreen from './WalletsScreen';
 import VaultScreen from './VaultScreen';
 
-const TabButton = ({
+function TabButton({
   label,
   Icon,
   active,
@@ -14,7 +14,7 @@ const TabButton = ({
   backgroundColor,
   textColorActive,
   textColor,
-}) => {
+}) {
   return (
     <TouchableOpacity onPress={onPress}>
       <View
@@ -40,11 +40,11 @@ const TabButton = ({
       </View>
     </TouchableOpacity>
   );
-};
+}
 
 const Tab = createBottomTabNavigator();
 
-const NewHomeScreen = () => {
+function NewHomeScreen() {
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => ({
@@ -53,28 +53,28 @@ const NewHomeScreen = () => {
             const active = navigation.isFocused('Vault');
             return (
               <TabButton
-                label={'Vault'}
+                label="Vault"
                 Icon={WalletIcon}
                 onPress={onPress}
                 active={active}
-                backgroundColorActive={'#704E2E'}
-                backgroundColor={'transparent'}
-                textColorActive={'#F7F2EC'}
-                textColor={'#704E2E'}
+                backgroundColorActive="#704E2E"
+                backgroundColor="transparent"
+                textColorActive="#F7F2EC"
+                textColor="#704E2E"
               />
             );
-          } else if (route.name === 'Wallet') {
+          } if (route.name === 'Wallet') {
             const active = navigation.isFocused('Wallet');
             return (
               <TabButton
-                label={'Wallets'}
+                label="Wallets"
                 Icon={WalletIcon}
                 onPress={onPress}
                 active={active}
-                backgroundColorActive={'#2D6759'}
-                backgroundColor={'transparent'}
-                textColorActive={'#FDF8F2'}
-                textColor={'#2D6759'}
+                backgroundColorActive="#2D6759"
+                backgroundColor="transparent"
+                textColorActive="#FDF8F2"
+                textColor="#2D6759"
               />
             );
           }
@@ -86,7 +86,7 @@ const NewHomeScreen = () => {
           backgroundColor: '#FDF7F0',
           justifyContent: 'center',
           alignItems: 'center',
-          height: 100,
+          height: 70,
         },
         headerShown: false,
       })}
@@ -95,7 +95,7 @@ const NewHomeScreen = () => {
       <Tab.Screen name="Vault" component={VaultScreen} />
     </Tab.Navigator>
   );
-};
+}
 
 export default NewHomeScreen;
 
