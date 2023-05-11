@@ -11,6 +11,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
+import { TransferType } from 'src/common/data/enums/TransferType';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import {
@@ -123,7 +124,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
-  const { wallet, txnPriority, note, label } = payload;
+  const { wallet, txnPriority, note, label, transferType } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
@@ -137,7 +138,10 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       recipients
       // customTxPrerequisites
     );
-    const systemLableOnSend = [{ name: wallet.presentationData.name, type: LabelType.SYSTEM }];
+    const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
+    const systemLableOnSend = enabledTransferTypes.includes(transferType)
+      ? [{ name: wallet.presentationData.name, type: LabelType.SYSTEM }]
+      : [];
     let labels = systemLableOnSend;
     switch (wallet.entityKind) {
       case EntityKind.WALLET:
@@ -179,11 +183,13 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       (o) => o.address === recipients[0].address
     );
     yield call(createUTXOReferenceWorker, {
-      payload: {
-        labels,
-        txId: txid,
-        vout,
-      },
+      payload: [
+        {
+          labels,
+          txId: txid,
+          vout,
+        },
+      ],
     });
   } catch (err) {
     yield put(

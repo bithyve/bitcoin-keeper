@@ -267,24 +267,6 @@ function MixProgress({
       );
       setTimeout(async () => {
         dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-        const transaction = await ElectrumClient.getTransactionsById([txid]);
-        const vout = transaction[txid].vout.findIndex(
-          (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
-        );
-        dispatch(
-          createUTXOReference([
-            {
-              labels: [
-                {
-                  name: depositWallet.presentationData.name.toUpperCase(),
-                  type: LabelType.SYSTEM,
-                },
-              ],
-              txId: txid,
-              vout,
-            },
-          ])
-        );
       }, 3000);
       navigation.navigate('UTXOManagement', {
         data: depositWallet,
@@ -399,7 +381,7 @@ function MixProgress({
           paddingTop={hp(30)}
           headerTitleColor=""
           titleFontSize={20}
-          title={isRemix ? "Remix Progress" : "Mix Progress"}
+          title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>
