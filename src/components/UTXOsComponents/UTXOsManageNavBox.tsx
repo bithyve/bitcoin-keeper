@@ -5,19 +5,27 @@ import ArrowIcon from 'src/assets/images/arrow.svg';
 import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import idx from 'idx';
 import useBalance from 'src/hooks/useBalance';
 import Text from '../KeeperText';
+import useWhirlpoolWallets, {
+  whirlpoolWalletAccountMapInterface,
+} from 'src/hooks/useWhirlpoolWallets';
 
-const getTotalBalanceWhirlpoolAccount = (currentWallet) =>
-  idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
-  idx(currentWallet, (_) => _.specs.balances.confirmed) +
-  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.unconfirmed) +
-  idx(currentWallet, (_) => _.whirlpoolConfig.premixWallet.specs.balances.confirmed) +
-  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.unconfirmed) +
-  idx(currentWallet, (_) => _.whirlpoolConfig.postmixWallet.specs.balances.confirmed) +
-  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.unconfirmed) +
-  idx(currentWallet, (_) => _.whirlpoolConfig.badbankWallet.specs.balances.confirmed) || 0;
+const getTotalBalanceWhirlpoolAccount = (
+  currentWallet: Wallet,
+  whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface
+) => {
+  return (
+    currentWallet.specs.balances.confirmed +
+      currentWallet.specs.balances.unconfirmed +
+      whirlpoolWalletAccountMap.premixWallet.specs.balances.confirmed +
+      whirlpoolWalletAccountMap.premixWallet.specs.balances.unconfirmed +
+      whirlpoolWalletAccountMap.postmixWallet.specs.balances.confirmed +
+      whirlpoolWalletAccountMap.postmixWallet.specs.balances.unconfirmed +
+      whirlpoolWalletAccountMap.badbankWallet.specs.balances.confirmed +
+      whirlpoolWalletAccountMap.badbankWallet.specs.balances.unconfirmed || 0
+  );
+};
 
 function UTXOsManageNavBox({
   onClick,
@@ -30,6 +38,10 @@ function UTXOsManageNavBox({
 }) {
   const { getSatUnit, getBalance } = useBalance();
 
+  const whirlpoolWalletAccountMap = useWhirlpoolWallets({
+    wallets: [currentWallet],
+  })?.[currentWallet.id];
+
   return (
     <Pressable
       style={styles.manageUTXOsWrapper}
@@ -40,7 +52,8 @@ function UTXOsManageNavBox({
         <Box style={styles.titleViewWrapper}>
           <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
           <Text style={styles.subTitleText}>
-            Total Balance: {getBalance(getTotalBalanceWhirlpoolAccount(currentWallet))}
+            Total Balance:{' '}
+            {getBalance(getTotalBalanceWhirlpoolAccount(currentWallet, whirlpoolWalletAccountMap))}
             {getSatUnit()}
           </Text>
         </Box>
