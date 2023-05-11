@@ -1,71 +1,111 @@
-import React from 'react';
-import { Box } from 'native-base';
-import { StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { Box, Pressable, ScrollView } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import HideIcon from 'src/assets/images/icon_hide.svg';
-import ColcardIcon from 'src/assets/images/trezor.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
+import useVault from 'src/hooks/useVault';
+import idx from 'idx';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import ListItemView from './components/ListItemView';
+import CurrencyInfo from './components/CurrencyInfo';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
+import HomeScreenWrapper from './components/HomeScreenWrapper';
 
 function VaultScreen() {
+  const { activeVault } = useVault();
+  const signers = idx(activeVault, (_) => _.signers) || [];
+  const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
+  const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
+  const scheme = idx(activeVault, (_) => _.scheme) || { m: 0, n: 0 };
+  const [hideAmounts, setHideAmounts] = useState(true);
+  const toggleCurrencyVisibility = () => setHideAmounts(!hideAmounts);
+  const navigation = useNavigation();
+  const navigateToHardwareSetup = () => {
+    navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
+  };
+  const onVaultPress = () => {
+    if (signers.length) {
+      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
+    } else {
+      navigateToHardwareSetup();
+    }
+  };
   return (
-    <Box style={styles.container}>
-      <Box style={styles.hideBalanceWrapper}>
+    <HomeScreenWrapper>
+      <Pressable style={styles.hideBalanceWrapper}>
         <HideIcon />
-        <Text style={styles.hideBalanceText}>&nbsp;&nbsp;HIDE BALANCES</Text>
-      </Box>
-      <Box style={styles.titleWrapper}>
-        <Text style={styles.titleText} color="light.primaryText">
-          Your Vault
+        <Text style={styles.hideBalanceText} onPress={toggleCurrencyVisibility}>
+          &nbsp;&nbsp;{`${hideAmounts ? 'SHOW' : 'HIDE'} BALANCES`}
         </Text>
-        <Text style={styles.subTitleText} color="light.secondaryText">
-          Beach and sunshine baby!
-        </Text>
-      </Box>
-      <Box style={styles.vaultDetailsWrapper} backgroundColor="light.learnMoreBorder">
-        <Box style={styles.signingDeviceWrapper}>
-          <Box style={styles.signingDeviceDetails}>
-            <Text style={styles.signingDeviceText} color="light.white">
-              3 of 5 Vault
-            </Text>
-            <Box style={styles.signingDeviceList}>
-              <ColcardIcon />
-              <ColcardIcon />
-              <ColcardIcon />
-              <ColcardIcon />
+      </Pressable>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Box style={styles.titleWrapper}>
+          <Text style={styles.titleText} color="light.primaryText">
+            Your Vault
+          </Text>
+          <Text style={styles.subTitleText} color="light.secondaryText">
+            Beach and sunshine baby!
+          </Text>
+        </Box>
+        <Box style={styles.vaultDetailsWrapper} backgroundColor="light.learnMoreBorder">
+          <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
+            <Box style={styles.signingDeviceWrapper}>
+              <Box style={styles.signingDeviceDetails}>
+                <Text style={styles.signingDeviceText} color="light.white">
+                  {`${scheme.m} of ${scheme.n} Vault`}
+                </Text>
+                <Box style={styles.signingDeviceList}>
+                  {signers.map((signer: any) => (
+                    <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
+                      {SDIcons(signer.type, true).Icon}
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+              <Box style={styles.unConfirmBalanceView}>
+                <Text style={styles.unconfirmText} color="light.white">
+                  Unconfirmed
+                </Text>
+                <CurrencyInfo
+                  hideAmounts={hideAmounts}
+                  amount={confirmedBalance + unconfirmedBalance}
+                  fontSize={14}
+                />
+              </Box>
             </Box>
-          </Box>
-          <Box style={styles.unConfirmBalanceView}>
-            <Text style={styles.unconfirmText} color="light.white">
-              Unconfirmed
-            </Text>
-            <Text style={styles.balanceText} color="light.white">
-              ₿ 0.00050
-            </Text>
-          </Box>
+            <Box style={styles.availableBalanceWrapper}>
+              <Text style={styles.availableText} color="light.white">
+                Available Balance
+              </Text>
+              <CurrencyInfo
+                hideAmounts={hideAmounts}
+                amount={confirmedBalance + unconfirmedBalance}
+                fontSize={20}
+              />
+            </Box>
+          </TouchableOpacity>
         </Box>
-        <Box style={styles.availableBalanceWrapper}>
-          <Text style={styles.availableText} color="light.white">
-            Available Balance
-          </Text>
-          <Text style={styles.availablebalanceText} color="light.white">
-            ₿ 10.0006
-          </Text>
-        </Box>
-      </Box>
-      <ListItemView
-        icon={<InheritanceIcon />}
-        title="Inheritance"
-        subTitle="Setup inheritance Key"
-      />
-      <ListItemView
-        icon={<BitcoinIcon />}
-        title="Buy"
-        subTitle="Stack sats directly in the vault"
-      />
-    </Box>
+        <Pressable
+          onPress={() => {
+            navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+          }}
+        >
+          <ListItemView
+            icon={<InheritanceIcon />}
+            title="Inheritance"
+            subTitle="Setup inheritance Key"
+          />
+        </Pressable>
+        <ListItemView
+          icon={<BitcoinIcon />}
+          title="Buy"
+          subTitle="Stack sats directly in the vault"
+        />
+      </ScrollView>
+    </HomeScreenWrapper>
   );
 }
 
@@ -78,13 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginVertical: hp(10),
   },
-  container: {
-    flex: 1,
-    backgroundColor: '#F7F2EC',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    position: 'relative',
-  },
+
   hideBalanceText: {
     fontSize: 10,
     color: '#704E2E',
@@ -100,7 +134,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   vaultDetailsWrapper: {
-    padding: 10,
+    padding: 15,
     borderRadius: 10,
     marginVertical: hp(20),
   },
@@ -136,5 +170,13 @@ const styles = StyleSheet.create({
   },
   availablebalanceText: {
     fontSize: 20,
+  },
+  vaultSigner: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 2,
+    width: 30,
+    height: 30,
+    borderRadius: 30,
   },
 });
