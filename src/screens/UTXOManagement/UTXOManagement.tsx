@@ -13,7 +13,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
 // import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
-import { Alert, StyleSheet } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -281,7 +281,10 @@ function UTXOManagement({ route, navigation }) {
           selectedAccount={selectedAccount}
         />
       </Box>
-      {torInitialised && utxos?.length ? (
+      {!(
+        [WalletType.PRE_MIX, WalletType.POST_MIX].includes(selectedAccount as WalletType) &&
+        !torInitialised
+      ) && utxos?.length ? (
         <Footer
           utxos={utxos}
           setInitiateWhirlpool={setInitiateWhirlpool}
@@ -298,7 +301,9 @@ function UTXOManagement({ route, navigation }) {
           setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
           selectedAccount={selectedAccount}
         />
-      ) : null}
+      ) : (
+        <ActivityIndicator />
+      )}
       <KeeperModal
         justifyContent="flex-end"
         visible={showBatteryWarningModal}
