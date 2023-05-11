@@ -67,6 +67,7 @@ function Footer({
   initateWhirlpoolMix,
   setShowBatteryWarningModal,
   setSendBadBankModalVisible,
+  selectedAccount,
 }) {
   const navigation = useNavigation();
 
@@ -101,9 +102,10 @@ function Footer({
           inititateWhirlpoolMixProcess();
         } else if (initiateWhirlpool) {
           goToWhirlpoolConfiguration();
-        } else {
+        } else if (selectedAccount === WalletType.BAD_BANK) {
           setSendBadBankModalVisible();
-          // navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+        } else {
+          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
         }
       }}
       selectedUTXOs={selectedUTXOs}
@@ -294,6 +296,7 @@ function UTXOManagement({ route, navigation }) {
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
           setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
+          selectedAccount={selectedAccount}
         />
       ) : null}
       <KeeperModal
@@ -318,7 +321,9 @@ function UTXOManagement({ route, navigation }) {
               <Box style={styles.batteryModalTextArea}>
                 <Box style={{ flexDirection: 'row' }}>
                   {/* <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text> */}
-                  <Text style={styles.batteryModalText}>You will see the mix progress statuses in the next step.</Text>
+                  <Text style={styles.batteryModalText}>
+                    You will see the mix progress statuses in the next step.
+                  </Text>
                 </Box>
               </Box>
             </Box>
