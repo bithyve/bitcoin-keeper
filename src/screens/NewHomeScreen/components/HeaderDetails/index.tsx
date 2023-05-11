@@ -1,13 +1,15 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box } from 'native-base';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HeaderBar from './components/HeaderBar';
 import CurrentPlanView from './components/CurrentPlanView';
 import UAIView from './components/UAIView';
 
 function HeaderDetails() {
+  const { top } = useSafeAreaInsets();
   return (
-    <Box backgroundColor="light.white" style={styles.warpper}>
+    <Box backgroundColor="light.white" style={[styles.warpper, { paddingTop: top }]}>
       <HeaderBar />
       <CurrentPlanView />
       <UAIView />
