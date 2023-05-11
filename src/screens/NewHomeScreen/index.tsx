@@ -1,7 +1,9 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import WalletIcon from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
+import WalletIcon from 'src/assets/images/walletTab.svg';
+import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
+import VaultIcon from 'src/assets/images/vaultTab.svg';
 import WalletsScreen from './WalletsScreen';
 import VaultScreen from './VaultScreen';
 import HeaderDetails from './components/HeaderDetails';
@@ -9,6 +11,7 @@ import HeaderDetails from './components/HeaderDetails';
 function TabButton({
   label,
   Icon,
+  IconActive,
   active,
   onPress,
   backgroundColorActive,
@@ -26,13 +29,13 @@ function TabButton({
           },
         ]}
       >
-        <Icon />
+        {active ? <IconActive /> : <Icon />}
         <Text
           style={[
             styles.label,
             {
               color: active ? textColorActive : textColor,
-              fontWeight: active ? '700' : '400',
+              fontWeight: active ? '600' : '300',
             },
           ]}
         >
@@ -57,7 +60,8 @@ function NewHomeScreen() {
               return (
                 <TabButton
                   label="Vault"
-                  Icon={WalletIcon}
+                  Icon={VaultIcon}
+                  IconActive={VaultIcon}
                   onPress={onPress}
                   active={active}
                   backgroundColorActive="#704E2E"
@@ -73,6 +77,7 @@ function NewHomeScreen() {
                 <TabButton
                   label="Wallets"
                   Icon={WalletIcon}
+                  IconActive={WalletActiveIcon}
                   onPress={onPress}
                   active={active}
                   backgroundColorActive="#2D6759"
@@ -84,13 +89,13 @@ function NewHomeScreen() {
             }
           },
           tabBarStyle: {
-            paddingVertical: 5,
+            paddingVertical: 17,
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
             backgroundColor: '#FDF7F0',
             justifyContent: 'center',
             alignItems: 'center',
-            height: 70,
+            height: 100,
           },
           headerShown: false,
         })}
@@ -109,8 +114,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 30,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingHorizontal: 27,
+    paddingVertical: 12,
     margin: 10,
   },
   label: {
