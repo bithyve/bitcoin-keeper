@@ -98,12 +98,15 @@ export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => ({
 });
 
 export const incrementAddressIndex = (
-  wallets: (Wallet | Vault)[],
-  options: { external: boolean; internal: boolean }
+  wallet: Wallet | Vault,
+  options: {
+    external?: { incrementBy: number };
+    internal?: { incrementBy: number };
+  }
 ) => ({
   type: INCREMENT_ADDRESS_INDEX,
   payload: {
-    wallets,
+    wallet,
     options,
   },
 });

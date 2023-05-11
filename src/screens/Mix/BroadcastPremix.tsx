@@ -150,12 +150,15 @@ export default function BroadcastPremix({ route, navigation }) {
         const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
         const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
         if (txid) {
-          dispatch(
-            incrementAddressIndex([premixWallet, badbankWallet], {
-              external: true,
-              internal: false,
-            })
-          );
+          for (const wallet of [premixWallet, badbankWallet]) {
+            let incrementBy = 1;
+            if (wallet.type === WalletType.PRE_MIX) incrementBy = premixAddresses.length;
+            dispatch(
+              incrementAddressIndex(wallet, {
+                external: { incrementBy },
+              })
+            );
+          }
 
           setTimeout(async () => {
             // auto refresh post 3 seconds, allowing for the indexer to sync
@@ -165,29 +168,29 @@ export default function BroadcastPremix({ route, navigation }) {
           }, 3000);
 
           const outputs = PSBT.txOutputs;
-          const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
+          const voutsPremix = [];
+          outputs.forEach((o, i) => {
+            if (o.address === premixAddresses[0]) {
+              voutsPremix.push(i);
+            }
+          });
+          const premixReferences = voutsPremix.map((vout) => ({
+            labels: [{ name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM }],
+            txId: txid,
+            vout,
+          }));
           const voutBadBank = outputs.findIndex(
             (o) => o.address === badbankWallet.specs.receivingAddress
           );
-          dispatch(
-            createUTXOReference({
-              labels: [
-                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-              ],
-              txId: txid,
-              vout: voutPremix,
-            })
-          );
-          dispatch(
-            createUTXOReference({
-              labels: [
-                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-                { name: 'Doxxic Change', type: LabelType.SYSTEM },
-              ],
-              txId: txid,
-              vout: voutBadBank,
-            })
-          );
+          const badbankReference = {
+            labels: [
+              { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
+              { name: 'Doxxic Change', type: LabelType.SYSTEM },
+            ],
+            txId: txid,
+            vout: voutBadBank,
+          };
+          dispatch(createUTXOReference([...premixReferences, badbankReference]));
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           setShowBroadcastModal(true);
           setLoading(false);

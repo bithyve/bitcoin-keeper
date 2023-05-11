@@ -16,7 +16,7 @@
 
 RCT_EXPORT_MODULE();
 
-RCT_EXPORT_METHOD(hello:(NSString*) name
+RCT_EXPORT_METHOD(hello:(NSString*)name
                   get:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
@@ -25,27 +25,30 @@ RCT_EXPORT_METHOD(hello:(NSString*) name
   }];
 }
 
-RCT_EXPORT_METHOD(initiate:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(initiate:(NSString*)port
+                  resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper initiateClientWithCallback:^(NSString * _Nonnull response) {
+  [helper initiateClientWithPort:port callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
 
-RCT_EXPORT_METHOD(getPools:(RCTPromiseResolveBlock)resolve
+RCT_EXPORT_METHOD(getPools:(NSString *)port
+                  resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper getPoolsWithCallback:^(NSString * _Nonnull response) {
+  [helper getPoolsWithPort:port callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
 
 RCT_EXPORT_METHOD(getTx0Data:(NSString *)scode
+                  port:(NSString *)port
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper getTx0DataWithScode:scode callback:^(NSString * _Nonnull response) {
+  [helper getTx0DataWithScode:scode port:port callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
@@ -86,12 +89,13 @@ RCT_EXPORT_METHOD(intoPsbt:(NSString *)preview_str
 
 RCT_EXPORT_METHOD(tx0Push:(NSString *)tx_str
                   pool_id_str:(NSString *)pool_id_str
+                  port:(NSString *)port
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   
-  [helper tx0pushWithTx_str:tx_str pool_id_str:pool_id_str callback:^(NSString * _Nonnull response) {
+  [helper tx0pushWithTx_str:tx_str pool_id_str:pool_id_str port:port callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
@@ -106,12 +110,13 @@ RCT_EXPORT_METHOD(blocking:(NSString *)input_str
                   block_height_str:(NSString *)block_height_str
                   signedRegistrationMessage:(NSString *)signedRegistrationMessage
                   app_id:(NSString *)app_id
+                  port:(NSString *)port
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   
-  [helper blockingWithInput_str:input_str private_key_str:private_key_str destination_addr_str:destination_addr_str pool_id:pool_id denomination_str:denomination_str pre_user_hash_str:pre_user_hash_str network_str:network_str block_height_str:block_height_str signedRegistrationMessage:signedRegistrationMessage app_id:app_id callback:^(NSString * _Nonnull response) {
+  [helper blockingWithInput_str:input_str private_key_str:private_key_str destination_addr_str:destination_addr_str pool_id:pool_id denomination_str:denomination_str pre_user_hash_str:pre_user_hash_str network_str:network_str block_height_str:block_height_str signedRegistrationMessage:signedRegistrationMessage app_id:app_id port:port callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
