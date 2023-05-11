@@ -9,7 +9,7 @@ import UAIView from './components/UAIView';
 function HeaderDetails() {
   const { top } = useSafeAreaInsets();
   return (
-    <Box backgroundColor="light.white" style={[styles.warpper, { paddingTop: top }]}>
+    <Box backgroundColor="#FDF7F0" style={[styles.wrapper, { paddingTop: top }]}>
       <HeaderBar />
       <CurrentPlanView />
       <UAIView />
@@ -20,11 +20,10 @@ function HeaderDetails() {
 export default HeaderDetails;
 
 const styles = StyleSheet.create({
-  warpper: {
+  wrapper: {
     paddingHorizontal: 30,
     paddingVertical: 30,
     borderBottomEndRadius: 10,
     borderBottomStartRadius: 10,
-    marginHorizontal: 20,
   },
 });
