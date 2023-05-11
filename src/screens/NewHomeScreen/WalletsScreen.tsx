@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
+import HomeScreenWrapper from './components/HomeScreenWrapper';
 
-const WalletsScreen = () => {
+function WalletsScreen() {
   return (
-    <View style={styles.container}>
+    <HomeScreenWrapper>
       <Text>Wallets Screen</Text>
-    </View>
+    </HomeScreenWrapper>
   );
-};
+}
 
 export default WalletsScreen;
 
