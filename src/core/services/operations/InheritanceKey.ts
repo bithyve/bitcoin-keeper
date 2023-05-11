@@ -114,19 +114,25 @@ export default class InheritanceKeyServer {
     };
   };
 
-  static fetchInheritanceKey = async (
+  static requestInheritanceKey = async (
+    requestId: string,
     vaultId: string,
     thresholdIdentifiers: string[]
   ): Promise<{
-    policy: InheritancePolicy;
-    inheritanceXpub: string;
-    masterFingerprint: string;
-    derivationPath: string;
+    isRequestApproved: boolean;
+    isRequestDeclined: boolean;
+    setupInfo?: {
+      inheritanceXpub: string;
+      masterFingerprint: string;
+      derivationPath: string;
+      policy: InheritancePolicy;
+    };
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/fetchInheritanceKey`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/requestInheritanceKey`, {
         HEXA_ID,
+        requestId,
         vaultId,
         thresholdIdentifiers,
       });
@@ -135,12 +141,35 @@ export default class InheritanceKeyServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const { inheritanceXpub, masterFingerprint, derivationPath, policy } = res.data;
+    const { isRequestApproved, isRequestDeclined, setupInfo } = res.data;
+
     return {
-      policy,
-      inheritanceXpub,
-      masterFingerprint,
-      derivationPath,
+      isRequestApproved,
+      isRequestDeclined,
+      setupInfo,
+    };
+  };
+
+  static declineInheritanceKeyRequest = async (
+    requestId: string
+  ): Promise<{
+    declined: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/declineInheritanceKeyRequest`, {
+        HEXA_ID,
+        requestId,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { declined } = res.data;
+
+    return {
+      declined,
     };
   };
 }
