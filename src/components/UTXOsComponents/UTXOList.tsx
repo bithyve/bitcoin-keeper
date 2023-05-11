@@ -20,13 +20,15 @@ import useToastMessage from 'src/hooks/useToastMessage';
 function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
   const { labels } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
-  const extraLabelMap = new Map();
+  const [extraLabelMap, setExtraLabelMap] = useState(new Map());
   const onLayout = (event, index) => {
     const { y } = event.nativeEvent.layout;
     if (y > 9) {
-      extraLabelMap.set(index, true);
+      extraLabelMap.set(`${index}`, true);
+      setExtraLabelMap(extraLabelMap);
     } else {
-      extraLabelMap.delete(index);
+      extraLabelMap.delete(`${index}`);
+      setExtraLabelMap(extraLabelMap);
     }
     setExtraLabelCount(extraLabelMap.size);
   };
@@ -51,7 +53,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96', maxHeight: 19, }]}>
+        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96', maxHeight: 19 }]}>
           <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>
