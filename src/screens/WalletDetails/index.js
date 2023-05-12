@@ -50,7 +50,6 @@ function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { autoRefresh, wallet } = route?.params || {};
-  console.log('wallet', wallet.presentationData);
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
