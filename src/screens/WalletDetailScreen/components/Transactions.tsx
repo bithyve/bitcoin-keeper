@@ -7,18 +7,12 @@ import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Transaction } from 'src/core/wallets/interfaces';
-import useToastMessage from 'src/hooks/useToastMessage';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function TransactionItem({ item, wallet, navigation }) {
-  const { showToast } = useToastMessage();
   return (
     <TransactionElement
       transaction={item}
       onPress={() => {
-        if (item.confirmations === 0) {
-          showToast('Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID', <ToastErrorIcon />);
-        }
         navigation.dispatch(
           CommonActions.navigate('TransactionDetails', {
             transaction: item,
