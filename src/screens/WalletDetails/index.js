@@ -50,6 +50,7 @@ function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { autoRefresh, wallet } = route?.params || {};
+  console.log('wallet', wallet.presentationData);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -79,10 +80,10 @@ function WalletDetails({ route }) {
           </Box>
           <Box style={styles.walletNameWrapper}>
             <Text color="light.white" style={styles.walletNameText}>
-              Blue Wallet
+              {wallet?.presentationData?.name}
             </Text>
             <Text color="light.white" style={styles.walletDescText}>
-              Imported wallet
+              {wallet?.presentationData?.description}
             </Text>
           </Box>
         </Box>
