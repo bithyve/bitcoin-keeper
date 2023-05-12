@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     color: '#24312E',
     fontSize: 12,
     fontWeight: 'bold',
-    width: 150,
+    width: 170,
   },
   skipWrapper: {
     width: '20%',
