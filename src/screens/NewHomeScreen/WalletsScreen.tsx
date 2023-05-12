@@ -1,5 +1,5 @@
 /* eslint-disable react/function-component-definition */
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useContext, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -19,9 +19,11 @@ import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
 import Hidden from 'src/assets/images/hidden.svg';
+import Text from 'src/components/KeeperText';
 import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
+import CurrencyInfo from './components/CurrencyInfo'
 
 const TILE_MARGIN = 10;
 const TILE_WIDTH = 170;
@@ -196,7 +198,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
         <Text color="light.white" style={styles.walletName}>
           Available Balance
         </Text>
-        <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
+        {/* <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Box
             style={{
               marginRight: 3,
@@ -214,7 +216,8 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           ) : (
             <Hidden />
           )}
-        </Box>
+        </Box> */}
+        <CurrencyInfo hideAmounts={hideAmounts} amount={balances?.confirmed + balances?.unconfirmed} fontSize={20} color="light.white" />
       </Box>
     </Box>
   );
@@ -243,12 +246,17 @@ const WalletsScreen = () => {
       <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color="light.primaryText">
-            {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
-          </Text>
-          <Text style={styles.subTitleText} color="light.secondaryText">
-            Single sig wallets for smaller stacks and transactions
-          </Text>
+          <Box style={styles.titleInfoView}>
+            <Text style={styles.titleText} color="light.primaryText">
+              {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
+            </Text>
+            <Text style={styles.subTitleText} color="light.secondaryText">
+              Single sig wallets for smaller stacks and transactions
+            </Text>
+          </Box>
+          <Box style={styles.netBalanceView}>
+            <CurrencyInfo hideAmounts={hideAmounts} amount={netBalance} fontSize={20} color="light.black" />
+          </Box>
         </Box>
         <WalletList
           hideAmounts={hideAmounts}
@@ -313,6 +321,9 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginVertical: hp(5),
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center'
   },
   titleText: {
     fontSize: 16,
@@ -354,14 +365,10 @@ const styles = StyleSheet.create({
     marginTop: hp(10),
   },
   walletCard: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    height: hp(60),
+    paddingTop: hp(20)
   },
   walletInnerView: {
     flexDirection: 'column',
-    alignItems: 'flex-start',
     width: wp(170),
   },
   walletDescription: {
@@ -407,7 +414,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   walletDetailsWrapper: {
-    marginLeft: 10,
+    marginTop: 5,
     width: '68%',
   },
   listViewWrapper: {
@@ -427,5 +434,12 @@ const styles = StyleSheet.create({
   },
   whirlpoolListItemWrapper: {
     width: '99%',
+  },
+  titleInfoView: {
+    width: '60%'
+  },
+  netBalanceView: {
+    width: '40%',
+    alignItems: 'center'
   }
 });
