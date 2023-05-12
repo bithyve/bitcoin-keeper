@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Pressable, ScrollView } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import HideIcon from 'src/assets/images/icon_hide.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -13,6 +12,7 @@ import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
+import BalanceToggle from './components/BalanceToggle';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -21,7 +21,7 @@ function VaultScreen() {
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
   const scheme = idx(activeVault, (_) => _.scheme) || { m: 0, n: 0 };
   const [hideAmounts, setHideAmounts] = useState(true);
-  const toggleCurrencyVisibility = () => setHideAmounts(!hideAmounts);
+
   const navigation = useNavigation();
   const navigateToHardwareSetup = () => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
@@ -35,12 +35,7 @@ function VaultScreen() {
   };
   return (
     <HomeScreenWrapper>
-      <Pressable style={styles.hideBalanceWrapper}>
-        <HideIcon />
-        <Text style={styles.hideBalanceText} onPress={toggleCurrencyVisibility}>
-          &nbsp;&nbsp;{`${hideAmounts ? 'SHOW' : 'HIDE'} BALANCES`}
-        </Text>
-      </Pressable>
+      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Text style={styles.titleText} color="light.primaryText">
@@ -112,17 +107,6 @@ function VaultScreen() {
 export default VaultScreen;
 
 const styles = StyleSheet.create({
-  hideBalanceWrapper: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: hp(10),
-  },
-
-  hideBalanceText: {
-    fontSize: 10,
-    color: '#704E2E',
-  },
   titleWrapper: {
     marginVertical: hp(5),
   },

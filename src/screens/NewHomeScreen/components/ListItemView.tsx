@@ -1,12 +1,12 @@
 import React from 'react';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp } from 'src/common/data/responsiveness/responsive';
 
 function ListItemView(props) {
   return (
-    <Box style={styles.wrapper} backgroundColor="#FDF7F0">
+    <TouchableOpacity style={styles.wrapper} backgroundColor="light.white" onPress={props.onPress}>
       <Box style={styles.iconWrapper}>
         <Box style={styles.iconView} backgroundColor="light.learnMoreBorder">
           {props.icon}
@@ -20,7 +20,7 @@ function ListItemView(props) {
           {props.subTitle}
         </Text>
       </Box>
-    </Box>
+    </TouchableOpacity>
   );
 }
 const styles = StyleSheet.create({
