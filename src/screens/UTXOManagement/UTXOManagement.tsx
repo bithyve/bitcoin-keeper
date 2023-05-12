@@ -191,18 +191,19 @@ function UTXOManagement({ route, navigation }) {
     setSelectedWallet(walletAccount);
   };
 
-  const utxos =
-    selectedWallet.specs.confirmedUTXOs
-      ?.map((utxo) => {
-        utxo.confirmed = true;
-        return utxo;
-      })
-      .concat(
-        selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-          utxo.confirmed = false;
+  const utxos = selectedWallet
+    ? selectedWallet.specs.confirmedUTXOs
+        ?.map((utxo) => {
+          utxo.confirmed = true;
           return utxo;
         })
-      ) || [];
+        .concat(
+          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
+            utxo.confirmed = false;
+            return utxo;
+          })
+        )
+    : [];
 
   useEffect(() => {
     const selectedUtxos = utxos || [];
