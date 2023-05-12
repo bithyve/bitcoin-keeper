@@ -120,7 +120,7 @@ function WalletDetails({ route }) {
             }}
           /> */}
             <HStack style={styles.transTitleWrapper}>
-              <Text color="light.textBlack" margin={wp(3)} fontSize={16} letterSpacing={1.28}>
+              <Text color="light.textBlack" fontSize={16} letterSpacing={1.28}>
                 Transactions
               </Text>
               {wallet?.specs.transactions.length ? (
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: windowHeight > 800 ? '75%' : '50%',
+    height: windowHeight > 800 ? '75%' : '66%',
     position: 'relative',
   },
   addNewWalletText: {
