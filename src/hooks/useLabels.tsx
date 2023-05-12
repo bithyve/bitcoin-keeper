@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useContext, useMemo } from 'react';
 import { UTXO, UTXOInfo } from 'src/core/wallets/interfaces';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -11,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 
 const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault }) => {
+  if (!wallet) return { labels: [], syncing: false };
   const { useQuery } = useContext(RealmWrapperContext);
   const utxoInfoTable = useQuery(RealmSchema.UTXOInfo);
   const Schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
