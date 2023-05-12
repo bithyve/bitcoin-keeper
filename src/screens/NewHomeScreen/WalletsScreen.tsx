@@ -175,48 +175,12 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
             </Text>
           </Box>
         </Box>
-        {/* <Box>
-          <Text color="light.white" style={styles.unconfirmedText}>
-            Unconfirmed
-          </Text>
-          <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Box
-              style={{
-                marginRight: 3,
-              }}
-            >
-              {getCurrencyIcon(BtcWallet, 'light')}
-            </Box>
-            <Text color="light.white" style={styles.unconfirmedBalance}>
-              {getBalance(balances?.unconfirmed)}
-            </Text>
-          </Box>
-        </Box> */}
       </Box>
 
       <Box style={styles.walletBalance}>
         <Text color="light.white" style={styles.walletName}>
           Available Balance
         </Text>
-        {/* <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Box
-            style={{
-              marginRight: 3,
-            }}
-          >
-            {getCurrencyIcon(BtcWallet, 'light')}
-          </Box>
-          {!hideAmounts ? (
-            <Text color="light.white" style={styles.availableBalance}>
-              {getBalance(balances?.confirmed + balances?.unconfirmed)}
-              <Text color="light.textColor" style={styles.balanceUnit}>
-                {getSatUnit()}
-              </Text>
-            </Text>
-          ) : (
-            <Hidden />
-          )}
-        </Box> */}
         <CurrencyInfo hideAmounts={hideAmounts} amount={balances?.confirmed + balances?.unconfirmed} fontSize={20} color="light.white" />
       </Box>
     </Box>
@@ -302,22 +266,12 @@ const WalletsScreen = () => {
 export default WalletsScreen;
 
 const styles = StyleSheet.create({
-  hideBalanceWrapper: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: hp(10),
-  },
   container: {
     flex: 1,
     backgroundColor: '#F7F2EC',
     paddingVertical: 15,
     paddingHorizontal: 20,
     position: 'relative',
-  },
-  hideBalanceText: {
-    fontSize: 10,
-    color: '#704E2E',
   },
   titleWrapper: {
     marginVertical: hp(5),
