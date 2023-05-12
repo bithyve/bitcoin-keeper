@@ -1,18 +1,14 @@
 /* eslint-disable react/function-component-definition */
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useContext, useRef, useState } from 'react';
-import { ScaledSheet } from 'react-native-size-matters';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
 import { Box, FlatList, ScrollView } from 'native-base';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import HideIcon from 'src/assets/images/icon_hide.svg';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Shadow } from 'react-native-shadow-2';
 import { WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
@@ -20,6 +16,8 @@ import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
+import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
+import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
 import Hidden from 'src/assets/images/hidden.svg';
 import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
@@ -263,9 +261,10 @@ const WalletsScreen = () => {
         <Box style={styles.listItemsWrapper}>
           <Box style={styles.whirlpoolListItemWrapper}>
             <ListItemView
-              icon={<InheritanceIcon />}
+              icon={<WhirlpoolWhiteIcon />}
               title="Whirlpool & UTXOs"
               subTitle="Manage UTXOs and Whirlpool"
+              iconBackColor="light.greenText2"
             />
           </Box>
           <Box style={styles.listViewWrapper}>
@@ -274,13 +273,15 @@ const WalletsScreen = () => {
                 icon={<InheritanceIcon />}
                 title="Transfer Policy"
                 subTitle="From wallet to vault"
+                iconBackColor="light.greenText2"
               />
             </Box>
             <Box style={styles.buyWrapper}>
               <ListItemView
-                icon={<InheritanceIcon />}
+                icon={<BitcoinIcon />}
                 title="Buy"
                 subTitle="Stack sats in your wallet"
+                iconBackColor="light.greenText2"
               />
             </Box>
           </Box>

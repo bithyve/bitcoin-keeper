@@ -92,12 +92,14 @@ function VaultScreen() {
             icon={<InheritanceIcon />}
             title="Inheritance"
             subTitle="Setup inheritance Key"
+            iconBackColor="light.learnMoreBorder"
           />
         </Pressable>
         <ListItemView
           icon={<BitcoinIcon />}
           title="Buy"
           subTitle="Stack sats directly in the vault"
+          iconBackColor="light.learnMoreBorder"
         />
       </ScrollView>
     </HomeScreenWrapper>
