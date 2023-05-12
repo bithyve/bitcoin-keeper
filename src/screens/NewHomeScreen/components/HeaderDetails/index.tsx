@@ -4,15 +4,21 @@ import { Box } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HeaderBar from './components/HeaderBar';
 import CurrentPlanView from './components/CurrentPlanView';
-import UAIView from './components/UAIView';
+
+import UaiDisplay from 'src/screens/HomeScreen/UaiDisplay';
+import useUaiStack from 'src/hooks/useUaiStack';
+import usePlan from 'src/hooks/usePlan';
 
 function HeaderDetails() {
   const { top } = useSafeAreaInsets();
+  const { uaiStack } = useUaiStack();
+  const { plan } = usePlan();
+
   return (
     <Box backgroundColor="#FDF7F0" style={[styles.wrapper, { paddingTop: top }]}>
       <HeaderBar />
-      <CurrentPlanView />
-      <UAIView />
+      <CurrentPlanView plan={plan} />
+      <UaiDisplay uaiStack={uaiStack} />
     </Box>
   );
 }

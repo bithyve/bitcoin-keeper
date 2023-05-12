@@ -82,7 +82,8 @@ function WalletItem({
 
   return (
     <View>
-      <Box
+      <TouchableOpacity
+        onPress={() => navigation.navigate('WalletDetails', { wallet: item })}
         style={[
           styles.walletContainer,
           { width, marginLeft: margin, marginRight: margin, opacity },
@@ -104,7 +105,7 @@ function WalletItem({
             hideAmounts={hideAmounts}
           />
         )}
-      </Box>
+      </TouchableOpacity>
     </View>
   );
 }
