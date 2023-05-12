@@ -17,9 +17,11 @@ export default class InheritanceKeyServer {
    */
   static setupIK = async (
     vaultId: string,
+    configuration: InheritanceConfiguration,
     policy: InheritancePolicy
   ): Promise<{
     setupData: {
+      configuration: InheritanceConfiguration;
       policy: InheritancePolicy;
       inheritanceXpub: string;
       masterFingerprint: string;
@@ -31,6 +33,7 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v2/setupInheritanceKey`, {
         HEXA_ID,
         vaultId,
+        configuration,
         policy,
       });
     } catch (err) {
@@ -47,14 +50,47 @@ export default class InheritanceKeyServer {
 
   /**
    * @param  {string} vaultId
-   * @param  {InheritancePolicy} policy
+   * @param  {string[]} existingThresholdIdentifiers
+   * @param  {InheritanceConfiguration} newConfiguration
    * @returns {Promise<boolean>} updated
    */
-  static updatePolicy = async (
+  static updateInheritanceConfig = async (
+    vaultId: string,
+    existingThresholdIdentifiers: string[],
+    newConfiguration: InheritanceConfiguration
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritancePolicy`, {
+        HEXA_ID,
+        vaultId,
+        existingThresholdIdentifiers,
+        newConfiguration,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Inheritance config update failed');
+    return {
+      updated,
+    };
+  };
+
+  /**
+   * @param  {string} vaultId
+   * @param  {any} updates
+   * @param {string[]} thresholdIdentifiers
+   * @returns {Promise<boolean>} updated
+   */
+  static updateInheritancePolicy = async (
     vaultId: string,
     updates: {
       notification?: InheritanceNotification;
-      configuration?: InheritanceConfiguration;
     },
     thresholdIdentifiers: string[]
   ): Promise<{
@@ -90,7 +126,8 @@ export default class InheritanceKeyServer {
         vout: number;
         value: number;
       };
-    }>
+    }>,
+    thresholdIdentifiers: string[]
   ): Promise<{
     signedPSBT: string;
   }> => {
@@ -102,6 +139,7 @@ export default class InheritanceKeyServer {
         vaultId,
         serializedPSBT,
         childIndexArray,
+        thresholdIdentifiers,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -125,6 +163,7 @@ export default class InheritanceKeyServer {
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
+      configuration: InheritanceConfiguration;
       policy: InheritancePolicy;
     };
   }> => {

@@ -44,9 +44,26 @@ export interface InheritanceConfiguration {
   m: number;
   n: number;
   identifiers: string[];
+  bsms?: string;
 }
 
 export interface InheritancePolicy {
   notification: InheritanceNotification;
+}
+
+export interface InheritanceKey {
+  vaultId: string;
+  xIndex: number;
   configuration: InheritanceConfiguration;
+  policy: InheritancePolicy;
+}
+
+export interface InheritanceKeyRequest {
+  requestId: string;
+  vaultId: string;
+  arrivedAt: number;
+  status: {
+    isDeclined: boolean;
+    isApproved: boolean;
+  };
 }
