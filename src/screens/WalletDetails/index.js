@@ -1,24 +1,23 @@
-import { StyleSheet } from 'react-native';
-import { Box } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, HStack, VStack } from 'native-base';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
-import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import useWallets from 'src/hooks/useWallets';
-import { useNavigation } from '@react-navigation/native';
+
 import { WalletType } from 'src/core/wallets/enums';
-import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';
+import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
-import WalletInfo from './components/WalletInfo';
+import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -29,7 +28,6 @@ export const allowedSendTypes = [
 export const allowedRecieveTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 
 export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
-
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   return (
@@ -68,12 +66,49 @@ function WalletDetails({ route }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
-    <ScreenWrapper>
-      <HeaderTitle learnMore learnMorePressed={() => dispatch(setIntroModal(true))} />
-      {/* <WalletInfo wallets={wallets} /> */}
-      {wallet ? (
-        <>
-          {/* <UTXOsManageNavBox
+    <Box style={styles.container} backgroundColor="light.greenText2">
+      <HeaderTitle
+        learnMore
+        learnMorePressed={() => dispatch(setIntroModal(true))}
+        backBtnBlackColor={false}
+      />
+      <VStack>
+        <Box style={styles.walletHeaderWrapper}>
+          <Box style={styles.walletIconWrapper}>
+            <Box style={styles.walletIconView} backgroundColor="light.white" />
+          </Box>
+          <Box style={styles.walletNameWrapper}>
+            <Text color="light.white" style={styles.walletNameText}>
+              Blue Wallet
+            </Text>
+            <Text color="light.white" style={styles.walletDescText}>
+              Imported wallet
+            </Text>
+          </Box>
+        </Box>
+        <Box style={styles.balanceWrapper}>
+          <Box style={styles.unconfirmBalanceView}>
+            <Text color="light.white">Unconfirmed</Text>
+            <CurrencyInfo hideAmounts={false} amount={0.0005} fontSize={14} color="light.white" />
+          </Box>
+          <Box style={styles.availableBalanceView}>
+            <Text color="light.white">Available Balance</Text>
+            <CurrencyInfo hideAmounts={false} amount={10.0006} fontSize={22} color="light.white" />
+          </Box>
+        </Box>
+      </VStack>
+      <VStack
+        backgroundColor="light.primaryBackground"
+        px={wp(28)}
+        borderTopLeftRadius={20}
+        flex={1}
+        justifyContent="space-between"
+      >
+        {/* <WalletInfo wallets={wallets} /> */}
+
+        {wallet ? (
+          <>
+            {/* <UTXOsManageNavBox
             wallet={wallet}
             isWhirlpoolWallet={Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails?.length)}
             onClick={() => {
@@ -84,33 +119,62 @@ function WalletDetails({ route }) {
               });
             }}
           /> */}
-          <TransactionsAndUTXOs
-            transactions={wallet?.specs.transactions}
-            setPullRefresh={setPullRefresh}
-            pullRefresh={pullRefresh}
-            wallet={wallet}
-          />
-          <Footer wallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />
-        </>
-      ) : (
-        <Box style={styles.addNewWalletContainer}>
-          <AddWalletIcon />
-          <Text color="light.primaryText" numberOfLines={2} style={styles.addNewWalletText}>
-            Add a new wallet or import one
-          </Text>
-        </Box>
-      )}
+            <HStack style={styles.transTitleWrapper}>
+              <Text color="light.textBlack" margin={wp(3)} fontSize={16} letterSpacing={1.28}>
+                Transactions
+              </Text>
+              {wallet?.specs.transactions.length ? (
+                <TouchableOpacity>
+                  <HStack alignItems="center">
+                    <TouchableOpacity onPress={() => {}}>
+                      <Text
+                        color="light.primaryGreen"
+                        marginRight={2}
+                        fontSize={11}
+                        bold
+                        letterSpacing={0.6}
+                      >
+                        View All
+                      </Text>
+                    </TouchableOpacity>
+                    <IconArrowBlack />
+                  </HStack>
+                </TouchableOpacity>
+              ) : null}
+            </HStack>
+            <TransactionsAndUTXOs
+              transactions={wallet?.specs.transactions}
+              setPullRefresh={setPullRefresh}
+              pullRefresh={pullRefresh}
+              wallet={wallet}
+            />
+            <Footer wallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />
+          </>
+        ) : (
+          <Box style={styles.addNewWalletContainer}>
+            <AddWalletIcon />
+            <Text color="light.primaryText" numberOfLines={2} style={styles.addNewWalletText}>
+              Add a new wallet or import one
+            </Text>
+          </Box>
+        )}
+      </VStack>
       <RampModal
         showBuyRampModal={showBuyRampModal}
         setShowBuyRampModal={setShowBuyRampModal}
         wallet={wallet}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
-    </ScreenWrapper>
+    </Box>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingTop: '10%',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
   walletContainer: {
     borderRadius: hp(10),
     width: wp(310),
@@ -121,7 +185,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: windowHeight > 800 ? '40%' : '34%',
+    height: windowHeight > 800 ? '75%' : '50%',
     position: 'relative',
   },
   addNewWalletText: {
@@ -136,6 +200,47 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     flex: 1,
+  },
+  walletHeaderWrapper: {
+    margin: wp(20),
+    flexDirection: 'row',
+    width: '100%',
+  },
+  walletIconWrapper: {
+    width: '15%',
+  },
+  walletNameWrapper: {
+    width: '85%',
+  },
+  walletNameText: {
+    fontSize: 20,
+  },
+  walletDescText: {
+    fontSize: 14,
+  },
+  walletIconView: {
+    height: 40,
+    width: 40,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  balanceWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    margin: wp(20),
+  },
+  unconfirmBalanceView: {
+    width: '50%',
+  },
+  availableBalanceView: {
+    width: '50%',
+    alignItems: 'center',
+  },
+  transTitleWrapper: {
+    paddingTop: 20,
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });
 export default WalletDetails;
