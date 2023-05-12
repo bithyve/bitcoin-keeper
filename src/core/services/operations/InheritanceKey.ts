@@ -50,13 +50,13 @@ export default class InheritanceKeyServer {
 
   /**
    * @param  {string} vaultId
-   * @param  {string[]} existingThresholdIdentifiers
+   * @param  {string[]} existingThresholdIDescriptors
    * @param  {InheritanceConfiguration} newConfiguration
    * @returns {Promise<boolean>} updated
    */
   static updateInheritanceConfig = async (
     vaultId: string,
-    existingThresholdIdentifiers: string[],
+    existingThresholdIDescriptors: string[],
     newConfiguration: InheritanceConfiguration
   ): Promise<{
     updated: boolean;
@@ -66,7 +66,7 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritancePolicy`, {
         HEXA_ID,
         vaultId,
-        existingThresholdIdentifiers,
+        existingThresholdIDescriptors,
         newConfiguration,
       });
     } catch (err) {
@@ -84,7 +84,7 @@ export default class InheritanceKeyServer {
   /**
    * @param  {string} vaultId
    * @param  {any} updates
-   * @param {string[]} thresholdIdentifiers
+   * @param {string[]} thresholdDescriptors
    * @returns {Promise<boolean>} updated
    */
   static updateInheritancePolicy = async (
@@ -92,7 +92,7 @@ export default class InheritanceKeyServer {
     updates: {
       notification?: InheritanceNotification;
     },
-    thresholdIdentifiers: string[]
+    thresholdDescriptors: string[]
   ): Promise<{
     updated: boolean;
   }> => {
@@ -102,7 +102,7 @@ export default class InheritanceKeyServer {
         HEXA_ID,
         vaultId,
         updates,
-        thresholdIdentifiers,
+        thresholdDescriptors,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -127,7 +127,7 @@ export default class InheritanceKeyServer {
         value: number;
       };
     }>,
-    thresholdIdentifiers: string[]
+    thresholdDescriptors: string[]
   ): Promise<{
     signedPSBT: string;
   }> => {
@@ -139,7 +139,7 @@ export default class InheritanceKeyServer {
         vaultId,
         serializedPSBT,
         childIndexArray,
-        thresholdIdentifiers,
+        thresholdDescriptors,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -155,7 +155,7 @@ export default class InheritanceKeyServer {
   static requestInheritanceKey = async (
     requestId: string,
     vaultId: string,
-    thresholdIdentifiers: string[]
+    thresholdDescriptors: string[]
   ): Promise<{
     isRequestApproved: boolean;
     isRequestDeclined: boolean;
@@ -173,7 +173,7 @@ export default class InheritanceKeyServer {
         HEXA_ID,
         requestId,
         vaultId,
-        thresholdIdentifiers,
+        thresholdDescriptors,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
