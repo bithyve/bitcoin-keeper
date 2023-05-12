@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import VaultIcon from 'src/assets/images/vaultTab.svg';
+import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg'
 import { hp } from 'src/common/data/responsiveness/responsive';
 import WalletsScreen from './WalletsScreen';
 import VaultScreen from './VaultScreen';
@@ -54,7 +55,7 @@ function NewHomeScreen() {
         <TabButton
           label="Vault"
           Icon={VaultIcon}
-          IconActive={VaultIcon}
+          IconActive={VaultActiveIcon}
           onPress={onPress}
           active={active}
           backgroundColorActive="#704E2E"
