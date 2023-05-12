@@ -51,6 +51,12 @@ function WalletDetails({ route }) {
   const dispatch = useDispatch();
   const { autoRefresh, wallet } = route?.params || {};
   console.log('wallet', wallet.presentationData);
+  const {
+    presentationData: { name, description } = { name: '', description: '' },
+    specs: { balances: { confirmed, unconfirmed } } = {
+      balances: { confirmed: 0, unconfirmed: 0 },
+    },
+  } = wallet;
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -80,21 +86,31 @@ function WalletDetails({ route }) {
           </Box>
           <Box style={styles.walletNameWrapper}>
             <Text color="light.white" style={styles.walletNameText}>
-              {wallet?.presentationData?.name}
+              {name}
             </Text>
             <Text color="light.white" style={styles.walletDescText}>
-              {wallet?.presentationData?.description}
+              {description}
             </Text>
           </Box>
         </Box>
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
             <Text color="light.white">Unconfirmed</Text>
-            <CurrencyInfo hideAmounts={false} amount={0.0005} fontSize={14} color="light.white" />
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={unconfirmed}
+              fontSize={14}
+              color="light.white"
+            />
           </Box>
           <Box style={styles.availableBalanceView}>
             <Text color="light.white">Available Balance</Text>
-            <CurrencyInfo hideAmounts={false} amount={10.0006} fontSize={22} color="light.white" />
+            <CurrencyInfo
+              hideAmounts={false}
+              amount={confirmed}
+              fontSize={22}
+              color="light.white"
+            />
           </Box>
         </Box>
       </VStack>
