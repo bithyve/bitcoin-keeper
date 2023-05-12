@@ -16,7 +16,6 @@ function TransactionItem({ item, wallet, navigation }) {
     <TransactionElement
       transaction={item}
       onPress={() => {
-        console.log(item.confirmations)
         if (item.confirmations === 0) {
           showToast('Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID', <ToastErrorIcon />);
         }
