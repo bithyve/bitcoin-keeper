@@ -1,3 +1,4 @@
+/* eslint-disable react/function-component-definition */
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useContext, useRef, useState } from 'react';
@@ -5,7 +6,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
-import { Box, FlatList } from 'native-base';
+import { Box, FlatList, ScrollView } from 'native-base';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HideIcon from 'src/assets/images/icon_hide.svg';
 import { useNavigation } from '@react-navigation/native';
@@ -18,11 +19,11 @@ import AddSCardIcon from 'src/assets/images/card_add.svg';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
-import ListItemView from './components/ListItemView';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
+import Hidden from 'src/assets/images/hidden.svg';
+import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
-import Hidden from 'src/assets/images/hidden.svg';
 
 const TILE_MARGIN = 10;
 const TILE_WIDTH = 170;
@@ -242,35 +243,49 @@ const WalletsScreen = () => {
   return (
     <HomeScreenWrapper>
       <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
-      <Box style={styles.titleWrapper}>
-        <Text style={styles.titleText} color="light.primaryText">
-          {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
-        </Text>
-        <Text style={styles.subTitleText} color="light.secondaryText">
-          Single sig wallets for smaller stacks and transactions
-        </Text>
-      </Box>
-      <WalletList
-        hideAmounts={hideAmounts}
-        flatListRef={flatListRef}
-        walletIndex={walletIndex}
-        onViewRef={onViewRef}
-        viewConfigRef={viewConfigRef}
-        wallets={wallets}
-      />
-      <ListItemView
-        icon={<InheritanceIcon />}
-        title="Whirlpool & UTXOs"
-        subTitle="Manage UTXOs and Whirlpool"
-      />
-
-      <ListItemView
-        icon={<InheritanceIcon />}
-        title="Transfer Policy"
-        subTitle="From wallet to vault"
-      />
-
-      <ListItemView icon={<InheritanceIcon />} title="Buy" subTitle="Stack sats in your wallet" />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Box style={styles.titleWrapper}>
+          <Text style={styles.titleText} color="light.primaryText">
+            {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
+          </Text>
+          <Text style={styles.subTitleText} color="light.secondaryText">
+            Single sig wallets for smaller stacks and transactions
+          </Text>
+        </Box>
+        <WalletList
+          hideAmounts={hideAmounts}
+          flatListRef={flatListRef}
+          walletIndex={walletIndex}
+          onViewRef={onViewRef}
+          viewConfigRef={viewConfigRef}
+          wallets={wallets}
+        />
+        <Box style={styles.listItemsWrapper}>
+          <Box style={styles.whirlpoolListItemWrapper}>
+            <ListItemView
+              icon={<InheritanceIcon />}
+              title="Whirlpool & UTXOs"
+              subTitle="Manage UTXOs and Whirlpool"
+            />
+          </Box>
+          <Box style={styles.listViewWrapper}>
+            <Box style={styles.tranferPolicyWrapper}>
+              <ListItemView
+                icon={<InheritanceIcon />}
+                title="Transfer Policy"
+                subTitle="From wallet to vault"
+              />
+            </Box>
+            <Box style={styles.buyWrapper}>
+              <ListItemView
+                icon={<InheritanceIcon />}
+                title="Buy"
+                subTitle="Stack sats in your wallet"
+              />
+            </Box>
+          </Box>
+        </Box>
+      </ScrollView>
     </HomeScreenWrapper>
   );
 };
@@ -394,4 +409,22 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     width: '68%',
   },
+  listViewWrapper: {
+    flexDirection: 'row',
+    width: '99%',
+    justifyContent: 'space-around',
+  },
+  tranferPolicyWrapper: {
+    width: '48%'
+  },
+  buyWrapper: {
+    width: '51%'
+  },
+  listItemsWrapper: {
+    marginTop: hp(20),
+    width: '99%',
+  },
+  whirlpoolListItemWrapper: {
+    width: '99%',
+  }
 });

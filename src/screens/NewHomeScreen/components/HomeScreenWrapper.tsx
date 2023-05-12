@@ -17,6 +17,6 @@ export default HomeScreenWrapper;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
 });

@@ -6,7 +6,7 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 
 function ListItemView(props) {
   return (
-    <TouchableOpacity style={styles.wrapper} backgroundColor="light.white" onPress={props.onPress}>
+    <TouchableOpacity style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress}>
       <Box style={styles.iconWrapper}>
         <Box style={styles.iconView} backgroundColor="light.learnMoreBorder">
           {props.icon}
@@ -33,19 +33,19 @@ const styles = StyleSheet.create({
     marginVertical: hp(5),
   },
   iconWrapper: {
-    width: '20%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: '10%',
+    alignItems: 'flex-start',
   },
   iconView: {
     borderRadius: 100,
-    height: 40,
-    width: 40,
+    height: 35,
+    width: 35,
     alignItems: 'center',
     justifyContent: 'center',
   },
   titleWrapper: {
-    width: '85%',
+    width: '90%',
+    marginLeft: 25,
   },
   titleText: {
     fontSize: 13,
@@ -53,6 +53,8 @@ const styles = StyleSheet.create({
   },
   subTitleText: {
     fontSize: 12,
+    flexWrap: 'wrap',
+    width: '100%',
   },
 });
 export default ListItemView;
