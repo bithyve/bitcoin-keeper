@@ -10,7 +10,7 @@ import Text from 'src/components/KeeperText';
 
 type Props = {
   title?: string;
-  subtitle?: string;
+  subtitle?: string | Element;
   onPressHandler?: () => void;
   enableBack?: boolean;
   headerTitleColor?: string;
@@ -29,7 +29,7 @@ function HeaderTitle({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   titleFontSize = 16,
 }: Props) {
   const navigation = useNavigation();
@@ -46,7 +46,7 @@ function HeaderTitle({
             <BackButton />
           </TouchableOpacity>
           {learnMore && (
-            <TouchableOpacity onPress={learnMorePressed} testID={'btn_learnMore'}>
+            <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
               <Box
                 borderColor="light.learnMoreBorder"
                 backgroundColor="light.lightAccent"

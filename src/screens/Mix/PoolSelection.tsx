@@ -20,6 +20,8 @@ import useBalance from 'src/hooks/useBalance';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/core/services/sentry';
+import config from 'src/core/config';
+import { NetworkType } from 'src/core/wallets/enums';
 import LearnMoreModal from './components/LearnMoreModal';
 import UtxoSummary from './UtxoSummary';
 
@@ -78,8 +80,12 @@ export default function PoolSelection({ route, navigation }) {
         setTx0Data(tx0Data);
 
         if (filteredByUtxoTotal.length > 0) {
-          setSelectedPool(filteredByUtxoTotal[0]);
-          onPoolSelectionCallback(filteredByUtxoTotal[0], tx0Data);
+          const selectedPool =
+            config.NETWORK_TYPE === NetworkType.TESTNET
+              ? filteredByUtxoTotal[0]
+              : filteredByUtxoTotal[filteredByUtxoTotal.length - 1];
+          setSelectedPool(selectedPool);
+          onPoolSelectionCallback(selectedPool, tx0Data);
         }
       } else {
         showToast('Error in fetching pools data', <ToastErrorIcon />, 3000);

@@ -26,7 +26,7 @@ class RestClient {
 
   public static torPort: number | null = null;
 
-  public static whirlpoolTorPort: number | null = null;
+  public static whirlpoolTorPort: number = 19032;
 
   subscribers = [];
 

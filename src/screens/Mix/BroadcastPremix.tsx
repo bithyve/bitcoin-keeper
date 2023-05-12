@@ -120,7 +120,7 @@ export default function BroadcastPremix({ route, navigation }) {
       for (
         let i = premixWallet.specs.nextFreeAddressIndex;
         i < premixWallet.specs.nextFreeAddressIndex + tx0Preview.nPremixOutputs;
-        i++
+        i += 1
       ) {
         premixAddresses.push(
           WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)

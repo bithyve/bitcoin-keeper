@@ -6,26 +6,24 @@ import { windowHeight } from 'src/common/data/responsiveness/responsive';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import useBalance from 'src/hooks/useBalance';
-import Text from '../KeeperText';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
+import idx from 'idx';
+import Text from 'src/components/KeeperText';
 
 const getTotalBalanceWhirlpoolAccount = (
   currentWallet: Wallet,
   whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface
-) => {
-  return (
-    currentWallet.specs.balances.confirmed +
-      currentWallet.specs.balances.unconfirmed +
-      whirlpoolWalletAccountMap.premixWallet.specs.balances.confirmed +
-      whirlpoolWalletAccountMap.premixWallet.specs.balances.unconfirmed +
-      whirlpoolWalletAccountMap.postmixWallet.specs.balances.confirmed +
-      whirlpoolWalletAccountMap.postmixWallet.specs.balances.unconfirmed +
-      whirlpoolWalletAccountMap.badbankWallet.specs.balances.confirmed +
-      whirlpoolWalletAccountMap.badbankWallet.specs.balances.unconfirmed || 0
-  );
-};
+) =>
+  idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
+    idx(currentWallet, (_) => _.specs.balances.unconfirmed) +
+    idx(whirlpoolWalletAccountMap, (_) => _.premixWallet.specs.balances.confirmed) +
+    idx(whirlpoolWalletAccountMap, (_) => _.premixWallet.specs.balances.unconfirmed) +
+    idx(whirlpoolWalletAccountMap, (_) => _.postmixWallet.specs.balances.confirmed) +
+    idx(whirlpoolWalletAccountMap, (_) => _.postmixWallet.specs.balances.unconfirmed) +
+    idx(whirlpoolWalletAccountMap, (_) => _.badbankWallet.specs.balances.confirmed) +
+    idx(whirlpoolWalletAccountMap, (_) => _.badbankWallet.specs.balances.unconfirmed) || 0;
 
 function UTXOsManageNavBox({
   onClick,
