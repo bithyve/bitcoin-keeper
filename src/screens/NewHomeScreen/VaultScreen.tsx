@@ -68,6 +68,7 @@ function VaultScreen() {
                   hideAmounts={hideAmounts}
                   amount={confirmedBalance + unconfirmedBalance}
                   fontSize={14}
+                  color='light.white'
                 />
               </Box>
             </Box>
@@ -79,6 +80,7 @@ function VaultScreen() {
                 hideAmounts={hideAmounts}
                 amount={confirmedBalance + unconfirmedBalance}
                 fontSize={20}
+                color='light.white'
               />
             </Box>
           </TouchableOpacity>
