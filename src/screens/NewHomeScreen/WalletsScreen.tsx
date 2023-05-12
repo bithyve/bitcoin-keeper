@@ -378,7 +378,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   tranferPolicyWrapper: {
-    width: '48%'
+    width: '48%',
+    marginRight: wp(10)
   },
   buyWrapper: {
     width: '51%'

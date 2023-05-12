@@ -10,7 +10,7 @@ interface ICurrencyInfo {
   hideAmounts: boolean;
   amount: number;
   fontSize: number;
-  color?: string
+  color: string
 }
 function CurrencyInfo({ hideAmounts, amount, fontSize, color = "light.black" }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
