@@ -79,6 +79,7 @@ import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScree
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
+import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -204,6 +205,7 @@ function AppStack() {
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
+        <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
       </Stack.Navigator>
     </RealmProvider>
   );
