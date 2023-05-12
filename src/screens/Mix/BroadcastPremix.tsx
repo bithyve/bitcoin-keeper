@@ -170,27 +170,10 @@ export default function BroadcastPremix({ route, navigation }) {
           const outputs = PSBT.txOutputs;
           const voutsPremix = [];
           outputs.forEach((o, i) => {
-            if (o.address === premixAddresses[0]) {
+            if (premixAddresses.includes(o.address)) {
               voutsPremix.push(i);
             }
           });
-          const premixReferences = voutsPremix.map((vout) => ({
-            labels: [{ name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM }],
-            txId: txid,
-            vout,
-          }));
-          const voutBadBank = outputs.findIndex(
-            (o) => o.address === badbankWallet.specs.receivingAddress
-          );
-          const badbankReference = {
-            labels: [
-              { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-              { name: 'Doxxic Change', type: LabelType.SYSTEM },
-            ],
-            txId: txid,
-            vout: voutBadBank,
-          };
-          dispatch(createUTXOReference([...premixReferences, badbankReference]));
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           setShowBroadcastModal(true);
           setLoading(false);

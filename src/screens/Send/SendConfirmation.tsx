@@ -42,11 +42,11 @@ import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import CustomPriorityModal from './CustomPriorityModal';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -197,6 +197,7 @@ function SendConfirmation({ route }) {
           txnPriority: transactionPriority,
           note,
           label,
+          transferType,
         })
       );
     }
@@ -314,7 +315,9 @@ function SendConfirmation({ route }) {
           return isSend ? (
             <Card
               title="Vault"
-              subTitle={`Available: ${getCurrencyIcon()} ${getBalance(sender.specs.balances.confirmed)} ${getSatUnit()}`}
+              subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
+                sender.specs.balances.confirmed
+              )} ${getSatUnit()}`}
               isVault
             />
           ) : (
@@ -340,7 +343,9 @@ function SendConfirmation({ route }) {
           return isSend ? (
             <Card
               title={sender?.presentationData.name}
-              subTitle={`Available: ${getCurrencyIcon()} ${getBalance(sender?.specs.balances.confirmed)} ${getSatUnit()}`}
+              subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
+                sender?.specs.balances.confirmed
+              )} ${getSatUnit()}`}
             />
           ) : (
             <Card
@@ -352,7 +357,9 @@ function SendConfirmation({ route }) {
           return isSend ? (
             <Card
               title={sourceWallet.presentationData.name}
-              subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(sourceWallet.specs.balances.confirmed)}${getSatUnit()}`}
+              subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
+                sourceWallet.specs.balances.confirmed
+              )}${getSatUnit()}`}
             />
           ) : (
             <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
@@ -361,7 +368,9 @@ function SendConfirmation({ route }) {
           return isSend ? (
             <Card
               title={sender?.presentationData.name}
-              subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(sender.specs.balances.confirmed)} ${getSatUnit()}`}
+              subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
+                sender.specs.balances.confirmed
+              )} ${getSatUnit()}`}
             />
           ) : (
             <Card
