@@ -1,14 +1,17 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import React, { useCallback } from 'react';
+import { Linking, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import VaultIcon from 'src/assets/images/vaultTab.svg';
-import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg'
+import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import WalletsScreen from './WalletsScreen';
 import VaultScreen from './VaultScreen';
+import { urlParamsToObj } from 'src/core/utils';
+import { WalletType } from 'src/core/wallets/enums';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function TabButton({
   label,
@@ -47,7 +50,66 @@ function TabButton({
 
 const Tab = createBottomTabNavigator();
 
-function NewHomeScreen() {
+function NewHomeScreen({ navigation }) {
+  const { showToast } = useToastMessage();
+  useEffect(() => {
+    Linking.addEventListener('url', handleDeepLinkEvent);
+    handleDeepLinking();
+    return () => {
+      Linking.removeAllListeners('url');
+    };
+  }, []);
+
+  function handleDeepLinkEvent({ url }) {
+    if (url) {
+      if (url.includes('backup')) {
+        const splits = url.split('backup/');
+        const decoded = Buffer.from(splits[1], 'base64').toString();
+        const params = urlParamsToObj(decoded);
+        if (params.seed) {
+          navigation.navigate('EnterWalletDetail', {
+            seed: params.seed,
+            name: params.name,
+            path: params.path,
+            appId: params.appId,
+            description: `Imported from ${params.name}`,
+            type: WalletType.IMPORTED,
+          });
+        } else {
+          showToast('Invalid deeplink');
+        }
+      }
+    }
+  }
+  async function handleDeepLinking() {
+    try {
+      const initialUrl = await Linking.getInitialURL();
+      if (initialUrl) {
+        if (initialUrl.includes('backup')) {
+          const splits = initialUrl.split('backup/');
+          const decoded = Buffer.from(splits[1], 'base64').toString();
+          const params = urlParamsToObj(decoded);
+          if (params.seed) {
+            navigation.navigate('EnterWalletDetail', {
+              seed: params.seed,
+              name: params.name,
+              path: params.path,
+              appId: params.appId,
+              purpose: params.purpose,
+              description: `Imported from ${params.name}`,
+              type: WalletType.IMPORTED,
+            });
+          } else {
+            showToast('Invalid deeplink');
+          }
+        } else if (initialUrl.includes('create/')) {
+        }
+      }
+    } catch (error) {
+      //
+    }
+  }
+
   const TabBarButton = useCallback(({ onPress, navigation, route }) => {
     if (route.name === 'Vault') {
       const active = navigation.isFocused('Vault');
