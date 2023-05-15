@@ -524,6 +524,7 @@ const getStyles = (clock) =>
     timeLineWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(10),
+      justifyContent: 'center'
     },
     timeLineProgressWrapper: {
       alignItems: 'center',
