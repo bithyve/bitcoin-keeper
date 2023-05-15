@@ -62,7 +62,8 @@ function OnBoardingSlides({ navigation }) {
       id: 3,
       title: (
         <>
-          <Text style={styles.info}>{onboarding.whirlpool}</Text>
+          {`${onboarding.slide07Title} `}
+          <Text italic style={styles.info}>{onboarding.whirlpool}</Text>
         </>
       ),
       paragraph: onboarding.slide07Paragraph,
