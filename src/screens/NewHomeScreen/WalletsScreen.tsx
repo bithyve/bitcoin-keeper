@@ -212,7 +212,7 @@ const WalletsScreen = ({ navigation }) => {
 
   return (
     <HomeScreenWrapper>
-      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} routeName='Wallet' />
+      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Box style={styles.titleInfoView}>

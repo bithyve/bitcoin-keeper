@@ -4,12 +4,12 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import HideIcon from 'src/assets/images/icon_hide.svg';
 import ShowIcon from 'src/assets/images/icon_show.svg'
 
-function BalanceToggle({ hideAmounts, setHideAmounts, routeName }) {
+function BalanceToggle({ hideAmounts, setHideAmounts }) {
   const toggleCurrencyVisibility = () => setHideAmounts(!hideAmounts);
   return (
     <Pressable style={styles.hideBalanceWrapper}>
       {hideAmounts ? <ShowIcon /> : <HideIcon />}
-      <Text style={[styles.hideBalanceText, { color: routeName === 'Vault' ? "#704E2E" : '#2D6759' }]} onPress={toggleCurrencyVisibility}>
+      <Text style={[styles.hideBalanceText, { color: hideAmounts ? '#2D6759' : '#704E2E' }]} onPress={toggleCurrencyVisibility}>
         &nbsp;&nbsp;{`${hideAmounts ? 'SHOW' : 'HIDE'} BALANCES`}
       </Text>
     </Pressable>
