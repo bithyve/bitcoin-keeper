@@ -294,7 +294,7 @@ function SendConfirmation({ route }) {
   function SendingCard({ isSend }) {
     const getCurrencyIcon = () => {
       if (currentCurrency === CurrencyKind.BITCOIN) {
-        return '฿';
+        return '₿';
       }
       return currencyCode;
     };
