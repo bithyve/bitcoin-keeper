@@ -30,8 +30,6 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
-import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
-import TagsGreen from 'src/assets/images/tags.svg';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
