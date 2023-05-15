@@ -35,7 +35,7 @@ function VaultScreen() {
   };
   return (
     <HomeScreenWrapper>
-      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
+      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} routeName='Vault' />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Text style={styles.titleText} color="light.primaryText">
