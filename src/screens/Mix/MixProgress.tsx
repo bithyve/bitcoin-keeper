@@ -196,7 +196,7 @@ function MixProgress({
     const inProgress = statuses[index].completed && !statuses[index + 1]?.completed
     return (
       <Box style={styles.contentWrapper}>
-        <Box style={styles.timeLineWrapper}>
+        <Box style={inProgress ? styles.timeLineProgressWrapper : styles.timeLineWrapper}>
           {inProgress ?
             <Box style={styles.animatedCircularborder}>
               <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot} >
@@ -210,7 +210,7 @@ function MixProgress({
               <Box backgroundColor={getBackgroungColor(completed, error)} style={styles.greentDot} />
             </Box>}
           {isLast ? null : (
-            <Box style={styles.verticalBorderWrapper}>
+            <Box style={inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper}>
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
@@ -496,13 +496,13 @@ const getStyles = (clock) =>
       borderStyle: 'dotted',
       justifyContent: 'center',
       alignItems: 'center',
-      width: hp(30),
-      height: hp(30),
+      width: hp(35),
+      height: hp(35),
       zIndex: 999,
     },
     animatedGreentDot: {
-      width: hp(25),
-      height: hp(25),
+      width: hp(30),
+      height: hp(30),
       borderRadius: 50,
       alignItems: 'center',
       justifyContent: 'center'
@@ -513,6 +513,9 @@ const getStyles = (clock) =>
     verticalBorderWrapper: {
       marginVertical: hp(5),
     },
+    verticalProgressBorderWrapper: {
+      marginVertical: hp(10),
+    },
     verticalBorder: {
       width: hp(3),
       height: hp(3),
@@ -521,6 +524,11 @@ const getStyles = (clock) =>
     timeLineWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(10),
+    },
+    timeLineProgressWrapper: {
+      alignItems: 'center',
+      marginHorizontal: wp(5),
+      justifyContent: 'center'
     },
     contentWrapper: {
       flexDirection: 'row',
