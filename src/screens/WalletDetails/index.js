@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, HStack, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -73,6 +73,7 @@ function WalletDetails({ route }) {
 
   return (
     <Box style={styles.container} backgroundColor="light.greenText2">
+      <StatusBar barStyle="light-content" backgroundColor="light.greenText2" />
       <HeaderTitle
         learnMore
         learnMorePressed={() => dispatch(setIntroModal(true))}
