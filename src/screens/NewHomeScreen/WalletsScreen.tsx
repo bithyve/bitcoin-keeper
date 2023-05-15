@@ -19,13 +19,14 @@ import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
+import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import useToastMessage from 'src/hooks/useToastMessage';
 import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
 import CurrencyInfo from './components/CurrencyInfo';
-import KeeperModal from 'src/components/KeeperModal';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
-import useToastMessage from 'src/hooks/useToastMessage';
+import RampModal from '../WalletDetails/components/RampModal';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(170);
@@ -196,6 +197,7 @@ const WalletsScreen = ({ navigation }) => {
   const currentWallet = wallets[walletIndex];
   const flatListRef = useRef(null);
   const [hideAmounts, setHideAmounts] = useState(true);
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
@@ -205,6 +207,8 @@ const WalletsScreen = ({ navigation }) => {
   });
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
+
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
     <HomeScreenWrapper>
@@ -268,6 +272,7 @@ const WalletsScreen = ({ navigation }) => {
                 title="Buy"
                 subTitle="Stack sats in your wallet"
                 iconBackColor="light.greenText2"
+                onPress={onPressBuyBitcoin}
               />
             </Box>
           </Box>
@@ -294,6 +299,13 @@ const WalletsScreen = ({ navigation }) => {
             }}
           />
         )}
+      />
+      <RampModal
+        showBuyRampModal={showBuyRampModal}
+        setShowBuyRampModal={setShowBuyRampModal}
+        receivingAddress={wallets[walletIndex].specs.receivingAddress}
+        balance={wallets[walletIndex].specs.balances.confirmed}
+        name={wallets[walletIndex].presentationData.name}
       />
     </HomeScreenWrapper>
   );

@@ -13,6 +13,7 @@ import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
+import RampModal from '../WalletDetails/components/RampModal';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -21,11 +22,14 @@ function VaultScreen() {
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
   const scheme = idx(activeVault, (_) => _.scheme) || { m: 0, n: 0 };
   const [hideAmounts, setHideAmounts] = useState(true);
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
 
   const navigation = useNavigation();
+
   const navigateToHardwareSetup = () => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
+
   const onVaultPress = () => {
     if (signers.length) {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
@@ -33,6 +37,9 @@ function VaultScreen() {
       navigateToHardwareSetup();
     }
   };
+
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+
   return (
     <HomeScreenWrapper>
       <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} routeName='Vault' />
@@ -102,8 +109,21 @@ function VaultScreen() {
           title="Buy"
           subTitle="Stack sats directly in the vault"
           iconBackColor="light.learnMoreBorder"
+          onPress={onPressBuyBitcoin}
         />
       </ScrollView>
+
+      {
+        activeVault && (
+          <RampModal
+            showBuyRampModal={showBuyRampModal}
+            setShowBuyRampModal={setShowBuyRampModal}
+            receivingAddress={activeVault.specs.receivingAddress}
+            balance={activeVault.specs.balances.confirmed}
+            name="Vault"
+          />
+        )
+      }
     </HomeScreenWrapper>
   );
 }

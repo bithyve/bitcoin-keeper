@@ -6,7 +6,7 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 
 function ListItemView(props) {
   return (
-    <TouchableOpacity style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress}>
+    <TouchableOpacity disabled={props.disabled} style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress}>
       <Box style={styles.iconWrapper}>
         <Box style={styles.iconView} backgroundColor={props.iconBackColor}>
           {props.icon}
