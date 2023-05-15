@@ -19,13 +19,13 @@ import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
+import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import useToastMessage from 'src/hooks/useToastMessage';
 import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
 import CurrencyInfo from './components/CurrencyInfo';
-import KeeperModal from 'src/components/KeeperModal';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
-import useToastMessage from 'src/hooks/useToastMessage';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(170);
@@ -208,7 +208,7 @@ const WalletsScreen = ({ navigation }) => {
 
   return (
     <HomeScreenWrapper>
-      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} routeName='Wallet' />
+      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Box style={styles.titleInfoView}>
