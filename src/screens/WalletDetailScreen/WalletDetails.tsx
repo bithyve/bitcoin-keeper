@@ -2,6 +2,8 @@ import { StyleSheet } from 'react-native';
 import { Box } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+// icons and images
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
@@ -11,7 +13,6 @@ import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import useWallets from 'src/hooks/useWallets';
-import { useNavigation } from '@react-navigation/native';
 import { WalletType } from 'src/core/wallets/enums';
 
 import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';

@@ -84,8 +84,12 @@ function UTXOElement({
     <TouchableOpacity
       style={styles.utxoCardContainer}
       onPress={() => {
-        if (!item.confirmed) {
-          showToast('Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID', <ToastErrorIcon />);
+        if (enableSelection && !item.confirmed) {
+          showToast(
+            'Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID',
+            <ToastErrorIcon />
+          );
+          return;
         }
         if (allowSelection) {
           const mapToUpdate = selectedUTXOMap;

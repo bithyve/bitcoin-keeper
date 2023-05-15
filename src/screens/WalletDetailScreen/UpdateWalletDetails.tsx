@@ -12,7 +12,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
+// import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -37,6 +37,7 @@ import { generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
+import BackButton from 'src/assets/images/back.svg';
 
 function UpdateWalletDetails({ route }) {
   const navigtaion = useNavigation();
@@ -65,7 +66,9 @@ function UpdateWalletDetails({ route }) {
         return '';
     }
   };
-  const [purpose, setPurpose] = useState(purposeList.find(item => item.label.split(':')[0] === wallet?.scriptType).value);
+  const [purpose, setPurpose] = useState(
+    purposeList.find((item) => item.label.split(':')[0] === wallet?.scriptType).value
+  );
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
   const { showToast } = useToastMessage();
@@ -93,27 +96,26 @@ function UpdateWalletDetails({ route }) {
       const specs = generateWalletSpecs(
         derivationDetails.mnemonic,
         WalletUtilities.getNetworkByType(wallet.networkType),
-        derivationDetails.xDerivationPath,
+        derivationDetails.xDerivationPath
       );
-      const p = WalletUtilities.getPurpose(path)
-      const scriptType = purposeList.find(item => item.value === p).label.split(':')[0]
+      const p = WalletUtilities.getPurpose(path);
+      const scriptType = purposeList.find((item) => item.value === p).label.split(':')[0];
       wallet.derivationDetails = derivationDetails;
       wallet.specs = specs;
       wallet.scriptType = scriptType;
       const isUpdated = dbManager.updateObjectById(RealmSchema.Wallet, wallet.id, {
         derivationDetails,
         specs,
-        scriptType
-      })
+        scriptType,
+      });
       if (isUpdated) {
-        updateAppImageWorker({ payload: { wallet } })
-        navigtaion.goBack()
+        updateAppImageWorker({ payload: { wallet } });
+        navigtaion.goBack();
         showToast('Wallet details updated', <TickIcon />);
-      } else showToast("Failed to update", <ToastErrorIcon />);
-
+      } else showToast('Failed to update', <ToastErrorIcon />);
     } catch (error) {
-      console.log(error)
-      showToast("Failed to update", <ToastErrorIcon />);
+      console.log(error);
+      showToast('Failed to update', <ToastErrorIcon />);
     }
   };
 
@@ -137,7 +139,7 @@ function UpdateWalletDetails({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
+        {/* <HeaderTitle
           title={isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
           subtitle={
             isFromSeed
@@ -146,7 +148,27 @@ function UpdateWalletDetails({ route }) {
           }
           headerTitleColor={Colors.TropicalRainForest}
           paddingTop={hp(5)}
-        />
+          paddingLeft={hp(-25)}
+        /> */}
+        <Box>
+          <TouchableOpacity
+            onPress={() => {
+              navigtaion.goBack()
+            }}
+            style={styles.backButton}
+          >
+            <BackButton />
+          </TouchableOpacity>
+
+          <KeeperText type="regular" style={styles.titleText}>
+            {isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
+          </KeeperText>
+          <KeeperText type="regular" style={styles.descriptionText}>
+            {isFromSeed
+              ? 'The QR below comprises of your 12 word Recovery Phrase'
+              : 'Update Wallet Path'}
+          </KeeperText>
+        </Box>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             {/* <KeeperText
@@ -192,7 +214,7 @@ function UpdateWalletDetails({ route }) {
             )}
             <KeeperText
               type="regular"
-              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(15), }]}
+              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(25) }]}
             >
               Path
             </KeeperText>
@@ -253,6 +275,26 @@ const styles = ScaledSheet.create({
   linearGradient: {
     borderRadius: 6,
     marginTop: hp(3),
+  },
+  titleText: {
+    lineHeight: '23@s',
+    letterSpacing: '0.8@s',
+    // paddingHorizontal: '20@s',
+    color: Colors.TropicalRainForest,
+  },
+  descriptionText: {
+    fontSize: 12,
+    lineHeight: '17@s',
+    letterSpacing: '0.5@s',
+    fontWeight: '200',
+    color: 'light.GreyText',
+  },
+  backButton: {
+    height: 20,
+    width: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
   },
   autoTransferText: {
     fontSize: 12,

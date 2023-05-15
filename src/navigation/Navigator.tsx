@@ -84,6 +84,7 @@ import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScree
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
+import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -218,6 +219,7 @@ function AppStack() {
           component={MixProgress}
           options={{ gestureEnabled: false }}
         />
+        <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
       </Stack.Navigator>
     </RealmProvider>
   );

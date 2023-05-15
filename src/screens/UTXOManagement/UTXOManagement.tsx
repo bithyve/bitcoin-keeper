@@ -12,8 +12,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
-// import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
-import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -29,8 +28,6 @@ import { Box, HStack, VStack } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
-import RestClient from 'src/core/services/rest/RestClient';
-import { captureError } from 'src/core/services/sentry';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -228,22 +225,6 @@ function UTXOManagement({ route, navigation }) {
     [cleanUp]
   );
 
-  const [torInitialised, setTorInitialised] = useState(false);
-
-  useEffect(() => {
-    RestClient.initWhirlpoolTor()
-      .then(() => {
-        setTorInitialised(true);
-      })
-      .catch((e) => {
-        if (RestClient.getWhirlpoolTorPort()) {
-          setTorInitialised(true);
-        } else {
-          captureError(e);
-        }
-      });
-  }, []);
-
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
@@ -282,10 +263,7 @@ function UTXOManagement({ route, navigation }) {
           selectedAccount={selectedAccount}
         />
       </Box>
-      {!(
-        [WalletType.PRE_MIX, WalletType.POST_MIX].includes(selectedAccount as WalletType) &&
-        !torInitialised
-      ) && utxos?.length ? (
+      {utxos?.length ? (
         <Footer
           utxos={utxos}
           setInitiateWhirlpool={setInitiateWhirlpool}
@@ -302,9 +280,7 @@ function UTXOManagement({ route, navigation }) {
           setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
           selectedAccount={selectedAccount}
         />
-      ) : (
-        <ActivityIndicator />
-      )}
+      ) : null}
       <KeeperModal
         justifyContent="flex-end"
         visible={showBatteryWarningModal}
