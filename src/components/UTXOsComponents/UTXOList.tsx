@@ -15,6 +15,7 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
@@ -83,6 +84,9 @@ function UTXOElement({
     <TouchableOpacity
       style={styles.utxoCardContainer}
       onPress={() => {
+        if (!item.confirmed) {
+          showToast('Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID', <ToastErrorIcon />);
+        }
         if (allowSelection) {
           const mapToUpdate = selectedUTXOMap;
           if (selectedUTXOMap[utxoId]) {

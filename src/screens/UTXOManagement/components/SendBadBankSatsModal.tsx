@@ -17,7 +17,7 @@ function SendBadBankSatsContent() {
                 <SendBadBankSatsIcon />
             </Box>
             <Text style={styles.paragraphText}>
-                A good use of these sats is to purchase redeamable vouchers or anonymous donations
+                A good use of these sats could be purchase of redeamable vouchers
             </Text>
         </Box>
     );
