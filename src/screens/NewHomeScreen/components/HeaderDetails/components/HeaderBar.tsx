@@ -9,6 +9,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 function HeaderBar() {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
@@ -18,6 +19,8 @@ function HeaderBar() {
   const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
   };
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     InteractionManager.runAfterInteractions(() => {
@@ -69,7 +72,10 @@ function HeaderBar() {
           </Box>
         )}
       </Box>
-      <TouchableOpacity style={styles.settingIconWrapper}>
+      <TouchableOpacity
+        style={styles.settingIconWrapper}
+        onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+      >
         <IconSettings />
       </TouchableOpacity>
     </Box>

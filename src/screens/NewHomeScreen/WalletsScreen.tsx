@@ -12,22 +12,24 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import AddSCardIcon from 'src/assets/images/card_add.svg';
-import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
-import Hidden from 'src/assets/images/hidden.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
 import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
-import CurrencyInfo from './components/CurrencyInfo'
+import CurrencyInfo from './components/CurrencyInfo';
+import KeeperModal from 'src/components/KeeperModal';
+import TransferPolicy from 'src/components/XPub/TransferPolicy';
+import useToastMessage from 'src/hooks/useToastMessage';
 
-const TILE_MARGIN = 10;
-const TILE_WIDTH = 170;
-const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN * 2;
+const TILE_MARGIN = wp(10);
+const TILE_WIDTH = hp(170);
+const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
   return (
@@ -76,19 +78,10 @@ function WalletItem({
   const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
   const isActive = index === walletIndex;
   const { wallet } = translations;
-  const margin = Math.abs(walletIndex - index) === 1 ? TILE_MARGIN / 2 : TILE_MARGIN;
-  const width = VIEW_WIDTH - margin * 2;
-  const opacity = Math.abs(walletIndex - index) === 1 ? 1 : 0.5;
-
+  const opacity = isActive ? 1 : 0.5;
   return (
-    <View>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('WalletDetails', { wallet: item })}
-        style={[
-          styles.walletContainer,
-          { width, marginLeft: margin, marginRight: margin, opacity },
-        ]}
-      >
+    <View style={[styles.walletContainer, { width: TILE_WIDTH, opacity }]}>
+      <TouchableOpacity onPress={() => navigation.navigate('WalletDetails', { wallet: item })}>
         {!(item?.presentationData && item?.specs) ? (
           <AddNewWalletTile
             walletIndex={walletIndex}
@@ -122,6 +115,7 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, hideAmount
         data={wallets.concat({ isEnd: true })}
         disableIntervalMomentum
         decelerationRate="fast"
+        contentContainerStyle={{ paddingHorizontal: VIEW_WIDTH / 2 }}
         snapToInterval={VIEW_WIDTH}
         snapToAlignment="start"
         renderItem={({ item, index }) => (
@@ -182,21 +176,27 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
         <Text color="light.white" style={styles.walletName}>
           Available Balance
         </Text>
-        <CurrencyInfo hideAmounts={hideAmounts} amount={balances?.confirmed + balances?.unconfirmed} fontSize={20} color="light.white" />
+        <CurrencyInfo
+          hideAmounts={hideAmounts}
+          amount={balances?.confirmed + balances?.unconfirmed}
+          fontSize={20}
+          color="light.white"
+        />
       </Box>
     </Box>
   );
 }
 
-const WalletsScreen = () => {
+const WalletsScreen = ({ navigation }) => {
   const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const [walletIndex, setWalletIndex] = useState<number>(0);
+  const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
   const currentWallet = wallets[walletIndex];
   const flatListRef = useRef(null);
   const [hideAmounts, setHideAmounts] = useState(true);
-
+  const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
     if (index?.index !== undefined) {
@@ -204,7 +204,7 @@ const WalletsScreen = () => {
     }
   });
 
-  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 20 });
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
 
   return (
     <HomeScreenWrapper>
@@ -220,7 +220,12 @@ const WalletsScreen = () => {
             </Text>
           </Box>
           <Box style={styles.netBalanceView}>
-            <CurrencyInfo hideAmounts={hideAmounts} amount={netBalance} fontSize={20} color="light.black" />
+            <CurrencyInfo
+              hideAmounts={hideAmounts}
+              amount={netBalance}
+              fontSize={20}
+              color="light.black"
+            />
           </Box>
         </Box>
         <WalletList
@@ -238,6 +243,13 @@ const WalletsScreen = () => {
               title="Whirlpool & UTXOs"
               subTitle="Manage UTXOs and Whirlpool"
               iconBackColor="light.greenText2"
+              onPress={() => {
+                navigation.navigate('UTXOManagement', {
+                  data: currentWallet,
+                  routeName: 'Wallet',
+                  accountType: WalletType.DEFAULT,
+                });
+              }}
             />
           </Box>
           <Box style={styles.listViewWrapper}>
@@ -247,6 +259,7 @@ const WalletsScreen = () => {
                 title="Transfer Policy"
                 subTitle="From wallet to vault"
                 iconBackColor="light.greenText2"
+                onPress={() => setTransferPolicyVisible(true)}
               />
             </Box>
             <Box style={styles.buyWrapper}>
@@ -260,6 +273,28 @@ const WalletsScreen = () => {
           </Box>
         </Box>
       </ScrollView>
+      <KeeperModal
+        visible={transferPolicyVisible}
+        close={() => {
+          setTransferPolicyVisible(false);
+        }}
+        title="Edit Transfer Policy"
+        subTitle="Threshold amount at which transfer is triggered"
+        subTitleColor="light.secondaryText"
+        textColor="light.primaryText"
+        Content={() => (
+          <TransferPolicy
+            wallet={currentWallet}
+            close={() => {
+              showToast('Transfer Policy Changed', <TickIcon />);
+              setTransferPolicyVisible(false);
+            }}
+            secondaryBtnPress={() => {
+              setTransferPolicyVisible(false);
+            }}
+          />
+        )}
+      />
     </HomeScreenWrapper>
   );
 };
@@ -278,7 +313,7 @@ const styles = StyleSheet.create({
     marginVertical: hp(5),
     flexDirection: 'row',
     width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   titleText: {
     fontSize: 16,
@@ -320,7 +355,7 @@ const styles = StyleSheet.create({
     marginTop: hp(10),
   },
   walletCard: {
-    paddingTop: hp(20)
+    paddingTop: hp(20),
   },
   walletInnerView: {
     flexDirection: 'column',
@@ -379,10 +414,10 @@ const styles = StyleSheet.create({
   },
   tranferPolicyWrapper: {
     width: '48%',
-    marginRight: wp(10)
+    marginRight: wp(10),
   },
   buyWrapper: {
-    width: '51%'
+    width: '51%',
   },
   listItemsWrapper: {
     marginTop: hp(20),
@@ -392,10 +427,10 @@ const styles = StyleSheet.create({
     width: '99%',
   },
   titleInfoView: {
-    width: '60%'
+    width: '60%',
   },
   netBalanceView: {
     width: '40%',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
