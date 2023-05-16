@@ -8,8 +8,8 @@ import Send from 'src/assets/images/send.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import BuyBitcoin from 'src/assets/images/icon_buy.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import BottomMenuItem from '../../WalletDetails/BottomMenuItem';
-import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
+import BottomMenuItem from '../BottomMenuItem';
+import { allowedRecieveTypes, allowedSendTypes } from '..';
 
 function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
   const navigation = useNavigation();
