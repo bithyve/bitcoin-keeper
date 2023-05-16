@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
+import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -56,6 +58,7 @@ function WalletDetails({ route }) {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = wallet;
+  const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
@@ -82,7 +85,9 @@ function WalletDetails({ route }) {
       <VStack>
         <Box style={styles.walletHeaderWrapper}>
           <Box style={styles.walletIconWrapper}>
-            <Box style={styles.walletIconView} backgroundColor="light.white" />
+            <Box style={styles.walletIconView} backgroundColor="light.white">
+              {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletInsideGreen />}
+            </Box>
           </Box>
           <Box style={styles.walletNameWrapper}>
             <Text color="light.white" style={styles.walletNameText}>
