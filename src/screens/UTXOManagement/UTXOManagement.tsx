@@ -261,6 +261,7 @@ function UTXOManagement({ route, navigation }) {
           currentWallet={selectedWallet}
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
           selectedAccount={selectedAccount}
+          initateWhirlpoolMix={initateWhirlpoolMix}
         />
       </Box>
       {utxos?.length ? (
