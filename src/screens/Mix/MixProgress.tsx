@@ -399,8 +399,8 @@ function MixProgress({
   function MixDurationText() {
     return (
       <Text style={styles.mixingSubtitleText}>
-        Do not exit this app, this may take
-        <Text style={styles.durationTextStyle}>&nbsp;upto 2 minutes</Text>
+        Do not exit this app, this may take a
+        <Text style={styles.durationTextStyle}>&nbsp;couple of minutes</Text>
       </Text>
     );
   }
