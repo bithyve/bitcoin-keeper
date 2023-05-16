@@ -407,8 +407,9 @@ function MixProgress({
   function MixDurationText() {
     return (
       <Text style={styles.mixingSubtitleText}>
-        Do not exit this app, this may take a
+        Please do not exit the app. This takes a
         <Text style={styles.durationTextStyle}>&nbsp;couple of minutes</Text>
+        &nbsp;but&nbsp;<Text style={styles.durationTextStyle}>more</Text>&nbsp;in some cases
       </Text>
     );
   }
