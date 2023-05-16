@@ -195,25 +195,25 @@ function MixProgress({
     const inProgress = statuses[index].completed && !statuses[index + 1]?.completed;
     return (
       <Box style={styles.contentWrapper}>
-        <Box style={styles.timeLineWrapper}>
-          {inProgress ? (
-            <Box style={styles.animatedCircularborder}>
+        <Box style={inProgress ? styles.timeLineProgressWrapper : styles.timeLineWrapper}>
+          {inProgress ?
+            (<Box style={styles.animatedCircularborder}>
               <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot}>
                 <Animated.View style={styles.whirlpoolIconStyle}>
                   <Gear0 />
                 </Animated.View>
               </Box>
             </Box>
-          ) : (
-            <Box style={styles.circularborder}>
-              <Box
-                backgroundColor={getBackgroungColor(completed, error)}
-                style={styles.greentDot}
-              />
-            </Box>
-          )}
+            ) : (
+              <Box style={styles.circularborder}>
+                <Box
+                  backgroundColor={getBackgroungColor(completed, error)}
+                  style={styles.greentDot}
+                />
+              </Box>
+            )}
           {isLast ? null : (
-            <Box style={styles.verticalBorderWrapper}>
+            <Box style={inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper}>
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
@@ -407,8 +407,8 @@ function MixProgress({
   function MixDurationText() {
     return (
       <Text style={styles.mixingSubtitleText}>
-        Do not exit this app, this may take
-        <Text style={styles.durationTextStyle}>&nbsp;upto 2 minutes</Text>
+        Do not exit this app, this may take a
+        <Text style={styles.durationTextStyle}>&nbsp;couple of minutes</Text>
       </Text>
     );
   }
@@ -504,13 +504,13 @@ const getStyles = (clock) =>
       borderStyle: 'dotted',
       justifyContent: 'center',
       alignItems: 'center',
-      width: hp(30),
-      height: hp(30),
+      width: hp(35),
+      height: hp(35),
       zIndex: 999,
     },
     animatedGreentDot: {
-      width: hp(25),
-      height: hp(25),
+      width: hp(30),
+      height: hp(30),
       borderRadius: 50,
       alignItems: 'center',
       justifyContent: 'center',
@@ -521,6 +521,9 @@ const getStyles = (clock) =>
     verticalBorderWrapper: {
       marginVertical: hp(5),
     },
+    verticalProgressBorderWrapper: {
+      marginVertical: hp(10),
+    },
     verticalBorder: {
       width: hp(3),
       height: hp(3),
@@ -529,6 +532,12 @@ const getStyles = (clock) =>
     timeLineWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(10),
+      justifyContent: 'center'
+    },
+    timeLineProgressWrapper: {
+      alignItems: 'center',
+      marginHorizontal: wp(5),
+      justifyContent: 'center'
     },
     contentWrapper: {
       flexDirection: 'row',
