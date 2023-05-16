@@ -10,15 +10,16 @@ interface ICurrencyInfo {
   hideAmounts: boolean;
   amount: number;
   fontSize: number;
+  color: string
 }
-function CurrencyInfo({ hideAmounts, amount, fontSize }: ICurrencyInfo) {
+function CurrencyInfo({ hideAmounts, amount, fontSize, color = "light.black" }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   return (
     <HStack style={styles.vaultBalanceContainer}>
       {getCurrencyIcon(BTC, 'grey')}
-      {hideAmounts ? (
+      {!hideAmounts ? (
         <Box style={styles.rowCenter}>
-          <Text color="light.white" style={{ fontSize }}>
+          <Text color={color} style={{ fontSize }}>
             {`${getSatUnit()} ${getBalance(amount)}`}
           </Text>
         </Box>

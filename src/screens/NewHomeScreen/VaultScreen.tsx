@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Pressable, ScrollView } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import HideIcon from 'src/assets/images/icon_hide.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -13,6 +12,8 @@ import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
+import BalanceToggle from './components/BalanceToggle';
+import RampModal from '../WalletDetails/components/RampModal';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -21,11 +22,14 @@ function VaultScreen() {
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
   const scheme = idx(activeVault, (_) => _.scheme) || { m: 0, n: 0 };
   const [hideAmounts, setHideAmounts] = useState(true);
-  const toggleCurrencyVisibility = () => setHideAmounts(!hideAmounts);
+  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+
   const navigation = useNavigation();
+
   const navigateToHardwareSetup = () => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
   };
+
   const onVaultPress = () => {
     if (signers.length) {
       navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
@@ -33,14 +37,12 @@ function VaultScreen() {
       navigateToHardwareSetup();
     }
   };
+
+  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+
   return (
     <HomeScreenWrapper>
-      <Pressable style={styles.hideBalanceWrapper}>
-        <HideIcon />
-        <Text style={styles.hideBalanceText} onPress={toggleCurrencyVisibility}>
-          &nbsp;&nbsp;{`${hideAmounts ? 'SHOW' : 'HIDE'} BALANCES`}
-        </Text>
-      </Pressable>
+      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Text style={styles.titleText} color="light.primaryText">
@@ -73,6 +75,7 @@ function VaultScreen() {
                   hideAmounts={hideAmounts}
                   amount={confirmedBalance + unconfirmedBalance}
                   fontSize={14}
+                  color='light.white'
                 />
               </Box>
             </Box>
@@ -84,6 +87,7 @@ function VaultScreen() {
                 hideAmounts={hideAmounts}
                 amount={confirmedBalance + unconfirmedBalance}
                 fontSize={20}
+                color='light.white'
               />
             </Box>
           </TouchableOpacity>
@@ -97,14 +101,29 @@ function VaultScreen() {
             icon={<InheritanceIcon />}
             title="Inheritance"
             subTitle="Setup inheritance Key"
+            iconBackColor="light.learnMoreBorder"
           />
         </Pressable>
         <ListItemView
           icon={<BitcoinIcon />}
           title="Buy"
           subTitle="Stack sats directly in the vault"
+          iconBackColor="light.learnMoreBorder"
+          onPress={onPressBuyBitcoin}
         />
       </ScrollView>
+
+      {
+        activeVault && (
+          <RampModal
+            showBuyRampModal={showBuyRampModal}
+            setShowBuyRampModal={setShowBuyRampModal}
+            receivingAddress={activeVault.specs.receivingAddress}
+            balance={activeVault.specs.balances.confirmed}
+            name="Vault"
+          />
+        )
+      }
     </HomeScreenWrapper>
   );
 }
@@ -112,17 +131,6 @@ function VaultScreen() {
 export default VaultScreen;
 
 const styles = StyleSheet.create({
-  hideBalanceWrapper: {
-    alignSelf: 'flex-end',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: hp(10),
-  },
-
-  hideBalanceText: {
-    fontSize: 10,
-    color: '#704E2E',
-  },
   titleWrapper: {
     marginVertical: hp(5),
   },
