@@ -26,6 +26,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { securityTips, getSecurityTip } from 'src/common/data/defaultData/defaultData';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
+import Buttons from 'src/components/Buttons';
+import Relay from 'src/core/services/operations/Relay';
+import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import SubScription from 'src/common/data/models/interfaces/Subscription';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
@@ -48,11 +55,11 @@ function LoginScreen({ navigation, route }) {
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const { loginMethod, torEnbled } = useAppSelector((state) => state.settings);
-  const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
+  const { appId, failedAttempts, lastLoginFailedAt, } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const { showToast } = useToastMessage();
-
+  const [showDowngradeModal, setShowDowngradeModal] = useState(false)
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
@@ -86,7 +93,8 @@ function LoginScreen({ navigation, route }) {
       setLogging(false)
       setLoginModal(false)
       // navigation.replace('App', { screen: 'ChoosePlan' });
-      showToast('Failed to validate your subscription', null, 3000, true);
+      setShowDowngradeModal(true)
+      // showToast('Failed to validate your subscription', null, 3000, true);
     }
   }, [recepitVerificationError, recepitVerificationFailed]);
 
@@ -300,6 +308,51 @@ function LoginScreen({ navigation, route }) {
     );
   }
 
+  async function downgradeToPleb() {
+    try {
+      const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
+      const response = await Relay.updateSubscription(app.id, app.publicId, { productId: SubscriptionTier.L1, })
+      if (response.updated) {
+        const updatedSubscription: SubScription = {
+          receipt: '',
+          productId: SubscriptionTier.L1,
+          name: SubscriptionTier.L1,
+          level: 0,
+          icon: 'assets/ic_pleb.svg',
+        };
+        dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+          subscription: updatedSubscription,
+        });
+        navigation.replace('App');
+      } else {
+        showToast('Failed to downgrade', null, 3000, true);
+      }
+
+    } catch (error) {
+      //
+    }
+  }
+
+  function DowngradeModalContent() {
+    return (
+      <Box>
+        <Buttons
+          secondaryText="Downgrade"
+          secondaryCallback={() => {
+            setShowDowngradeModal(false);
+            downgradeToPleb()
+          }}
+          primaryText="View Subscription"
+          primaryCallback={() => {
+            setShowDowngradeModal(false)
+            navigation.replace('App', { screen: 'ChoosePlan' });
+
+          }}
+        />
+      </Box>
+    );
+  }
+
   return (
     <LinearGradient
       colors={['light.gradientStart', 'light.gradientEnd']}
@@ -468,6 +521,19 @@ function LoginScreen({ navigation, route }) {
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
         showCloseIcon={false}
+      />
+
+      <KeeperModal
+        dismissible
+        close={() => { }}
+        visible={showDowngradeModal}
+        title="Failed to validate your subscription"
+        subTitle="Do you want to downgrade to pleb and continue?"
+        Content={DowngradeModalContent}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+        showButtons
       />
     </LinearGradient>
   );
