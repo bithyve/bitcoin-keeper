@@ -38,6 +38,7 @@ import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
 import { io } from 'src/core/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -48,8 +49,6 @@ const getBackgroungColor = (completed: boolean, error: boolean): string => {
   }
   return 'light.dustySageGreen';
 };
-
-
 
 function MixProgress({
   route,
@@ -185,7 +184,7 @@ function MixProgress({
     isLast,
     completed,
     error,
-    index
+    index,
   }: {
     title: string;
     isLast: boolean;
@@ -193,22 +192,26 @@ function MixProgress({
     error: boolean;
     index: number;
   }) {
-    const inProgress = statuses[index].completed && !statuses[index + 1]?.completed
+    const inProgress = statuses[index].completed && !statuses[index + 1]?.completed;
     return (
       <Box style={styles.contentWrapper}>
         <Box style={styles.timeLineWrapper}>
-          {inProgress ?
+          {inProgress ? (
             <Box style={styles.animatedCircularborder}>
-              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot} >
+              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot}>
                 <Animated.View style={styles.whirlpoolIconStyle}>
                   <Gear0 />
                 </Animated.View>
               </Box>
             </Box>
-            :
+          ) : (
             <Box style={styles.circularborder}>
-              <Box backgroundColor={getBackgroungColor(completed, error)} style={styles.greentDot} />
-            </Box>}
+              <Box
+                backgroundColor={getBackgroungColor(completed, error)}
+                style={styles.greentDot}
+              />
+            </Box>
+          )}
           {isLast ? null : (
             <Box style={styles.verticalBorderWrapper}>
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
@@ -295,14 +298,19 @@ function MixProgress({
           external: { incrementBy: 1 },
         })
       );
+      showToast(
+        'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
+        <TickIcon />,
+        3000
+      );
       setTimeout(async () => {
         dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
+        navigation.navigate('UTXOManagement', {
+          data: depositWallet,
+          accountType: WalletType.POST_MIX,
+          routeName: 'Wallet',
+        });
       }, 3000);
-      navigation.navigate('UTXOManagement', {
-        data: depositWallet,
-        accountType: WalletType.POST_MIX,
-        routeName: 'Wallet',
-      });
     }
   };
 
@@ -388,7 +396,7 @@ function MixProgress({
   };
 
   const renderItem = ({ item, index }) => (
-    < TimeLine
+    <TimeLine
       title={item.title}
       completed={item.completed}
       isLast={item?.isLast}
@@ -505,7 +513,7 @@ const getStyles = (clock) =>
       height: hp(25),
       borderRadius: 50,
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     whirlpoolIconStyle: {
       transform: [{ rotate: clock }],
@@ -557,12 +565,12 @@ const getStyles = (clock) =>
       width: '60%',
     },
     mixingSubtitleText: {
-      fontSize: 12
+      fontSize: 12,
     },
     durationTextStyle: {
       fontWeight: 'bold',
-      fontStyle: 'italic'
-    }
+      fontStyle: 'italic',
+    },
   });
 
 export default MixProgress;
