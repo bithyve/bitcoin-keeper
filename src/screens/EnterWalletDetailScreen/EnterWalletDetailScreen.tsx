@@ -25,6 +25,8 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { Linking } from 'react-native';
+import { resetWalletStateFlags } from 'src/store/reducers/wallets';
+import KeeperModal from 'src/components/KeeperModal';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -42,23 +44,23 @@ function EnterWalletDetailScreen({ route }) {
   const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
-  );  
-  const [purpose, setPurpose] = useState(route.params?.purpose)
+  );
+  const [purpose, setPurpose] = useState(route.params?.purpose);
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
 
-  // useEffect(() => {
-  //   const path = WalletUtilities.getDerivationPath(
-  //     EntityKind.WALLET,
-  //     config.NETWORK_TYPE,
-  //     0,
-  //     Number(purpose)
-  //   );
-  //   setPath(path);
-  // }, [purpose]);
+  useEffect(() => {
+    const path = WalletUtilities.getDerivationPath(
+      EntityKind.WALLET,
+      config.NETWORK_TYPE,
+      0,
+      Number(purpose)
+    );
+    setPath(path);
+  }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
@@ -112,6 +114,25 @@ function EnterWalletDetailScreen({ route }) {
   // Example: 1000000 => 1,000,000
   const formatNumber = (value: string) =>
     value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  function FailedModalContent() {
+    return (
+      <Box w="100%">
+        <Buttons
+          primaryCallback={() => {
+            navigtaion.replace('ChoosePlan');
+          }}
+          primaryText="View Subsciption"
+          activeOpacity={0.5}
+          secondaryCallback={() => {
+            dispatch(resetWalletStateFlags());
+          }}
+          secondaryText={common.cancel}
+          paddingHorizontal={wp(30)}
+        />
+      </Box>
+    );
+  }
 
   const onQrScan = (qrData) => {
     navigtaion.goBack();
@@ -253,7 +274,7 @@ function EnterWalletDetailScreen({ route }) {
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
-              navigtaion.goBack()
+              navigtaion.goBack();
               /* navigtaion.dispatch(
                  CommonActions.navigate({
                    name: 'ScanQR',
@@ -272,6 +293,22 @@ function EnterWalletDetailScreen({ route }) {
           />
         </View>
       </View>
+
+      <KeeperModal
+        dismissible
+        close={() => {}}
+        visible={false}
+        title="Failed"
+        Content={FailedModalContent}
+        buttonText=""
+        buttonCallback={() => {
+          // setInitiating(true)
+        }}
+        showButtons
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
     </View>
   );
 }

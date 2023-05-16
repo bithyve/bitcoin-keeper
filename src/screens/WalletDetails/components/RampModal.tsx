@@ -6,10 +6,9 @@ import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import idx from 'idx';
 import GradientIcon from './GradientIcon';
 
-function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
+function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }) {
   const buyWithRamp = (address: string) => {
     try {
       setShowBuyRampModal(false);
@@ -18,9 +17,7 @@ function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
       console.log(error);
     }
   };
-  const receivingAddress = idx(wallets, (_) => _[walletIndex].specs.receivingAddress) || '';
-  const balance = idx(wallets, (_) => _[walletIndex].specs.balances.confirmed) || 0;
-  const presentationData = idx(wallets, (_) => _[walletIndex].presentationData.name) || '';
+
   return (
     <Box style={styles.buyBtcWrapper}>
       <Text color="#073B36" style={styles.buyBtcContent}>
@@ -31,10 +28,13 @@ function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
         <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
         <Box style={styles.buyBtcCard}>
           <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
-          <Text style={styles.presentationName}>{presentationData}</Text>
-          <Text style={styles.confirmBalanceText}>{`Balance: ${balance} sats`}</Text>
+          <Text style={styles.presentationName}>{name}</Text>
+          <Text
+            style={styles.confirmBalanceText}
+          >{`Balance: ${balance} sats`}</Text>
         </Box>
       </Box>
+
       <Box style={styles.atViewWrapper}>
         <Box style={styles.atViewWrapper02}>
           <Text style={styles.atText}>@</Text>
@@ -58,16 +58,15 @@ function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
   );
 }
 
-function RampModal({ showBuyRampModal, setShowBuyRampModal, wallets, walletIndex }) {
+function RampModal({ showBuyRampModal, setShowBuyRampModal, balance, receivingAddress, name }) {
   const Content = useCallback(
-    () => (
-      <RampBuyContent
-        wallets={wallets}
-        walletIndex={walletIndex}
-        setShowBuyRampModal={setShowBuyRampModal}
-      />
-    ),
-    [wallets, walletIndex]
+    () => <RampBuyContent
+      balance={balance}
+      setShowBuyRampModal={setShowBuyRampModal}
+      receivingAddress={receivingAddress}
+      name={name}
+    />,
+    [balance, name, receivingAddress]
   );
   return (
     <KeeperModal
