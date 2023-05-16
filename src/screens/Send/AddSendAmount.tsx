@@ -288,7 +288,7 @@ function AddSendAmount({ route }) {
 
         <Box
           backgroundColor="light.primaryBackground"
-          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+          borderColor="transparent"
           style={styles.inputWrapper}
         >
           <Input
@@ -318,7 +318,7 @@ function AddSendAmount({ route }) {
           /> */}
         <Box
           backgroundColor="light.primaryBackground"
-          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+          borderColor="transparent"
           style={styles.inputWrapper}
         >
           <Input
