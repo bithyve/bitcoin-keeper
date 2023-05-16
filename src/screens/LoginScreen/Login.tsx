@@ -311,7 +311,7 @@ function LoginScreen({ navigation, route }) {
   async function downgradeToPleb() {
     try {
       const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
-      const response = await Relay.updateSubscription(app.id, app.publicId, { productId: SubscriptionTier.L1, })
+      const response = await Relay.updateSubscription(app.id, app.publicId, { productId: SubscriptionTier.L1.toLowerCase(), })
       if (response.updated) {
         const updatedSubscription: SubScription = {
           receipt: '',
@@ -337,16 +337,15 @@ function LoginScreen({ navigation, route }) {
     return (
       <Box>
         <Buttons
-          secondaryText="Downgrade"
+          secondaryText="View Subscription"
           secondaryCallback={() => {
-            setShowDowngradeModal(false);
-            downgradeToPleb()
-          }}
-          primaryText="View Subscription"
-          primaryCallback={() => {
             setShowDowngradeModal(false)
             navigation.replace('App', { screen: 'ChoosePlan' });
-
+          }}
+          primaryText="Continue as Pleb"
+          primaryCallback={() => {
+            setShowDowngradeModal(false);
+            downgradeToPleb()
           }}
         />
       </Box>
