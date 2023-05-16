@@ -19,10 +19,9 @@ import {
   incrementAddressIndex,
   refreshWallets,
 } from 'src/store/sagaActions/wallets';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
-import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import useWallets from 'src/hooks/useWallets';
 import { InputUTXOs } from 'src/core/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
@@ -34,6 +33,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
 
@@ -81,7 +81,7 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
-    for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
+    for (let i = 0; i < tx0Preview.nPremixOutputs; i += 1) {
       outputs.push(tx0Preview.premixValue);
     }
     setPremixOutputs(outputs);
@@ -147,7 +147,7 @@ export default function BroadcastPremix({ route, navigation }) {
         network
       );
       if (serializedPSBT) {
-        const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
+        const { txHex } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
         const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
         if (txid) {
           for (const wallet of [premixWallet, badbankWallet]) {
@@ -166,14 +166,11 @@ export default function BroadcastPremix({ route, navigation }) {
               refreshWallets([depositWallet, premixWallet, badbankWallet], { hardRefresh: true })
             );
           }, 3000);
-
-          const outputs = PSBT.txOutputs;
-          const voutsPremix = [];
-          outputs.forEach((o, i) => {
-            if (premixAddresses.includes(o.address)) {
-              voutsPremix.push(i);
-            }
-          });
+          showToast(
+            'Your Tx0 was broadcasted successfully, you should find the new UTXOs in the Premix account',
+            <TickIcon />,
+            3000
+          );
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           setShowBroadcastModal(true);
           setLoading(false);
