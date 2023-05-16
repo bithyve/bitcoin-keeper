@@ -6,6 +6,7 @@ import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import idx from 'idx';
 import GradientIcon from './GradientIcon';
 
 function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
@@ -17,6 +18,9 @@ function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
       console.log(error);
     }
   };
+  const receivingAddress = idx(wallets, (_) => _[walletIndex].specs.receivingAddress) || '';
+  const balance = idx(wallets, (_) => _[walletIndex].specs.balances.confirmed) || 0;
+  const presentationData = idx(wallets, (_) => _[walletIndex].presentationData.name) || '';
   return (
     <Box style={styles.buyBtcWrapper}>
       <Text color="#073B36" style={styles.buyBtcContent}>
@@ -27,25 +31,18 @@ function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
         <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
         <Box style={styles.buyBtcCard}>
           <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
-          <Text style={styles.presentationName}>{wallets[walletIndex].presentationData.name}</Text>
-          <Text
-            style={styles.confirmBalanceText}
-          >{`Balance: ${wallets[walletIndex].specs.balances.confirmed} sats`}</Text>
+          <Text style={styles.presentationName}>{presentationData}</Text>
+          <Text style={styles.confirmBalanceText}>{`Balance: ${balance} sats`}</Text>
         </Box>
       </Box>
-
       <Box style={styles.atViewWrapper}>
         <Box style={styles.atViewWrapper02}>
           <Text style={styles.atText}>@</Text>
         </Box>
         <Box style={styles.buyBtcCard}>
           <Text style={styles.buyBtcTitle}>Address for ramp transactions</Text>
-          <Text
-            style={styles.addressTextView}
-            ellipsizeMode="middle"
-            numberOfLines={1}
-          >
-            {wallets[walletIndex].specs.receivingAddress}
+          <Text style={styles.addressTextView} ellipsizeMode="middle" numberOfLines={1}>
+            {receivingAddress}
           </Text>
         </Box>
       </Box>
@@ -55,7 +52,7 @@ function RampBuyContent({ wallets, walletIndex, setShowBuyRampModal }) {
           setShowBuyRampModal(false);
         }}
         primaryText="Buy Bitcoin"
-        primaryCallback={() => buyWithRamp(wallets[walletIndex].specs.receivingAddress)}
+        primaryCallback={() => buyWithRamp(receivingAddress)}
       />
     </Box>
   );
@@ -147,6 +144,6 @@ const styles = StyleSheet.create({
   addressTextView: {
     width: wp(200),
     fontSize: 19,
-    color: "#041513"
+    color: '#041513',
   },
 });

@@ -22,6 +22,7 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useToastMessage from 'src/hooks/useToastMessage';
+import idx from 'idx';
 import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
@@ -208,7 +209,15 @@ const WalletsScreen = ({ navigation }) => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const onPressBuyBitcoin = () => {
+    if (currentWallet) {
+      setShowBuyRampModal(true);
+    }
+  };
+
+  const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
+  const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
+  const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
 
   return (
     <HomeScreenWrapper>
@@ -248,11 +257,12 @@ const WalletsScreen = ({ navigation }) => {
               subTitle="Manage UTXOs and Whirlpool"
               iconBackColor="light.greenText2"
               onPress={() => {
-                navigation.navigate('UTXOManagement', {
-                  data: currentWallet,
-                  routeName: 'Wallet',
-                  accountType: WalletType.DEFAULT,
-                });
+                if (currentWallet)
+                  navigation.navigate('UTXOManagement', {
+                    data: currentWallet,
+                    routeName: 'Wallet',
+                    accountType: WalletType.DEFAULT,
+                  });
               }}
             />
           </Box>
@@ -263,7 +273,9 @@ const WalletsScreen = ({ navigation }) => {
                 title="Transfer Policy"
                 subTitle="From wallet to vault"
                 iconBackColor="light.greenText2"
-                onPress={() => setTransferPolicyVisible(true)}
+                onPress={() => {
+                  if (currentWallet) setTransferPolicyVisible(true);
+                }}
               />
             </Box>
             <Box style={styles.buyWrapper}>
@@ -303,9 +315,9 @@ const WalletsScreen = ({ navigation }) => {
       <RampModal
         showBuyRampModal={showBuyRampModal}
         setShowBuyRampModal={setShowBuyRampModal}
-        receivingAddress={wallets[walletIndex].specs.receivingAddress}
-        balance={wallets[walletIndex].specs.balances.confirmed}
-        name={wallets[walletIndex].presentationData.name}
+        receivingAddress={receivingAddress}
+        balance={balance}
+        name={presentationName}
       />
     </HomeScreenWrapper>
   );
