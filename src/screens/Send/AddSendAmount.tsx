@@ -323,7 +323,7 @@ function AddSendAmount({ route }) {
         >
           <Input
             autoCapitalize="sentences"
-            placeholder="Add a lable"
+            placeholder="Add a label"
             placeholderTextColor="light.greenText"
             opacity={label ? 1 : 0.5}
             width="90%"
@@ -358,7 +358,7 @@ function AddSendAmount({ route }) {
           activity private and organised. The information is not shared with anyone
         </Text>
       </Box>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 
