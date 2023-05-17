@@ -18,7 +18,7 @@ function CurrencyInfo({
   hideAmounts,
   amount,
   fontSize,
-  color = Colors.Black,
+  color = Colors.White,
   variation = 'grey',
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();

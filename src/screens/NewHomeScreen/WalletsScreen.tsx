@@ -184,7 +184,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           amount={balances?.confirmed + balances?.unconfirmed}
           fontSize={20}
           color={Colors.White}
-          variation="dark"
+          variation="light"
         />
       </Box>
     </Box>
@@ -239,7 +239,7 @@ const WalletsScreen = ({ navigation }) => {
               hideAmounts={hideAmounts}
               amount={netBalance}
               fontSize={20}
-              color={Colors.White}
+              color={Colors.black}
               variation="dark"
             />
           </Box>
