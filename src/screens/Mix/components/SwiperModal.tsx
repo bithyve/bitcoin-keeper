@@ -7,12 +7,12 @@ import Text from 'src/components/KeeperText';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
-import { swiperData } from '../swiperModalData';
 // colors, aserts
 import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
+import { swiperData } from '../swiperModalData';
 
-const SwiperModalContent = ({ contentTitle, contentSubTitle }) => {
+function SwiperModalContent({ contentTitle, contentSubTitle }) {
   return (
     <Box>
       <Box>
@@ -23,35 +23,33 @@ const SwiperModalContent = ({ contentTitle, contentSubTitle }) => {
       </Box>
     </Box>
   );
-};
+}
 
-const renderItem = ({ item }) => {
-  return (
-    <Box style={styles.contentContaner}>
-      <SwiperModalContent
-        contentTitle={item.firstContentHeading.contentTitle}
-        contentSubTitle={item.firstContentHeading.contentSubTitle}
-      />
-      <SwiperModalContent
-        contentTitle={item.secondContentHeading.contentTitle}
-        contentSubTitle={item.secondContentHeading.contentSubTitle}
-      />
-      <Box style={styles.swiperModalIcon}>
-        <SwiperModalIcon />
-      </Box>
-      <SwiperModalContent
-        contentTitle={item.firstContentFooter.contentTitle}
-        contentSubTitle={item.firstContentFooter.contentSubTitle}
-      />
-      <SwiperModalContent
-        contentTitle={item.secondContentFooter.contentTitle}
-        contentSubTitle={item.secondContentFooter.contentSubTitle}
-      />
+const renderItem = ({ item }) => (
+  <Box style={styles.contentContaner}>
+    <SwiperModalContent
+      contentTitle={item.firstContentHeading.contentTitle}
+      contentSubTitle={item.firstContentHeading.contentSubTitle}
+    />
+    <SwiperModalContent
+      contentTitle={item.secondContentHeading.contentTitle}
+      contentSubTitle={item.secondContentHeading.contentSubTitle}
+    />
+    <Box style={styles.swiperModalIcon}>
+      <SwiperModalIcon />
     </Box>
-  );
-};
+    <SwiperModalContent
+      contentTitle={item.firstContentFooter.contentTitle}
+      contentSubTitle={item.firstContentFooter.contentSubTitle}
+    />
+    <SwiperModalContent
+      contentTitle={item.secondContentFooter.contentTitle}
+      contentSubTitle={item.secondContentFooter.contentSubTitle}
+    />
+  </Box>
+);
 
-const List = () => {
+function List() {
   const [currentPosition, setCurrentPosition] = useState(0);
 
   const onViewRef = React.useRef((viewableItems) => {
@@ -65,7 +63,7 @@ const List = () => {
         data={swiperData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        nestedScrollEnabled={true}
+        nestedScrollEnabled
         horizontal
         snapToInterval={windowWidth}
         showsHorizontalScrollIndicator={false}
@@ -82,9 +80,9 @@ const List = () => {
       </Box>
     </Box>
   );
-};
+}
 
-const SwiperModal = () => {
+function SwiperModal() {
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
 
@@ -97,14 +95,12 @@ const SwiperModal = () => {
       title="Some Definitions:"
       modalBackground={['light.gradientStart', 'light.gradientEnd']}
       textColor="light.white"
-      Content={() => {
-        return <List />;
-      }}
+      Content={() => <List />}
       DarkCloseIcon
       learnMore
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
   paginationDots: {
@@ -127,7 +123,7 @@ const styles = StyleSheet.create({
     marginEnd: 5,
   },
   contentContaner: {
-    width: wp(290),
+    width: wp(286),
   },
   swiperModalIcon: {
     alignSelf: 'center',
