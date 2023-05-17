@@ -203,7 +203,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setInitiating(true);
         }}
         subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
+        subTitleWidth={wp(250)}
         showCloseIcon={false}
       />
       <KeeperModal
