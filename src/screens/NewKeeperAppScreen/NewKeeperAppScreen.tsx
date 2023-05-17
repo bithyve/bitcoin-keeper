@@ -16,7 +16,9 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
+
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   return (
@@ -124,12 +126,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
       dispatch(setupKeeperApp());
     }
   }
-
+  const modalTitle = isTestnet() ? `Setting up your app(Testnet)` : 'Setting up your app'
   const getSignUpModalContent = () => ({
-    title: 'Shake to send feedback',
-    subTitle: 'Shake your device to send us a bug report or a feature request',
+    title: modalTitle,
+    subTitle: 'Setup will take a few seconds. You would be able to proceed soon.',
     message:
-      'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
+      'Shake your phone and let us know if you find a bug. Our team will get your message along with other app-related information.',
   });
 
   function SignUpModalContent() {
