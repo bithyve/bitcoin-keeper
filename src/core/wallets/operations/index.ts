@@ -513,7 +513,7 @@ export default class WalletOperations {
       amount: number;
     }[],
     averageTxFees: AverageTxFees,
-    UTXOs?: any
+    selectedUTXOs?: any
   ):
     | {
         fee: number;
@@ -525,7 +525,8 @@ export default class WalletOperations {
         fee?;
         balance?;
       } => {
-    const inputUTXOs = UTXOs && UTXOs.length ? UTXOs : wallet.specs.confirmedUTXOs;
+    const inputUTXOs =
+      selectedUTXOs && selectedUTXOs.length ? selectedUTXOs : wallet.specs.confirmedUTXOs;
     let confirmedBalance = 0;
     inputUTXOs.forEach((utxo) => {
       confirmedBalance += utxo.value;
@@ -1075,7 +1076,7 @@ export default class WalletOperations {
       amount: number;
     }[],
     averageTxFees: AverageTxFees,
-    UTXOs?: UTXO[]
+    selectedUTXOs?: UTXO[]
   ): Promise<{
     txPrerequisites: TransactionPrerequisite;
   }> => {
@@ -1088,7 +1089,7 @@ export default class WalletOperations {
       wallet,
       recipients,
       averageTxFees,
-      UTXOs
+      selectedUTXOs
     );
 
     let netAmount = 0;
@@ -1108,7 +1109,7 @@ export default class WalletOperations {
         wallet,
         recipients,
         minAvgTxFee,
-        UTXOs
+        selectedUTXOs
       );
 
       if (minTxPrerequisites.balance < netAmount + minTxPrerequisites.fee)

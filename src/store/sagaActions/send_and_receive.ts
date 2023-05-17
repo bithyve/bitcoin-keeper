@@ -122,7 +122,7 @@ export interface SendPhaseOneAction extends Action {
       address: string;
       amount: number;
     }[];
-    UTXOs?: UTXO[];
+    selectedUTXOs?: UTXO[];
   };
 }
 
@@ -132,7 +132,7 @@ export const sendPhaseOne = (payload: {
     address: string;
     amount: number;
   }[];
-  UTXOs?: UTXO[];
+  selectedUTXOs?: UTXO[];
 }): SendPhaseOneAction => ({
   type: SEND_PHASE_ONE,
   payload,

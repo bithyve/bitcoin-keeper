@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, KeyboardAvoidingView, Pressable } from 'native-base';
-import { Platform, ScrollView, } from 'react-native';
+import { Platform, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -162,7 +162,7 @@ function AddSendAmount({ route }) {
       sendPhaseOne({
         wallet: sender,
         recipients,
-        UTXOs: selectedUTXOs,
+        selectedUTXOs,
       })
     );
   };
@@ -192,7 +192,9 @@ function AddSendAmount({ route }) {
       >
         <HeaderTitle
           title={
-            transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the Amount`
+            transferType === TransferType.WALLET_TO_WALLET
+              ? `Sending to Wallet`
+              : `Enter the Amount`
           }
         />
         <Box
@@ -356,7 +358,6 @@ function AddSendAmount({ route }) {
                 />
               </Box>
             </Box>
-
           </Box>
         </ScrollView>
         <Box style={styles.infoNoteWrapper}>
@@ -366,7 +367,7 @@ function AddSendAmount({ route }) {
           </Text>
         </Box>
       </KeyboardAvoidingView>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 
