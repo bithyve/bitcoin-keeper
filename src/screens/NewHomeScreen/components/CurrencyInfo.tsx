@@ -5,18 +5,26 @@ import Hidden from 'src/assets/images/hidden.svg';
 import { Box, HStack } from 'native-base';
 import useBalance from 'src/hooks/useBalance';
 import Text from 'src/components/KeeperText';
+import Colors from 'src/theme/Colors';
 
 interface ICurrencyInfo {
   hideAmounts: boolean;
   amount: number;
   fontSize: number;
-  color: string
+  color: string;
+  variation: 'light' | 'green' | 'dark' | 'grey';
 }
-function CurrencyInfo({ hideAmounts, amount, fontSize, color = "light.black" }: ICurrencyInfo) {
+function CurrencyInfo({
+  hideAmounts,
+  amount,
+  fontSize,
+  color = Colors.Black,
+  variation = 'grey',
+}: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   return (
     <HStack style={styles.vaultBalanceContainer}>
-      {getCurrencyIcon(BTC, 'grey')}
+      {getCurrencyIcon(BTC, variation)}
       {!hideAmounts ? (
         <Box style={styles.rowCenter}>
           <Text color={color} style={{ fontSize }}>
@@ -25,7 +33,7 @@ function CurrencyInfo({ hideAmounts, amount, fontSize, color = "light.black" }: 
         </Box>
       ) : (
         <Box style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}>
-          <Hidden />
+          <Hidden style={{ color }} />
         </Box>
       )}
     </HStack>

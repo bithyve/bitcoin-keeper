@@ -23,6 +23,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useToastMessage from 'src/hooks/useToastMessage';
 import idx from 'idx';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
@@ -182,7 +183,8 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           hideAmounts={hideAmounts}
           amount={balances?.confirmed + balances?.unconfirmed}
           fontSize={20}
-          color="light.white"
+          color={Colors.White}
+          variation="dark"
         />
       </Box>
     </Box>
@@ -237,7 +239,8 @@ const WalletsScreen = ({ navigation }) => {
               hideAmounts={hideAmounts}
               amount={netBalance}
               fontSize={20}
-              color="light.black"
+              color={Colors.White}
+              variation="dark"
             />
           </Box>
         </Box>

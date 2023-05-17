@@ -75,7 +75,8 @@ function VaultScreen() {
                   hideAmounts={hideAmounts}
                   amount={confirmedBalance + unconfirmedBalance}
                   fontSize={14}
-                  color='light.white'
+                  color="light.white"
+                  variation="grey"
                 />
               </Box>
             </Box>
@@ -87,7 +88,8 @@ function VaultScreen() {
                 hideAmounts={hideAmounts}
                 amount={confirmedBalance + unconfirmedBalance}
                 fontSize={20}
-                color='light.white'
+                color="light.white"
+                variation="grey"
               />
             </Box>
           </TouchableOpacity>
@@ -113,17 +115,15 @@ function VaultScreen() {
         />
       </ScrollView>
 
-      {
-        activeVault && (
-          <RampModal
-            showBuyRampModal={showBuyRampModal}
-            setShowBuyRampModal={setShowBuyRampModal}
-            receivingAddress={activeVault.specs.receivingAddress}
-            balance={activeVault.specs.balances.confirmed}
-            name="Vault"
-          />
-        )
-      }
+      {activeVault && (
+        <RampModal
+          showBuyRampModal={showBuyRampModal}
+          setShowBuyRampModal={setShowBuyRampModal}
+          receivingAddress={activeVault.specs.receivingAddress}
+          balance={activeVault.specs.balances.confirmed}
+          name="Vault"
+        />
+      )}
     </HomeScreenWrapper>
   );
 }
