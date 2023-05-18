@@ -25,7 +25,7 @@ import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
 import Relay from 'src/core/services/operations/Relay';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -311,25 +311,78 @@ function LoginScreen({ navigation, route }) {
       const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
       const response = await Relay.updateSubscription(app.id, app.publicId, { productId: SubscriptionTier.L1.toLowerCase(), })
       if (response.updated) {
-        const updatedSubscription: SubScription = {
-          receipt: '',
-          productId: SubscriptionTier.L1,
-          name: SubscriptionTier.L1,
-          level: 0,
-          icon: 'assets/ic_pleb.svg',
-        };
-        dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
-          subscription: updatedSubscription,
-        });
-        navigation.replace('App');
+        resetToPleb()
       } else {
         showToast('Failed to downgrade', null, 3000, true);
       }
-
     } catch (error) {
       //
     }
   }
+
+  function resetToPleb() {
+    const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
+    const updatedSubscription: SubScription = {
+      receipt: '',
+      productId: SubscriptionTier.L1,
+      name: SubscriptionTier.L1,
+      level: AppSubscriptionLevel.L1,
+      icon: 'assets/ic_pleb.svg',
+    };
+    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+      subscription: updatedSubscription,
+    });
+    navigation.replace('App');
+  }
+
+  // eslint-disable-next-line react/no-unstable-nested-components
+  function NoInternetModalContent() {
+    return (
+      <Box justifyContent="space-between" alignItems="center" flexDirection="row">
+        <TouchableOpacity
+          style={[
+            styles.cancelBtn,
+          ]}
+          onPress={() => {
+            setLoginError(false);
+            setLogging(false);
+            dispatch(setRecepitVerificationError(false));
+            resetToPleb()
+          }}
+          activeOpacity={0.5}
+        >
+          <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+            Continue as Pleb
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
+            setLoginError(false);
+            setLogging(true);
+            dispatch(setRecepitVerificationError(false));
+          }}
+        >
+          <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+            <Box
+              style={[styles.createBtn]}
+              backgroundColor={{
+                linearGradient: {
+                  colors: ['light.gradientStart', 'light.gradientEnd'],
+                  start: [0, 0],
+                  end: [1, 1],
+                },
+              }}
+            >
+              <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                Retry
+              </Text>
+            </Box>
+          </Shadow>
+        </TouchableOpacity>
+      </Box>)
+  }
+
 
   // eslint-disable-next-line react/no-unstable-nested-components
   function DowngradeModalContent() {
@@ -535,21 +588,16 @@ function LoginScreen({ navigation, route }) {
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
-        Content={Box}
-        buttonText="Retry"
-        buttonCallback={() => {
-          setLoginError(false);
-          setLogging(true);
-          dispatch(setRecepitVerificationError(false));
-        }}
+        Content={NoInternetModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
         showCloseIcon={false}
+        showButtons
       />
 
       <KeeperModal
         dismissible
-        close={() => { }}
+        close={() => { setShowDowngradeModal(false) }}
         visible={showDowngradeModal}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to pleb and continue?"
