@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Switch } from 'native-base';
+import { Box } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -20,19 +20,17 @@ import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
-import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { securityTips, getSecurityTip } from 'src/common/data/defaultData/defaultData';
+import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
-import Buttons from 'src/components/Buttons';
 import Relay from 'src/core/services/operations/Relay';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { Shadow } from 'react-native-shadow-2';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
@@ -333,21 +331,48 @@ function LoginScreen({ navigation, route }) {
     }
   }
 
+  // eslint-disable-next-line react/no-unstable-nested-components
   function DowngradeModalContent() {
     return (
-      <Box>
-        <Buttons
-          secondaryText="View Subscription"
-          secondaryCallback={() => {
+      <Box alignItems="center" flexDirection="row">
+        <TouchableOpacity
+          style={[
+            styles.cancelBtn,
+          ]}
+          onPress={() => {
             setShowDowngradeModal(false)
             navigation.replace('App', { screen: 'ChoosePlan' });
           }}
-          primaryText="Continue as Pleb"
-          primaryCallback={() => {
+          activeOpacity={0.5}
+        >
+          <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+            View Subscription
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
             setShowDowngradeModal(false);
             downgradeToPleb()
           }}
-        />
+        >
+          <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+            <Box
+              style={[styles.createBtn]}
+              backgroundColor={{
+                linearGradient: {
+                  colors: ['light.gradientStart', 'light.gradientEnd'],
+                  start: [0, 0],
+                  end: [1, 1],
+                },
+              }}
+            >
+              <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                Continue as Pleb
+              </Text>
+            </Box>
+          </Shadow>
+        </TouchableOpacity>
       </Box>
     );
   }
@@ -602,6 +627,19 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginRight: 15,
     width: '35%',
+  },
+  createBtn: {
+    paddingVertical: hp(15),
+    borderRadius: 10,
+    paddingHorizontal: 20
+  },
+  cancelBtn: {
+    marginRight: wp(20),
+    borderRadius: 10,
+  },
+  btnText: {
+    fontSize: 14,
+    letterSpacing: 0.84,
   },
 });
 
