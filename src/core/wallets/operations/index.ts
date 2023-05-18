@@ -224,6 +224,20 @@ export default class WalletOperations {
 
       const tx = txs[txid];
 
+      // update the last used address/change-address index
+      const address = txidToAddress[tx.txid];
+      if (externalAddresses[address] !== undefined) {
+        if (externalAddresses[address] > lastUsedAddressIndex) {
+          lastUsedAddressIndex = externalAddresses[address];
+          hasNewUpdates = true;
+        }
+      } else if (internalAddresses[address] !== undefined) {
+        if (internalAddresses[address] > lastUsedChangeAddressIndex) {
+          lastUsedChangeAddressIndex = internalAddresses[address];
+          hasNewUpdates = true;
+        }
+      }
+
       if (existingTx) {
         // transaction already exists in the database, should update till transaction has 3+ confs
         if (!tx.confirmations) continue; // unconfirmed transaction
@@ -244,17 +258,6 @@ export default class WalletOperations {
         );
         hasNewUpdates = true;
         newTransactions.push(transaction);
-
-        // update the last used address/change-address index
-        const address = txidToAddress[tx.txid];
-        if (externalAddresses[address] !== undefined) {
-          lastUsedAddressIndex = Math.max(externalAddresses[address], lastUsedAddressIndex);
-        } else if (internalAddresses[address] !== undefined) {
-          lastUsedChangeAddressIndex = Math.max(
-            internalAddresses[address],
-            lastUsedChangeAddressIndex
-          );
-        }
       }
     }
 
@@ -632,12 +635,14 @@ export default class WalletOperations {
     derivationPurpose: DerivationPurpose = DerivationPurpose.BIP84,
     scriptType: BIP48ScriptTypes = BIP48ScriptTypes.NATIVE_SEGWIT
   ) => {
+    console.log(JSON.stringify(wallet, null, 4));
     const { isMultiSig } = wallet as Vault;
     if (!isMultiSig) {
       const { publicKey, subPath } = WalletUtilities.addressToKey(input.address, wallet, true) as {
         publicKey: Buffer;
         subPath: number[];
       };
+      console.log({ publicKey, subPath });
       const p2wpkh = bitcoinJS.payments.p2wpkh({
         pubkey: publicKey,
         network,
@@ -662,7 +667,7 @@ export default class WalletOperations {
           (wallet as Wallet).derivationDetails.mnemonic
         );
       }
-
+      console.log({ masterFingerprint });
       const bip32Derivation = [
         {
           masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
@@ -790,15 +795,17 @@ export default class WalletOperations {
         inputs = txPrerequisites[txnPriority].inputs;
         outputs = txPrerequisites[txnPriority].outputs;
       }
+      console.log({ inputs, outputs });
 
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
       const PSBT: bitcoinJS.Psbt = new bitcoinJS.Psbt({
         network,
       });
+      console.log({ PSBT });
 
       for (const input of inputs)
         this.addInputToPSBT(PSBT, wallet, input, network, derivationPurpose, scriptType);
-
+      console.log({ inputs: 'added' });
       const {
         outputs: outputsWithChange,
         changeAddress,
@@ -809,6 +816,7 @@ export default class WalletOperations {
         wallet.specs.nextFreeChangeAddressIndex,
         network
       );
+      console.log({ outputs, changeAddress });
 
       const change = changeAddress || changeMultisig?.address;
       outputsWithChange.sort((out1, out2) => {
@@ -1153,6 +1161,7 @@ export default class WalletOperations {
       txnPriority,
       customTxPrerequisites
     );
+    console.log({ PSBT });
 
     if (wallet.entityKind === EntityKind.VAULT) {
       const { signers } = wallet as Vault;
@@ -1176,6 +1185,7 @@ export default class WalletOperations {
       return { serializedPSBTEnvelops };
     }
     const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
+    console.log({ signedPSBT });
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
