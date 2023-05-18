@@ -314,101 +314,101 @@ function ChoosePlan(props) {
 
   return (
     <ScreenWrapper barStyle="dark-content">
-      <Box position="relative" flex={1}>
-        <Box justifyContent='space-between' flexDirection="row">
-          <HeaderTitle
-            title={choosePlan.choosePlantitle}
-            subtitle={
-              subscription.name === 'Diamond Hands'
-                ? `You are currently a ${subscription.name}`
-                : `You are currently a ${subscription.name}`
-            }
-            headerTitleColor="light.primaryText"
-          />
-          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
-        </Box>
-
-        <KeeperModal
-          visible={requesting}
-          close={() => { }}
-          title={choosePlan.confirming}
-          subTitle={choosePlan.pleaseStay}
-          subTitleColor="light.secondaryText"
-          showCloseIcon={false}
-          buttonText={null}
-          buttonCallback={() => { }}
-          Content={LoginModalContent}
-          subTitleWidth={wp(210)}
+      <Box justifyContent='space-between' flexDirection="row">
+        <HeaderTitle
+          title={choosePlan.choosePlantitle}
+          subtitle={
+            subscription.name === 'Diamond Hands'
+              ? `You are currently a ${subscription.name}`
+              : `You are currently a ${subscription.name}`
+          }
+          headerTitleColor="light.primaryText"
         />
+        <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
+      </Box>
 
-        <TierUpgradeModal
-          visible={showUpgradeModal}
-          close={() => setShowUpgradeModal(false)}
-          onPress={onPressModalBtn}
-          isUpgrade={isUpgrade}
-          plan={subscription.name}
-        />
-        {loading ? (
-          <ActivityIndicator style={{ height: '70%' }} size="large" />
-        ) : (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={{ height: '80%', marginVertical: 0 }}
-          >
-            <ChoosePlanCarousel
-              data={items}
-              onPress={(item, level) => processSubscription(item, level)}
-              onChange={(item) => setCurrentPosition(item)}
-              isMonthly={isMonthly}
-            />
+      <KeeperModal
+        visible={requesting}
+        close={() => { }}
+        title={choosePlan.confirming}
+        subTitle={choosePlan.pleaseStay}
+        subTitleColor="light.secondaryText"
+        showCloseIcon={false}
+        buttonText={null}
+        buttonCallback={() => { }}
+        Content={LoginModalContent}
+        subTitleWidth={wp(210)}
+      />
 
-            <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />
-
-            <Box ml={5}>
-              <Box>
-                <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
-                  {getBenifitsTitle(items[currentPosition].name)}:
-                </Text>
-              </Box>
-              <Box mt={3}>
-                {items[currentPosition].benifits.map((i) => (
-                  <Box flexDirection="row" alignItems="center" key={i}>
-                    <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
-                      {`• ${i}`}
-                    </Text>
-                  </Box>
-                ))}
-              </Box>
-            </Box>
-          </ScrollView>
-        )}
-
-        <Box
-          position="absolute"
-          width={wp(340)}
-          bottom={2}
-          alignItems="center"
-          flexDirection="row"
-          justifyContent="space-between"
+      <TierUpgradeModal
+        visible={showUpgradeModal}
+        close={() => setShowUpgradeModal(false)}
+        onPress={onPressModalBtn}
+        isUpgrade={isUpgrade}
+        plan={subscription.name}
+      />
+      {loading ? (
+        <ActivityIndicator style={{ height: '70%' }} size="large" />
+      ) : (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={{ height: '70%', marginVertical: 0 }}
         >
-          <Note title="Note" subtitle={formatString(choosePlan.noteSubTitle, Platform.select({ ios: 'App Store', android: 'PlayStore' }))} subtitleColor="GreyText" />
+          <ChoosePlanCarousel
+            data={items}
+            onPress={(item, level) => processSubscription(item, level)}
+            onChange={(item) => setCurrentPosition(item)}
+            isMonthly={isMonthly}
+          />
 
-          <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases}>
-            <Box
-              borderColor="light.learnMoreBorder"
-              backgroundColor="light.lightAccent"
-              p={1}
-              m={1}
-              borderRadius={5}
-              borderWidth={0.7}
-            >
-              <Text fontSize={12} color="light.learnMoreBorder">
-                Restore Purchases
+          <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />
+
+          <Box ml={5}>
+            <Box>
+              <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
+                {getBenifitsTitle(items[currentPosition].name)}:
               </Text>
             </Box>
-          </TouchableOpacity>
-        </Box>
-      </Box >
+            <Box mt={1}>
+              {items[currentPosition].benifits.map((i) => (
+                <Box flexDirection="row" alignItems="center" key={i}>
+                  <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
+                    {`• ${i}`}
+                  </Text>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </ScrollView>
+      )}
+
+      <Box
+        bottom={1}
+        margin={1}
+        alignItems="center"
+        flexDirection="row"
+        justifyContent="space-between"
+      >
+        <Note
+          title="Note"
+          subtitle={formatString(choosePlan.noteSubTitle, Platform.select({ ios: 'App Store', android: 'PlayStore' }))}
+          subtitleColor="GreyText" />
+
+        <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases}>
+          <Box
+            borderColor="light.learnMoreBorder"
+            backgroundColor="light.lightAccent"
+            p={1}
+            m={1}
+            borderRadius={5}
+            borderWidth={0.7}
+          >
+            <Text fontSize={12} color="light.learnMoreBorder">
+              Restore Purchases
+            </Text>
+          </Box>
+        </TouchableOpacity>
+      </Box>
     </ScreenWrapper >
   );
 }
