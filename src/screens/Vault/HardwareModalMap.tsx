@@ -720,7 +720,7 @@ function HardwareModalMap({
 }
 const styles = StyleSheet.create({
   passwordContainer: {
-    width: wp(300),
+    width: wp(280),
     marginLeft: wp(5)
   },
   bulletContainer: {
@@ -738,7 +738,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     padding: 3,
     fontSize: 13,
-    width: wp(300),
+    width: wp(285),
   },
 });
 export default HardwareModalMap;

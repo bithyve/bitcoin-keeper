@@ -8,6 +8,7 @@ import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import Colors from 'src/theme/Colors';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -75,7 +76,8 @@ function VaultScreen() {
                   hideAmounts={hideAmounts}
                   amount={confirmedBalance + unconfirmedBalance}
                   fontSize={14}
-                  color='light.white'
+                  color={Colors.White}
+                  variation="grey"
                 />
               </Box>
             </Box>
@@ -87,7 +89,8 @@ function VaultScreen() {
                 hideAmounts={hideAmounts}
                 amount={confirmedBalance + unconfirmedBalance}
                 fontSize={20}
-                color='light.white'
+                color={Colors.White}
+                variation="grey"
               />
             </Box>
           </TouchableOpacity>
@@ -113,17 +116,15 @@ function VaultScreen() {
         />
       </ScrollView>
 
-      {
-        activeVault && (
-          <RampModal
-            showBuyRampModal={showBuyRampModal}
-            setShowBuyRampModal={setShowBuyRampModal}
-            receivingAddress={activeVault.specs.receivingAddress}
-            balance={activeVault.specs.balances.confirmed}
-            name="Vault"
-          />
-        )
-      }
+      {activeVault && (
+        <RampModal
+          showBuyRampModal={showBuyRampModal}
+          setShowBuyRampModal={setShowBuyRampModal}
+          receivingAddress={activeVault.specs.receivingAddress}
+          balance={activeVault.specs.balances.confirmed}
+          name="Vault"
+        />
+      )}
     </HomeScreenWrapper>
   );
 }

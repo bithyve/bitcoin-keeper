@@ -104,13 +104,12 @@ export const isTestnet = () => {
   }
   return false;
 };
-export function CurrencyIcon({ color, symbol, style = {} }) {
+export function CurrencyIcon({ symbol, styles = {} }) {
   return (
     <Text
       style={{
-        ...style,
+        ...styles,
         fontSize: 14,
-        color,
         letterSpacing: 0.5,
         fontWeight: '900',
         lineHeight: 18,
@@ -128,47 +127,56 @@ export const getCurrencyImageByRegion = (
   currentCurrency: CurrencyKind,
   BTCIcon: any
 ) => {
-
-  if (currentCurrency !== CurrencyKind.BITCOIN) {
-    const currency = FiatCurrencies.find(c => c.code === currencyCode);
-    if (currency) {
-      if (type === 'light') {
-        return <CurrencyIcon color={Colors.White} symbol={currency.symbol} />;
-      }
-      if (type === 'green') {
-        return <CurrencyIcon color={Colors.GenericViridian} symbol={currency.symbol} />;
-      }
-      if (type === 'grey') {
-        return <CurrencyIcon color={Colors.PearlGrey} symbol={currency.symbol} style={{ opacity: 0.7 }} />;
-      }
-      if (type === 'dark') {
-        return <CurrencyIcon color={Colors.RichGreen} symbol={currency.symbol} />;
-      }
-    }
-    return null
+  const styles = {} as any;
+  switch (type) {
+    case 'light':
+      styles.color = Colors.White;
+      break;
+    case 'green':
+      styles.color = Colors.GenericViridian;
+      break;
+    case 'dark':
+      styles.color = Colors.RichGreen;
+      break;
+    case 'grey':
+      styles.color = Colors.PearlGrey;
+      styles.opacity = 0.7;
+      break;
+    default:
+      styles.color = Colors.White;
   }
-  return <BTCIcon />;
-
+  if (currentCurrency !== CurrencyKind.BITCOIN) {
+    const currency = FiatCurrencies.find((c) => c.code === currencyCode);
+    if (currency) {
+      return <CurrencyIcon styles={styles} symbol={currency.symbol} />;
+    }
+    return null;
+  }
+  return <BTCIcon style={{ color: styles.color }} />;
 };
 
-export const getFiatIcon = (
-  currencyCode: string,
-  type: 'light' | 'green' | 'dark' | 'grey',
-) => {
-  const currency = FiatCurrencies.find(c => c.code === currencyCode);
-  if (currency) {
-    if (type === 'light') {
-      return <CurrencyIcon color={Colors.White} symbol={currency.symbol} />;
-    }
-    if (type === 'green') {
-      return <CurrencyIcon color={Colors.GenericViridian} symbol={currency.symbol} />;
-    }
-    if (type === 'grey') {
-      return <CurrencyIcon color={Colors.PearlGrey} symbol={currency.symbol} style={{ opacity: 0.7 }} />;
-    }
-    if (type === 'dark') {
-      return <CurrencyIcon color={Colors.RichGreen} symbol={currency.symbol} />;
-    }
+export const getFiatIcon = (currencyCode: string, type: 'light' | 'green' | 'dark' | 'grey') => {
+  const currency = FiatCurrencies.find((c) => c.code === currencyCode);
+  const styles = {} as any;
+  switch (type) {
+    case 'light':
+      styles.color = Colors.White;
+      break;
+    case 'green':
+      styles.color = Colors.GenericViridian;
+      break;
+    case 'dark':
+      styles.color = Colors.RichGreen;
+      break;
+    case 'grey':
+      styles.color = Colors.PearlGrey;
+      styles.opacity = 0.7;
+      break;
+    default:
+      styles.color = Colors.White;
   }
-  return null
+  if (currency) {
+    return <CurrencyIcon styles={styles} symbol={currency.symbol} />;
+  }
+  return null;
 };

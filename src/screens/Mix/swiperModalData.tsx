@@ -1,6 +1,6 @@
 export const swiperData = [
   {
-    id: '1',
+    id: 1,
     firstContentHeading: {
       contentTitle: 'Pool',
       contentSubTitle: 'The denonination of the pool you have selected for this mix.',
@@ -21,7 +21,7 @@ export const swiperData = [
     },
   },
   {
-    id: '2',
+    id: 2,
     firstContentHeading: {
       contentTitle: 'Entropy',
       contentSubTitle:
