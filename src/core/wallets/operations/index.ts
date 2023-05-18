@@ -224,6 +224,20 @@ export default class WalletOperations {
 
       const tx = txs[txid];
 
+      // update the last used address/change-address index
+      const address = txidToAddress[tx.txid];
+      if (externalAddresses[address] !== undefined) {
+        if (externalAddresses[address] > lastUsedAddressIndex) {
+          lastUsedAddressIndex = externalAddresses[address];
+          hasNewUpdates = true;
+        }
+      } else if (internalAddresses[address] !== undefined) {
+        if (internalAddresses[address] > lastUsedChangeAddressIndex) {
+          lastUsedChangeAddressIndex = internalAddresses[address];
+          hasNewUpdates = true;
+        }
+      }
+
       if (existingTx) {
         // transaction already exists in the database, should update till transaction has 3+ confs
         if (!tx.confirmations) continue; // unconfirmed transaction
@@ -244,17 +258,6 @@ export default class WalletOperations {
         );
         hasNewUpdates = true;
         newTransactions.push(transaction);
-
-        // update the last used address/change-address index
-        const address = txidToAddress[tx.txid];
-        if (externalAddresses[address] !== undefined) {
-          lastUsedAddressIndex = Math.max(externalAddresses[address], lastUsedAddressIndex);
-        } else if (internalAddresses[address] !== undefined) {
-          lastUsedChangeAddressIndex = Math.max(
-            internalAddresses[address],
-            lastUsedChangeAddressIndex
-          );
-        }
       }
     }
 
@@ -638,6 +641,7 @@ export default class WalletOperations {
         publicKey: Buffer;
         subPath: number[];
       };
+
       const p2wpkh = bitcoinJS.payments.p2wpkh({
         pubkey: publicKey,
         network,
@@ -1176,6 +1180,7 @@ export default class WalletOperations {
       return { serializedPSBTEnvelops };
     }
     const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
+
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
     const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
