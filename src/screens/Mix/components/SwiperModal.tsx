@@ -1,9 +1,10 @@
-import { Box } from 'native-base';
-import React, { useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { Box, Pressable } from 'native-base';
+import React, { useEffect, useRef, useState } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 // hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
+import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
@@ -48,8 +49,14 @@ const renderItem = ({ item }) => (
     />
   </Box>
 );
-
-function List() {
+const linearGradientBtn = {
+  colors: ['#FFFFFF', '#80A8A1'],
+  start: [0, 0],
+  end: [1, 1],
+};
+function List(props) {
+  const listRef = useRef(null);
+  const dispatch = useAppDispatch();
   const [currentPosition, setCurrentPosition] = useState(0);
 
   const onViewRef = React.useRef((viewableItems) => {
@@ -57,9 +64,15 @@ function List() {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
 
+  const pressNext = () => {
+    // props.setCloseBtnVisible(true)
+    listRef.current.scrollToEnd({ animated: true });
+  };
+
   return (
     <Box>
       <FlatList
+        ref={listRef}
         data={swiperData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
@@ -70,13 +83,23 @@ function List() {
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewConfigRef.current}
       />
-      <Box style={styles.paginationDots}>
-        {currentPosition === 0 && (
-          <>
-            <Box style={styles.selectedDot} />
-            <Box style={styles.unSelectedDot} />
-          </>
-        )}
+      <Box style={styles.ctaWrapper}>
+        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+          <Pressable onPress={() => { openLink('https://www.bitcoinkeeper.app/') }}>
+            <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+              See FAQs
+            </Text>
+          </Pressable>
+        </Box>
+        <Box>
+          <TouchableOpacity onPress={() => currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))}>
+            <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+              <Text style={styles.ctaText} color='light.greenText02' bold>
+                {currentPosition === 0 ? 'Next' : 'Proceed'}
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        </Box>
       </Box>
     </Box>
   );
@@ -85,7 +108,7 @@ function List() {
 function SwiperModal() {
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
-
+  // const [closeBtnVisible, setCloseBtnVisible] = useState(false)
   return (
     <KeeperModal
       visible={whirlpoolSwiperModal}
@@ -95,33 +118,15 @@ function SwiperModal() {
       title="Some Definitions:"
       modalBackground={['light.gradientStart', 'light.gradientEnd']}
       textColor="light.white"
+      // Content={() => <List setCloseBtnVisible={(res) => setCloseBtnVisible(res)} />}
       Content={() => <List />}
       DarkCloseIcon
-      learnMore
+    // showCloseIcon={closeBtnVisible}
     />
   );
 }
 
 const styles = StyleSheet.create({
-  paginationDots: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    height: 6,
-  },
-  selectedDot: {
-    width: 25,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: '#E3BE96',
-    marginEnd: 5,
-  },
-  unSelectedDot: {
-    width: 6,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: '#89AEA7',
-    marginEnd: 5,
-  },
   contentContaner: {
     width: wp(286),
   },
@@ -145,6 +150,34 @@ const styles = StyleSheet.create({
     color: Colors.White,
     marginBottom: hp(15),
     maxWidth: wp(270),
+  },
+  seeFAQs: {
+    fontSize: 13,
+  },
+  learnMoreContainer: {
+    borderRadius: hp(40),
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00433A',
+    height: hp(34),
+    width: wp(110),
+  },
+  ctaWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cta: {
+    borderRadius: 10,
+    width: wp(110),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ctaText: {
+    fontSize: 13,
+    letterSpacing: 1,
   },
 });
 
