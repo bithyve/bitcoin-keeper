@@ -30,6 +30,7 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
+import idx from 'idx';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -84,53 +85,46 @@ function AddSendAmount({ route }) {
   }
 
   useEffect(() => {
-    const confirmBalance = sender.specs.balances.confirmed;
-    const sendMaxBalance = confirmBalance - sendMaxFee;
-
+    // sets amount to send(based on currency selection)
     if (currentCurrency === CurrencyKind.BITCOIN) {
-      if (satsEnabled) {
-        setAmountToSend(amount);
-      } else {
-        setAmountToSend(BtcToSats(parseFloat(amount)).toString());
-      }
-    } else {
-      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
-    }
-
-    if (Number(amountToSend) > sendMaxBalance) {
-      setErrorMessage('Amount entered is more than available to spend');
-    } else {
-      setErrorMessage('');
-    }
-
-    if (selectedUTXOs && selectedUTXOs.length) {
-      if (
-        Number(utxoTotal) > Number(amount) &&
-        Number(utxoTotal) < Number(amount) + Number(SatsToBtc(minimumAvgFeeRequired))
-      ) {
-        setErrorMessage('Please select enough UTXOs to accommodate fee');
-      }
-      if (Number(utxoTotal) < Number(amount)) {
-        setErrorMessage('Please select enough UTXOs to send');
-      }
-    }
-  }, [amount, amountToSend]);
+      if (satsEnabled) setAmountToSend(amount);
+      else setAmountToSend(BtcToSats(parseFloat(amount)).toString());
+    } else setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+  }, [currentCurrency, satsEnabled, amount]);
 
   useEffect(() => {
-    const confirmBalance = sender.specs.balances.confirmed;
-    if (sendMaxFee && confirmBalance) {
-      const sendMaxBalance = confirmBalance - sendMaxFee;
+    // error handler
+    let availableToSpend = idx(sender, (_) => _.specs.balances.confirmed);
+    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
+    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
+
+    if (haveSelectedUTXOs) {
+      if (availableToSpend < Number(amountToSend))
+        setErrorMessage('Please select enough UTXOs to send');
+      else if (availableToSpend < Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired)))
+        setErrorMessage('Please select enough UTXOs to accommodate fee');
+      else setErrorMessage('');
+    } else if (availableToSpend < Number(amountToSend))
+      setErrorMessage('Amount entered is more than available to spend');
+    else setErrorMessage('');
+  }, [amountToSend, selectedUTXOs]);
+
+  useEffect(() => {
+    // send max handler
+    if (!sendMaxFee) return;
+
+    let availableToSpend = idx(sender, (_) => _.specs.balances.confirmed);
+    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
+    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
+
+    if (availableToSpend) {
+      const sendMaxBalance = availableToSpend - sendMaxFee;
       if (currentCurrency === CurrencyKind.BITCOIN) {
-        if (satsEnabled) {
-          setAmount(sendMaxBalance.toString());
-        } else {
-          setAmount(`${SatsToBtc(sendMaxBalance)}`);
-        }
-      } else {
-        setAmount(convertSatsToFiat(sendMaxBalance).toString());
-      }
+        if (satsEnabled) setAmount(sendMaxBalance.toString());
+        else setAmount(`${SatsToBtc(sendMaxBalance)}`);
+      } else setAmount(convertSatsToFiat(sendMaxBalance).toString());
     }
-  }, [sendMaxFee]);
+  }, [sendMaxFee, selectedUTXOs]);
 
   const navigateToNext = () => {
     navigation.dispatch(
@@ -281,7 +275,11 @@ function AddSendAmount({ route }) {
                   const confirmBalance = sender.specs.balances.confirmed;
                   if (confirmBalance)
                     dispatch(
-                      calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet: sender })
+                      calculateSendMaxFee({
+                        numberOfRecipients: recipientCount,
+                        wallet: sender,
+                        selectedUTXOs,
+                      })
                     );
                 }}
                 backgroundColor="light.accent"

@@ -478,9 +478,11 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     numberOfRecipients: number,
     feePerByte: number,
-    network: bitcoinJS.networks.Network
+    network: bitcoinJS.networks.Network,
+    selectedUTXOs?: UTXO[]
   ): { fee: number } => {
-    const inputUTXOs = wallet.specs.confirmedUTXOs;
+    const inputUTXOs =
+      selectedUTXOs && selectedUTXOs.length ? selectedUTXOs : wallet.specs.confirmedUTXOs;
     let confirmedBalance = 0;
     inputUTXOs.forEach((utxo) => {
       confirmedBalance += utxo.value;

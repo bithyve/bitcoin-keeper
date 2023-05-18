@@ -319,7 +319,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
 export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
-  const { numberOfRecipients, wallet } = payload;
+  const { numberOfRecipients, wallet, selectedUTXOs } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -331,7 +331,8 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     wallet,
     numberOfRecipients,
     feePerByte,
-    network
+    network,
+    selectedUTXOs
   );
 
   yield put(setSendMaxFee(fee));
