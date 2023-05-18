@@ -233,7 +233,6 @@ function* getAppImageWorker({ payload }) {
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
     const { appImage, vaultImage, subscription } = yield call(Relay.getAppImage, appID);
-    console.log(subscription);
     // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
     const newVersion = DeviceInfo.getVersion();
