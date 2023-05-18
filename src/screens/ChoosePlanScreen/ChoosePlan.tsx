@@ -281,7 +281,13 @@ function ChoosePlan(props) {
       if (purchases.length === 0) {
         showToast('No purchases found')
       } else {
-        processPurchase(purchases[0])
+        purchases.forEach(purchase => {
+          if (purchase.productId === subscription.productId) {
+            showToast(`Already subscribed to ${subscription.name}`)
+          } else {
+            processPurchase(purchase)
+          }
+        });
       }
     } catch (error) {
       console.log(error)
