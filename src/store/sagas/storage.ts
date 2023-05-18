@@ -6,7 +6,7 @@ import BIP85 from 'src/core/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { NetworkType, WalletType } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import crypto from 'crypto';
@@ -62,7 +62,7 @@ export function* setupKeeperAppWorker({ payload }) {
         subscription: {
           productId: SubscriptionTier.L1,
           name: SubscriptionTier.L1,
-          level: 0,
+          level: AppSubscriptionLevel.L1,
           icon: 'assets/ic_pleb.svg',
         },
         backup: {},
@@ -123,7 +123,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
       subscription: {
         productId: subscription.productId,
         name: subscription.name,
-        level: 0,
+        level: subscription.level,
         icon: 'assets/ic_pleb.svg',
       },
       version: DeviceInfo.getVersion(),

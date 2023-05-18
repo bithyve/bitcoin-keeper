@@ -4,3 +4,10 @@ export enum SubscriptionTier {
   L3 = 'Diamond Hands',
   L4 = 'Whale',
 }
+
+export enum AppSubscriptionLevel {
+  L1 = 1, // free tier (pleb)
+  L2 = 2,
+  L3 = 3,
+  L4 = 4,
+}
