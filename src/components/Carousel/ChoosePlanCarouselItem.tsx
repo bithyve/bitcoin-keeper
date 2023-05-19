@@ -74,7 +74,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
       return !item.yearlyPlanDetails?.productId.includes(subscription.productId.toLowerCase())
     }
     return false
-  }, [item, isMonthly, currentPosition])
+  }, [item, isMonthly, currentPosition, index])
 
   return (
     <Pressable onPress={() => onPress(index)}>
