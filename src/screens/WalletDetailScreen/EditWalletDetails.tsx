@@ -48,9 +48,9 @@ function EditWalletSettings({ route }) {
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
+      navigtaion.goBack();
       showToast('Wallet details updated', <TickIcon />);
       dispatch(resetRealyWalletState());
-      navigtaion.goBack();
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
@@ -74,10 +74,11 @@ function EditWalletSettings({ route }) {
             width={wp(260)}
             marginY={2}
             borderWidth="0"
-            maxLength={28}
+            maxLength={20}
+            testID='input_walletName'
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
-            {walletName && walletName.length}/28
+            {walletName && walletName.length}/20
           </KeeperText>
         </Box>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
@@ -91,6 +92,7 @@ function EditWalletSettings({ route }) {
             borderWidth="0"
             marginY={2}
             maxLength={40}
+            testID='input_walletDescription'
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
@@ -104,7 +106,7 @@ function EditWalletSettings({ route }) {
             }}
             primaryText="Save"
             primaryCallback={editWallet}
-            primaryLoading={relayWalletUpdateLoading}
+            primaryLoading={relayWalletUpdateLoading || relayWalletUpdate}
             primaryDisable={!walletName || !walletDescription}
           />
         </View>

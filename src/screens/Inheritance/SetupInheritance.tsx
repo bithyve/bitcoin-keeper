@@ -16,7 +16,7 @@ import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
 import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/vault.svg';
-import SettingUp from 'src/assets/images/settingup.svg';
+import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
 import Inheritance from 'src/assets/images/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -42,7 +42,7 @@ function SetupInheritance() {
       subTitle: 'For the estate management company',
       description:
         'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
-      Icon: SettingUp,
+      Icon: Letter,
     },
     {
       title: 'Recovery Instructions',

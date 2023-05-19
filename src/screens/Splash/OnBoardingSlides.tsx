@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -15,8 +15,9 @@ import LinearGradient from 'src/components/KeeperGradient';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Illustration_1 from 'src/assets/images/illustration_1.svg';
-import Illustration_2 from 'src/assets/images/illustration_2.svg';
+import Illustration1 from 'src/assets/images/illustration_1.svg';
+import Illustration2 from 'src/assets/images/illustration_2.svg';
+import Illustration7 from 'src/assets/images/illustration_7.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -26,33 +27,48 @@ import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideC
 const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
+  const onboardingSlideRef = useRef(null);
   const { translations } = useContext(LocalizationContext);
   const { onboarding } = translations;
   const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
+  // console.log('currentPosition', currentPosition)
   const [items] = useState([
     {
-      id: '1',
+      id: 1,
       title: (
         <>
-          <Text style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
+          <Text italic style={styles.info}>{`${onboarding.Comprehensive} `}</Text>
           {onboarding.security}
           {` ${onboarding.slide01Title}`}
         </>
       ),
       paragraph: onboarding.slide01Paragraph,
-      illustration: <Illustration_1 />,
+      illustration: <Illustration1 />,
     },
     {
-      id: '2',
+      id: 2,
       title: (
         <>
           {`${onboarding.slide02Title} `}
-          <Text style={styles.info}>{onboarding.privacy}</Text>
+          <Text italic style={styles.info}>
+            {onboarding.privacy}
+          </Text>
         </>
       ),
       paragraph: onboarding.slide02Paragraph,
-      illustration: <Illustration_2 />,
+      illustration: <Illustration2 />,
+    },
+    {
+      id: 3,
+      title: (
+        <>
+          {`${onboarding.slide07Title} `}
+          <Text italic style={styles.info}>{onboarding.whirlpool}</Text>
+        </>
+      ),
+      paragraph: onboarding.slide07Paragraph,
+      illustration: <Illustration7 />,
     },
   ]);
 
@@ -65,13 +81,13 @@ function OnBoardingSlides({ navigation }) {
   const onViewRef = React.useRef((viewableItems) => {
     setCurrentPosition(viewableItems.changed[0].index);
   });
-  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
-      <ImageBackground resizeMode="contain" style={styles.container} source={OnboardingBackImage}>
+      <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
-          <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
-            {currentPosition !== 1 && (
+          <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10} />
+          {/* {currentPosition !== 1 && (
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={styles.skipTextWrapper}
@@ -82,9 +98,10 @@ function OnBoardingSlides({ navigation }) {
                 <Skip />
               </TouchableOpacity>
             )}
-          </Box>
+          </Box> */}
           <Box flex={0.9}>
             <FlatList
+              ref={onboardingSlideRef}
               data={items}
               horizontal
               snapToInterval={width}
@@ -114,36 +131,38 @@ function OnBoardingSlides({ navigation }) {
               </TouchableOpacity>
             </Box>
             <Box flexDirection="row" height={5}>
-              {currentPosition < items.length - 1 ? (
-                items.map((item, index) => {
-                  console.log(index);
-                  return (
-                    <Box
-                      key={index}
-                      style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
-                    />
-                  );
-                })
-              ) : (
-                <Box alignSelf="center" backgroundColor="transparent">
-                  <TouchableOpacity
-                    onPress={() =>
+              {/* {currentPosition < items.length - 1 ? (
+                items.map((item, index) => (
+                  <Box
+                    key={index}
+                    style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
+                  />
+                ))
+              ) : ( */}
+              <Box alignSelf="center" backgroundColor="transparent">
+                <TouchableOpacity
+                  onPress={() => {
+                    if (currentPosition < items.length - 1) {
+                      onboardingSlideRef.current.scrollToIndex({ animated: true, index: currentPosition + 1 });
+                    } else {
                       navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
                     }
+                  }
+                  }
+                >
+                  <LinearGradient
+                    start={[0, 0]}
+                    end={[1, 1]}
+                    colors={['#FFFFFF', '#80A8A1']}
+                    style={styles.cta}
                   >
-                    <LinearGradient
-                      start={[0, 0]}
-                      end={[1, 1]}
-                      colors={['#FFFFFF', '#80A8A1']}
-                      style={styles.cta}
-                    >
-                      <Text bold color="light.greenText" style={styles.startAppText}>
-                        Start App
-                      </Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </Box>
-              )}
+                    <Text bold color="light.greenText" style={styles.startAppText}>
+                      {currentPosition < items.length - 1 ? 'Next' : 'Start App'}
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Box>
+              {/* )} */}
             </Box>
           </Box>
         </SafeAreaView>
@@ -184,7 +203,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   info: {
-    fontStyle: 'italic',
     fontWeight: '900',
   },
   bottomBtnWrapper: {

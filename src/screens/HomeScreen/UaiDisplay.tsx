@@ -10,6 +10,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { StyleSheet } from 'react-native';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import { NextIcon } from './HomeScreen';
+import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState({});
@@ -105,12 +106,7 @@ function UaiDisplay({ uaiStack }) {
   if (uaiStack.length > 0) {
     return (
       <>
-        <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container}>
-          <Text numberOfLines={2} color="light.white" style={styles.uaiTitle}>
-            {uai?.title}
-          </Text>
-          <NextIcon pressHandler={pressHandler} />
-        </Pressable>
+        <UAIView title={uai?.title} primaryCallbackText={'OK'} primaryCallback={pressHandler} />
         <KeeperModal
           visible={showModal}
           close={() => setShowModal(false)}

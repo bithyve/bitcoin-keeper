@@ -197,7 +197,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
   );
 }
 
-function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
+function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) {
   const navigation = useNavigation();
 
   const renderTransactionElement = ({ item }) => (
@@ -207,6 +207,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh }) {
         navigation.dispatch(
           CommonActions.navigate('TransactionDetails', {
             transaction: item,
+            wallet: vault,
           })
         );
       }}
@@ -587,6 +588,7 @@ function VaultDetails({ route, navigation }) {
           transactions={transactions}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
+          vault={vault}
         />
         <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
       </VStack>

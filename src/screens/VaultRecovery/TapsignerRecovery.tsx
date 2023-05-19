@@ -99,9 +99,9 @@ function TapSignerRecovery() {
       let message: string;
       console.log({ err });
       if (err.toString().includes('401')) {
-        message = 'Please check the cvc entered and try again!';
+        message = 'Please check the CVC entered and try again!';
       } else if (err.toString().includes('429')) {
-        message = 'You have exceed the cvc retry limit. Please unlock the card and try again!';
+        message = 'You have exceed the CVC retry limit. Please unlock the card and try again!';
       } else if (err.toString().includes('205')) {
         message = 'Something went wrong, please try again!';
       } else if (err.toString() === 'Error') {

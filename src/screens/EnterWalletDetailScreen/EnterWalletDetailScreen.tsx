@@ -55,15 +55,15 @@ function EnterWalletDetailScreen({ route }) {
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
 
-  // useEffect(() => {
-  //   const path = WalletUtilities.getDerivationPath(
-  //     EntityKind.WALLET,
-  //     config.NETWORK_TYPE,
-  //     0,
-  //     Number(purpose)
-  //   );
-  //   setPath(path);
-  // }, [purpose]);
+  useEffect(() => {
+    const path = WalletUtilities.getDerivationPath(
+      EntityKind.WALLET,
+      config.NETWORK_TYPE,
+      0,
+      Number(purpose)
+    );
+    setPath(path);
+  }, [purpose]);
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
@@ -128,12 +128,15 @@ function EnterWalletDetailScreen({ route }) {
           }}
           primaryText="View Subsciption"
           activeOpacity={0.5}
-          secondaryCallback={() => { dispatch(resetWalletStateFlags()) }}
+          secondaryCallback={() => {
+            dispatch(resetWalletStateFlags())
+            navigtaion.replace('ChoosePlan');
+          }}
           secondaryText={common.cancel}
           paddingHorizontal={wp(30)}
         />
       </Box>
-    )
+    );
   }
 
   const onQrScan = (qrData) => {
@@ -212,10 +215,11 @@ function EnterWalletDetailScreen({ route }) {
             autoCorrect={false}
             marginY={2}
             borderWidth="0"
-            maxLength={28}
+            maxLength={20}
+            testID={`input_${walletName.replace(/ /g, '_')}`}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
-            {walletName && walletName.length}/28
+            {walletName && walletName.length}/20
           </KeeperText>
         </Box>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
@@ -230,6 +234,7 @@ function EnterWalletDetailScreen({ route }) {
             borderWidth="0"
             marginY={2}
             maxLength={40}
+            testID={`input_${walletDescription.replace(/ /g, '_')}`}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
@@ -256,6 +261,7 @@ function EnterWalletDetailScreen({ route }) {
               borderWidth="0"
               letterSpacing={3}
               color="light.greenText"
+              testID={`input_${formatNumber(transferPolicy)}`}
             />
             <Box style={styles.sats}>
               <KeeperText type="bold">{common.sats}</KeeperText>
@@ -273,7 +279,7 @@ function EnterWalletDetailScreen({ route }) {
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
-              navigtaion.goBack()
+              navigtaion.goBack();
               /* navigtaion.dispatch(
                  CommonActions.navigate({
                    name: 'ScanQR',
@@ -297,8 +303,8 @@ function EnterWalletDetailScreen({ route }) {
         dismissible
         close={() => { }}
         visible={hasNewWalletsGenerationFailed}
-        title="Failed"
         subTitle={err}
+        title="Failed"
         Content={FailedModalContent}
         buttonText=""
         buttonCallback={() => {

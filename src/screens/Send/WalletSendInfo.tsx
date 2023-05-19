@@ -10,8 +10,16 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
+import { SatsToBtc } from 'src/common/constants/Bitcoin';
 
-function WalletDetails({ availableAmt = '', walletName = '', isEditable = false, isSats = false, currencyIcon = BTCIcon }) {
+function WalletSendInfo({
+  availableAmt = '',
+  walletName = '',
+  isEditable = false,
+  isSats = false,
+  currencyIcon = BTCIcon,
+  selectedUTXOs = [],
+}) {
   return (
     <Box style={styles.container} backgroundColor="light.primaryBackground">
       <Box flexDirection="row">
@@ -26,14 +34,25 @@ function WalletDetails({ availableAmt = '', walletName = '', isEditable = false,
           <Text color="light.sendCardHeading" numberOfLines={1} style={styles.walletNameText}>
             {walletName}
           </Text>
-          <Text fontSize={12} numberOfLines={1}>
-            Available to spend &nbsp;
-            {currencyIcon}
-            &nbsp;
-            <Text bold fontSize={14}>
-              {availableAmt} {isSats && 'sats'}
+          {selectedUTXOs.length ? (
+            <Text fontSize={12} numberOfLines={1}>
+              Sending from selected UTXOs of &nbsp;
+              {currencyIcon}
+              &nbsp;
+              <Text bold fontSize={14}>
+                {SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0))} {isSats && 'sats'}
+              </Text>
             </Text>
-          </Text>
+          ) : (
+            <Text fontSize={12} numberOfLines={1}>
+              Available to spend &nbsp;
+              {currencyIcon}
+              &nbsp;
+              <Text bold fontSize={14}>
+                {availableAmt} {isSats && 'sats'}
+              </Text>
+            </Text>
+          )}
         </Box>
       </Box>
       {isEditable && (
@@ -74,4 +93,4 @@ const styles = ScaledSheet.create({
     width: wp(100),
   },
 });
-export default WalletDetails;
+export default WalletSendInfo;

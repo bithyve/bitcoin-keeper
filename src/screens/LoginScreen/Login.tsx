@@ -289,7 +289,7 @@ function LoginScreen({ navigation, route }) {
 
   function LoginModalContent() {
     return (
-      <Box>
+      <Box style={{ width: wp(280) }}>
         <Box
           style={{
             width: '100%',
@@ -299,7 +299,7 @@ function LoginScreen({ navigation, route }) {
         >
           {modelAsset}
         </Box>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(290)}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(275)}>
           {modelMessage}
         </Text>
       </Box>
@@ -579,7 +579,7 @@ function LoginScreen({ navigation, route }) {
         buttonCallback={loginModalAction}
         showButtons
         Content={LoginModalContent}
-        subTitleWidth={wp(210)}
+        subTitleWidth={wp(250)}
       />
 
       <KeeperModal

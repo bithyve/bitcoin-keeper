@@ -24,7 +24,11 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
+import {
+  refreshWallets,
+  updateSignerDetails,
+  addNewWhirlpoolWallets,
+} from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
@@ -53,16 +57,18 @@ import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 
 export function* updateAppImageWorker({ payload }) {
-  const { wallet } = payload;
+  const { wallets } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
-  if (wallet) {
-    const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-    walletObject[wallet.id] = encrytedWallet;
+  if (wallets) {
+    for (const wallet of wallets) {
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+      walletObject[wallet.id] = encrytedWallet;
+    }
   } else {
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
@@ -82,7 +88,6 @@ export function* updateAppImageWorker({ payload }) {
       nodesToUpdate.push(encrytedNode);
     }
   }
-  console.log('nodesToUpdate', nodesToUpdate);
   try {
     const response = yield call(Relay.updateAppImage, {
       appId: id,
@@ -202,7 +207,9 @@ function* seedBackeupConfirmedWorked({
       subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
-  } catch (error) {}
+  } catch (error) {
+    //
+  }
 }
 
 function* seedBackedUpWorker() {
@@ -233,7 +240,8 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage, subscription } = yield call(Relay.getAppImage, appID);
+    const { appImage, vaultImage, subscription, UTXOinfos } = yield call(Relay.getAppImage, appID);
+
     // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
     const newVersion = DeviceInfo.getVersion();
@@ -257,7 +265,8 @@ function* getAppImageWorker({ payload }) {
           appID,
           subscription,
           appImage,
-          vaultImage
+          vaultImage,
+          UTXOinfos
         );
       } else {
         const plebSubscription = {
@@ -275,7 +284,8 @@ function* getAppImageWorker({ payload }) {
           appID,
           plebSubscription,
           appImage,
-          vaultImage
+          vaultImage,
+          UTXOinfos
         );
       }
     }
@@ -295,7 +305,8 @@ function* recoverApp(
   appID,
   subscription,
   appImage,
-  vaultImage
+  vaultImage,
+  UTXOinfos
 ) {
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
@@ -328,8 +339,11 @@ function* recoverApp(
   // Wallet recreation
   if (appImage.wallets) {
     for (const [key, value] of Object.entries(appImage.wallets)) {
-      const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+      const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
       yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+      if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+        yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+      }
       yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
     }
   }
@@ -340,6 +354,10 @@ function* recoverApp(
     yield call(dbManager.createObject, RealmSchema.Vault, vault);
   }
 
+  // UTXOinfo restore
+  if (UTXOinfos) {
+    yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
+  }
   yield put(setAppId(appID));
   // seed confirm for recovery
   yield call(dbManager.createObject, RealmSchema.BackupHistory, {

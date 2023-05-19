@@ -13,6 +13,7 @@ export const CLEAR_TRANSFER = 'CLEAR_TRANSFER';
 export const ACCUMULATIVE_BAL_AND_TX = 'ACCUMULATIVE_BAL_AND_TX';
 export const CLEAR_WALLET_SYNC_CACHE = 'CLEAR_WALLET_SYNC_CACHE';
 export const AUTO_SYNC_WALLETS = 'AUTO_SYNC_WALLETS';
+export const INCREMENT_ADDRESS_INDEX = 'INCREMENT_ADDRESS_INDEX';
 export const GENERATE_SECONDARY_XPRIV = 'GENERATE_SECONDARY_XPRIV';
 export const RESET_TWO_FA = 'RESET_TWO_FA';
 export const RUN_TEST = 'RUN_TEST';
@@ -30,6 +31,8 @@ export const TEST_SATS_RECIEVE = 'TEST_SATS_RECIEVE';
 export const UAI_VAULT_TO_WALLET = 'UAI_VAULT_TO_WALLET';
 export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
+export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
+export const ADD_WHIRLPOOL_WALLETS_LOCAL = 'ADD_WHIRLPOOL_WALLETS_LOCAL';
 export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_DETAILS';
 
 export const syncWallets = (
@@ -94,6 +97,20 @@ export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => ({
   },
 });
 
+export const incrementAddressIndex = (
+  wallet: Wallet | Vault,
+  options: {
+    external?: { incrementBy: number };
+    internal?: { incrementBy: number };
+  }
+) => ({
+  type: INCREMENT_ADDRESS_INDEX,
+  payload: {
+    wallet,
+    options,
+  },
+});
+
 export const updateSignerPolicy = (
   signer: VaultSigner,
   updates: {
@@ -153,6 +170,16 @@ export const refreshWallets = (
 
 export const addNewWallets = (payload: NewWalletInfo[]) => ({
   type: ADD_NEW_WALLETS,
+  payload,
+});
+
+export const addNewWhirlpoolWallets = (payload: { depositWallet: Wallet }) => ({
+  type: ADD_WHIRLPOOL_WALLETS,
+  payload,
+});
+
+export const addWhirlpoolWalletsLocal = (payload: { depositWallet: Wallet }) => ({
+  type: ADD_WHIRLPOOL_WALLETS_LOCAL,
   payload,
 });
 

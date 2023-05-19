@@ -371,7 +371,7 @@
     "DarkMode": "Dark Mode",
     "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
-    "VersionHistorySubTitle": "View the apps version history",
+    "VersionHistorySubTitle": "View the app's version history",
     "LanguageCountry": "Language & Currency",
     "LanguageCountrySubTitle": "Select language and currency",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
@@ -466,7 +466,10 @@
     "slide05Title": "Works just with the mobile app,\nno computer needed",
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signing devices, without any intermediate step",
     "slide06Title": "Affordable plans\nand a great offer",
-    "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your vault now."
+    "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your vault now.",
+    "slide07Title": "Ensure forward looking privacy with",
+    "whirlpool": "\nWhirlpool",
+    "slide07Paragraph": "You can remix your sats for free for enhanced privacy before storing them in your vault"
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
