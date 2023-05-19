@@ -247,7 +247,7 @@ export default function PoolSelection({ route, navigation }) {
                   tx0Preview
                 )
               }
-              secondaryText="cancel"
+              secondaryText="Cancel"
               secondaryCallback={() => navigation.goBack()}
               primaryCallback={() => onPreviewMix()}
             />

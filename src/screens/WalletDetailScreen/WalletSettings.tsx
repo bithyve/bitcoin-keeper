@@ -29,6 +29,9 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
 import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 type Props = {
   title: string;
@@ -38,12 +41,25 @@ type Props = {
 
 function Option({ title, subTitle, onPress }: Props) {
   return (
-    <Pressable style={styles.optionContainer} onPress={onPress} testID={`btn_${title.replace(/ /g, '_')}`}>
+    <Pressable
+      style={styles.optionContainer}
+      onPress={onPress}
+      testID={`btn_${title.replace(/ /g, '_')}`}
+    >
       <Box style={{ width: '96%' }}>
-        <Text color="light.primaryText" style={styles.optionTitle} testID={`text_${title.replace(/ /g, '_')}`}>
+        <Text
+          color="light.primaryText"
+          style={styles.optionTitle}
+          testID={`text_${title.replace(/ /g, '_')}`}
+        >
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2} testID={`text_${subTitle.replace(/ /g, '_')}`}>
+        <Text
+          color="light.GreyText"
+          style={styles.optionSubtitle}
+          numberOfLines={2}
+          testID={`text_${subTitle.replace(/ /g, '_')}`}
+        >
           {subTitle}
         </Text>
       </Box>
@@ -65,6 +81,7 @@ function WalletSettings({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
@@ -329,6 +346,7 @@ function WalletSettings({ route }) {
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
               copyable={false}
+              keeper={keeper}
             />
           )}
         />

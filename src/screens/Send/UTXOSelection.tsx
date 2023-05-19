@@ -2,10 +2,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
 import React, { useCallback, useState } from 'react';
 import { TouchableOpacity, StyleSheet, FlatList } from 'react-native';
-import {
-  BtcToSats,
-  SatsToBtc,
-} from 'src/common/constants/Bitcoin';
+import { BtcToSats, SatsToBtc } from 'src/common/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 
 import { hp, wp, windowWidth } from 'src/common/data/responsiveness/responsive';
@@ -106,7 +103,7 @@ function UTXOSelection({ route }: any) {
       sendPhaseOne({
         wallet: sender,
         recipients,
-        UTXOs: utxoState.filter((utxo) => utxo.selected),
+        selectedUTXOs: utxoState.filter((utxo) => utxo.selected),
       })
     );
   };
