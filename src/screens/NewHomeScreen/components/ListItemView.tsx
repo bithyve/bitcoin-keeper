@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 function ListItemView(props) {
   return (
@@ -26,11 +26,12 @@ function ListItemView(props) {
 const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 10,
-    paddingVertical: 15,
+    paddingVertical: windowHeight > 680 ? 15 : 5,
     flexDirection: 'row',
     width: '100%',
     borderRadius: 10,
     marginVertical: hp(5),
+    alignItems: 'center'
   },
   iconWrapper: {
     width: '10%',
@@ -38,13 +39,13 @@ const styles = StyleSheet.create({
   },
   iconView: {
     borderRadius: 100,
-    height: 35,
-    width: 35,
+    height: windowHeight > 680 ? 35 : 33,
+    width: windowHeight > 680 ? 35 : 33,
     alignItems: 'center',
     justifyContent: 'center',
   },
   titleWrapper: {
-    width: '90%',
+    width: '92%',
     marginLeft: 25,
   },
   titleText: {
