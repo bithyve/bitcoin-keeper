@@ -195,30 +195,6 @@ function ChoosePlan(props) {
 
   async function processSubscription(subscription: SubScriptionPlan, level: number) {
     try {
-      /* const { id }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
-      const sub: SubScription = {
-        productId: item.productId,
-        receipt: 'mock-purchase',
-        name: item.name.split(' (')[0],
-        level,
-      };
-      dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
-        subscription: sub,
-      });
-      disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
-      disptach(resetVaultMigration());
-      if (item.productId === SubscriptionTier.L1) {
-        setIsUpgrade(false);
-      } else if (
-        item.name.split(' ')[0] === SubscriptionTier.L2 &&
-        subscription.name === SubscriptionTier.L3
-      ) {
-        setIsUpgrade(false);
-      } else {
-        setIsUpgrade(true);
-      }
-      setShowUpgradeModal(true);
-      */
       if (subscription.productType === 'free') {
         setRequesting(true)
         const response = await Relay.updateSubscription(id, publicId, { productId: subscription.productIds[0] })
