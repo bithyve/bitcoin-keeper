@@ -235,6 +235,8 @@ function ChoosePlan(props) {
           dbManager.updateObjectById(RealmSchema.KeeperApp, id, {
             subscription: updatedSubscription,
           });
+          disptach(uaiChecks([uaiType.VAULT_MIGRATION]));
+          // disptach(resetVaultMigration());
           setShowUpgradeModal(true)
         } else {
           Alert.alert(
