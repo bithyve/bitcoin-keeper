@@ -23,6 +23,7 @@ import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/core/wallets/interfaces';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
@@ -245,72 +246,37 @@ function* getAppImageWorker({ payload }) {
         encryptionKey,
       });
     }
-
-    if (appImage && appImage.subscription) {
-      if (appImage.subscription.isValid) {
+    if (appImage && subscription) {
+      if (subscription.isValid) {
         yield put(setAppImageRecoverd(true));
-        const entropy = yield call(
-          BIP85.bip39MnemonicToEntropy,
-          config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
-          primaryMnemonic
-        );
-        const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-        const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
-        const app: KeeperApp = {
-          id: appID,
-          publicId,
-          primarySeed: primarySeed.toString('hex'),
+        yield call(
+          recoverApp,
           primaryMnemonic,
-          imageEncryptionKey,
+          primarySeed,
+          encryptionKey,
+          appID,
           subscription,
-          backup: {
-            method: BackupType.SEED,
-          },
-          version: DeviceInfo.getVersion(),
-          networkType: config.NETWORK_TYPE,
-        };
-
-        yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-        // Wallet recreation
-        if (appImage.wallets) {
-          for (const [key, value] of Object.entries(appImage.wallets)) {
-            const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
-            yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-            yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
-          }
-        }
-
-        // Vault recreation
-        if (vaultImage) {
-          const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
-          yield call(dbManager.createObject, RealmSchema.Vault, vault);
-        }
-
-        yield put(setAppId(appID));
-        // seed confirm for recovery
-        yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-          title: BackupAction.SEED_BACKUP_CONFIRMED,
-          date: moment().unix(),
-          confirmed: true,
-          subtitle: 'Recovered using backup phrase',
-        });
-        yield put(setSeedConfirmed(true));
-        yield put(setBackupType(BackupType.SEED));
-        // create/add restored object for version
-        yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-          version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-          releaseNote: '',
-          date: new Date().toString(),
-          title: 'Restored version',
-        });
-
-        if (appImage.nodes) {
-          for (const node of appImage.nodes) {
-            const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
-            yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
-          }
-        }
+          appImage,
+          vaultImage
+        );
       } else {
+        const plebSubscription = {
+          productId: SubscriptionTier.L1,
+          name: SubscriptionTier.L1,
+          level: AppSubscriptionLevel.L1,
+          icon: 'assets/ic_pleb.svg',
+          receipt: '',
+        };
+        yield call(
+          recoverApp,
+          primaryMnemonic,
+          primarySeed,
+          encryptionKey,
+          appID,
+          plebSubscription,
+          appImage,
+          vaultImage
+        );
       }
     }
   } catch (err) {
@@ -319,6 +285,84 @@ function* getAppImageWorker({ payload }) {
   } finally {
     yield put(setAppRecoveryLoading(false));
     yield put(appImagerecoveryRetry());
+  }
+}
+
+function* recoverApp(
+  primaryMnemonic,
+  primarySeed,
+  encryptionKey,
+  appID,
+  subscription,
+  appImage,
+  vaultImage
+) {
+  const entropy = yield call(
+    BIP85.bip39MnemonicToEntropy,
+    config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+    primaryMnemonic
+  );
+  const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+  const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
+  const app: KeeperApp = {
+    id: appID,
+    publicId,
+    primarySeed: primarySeed.toString('hex'),
+    primaryMnemonic,
+    imageEncryptionKey,
+    subscription: {
+      level: subscription.level,
+      name: subscription.name,
+      productId: subscription.productId,
+      receipt: subscription.receipt,
+      icon: subscription.icon,
+    },
+    backup: {
+      method: BackupType.SEED,
+    },
+    version: DeviceInfo.getVersion(),
+    networkType: config.NETWORK_TYPE,
+  };
+
+  yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+  // Wallet recreation
+  if (appImage.wallets) {
+    for (const [key, value] of Object.entries(appImage.wallets)) {
+      const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+      yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+      yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+    }
+  }
+
+  // Vault recreation
+  if (vaultImage) {
+    const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+    yield call(dbManager.createObject, RealmSchema.Vault, vault);
+  }
+
+  yield put(setAppId(appID));
+  // seed confirm for recovery
+  yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+    title: BackupAction.SEED_BACKUP_CONFIRMED,
+    date: moment().unix(),
+    confirmed: true,
+    subtitle: 'Recovered using backup phrase',
+  });
+  yield put(setSeedConfirmed(true));
+  yield put(setBackupType(BackupType.SEED));
+  // create/add restored object for version
+  yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+    version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+    releaseNote: '',
+    date: new Date().toString(),
+    title: 'Restored version',
+  });
+
+  if (appImage.nodes) {
+    for (const node of appImage.nodes) {
+      const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+      yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+    }
   }
 }
 

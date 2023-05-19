@@ -147,6 +147,7 @@ function ChoosePlan(props) {
         });
         setShowUpgradeModal(true)
       }
+      showToast(response.error)
       await RNIap.finishTransaction(purchase, false);
     } catch (error) {
       setRequesting(false)
