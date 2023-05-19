@@ -109,7 +109,7 @@ function NewHomeScreen({ navigation }) {
       //
     }
   }
-
+  console.log('windowHeight', windowHeight)
   const TabBarButton = useCallback(({ onPress, navigation, route }) => {
     if (route.name === 'Vault') {
       const active = navigation.isFocused('Vault');
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
     justifyContent: 'center',
     alignItems: 'center',
-    height: windowHeight > 680 ? hp(100) : hp(90),
-    paddingTop: hp(17),
+    height: hp(80),
+    paddingVertical: hp(17),
   },
 });
