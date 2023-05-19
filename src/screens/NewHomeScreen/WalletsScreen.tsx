@@ -220,7 +220,6 @@ const WalletsScreen = ({ navigation }) => {
   const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
-
   return (
     <HomeScreenWrapper>
       <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
@@ -266,6 +265,7 @@ const WalletsScreen = ({ navigation }) => {
                   accountType: WalletType.DEFAULT,
                 });
             }}
+            disabled={presentationName.length === 0}
           />
         </Box>
         <Box style={styles.listViewWrapper}>
