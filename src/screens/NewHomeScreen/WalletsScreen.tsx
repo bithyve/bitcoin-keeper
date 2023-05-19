@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   titleWrapper: {
-    marginVertical: hp(5),
+    marginVertical: windowHeight > 680 ? hp(5) : 0,
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
