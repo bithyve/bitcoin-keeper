@@ -292,8 +292,7 @@ export default function BroadcastPremix({ route, navigation }) {
               primaryText="Broadcast Tx0"
               primaryLoading={loading}
               primaryCallback={() => {
-                // setLoading(true);
-                setShowBroadcastModal(true)
+                setLoading(true);
               }}
             />
           </Box>
