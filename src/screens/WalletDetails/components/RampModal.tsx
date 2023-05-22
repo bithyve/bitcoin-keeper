@@ -46,14 +46,16 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
           </Text>
         </Box>
       </Box>
-      <Buttons
-        secondaryText="Cancel"
-        secondaryCallback={() => {
-          setShowBuyRampModal(false);
-        }}
-        primaryText="Buy Bitcoin"
-        primaryCallback={() => buyWithRamp(receivingAddress)}
-      />
+      <Box style={styles.ctcWrapper}>
+        <Buttons
+          secondaryText="Cancel"
+          secondaryCallback={() => {
+            setShowBuyRampModal(false);
+          }}
+          primaryText="Buy Bitcoin"
+          primaryCallback={() => buyWithRamp(receivingAddress)}
+        />
+      </Box>
     </Box>
   );
 }
@@ -145,4 +147,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
     color: '#041513',
   },
+  ctcWrapper: {
+    paddingRight: 5
+  }
 });
