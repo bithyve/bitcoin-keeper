@@ -25,7 +25,8 @@ function ListItemView(props) {
 }
 const styles = StyleSheet.create({
   wrapper: {
-    paddingVertical: 10,
+    backgroundColor: 'red',
+    paddingVertical: windowHeight > 680 ? 25 : 10,
     paddingHorizontal: 18,
     width: '100%',
     borderRadius: 10,
