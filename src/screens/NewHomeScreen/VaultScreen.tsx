@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Pressable, ScrollView } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
-import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
+import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
@@ -14,7 +14,6 @@ import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import BalanceToggle from './components/BalanceToggle';
-import RampModal from '../WalletDetails/components/RampModal';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -23,7 +22,6 @@ function VaultScreen() {
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
   const scheme = idx(activeVault, (_) => _.scheme) || { m: 0, n: 0 };
   const [hideAmounts, setHideAmounts] = useState(true);
-  const [showBuyRampModal, setShowBuyRampModal] = useState(false);
 
   const navigation = useNavigation();
 
@@ -39,8 +37,6 @@ function VaultScreen() {
     }
   };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-
   return (
     <HomeScreenWrapper>
       <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
@@ -53,48 +49,59 @@ function VaultScreen() {
             Beach and sunshine baby!
           </Text>
         </Box>
-        <Box style={styles.vaultDetailsWrapper} backgroundColor="light.learnMoreBorder">
-          <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
-            <Box style={styles.signingDeviceWrapper}>
-              <Box style={styles.signingDeviceDetails}>
-                <Text style={styles.signingDeviceText} color="light.white">
-                  {`${scheme.m} of ${scheme.n} Vault`}
-                </Text>
-                <Box style={styles.signingDeviceList}>
-                  {signers.map((signer: any) => (
-                    <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
-                      {SDIcons(signer.type, true).Icon}
-                    </Box>
-                  ))}
+        <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
+          <Box style={!activeVault ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper} backgroundColor="light.learnMoreBorder">
+            {!activeVault ?
+              <Box>
+                <Box style={styles.emptyVaultIllustration}>
+                  <EmptyVaultIllustration />
                 </Box>
+                <Text color='light.white'>Add Signers to activate your Vault</Text>
               </Box>
-              <Box style={styles.unConfirmBalanceView}>
-                <Text style={styles.unconfirmText} color="light.white">
-                  Unconfirmed
-                </Text>
-                <CurrencyInfo
-                  hideAmounts={hideAmounts}
-                  amount={confirmedBalance + unconfirmedBalance}
-                  fontSize={14}
-                  color={Colors.White}
-                  variation="grey"
-                />
-              </Box>
-            </Box>
-            <Box style={styles.availableBalanceWrapper}>
-              <Text style={styles.availableText} color="light.white">
-                Available Balance
-              </Text>
-              <CurrencyInfo
-                hideAmounts={hideAmounts}
-                amount={confirmedBalance + unconfirmedBalance}
-                fontSize={20}
-                color={Colors.White}
-                variation="grey"
-              />
-            </Box>
-          </TouchableOpacity>
-        </Box>
+              :
+              <>
+                <Box style={styles.signingDeviceWrapper}>
+                  <Box style={styles.signingDeviceDetails}>
+                    <Text style={styles.signingDeviceText} color="light.white">
+                      {`${scheme.m} of ${scheme.n} Vault`}
+                    </Text>
+                    <Box style={styles.signingDeviceList}>
+                      {signers.map((signer: any) => (
+                        <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
+                          {SDIcons(signer.type, true).Icon}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box style={styles.unConfirmBalanceView}>
+                    <Text style={styles.unconfirmText} color="light.white">
+                      Unconfirmed
+                    </Text>
+                    <CurrencyInfo
+                      hideAmounts={hideAmounts}
+                      amount={confirmedBalance + unconfirmedBalance}
+                      fontSize={14}
+                      color={Colors.White}
+                      variation="grey"
+                    />
+                  </Box>
+                </Box>
+                <Box style={styles.availableBalanceWrapper}>
+                  <Text style={styles.availableText} color="light.white">
+                    Available Balance
+                  </Text>
+                  <CurrencyInfo
+                    hideAmounts={hideAmounts}
+                    amount={confirmedBalance + unconfirmedBalance}
+                    fontSize={20}
+                    color={Colors.White}
+                    variation="grey"
+                  />
+                </Box>
+              </>
+            }
+          </Box>
+        </TouchableOpacity>
         <Pressable
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
@@ -107,24 +114,7 @@ function VaultScreen() {
             iconBackColor="light.learnMoreBorder"
           />
         </Pressable>
-        <ListItemView
-          icon={<BitcoinIcon />}
-          title="Buy"
-          subTitle="Stack sats directly in the vault"
-          iconBackColor="light.learnMoreBorder"
-          onPress={onPressBuyBitcoin}
-        />
       </ScrollView>
-
-      {activeVault && (
-        <RampModal
-          showBuyRampModal={showBuyRampModal}
-          setShowBuyRampModal={setShowBuyRampModal}
-          receivingAddress={activeVault.specs.receivingAddress}
-          balance={activeVault.specs.balances.confirmed}
-          name="Vault"
-        />
-      )}
     </HomeScreenWrapper>
   );
 }
@@ -146,6 +136,17 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginVertical: hp(20),
+  },
+  emptyVaultSignerWrapper: {
+    padding: 20,
+    borderRadius: 10,
+    marginVertical: hp(20),
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  emptyVaultIllustration: {
+    alignSelf: 'center',
+    marginBottom: 10
   },
   signingDeviceWrapper: {
     flexDirection: 'row',
