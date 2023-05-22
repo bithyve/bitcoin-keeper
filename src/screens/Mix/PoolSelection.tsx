@@ -22,6 +22,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
+import Note from 'src/components/Note/Note';
 import LearnMoreModal from './components/LearnMoreModal';
 import UtxoSummary from './UtxoSummary';
 
@@ -232,6 +233,9 @@ export default function PoolSelection({ route, navigation }) {
       </Box>
 
       <Box style={styles.footerContainer}>
+        <Box style={styles.noteWrapper}>
+          <Note title='Note' subtitle='Pool may take sometime to load' />
+        </Box>
         <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
             <PageIndicator currentPage={1} totalPage={2} />
@@ -355,4 +359,8 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     textAlign: 'left',
   },
+  noteWrapper: {
+    marginLeft: 25,
+    marginBottom: 10
+  }
 });
