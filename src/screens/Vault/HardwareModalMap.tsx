@@ -117,7 +117,6 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         Illustration: <MobileKeyIllustration />,
         Instructions: [
           `Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.`,
-          `This key available for signing transactions if you confirm your passcode or biometrics`,
         ],
         title: 'Set up a Mobile Key',
         subTitle:

@@ -273,14 +273,6 @@ function AppSettings({ navigation }) {
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
-          <SettingsCard
-            title="Home Screen"
-            description="subTitle"
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => navigation.navigate('NewHomeScreen')}
-          />
         </ScrollView>
 
         <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">

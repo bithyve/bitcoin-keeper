@@ -22,7 +22,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
-import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
+import BatteryIllustration from 'src/assets/images/CautionIllustration.svg';
 import useWallets from 'src/hooks/useWallets';
 import { Box, HStack, VStack } from 'native-base';
 import useWhirlpoolWallets, {
@@ -190,16 +190,16 @@ function UTXOManagement({ route, navigation }) {
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
-        ?.map((utxo) => {
-          utxo.confirmed = true;
+      ?.map((utxo) => {
+        utxo.confirmed = true;
+        return utxo;
+      })
+      .concat(
+        selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
+          utxo.confirmed = false;
           return utxo;
         })
-        .concat(
-          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-            utxo.confirmed = false;
-            return utxo;
-          })
-        )
+      )
     : [];
 
   useEffect(() => {

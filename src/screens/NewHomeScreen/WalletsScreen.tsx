@@ -5,7 +5,7 @@ import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
 import { Box, FlatList, ScrollView } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -220,79 +220,77 @@ const WalletsScreen = ({ navigation }) => {
   const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
-
   return (
     <HomeScreenWrapper>
       <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Box style={styles.titleWrapper}>
-          <Box style={styles.titleInfoView}>
-            <Text style={styles.titleText} color="light.primaryText">
-              {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
-            </Text>
-            <Text style={styles.subTitleText} color="light.secondaryText">
-              Single sig wallets for smaller stacks and transactions
-            </Text>
-          </Box>
-          <Box style={styles.netBalanceView}>
-            <CurrencyInfo
-              hideAmounts={hideAmounts}
-              amount={netBalance}
-              fontSize={20}
-              color={Colors.black}
-              variation="dark"
-            />
-          </Box>
+      <Box style={styles.titleWrapper}>
+        <Box style={styles.titleInfoView}>
+          <Text style={styles.titleText} color="light.primaryText">
+            {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
+          </Text>
+          <Text style={styles.subTitleText} color="light.secondaryText">
+            Single sig wallets for smaller stacks and transactions
+          </Text>
         </Box>
-        <WalletList
-          hideAmounts={hideAmounts}
-          flatListRef={flatListRef}
-          walletIndex={walletIndex}
-          onViewRef={onViewRef}
-          viewConfigRef={viewConfigRef}
-          wallets={wallets}
-        />
-        <Box style={styles.listItemsWrapper}>
-          <Box style={styles.whirlpoolListItemWrapper}>
+        <Box style={styles.netBalanceView}>
+          <CurrencyInfo
+            hideAmounts={hideAmounts}
+            amount={netBalance}
+            fontSize={20}
+            color={Colors.black}
+            variation="dark"
+          />
+        </Box>
+      </Box>
+      <WalletList
+        hideAmounts={hideAmounts}
+        flatListRef={flatListRef}
+        walletIndex={walletIndex}
+        onViewRef={onViewRef}
+        viewConfigRef={viewConfigRef}
+        wallets={wallets}
+      />
+      <Box style={styles.listItemsWrapper}>
+        <Box style={styles.whirlpoolListItemWrapper}>
+          <ListItemView
+            icon={<WhirlpoolWhiteIcon />}
+            title="Whirlpool & UTXOs"
+            subTitle="Manage UTXOs and Whirlpool"
+            iconBackColor="light.greenText2"
+            onPress={() => {
+              if (currentWallet)
+                navigation.navigate('UTXOManagement', {
+                  data: currentWallet,
+                  routeName: 'Wallet',
+                  accountType: WalletType.DEFAULT,
+                });
+            }}
+            disabled={presentationName.length === 0}
+          />
+        </Box>
+        <Box style={styles.listViewWrapper}>
+          <Box style={styles.tranferPolicyWrapper}>
             <ListItemView
-              icon={<WhirlpoolWhiteIcon />}
-              title="Whirlpool & UTXOs"
-              subTitle="Manage UTXOs and Whirlpool"
+              icon={<InheritanceIcon />}
+              title="Transfer Policy"
+              subTitle="From wallet to vault"
               iconBackColor="light.greenText2"
               onPress={() => {
-                if (currentWallet)
-                  navigation.navigate('UTXOManagement', {
-                    data: currentWallet,
-                    routeName: 'Wallet',
-                    accountType: WalletType.DEFAULT,
-                  });
+                if (currentWallet) setTransferPolicyVisible(true);
               }}
             />
           </Box>
-          <Box style={styles.listViewWrapper}>
-            <Box style={styles.tranferPolicyWrapper}>
-              <ListItemView
-                icon={<InheritanceIcon />}
-                title="Transfer Policy"
-                subTitle="From wallet to vault"
-                iconBackColor="light.greenText2"
-                onPress={() => {
-                  if (currentWallet) setTransferPolicyVisible(true);
-                }}
-              />
-            </Box>
-            <Box style={styles.buyWrapper}>
-              <ListItemView
-                icon={<BitcoinIcon />}
-                title="Buy"
-                subTitle="Stack sats in your wallet"
-                iconBackColor="light.greenText2"
-                onPress={onPressBuyBitcoin}
-              />
-            </Box>
+          <Box style={styles.buyWrapper}>
+            <ListItemView
+              icon={<BitcoinIcon />}
+              title="Buy"
+              subTitle="Stack sats in your wallet"
+              iconBackColor="light.greenText2"
+              onPress={onPressBuyBitcoin}
+            />
           </Box>
         </Box>
-      </ScrollView>
+      </Box>
       <KeeperModal
         visible={transferPolicyVisible}
         close={() => {
@@ -337,7 +335,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   titleWrapper: {
-    marginVertical: hp(5),
+    marginVertical: windowHeight > 680 ? hp(5) : 0,
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
@@ -365,7 +363,7 @@ const styles = StyleSheet.create({
   },
   walletsContainer: {
     marginTop: 18,
-    height: hp(210),
+    height: windowHeight > 680 ? hp(210) : hp(190),
     width: '100%',
   },
   walletContainer: {
@@ -373,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: hp(10),
     width: wp(TILE_WIDTH),
     marginHorizontal: TILE_MARGIN / 2,
-    height: hp(210),
+    height: windowHeight > 680 ? hp(210) : hp(190),
     padding: wp(15),
     alignContent: 'space-between',
   },
@@ -382,7 +380,7 @@ const styles = StyleSheet.create({
     marginTop: hp(10),
   },
   walletCard: {
-    paddingTop: hp(20),
+    paddingTop: windowHeight > 680 ? hp(20) : 0,
   },
   walletInnerView: {
     flexDirection: 'column',

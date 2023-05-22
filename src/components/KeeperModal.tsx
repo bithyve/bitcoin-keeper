@@ -35,7 +35,7 @@ type ModalProps = {
 };
 
 KeeperModal.defaultProps = {
-  title: 'Title',
+  title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
   modalBackground: ['light.mainBackground', 'light.mainBackground'],
@@ -113,17 +113,17 @@ function KeeperModal(props: ModalProps) {
       <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
         <GestureHandlerRootView>
           <Box backgroundColor={{ linearGradient }} style={styles.container}>
-            <TouchableOpacity style={styles.close} onPress={close}>
-              {showCloseIcon ? getCloseIcon() : null}
-            </TouchableOpacity>
-            <Modal.Header style={styles.headerContainer}>
+            {showCloseIcon ? <TouchableOpacity style={styles.close} onPress={close}>
+              {getCloseIcon()}
+            </TouchableOpacity> : null}
+            {title || subTitle ? <Modal.Header style={styles.headerContainer}>
               <Text style={styles.title} color={textColor}>
                 {title}
               </Text>
               {subTitle ? <Text style={styles.subTitle} color={subTitleColor}>
                 {`${subTitle}`}
               </Text> : null}
-            </Modal.Header>
+            </Modal.Header> : null}
             <Modal.Body>
               <Content />
             </Modal.Body>
