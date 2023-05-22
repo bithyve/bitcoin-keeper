@@ -57,6 +57,7 @@ function ChoosePlan(props) {
     });
     const purchaseErrorSubscription = purchaseErrorListener((error) => {
       console.log('purchaseErrorListener', error);
+      setRequesting(false)
     });
 
     return () => {
@@ -146,8 +147,9 @@ function ChoosePlan(props) {
           subscription,
         });
         setShowUpgradeModal(true)
+      } else if (response.error) {
+        showToast(response.error)
       }
-      showToast(response.error)
       await RNIap.finishTransaction(purchase, false);
     } catch (error) {
       setRequesting(false)
@@ -229,6 +231,7 @@ function ChoosePlan(props) {
           );
         }
       } else {
+        setRequesting(true)
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
         const sku = plan.productId
         const { offerToken } = plan
@@ -256,7 +259,9 @@ function ChoosePlan(props) {
 
   const restorePurchases = async () => {
     try {
+      setRequesting(true)
       const purchases = await getAvailablePurchases()
+      setRequesting(false)
       if (purchases.length === 0) {
         showToast('No purchases found')
       } else {
@@ -338,6 +343,7 @@ function ChoosePlan(props) {
             onPress={(item, level) => processSubscription(item, level)}
             onChange={(item) => setCurrentPosition(item)}
             isMonthly={isMonthly}
+            requesting={requesting}
           />
 
           <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />

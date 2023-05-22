@@ -26,10 +26,11 @@ interface Props {
   isMonthly: boolean,
   subscription: SubScription,
   onSelect?: any,
-  itemWidth: number
+  itemWidth: number,
+  requesting: boolean
 }
 
-function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, item, subscription, onSelect, itemWidth }: Props) {
+function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, item, subscription, onSelect, itemWidth, requesting }: Props) {
 
   const getFreeTrail = useMemo(() => {
     if (item.monthlyPlanDetails || item.yearlyPlanDetails) {
@@ -130,7 +131,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
               <CustomYellowButton
                 onPress={() => onSelect(item, index)}
                 value={getBtnTitle}
-                disabled={!item.isActive}
+                disabled={!item.isActive || requesting}
               />
             </Box>
           ) : null}

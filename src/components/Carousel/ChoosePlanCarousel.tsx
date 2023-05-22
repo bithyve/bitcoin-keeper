@@ -15,7 +15,8 @@ interface Props {
   data: SubScriptionPlan[],
   onPress?: any,
   onChange?: any,
-  isMonthly: boolean
+  isMonthly: boolean,
+  requesting: boolean
 }
 
 
@@ -68,6 +69,7 @@ function ChoosePlanCarousel(props: Props) {
             onPress={() => _onSnapToItem(index)}
             onSelect={() => props.onPress(item, index)}
             itemWidth={itemWidth}
+            requesting={props.requesting}
           />
         )}
       />
