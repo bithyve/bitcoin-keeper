@@ -201,7 +201,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Box>
           <Box>
             <Text color="light.secondaryText" style={styles.subTitle}>
-              By proceeding, you agree to our <TouchableOpacity onPress={() => openLink('http://keeperweb.bithyve.com/terms-of-service/')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Terms of Service</Text></TouchableOpacity> and <TouchableOpacity onPress={() => openLink('http://keeperweb.bithyve.com/privacy-policy/')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+              By proceeding, you agree to our <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Terms of Service</Text></TouchableOpacity> and <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
             </Text>
           </Box>
         </Box>
