@@ -32,6 +32,7 @@ import { uaiChecks } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
+import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan(props) {
@@ -260,8 +261,6 @@ function ChoosePlan(props) {
   const restorePurchases = async () => {
     try {
       setRequesting(true)
-
-      return
       const purchases = await getAvailablePurchases()
       setRequesting(false)
       if (purchases.length === 0) {
@@ -286,14 +285,7 @@ function ChoosePlan(props) {
   function LoginModalContent() {
     return (
       <Box>
-        <Image
-          source={require('../../assets/video/Loader.gif')}
-          style={{
-            width: wp(270),
-            height: hp(200),
-            alignSelf: 'center',
-          }}
-        />
+        <WhirlpoolLoader />
         <Text color="light.greenText" fontSize={13}>
           {choosePlan.youCanChange}
         </Text>
