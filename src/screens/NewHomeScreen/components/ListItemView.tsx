@@ -7,7 +7,7 @@ import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 function ListItemView(props) {
   return (
     <TouchableOpacity disabled={props.disabled} style={[styles.wrapper, { backgroundColor: "#FDF7F0", opacity: props.disabled ? 0.8 : 1 }]} onPress={props.onPress}>
-      <Box style={styles.iconWrapper}>
+      <Box>
         <Box style={[styles.iconView, { opacity: props.disabled ? 0.8 : 1 }]} backgroundColor={props.iconBackColor}>
           {props.icon}
         </Box>
@@ -25,17 +25,11 @@ function ListItemView(props) {
 }
 const styles = StyleSheet.create({
   wrapper: {
-    paddingHorizontal: 10,
-    paddingVertical: windowHeight > 680 ? 15 : 5,
-    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
     width: '100%',
     borderRadius: 10,
     marginVertical: hp(5),
-    alignItems: 'center'
-  },
-  iconWrapper: {
-    width: '10%',
-    alignItems: 'flex-start',
   },
   iconView: {
     borderRadius: 100,
@@ -45,8 +39,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   titleWrapper: {
-    width: '92%',
-    marginLeft: 25,
+    marginTop: 10
   },
   titleText: {
     fontSize: 13,

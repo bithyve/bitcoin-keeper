@@ -107,13 +107,6 @@ function VaultScreen() {
             iconBackColor="light.learnMoreBorder"
           />
         </Pressable>
-        <ListItemView
-          icon={<BitcoinIcon />}
-          title="Buy"
-          subTitle="Stack sats directly in the vault"
-          iconBackColor="light.learnMoreBorder"
-          onPress={onPressBuyBitcoin}
-        />
       </ScrollView>
 
       {activeVault && (
