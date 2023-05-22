@@ -86,19 +86,17 @@ function OnBoardingSlides({ navigation }) {
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
-          <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10} />
-          {/* {currentPosition !== 1 && (
-              <TouchableOpacity
-                onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
-                style={styles.skipTextWrapper}
-              >
-                <Text color="light.white" bold style={styles.skipText}>
-                  Skip&nbsp;&nbsp;
-                </Text>
-                <Skip />
-              </TouchableOpacity>
-            )}
-          </Box> */}
+          {currentPosition !== 1 && (
+            <TouchableOpacity
+              onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
+              style={styles.skipTextWrapper}
+            >
+              <Text color="light.white" bold style={styles.skipText}>
+                Skip&nbsp;&nbsp;
+              </Text>
+              <Skip />
+            </TouchableOpacity>
+          )}
           <Box flex={0.9}>
             <FlatList
               ref={onboardingSlideRef}
@@ -131,43 +129,43 @@ function OnBoardingSlides({ navigation }) {
               </TouchableOpacity>
             </Box>
             <Box flexDirection="row" height={5}>
-              {/* {currentPosition < items.length - 1 ? (
+              {currentPosition < items.length - 1 ? (
                 items.map((item, index) => (
                   <Box
                     key={index}
                     style={currentPosition === index ? styles.selectedDot : styles.unSelectedDot}
                   />
                 ))
-              ) : ( */}
-              <Box alignSelf="center" backgroundColor="transparent">
-                <TouchableOpacity
-                  onPress={() => {
-                    if (currentPosition < items.length - 1) {
-                      onboardingSlideRef.current.scrollToIndex({ animated: true, index: currentPosition + 1 });
-                    } else {
-                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+              ) : (
+                <Box alignSelf="center" backgroundColor="transparent">
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (currentPosition < items.length - 1) {
+                        onboardingSlideRef.current.scrollToIndex({ animated: true, index: currentPosition + 1 });
+                      } else {
+                        navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                      }
                     }
-                  }
-                  }
-                >
-                  <LinearGradient
-                    start={[0, 0]}
-                    end={[1, 1]}
-                    colors={['#FFFFFF', '#80A8A1']}
-                    style={styles.cta}
+                    }
                   >
-                    <Text bold color="light.greenText" style={styles.startAppText}>
-                      {currentPosition < items.length - 1 ? 'Next' : 'Start App'}
-                    </Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </Box>
-              {/* )} */}
+                    <LinearGradient
+                      start={[0, 0]}
+                      end={[1, 1]}
+                      colors={['#FFFFFF', '#80A8A1']}
+                      style={styles.cta}
+                    >
+                      <Text bold color="light.greenText" style={styles.startAppText}>
+                        Start App
+                      </Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </Box>
+              )}
             </Box>
           </Box>
         </SafeAreaView>
       </ImageBackground>
-    </LinearGradient>
+    </LinearGradient >
   );
 }
 
@@ -220,10 +218,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
+    margin: 15
   },
   skipText: {
     fontSize: 14,
-    textAlign: 'right',
+    textAlign: 'center',
     opacity: 0.7,
   },
   startAppText: {

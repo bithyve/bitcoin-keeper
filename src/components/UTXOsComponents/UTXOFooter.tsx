@@ -45,7 +45,7 @@ function UTXOFooter({
               setInitateWhirlpoolMix(true);
             }}
             icon={<MixIcon />}
-            title={wallet?.type === WalletType.POST_MIX ? 'Start for Remix' : 'Start for Mix'}
+            title={wallet?.type === WalletType.POST_MIX ? 'Select for Remix' : 'Select for Mix'}
           />
         )}
         {allowedSendTypes.includes(wallet?.type) && (

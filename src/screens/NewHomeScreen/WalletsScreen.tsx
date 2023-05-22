@@ -268,7 +268,7 @@ const WalletsScreen = ({ navigation }) => {
             disabled={presentationName.length === 0}
           />
         </Box>
-        <Box style={styles.listViewWrapper}>
+        {/* <Box style={styles.listViewWrapper}>
           <Box style={styles.tranferPolicyWrapper}>
             <ListItemView
               icon={<InheritanceIcon />}
@@ -289,7 +289,7 @@ const WalletsScreen = ({ navigation }) => {
               onPress={onPressBuyBitcoin}
             />
           </Box>
-        </Box>
+        </Box> */}
       </Box>
       <KeeperModal
         visible={transferPolicyVisible}

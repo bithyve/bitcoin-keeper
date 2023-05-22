@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unstable-nested-components */
-import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
+import { ActivityIndicator, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -17,6 +17,7 @@ import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import openLink from 'src/utils/OpenLink';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 
@@ -191,6 +192,20 @@ function NewKeeperApp({ navigation }: { navigation }) {
           />
         </Box>
       </Box>
+      <Box style={styles.footerContainer}>
+        <Box style={styles.noteContainer}>
+          <Box opacity={1}>
+            <Text color="light.black" style={styles.title}>
+              Terms of Service
+            </Text>
+          </Box>
+          <Box>
+            <Text color="light.secondaryText" style={styles.subTitle}>
+              By proceeding, you agree to our <TouchableOpacity onPress={() => openLink('http://keeperweb.bithyve.com/terms-of-service/')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Terms of Service</Text></TouchableOpacity> and <TouchableOpacity onPress={() => openLink('http://keeperweb.bithyve.com/privacy-policy/')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+            </Text>
+          </Box>
+        </Box>
+      </Box>
       <KeeperModal
         dismissible={false}
         close={() => { }}
@@ -240,6 +255,28 @@ const styles = StyleSheet.create({
   headerContainer: {
     width: wp(280),
   },
+  footerContainer: {
+    position: 'absolute',
+    bottom: 10,
+    width: wp(375),
+    margin: 20,
+  },
+  noteContainer: {
+    padding: 4,
+  },
+  title: {
+    fontSize: 15,
+    letterSpacing: 1.12,
+  },
+  subTitle: {
+    fontSize: 13,
+    letterSpacing: 0.6,
+  },
+  termOfServiceText: {
+    fontSize: 13,
+    textDecorationLine: 'underline',
+    fontWeight: 'bold'
+  }
 });
 
 export default NewKeeperApp;
