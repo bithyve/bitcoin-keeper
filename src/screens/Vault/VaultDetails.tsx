@@ -145,23 +145,24 @@ function VaultInfo({ vault }: { vault: Vault }) {
 
   const styles = getStyles(0);
   return (
-    <VStack paddingY={12}>
-      <HStack alignItems="center" justifyContent="space-between">
-        <HStack>
-          <Box paddingRight={3}>
-            <VaultIcon />
-          </Box>
-          <VStack>
-            <Text color="light.white" style={styles.vaultInfoText} fontSize={16}>
-              {name}
-            </Text>
-            <Text color="light.white" style={styles.vaultInfoText} fontSize={12}>
-              {description}
-            </Text>
-          </VStack>
-        </HStack>
-        <VStack alignItems="flex-end">
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
+    <VStack paddingY={10}>
+      <HStack alignItems="center">
+        <Box paddingRight={3}>
+          <VaultIcon />
+        </Box>
+        <VStack>
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={16}>
+            {name}
+          </Text>
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={12}>
+            {description}
+          </Text>
+        </VStack>
+      </HStack>
+
+      <HStack justifyContent="space-between">
+        <VStack paddingTop="6">
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
             Unconfirmed
           </Text>
           {getNetworkAmount(
@@ -169,21 +170,21 @@ function VaultInfo({ vault }: { vault: Vault }) {
             exchangeRates,
             currencyCode,
             currentCurrency,
-            [styles.vaultInfoText, { fontSize: 12 }],
+            [styles.vaultInfoText, { fontSize: 14 }],
             0.9
           )}
         </VStack>
+        <VStack paddingBottom="16" paddingTop="6">
+          <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
+            Available Balance
+          </Text>
+          {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
+            styles.vaultInfoText,
+            { fontSize: 31, lineHeight: 30 },
+            2,
+          ])}
+        </VStack>
       </HStack>
-      <VStack paddingBottom="16" paddingTop="6">
-        {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
-          styles.vaultInfoText,
-          { fontSize: 31, lineHeight: 31 },
-          2,
-        ])}
-        <Text color="light.white" style={styles.vaultInfoText} fontSize={9}>
-          Available Balance
-        </Text>
-      </VStack>
     </VStack>
   );
 }
