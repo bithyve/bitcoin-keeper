@@ -265,13 +265,16 @@ function ChoosePlan(props) {
       if (purchases.length === 0) {
         showToast('No purchases found')
       } else {
-        purchases.forEach(purchase => {
+        // eslint-disable-next-line no-plusplus
+        for (let i = 0; i < purchases.length; i++) {
+          const purchase = purchases[i];
           if (purchase.productId === subscription.productId) {
             showToast(`Already subscribed to ${subscription.name}`)
           } else {
             processPurchase(purchase)
+            break
           }
-        });
+        }
       }
     } catch (error) {
       console.log(error)
