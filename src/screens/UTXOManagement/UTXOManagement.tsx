@@ -65,6 +65,7 @@ function Footer({
   setShowBatteryWarningModal,
   setSendBadBankModalVisible,
   selectedAccount,
+  isRemix
 }) {
   const navigation = useNavigation();
 
@@ -106,6 +107,7 @@ function Footer({
         }
       }}
       selectedUTXOs={selectedUTXOs}
+      isRemix={isRemix}
     />
   ) : (
     <UTXOFooter
@@ -275,6 +277,7 @@ function UTXOManagement({ route, navigation }) {
           initiateWhirlpool={initiateWhirlpool}
           initateWhirlpoolMix={initateWhirlpoolMix}
           setIsRemix={setIsRemix}
+          isRemix={isRemix}
           enableSelection={enableSelection}
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
