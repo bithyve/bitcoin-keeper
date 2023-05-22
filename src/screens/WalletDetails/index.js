@@ -2,7 +2,7 @@ import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, HStack, Pressable, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
@@ -142,10 +142,10 @@ function WalletDetails({ route }) {
             backgroundColor="light.accent"
             style={styles.transferPolicyCard}
             onPress={() => {
-              // navigation.navigate('WalletSettings', {
-              //   wallet,
-              //   editPolicy: true,
-              // });
+              navigation.navigate('WalletSettings', {
+                wallet,
+                editPolicy: true,
+              });
             }}
           >
             <Box style={styles.transferPolicyContent}>
