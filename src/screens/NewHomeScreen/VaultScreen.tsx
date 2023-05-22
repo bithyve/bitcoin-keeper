@@ -17,6 +17,7 @@ import BalanceToggle from './components/BalanceToggle';
 
 function VaultScreen() {
   const { activeVault } = useVault();
+  console.log('activeVault', activeVault)
   const signers = idx(activeVault, (_) => _.signers) || [];
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
@@ -49,56 +50,59 @@ function VaultScreen() {
             Beach and sunshine baby!
           </Text>
         </Box>
-        <Box style={signers ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper} backgroundColor="light.learnMoreBorder">
-          {signers ?
-            <Box>
-              <Box style={styles.emptyVaultIllustration}>
-                <EmptyVaultIllustration />
+        <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
+          <Box style={!activeVault ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper} backgroundColor="light.learnMoreBorder">
+            {!activeVault ?
+              <Box>
+                <Box style={styles.emptyVaultIllustration}>
+                  <EmptyVaultIllustration />
+                </Box>
+                <Text color='light.white'>Add Signers to activate your Vault</Text>
               </Box>
-              <Text color='light.white'>Add Signers to activate your Vault</Text>
-            </Box>
-            :
-            <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
-              <Box style={styles.signingDeviceWrapper}>
-                <Box style={styles.signingDeviceDetails}>
-                  <Text style={styles.signingDeviceText} color="light.white">
-                    {`${scheme.m} of ${scheme.n} Vault`}
-                  </Text>
-                  <Box style={styles.signingDeviceList}>
-                    {signers.map((signer: any) => (
-                      <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
-                        {SDIcons(signer.type, true).Icon}
-                      </Box>
-                    ))}
+              :
+              <>
+                <Box style={styles.signingDeviceWrapper}>
+                  <Box style={styles.signingDeviceDetails}>
+                    <Text style={styles.signingDeviceText} color="light.white">
+                      {`${scheme.m} of ${scheme.n} Vault`}
+                    </Text>
+                    <Box style={styles.signingDeviceList}>
+                      {signers.map((signer: any) => (
+                        <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
+                          {SDIcons(signer.type, true).Icon}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                  <Box style={styles.unConfirmBalanceView}>
+                    <Text style={styles.unconfirmText} color="light.white">
+                      Unconfirmed
+                    </Text>
+                    <CurrencyInfo
+                      hideAmounts={hideAmounts}
+                      amount={confirmedBalance + unconfirmedBalance}
+                      fontSize={14}
+                      color={Colors.White}
+                      variation="grey"
+                    />
                   </Box>
                 </Box>
-                <Box style={styles.unConfirmBalanceView}>
-                  <Text style={styles.unconfirmText} color="light.white">
-                    Unconfirmed
+                <Box style={styles.availableBalanceWrapper}>
+                  <Text style={styles.availableText} color="light.white">
+                    Available Balance
                   </Text>
                   <CurrencyInfo
                     hideAmounts={hideAmounts}
                     amount={confirmedBalance + unconfirmedBalance}
-                    fontSize={14}
+                    fontSize={20}
                     color={Colors.White}
                     variation="grey"
                   />
                 </Box>
-              </Box>
-              <Box style={styles.availableBalanceWrapper}>
-                <Text style={styles.availableText} color="light.white">
-                  Available Balance
-                </Text>
-                <CurrencyInfo
-                  hideAmounts={hideAmounts}
-                  amount={confirmedBalance + unconfirmedBalance}
-                  fontSize={20}
-                  color={Colors.White}
-                  variation="grey"
-                />
-              </Box>
-            </TouchableOpacity>}
-        </Box>
+              </>
+            }
+          </Box>
+        </TouchableOpacity>
         <Pressable
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
