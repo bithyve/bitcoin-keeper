@@ -17,7 +17,6 @@ import BalanceToggle from './components/BalanceToggle';
 
 function VaultScreen() {
   const { activeVault } = useVault();
-  console.log('activeVault', activeVault)
   const signers = idx(activeVault, (_) => _.signers) || [];
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
