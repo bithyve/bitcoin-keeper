@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: windowHeight > 800 ? '69%' : '58%',
+    height: windowHeight > 800 ? '66%' : '58%',
     position: 'relative',
   },
   addNewWalletText: {
