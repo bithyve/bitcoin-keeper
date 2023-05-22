@@ -84,7 +84,7 @@ function WalletItem({
   const opacity = isActive ? 1 : 0.5;
   return (
     <View style={[styles.walletContainer, { width: TILE_WIDTH, opacity }]}>
-      <TouchableOpacity onPress={() => navigation.navigate('WalletDetails', { wallet: item })}>
+      <TouchableOpacity onPress={() => navigation.navigate('WalletDetails', { walletId: item.id })}>
         {!(item?.presentationData && item?.specs) ? (
           <AddNewWalletTile
             walletIndex={walletIndex}
