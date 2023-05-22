@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -467,18 +468,13 @@ function VaultDetails({ route, navigation }) {
       setBuyAddress(receivingAddress);
     }, []);
     return (
-      <Box padding={1}>
-        <Text color="#073B36" fontSize={13} letterSpacing={0.65} my={1}>
+      <Box style={styles.rampBuyContentWrapper}>
+        <Text style={styles.byProceedingContent}>
           By proceeding, you understand that Ramp will process the payment and transfer for the
           purchased bitcoin
         </Text>
         <Box
-          my={4}
-          alignItems="center"
-          borderRadius={10}
-          p={4}
-          backgroundColor="#FDF7F0"
-          flexDirection="row"
+          style={styles.cardWrapper}
         >
           <VaultIcon />
           <Box mx={4}>
@@ -496,37 +492,18 @@ function VaultDetails({ route, navigation }) {
           </Box>
         </Box>
 
-        <Box
-          my={4}
-          alignItems="center"
-          borderRadius={10}
-          px={4}
-          py={6}
-          backgroundColor="#FDF7F0"
-          flexDirection="row"
-        >
-          <Box
-            backgroundColor="#FAC48B"
-            borderRadius={20}
-            height={10}
-            width={10}
-            justifyItems="center"
-            alignItems="center"
-          >
+        <Box style={styles.cardWrapper}>
+          <Box style={styles.atIconWrapper}>
             <Text fontSize={22}>@</Text>
           </Box>
           <Box mx={4}>
             <Text fontSize={12} color="#5F6965">
               Address for ramp transactions
             </Text>
-            <Text
+            <Text style={styles.buyAddressText}
               width={wp(200)}
               ellipsizeMode="middle"
-              numberOfLines={1}
-              fontSize={19}
-              letterSpacing={1.28}
-              color="#041513"
-            >
+              numberOfLines={1}>
               {buyAddress}
             </Text>
           </Box>
@@ -709,5 +686,35 @@ const getStyles = (top) =>
       numberOfLines: 1,
       lineHeight: 16,
     },
+    rampBuyContentWrapper: {
+      padding: 1,
+    },
+    byProceedingContent: {
+      color: "#073B36",
+      fontSize: 13,
+      letterSpacing: 0.65,
+      marginVertical: 1
+    },
+    cardWrapper: {
+      marginVertical: 5,
+      alignItems: "center",
+      borderRadius: 10,
+      padding: 5,
+      backgroundColor: "#FDF7F0",
+      flexDirection: "row"
+    },
+    atIconWrapper: {
+      backgroundColor: "#FAC48B",
+      borderRadius: 20,
+      height: 35,
+      width: 35,
+      justifyItems: "center",
+      alignItems: "center"
+    },
+    buyAddressText: {
+      fontSize: 19,
+      letterSpacing: 1.28,
+      color: "#041513"
+    }
   });
 export default VaultDetails;
