@@ -2,17 +2,17 @@ import React from 'react';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 function ListItemView(props) {
   return (
-    <TouchableOpacity disabled={props.disabled} style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress}>
+    <TouchableOpacity disabled={props.disabled} style={[styles.wrapper, { backgroundColor: "#FDF7F0", opacity: props.disabled ? 0.8 : 1 }]} onPress={props.onPress}>
       <Box style={styles.iconWrapper}>
-        <Box style={styles.iconView} backgroundColor={props.iconBackColor}>
+        <Box style={[styles.iconView, { opacity: props.disabled ? 0.8 : 1 }]} backgroundColor={props.iconBackColor}>
           {props.icon}
         </Box>
       </Box>
-      <Box style={styles.titleWrapper}>
+      <Box style={[styles.titleWrapper, { opacity: props.disabled ? 0.8 : 1 }]}>
         <Text color="light.primaryText" style={styles.titleText}>
           {props.title}
         </Text>
@@ -26,11 +26,12 @@ function ListItemView(props) {
 const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 10,
-    paddingVertical: 15,
+    paddingVertical: windowHeight > 680 ? 15 : 5,
     flexDirection: 'row',
     width: '100%',
     borderRadius: 10,
     marginVertical: hp(5),
+    alignItems: 'center'
   },
   iconWrapper: {
     width: '10%',
@@ -38,13 +39,13 @@ const styles = StyleSheet.create({
   },
   iconView: {
     borderRadius: 100,
-    height: 35,
-    width: 35,
+    height: windowHeight > 680 ? 35 : 33,
+    width: windowHeight > 680 ? 35 : 33,
     alignItems: 'center',
     justifyContent: 'center',
   },
   titleWrapper: {
-    width: '90%',
+    width: '92%',
     marginLeft: 25,
   },
   titleText: {
