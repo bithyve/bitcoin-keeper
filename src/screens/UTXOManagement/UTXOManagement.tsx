@@ -308,7 +308,7 @@ function UTXOManagement({ route, navigation }) {
                 <Box style={{ flexDirection: 'row' }}>
                   {/* <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text> */}
                   <Text style={styles.batteryModalText}>
-                    You will see the mix progress statuses in the next step.
+                    You will see the progress of your mix in the next step.
                   </Text>
                 </Box>
               </Box>
