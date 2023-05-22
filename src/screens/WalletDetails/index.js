@@ -1,11 +1,12 @@
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, VStack } from 'native-base';
+import { Box, HStack, Pressable, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
+import Arrow from 'src/assets/images/arrow_brown.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -15,6 +16,10 @@ import HeaderTitle from 'src/components/HeaderTitle';
 
 import { WalletType } from 'src/core/wallets/enums';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
+import BtcBlack from 'src/assets/images/btc_black.svg';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import useExchangeRates from 'src/hooks/useExchangeRates';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
@@ -51,6 +56,8 @@ function Footer({ wallet, onPressBuyBitcoin }) {
 function WalletDetails({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const currencyCode = useCurrencyCode();
+  const exchangeRates = useExchangeRates();
   const { autoRefresh, wallet } = route?.params || {};
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -60,6 +67,8 @@ function WalletDetails({ route }) {
   } = wallet;
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
+  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
 
@@ -127,7 +136,59 @@ function WalletDetails({ route }) {
         justifyContent="space-between"
       >
         {/* <WalletInfo wallets={wallets} /> */}
-
+        {/* {Transfer pollicy} */}
+        <Box style={styles.transferPolicyContainer}>
+          <Pressable
+            backgroundColor="light.accent"
+            style={styles.transferPolicyCard}
+            onPress={() => {
+              // navigation.navigate('WalletSettings', {
+              //   wallet,
+              //   editPolicy: true,
+              // });
+            }}
+          >
+            <Box style={styles.transferPolicyContent}>
+              <Box
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                <Text
+                  color="light.learnMoreBorder"
+                  fontSize={12}
+                  style={{
+                    letterSpacing: 0.6,
+                  }}
+                >
+                  Transfer Policy is set at{'  '}
+                </Text>
+                <Text
+                  bold
+                  color="light.learnMoreBorder"
+                  style={{
+                    fontSize: 14,
+                    letterSpacing: 0.7,
+                  }}
+                >
+                  {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}{' '}
+                  {getAmt(
+                    wallet?.transferPolicy.threshold,
+                    exchangeRates,
+                    currencyCode,
+                    currentCurrency,
+                    satsEnabled
+                  )}
+                  {getUnit(currentCurrency, satsEnabled)}
+                </Text>
+              </Box>
+              <Box>
+                <Arrow />
+              </Box>
+            </Box>
+          </Pressable>
+        </Box>
         {wallet ? (
           <>
             {/* <UTXOsManageNavBox
@@ -207,7 +268,7 @@ const styles = StyleSheet.create({
   },
   transactionsListContainer: {
     paddingVertical: hp(10),
-    height: windowHeight > 800 ? '75%' : '66%',
+    height: windowHeight > 800 ? '69%' : '58%',
     position: 'relative',
   },
   addNewWalletText: {
@@ -263,6 +324,27 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  transferPolicyContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: hp(15),
+  },
+  transferPolicyCard: {
+    paddingHorizontal: wp(10),
+    height: hp(50),
+    width: '100%',
+    borderRadius: hp(5),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  transferPolicyContent: {
+    paddingLeft: wp(10),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });
 export default WalletDetails;
