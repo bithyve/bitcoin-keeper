@@ -50,15 +50,18 @@ function VaultScreen() {
           </Text>
         </Box>
         <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
-          <Box style={!activeVault ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper} backgroundColor="light.learnMoreBorder">
-            {!activeVault ?
+          <Box
+            style={!activeVault ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper}
+            backgroundColor="light.learnMoreBorder"
+          >
+            {!activeVault ? (
               <Box>
                 <Box style={styles.emptyVaultIllustration}>
                   <EmptyVaultIllustration />
                 </Box>
-                <Text color='light.white'>Add Signers to activate your Vault</Text>
+                <Text color="light.white">Add Signers to activate your Vault</Text>
               </Box>
-              :
+            ) : (
               <>
                 <Box style={styles.signingDeviceWrapper}>
                   <Box style={styles.signingDeviceDetails}>
@@ -99,21 +102,19 @@ function VaultScreen() {
                   />
                 </Box>
               </>
-            }
+            )}
           </Box>
         </TouchableOpacity>
-        <Pressable
+
+        <ListItemView
+          icon={<InheritanceIcon />}
+          title="Inheritance"
+          subTitle="Setup inheritance Key"
+          iconBackColor="light.learnMoreBorder"
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
           }}
-        >
-          <ListItemView
-            icon={<InheritanceIcon />}
-            title="Inheritance"
-            subTitle="Setup inheritance Key"
-            iconBackColor="light.learnMoreBorder"
-          />
-        </Pressable>
+        />
       </ScrollView>
     </HomeScreenWrapper>
   );
@@ -142,11 +143,11 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: hp(20),
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   emptyVaultIllustration: {
     alignSelf: 'center',
-    marginBottom: 10
+    marginBottom: 10,
   },
   signingDeviceWrapper: {
     flexDirection: 'row',
