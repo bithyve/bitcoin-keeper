@@ -18,6 +18,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -338,94 +339,105 @@ function LoginScreen({ navigation, route }) {
   // eslint-disable-next-line react/no-unstable-nested-components
   function NoInternetModalContent() {
     return (
-      <Box justifyContent="space-between" alignItems="center" flexDirection="row">
-        <TouchableOpacity
-          style={[
-            styles.cancelBtn,
-          ]}
-          onPress={() => {
-            setLoginError(false);
-            setLogging(false);
-            dispatch(setRecepitVerificationError(false));
-            resetToPleb()
-          }}
-          activeOpacity={0.5}
-        >
-          <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
-            Continue as Pleb
-          </Text>
-        </TouchableOpacity>
+      <Box width={wp(250)}>
+        <DowngradeToPleb />
+        {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
+        <Box mt={10} alignItems="center" flexDirection="row">
+          <TouchableOpacity
+            style={[
+              styles.cancelBtn,
+            ]}
+            onPress={() => {
+              setLoginError(false);
+              setLogging(false);
+              dispatch(setRecepitVerificationError(false));
+              resetToPleb()
+            }}
+            activeOpacity={0.5}
+          >
+            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+              Continue as Pleb
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => {
-            setLoginError(false);
-            setLogging(true);
-            dispatch(setRecepitVerificationError(false));
-          }}
-        >
-          <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-            <Box
-              style={[styles.createBtn]}
-              backgroundColor={{
-                linearGradient: {
-                  colors: ['light.gradientStart', 'light.gradientEnd'],
-                  start: [0, 0],
-                  end: [1, 1],
-                },
-              }}
-            >
-              <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-                Retry
-              </Text>
-            </Box>
-          </Shadow>
-        </TouchableOpacity>
-      </Box>)
+          <TouchableOpacity
+            onPress={() => {
+              setLoginError(false);
+              setLogging(true);
+              dispatch(setRecepitVerificationError(false));
+            }}
+          >
+            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+              <Box
+                style={[styles.createBtn,]}
+                paddingLeft={10}
+                paddingRight={10}
+                backgroundColor={{
+                  linearGradient: {
+                    colors: ['light.gradientStart', 'light.gradientEnd'],
+                    start: [0, 0],
+                    end: [1, 1],
+                  },
+                }}
+              >
+                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                  Retry
+                </Text>
+              </Box>
+            </Shadow>
+          </TouchableOpacity>
+        </Box>
+      </Box>
+    )
   }
 
 
   // eslint-disable-next-line react/no-unstable-nested-components
   function DowngradeModalContent() {
     return (
-      <Box alignItems="center" flexDirection="row">
-        <TouchableOpacity
-          style={[
-            styles.cancelBtn,
-          ]}
-          onPress={() => {
-            setShowDowngradeModal(false)
-            navigation.replace('App', { screen: 'ChoosePlan' });
-          }}
-          activeOpacity={0.5}
-        >
-          <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
-            View Subscription
-          </Text>
-        </TouchableOpacity>
+      <Box>
+        <DowngradeToPleb />
+        <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text>
+        <Box alignItems="center" flexDirection="row">
+          <TouchableOpacity
+            style={[
+              styles.cancelBtn,
+            ]}
+            onPress={() => {
+              setShowDowngradeModal(false)
+              navigation.replace('App', { screen: 'ChoosePlan' });
+            }}
+            activeOpacity={0.5}
+          >
+            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+              View Subscription
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => {
-            setShowDowngradeModal(false);
-            downgradeToPleb()
-          }}
-        >
-          <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-            <Box
-              style={[styles.createBtn]}
-              backgroundColor={{
-                linearGradient: {
-                  colors: ['light.gradientStart', 'light.gradientEnd'],
-                  start: [0, 0],
-                  end: [1, 1],
-                },
-              }}
-            >
-              <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-                Continue as Pleb
-              </Text>
-            </Box>
-          </Shadow>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setShowDowngradeModal(false);
+              downgradeToPleb()
+            }}
+          >
+            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+              <Box
+                style={[styles.createBtn]}
+                backgroundColor={{
+                  linearGradient: {
+                    colors: ['light.gradientStart', 'light.gradientEnd'],
+                    start: [0, 0],
+                    end: [1, 1],
+                  },
+                }}
+              >
+                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                  Continue as Pleb
+                </Text>
+              </Box>
+            </Shadow>
+          </TouchableOpacity>
+        </Box>
       </Box>
     );
   }
@@ -604,7 +616,8 @@ function LoginScreen({ navigation, route }) {
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        showCloseIcon={false}
+        showCloseIcon
+        closeOnOverlayClick={() => setShowDowngradeModal(false)}
         showButtons
       />
     </LinearGradient>
@@ -686,7 +699,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   btnText: {
-    fontSize: 14,
+    fontSize: 12,
     letterSpacing: 0.84,
   },
 });

@@ -10,7 +10,7 @@ import { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription
 import ChoosePlanCarouselItem from './ChoosePlanCarouselItem';
 
 const { width } = Dimensions.get('window')
-const itemWidth = width / 3 - 10
+const itemWidth = width / 3.5 - 10
 interface Props {
   data: SubScriptionPlan[],
   onPress?: any,

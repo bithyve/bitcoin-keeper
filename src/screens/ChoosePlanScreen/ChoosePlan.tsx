@@ -260,6 +260,8 @@ function ChoosePlan(props) {
   const restorePurchases = async () => {
     try {
       setRequesting(true)
+
+      return
       const purchases = await getAvailablePurchases()
       setRequesting(false)
       if (purchases.length === 0) {
@@ -284,14 +286,14 @@ function ChoosePlan(props) {
   function LoginModalContent() {
     return (
       <Box>
-        {/* <Image
+        <Image
           source={require('../../assets/video/Loader.gif')}
           style={{
             width: wp(270),
             height: hp(200),
             alignSelf: 'center',
           }}
-        /> */}
+        />
         <Text color="light.greenText" fontSize={13}>
           {choosePlan.youCanChange}
         </Text>
