@@ -276,7 +276,6 @@ const styles = StyleSheet.create({
   },
   termOfServiceText: {
     fontSize: 12,
-    textDecorationLine: 'underline',
     fontWeight: '400',
     fontFamily: Fonts.FiraSansMedium,
     fontStyle: 'italic'
