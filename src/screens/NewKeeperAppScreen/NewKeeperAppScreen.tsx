@@ -265,6 +265,7 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     padding: 4,
+    width: wp(285)
   },
   title: {
     fontSize: 15,
