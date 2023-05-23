@@ -109,7 +109,6 @@ function NewHomeScreen({ navigation }) {
       //
     }
   }
-  console.log('windowHeight', windowHeight)
   const TabBarButton = useCallback(({ onPress, navigation, route }) => {
     if (route.name === 'Vault') {
       const active = navigation.isFocused('Vault');

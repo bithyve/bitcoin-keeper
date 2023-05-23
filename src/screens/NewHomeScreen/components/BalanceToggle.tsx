@@ -1,18 +1,27 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import HideIcon from 'src/assets/images/icon_hide.svg';
-import ShowIcon from 'src/assets/images/icon_show.svg'
+import ShowIcon from 'src/assets/images/icon_show.svg';
 
 function BalanceToggle({ hideAmounts, setHideAmounts }) {
   const toggleCurrencyVisibility = () => setHideAmounts(!hideAmounts);
   return (
-    <Pressable style={styles.hideBalanceWrapper}>
+    <TouchableOpacity
+      style={styles.hideBalanceWrapper}
+      onPress={toggleCurrencyVisibility}
+      hitSlop={{
+        top: 20,
+        bottom: 20,
+        left: 10,
+        right: 10,
+      }}
+    >
       {hideAmounts ? <ShowIcon /> : <HideIcon />}
-      <Text style={[styles.hideBalanceText, { color: hideAmounts ? '#2D6759' : '#704E2E' }]} onPress={toggleCurrencyVisibility}>
+      <Text style={[styles.hideBalanceText, { color: hideAmounts ? '#2D6759' : '#704E2E' }]}>
         &nbsp;&nbsp;{`${hideAmounts ? 'SHOW' : 'HIDE'} BALANCES`}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -27,5 +36,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: hp(10),
+    height: hp(20),
   },
 });
