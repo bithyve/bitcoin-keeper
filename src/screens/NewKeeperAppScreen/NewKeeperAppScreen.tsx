@@ -18,6 +18,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import openLink from 'src/utils/OpenLink';
+import Fonts from 'src/common/Fonts';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 
@@ -277,6 +278,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textDecorationLine: 'underline',
     fontWeight: '400',
+    fontFamily: Fonts.FiraSansMedium,
+    fontStyle: 'italic'
   },
   subTitleWrapper: {
     flexDirection: 'row',
