@@ -199,10 +199,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
               Terms of Service
             </Text>
           </Box>
-          <Box>
-            <Text color="light.secondaryText" style={styles.subTitle}>
-              By proceeding, you agree to our <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Terms of Service</Text></TouchableOpacity> and <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
-            </Text>
+          <Box style={styles.subTitleWrapper}>
+            <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
+            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="light.ForestGreen" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
+            <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
+            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="light.ForestGreen" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
           </Box>
         </Box>
       </Box>
@@ -275,7 +276,11 @@ const styles = StyleSheet.create({
   termOfServiceText: {
     fontSize: 13,
     textDecorationLine: 'underline',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+  },
+  subTitleWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
   }
 });
 
