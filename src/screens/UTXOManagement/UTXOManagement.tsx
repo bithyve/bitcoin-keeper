@@ -192,16 +192,16 @@ function UTXOManagement({ route, navigation }) {
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
-      ?.map((utxo) => {
-        utxo.confirmed = true;
-        return utxo;
-      })
-      .concat(
-        selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-          utxo.confirmed = false;
+        ?.map((utxo) => {
+          utxo.confirmed = true;
           return utxo;
         })
-      )
+        .concat(
+          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
+            utxo.confirmed = false;
+            return utxo;
+          })
+        )
     : [];
 
   useEffect(() => {
@@ -341,7 +341,12 @@ function UTXOManagement({ route, navigation }) {
         closeModal={() => setSendBadBankModalVisible(false)}
         onclick={() => {
           setSendBadBankModalVisible(false);
-          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+          navigation.dispatch(
+            CommonActions.navigate('Send', {
+              sender: whirlpoolWalletAccountMap.badbankWallet,
+              selectedUTXOs,
+            })
+          );
         }}
       />
 

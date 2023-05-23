@@ -75,18 +75,22 @@ export default function PoolSelection({ route, navigation }) {
       ]);
       if (pools && tx0Data) {
         const sortedPools = pools?.sort((a, b) => a.denomination - b.denomination);
-        setMinMixAmount(sortedPools[0].mustMixBalanceCap + premixFee.averageTxFee);
-        const filteredByUtxoTotal = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
-        setAvailablePools(filteredByUtxoTotal);
+        const eligiblePools = sortedPools?.filter((pool) => pool.denomination <= utxoTotal);
+        setAvailablePools(eligiblePools);
         setTx0Data(tx0Data);
 
-        if (filteredByUtxoTotal.length > 0) {
+        if (eligiblePools.length > 0) {
           const selectedPool =
             config.NETWORK_TYPE === NetworkType.TESTNET
-              ? filteredByUtxoTotal[0]
-              : filteredByUtxoTotal[filteredByUtxoTotal.length - 1];
+              ? eligiblePools[0]
+              : eligiblePools[eligiblePools.length - 1];
           setSelectedPool(selectedPool);
           onPoolSelectionCallback(selectedPool, tx0Data);
+        } else {
+          // case: no eligible pools
+          const smallestPool = sortedPools[0];
+          setSelectedPool(smallestPool);
+          onPoolSelectionCallback(smallestPool, tx0Data);
         }
       } else {
         showToast('Error in fetching pools data', <ToastErrorIcon />, 3000);
@@ -117,10 +121,15 @@ export default function PoolSelection({ route, navigation }) {
   const onPoolSelectionCallback = async (pool, tx0) => {
     try {
       setSelectedPool(pool);
+      const minMixAmount = pool.mustMixBalanceCap + pool.feeValue + premixFee.averageTxFee; // TODO: expose and use fee-estimation function from whirlpool-rust-client
+      setMinMixAmount(minMixAmount);
+      if (utxoTotal < minMixAmount) return;
+
       // For some reason, tx0Data is undefined when called from initPoolData, so we need to get correct txoData
       const tx0ToFilter = tx0 || tx0Data;
       const correspondingTx0Data = tx0ToFilter?.filter((data) => data.poolId === pool.poolId)[0];
       setFeeDiscountPercent(correspondingTx0Data.feeDiscountPercent);
+
       const tx0Preview: Preview = await WhirlpoolClient.getTx0Preview(
         correspondingTx0Data,
         pool,
@@ -234,7 +243,7 @@ export default function PoolSelection({ route, navigation }) {
 
       <Box style={styles.footerContainer}>
         <Box style={styles.noteWrapper}>
-          <Note title='Note' subtitle='Pool may take sometime to load' />
+          <Note title="Note" subtitle="Pool may take sometime to load" />
         </Box>
         <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
@@ -361,6 +370,6 @@ const styles = StyleSheet.create({
   },
   noteWrapper: {
     marginLeft: 25,
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
 });
