@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   headerContainer: {
-    width: wp(280),
+    // width: wp(280),
   },
   footerContainer: {
     position: 'absolute',
