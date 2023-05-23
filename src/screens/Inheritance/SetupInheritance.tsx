@@ -141,7 +141,7 @@ function SetupInheritance() {
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
           <Buttons
-            primaryText="Select Country"
+            primaryText="Continue"
             primaryCallback={() => {
               showToast('Inheritance flow coming soon', null, 1000);
             }}
