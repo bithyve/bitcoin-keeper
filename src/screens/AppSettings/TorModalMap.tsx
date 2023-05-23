@@ -96,8 +96,7 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
   return (
     <>
       <KeeperModal
-        // visible={visible && torStatus === TorStatus.CONNECTING}
-        visible
+        visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
         title="Connecting to Tor"
         subTitle="Network calls and some functions may work slower when the Tor is enabled "
