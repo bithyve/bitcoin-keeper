@@ -25,6 +25,7 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import useWallets from 'src/hooks/useWallets';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -58,7 +59,8 @@ function WalletDetails({ route }) {
   const dispatch = useDispatch();
   const currencyCode = useCurrencyCode();
   const exchangeRates = useExchangeRates();
-  const { autoRefresh, wallet } = route?.params || {};
+  const { autoRefresh, walletId } = route?.params || {};
+  const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
