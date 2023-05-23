@@ -84,42 +84,49 @@ function MixProgress({
   const statusData = [
     {
       title: 'Subscribing',
+      subTitle: 'Checking connection to the Coordinator',
       referenceCode: Step.Subscribing,
       completed: false,
       error: false,
     },
     {
       title: 'Registering Input',
+      subTitle: 'Checking whether the UTXOs are ready to enter the pool',
       referenceCode: Step.RegisteringInput,
       completed: false,
       error: false,
     },
     {
       title: 'Confirming Input',
+      subTitle: 'Entering UTXOs into the pool.',
       completed: false,
       referenceCode: Step.ConfirmingInput,
       error: false,
     },
     {
       title: 'Waiting For Coordinator',
+      subTitle: 'Entering UTXOs into the pool.',
       referenceCode: Step.WaitingForCoordinator,
       completed: false,
       error: false,
     },
     {
       title: 'Registering Output',
+      subTitle: 'Constructing a transaction to create a brand new UTXO',
       referenceCode: Step.RegisteringOutput,
       completed: false,
       error: false,
     },
     {
       title: 'Signing',
+      subTitle: 'Signing and broadcasting the transaction',
       referenceCode: Step.Signing,
       completed: false,
       error: false,
     },
     {
       title: isRemix ? 'Remix completed successfully' : 'Mix completed successfully',
+      subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
       isLast: true,
@@ -181,12 +188,14 @@ function MixProgress({
 
   function TimeLine({
     title,
+    subTitle,
     isLast,
     completed,
     error,
     index,
   }: {
     title: string;
+    subTitle: string;
     isLast: boolean;
     completed: boolean;
     error: boolean;
@@ -196,33 +205,44 @@ function MixProgress({
     return (
       <Box style={styles.contentWrapper}>
         <Box style={inProgress ? styles.timeLineProgressWrapper : styles.timeLineWrapper}>
-          {inProgress ?
-            (<Box style={styles.animatedCircularborder}>
+          {inProgress ? (
+            <Box style={styles.animatedCircularborder}>
               <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot}>
                 <Animated.View style={styles.whirlpoolIconStyle}>
                   <Gear0 />
                 </Animated.View>
               </Box>
             </Box>
-            ) : (
-              <Box style={styles.circularborder}>
-                <Box
-                  backgroundColor={getBackgroungColor(completed, error)}
-                  style={styles.greentDot}
-                />
-              </Box>
-            )}
+          ) : (
+            <Box style={styles.circularborder}>
+              <Box
+                backgroundColor={getBackgroungColor(completed, error)}
+                style={styles.greentDot}
+              />
+            </Box>
+          )}
           {isLast ? null : (
-            <Box style={inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper}>
+            <Box
+              style={
+                inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper
+              }
+            >
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
             </Box>
           )}
         </Box>
-        <Text color="light.secondaryText" style={styles.timeLineTitle}>
-          {title}
-        </Text>
+        <Box flexDirection="column">
+          <Text color="light.secondaryText" style={styles.timeLineTitle}>
+            {title}
+          </Text>
+          {inProgress ? (
+            <Text color="light.secondaryText" style={styles.timeLineTitle}>
+              {subTitle}
+            </Text>
+          ) : null}
+        </Box>
       </Box>
     );
   }
@@ -398,6 +418,7 @@ function MixProgress({
   const renderItem = ({ item, index }) => (
     <TimeLine
       title={item.title}
+      subTitle={item.subTitle}
       completed={item.completed}
       isLast={item?.isLast}
       error={item.error}
@@ -408,7 +429,9 @@ function MixProgress({
     return (
       <Text style={styles.mixingSubtitleText}>
         Please<Text style={styles.durationTextStyle}>&nbsp;do not exit the app.&nbsp;</Text>
-        This step takes a couple of minutes but may take more in some cases
+        {isRemix
+          ? 'This step takes upto five minutes but can also take longer'
+          : 'This step takes a couple of minutes but may take more in some cases'}
       </Text>
     );
   }
@@ -532,12 +555,12 @@ const getStyles = (clock) =>
     timeLineWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(10),
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     timeLineProgressWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(5),
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     contentWrapper: {
       flexDirection: 'row',

@@ -1,5 +1,5 @@
 import { Box, Pressable } from 'native-base';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { MutableRefObject, useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 // hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
@@ -11,6 +11,7 @@ import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 // colors, aserts
 import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
+import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
@@ -55,22 +56,32 @@ const linearGradientBtn = {
   end: [1, 1],
 };
 function List(props) {
-  const listRef = useRef(null);
+  const listRef = useRef(null)
   const dispatch = useAppDispatch();
   const [currentPosition, setCurrentPosition] = useState(0);
 
   const onViewRef = React.useRef((viewableItems) => {
     setCurrentPosition(viewableItems.changed[0].index);
+    // closeRef.current = viewableItems.changed[0].index !== 0
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
 
   const pressNext = () => {
-    // props.setCloseBtnVisible(true)
     listRef.current.scrollToEnd({ animated: true });
   };
 
   return (
     <Box>
+      {currentPosition !== 0 ?
+        <TouchableOpacity style={styles.close} onPress={() => dispatch(setWhirlpoolSwiperModal(false))}>
+          <CloseGreen />
+        </TouchableOpacity> : null}
+      <Box style={styles.headerContainer}>
+        <Text style={styles.title} color='light.white'>
+          Some Definitions:
+        </Text>
+      </Box>
+
       <FlatList
         ref={listRef}
         data={swiperData}
@@ -108,20 +119,17 @@ function List(props) {
 function SwiperModal() {
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
-  // const [closeBtnVisible, setCloseBtnVisible] = useState(false)
   return (
     <KeeperModal
       visible={whirlpoolSwiperModal}
       close={() => {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
-      title="Some Definitions:"
+      title=""
       modalBackground={['light.gradientStart', 'light.gradientEnd']}
       textColor="light.white"
-      // Content={() => <List setCloseBtnVisible={(res) => setCloseBtnVisible(res)} />}
       Content={() => <List />}
-      DarkCloseIcon
-    // showCloseIcon={closeBtnVisible}
+      showCloseIcon={false}
     />
   );
 }
@@ -178,6 +186,22 @@ const styles = StyleSheet.create({
   ctaText: {
     fontSize: 13,
     letterSpacing: 1,
+  },
+  headerContainer: {
+    alignSelf: 'flex-start',
+    borderBottomWidth: 0,
+    backgroundColor: 'transparent',
+    width: '90%',
+  },
+  title: {
+    fontSize: 19,
+    letterSpacing: 1,
+    marginVertical: 20
+  },
+  close: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 });
 

@@ -22,7 +22,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
-import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
+import BatteryIllustration from 'src/assets/images/CautionIllustration.svg';
 import useWallets from 'src/hooks/useWallets';
 import { Box, HStack, VStack } from 'native-base';
 import useWhirlpoolWallets, {
@@ -65,6 +65,7 @@ function Footer({
   setShowBatteryWarningModal,
   setSendBadBankModalVisible,
   selectedAccount,
+  isRemix
 }) {
   const navigation = useNavigation();
 
@@ -106,6 +107,7 @@ function Footer({
         }
       }}
       selectedUTXOs={selectedUTXOs}
+      isRemix={isRemix}
     />
   ) : (
     <UTXOFooter
@@ -275,6 +277,7 @@ function UTXOManagement({ route, navigation }) {
           initiateWhirlpool={initiateWhirlpool}
           initateWhirlpoolMix={initateWhirlpoolMix}
           setIsRemix={setIsRemix}
+          isRemix={isRemix}
           enableSelection={enableSelection}
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
@@ -305,7 +308,7 @@ function UTXOManagement({ route, navigation }) {
                 <Box style={{ flexDirection: 'row' }}>
                   {/* <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text> */}
                   <Text style={styles.batteryModalText}>
-                    You will see the mix progress statuses in the next step.
+                    You will see the progress of your mix in the next step.
                   </Text>
                 </Box>
               </Box>
@@ -338,7 +341,12 @@ function UTXOManagement({ route, navigation }) {
         closeModal={() => setSendBadBankModalVisible(false)}
         onclick={() => {
           setSendBadBankModalVisible(false);
-          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+          navigation.dispatch(
+            CommonActions.navigate('Send', {
+              sender: whirlpoolWalletAccountMap.badbankWallet,
+              selectedUTXOs,
+            })
+          );
         }}
       />
 

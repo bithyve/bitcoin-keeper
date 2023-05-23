@@ -30,6 +30,7 @@ import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import BroadcastTX0Illustration from 'src/assets/images/BroadcastTX0Illustration.svg'
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
@@ -302,19 +303,25 @@ export default function BroadcastPremix({ route, navigation }) {
         visible={showBroadcastModal}
         close={() => navigateToWalletDetails()}
         title="Broadcasting Tx0"
-        subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool. The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but are encouraged to mix the sats before hodling or spending them."
+        subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (
-          <Box style={styles.modalFooter}>
-            <Box style={{ alignSelf: 'flex-end' }}>
-              <Buttons
-                primaryText="View Premix Account"
-                primaryCallback={() => navigateToWalletDetails()}
-              />
+          <Box>
+            <Box style={styles.BroadcastIllustrationWrapper}>
+              <BroadcastTX0Illustration />
+            </Box>
+            <Text color="light.greenText" style={styles.BroadcastContentText}>The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but are encouraged to mix the sats before hodling or spending them.</Text>
+            <Box style={styles.modalFooter}>
+              <Box style={{ alignSelf: 'flex-end' }}>
+                <Buttons
+                  primaryText="View Premix Account"
+                  primaryCallback={() => navigateToWalletDetails()}
+                />
+              </Box>
             </Box>
           </Box>
         )}
@@ -354,8 +361,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingTop: 10,
   },
+  BroadcastIllustrationWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  BroadcastContentText: {
+    fontSize: 13,
+    padding: 1,
+    letterSpacing: 0.65,
+    marginVertical: 10
+  },
   modalFooter: {
-    marginTop: 80,
+    marginTop: 10,
     flexDirection: 'row',
     alignContent: 'flex-end',
     justifyContent: 'flex-end',

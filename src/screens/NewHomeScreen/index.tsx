@@ -6,7 +6,7 @@ import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import VaultIcon from 'src/assets/images/vaultTab.svg';
 import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -109,7 +109,6 @@ function NewHomeScreen({ navigation }) {
       //
     }
   }
-
   const TabBarButton = useCallback(({ onPress, navigation, route }) => {
     if (route.name === 'Vault') {
       const active = navigation.isFocused('Vault');
@@ -164,13 +163,13 @@ export default NewHomeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    height: 38,
+    height: 45,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 30,
     paddingHorizontal: 27,
-    paddingVertical: 12,
+    paddingVertical: 15,
     marginHorizontal: 10,
   },
   label: {
@@ -184,7 +183,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
     justifyContent: 'center',
     alignItems: 'center',
-    height: hp(100),
-    paddingTop: hp(17),
+    height: hp(80),
+    paddingVertical: hp(17),
   },
 });
