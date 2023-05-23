@@ -278,6 +278,7 @@ function ChoosePlan(props) {
         }
       }
     } catch (error) {
+      setRequesting(false)
       console.log(error)
     }
   }
