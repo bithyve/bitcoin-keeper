@@ -36,26 +36,30 @@ const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
   return (
-    <TouchableOpacity
-      style={styles.addWalletContainer}
-      onPress={() =>
-        navigation.navigate('EnterWalletDetail', {
-          name: `Wallet ${walletIndex + 1}`,
-          description: 'Single-sig Wallet',
-          type: WalletType.DEFAULT,
-        })
-      }
-    >
-      <GradientIcon
-        Icon={AddSCardIcon}
-        height={40}
-        gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-      />
-
-      <Text color="light.white" style={styles.addWalletText}>
-        {wallet.AddNewWallet}
-      </Text>
-    </TouchableOpacity>
+    <View style={styles.addWalletContent}>
+      <TouchableOpacity
+        style={styles.addWalletContainer}
+        onPress={() =>
+          navigation.navigate('EnterWalletDetail', {
+            name: `Wallet ${walletIndex + 1}`,
+            description: 'Single-sig Wallet',
+            type: WalletType.DEFAULT,
+          })
+        }
+      >
+        <Text color="light.white" style={styles.addWalletText}>
+          {wallet.AddNewWallet}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.addWalletContainer}
+        onPress={() => navigation.navigate('ImportWallet')}
+      >
+        <Text color="light.white" style={styles.addWalletText}>
+          {wallet.ImportAWallet}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -211,12 +215,6 @@ const WalletsScreen = ({ navigation }) => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
 
-  const onPressBuyBitcoin = () => {
-    if (currentWallet) {
-      setShowBuyRampModal(true);
-    }
-  };
-
   const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
@@ -229,7 +227,7 @@ const WalletsScreen = ({ navigation }) => {
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           <Text style={styles.subTitleText} color="light.secondaryText">
-            Single sig wallets for smaller stacks and transactions
+            Keys on this app
           </Text>
         </Box>
         <Box style={styles.netBalanceView}>
@@ -268,28 +266,6 @@ const WalletsScreen = ({ navigation }) => {
             disabled={presentationName.length === 0}
           />
         </Box>
-        {/* <Box style={styles.listViewWrapper}>
-          <Box style={styles.tranferPolicyWrapper}>
-            <ListItemView
-              icon={<InheritanceIcon />}
-              title="Transfer Policy"
-              subTitle="From wallet to vault"
-              iconBackColor="light.greenText2"
-              onPress={() => {
-                if (currentWallet) setTransferPolicyVisible(true);
-              }}
-            />
-          </Box>
-          <Box style={styles.buyWrapper}>
-            <ListItemView
-              icon={<BitcoinIcon />}
-              title="Buy"
-              subTitle="Stack sats in your wallet"
-              iconBackColor="light.greenText2"
-              onPress={onPressBuyBitcoin}
-            />
-          </Box>
-        </Box> */}
       </Box>
       <KeeperModal
         visible={transferPolicyVisible}
@@ -457,5 +433,11 @@ const styles = StyleSheet.create({
   netBalanceView: {
     width: '40%',
     alignItems: 'center',
+  },
+  addWalletContent: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%',
   },
 });

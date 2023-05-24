@@ -87,7 +87,7 @@ function OnBoardingSlides({ navigation }) {
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
-            {currentPosition !== 1 && (
+            {currentPosition !== 2 && (
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={styles.skipTextWrapper}
@@ -109,6 +109,7 @@ function OnBoardingSlides({ navigation }) {
               snapToAlignment="center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
+              keyExtractor={item => item.id}
               renderItem={({ item }) => (
                 <OnboardingSlideComponent
                   title={item.title}
