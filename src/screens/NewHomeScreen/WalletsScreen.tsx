@@ -36,26 +36,30 @@ const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
   return (
-    <TouchableOpacity
-      style={styles.addWalletContainer}
-      onPress={() =>
-        navigation.navigate('EnterWalletDetail', {
-          name: `Wallet ${walletIndex + 1}`,
-          description: 'Single-sig Wallet',
-          type: WalletType.DEFAULT,
-        })
-      }
-    >
-      <GradientIcon
-        Icon={AddSCardIcon}
-        height={40}
-        gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-      />
-
-      <Text color="light.white" style={styles.addWalletText}>
-        {wallet.AddNewWallet}
-      </Text>
-    </TouchableOpacity>
+    <View style={styles.addWalletContent}>
+      <TouchableOpacity
+        style={styles.addWalletContainer}
+        onPress={() =>
+          navigation.navigate('EnterWalletDetail', {
+            name: `Wallet ${walletIndex + 1}`,
+            description: 'Single-sig Wallet',
+            type: WalletType.DEFAULT,
+          })
+        }
+      >
+        <Text color="light.white" style={styles.addWalletText}>
+          {wallet.AddNewWallet}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.addWalletContainer}
+        onPress={() => navigation.navigate('ImportWallet')}
+      >
+        <Text color="light.white" style={styles.addWalletText}>
+          {wallet.ImportAWallet}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -457,5 +461,11 @@ const styles = StyleSheet.create({
   netBalanceView: {
     width: '40%',
     alignItems: 'center',
+  },
+  addWalletContent: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%',
   },
 });
