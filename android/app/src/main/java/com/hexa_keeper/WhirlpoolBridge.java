@@ -14,4 +14,5 @@ public class WhirlpoolBridge {
     public static native String intopsbt(String previewStr, String tx0DataStr, String inputsStr,String addressBankStr, String changeAddrStr);
     public static native String start(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, String port);
     public static native String constructinput(String outpoint, Integer value, String scriptPubkey);
+    public static native String estimatetx0size(String nP2pkhInputs, String nP2shP2wpkhInputs, String nP2wpkhInputs, String nP2wpkhOutputs);
 }
