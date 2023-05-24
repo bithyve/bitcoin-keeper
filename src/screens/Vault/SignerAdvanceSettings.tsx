@@ -118,8 +118,21 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  const navigateToAssignSigner = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'AssignSignerType',
+        params: {
+          parentNavigation: navigation,
+          signer,
+        },
+      })
+    );
+  };
+
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isLedger = signer.type === SignerType.LEDGER;
+  const isOtherSD = signer.type === SignerType.OTHER_SD;
 
   const changePolicy = () => {
     if (isPolicyServer) navigateToPolicyChange(signer);
@@ -196,6 +209,21 @@ function SignerAdvanceSettings({ route }: any) {
           infoText="Select to register the vault with this device"
           interactionText="Registering..."
         />
+      )}
+      {isOtherSD && (
+        <TouchableOpacity onPress={navigateToAssignSigner}>
+          <HStack style={styles.item}>
+            <VStack px={4} width="90%">
+              <Text color="light.primaryText" style={[font14]}>
+                Assign Type
+              </Text>
+              <Text color="light.primaryText" style={[font12]} light>
+                Identify your signer type for enhanced connectivity and communication
+              </Text>
+            </VStack>
+            <RightArrowIcon />
+          </HStack>
+        </TouchableOpacity>
       )}
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal

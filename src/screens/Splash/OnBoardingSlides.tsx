@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -27,6 +27,7 @@ import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideC
 const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
+  const onboardingSlideRef = useRef(null);
   const { translations } = useContext(LocalizationContext);
   const { onboarding } = translations;
   const { common } = translations;
@@ -62,7 +63,8 @@ function OnBoardingSlides({ navigation }) {
       id: 3,
       title: (
         <>
-          <Text style={styles.info}>{onboarding.whirlpool}</Text>
+          {`${onboarding.slide07Title} `}
+          <Text italic style={styles.info}>{onboarding.whirlpool}</Text>
         </>
       ),
       paragraph: onboarding.slide07Paragraph,
@@ -99,6 +101,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box flex={0.9}>
             <FlatList
+              ref={onboardingSlideRef}
               data={items}
               horizontal
               snapToInterval={width}
@@ -138,8 +141,13 @@ function OnBoardingSlides({ navigation }) {
               ) : (
                 <Box alignSelf="center" backgroundColor="transparent">
                   <TouchableOpacity
-                    onPress={() =>
-                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                    onPress={() => {
+                      if (currentPosition < items.length - 1) {
+                        onboardingSlideRef.current.scrollToIndex({ animated: true, index: currentPosition + 1 });
+                      } else {
+                        navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                      }
+                    }
                     }
                   >
                     <LinearGradient
@@ -159,7 +167,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
         </SafeAreaView>
       </ImageBackground>
-    </LinearGradient>
+    </LinearGradient >
   );
 }
 
@@ -215,7 +223,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 14,
-    textAlign: 'right',
+    textAlign: 'center',
     opacity: 0.7,
   },
   startAppText: {

@@ -75,17 +75,23 @@ function UTXOElement({
   labels,
   currentWallet,
   selectedAccount,
+  initateWhirlpoolMix,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection && item.confirmed;
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
+
   return (
     <TouchableOpacity
       style={styles.utxoCardContainer}
       onPress={() => {
-        if (!item.confirmed) {
-          showToast('Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID', <ToastErrorIcon />);
+        if (enableSelection && !item.confirmed) {
+          showToast(
+            'Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID',
+            <ToastErrorIcon />
+          );
+          return;
         }
         if (allowSelection) {
           const mapToUpdate = selectedUTXOMap;
@@ -94,7 +100,8 @@ function UTXOElement({
           } else {
             if (
               (selectedAccount === WalletType.PRE_MIX || selectedAccount === WalletType.POST_MIX) &&
-              Object.keys(selectedUTXOMap).length >= 1
+              Object.keys(selectedUTXOMap).length >= 1 &&
+              initateWhirlpoolMix
             ) {
               showToast('Only a single UTXO mix allowed at a time', null, 3000);
               return;
@@ -173,6 +180,7 @@ function UTXOList({
   currentWallet,
   emptyIcon,
   selectedAccount,
+  initateWhirlpoolMix,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -198,6 +206,7 @@ function UTXOList({
           colorMode={colorMode}
           currentWallet={currentWallet}
           selectedAccount={selectedAccount}
+          initateWhirlpoolMix={initateWhirlpoolMix}
         />
       )}
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}

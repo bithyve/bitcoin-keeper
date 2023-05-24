@@ -28,17 +28,17 @@ const getTotalBalanceWhirlpoolAccount = (
 function UTXOsManageNavBox({
   onClick,
   isWhirlpoolWallet,
-  currentWallet,
+  wallet,
 }: {
   onClick: any;
   isWhirlpoolWallet: boolean;
-  currentWallet: Wallet | Vault;
+  wallet: Wallet | Vault;
 }) {
   const { getSatUnit, getBalance } = useBalance();
 
   const whirlpoolWalletAccountMap = useWhirlpoolWallets({
-    wallets: [currentWallet],
-  })?.[currentWallet.id];
+    wallets: [wallet],
+  })?.[wallet.id];
 
   return (
     <Pressable
@@ -51,7 +51,7 @@ function UTXOsManageNavBox({
           <Text style={styles.titleText}>Manage UTXOs and Whirlpool</Text>
           <Text style={styles.subTitleText}>
             Total Balance:{' '}
-            {getBalance(getTotalBalanceWhirlpoolAccount(currentWallet, whirlpoolWalletAccountMap))}
+            {getBalance(getTotalBalanceWhirlpoolAccount(wallet, whirlpoolWalletAccountMap))}
             {getSatUnit()}
           </Text>
         </Box>

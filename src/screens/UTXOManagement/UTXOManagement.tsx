@@ -12,8 +12,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
-// import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
-import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -23,14 +22,12 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
-import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
+import BatteryIllustration from 'src/assets/images/CautionIllustration.svg';
 import useWallets from 'src/hooks/useWallets';
 import { Box, HStack, VStack } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
-import RestClient from 'src/core/services/rest/RestClient';
-import { captureError } from 'src/core/services/sentry';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -68,6 +65,7 @@ function Footer({
   setShowBatteryWarningModal,
   setSendBadBankModalVisible,
   selectedAccount,
+  isRemix
 }) {
   const navigation = useNavigation();
 
@@ -109,6 +107,7 @@ function Footer({
         }
       }}
       selectedUTXOs={selectedUTXOs}
+      isRemix={isRemix}
     />
   ) : (
     <UTXOFooter
@@ -228,22 +227,6 @@ function UTXOManagement({ route, navigation }) {
     [cleanUp]
   );
 
-  const [torInitialised, setTorInitialised] = useState(false);
-
-  useEffect(() => {
-    RestClient.initWhirlpoolTor()
-      .then(() => {
-        setTorInitialised(true);
-      })
-      .catch((e) => {
-        if (RestClient.getWhirlpoolTorPort()) {
-          setTorInitialised(true);
-        } else {
-          captureError(e);
-        }
-      });
-  }, []);
-
   return (
     <ScreenWrapper>
       <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
@@ -280,12 +263,10 @@ function UTXOManagement({ route, navigation }) {
           currentWallet={selectedWallet}
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
           selectedAccount={selectedAccount}
+          initateWhirlpoolMix={initateWhirlpoolMix}
         />
       </Box>
-      {!(
-        [WalletType.PRE_MIX, WalletType.POST_MIX].includes(selectedAccount as WalletType) &&
-        !torInitialised
-      ) && utxos?.length ? (
+      {utxos?.length ? (
         <Footer
           utxos={utxos}
           setInitiateWhirlpool={setInitiateWhirlpool}
@@ -296,15 +277,14 @@ function UTXOManagement({ route, navigation }) {
           initiateWhirlpool={initiateWhirlpool}
           initateWhirlpoolMix={initateWhirlpoolMix}
           setIsRemix={setIsRemix}
+          isRemix={isRemix}
           enableSelection={enableSelection}
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
           setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
           selectedAccount={selectedAccount}
         />
-      ) : (
-        <ActivityIndicator />
-      )}
+      ) : null}
       <KeeperModal
         justifyContent="flex-end"
         visible={showBatteryWarningModal}
@@ -328,7 +308,7 @@ function UTXOManagement({ route, navigation }) {
                 <Box style={{ flexDirection: 'row' }}>
                   {/* <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text> */}
                   <Text style={styles.batteryModalText}>
-                    You will see the mix progress statuses in the next step.
+                    You will see the progress of your mix in the next step.
                   </Text>
                 </Box>
               </Box>
@@ -361,7 +341,12 @@ function UTXOManagement({ route, navigation }) {
         closeModal={() => setSendBadBankModalVisible(false)}
         onclick={() => {
           setSendBadBankModalVisible(false);
-          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+          navigation.dispatch(
+            CommonActions.navigate('Send', {
+              sender: whirlpoolWalletAccountMap.badbankWallet,
+              selectedUTXOs,
+            })
+          );
         }}
       />
 

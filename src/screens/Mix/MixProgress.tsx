@@ -38,6 +38,7 @@ import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
 import { io } from 'src/core/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -48,8 +49,6 @@ const getBackgroungColor = (completed: boolean, error: boolean): string => {
   }
   return 'light.dustySageGreen';
 };
-
-
 
 function MixProgress({
   route,
@@ -85,42 +84,49 @@ function MixProgress({
   const statusData = [
     {
       title: 'Subscribing',
+      subTitle: 'Checking connection to the Coordinator',
       referenceCode: Step.Subscribing,
       completed: false,
       error: false,
     },
     {
       title: 'Registering Input',
+      subTitle: 'Checking whether the UTXOs are ready to enter the pool',
       referenceCode: Step.RegisteringInput,
       completed: false,
       error: false,
     },
     {
       title: 'Confirming Input',
+      subTitle: 'Entering UTXOs into the pool.',
       completed: false,
       referenceCode: Step.ConfirmingInput,
       error: false,
     },
     {
       title: 'Waiting For Coordinator',
+      subTitle: 'Entering UTXOs into the pool.',
       referenceCode: Step.WaitingForCoordinator,
       completed: false,
       error: false,
     },
     {
       title: 'Registering Output',
+      subTitle: 'Constructing a transaction to create a brand new UTXO',
       referenceCode: Step.RegisteringOutput,
       completed: false,
       error: false,
     },
     {
       title: 'Signing',
+      subTitle: 'Signing and broadcasting the transaction',
       referenceCode: Step.Signing,
       completed: false,
       error: false,
     },
     {
       title: isRemix ? 'Remix completed successfully' : 'Mix completed successfully',
+      subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
       isLast: true,
@@ -182,44 +188,61 @@ function MixProgress({
 
   function TimeLine({
     title,
+    subTitle,
     isLast,
     completed,
     error,
-    index
+    index,
   }: {
     title: string;
+    subTitle: string;
     isLast: boolean;
     completed: boolean;
     error: boolean;
     index: number;
   }) {
-    const inProgress = statuses[index].completed && !statuses[index + 1]?.completed
+    const inProgress = statuses[index].completed && !statuses[index + 1]?.completed;
     return (
       <Box style={styles.contentWrapper}>
-        <Box style={styles.timeLineWrapper}>
-          {inProgress ?
+        <Box style={inProgress ? styles.timeLineProgressWrapper : styles.timeLineWrapper}>
+          {inProgress ? (
             <Box style={styles.animatedCircularborder}>
-              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot} >
+              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot}>
                 <Animated.View style={styles.whirlpoolIconStyle}>
                   <Gear0 />
                 </Animated.View>
               </Box>
             </Box>
-            :
+          ) : (
             <Box style={styles.circularborder}>
-              <Box backgroundColor={getBackgroungColor(completed, error)} style={styles.greentDot} />
-            </Box>}
+              <Box
+                backgroundColor={getBackgroungColor(completed, error)}
+                style={styles.greentDot}
+              />
+            </Box>
+          )}
           {isLast ? null : (
-            <Box style={styles.verticalBorderWrapper}>
+            <Box
+              style={
+                inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper
+              }
+            >
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
               <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
             </Box>
           )}
         </Box>
-        <Text color="light.secondaryText" style={styles.timeLineTitle}>
-          {title}
-        </Text>
+        <Box flexDirection="column">
+          <Text color="light.secondaryText" style={styles.timeLineTitle}>
+            {title}
+          </Text>
+          {inProgress ? (
+            <Text color="light.secondaryText" style={styles.timeLineTitle}>
+              {subTitle}
+            </Text>
+          ) : null}
+        </Box>
       </Box>
     );
   }
@@ -295,14 +318,19 @@ function MixProgress({
           external: { incrementBy: 1 },
         })
       );
+      showToast(
+        'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
+        <TickIcon />,
+        3000
+      );
       setTimeout(async () => {
         dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
+        navigation.navigate('UTXOManagement', {
+          data: depositWallet,
+          accountType: WalletType.POST_MIX,
+          routeName: 'Wallet',
+        });
       }, 3000);
-      navigation.navigate('UTXOManagement', {
-        data: depositWallet,
-        accountType: WalletType.POST_MIX,
-        routeName: 'Wallet',
-      });
     }
   };
 
@@ -388,8 +416,9 @@ function MixProgress({
   };
 
   const renderItem = ({ item, index }) => (
-    < TimeLine
+    <TimeLine
       title={item.title}
+      subTitle={item.subTitle}
       completed={item.completed}
       isLast={item?.isLast}
       error={item.error}
@@ -399,8 +428,10 @@ function MixProgress({
   function MixDurationText() {
     return (
       <Text style={styles.mixingSubtitleText}>
-        Do not exit this app, this may take
-        <Text style={styles.durationTextStyle}>&nbsp;upto 2 minutes</Text>
+        Please<Text style={styles.durationTextStyle}>&nbsp;do not exit the app.&nbsp;</Text>
+        {isRemix
+          ? 'This step takes upto five minutes but can also take longer'
+          : 'This step takes a couple of minutes but may take more in some cases'}
       </Text>
     );
   }
@@ -496,22 +527,25 @@ const getStyles = (clock) =>
       borderStyle: 'dotted',
       justifyContent: 'center',
       alignItems: 'center',
-      width: hp(30),
-      height: hp(30),
+      width: hp(35),
+      height: hp(35),
       zIndex: 999,
     },
     animatedGreentDot: {
-      width: hp(25),
-      height: hp(25),
+      width: hp(30),
+      height: hp(30),
       borderRadius: 50,
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
     },
     whirlpoolIconStyle: {
       transform: [{ rotate: clock }],
     },
     verticalBorderWrapper: {
       marginVertical: hp(5),
+    },
+    verticalProgressBorderWrapper: {
+      marginVertical: hp(10),
     },
     verticalBorder: {
       width: hp(3),
@@ -521,6 +555,12 @@ const getStyles = (clock) =>
     timeLineWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(10),
+      justifyContent: 'center',
+    },
+    timeLineProgressWrapper: {
+      alignItems: 'center',
+      marginHorizontal: wp(5),
+      justifyContent: 'center',
     },
     contentWrapper: {
       flexDirection: 'row',
@@ -557,12 +597,12 @@ const getStyles = (clock) =>
       width: '60%',
     },
     mixingSubtitleText: {
-      fontSize: 12
+      fontSize: 12,
     },
     durationTextStyle: {
       fontWeight: 'bold',
-      fontStyle: 'italic'
-    }
+      fontStyle: 'italic',
+    },
   });
 
 export default MixProgress;

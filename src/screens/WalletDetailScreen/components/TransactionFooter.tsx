@@ -8,7 +8,7 @@ import Send from 'src/assets/images/send.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import BuyBitcoin from 'src/assets/images/icon_buy.svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import BottomMenuItem from '../BottomMenuItem';
+import BottomMenuItem from '../../WalletDetails/BottomMenuItem';
 import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 
 function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
@@ -39,9 +39,9 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
             title="Receive"
           />
         )}
-        {allowedRecieveTypes.includes(currentWallet.type) && (
+        {/* {allowedRecieveTypes.includes(currentWallet.type) && (
           <BottomMenuItem onPress={onPressBuyBitcoin} icon={<BuyBitcoin />} title="Buy Bitcoin" />
-        )}
+        )} */}
         <BottomMenuItem
           onPress={() =>
             navigation.dispatch(CommonActions.navigate('WalletSettings', { wallet: currentWallet }))

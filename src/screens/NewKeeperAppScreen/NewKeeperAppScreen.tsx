@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unstable-nested-components */
-import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
+import { ActivityIndicator, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -16,7 +16,11 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
+import { isTestnet } from 'src/common/constants/Bitcoin';
+import openLink from 'src/utils/OpenLink';
+import Fonts from 'src/common/Fonts';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
+
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   return (
@@ -124,12 +128,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
       dispatch(setupKeeperApp());
     }
   }
-
+  const modalTitle = isTestnet() ? `Setting up your app(Testnet)` : 'Setting up your app'
   const getSignUpModalContent = () => ({
-    title: 'Shake to send feedback',
-    subTitle: 'Shake your device to send us a bug report or a feature request',
+    title: modalTitle,
+    subTitle: 'Setup will take a few seconds. You would be able to proceed soon.',
     message:
-      'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
+      'Shake your phone and let us know if you find a bug. Our team will get your message along with other app-related information.',
   });
 
   function SignUpModalContent() {
@@ -189,6 +193,21 @@ function NewKeeperApp({ navigation }: { navigation }) {
           />
         </Box>
       </Box>
+      <Box style={styles.footerContainer}>
+        <Box style={styles.noteContainer}>
+          <Box opacity={1}>
+            <Text color="light.black" style={styles.title}>
+              Terms of Service
+            </Text>
+          </Box>
+          <Box style={styles.subTitleWrapper}>
+            <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
+            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
+            <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
+            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+          </Box>
+        </Box>
+      </Box>
       <KeeperModal
         dismissible={false}
         close={() => { }}
@@ -201,7 +220,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setInitiating(true);
         }}
         subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
+        subTitleWidth={wp(250)}
         showCloseIcon={false}
       />
       <KeeperModal
@@ -236,8 +255,36 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   headerContainer: {
-    width: wp(280),
+    // width: wp(280),
   },
+  footerContainer: {
+    position: 'absolute',
+    bottom: 10,
+    width: wp(375),
+    margin: 20,
+  },
+  noteContainer: {
+    padding: 4,
+    width: wp(285)
+  },
+  title: {
+    fontSize: 15,
+    letterSpacing: 1.12,
+  },
+  subTitle: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+  },
+  termOfServiceText: {
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: Fonts.FiraSansMedium,
+    fontStyle: 'italic'
+  },
+  subTitleWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  }
 });
 
 export default NewKeeperApp;

@@ -122,7 +122,7 @@ export interface SendPhaseOneAction extends Action {
       address: string;
       amount: number;
     }[];
-    UTXOs?: UTXO[];
+    selectedUTXOs?: UTXO[];
   };
 }
 
@@ -132,7 +132,7 @@ export const sendPhaseOne = (payload: {
     address: string;
     amount: number;
   }[];
-  UTXOs?: UTXO[];
+  selectedUTXOs?: UTXO[];
 }): SendPhaseOneAction => ({
   type: SEND_PHASE_ONE,
   payload,
@@ -243,12 +243,14 @@ export interface CalculateSendMaxFeeAction extends Action {
   payload: {
     numberOfRecipients: number;
     wallet: Wallet | Vault;
+    selectedUTXOs?: UTXO[];
   };
 }
 
 export const calculateSendMaxFee = (payload: {
   numberOfRecipients: number;
   wallet: Wallet | Vault;
+  selectedUTXOs?: UTXO[];
 }): CalculateSendMaxFeeAction => ({
   type: CALCULATE_SEND_MAX_FEE,
   payload,

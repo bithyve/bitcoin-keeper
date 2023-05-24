@@ -8,7 +8,7 @@ import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetailScree
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from 'src/theme/Colors';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
-import BottomMenuItem from '../../screens/WalletDetailScreen/BottomMenuItem';
+import BottomMenuItem from '../../screens/WalletDetails/BottomMenuItem';
 
 function UTXOFooter({
   setEnableSelection,
@@ -45,7 +45,7 @@ function UTXOFooter({
               setInitateWhirlpoolMix(true);
             }}
             icon={<MixIcon />}
-            title={wallet?.type === WalletType.POST_MIX ? 'Start Remix' : 'Start Mix'}
+            title={wallet?.type === WalletType.POST_MIX ? 'Select for Remix' : 'Select for Mix'}
           />
         )}
         {allowedSendTypes.includes(wallet?.type) && (
