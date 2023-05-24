@@ -18,6 +18,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import openLink from 'src/utils/OpenLink';
+import Fonts from 'src/common/Fonts';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 
@@ -179,6 +180,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             paddingTop={3}
             enableBack={false}
             headerTitleColor="black"
+            textPadding={0}
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -199,10 +201,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
               Terms of Service
             </Text>
           </Box>
-          <Box>
-            <Text color="light.secondaryText" style={styles.subTitle}>
-              By proceeding, you agree to our <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Terms of Service</Text></TouchableOpacity> and <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="light.greenText02" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
-            </Text>
+          <Box style={styles.subTitleWrapper}>
+            <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
+            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
+            <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
+            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
           </Box>
         </Box>
       </Box>
@@ -253,7 +256,7 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   headerContainer: {
-    width: wp(280),
+    // width: wp(280),
   },
   footerContainer: {
     position: 'absolute',
@@ -263,19 +266,24 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     padding: 4,
+    width: wp(285)
   },
   title: {
     fontSize: 15,
     letterSpacing: 1.12,
   },
   subTitle: {
-    fontSize: 13,
+    fontSize: 12,
     letterSpacing: 0.6,
   },
   termOfServiceText: {
-    fontSize: 13,
-    textDecorationLine: 'underline',
-    fontWeight: 'bold'
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: Fonts.FiraSansCondensedMediumItalic,
+  },
+  subTitleWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
   }
 });
 
