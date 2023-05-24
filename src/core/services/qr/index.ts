@@ -11,10 +11,11 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from '../sentry';
 
 export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
+  let scanPercentage;
   try {
     // Create the decoder object
     decoder.receivePart(bytes);
-    const scanPercentage = Math.floor(decoder.estimatedPercentComplete() * 100);
+    scanPercentage = Math.floor(decoder.estimatedPercentComplete() * 100);
     if (decoder.isComplete()) {
       const ur = decoder.resultUR();
       if (ur.type === 'crypto-account') {
@@ -37,7 +38,6 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
       }
 
       if (ur.type === 'crypto-output') {
-        console.log('here co');
         const cryptOutput = CryptoOutput.fromCBOR(ur.cbor);
         return { data: cryptOutput.toString(), percentage: scanPercentage };
       }
@@ -50,6 +50,7 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
     return { data: null, percentage: scanPercentage };
   } catch (error) {
     captureError(error);
+    return { data: null, percentage: scanPercentage };
   }
 };
 

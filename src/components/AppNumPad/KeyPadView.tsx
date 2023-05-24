@@ -43,18 +43,10 @@ const KeyPadView: React.FC<Props> = ({
       <Box style={styles.emptyBtnView}>
         <Text flex={1} padding={15} />
       </Box>
-      <TouchableOpacity
-        onPress={() => onPressNumber('0')}
-        activeOpacity={1}
-        style={styles.keyPadElementTouchable}
-      >
-        <Text color={keyColor} fontSize={25}>
-          0
-        </Text>
-      </TouchableOpacity>
+      <KeyPadButton title="0" onPressNumber={() => onPressNumber('0')} keyColor={keyColor} />
       <TouchableOpacity
         onPress={() => onDeletePressed()}
-        activeOpacity={1}
+        activeOpacity={0.5}
         testID="btn_clear"
         style={styles.keyPadElementTouchable}
       >

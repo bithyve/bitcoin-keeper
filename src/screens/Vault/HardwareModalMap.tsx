@@ -116,12 +116,11 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
       return {
         Illustration: <MobileKeyIllustration />,
         Instructions: [
-          `To secure this key, you need the Recovery Phrase of the wallets to be backed up`,
-          `This key available for signing transactions if you confirm your passcode or biometrics`,
+          `Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.`,
         ],
         title: 'Set up a Mobile Key',
         subTitle:
-          'This key available for signing transactions if you confirm your passcode or biometrics',
+          'Your passcode or biometrics act as your key for signing transactions',
       };
     case SignerType.LEDGER:
       return {
@@ -211,11 +210,11 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         Illustration: <SeedWordsIllustration />,
         Instructions: [
           `Once the transaction is signed the key is not stored on the app.`,
-          `Make sure that you are doing this step in private as exposing the Recovery Phrase will compromise the Soft Signer.`,
+          `Make sure that you're noting down the words in private as exposing them will compromise the Seed Key`,
         ],
-        title: 'Keep your Soft Signer ready',
+        title: 'Setting up Seed Key',
         subTitle:
-          'This is the twelve word Recovery Phrase you would have noted down when creating the vault',
+          'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
       };
     case SignerType.TAPSIGNER:
       return {
@@ -443,30 +442,28 @@ function PasswordEnter({
   };
 
   return (
-    <Box width={hp(280)}>
-      <Box>
-        <CVVInputsView
-          passCode={password}
-          passcodeFlag={false}
-          backgroundColor
-          textColor
-          length={4}
-        />
-        <Text style={styles.infoText} color="light.greenText">
-          The app will use the Mobile Key to sign on entering the correct Passcode
-        </Text>
-        <Box mt={10} alignSelf="flex-end" mr={2}>
-          <Box>
-            {inProgress ?
-              <ActivityIndicator size="small" />
-              :
-              <Buttons
-                primaryCallback={addMobileKeyWithProgress}
-                primaryText="Confirm"
-                primaryLoading={inProgress}
-              />
-            }
-          </Box>
+    <Box style={styles.passwordContainer}>
+      <CVVInputsView
+        passCode={password}
+        passcodeFlag={false}
+        backgroundColor
+        textColor
+        length={4}
+      />
+      <Text style={styles.infoText} color="light.greenText">
+        The app will use the Mobile Key to sign on entering the correct Passcode
+      </Text>
+      <Box mt={10} alignSelf="flex-end" mr={2}>
+        <Box>
+          {inProgress ?
+            <ActivityIndicator size="small" />
+            :
+            <Buttons
+              primaryCallback={addMobileKeyWithProgress}
+              primaryText="Confirm"
+              primaryLoading={inProgress}
+            />
+          }
         </Box>
       </Box>
       <KeyPadView
@@ -500,14 +497,6 @@ function HardwareModalMap({
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const bioMetricWithProgress = () => {
-    setInProgress(true)
-  }
-  useEffect(() => {
-    if (inProgress) {
-      biometricAuth()
-    }
-  }, [inProgress])
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
   const { pinHash } = useAppSelector((state) => state.storage);
@@ -630,6 +619,7 @@ function HardwareModalMap({
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
+        setInProgress(true)
         setTimeout(async () => {
           const { success, signature } = await RNBiometrics.createSignature({
             promptMessage: 'Authenticate',
@@ -637,6 +627,7 @@ function HardwareModalMap({
             cancelButtonText: 'Use PIN',
           });
           if (success) {
+            setInProgress(false)
             const res = await SecureStore.verifyBiometricAuth(signature, appId);
             if (res.success) {
               const mobileKey = await setupMobileKey({ primaryMnemonic });
@@ -649,9 +640,11 @@ function HardwareModalMap({
           }
         }, 200);
       } catch (error) {
+        setInProgress(false)
         captureError(error);
       }
     } else {
+      setInProgress(false)
       setPasswordModal(true);
     }
   };
@@ -678,7 +671,7 @@ function HardwareModalMap({
       case SignerType.POLICY_SERVER:
         return navigateToSigningServerSetup();
       case SignerType.MOBILE_KEY:
-        return bioMetricWithProgress();
+        return biometricAuth();
       case SignerType.SEED_WORDS:
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
@@ -725,6 +718,10 @@ function HardwareModalMap({
   );
 }
 const styles = StyleSheet.create({
+  passwordContainer: {
+    width: wp(280),
+    marginLeft: wp(5)
+  },
   bulletContainer: {
     marginTop: 4,
     flexDirection: 'row',
@@ -740,7 +737,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     padding: 3,
     fontSize: 13,
-    width: windowWidth * 0.78,
+    width: wp(285),
   },
 });
 export default HardwareModalMap;

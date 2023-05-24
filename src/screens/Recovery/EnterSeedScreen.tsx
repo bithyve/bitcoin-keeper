@@ -395,7 +395,7 @@ function EnterSeedScreen({ route }) {
               style={[
                 styles.suggestionScrollView,
                 {
-                  marginTop: getPosition(onChangeIndex) * hp(55),
+                  marginTop: getPosition(onChangeIndex) * hp(70),
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
