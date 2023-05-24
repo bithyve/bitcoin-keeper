@@ -137,7 +137,7 @@ export default function PoolSelection({ route, navigation }) {
     );
     const tx0Fee = premixFee.fee * approximateTx0Size;
     const coordinatorFee = pool.feeValue;
-    const minMixAmount = pool.mustMixBalanceMin + coordinatorFee + tx0Fee;
+    const minMixAmount = pool.mustMixBalanceCap + coordinatorFee + tx0Fee;
     return minMixAmount;
   };
 
