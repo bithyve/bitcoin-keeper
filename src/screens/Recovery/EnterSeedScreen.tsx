@@ -119,6 +119,7 @@ function EnterSeedScreen({ route }) {
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
+  const inputRef = useRef([]);
 
   const openInvalidSeedsModal = () => {
     setRecoveryLoading(false);
@@ -128,7 +129,10 @@ function EnterSeedScreen({ route }) {
     setRecoveryLoading(false);
     setInvalidSeedsModal(false);
   };
-
+  const getFocusIndex = (index, seedIndex) => {
+    const newIndex = index + 2 + seedIndex * 6;
+    return newIndex;
+  };
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
@@ -336,12 +340,13 @@ function EnterSeedScreen({ route }) {
                   {getFormattedNumber(index)}
                 </Text>
                 <TextInput
+                  ref={(el) => (inputRef.current[index] = el)}
                   style={[
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -351,6 +356,7 @@ function EnterSeedScreen({ route }) {
                   returnKeyType="next"
                   autoCorrect={false}
                   autoCapitalize="none"
+                  blurOnSubmit={false}
                   keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
                   onChangeText={(text) => {
                     const data = [...seedData];
@@ -406,6 +412,9 @@ function EnterSeedScreen({ route }) {
                       data[onChangeIndex].name = word.trim();
                       setSeedData(data);
                       setSuggestedWords([]);
+                      // const focusIndex = getFocusIndex( onChangeIndex, index )
+                      // if( focusIndex != 7 && focusIndex != 13&& focusIndex != 19&& focusIndex != 25 )
+                      inputRef.current[onChangeIndex + 1].focus();
                     }}
                   >
                     <Text style={styles.suggestionWord}>{word}</Text>
@@ -461,7 +470,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
