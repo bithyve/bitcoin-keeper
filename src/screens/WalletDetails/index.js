@@ -2,6 +2,8 @@ import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, HStack, Pressable, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+
+import idx from 'idx';
 import { useNavigation } from '@react-navigation/native';
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
@@ -13,6 +15,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import HeaderTitle from 'src/components/HeaderTitle';
+import useWallets from 'src/hooks/useWallets';
 
 import { WalletType } from 'src/core/wallets/enums';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -25,7 +28,6 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
-import useWallets from 'src/hooks/useWallets';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -67,6 +69,11 @@ function WalletDetails({ route }) {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = wallet;
+
+  const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
+  const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
+  const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
+
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -248,6 +255,9 @@ function WalletDetails({ route }) {
         showBuyRampModal={showBuyRampModal}
         setShowBuyRampModal={setShowBuyRampModal}
         wallet={wallet}
+        receivingAddress={receivingAddress}
+        balance={balance}
+        name={presentationName}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
     </Box>
