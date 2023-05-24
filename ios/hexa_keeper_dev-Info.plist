@@ -74,6 +74,7 @@
 		<string>RobotoCondensed-Light.ttf</string>
 		<string>RobotoCondensed-LightItalic.ttf</string>
 		<string>RobotoCondensed-Regular.ttf</string>
+		<string>FiraSansCondensed-MediumItalic.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
