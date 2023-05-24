@@ -229,7 +229,7 @@ const WalletsScreen = ({ navigation }) => {
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           <Text style={styles.subTitleText} color="light.secondaryText">
-            Single sig wallets for smaller stacks and transactions
+            Keys on this app
           </Text>
         </Box>
         <Box style={styles.netBalanceView}>

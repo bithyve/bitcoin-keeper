@@ -46,7 +46,7 @@ function VaultScreen() {
             Your Vault
           </Text>
           <Text style={styles.subTitleText} color="light.secondaryText">
-            Beach and sunshine baby!
+            Keys on Signing Devices
           </Text>
         </Box>
         <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
