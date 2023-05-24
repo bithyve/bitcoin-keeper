@@ -215,12 +215,6 @@ const WalletsScreen = ({ navigation }) => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
 
-  const onPressBuyBitcoin = () => {
-    if (currentWallet) {
-      setShowBuyRampModal(true);
-    }
-  };
-
   const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
@@ -272,28 +266,6 @@ const WalletsScreen = ({ navigation }) => {
             disabled={presentationName.length === 0}
           />
         </Box>
-        {/* <Box style={styles.listViewWrapper}>
-          <Box style={styles.tranferPolicyWrapper}>
-            <ListItemView
-              icon={<InheritanceIcon />}
-              title="Transfer Policy"
-              subTitle="From wallet to vault"
-              iconBackColor="light.greenText2"
-              onPress={() => {
-                if (currentWallet) setTransferPolicyVisible(true);
-              }}
-            />
-          </Box>
-          <Box style={styles.buyWrapper}>
-            <ListItemView
-              icon={<BitcoinIcon />}
-              title="Buy"
-              subTitle="Stack sats in your wallet"
-              iconBackColor="light.greenText2"
-              onPress={onPressBuyBitcoin}
-            />
-          </Box>
-        </Box> */}
       </Box>
       <KeeperModal
         visible={transferPolicyVisible}
