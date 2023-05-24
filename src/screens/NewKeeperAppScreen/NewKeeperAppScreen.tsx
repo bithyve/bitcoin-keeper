@@ -180,6 +180,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             paddingTop={3}
             enableBack={false}
             headerTitleColor="black"
+            textPadding={0}
           />
         </Box>
         <Box style={styles.tileContainer}>
