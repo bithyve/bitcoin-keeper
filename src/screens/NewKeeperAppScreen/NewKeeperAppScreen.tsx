@@ -278,8 +278,7 @@ const styles = StyleSheet.create({
   termOfServiceText: {
     fontSize: 12,
     fontWeight: '400',
-    fontFamily: Fonts.FiraSansMedium,
-    fontStyle: 'italic'
+    fontFamily: Fonts.FiraSansCondensedMediumItalic,
   },
   subTitleWrapper: {
     flexDirection: 'row',
