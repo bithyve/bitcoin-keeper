@@ -100,6 +100,20 @@ RCT_EXPORT_METHOD(tx0Push:(NSString *)tx_str
   }];
 }
 
+RCT_EXPORT_METHOD(estimateTx0Size:(NSString *)n_p2pkh_inputs
+                  n_p2sh_p2wpkh_inputs:(NSString *)n_p2sh_p2wpkh_inputs
+                  n_p2wpkh_inputs:(NSString *)n_p2wpkh_inputs
+                  n_p2wpkh_outputs:(NSString *)n_p2wpkh_outputs
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
+  
+  [helper estimateTx0SizeWithN_p2pkh_inputs:n_p2pkh_inputs n_p2sh_p2wpkh_inputs:n_p2sh_p2wpkh_inputs n_p2wpkh_inputs:n_p2pkh_inputs n_p2wpkh_outputs:n_p2wpkh_outputs callback:^(NSString * _Nonnull response) {
+    resolve(response);
+  }];
+}
+
 RCT_EXPORT_METHOD(blocking:(NSString *)input_str
                   private_key_str:(NSString *)private_key_str
                   destination_addr_str:(NSString *)destination_addr_str
