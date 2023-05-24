@@ -353,7 +353,6 @@ function WalletSettings({ route }) {
         <KeeperModal
           visible={transferPolicyVisible}
           close={() => {
-            showToast('Transfer Policy Changed', <TickIcon />);
             setTransferPolicyVisible(false);
           }}
           title="Edit Transfer Policy"

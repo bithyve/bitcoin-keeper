@@ -172,6 +172,38 @@ export default class WhirlpoolServices {
   };
 
   /**
+   * estimaes the soze of tx0 treansaction
+   * @param  {string} nP2pkhInputs
+   * @param  {string} nP2shP2wpkhInputs
+   * @param  {string} nP2wpkhInputs
+   * @param  {string} nP2wpkhOutputs
+   * @returns {Promise<string>} size
+   */
+  static estimateTx0Size = async (
+    nP2pkhInputs: string,
+    nP2shP2wpkhInputs: string,
+    nP2wpkhInputs: string,
+    nP2wpkhOutputs: string
+  ): Promise<string> => {
+    try {
+      const response = await Whirlpool.estimateTx0Size(
+        nP2pkhInputs,
+        nP2shP2wpkhInputs,
+        nP2wpkhInputs,
+        nP2wpkhOutputs
+      );
+      if (response.error) {
+        console.log({ error: response.error });
+        throw new Error(response.error);
+      }
+      return JSON.parse(response);
+    } catch (error) {
+      logMessage(error);
+      throw error;
+    }
+  };
+
+  /**
    * starts a new Whirlpool mix in the current thread in a blocking manner
    * @param  {WhirlpoolInput} input
    * @param  {string} privateKey

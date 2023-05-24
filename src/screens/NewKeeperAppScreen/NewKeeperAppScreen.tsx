@@ -180,6 +180,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             paddingTop={3}
             enableBack={false}
             headerTitleColor="black"
+            textPadding={0}
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -278,8 +279,7 @@ const styles = StyleSheet.create({
   termOfServiceText: {
     fontSize: 12,
     fontWeight: '400',
-    fontFamily: Fonts.FiraSansMedium,
-    fontStyle: 'italic'
+    fontFamily: Fonts.FiraSansCondensedMediumItalic,
   },
   subTitleWrapper: {
     flexDirection: 'row',
