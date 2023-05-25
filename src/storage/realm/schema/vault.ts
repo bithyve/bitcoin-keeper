@@ -99,6 +99,7 @@ export const VaultSpecsSchema: ObjectSchema = {
     nextFreeAddressIndex: 'int',
     nextFreeChangeAddressIndex: 'int',
     receivingAddress: 'string?',
+    addresses: `${RealmSchema.AddressCache}?`,
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,

@@ -1,7 +1,8 @@
 /* eslint-disable consistent-return */
 import { NetworkType } from 'src/core/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
-import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
+import { AxiosResponse } from 'axios';
+import { AverageTxFeesByNetwork, UTXOInfo } from '../../wallets/interfaces';
 import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
@@ -355,7 +356,7 @@ export default class Relay {
     if (network === NetworkType.MAINNET) {
       throw new Error('Invalid network: failed to fund via testnet');
     }
-    const amount = 5000 / SATOSHIS_IN_BTC;
+    const amount = 130000 / SATOSHIS_IN_BTC;
     try {
       const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
         recipientAddress,
@@ -395,5 +396,50 @@ export default class Relay {
     return {
       created,
     };
+  };
+
+  public static addUTXOinfos = async (
+    appId: string,
+    UTXOinfos: UTXOInfo[]
+  ): Promise<{
+    added: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}addUTXOinfos`, {
+        appId,
+        UTXOinfos,
+      });
+      const { added } = res.data || res.json;
+      return {
+        added,
+      };
+    } catch (err) {
+      console.log('err', err);
+      if (err.code) throw new Error(err.code);
+    }
+  };
+
+  public static modifyUTXOinfo = async (
+    appId: string,
+    updatedUTXOobject: object,
+    UTXOid: string
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    try {
+      const res = (await RestClient.post(`${RELAY}modifyUTXOinfo`, {
+        appId,
+        updatedUTXOobject,
+        UTXOid,
+      })) as AxiosResponse;
+      const { updated } = res.data || res.json;
+      return {
+        updated,
+      };
+    } catch (err) {
+      console.log('err', err);
+      if (err.code) throw new Error(err.code);
+    }
   };
 }
