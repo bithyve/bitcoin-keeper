@@ -146,7 +146,7 @@ function* credentialsAuthWorker({ payload }) {
     const currentVersionCode = DeviceInfo.getBuildNumber();
     if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
-    } else {
+    } else if (currentVersionCode !== lastVersionCode) {
       yield call(dbManager.createObject, RealmSchema.VersionHistory, {
         version: `${newVersion}(${currentVersionCode})`,
         releaseNote: '',
