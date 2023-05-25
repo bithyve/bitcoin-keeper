@@ -1,7 +1,5 @@
 import Colors from 'src/theme/Colors';
-import {
-  extendTheme
-} from 'native-base';
+import { extendTheme } from 'native-base';
 import Fonts from './Fonts';
 
 export const customTheme = extendTheme({
@@ -92,6 +90,9 @@ export const customTheme = extendTheme({
       error: Colors.CongoPink,
       black: Colors.Black,
       fadedGray: Colors.FadedGray,
+      fadedblue: Colors.FadeBlue,
+      dustySageGreen: Colors.DustySageGreen,
+      forestGreen: Colors.ForestGreen,
     },
     dark: {
       black: Colors.Black,
@@ -100,29 +101,25 @@ export const customTheme = extendTheme({
   components: {
     Box: {
       variants: {
-        linearGradient: () => {
-          return {
-            backgroundColor: {
-              linearGradient: {
-                colors: ['light.gradientStart', 'light.gradientEnd'],
-                start: [0, 0],
-                end: [1, 1],
-              },
+        linearGradient: () => ({
+          backgroundColor: {
+            linearGradient: {
+              colors: ['light.gradientStart', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
             },
-          };
-        },
-        InactiveGradient: () => {
-          return {
-            backgroundColor: {
-              linearGradient: {
-                colors: ['light.gradientEnd', 'light.gradientEnd'],
-                start: [0, 0],
-                end: [1, 1],
-              },
+          },
+        }),
+        InactiveGradient: () => ({
+          backgroundColor: {
+            linearGradient: {
+              colors: ['light.gradientEnd', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
             },
-          };
-        }
-      }
+          },
+        }),
+      },
     },
   },
   config: {

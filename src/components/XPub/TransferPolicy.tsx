@@ -19,14 +19,15 @@ import Buttons from '../Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
-function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }) {
+function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; close: () => void; secondaryBtnPress: () => void; }) {
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const [policyText, setPolicyText] = useState(wallet.transferPolicy.threshold.toString());
+  const [policyText, setPolicyText] = useState(wallet?.transferPolicy?.threshold?.toString());
   const dispatch = useDispatch();
+
   const onPressNumber = (digit) => {
     let temp = policyText;
     if (digit !== 'x') {
@@ -41,9 +42,9 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
+      close();
       showToast('Transfer Policy Changed', <TickIcon />);
       dispatch(resetRealyWalletState());
-      close();
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
@@ -69,7 +70,6 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       showToast('Transfer Policy cannot be zero');
     }
   };
-  console.log('relayWalletUpdateLoading', relayWalletUpdateLoading);
   return (
     <Box backgroundColor="light.secondaryBackground" width={wp(275)} borderRadius={10}>
       <Box justifyContent="center" alignItems="center">
@@ -107,9 +107,10 @@ function TransferPolicy({ wallet, close }: { wallet: Wallet; close: () => void }
       <Buttons
         primaryCallback={presshandler}
         primaryText={common.confirm}
-        secondaryCallback={close}
+        secondaryCallback={secondaryBtnPress}
         secondaryText={common.cancel}
         paddingHorizontal={wp(30)}
+        primaryDisable={relayWalletUpdateLoading || relayWalletUpdate}
       />
       {/* keyboardview start */}
       <KeyPadView

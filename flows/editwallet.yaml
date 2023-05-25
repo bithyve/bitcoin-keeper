@@ -1,0 +1,10 @@
+appId: io.hexawallet.hexakeeper.dev
+---
+- runFlow: login.yaml
+- tapOn:
+    id: 'btn_LinkedWallet'
+- tapOn:
+    id: 'btn_walletSettings'
+- tapOn:
+    id: 'btn_Wallet_Details'
+- assertVisible: 'Edit wallet name and description'

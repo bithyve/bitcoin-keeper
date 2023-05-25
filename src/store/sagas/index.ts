@@ -4,6 +4,7 @@ import {
   addNewWalletsWatcher,
   addSigningDeviceWatcher,
   autoWalletsSyncWatcher,
+  addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
@@ -14,6 +15,8 @@ import {
   updateWalletSettingsWatcher,
   updateSignerDetails,
   updateWalletsPropertyWatcher,
+  addWhirlpoolWalletsWatcher,
+  addWhirlpoolWalletsLocalWatcher,
   updateWalletPathAndPuposeDetailWatcher,
 } from './wallets';
 import {
@@ -54,6 +57,7 @@ import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
 import { updateVersionHistoryWatcher } from './upgrade';
+import { addLabelsWatcher, bulkUpdateLabelWatcher, createUTXOReferenceWatcher } from './utxos';
 
 const rootSaga = function* () {
   const sagas = [
@@ -71,7 +75,10 @@ const rootSaga = function* () {
 
     // wallet
     addNewWalletsWatcher,
+    addWhirlpoolWalletsWatcher,
+    addWhirlpoolWalletsLocalWatcher,
     autoWalletsSyncWatcher,
+    addressIndexIncrementWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
@@ -116,6 +123,11 @@ const rootSaga = function* () {
     updateWalletPathAndPuposeDetailWatcher,
     // upgrade
     updateVersionHistoryWatcher,
+
+    // utxos
+    addLabelsWatcher,
+    bulkUpdateLabelWatcher,
+    createUTXOReferenceWatcher,
   ];
 
   yield all(

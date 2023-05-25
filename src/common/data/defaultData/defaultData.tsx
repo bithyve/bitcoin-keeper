@@ -1,4 +1,5 @@
 import SecutityTip from 'src/assets/images/securityTip.svg';
+import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import React from 'react';
 
 export const securityTips = [
@@ -38,5 +39,15 @@ export const securityTips = [
     assert: <SecutityTip />,
     message: 'Testing out your setup before using it is always a good idea',
   },
+  {
+    title: 'Introducing Whirlpool',
+    subTitle: 'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones.',
+    assert: <WhirlpoolLoader />,
+    message: 'For increased privacy and security, remix sats a few times, then transfer them to the Vault.',
+  },
 ];
-export const getSecurityTip = () => securityTips[Math.floor(Math.random() * securityTips.length)];
+export const getSecurityTip = () =>
+  // const selected = Math.floor(Math.random() * securityTips.length); //Comment for creating wallet modal WP
+  // return securityTips[selected];
+  securityTips[5]
+  ;

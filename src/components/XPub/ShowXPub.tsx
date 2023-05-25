@@ -10,35 +10,31 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Note from '../Note/Note';
 
 function ShowXPub({
-  data,
   wallet,
+  data,
   copy = () => {},
   subText,
   noteSubText,
   copyable = true,
   cosignerDetails = false,
+  keeper,
 }: {
   data: string;
   wallet?: Wallet;
-  copy: Function;
+  copy?: Function;
   subText: string;
   noteSubText: string;
   copyable: boolean;
-  cosignerDetails: boolean;
+  cosignerDetails?: boolean;
+  keeper?: KeeperApp;
 }) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { useQuery } = useContext(RealmWrapperContext);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
   const [details, setDetails] = useState('');
 
   useEffect(() => {

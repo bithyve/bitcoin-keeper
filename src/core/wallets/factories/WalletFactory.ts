@@ -1,6 +1,7 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
+import { hash256 } from 'src/core/services/operations/encryption';
 import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
   TransferPolicy,
@@ -14,6 +15,8 @@ import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
+
+export const whirlPoolWalletTypes = [WalletType.PRE_MIX, WalletType.POST_MIX, WalletType.BAD_BANK];
 
 export const generateWalletSpecs = (
   mnemonic: string,
@@ -60,6 +63,7 @@ export const generateWallet = async ({
   importDetails,
   networkType,
   transferPolicy,
+  parentMnemonic,
 }: {
   type: WalletType;
   instanceNum: number;
@@ -69,17 +73,21 @@ export const generateWallet = async ({
   primaryMnemonic?: string;
   importDetails?: WalletImportDetails;
   networkType: NetworkType;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
+  parentMnemonic?: string;
 }): Promise<Wallet> => {
   const network = WalletUtilities.getNetworkByType(networkType);
 
   let mnemonic: string;
   let xDerivationPath: string;
   let bip85Config: BIP85Config;
+  let depositWalletId: string;
 
   if (type === WalletType.IMPORTED) {
     if (!importDetails) throw new Error('Import details are missing');
     mnemonic = importDetails.mnemonic;
+  } else if (whirlPoolWalletTypes.includes(type)) {
+    mnemonic = parentMnemonic;
   } else {
     if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
     // BIP85 derivation: primary mnemonic to bip85-child mnemonic
@@ -93,7 +101,13 @@ export const generateWallet = async ({
     xDerivationPath = importDetails.derivationConfig.path;
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
-  const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+
+  if (whirlPoolWalletTypes.includes(type)) {
+    depositWalletId = id;
+    id = hash256(`${id}${type}`);
+  }
+
   const derivationDetails = {
     instanceNum,
     mnemonic,
@@ -122,6 +136,7 @@ export const generateWallet = async ({
     specs,
     scriptType: ScriptTypes.P2WPKH,
     transferPolicy,
+    depositWalletId,
   };
   wallet.specs.receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   return wallet;
