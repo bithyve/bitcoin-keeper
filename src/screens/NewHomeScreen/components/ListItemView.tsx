@@ -6,13 +6,13 @@ import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 function ListItemView(props) {
   return (
-    <TouchableOpacity disabled={props.disabled} style={[styles.wrapper, { backgroundColor: "#FDF7F0", opacity: props.disabled ? 0.8 : 1 }]} onPress={props.onPress}>
+    <TouchableOpacity style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress}>
       <Box>
-        <Box style={[styles.iconView, { opacity: props.disabled ? 0.8 : 1 }]} backgroundColor={props.iconBackColor}>
+        <Box style={styles.iconView} backgroundColor={props.iconBackColor}>
           {props.icon}
         </Box>
       </Box>
-      <Box style={[styles.titleWrapper, { opacity: props.disabled ? 0.8 : 1 }]}>
+      <Box style={styles.titleWrapper}>
         <Text color="light.primaryText" style={styles.titleText}>
           {props.title}
         </Text>

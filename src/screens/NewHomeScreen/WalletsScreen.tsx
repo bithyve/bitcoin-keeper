@@ -16,7 +16,7 @@ import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
-import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
+import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -250,7 +250,7 @@ const WalletsScreen = ({ navigation }) => {
       />
       <Box style={styles.listItemsWrapper}>
         <Box style={styles.whirlpoolListItemWrapper}>
-          <ListItemView
+          {presentationName.length > 0 ? <ListItemView
             icon={<WhirlpoolWhiteIcon />}
             title="Whirlpool & UTXOs"
             subTitle="Manage UTXOs and Whirlpool"
@@ -263,8 +263,15 @@ const WalletsScreen = ({ navigation }) => {
                   accountType: WalletType.DEFAULT,
                 });
             }}
-            disabled={presentationName.length === 0}
-          />
+          /> :
+            <Box style={styles.AddNewWalletIllustrationWrapper}>
+              <Box style={styles.addNewWallIconWrapper}>
+                <AddNewWalletIllustration />
+              </Box>
+              <Box style={styles.addNewWallTextWrapper}>
+                <Text color="light.secondaryText" style={styles.addNewWallText}>Add a new Wallet or Import one</Text>
+              </Box>
+            </Box>}
         </Box>
       </Box>
       <KeeperModal
@@ -440,4 +447,22 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     width: '100%',
   },
+  AddNewWalletIllustrationWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: wp(30),
+    marginTop: hp(20),
+    width: '100%'
+  },
+  addNewWallIconWrapper: {
+    marginRight: wp(10),
+    alignItems: 'flex-start'
+  },
+  addNewWallTextWrapper: {
+    width: '30%',
+    justifyContent: 'center'
+  },
+  addNewWallText: {
+    fontSize: 14
+  }
 });
