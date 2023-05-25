@@ -151,7 +151,7 @@ function* credentialsAuthWorker({ payload }) {
         version: `${newVersion}(${currentVersionCode})`,
         releaseNote: '',
         date: new Date().toString(),
-        title: `Upgraded from ${lastVersionCode[1]} to ${currentVersionCode}`,
+        title: `Upgraded from  ${newVersion}(${lastVersionCode[1]}) to ${newVersion}(${currentVersionCode})`,
       });
     }
   } catch (err) {

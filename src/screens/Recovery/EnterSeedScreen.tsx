@@ -353,7 +353,7 @@ function EnterSeedScreen({ route }) {
                   placeholderTextColor="rgba(7,62,57,0.6)"
                   value={item?.name}
                   textContentType="none"
-                  returnKeyType="next"
+                  returnKeyType={isSeedFilled(12) ? 'done' : 'next'}
                   autoCorrect={false}
                   autoCapitalize="none"
                   blurOnSubmit={false}
@@ -385,6 +385,7 @@ function EnterSeedScreen({ route }) {
                   }}
                   onSubmitEditing={() => {
                     setSuggestedWords([]);
+                    Keyboard.dismiss();
                   }}
                 />
               </View>
