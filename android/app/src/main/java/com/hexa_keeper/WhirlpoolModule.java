@@ -71,4 +71,9 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, String port, Promise promise) {
         promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId, port));
     }
+
+    @ReactMethod
+    public void estimateTx0Size(String nP2pkhInputs, String nP2shP2wpkhInputs, String nP2wpkhInputs, String nP2wpkhOutputs, Promise promise) {
+        promise.resolve(WhirlpoolBridge.estimatetx0size(nP2pkhInputs, nP2shP2wpkhInputs, nP2wpkhInputs, nP2wpkhOutputs));
+    }
 }

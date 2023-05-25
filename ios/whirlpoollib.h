@@ -42,3 +42,8 @@ char *start(const char *input_str,
             const char *signed_registration_message_str,
             const char *app_id,
             const char *port);
+
+char *estimate_tx0_size(const char *n_p2pkh_inputs,
+                        const char *n_p2sh_p2wpkh_inputs,
+                        const char *n_p2wpkh_inputs,
+                        const char *n_p2wpkh_outputs);

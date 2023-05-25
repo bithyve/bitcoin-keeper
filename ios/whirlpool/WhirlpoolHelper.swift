@@ -67,5 +67,12 @@ import Foundation
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
+  
+  @objc func estimateTx0Size(n_p2pkh_inputs:String, n_p2sh_p2wpkh_inputs:String, n_p2wpkh_inputs: String, n_p2wpkh_outputs:String, callback: @escaping ((String)-> Void)){
+    let result = estimate_tx0_size(n_p2pkh_inputs, n_p2sh_p2wpkh_inputs, n_p2wpkh_inputs, n_p2wpkh_outputs)
+    let str =  String(cString: result!)
+    free_cstring(UnsafeMutablePointer(mutating: result))
+    callback(str)
+  }
 }
 
