@@ -90,6 +90,7 @@ export default RampModal;
 const styles = StyleSheet.create({
   buyBtcWrapper: {
     padding: 1,
+    width: wp(280)
   },
   buyBtcContent: {
     fontSize: 13,
