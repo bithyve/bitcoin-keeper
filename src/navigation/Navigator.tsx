@@ -57,15 +57,15 @@ import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
-import ViewAllTransactions from 'src/screens/ViewTransactions/ViewAllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
-import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
+import WalletDetails from 'src/screens/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
+import NewHomeScreen from 'src/screens/NewHomeScreen';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
@@ -75,6 +75,12 @@ import SetupOtherSDScreen from 'src/screens/AddOtherSD/SetupOtherSDScreen';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
+import PoolSelection from 'src/screens/Mix/PoolSelection';
+import BroadcastPremix from 'src/screens/Mix/BroadcastPremix';
+import WhirlpoolConfiguration from 'src/screens/Mix/WhirlpoolConfiguration';
+import UTXOLabeling from 'src/screens/UTXOManagement/UTXOLabeling';
+import UTXOManagement from 'src/screens/UTXOManagement/UTXOManagement';
+import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
@@ -149,7 +155,8 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="NewHome" component={HomeScreen} />
+        <Stack.Screen name="NewHomeScreen" component={NewHomeScreen} />
+        <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
@@ -160,9 +167,9 @@ function AppStack() {
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="Send" component={SendScreen} />
+        <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
         <Stack.Screen name="ChangeLanguage" component={ChangeLanguage} />
-        <Stack.Screen name="ViewAllTransactions" component={ViewAllTransactions} />
         <Stack.Screen name="ChoosePlan" component={ChoosePlan} />
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
@@ -176,6 +183,7 @@ function AppStack() {
         <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
         <Stack.Screen name="WalletDetails" component={WalletDetails} />
         <Stack.Screen name="VaultDetails" component={VaultDetails} />
+        <Stack.Screen name="UTXOManagement" component={UTXOManagement} />
         <Stack.Screen name="WalletSettings" component={WalletSettings} />
         <Stack.Screen name="BackupWallet" component={BackupWallet} />
         <Stack.Screen name="SigningDeviceDetails" component={SigningDeviceDetails} />
@@ -205,6 +213,14 @@ function AppStack() {
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
         <Stack.Screen name="SignWithChannel" component={SignWithChannel} />
+        <Stack.Screen name="PoolSelection" component={PoolSelection} />
+        <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
+        <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
+        <Stack.Screen
+          name="MixProgress"
+          component={MixProgress}
+          options={{ gestureEnabled: false }}
+        />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
       </Stack.Navigator>
     </RealmProvider>

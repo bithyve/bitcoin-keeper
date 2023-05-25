@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView } from 'native-base';
@@ -12,14 +11,10 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { AppContext } from 'src/common/content/AppContext';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
@@ -32,6 +27,11 @@ import { NetworkType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
+import useWallets from 'src/hooks/useWallets';
+import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 type Props = {
   title: string;
@@ -41,12 +41,25 @@ type Props = {
 
 function Option({ title, subTitle, onPress }: Props) {
   return (
-    <Pressable style={styles.optionContainer} onPress={onPress}>
+    <Pressable
+      style={styles.optionContainer}
+      onPress={onPress}
+      testID={`btn_${title.replace(/ /g, '_')}`}
+    >
       <Box style={{ width: '96%' }}>
-        <Text color="light.primaryText" style={styles.optionTitle}>
+        <Text
+          color="light.primaryText"
+          style={styles.optionTitle}
+          testID={`text_${title.replace(/ /g, '_')}`}
+        >
           {title}
         </Text>
-        <Text color="light.GreyText" style={styles.optionSubtitle} numberOfLines={2}>
+        <Text
+          color="light.GreyText"
+          style={styles.optionSubtitle}
+          numberOfLines={2}
+          testID={`text_${subTitle.replace(/ /g, '_')}`}
+        >
           {subTitle}
         </Text>
       </Box>
@@ -68,8 +81,9 @@ function WalletSettings({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
-  const wallet = wallets.find((item) => item.id === walletRoute.id) || -1;
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const { wallets } = useWallets();
+  const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
   const exchangeRates = useExchangeRates();
   const currencyCode = useCurrencyCode();
@@ -332,13 +346,13 @@ function WalletSettings({ route }) {
               subText="Cosigner Details"
               noteSubText="The cosigner details are for the selected wallet only"
               copyable={false}
+              keeper={keeper}
             />
           )}
         />
         <KeeperModal
           visible={transferPolicyVisible}
           close={() => {
-            showToast('Transfer Policy Changed', <TickIcon />);
             setTransferPolicyVisible(false);
           }}
           title="Edit Transfer Policy"
@@ -350,6 +364,9 @@ function WalletSettings({ route }) {
               wallet={wallet}
               close={() => {
                 showToast('Transfer Policy Changed', <TickIcon />);
+                setTransferPolicyVisible(false);
+              }}
+              secondaryBtnPress={() => {
                 setTransferPolicyVisible(false);
               }}
             />

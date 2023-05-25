@@ -25,9 +25,8 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { getAmt, getUnit, isTestnet, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 // asserts (svgs, pngs)
 import Arrow from 'src/assets/images/arrow.svg';
 import BTC from 'src/assets/images/btc.svg';
@@ -48,6 +47,7 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { urlParamsToObj } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
+import useWallets from 'src/hooks/useWallets';
 import UaiDisplay from './UaiDisplay';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
@@ -61,49 +61,47 @@ function InheritanceComponent() {
 
   return (
     <Box alignItems="center" marginTop={hp(19.96)}>
-      <Box
-        style={styles.bottomCard}
-        backgroundColor={{
-          linearGradient: {
-            colors: ['light.gradientStart', 'light.gradientEnd'],
-            start: [0, 0],
-            end: [1, 1],
-          },
-        }}
-      >
-        <Box style={styles.bottomCardContent}>
-          <Inheritance />
-          <Box
-            style={{
-              marginLeft: wp(18),
-            }}
-          >
-            <Text color="light.white" style={styles.bottomCardTitle}>
-              Inheritance
-            </Text>
-            <Text color="light.white" style={styles.bottomCardSubtitle}>
-              {plan === SubscriptionTier.L3.toUpperCase()
-                ? 'Tools, tips and templates'
-                : 'Upgrade to secure your vault'}
-            </Text>
+      <Pressable onPress={onPress} testID="btn_Inheritance">
+        <Box
+          style={styles.bottomCard}
+          backgroundColor={{
+            linearGradient: {
+              colors: ['light.gradientStart', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
+            },
+          }}
+        >
+          <Box style={styles.bottomCardContent}>
+            <Inheritance />
+            <Box
+              style={{
+                marginLeft: wp(18),
+              }}
+            >
+              <Text color="light.white" style={styles.bottomCardTitle}>
+                Inheritance
+              </Text>
+              <Text color="light.white" style={styles.bottomCardSubtitle}>
+                {plan === SubscriptionTier.L3.toUpperCase()
+                  ? 'Tools, tips and templates'
+                  : 'Upgrade to secure your vault'}
+              </Text>
+            </Box>
           </Box>
+          <NextIcon pressHandler={() => onPress()} />
         </Box>
-        <NextIcon pressHandler={() => onPress()} />
-      </Box>
+      </Pressable>
     </Box>
   );
 }
 
 function LinkedWallets(props) {
   const navigation = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const dispatch = useDispatch();
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   useEffect(() => {
     dispatch(resetRealyWalletState());
@@ -116,6 +114,7 @@ function LinkedWallets(props) {
         marginTop: hp(8),
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
+      testID="btn_LinkedWallet"
     >
       <Box
         backgroundColor={{
@@ -140,7 +139,7 @@ function LinkedWallets(props) {
               {wallets?.length}
             </Text>
             <Text color="light.white" style={styles.LinkedWalletText}>
-              Linked Wallet{wallets?.length > 1 && 's'}
+              Hot Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>
@@ -158,7 +157,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+                {getCurrencyIcon(BTC, 'grey')}
               </Box>
               <Text
                 color="light.white"
@@ -167,7 +166,7 @@ function LinkedWallets(props) {
                   letterSpacing: 0.6,
                 }}
               >
-                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                {getBalance(netBalance)}
               </Text>
               <Text
                 color="light.white"
@@ -177,7 +176,7 @@ function LinkedWallets(props) {
                   fontSize: hp(12),
                 }}
               >
-                {getUnit(currentCurrency, satsEnabled)}
+                {getSatUnit()}
               </Text>
             </Box>
           ) : (
@@ -187,7 +186,7 @@ function LinkedWallets(props) {
                 alignItems: 'center',
               }}
             >
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+              {getCurrencyIcon(BTC, 'grey')}
               &nbsp;
               <Hidden />
             </Box>
@@ -203,15 +202,13 @@ function VaultStatus(props) {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
       .filter((vault) => !vault.archived)[0] || [];
+
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
@@ -323,21 +320,15 @@ function VaultStatus(props) {
             </Box>
 
             <HStack style={styles.vaultBalanceContainer}>
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+              {getCurrencyIcon(BTC, 'grey')}
               <Pressable>
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
                     <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getAmt(
-                        vaultBalance,
-                        exchangeRates,
-                        currencyCode,
-                        currentCurrency,
-                        satsEnabled
-                      )}
+                      {getBalance(vaultBalance)}
                     </Text>
                     <Text color="light.white" style={styles.vaultBalanceUnit}>
-                      {getUnit(currentCurrency, satsEnabled)}
+                      {getSatUnit()}
                     </Text>
                   </Box>
                 ) : (
@@ -403,6 +394,7 @@ function VaultInfo() {
             <Pressable
               style={styles.subscriptionIcon}
               onPress={() => navigation.navigate('ChoosePlan')}
+              testID={`btn_${plan}`}
             >
               {getPlanIcon()}
               <Box
@@ -417,7 +409,10 @@ function VaultInfo() {
             </Pressable>
             {isTestnet() && <TestnetIndicator />}
           </Box>
-          <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
+          <Pressable
+            testID="btn_AppSettings"
+            onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+          >
             <SettingIcon />
           </Pressable>
         </Box>
