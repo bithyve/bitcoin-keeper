@@ -59,6 +59,22 @@ export default class WhirlpoolClient {
     WhirlpoolServices.getTx0Data(scode);
 
   /**
+   * estimates the size of tx0 transaction
+   * @param  {string} nP2pkhInputs
+   * @param  {string} nP2shP2wpkhInputs
+   * @param  {string} nP2wpkhInputs
+   * @param  {string} nP2wpkhOutputs
+   * @returns {Promise<string>} size
+   */
+  static estimateTx0Size = async (input: InputStructure, nP2wpkhOutputs: number): Promise<string> =>
+    WhirlpoolServices.estimateTx0Size(
+      input.nP2pkhInputs,
+      input.nP2shP2wpkhInputs,
+      input.nP2wpkhInputs,
+      nP2wpkhOutputs
+    );
+
+  /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
    * If err, it means that the total value of inputs is insufficient to successully construct one.
    * @param  {TX0Data} tx0data

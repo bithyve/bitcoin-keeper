@@ -86,17 +86,19 @@ function OnBoardingSlides({ navigation }) {
     <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
-          {currentPosition !== 1 && (
-            <TouchableOpacity
-              onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
-              style={styles.skipTextWrapper}
-            >
-              <Text color="light.white" bold style={styles.skipText}>
-                Skip&nbsp;&nbsp;
-              </Text>
-              <Skip />
-            </TouchableOpacity>
-          )}
+          <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
+            {currentPosition !== 2 && (
+              <TouchableOpacity
+                onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
+                style={styles.skipTextWrapper}
+              >
+                <Text color="light.white" bold style={styles.skipText}>
+                  Skip&nbsp;&nbsp;
+                </Text>
+                <Skip />
+              </TouchableOpacity>
+            )}
+          </Box>
           <Box flex={0.9}>
             <FlatList
               ref={onboardingSlideRef}
@@ -107,6 +109,7 @@ function OnBoardingSlides({ navigation }) {
               snapToAlignment="center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
+              keyExtractor={item => item.id}
               renderItem={({ item }) => (
                 <OnboardingSlideComponent
                   title={item.title}
@@ -218,7 +221,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    margin: 15
   },
   skipText: {
     fontSize: 14,

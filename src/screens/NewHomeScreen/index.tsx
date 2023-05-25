@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { Linking, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Linking, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React, { useCallback, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
@@ -163,19 +163,18 @@ export default NewHomeScreen;
 
 const styles = StyleSheet.create({
   container: {
-    height: 45,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 30,
     paddingHorizontal: 27,
-    paddingVertical: 15,
+    paddingVertical: 10,
     marginHorizontal: 10,
   },
   label: {
     marginLeft: 10,
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: '500',
   },
   tabBarStyle: {
     borderTopLeftRadius: 20,
@@ -183,7 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
     justifyContent: 'center',
     alignItems: 'center',
-    height: hp(80),
-    paddingVertical: hp(17),
+    height: Platform.OS === 'android' ? hp(55) : hp(80),
+    paddingVertical: Platform.OS === 'android' ? hp(10) : hp(15),
   },
 });

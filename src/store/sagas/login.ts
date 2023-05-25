@@ -143,8 +143,19 @@ function* credentialsAuthWorker({ payload }) {
 
     const previousVersion = yield select((state) => state.storage.appVersion);
     const newVersion = DeviceInfo.getVersion();
+    const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory)
+    const lastElement = versionCollection[versionCollection.length - 1];
+    const lastVersionCode = lastElement.version.split(/[()]/);
+    const currentVersionCode = DeviceInfo.getBuildNumber();
     if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
+    } else if (currentVersionCode !== lastVersionCode) {
+      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+        version: `${newVersion}(${currentVersionCode})`,
+        releaseNote: '',
+        date: new Date().toString(),
+        title: `Upgraded from  ${newVersion}(${lastVersionCode[1]}) to ${newVersion}(${currentVersionCode})`,
+      });
     }
   } catch (err) {
     if (payload.reLogin) {

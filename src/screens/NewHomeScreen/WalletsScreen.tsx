@@ -16,7 +16,7 @@ import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
-import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
+import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -36,26 +36,30 @@ const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
   return (
-    <TouchableOpacity
-      style={styles.addWalletContainer}
-      onPress={() =>
-        navigation.navigate('EnterWalletDetail', {
-          name: `Wallet ${walletIndex + 1}`,
-          description: 'Single-sig Wallet',
-          type: WalletType.DEFAULT,
-        })
-      }
-    >
-      <GradientIcon
-        Icon={AddSCardIcon}
-        height={40}
-        gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-      />
-
-      <Text color="light.white" style={styles.addWalletText}>
-        {wallet.AddNewWallet}
-      </Text>
-    </TouchableOpacity>
+    <View style={styles.addWalletContent}>
+      <TouchableOpacity
+        style={styles.addWalletContainer}
+        onPress={() =>
+          navigation.navigate('EnterWalletDetail', {
+            name: `Wallet ${walletIndex + 1}`,
+            description: 'Single-sig Wallet',
+            type: WalletType.DEFAULT,
+          })
+        }
+      >
+        <Text color="light.white" style={styles.addWalletText}>
+          {wallet.AddNewWallet}
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.addWalletContainer}
+        onPress={() => navigation.navigate('ImportWallet')}
+      >
+        <Text color="light.white" style={styles.addWalletText}>
+          {wallet.ImportAWallet}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -211,12 +215,6 @@ const WalletsScreen = ({ navigation }) => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
 
-  const onPressBuyBitcoin = () => {
-    if (currentWallet) {
-      setShowBuyRampModal(true);
-    }
-  };
-
   const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
@@ -229,7 +227,7 @@ const WalletsScreen = ({ navigation }) => {
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           <Text style={styles.subTitleText} color="light.secondaryText">
-            Single sig wallets for smaller stacks and transactions
+            Keys on this app
           </Text>
         </Box>
         <Box style={styles.netBalanceView}>
@@ -252,7 +250,7 @@ const WalletsScreen = ({ navigation }) => {
       />
       <Box style={styles.listItemsWrapper}>
         <Box style={styles.whirlpoolListItemWrapper}>
-          <ListItemView
+          {presentationName.length > 0 ? <ListItemView
             icon={<WhirlpoolWhiteIcon />}
             title="Whirlpool & UTXOs"
             subTitle="Manage UTXOs and Whirlpool"
@@ -265,31 +263,16 @@ const WalletsScreen = ({ navigation }) => {
                   accountType: WalletType.DEFAULT,
                 });
             }}
-            disabled={presentationName.length === 0}
-          />
+          /> :
+            <Box style={styles.AddNewWalletIllustrationWrapper}>
+              <Box style={styles.addNewWallIconWrapper}>
+                <AddNewWalletIllustration />
+              </Box>
+              <Box style={styles.addNewWallTextWrapper}>
+                <Text color="light.secondaryText" style={styles.addNewWallText}>Add a new Wallet or Import one</Text>
+              </Box>
+            </Box>}
         </Box>
-        {/* <Box style={styles.listViewWrapper}>
-          <Box style={styles.tranferPolicyWrapper}>
-            <ListItemView
-              icon={<InheritanceIcon />}
-              title="Transfer Policy"
-              subTitle="From wallet to vault"
-              iconBackColor="light.greenText2"
-              onPress={() => {
-                if (currentWallet) setTransferPolicyVisible(true);
-              }}
-            />
-          </Box>
-          <Box style={styles.buyWrapper}>
-            <ListItemView
-              icon={<BitcoinIcon />}
-              title="Buy"
-              subTitle="Stack sats in your wallet"
-              iconBackColor="light.greenText2"
-              onPress={onPressBuyBitcoin}
-            />
-          </Box>
-        </Box> */}
       </Box>
       <KeeperModal
         visible={transferPolicyVisible}
@@ -458,4 +441,28 @@ const styles = StyleSheet.create({
     width: '40%',
     alignItems: 'center',
   },
+  addWalletContent: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%',
+  },
+  AddNewWalletIllustrationWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: wp(30),
+    marginTop: hp(20),
+    width: '100%'
+  },
+  addNewWallIconWrapper: {
+    marginRight: wp(10),
+    alignItems: 'flex-start'
+  },
+  addNewWallTextWrapper: {
+    width: '30%',
+    justifyContent: 'center'
+  },
+  addNewWallText: {
+    fontSize: 14
+  }
 });

@@ -135,6 +135,7 @@ const bhrSlice = createSlice({
       state.relayWalletError = false;
       state.relayWalletUpdate = false;
       state.relayWalletUpdateLoading = false;
+      state.realyWalletErrorMessage = null;
     },
 
     setRelayVaultUpdateLoading: (state, action: PayloadAction<boolean>) => {

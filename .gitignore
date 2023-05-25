@@ -70,6 +70,3 @@ coverage/
 
 # Rust artifacts
 ios/libwhirlpool.a
-# android/app/src/main/jniLibs/armeabi-v7a/libwhirlpool.so
-# android/app/src/main/jniLibs/x86/libwhirlpool.so
-# android/app/src/main/jniLibs/arm64-v8a/libwhirlpool.so

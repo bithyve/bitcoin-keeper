@@ -45,6 +45,38 @@ export default class WhirlpoolServices {
   };
 
   /**
+   * estimates the size of tx0 transaction
+   * @param  {string} nP2pkhInputs
+   * @param  {string} nP2shP2wpkhInputs
+   * @param  {string} nP2wpkhInputs
+   * @param  {string} nP2wpkhOutputs
+   * @returns {Promise<string>} size
+   */
+  static estimateTx0Size = async (
+    nP2pkhInputs: number,
+    nP2shP2wpkhInputs: number,
+    nP2wpkhInputs: number,
+    nP2wpkhOutputs: number
+  ): Promise<string> => {
+    try {
+      const response = await Whirlpool.estimateTx0Size(
+        `${nP2pkhInputs}`,
+        `${nP2shP2wpkhInputs}`,
+        `${nP2wpkhInputs}`,
+        `${nP2wpkhOutputs}`
+      );
+      if (response.error) {
+        console.log({ error: response.error });
+        throw new Error(response.error);
+      }
+      return JSON.parse(response);
+    } catch (error) {
+      logMessage(error);
+      throw error;
+    }
+  };
+
+  /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
    * If err, it means that the total value of inputs is insufficient to successully construct one.
    * @param  {number} inputsValue

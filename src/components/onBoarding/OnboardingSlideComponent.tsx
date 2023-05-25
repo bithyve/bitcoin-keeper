@@ -7,7 +7,6 @@ import Skip from 'src/assets/images/skip.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('window');
-
 function OnboardingSlideComponent(props) {
   return (
     <Box style={styles.wrapper}>
