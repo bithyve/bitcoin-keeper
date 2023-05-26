@@ -2,7 +2,6 @@ import React from 'react'
 import { StyleSheet } from 'react-native'
 import KeeperModal from 'src/components/KeeperModal';
 import { Box } from 'native-base';
-import { hp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
