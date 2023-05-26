@@ -253,7 +253,7 @@ const WalletsScreen = ({ navigation }) => {
           {presentationName.length > 0 ? <ListItemView
             icon={<WhirlpoolWhiteIcon />}
             title="Whirlpool & UTXOs"
-            subTitle="Manage UTXOs and Whirlpool"
+            subTitle="Manage wallet UTXOs and use Whirlpool"
             iconBackColor="light.greenText2"
             onPress={() => {
               if (Platform.OS === 'ios') {

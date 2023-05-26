@@ -1,7 +1,7 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   calculateCustomFee,
@@ -47,6 +47,7 @@ import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
 import CustomPriorityModal from './CustomPriorityModal';
+import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -93,7 +94,7 @@ function SendConfirmation({ route }) {
 
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
   const { useQuery } = useContext(RealmWrapperContext);
-  const { wallets } = useWallets();
+  const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item.id === walletId);
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
@@ -234,11 +235,20 @@ function SendConfirmation({ route }) {
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     }
-    const navigationState = {
-      index: 1,
-      routes: [{ name: 'NewHome' }, { name: 'WalletDetails', params: { autoRefresh: true } }],
-    };
-    navigation.dispatch(CommonActions.reset(navigationState));
+    console.log(sender);
+    if (whirlPoolWalletTypes.includes(sender.type)) {
+      const popAction = StackActions.pop(3);
+      navigation.dispatch(popAction);
+    } else {
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'NewHome' },
+          { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender.id } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+    }
   };
 
   useEffect(() => {

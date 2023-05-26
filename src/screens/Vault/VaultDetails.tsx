@@ -54,12 +54,14 @@ import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
+import useFeatureMap from 'src/hooks/useFeatureMap';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+  const featureMap = useFeatureMap({ scheme: vault.scheme });
 
   const styles = getStyles(0);
   return (
@@ -80,7 +82,9 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+            featureMap.vaultRecieve
+              ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }))
+              : showToast('Please Upgrade');
           }}
         >
           <Recieve />
@@ -88,7 +92,12 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText} onPress={onPressBuy}>
+        <TouchableOpacity
+          style={styles.IconText}
+          onPress={() => {
+            featureMap.vaultBuy ? onPressBuy : showToast('Please Upgrade');
+          }}
+        >
           <Buy />
           <Text color="light.primaryText" style={styles.footerText}>
             Buy

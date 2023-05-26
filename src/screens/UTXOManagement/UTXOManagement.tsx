@@ -65,7 +65,7 @@ function Footer({
   setShowBatteryWarningModal,
   setSendBadBankModalVisible,
   selectedAccount,
-  isRemix
+  isRemix,
 }) {
   const navigation = useNavigation();
 
@@ -103,6 +103,7 @@ function Footer({
         } else if (selectedAccount === WalletType.BAD_BANK) {
           setSendBadBankModalVisible();
         } else {
+          setEnableSelection(false);
           navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
         }
       }}
@@ -341,6 +342,7 @@ function UTXOManagement({ route, navigation }) {
         closeModal={() => setSendBadBankModalVisible(false)}
         onclick={() => {
           setSendBadBankModalVisible(false);
+          setEnableSelection(false);
           navigation.dispatch(
             CommonActions.navigate('Send', {
               sender: whirlpoolWalletAccountMap.badbankWallet,

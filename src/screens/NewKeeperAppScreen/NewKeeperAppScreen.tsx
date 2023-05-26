@@ -66,7 +66,9 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -240,9 +242,25 @@ function NewKeeperApp({ navigation }: { navigation }) {
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
     </ScreenWrapper>
   );
 }
+
 const styles = StyleSheet.create({
   titleWrapper02: {
     marginTop: hp(70),
