@@ -575,6 +575,7 @@ const getStyles = (clock) =>
       marginTop: hp(12),
       paddingLeft: 5,
       fontWeight: 'bold',
+      width: wp(270),
     },
     note: {
       position: 'absolute',
