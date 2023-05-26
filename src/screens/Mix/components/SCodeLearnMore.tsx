@@ -6,13 +6,14 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import ScodeIllustration from 'src/assets/images/ScodeIllustration.svg'
 
 
 function SCodeContent() {
     return (
         <Box style={styles.container}>
             <Box style={styles.iconWrapper}>
-                {null}
+                <ScodeIllustration />
             </Box>
             <Text style={styles.paraText}>
                 As in any bitcoin sending transaction, Priority determines how fast your transaction gets confirmed on the bitcoin blockchain.
@@ -55,7 +56,6 @@ const styles = StyleSheet.create({
     },
     iconWrapper: {
         alignSelf: "center",
-        marginVertical: hp(70)
     },
 })
 
