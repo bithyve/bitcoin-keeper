@@ -1,5 +1,5 @@
 import { FlatList } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -46,6 +46,8 @@ function SignTransactionScreen() {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
   const { signers, id: vaultId, scheme, shellId } = defaultVault;
+  const route = useRoute();
+  const { note, label } = route.params as { note: string; label: string };
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -336,6 +338,8 @@ function SignTransactionScreen() {
                 sendPhaseThree({
                   wallet: defaultVault,
                   txnPriority: TxPriority.LOW,
+                  note,
+                  label,
                 })
               );
             } else {
