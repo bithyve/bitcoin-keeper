@@ -2,12 +2,13 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import HeaderBar from './components/HeaderBar';
-import CurrentPlanView from './components/CurrentPlanView';
 
 import UaiDisplay from 'src/screens/HomeScreen/UaiDisplay';
 import useUaiStack from 'src/hooks/useUaiStack';
 import usePlan from 'src/hooks/usePlan';
+
+import HeaderBar from './components/HeaderBar';
+import CurrentPlanView from './components/CurrentPlanView';
 
 function HeaderDetails() {
   const { top } = useSafeAreaInsets();
