@@ -156,6 +156,7 @@ function ExportSeedScreen({ route, navigation }) {
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
+              console.log('pressed')
               setConfirmSeedModal(false);
             }}
             words={words}
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 10,
-    marginBottom: hp(25),
+    marginBottom: hp(15),
   },
   qrItem: {
     alignItems: 'center',
