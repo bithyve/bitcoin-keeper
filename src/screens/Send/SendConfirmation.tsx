@@ -46,8 +46,8 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
-import CustomPriorityModal from './CustomPriorityModal';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -222,7 +222,7 @@ function SendConfirmation({ route }) {
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
       setProgress(false);
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+      navigation.dispatch(CommonActions.navigate('SignTransactionScreen', { note, label }));
     }
   }, [serializedPSBTEnvelops]);
 
@@ -235,7 +235,6 @@ function SendConfirmation({ route }) {
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     }
-    console.log(sender);
     if (whirlPoolWalletTypes.includes(sender.type)) {
       const popAction = StackActions.pop(3);
       navigation.dispatch(popAction);
