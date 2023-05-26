@@ -184,7 +184,23 @@ export default function BroadcastPremix({ route, navigation }) {
         showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />, 3000);
       }
     } catch (error) {
-      showToast(`Error in broadcasting Tx0: ${error?.message || ''}`, <ToastErrorIcon />, 3000);
+      const problem = error?.message || '';
+      let solution = '';
+      switch (problem) {
+        case 'txn-mempool-conflict': // the input has already been consumed in a tx0(unconfirmed)
+        case 'bad-txns-inputs-missingorspent': // the input has already been consumed in a tx0(confirmed)
+        case 'Duplicate input detected.': // same input selected twice(for some reason - UI glitch)
+          solution = 'Please refresh the Deposit account & try again!';
+          break;
+
+        case 'address-reuse': // reusing premix addresses for vouts
+          solution = 'Please refresh the Premix account & try again!';
+          break;
+
+        default:
+      }
+
+      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />, 3000);
       setLoading(false);
       captureError(error);
     }
