@@ -96,6 +96,7 @@ function ImportWalletScreen({ route }) {
           subtitle="Name and description for the wallet"
           headerTitleColor={Colors.TropicalRainForest}
           paddingTop={hp(5)}
+          paddingLeft={25}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>

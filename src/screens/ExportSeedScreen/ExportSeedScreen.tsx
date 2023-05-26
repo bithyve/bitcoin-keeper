@@ -87,6 +87,7 @@ function ExportSeedScreen({ route, navigation }) {
         title={seedText.recoveryPhrase}
         subtitle={seedText.SeedDesc}
         onPressHandler={() => navigtaion.goBack()}
+        paddingLeft={25}
       />
 
       <Box style={{ flex: 1 }}>
