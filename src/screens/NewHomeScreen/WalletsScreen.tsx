@@ -1,5 +1,5 @@
 /* eslint-disable react/function-component-definition */
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useContext, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -253,15 +253,20 @@ const WalletsScreen = ({ navigation }) => {
           {presentationName.length > 0 ? <ListItemView
             icon={<WhirlpoolWhiteIcon />}
             title="Whirlpool & UTXOs"
-            subTitle="Manage UTXOs and Whirlpool"
+            subTitle="Manage wallet UTXOs and use Whirlpool"
             iconBackColor="light.greenText2"
             onPress={() => {
-              if (currentWallet)
-                navigation.navigate('UTXOManagement', {
-                  data: currentWallet,
-                  routeName: 'Wallet',
-                  accountType: WalletType.DEFAULT,
-                });
+              if (Platform.OS === 'ios') {
+                if (currentWallet)
+                  navigation.navigate('UTXOManagement', {
+                    data: currentWallet,
+                    routeName: 'Wallet',
+                    accountType: WalletType.DEFAULT,
+                  });
+              } else {
+                showToast('Coming Soon')
+              }
+
             }}
           /> :
             <Box style={styles.AddNewWalletIllustrationWrapper}>
