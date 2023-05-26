@@ -203,9 +203,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Box>
           <Box style={styles.subTitleWrapper}>
             <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
-            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
             <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
-            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
           </Box>
         </Box>
       </Box>
