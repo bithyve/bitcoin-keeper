@@ -125,7 +125,7 @@ function MixProgress({
       error: false,
     },
     {
-      title: isRemix ? 'Remix completed successfully' : 'Mix completed successfully',
+      title: isRemix ? 'Remix completed' : 'Mix completed',
       subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
