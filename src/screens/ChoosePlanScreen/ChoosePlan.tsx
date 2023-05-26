@@ -54,10 +54,10 @@ const plans = [
   {
     benifits: [
       'All features of Pleb tier',
-      'Link wallets',
+      'Import wallets',
       'Add three signing devices',
       '2 of 3 multisig vault',
-      'Email support',
+      'Email support(Coming Soon)',
     ],
     subTitle: 'Intermediate',
     icon: <Hodler />,
@@ -71,8 +71,8 @@ const plans = [
       'All features of the Hodler tier',
       'Add five signing devices',
       '3 of 5 multisig vault',
-      'Inheritance support',
-      'Dedicated email support',
+      'Inheritance tools',
+      'Dedicated email support(Coming Soon)',
     ],
     subTitle: 'Advanced',
     icon: <DiamondHands />,
