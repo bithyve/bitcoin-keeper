@@ -202,6 +202,7 @@ function EnterWalletDetailScreen({ route }) {
         subtitle={wallet.AddNewWalletDescription}
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
+        paddingLeft={25}
       />
       <View marginX={4} marginY={4}>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>

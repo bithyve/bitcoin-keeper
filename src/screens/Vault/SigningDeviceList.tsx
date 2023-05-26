@@ -221,6 +221,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
+        paddingLeft={25}
       />
       <Box style={styles.scrollViewContainer}>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>

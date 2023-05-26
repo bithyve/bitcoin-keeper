@@ -209,6 +209,7 @@ function AddSigningDevice() {
         subtitle={subtitle}
         headerTitleColor="light.textBlack"
         enableBack={planStatus !== VaultMigrationType.DOWNGRADE}
+        paddingLeft={25}
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}

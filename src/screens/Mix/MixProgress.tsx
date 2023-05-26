@@ -125,7 +125,7 @@ function MixProgress({
       error: false,
     },
     {
-      title: isRemix ? 'Remix completed successfully' : 'Mix completed successfully',
+      title: isRemix ? 'Remix completed' : 'Mix completed',
       subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
@@ -575,6 +575,7 @@ const getStyles = (clock) =>
       marginTop: hp(12),
       paddingLeft: 5,
       fontWeight: 'bold',
+      width: wp(270),
     },
     note: {
       position: 'absolute',
