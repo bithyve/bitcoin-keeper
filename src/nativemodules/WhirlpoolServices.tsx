@@ -155,7 +155,7 @@ export default class WhirlpoolServices {
     inputs: WhirlpoolInput[],
     addressBank: string[],
     changeAddress: string
-  ): Promise<string | false> => {
+  ): Promise<string> => {
     try {
       let result = await Whirlpool.intoPsbt(
         JSON.stringify(preview),
@@ -194,7 +194,7 @@ export default class WhirlpoolServices {
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
-        throw new Error(result.error);
+        throw new Error(result.error?.message);
       }
       return result.txid;
     } catch (error) {
