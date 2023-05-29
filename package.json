@@ -54,7 +54,6 @@
     "electrum-client": "git+https://github.com/bithyve/rn-electrum-client.git",
     "events": "1.0.0",
     "idx": "2.5.6",
-    "instabug-reactnative": "11.2.0",
     "jsc-android": "^294992.0.0",
     "lodash": "4.17.21",
     "moment": "2.29.4",
