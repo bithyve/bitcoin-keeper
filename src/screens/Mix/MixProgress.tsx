@@ -76,7 +76,6 @@ function MixProgress({
   ).start();
   const clock = spinValue.interpolate({
     inputRange: [0, 1],
-    // outputRange: ['360deg', '0deg'],
     outputRange: ["0deg", "-360deg"],
     extrapolate: 'identity'
   });
