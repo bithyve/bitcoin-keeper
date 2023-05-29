@@ -78,6 +78,6 @@ const getStyles = (clock, antiClock) =>
       position: 'absolute',
       top: '31%',
       left: '41.5%',
-      transform: [{ rotate: clock }],
+      transform: [{ rotate: antiClock }],
     },
   });

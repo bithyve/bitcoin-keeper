@@ -203,7 +203,7 @@ const WalletsScreen = ({ navigation }) => {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
   const currentWallet = wallets[walletIndex];
   const flatListRef = useRef(null);
-  const [hideAmounts, setHideAmounts] = useState(true);
+  const [hideAmounts, setHideAmounts] = useState(false);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
@@ -220,7 +220,7 @@ const WalletsScreen = ({ navigation }) => {
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
   return (
     <HomeScreenWrapper>
-      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
+      {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
           <Text style={styles.titleText} color="light.primaryText">
@@ -327,6 +327,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+    marginTop: hp(20)
   },
   titleText: {
     fontSize: 16,
