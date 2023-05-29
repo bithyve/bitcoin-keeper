@@ -76,7 +76,9 @@ function MixProgress({
   ).start();
   const clock = spinValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    // outputRange: ['360deg', '0deg'],
+    outputRange: ["0deg", "-360deg"],
+    extrapolate: 'identity'
   });
   const styles = getStyles(clock);
 
@@ -104,8 +106,8 @@ function MixProgress({
       error: false,
     },
     {
-      title: 'Waiting For Coordinator',
-      subTitle: 'Entering UTXOs into the pool.',
+      title: 'Waiting For Co-ordinator',
+      subTitle: 'Waiting for others to join the pool. Hold tight.',
       referenceCode: Step.WaitingForCoordinator,
       completed: false,
       error: false,
@@ -238,7 +240,7 @@ function MixProgress({
             {title}
           </Text>
           {inProgress ? (
-            <Text color="light.secondaryText" style={styles.timeLineTitle}>
+            <Text color="light.secondaryText" numberOfLines={3} style={styles.timeLineTitle}>
               {subTitle}
             </Text>
           ) : null}
@@ -570,6 +572,7 @@ const getStyles = (clock) =>
       letterSpacing: 0.5,
       marginLeft: wp(25),
       marginTop: hp(3),
+      width: wp(270)
     },
     settingUpTitle: {
       marginTop: hp(12),
