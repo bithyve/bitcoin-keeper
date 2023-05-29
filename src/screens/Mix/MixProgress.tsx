@@ -74,12 +74,11 @@ function MixProgress({
       useNativeDriver: true,
     })
   ).start();
-  const clock = spinValue.interpolate({
+  const antiClock = spinValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ["0deg", "-360deg"],
-    extrapolate: 'identity'
+    outputRange: ['360deg', '0deg'],
   });
-  const styles = getStyles(clock);
+  const styles = getStyles(antiClock);
 
   const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const statusData = [
@@ -478,7 +477,7 @@ function MixProgress({
   );
 }
 
-const getStyles = (clock) =>
+const getStyles = (antiClock) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -540,7 +539,7 @@ const getStyles = (clock) =>
       justifyContent: 'center',
     },
     whirlpoolIconStyle: {
-      transform: [{ rotate: clock }],
+      transform: [{ rotate: antiClock }],
     },
     verticalBorderWrapper: {
       marginVertical: hp(5),
