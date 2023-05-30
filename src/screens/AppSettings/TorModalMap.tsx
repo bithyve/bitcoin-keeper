@@ -124,7 +124,7 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         title="Tor Enabled Successfully!"
         subTitle="The app may be slower than usual over Tor"
         subTitleColor="light.secondaryText"
-        buttonText="OK"
+        buttonText="Continue"
         buttonTextColor="light.white"
         buttonCallback={close}
         textColor="light.primaryText"
