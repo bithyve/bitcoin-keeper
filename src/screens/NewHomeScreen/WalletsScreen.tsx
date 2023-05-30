@@ -222,7 +222,7 @@ const WalletsScreen = ({ navigation }) => {
     <HomeScreenWrapper>
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
-        <Box style={styles.titleInfoView}>
+        <Box style={styles.titleInfoView} testID='view_hotWallets'>
           <Text style={styles.titleText} color="light.primaryText">
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
