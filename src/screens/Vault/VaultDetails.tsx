@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View } from 'native-base';
+import { Box, HStack, VStack, View, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -217,34 +217,31 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.09 }}>
-        <HStack justifyContent="space-between">
+      <VStack style={{ paddingTop: windowHeight * 0.13 }}>
+        <HStack justifyContent="space-between" alignItems="center">
           <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
-          {transactions.lenth ? (
-            <TouchableOpacity>
+          {transactions ? (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.dispatch(
+                  CommonActions.navigate('VaultTransactions', {
+                    title: 'Vault Transactions',
+                    subtitle: 'All incoming and outgoing transactions',
+                  })
+                );
+              }}>
               <HStack alignItems="center">
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.dispatch(
-                      CommonActions.navigate('VaultTransactions', {
-                        title: 'Vault Transactions',
-                        subtitle: 'All incoming and outgoing transactions',
-                      })
-                    );
-                  }}
+                <Text
+                  color="light.primaryGreen"
+                  marginRight={2}
+                  fontSize={11}
+                  bold
+                  letterSpacing={0.6}
                 >
-                  <Text
-                    color="light.primaryGreen"
-                    marginRight={2}
-                    fontSize={11}
-                    bold
-                    letterSpacing={0.6}
-                  >
-                    View All
-                  </Text>
-                </TouchableOpacity>
+                  View All
+                </Text>
                 <IconArrowBlack />
               </HStack>
             </TouchableOpacity>

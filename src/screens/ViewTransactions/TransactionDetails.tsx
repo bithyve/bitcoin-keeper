@@ -81,6 +81,7 @@ function TransactionDetails({ route }) {
           title={transactions.TransactionDetails}
           subtitle="Detailed information for this UTXO"
           paddingTop={hp(20)}
+          paddingLeft={25}
         />
         <Box style={styles.transViewWrapper}>
           <Box flexDirection="row">
