@@ -260,7 +260,7 @@ const WalletsScreen = ({ navigation }) => {
     return (
       <Box>
         <DowngradeToPleb />
-        <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text>
+        {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
         <Box alignItems="center" flexDirection="row">
           <TouchableOpacity
             style={[
@@ -401,7 +401,7 @@ const WalletsScreen = ({ navigation }) => {
         close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
-        subTitle="Do you want to downgrade to pleb and continue?"
+        subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
