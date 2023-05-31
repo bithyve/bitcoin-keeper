@@ -164,7 +164,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Box style={styles.tileContainer}>
           <Tile
             title="Start New"
-            subTitle="New wallets and vault"
+            subTitle="New wallets and Vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);

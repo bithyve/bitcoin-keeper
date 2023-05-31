@@ -197,7 +197,7 @@ function AppSettings({ navigation }) {
       <Box style={styles.appSettingTitleWrapper}>
         <Box width="70%">
           <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
-          <Text style={styles.appSettingSubTitle}>For the vault and wallets</Text>
+          <Text style={styles.appSettingSubTitle}>For the Vault and wallets</Text>
         </Box>
         <Box style={styles.currentTypeSwitchWrapper}>
           <CurrencyTypeSwitch />
