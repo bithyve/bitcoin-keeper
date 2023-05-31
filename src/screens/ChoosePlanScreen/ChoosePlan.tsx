@@ -82,7 +82,7 @@ function ChoosePlan(props) {
         const skus = []
         getPlansResponse.plans
           .forEach(plan => skus.push(...plan.productIds))
-        const subscriptions = await getSubscriptions(skus);
+        const subscriptions = await getSubscriptions({ skus });
         const data = getPlansResponse.plans
         subscriptions.forEach((subscription, i) => {
           const index = data.findIndex(plan => plan.productIds.includes(subscription.productId))
@@ -151,7 +151,7 @@ function ChoosePlan(props) {
       } else if (response.error) {
         showToast(response.error)
       }
-      await RNIap.finishTransaction(purchase, false);
+      await RNIap.finishTransaction({ purchase, isConsumable: false });
     } catch (error) {
       setRequesting(false)
       console.log(error)
@@ -236,8 +236,12 @@ function ChoosePlan(props) {
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
         const sku = plan.productId
         const { offerToken } = plan
+        let purchaseTokenAndroid = null
+        if (Platform.OS === 'android' && appSubscription.receipt) {
+          purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken
+        }
         requestSubscription(
-          { sku, subscriptionOffers: [{ sku, offerToken }] },
+          { sku, subscriptionOffers: [{ sku, offerToken }], purchaseTokenAndroid },
         );
       }
 

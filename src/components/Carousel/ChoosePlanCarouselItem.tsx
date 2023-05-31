@@ -75,7 +75,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
       return !item.yearlyPlanDetails?.productId.includes(subscription.productId.toLowerCase())
     }
     return false
-  }, [item, isMonthly, currentPosition, index])
+  }, [item, isMonthly, currentPosition, index, subscription.productId])
 
   return (
     <Pressable onPress={() => onPress(index)}>
@@ -112,15 +112,14 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
           <Text fontSize={10} color="light.white" mb={2}>
             {item.subTitle}
           </Text>
-
-          <Text fontSize={15} color="light.white">
+          <Text bold fontSize={10} color="light.white" my={2}>
+            {getFreeTrail}
+          </Text>
+          <Text textAlign="center" fontSize={15} color="light.white">
             {getAmt}
           </Text>
           <Text fontSize={10} color="light.white">
             {(item.productType !== 'free' && item.isActive) ? isMonthly ? '/month' : '/year' : ''}
-          </Text>
-          <Text bold fontSize={10} color="light.white" my={2}>
-            {getFreeTrail}
           </Text>
           {canSelectPlan === true ? (
             <Box

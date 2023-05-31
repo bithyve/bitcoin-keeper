@@ -143,7 +143,7 @@ function* credentialsAuthWorker({ payload }) {
 
     const previousVersion = yield select((state) => state.storage.appVersion);
     const newVersion = DeviceInfo.getVersion();
-    const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory)
+    const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
     const lastElement = versionCollection[versionCollection.length - 1];
     const lastVersionCode = lastElement.version.split(/[()]/);
     const currentVersionCode = DeviceInfo.getBuildNumber();
@@ -179,34 +179,31 @@ function* credentialsAuthWorker({ payload }) {
           RealmSchema.KeeperApp
         );
         const response = yield call(Relay.verifyReceipt, id, publicId);
-        if (response.isValid) {
-          yield put(credsAuthenticated(true));
-          yield put(setKey(key));
-          // case: login
-          const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
-          yield put(autoSyncWallets());
-          // fetch fee and exchange rates
-          yield put(fetchFeeRates());
-          yield put(fetchExchangeRates());
-          yield put(getMessages());
-          yield put(setWarning(history));
-          yield put(fetchExchangeRates());
-          yield put(
-            uaiChecks([
-              uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-              uaiType.SECURE_VAULT,
-              uaiType.VAULT_MIGRATION,
-              uaiType.DEFAULT,
-            ])
-          );
-          yield call(generateSeedHash);
-          // connect electrum-client
-          const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
-          ElectrumClient.setActivePeer(privateNodes);
-          yield call(ElectrumClient.connect);
-        } else {
-          yield put(setRecepitVerificationFailed(true));
-        }
+        yield put(credsAuthenticated(true));
+        yield put(setKey(key));
+        // case: login
+        const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
+        yield put(autoSyncWallets());
+        // fetch fee and exchange rates
+        yield put(fetchFeeRates());
+        yield put(fetchExchangeRates());
+        yield put(getMessages());
+        yield put(setWarning(history));
+        yield put(fetchExchangeRates());
+        yield put(
+          uaiChecks([
+            uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+            uaiType.SECURE_VAULT,
+            uaiType.VAULT_MIGRATION,
+            uaiType.DEFAULT,
+          ])
+        );
+        yield call(generateSeedHash);
+        // connect electrum-client
+        const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
+        ElectrumClient.setActivePeer(privateNodes);
+        yield call(ElectrumClient.connect);
+        yield put(setRecepitVerificationFailed(!response.isValid));
       } catch (error) {
         yield put(setRecepitVerificationError(true));
         // yield put(credsAuthenticated(false));
