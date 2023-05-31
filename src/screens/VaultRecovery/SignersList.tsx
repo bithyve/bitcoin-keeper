@@ -36,10 +36,10 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
-import { KeeperContent } from '../SignTransaction/SignerModals';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { KeeperContent } from '../SignTransaction/SignerModals';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -106,18 +106,27 @@ function TapsignerSetupContent() {
 
 function LedgerSetupContent() {
   return (
-    <View justifyContent="flex-start" width={wp(300)}>
-      <Box ml={wp(21)}>
-        <LedgerImage />
-      </Box>
-      <Box marginTop="4" alignItems="flex-start">
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the
-          your current BTC network. Proceed once you are on the app on the Nano X. Keeper will scan
-          for your hardware and fetch the xPub.
+    <Box alignItems="center">
+      <LedgerImage />
+      <Box marginTop={2}>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Ledger.`}
+        </Text>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
         </Text>
       </Box>
-    </View>
+    </Box>
   );
 }
 function ColdCardSetupContent() {
@@ -258,8 +267,21 @@ function BitBox02Content() {
     <Box alignItems="center">
       <BitoxImage />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with BitBox02.`}
+        </Text>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
         </Text>
       </Box>
     </Box>
@@ -271,8 +293,21 @@ function TrezorContent() {
     <Box alignItems="center">
       <TrezorSetup />
       <Box marginTop={2}>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor.`}
+        </Text>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
         </Text>
       </Box>
     </Box>
@@ -608,10 +643,7 @@ function SignersList({ navigation }) {
           subTitle="Keep your Ledger ready"
           buttonText="Proceed"
           buttonTextColor="light.white"
-          buttonCallback={() => {
-            navigate('LedgerRecovery');
-            close();
-          }}
+          buttonCallback={navigateToVerifyWithChannel}
           textColor="light.primaryText"
           Content={LedgerSetupContent}
         />
