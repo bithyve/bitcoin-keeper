@@ -54,15 +54,16 @@ function EnterWalletDetailScreen({ route }) {
       ? route.params?.path
       : WalletUtilities.getDerivationPath(EntityKind.WALLET, config.NETWORK_TYPE, 0, purpose)
   );
-
   useEffect(() => {
-    const path = WalletUtilities.getDerivationPath(
-      EntityKind.WALLET,
-      config.NETWORK_TYPE,
-      0,
-      Number(purpose)
-    );
-    setPath(path);
+    if (walletType !== WalletType.DEFAULT) {
+      const path = WalletUtilities.getDerivationPath(
+        EntityKind.WALLET,
+        config.NETWORK_TYPE,
+        0,
+        Number(purpose)
+      );
+      setPath(path);
+    }
   }, [purpose]);
 
   const createNewWallet = useCallback(() => {
@@ -90,6 +91,7 @@ function EnterWalletDetailScreen({ route }) {
         mnemonic: importedSeed,
       },
     };
+
     dispatch(addNewWallets([newWallet]));
   }, [walletName, walletDescription, transferPolicy]);
 
