@@ -8,19 +8,18 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { io } from 'src/core/services/channel';
-import { BITBOX_SETUP, CREATE_CHANNEL, TREZOR_SETUP } from 'src/core/services/channel/constants';
+import {
+  BITBOX_SETUP,
+  CREATE_CHANNEL,
+  LEDGER_SETUP,
+  TREZOR_SETUP,
+} from 'src/core/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
-import usePlan from 'src/hooks/usePlan';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -28,10 +27,11 @@ import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
-import MockWrapper from '../Vault/MockWrapper';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
+import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
+import MockWrapper from '../Vault/MockWrapper';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function ConnectChannelRecovery() {
   const route = useRoute();
@@ -102,6 +102,38 @@ function ConnectChannelRecovery() {
         );
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(trezor.signerId);
+        if (exsists)
+          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+      } catch (error) {
+        if (error instanceof HWError) {
+          showToast(error.message, <ToastErrorIcon />, 3000);
+        } else if (error.toString() === 'Error') {
+          // ignore if user cancels NFC interaction
+        } else captureError(error);
+      }
+    });
+
+    channel.on(LEDGER_SETUP, async (data) => {
+      try {
+        const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
+          data,
+          isMultisig
+        );
+        const ledger = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp,
+          isMultisig,
+          signerType: SignerType.LEDGER,
+          storageType: SignerStorage.COLD,
+          xpubDetails,
+        });
+        dispatch(setSigningDevices(ledger));
+        navigation.dispatch(
+          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        );
+        showToast(`${ledger.signerName} added successfully`, <TickIcon />);
+        const exsists = await checkSigningDevice(ledger.signerId);
         if (exsists)
           showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
