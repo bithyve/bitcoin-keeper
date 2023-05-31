@@ -87,6 +87,7 @@ function ExportSeedScreen({ route, navigation }) {
         title={seedText.recoveryPhrase}
         subtitle={seedText.SeedDesc}
         onPressHandler={() => navigtaion.goBack()}
+        paddingLeft={25}
       />
 
       <Box style={{ flex: 1 }}>
@@ -155,6 +156,7 @@ function ExportSeedScreen({ route, navigation }) {
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
+              console.log('pressed')
               setConfirmSeedModal(false);
             }}
             words={words}
@@ -209,7 +211,7 @@ function ExportSeedScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: 10,
   },
   seedCardContainer: {
     width: '50%',
@@ -249,7 +251,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 10,
-    marginBottom: hp(25),
+    marginBottom: hp(15),
   },
   qrItem: {
     alignItems: 'center',

@@ -1,6 +1,7 @@
 /* eslint-disable consistent-return */
 import { NetworkType } from 'src/core/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
+import { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork, UTXOInfo } from '../../wallets/interfaces';
 import { INotification } from '../interfaces';
@@ -204,6 +205,67 @@ export default class Relay {
     };
   };
 
+  public static updateSubscription = async (
+    id: string,
+    appID: string,
+    data: object
+  ): Promise<{
+    updated: boolean;
+    level: number;
+    error?: string;
+    productId?: string;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}updateSubscription`, {
+        appID,
+        id,
+        data,
+      });
+    } catch (err) {
+      return err.response.data;
+    }
+    return res.data || res.json;
+  };
+
+  public static verifyReceipt = async (
+    id: string,
+    appID: string
+  ): Promise<{
+    created: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}verifyReceipt`, {
+        appID,
+        id,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res.data || res.json;
+  };
+
+  public static getSubscriptionDetails = async (
+    id: string,
+    appID: string
+  ): Promise<{ plans: SubScriptionPlan[] }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}getSubscriptionDetails`, {
+        appID,
+        id,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res.data || res.json;
+  };
+
   public static updateMessageStatus = async (
     appId: string,
     data: []
@@ -257,10 +319,8 @@ export default class Relay {
   public static updateAppImage = async (
     appImage
   ): Promise<{
-    status?: number;
-    data?: {
-      updated: boolean;
-    };
+    status: string;
+    updated: boolean;
     err?: string;
     message?: string;
   }> => {

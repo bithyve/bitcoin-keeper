@@ -211,6 +211,7 @@ function SendScreen({ route }) {
           subtitle="Scan a bitcoin address"
           headerTitleColor="light.textBlack"
           paddingTop={hp(5)}
+          paddingLeft={25}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>

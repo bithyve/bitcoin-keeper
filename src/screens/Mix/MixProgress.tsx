@@ -74,11 +74,11 @@ function MixProgress({
       useNativeDriver: true,
     })
   ).start();
-  const clock = spinValue.interpolate({
+  const antiClock = spinValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: ['360deg', '0deg'],
   });
-  const styles = getStyles(clock);
+  const styles = getStyles(antiClock);
 
   const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const statusData = [
@@ -104,8 +104,8 @@ function MixProgress({
       error: false,
     },
     {
-      title: 'Waiting For Coordinator',
-      subTitle: 'Entering UTXOs into the pool.',
+      title: 'Waiting For Co-ordinator',
+      subTitle: 'Waiting for others to join the pool. Hold tight.',
       referenceCode: Step.WaitingForCoordinator,
       completed: false,
       error: false,
@@ -125,7 +125,7 @@ function MixProgress({
       error: false,
     },
     {
-      title: isRemix ? 'Remix completed successfully' : 'Mix completed successfully',
+      title: isRemix ? 'Remix completed' : 'Mix completed',
       subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
@@ -238,7 +238,7 @@ function MixProgress({
             {title}
           </Text>
           {inProgress ? (
-            <Text color="light.secondaryText" style={styles.timeLineTitle}>
+            <Text color="light.secondaryText" numberOfLines={3} style={styles.timeLineTitle}>
               {subTitle}
             </Text>
           ) : null}
@@ -477,7 +477,7 @@ function MixProgress({
   );
 }
 
-const getStyles = (clock) =>
+const getStyles = (antiClock) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -539,7 +539,7 @@ const getStyles = (clock) =>
       justifyContent: 'center',
     },
     whirlpoolIconStyle: {
-      transform: [{ rotate: clock }],
+      transform: [{ rotate: antiClock }],
     },
     verticalBorderWrapper: {
       marginVertical: hp(5),
@@ -570,11 +570,13 @@ const getStyles = (clock) =>
       letterSpacing: 0.5,
       marginLeft: wp(25),
       marginTop: hp(3),
+      width: wp(270)
     },
     settingUpTitle: {
       marginTop: hp(12),
       paddingLeft: 5,
       fontWeight: 'bold',
+      width: wp(270),
     },
     note: {
       position: 'absolute',

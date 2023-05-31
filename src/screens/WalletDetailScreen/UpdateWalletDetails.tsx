@@ -278,6 +278,7 @@ const styles = ScaledSheet.create({
     letterSpacing: '0.8@s',
     // paddingHorizontal: '20@s',
     color: Colors.TropicalRainForest,
+    paddingLeft: 25
   },
   descriptionText: {
     fontSize: 12,
@@ -285,6 +286,7 @@ const styles = ScaledSheet.create({
     letterSpacing: '0.5@s',
     fontWeight: '200',
     color: 'light.GreyText',
+    paddingLeft: 25
   },
   backButton: {
     height: 20,

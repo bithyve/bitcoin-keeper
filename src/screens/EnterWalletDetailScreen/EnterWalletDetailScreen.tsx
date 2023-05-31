@@ -21,12 +21,12 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { v4 as uuidv4 } from 'uuid';
+import KeeperModal from 'src/components/KeeperModal';
 import { wp } from 'src/common/data/responsiveness/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { Linking } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
-import KeeperModal from 'src/components/KeeperModal';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -45,7 +45,10 @@ function EnterWalletDetailScreen({ route }) {
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
   );
-  const [purpose, setPurpose] = useState(route.params?.purpose);
+  const { hasNewWalletsGenerationFailed, err } = useAppSelector(
+    (state) => state.wallet
+  );
+  const [purpose, setPurpose] = useState(route.params?.purpose)
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
@@ -104,7 +107,7 @@ function EnterWalletDetailScreen({ route }) {
       }
     }
     if (relayWalletError) {
-      showToast('Wallet creation failed!', <ToastErrorIcon />);
+      showToast(relayWalletError || 'Wallet creation failed', <ToastErrorIcon />);
       setWalletLoading(false);
       dispatch(resetRealyWalletState());
     }
@@ -120,12 +123,14 @@ function EnterWalletDetailScreen({ route }) {
       <Box w="100%">
         <Buttons
           primaryCallback={() => {
-            navigtaion.replace('ChoosePlan');
+            navigtaion.replace('ChoosePlan')
+            dispatch(resetWalletStateFlags())
           }}
           primaryText="View Subsciption"
           activeOpacity={0.5}
           secondaryCallback={() => {
-            dispatch(resetWalletStateFlags());
+            dispatch(resetWalletStateFlags())
+            navigtaion.replace('ChoosePlan');
           }}
           secondaryText={common.cancel}
           paddingHorizontal={wp(30)}
@@ -197,6 +202,7 @@ function EnterWalletDetailScreen({ route }) {
         subtitle={wallet.AddNewWalletDescription}
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
+        paddingLeft={25}
       />
       <View marginX={4} marginY={4}>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
@@ -296,8 +302,9 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => {}}
-        visible={false}
+        close={() => { }}
+        visible={hasNewWalletsGenerationFailed}
+        subTitle={err}
         title="Failed"
         Content={FailedModalContent}
         buttonText=""

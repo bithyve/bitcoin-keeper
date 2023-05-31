@@ -23,10 +23,11 @@ import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import semver from 'semver';
 import { NodeDetail } from 'src/core/wallets/interfaces';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import {
-  addNewWhirlpoolWallets,
   refreshWallets,
   updateSignerDetails,
+  addNewWhirlpoolWallets,
 } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
@@ -206,7 +207,9 @@ function* seedBackeupConfirmedWorked({
       subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
-  } catch (error) {}
+  } catch (error) {
+    //
+  }
 }
 
 function* seedBackedUpWorker() {
@@ -237,7 +240,7 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage, UTXOinfos } = yield call(Relay.getAppImage, appID);
+    const { appImage, vaultImage, subscription, UTXOinfos } = yield call(Relay.getAppImage, appID);
 
     // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
@@ -251,77 +254,39 @@ function* getAppImageWorker({ payload }) {
         encryptionKey,
       });
     }
-
-    if (appImage) {
-      yield put(setAppImageRecoverd(true));
-      const entropy = yield call(
-        BIP85.bip39MnemonicToEntropy,
-        config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
-        primaryMnemonic
-      );
-      const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-      const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
-      const app: KeeperApp = {
-        id: appID,
-        publicId,
-        primarySeed: primarySeed.toString('hex'),
-        primaryMnemonic,
-        imageEncryptionKey,
-        subscription: JSON.parse(appImage.subscription),
-        backup: {
-          method: BackupType.SEED,
-        },
-        version: DeviceInfo.getVersion(),
-        networkType: config.NETWORK_TYPE,
-      };
-
-      yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-      // Wallet recreation
-      if (appImage.wallets) {
-        for (const [key, value] of Object.entries(appImage.wallets)) {
-          const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
-          yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-          if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
-            yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
-          }
-          yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
-        }
-      }
-
-      // Vault recreation
-      if (vaultImage) {
-        const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
-        yield call(dbManager.createObject, RealmSchema.Vault, vault);
-      }
-
-      // UTXOinfo restore
-      if (UTXOinfos) {
-        yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
-      }
-
-      yield put(setAppId(appID));
-      // seed confirm for recovery
-      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-        title: BackupAction.SEED_BACKUP_CONFIRMED,
-        date: moment().unix(),
-        confirmed: true,
-        subtitle: 'Recovered using backup phrase',
-      });
-      yield put(setSeedConfirmed(true));
-      yield put(setBackupType(BackupType.SEED));
-      // create/add restored object for version
-      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-        version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-        releaseNote: '',
-        date: new Date().toString(),
-        title: 'Restored version',
-      });
-
-      if (appImage.nodes) {
-        for (const node of appImage.nodes) {
-          const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
-          yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
-        }
+    if (appImage && subscription) {
+      if (subscription.isValid) {
+        yield put(setAppImageRecoverd(true));
+        yield call(
+          recoverApp,
+          primaryMnemonic,
+          primarySeed,
+          encryptionKey,
+          appID,
+          subscription,
+          appImage,
+          vaultImage,
+          UTXOinfos
+        );
+      } else {
+        const plebSubscription = {
+          productId: SubscriptionTier.L1,
+          name: SubscriptionTier.L1,
+          level: AppSubscriptionLevel.L1,
+          icon: 'assets/ic_pleb.svg',
+          receipt: '',
+        };
+        yield call(
+          recoverApp,
+          primaryMnemonic,
+          primarySeed,
+          encryptionKey,
+          appID,
+          plebSubscription,
+          appImage,
+          vaultImage,
+          UTXOinfos
+        );
       }
     }
   } catch (err) {
@@ -330,6 +295,92 @@ function* getAppImageWorker({ payload }) {
   } finally {
     yield put(setAppRecoveryLoading(false));
     yield put(appImagerecoveryRetry());
+  }
+}
+
+function* recoverApp(
+  primaryMnemonic,
+  primarySeed,
+  encryptionKey,
+  appID,
+  subscription,
+  appImage,
+  vaultImage,
+  UTXOinfos
+) {
+  const entropy = yield call(
+    BIP85.bip39MnemonicToEntropy,
+    config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+    primaryMnemonic
+  );
+  const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+  const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
+  const app: KeeperApp = {
+    id: appID,
+    publicId,
+    primarySeed: primarySeed.toString('hex'),
+    primaryMnemonic,
+    imageEncryptionKey,
+    subscription: {
+      level: subscription.level,
+      name: subscription.name,
+      productId: subscription.productId,
+      receipt: subscription.receipt,
+      icon: subscription.icon,
+    },
+    backup: {
+      method: BackupType.SEED,
+    },
+    version: DeviceInfo.getVersion(),
+    networkType: config.NETWORK_TYPE,
+  };
+
+  yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+  // Wallet recreation
+  if (appImage.wallets) {
+    for (const [key, value] of Object.entries(appImage.wallets)) {
+      const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
+      yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+      if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+        yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+      }
+      yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+    }
+  }
+
+  // Vault recreation
+  if (vaultImage) {
+    const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+    yield call(dbManager.createObject, RealmSchema.Vault, vault);
+  }
+
+  // UTXOinfo restore
+  if (UTXOinfos) {
+    yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
+  }
+  yield put(setAppId(appID));
+  // seed confirm for recovery
+  yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+    title: BackupAction.SEED_BACKUP_CONFIRMED,
+    date: moment().unix(),
+    confirmed: true,
+    subtitle: 'Recovered using backup phrase',
+  });
+  yield put(setSeedConfirmed(true));
+  yield put(setBackupType(BackupType.SEED));
+  // create/add restored object for version
+  yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+    version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+    releaseNote: '',
+    date: new Date().toString(),
+    title: 'Restored version',
+  });
+
+  if (appImage.nodes) {
+    for (const node of appImage.nodes) {
+      const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+      yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+    }
   }
 }
 
