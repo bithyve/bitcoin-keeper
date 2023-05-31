@@ -13,7 +13,7 @@ function WhirlpoolLoader() {
   Animated.loop(
     Animated.timing(spinValue, {
       toValue: 1,
-      duration: 10000,
+      duration: 5000,
       easing: Easing.linear,
       useNativeDriver: true,
     })
@@ -26,26 +26,23 @@ function WhirlpoolLoader() {
     inputRange: [0, 1],
     outputRange: ['360deg', '0deg'],
   });
-  const styles = getStyles(clock, antiClock);
+  const styles = getStyles(antiClock);
   return (
-    <Box style={{ position: 'relative' }}>
-      <Box
-        style={{
-          width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65,
-          alignItems: 'flex-start',
-        }}
-      >
+    <Box style={{ alignItems: 'center' }}>
+      <Box style={{ width: windowWidth * 0.8, alignItems: 'center', justifyContent: 'center' }}>
         <Background />
-        <Animated.View style={styles.gear2}>
+        <Animated.View style={styles.leftGear}>
           <Gear2 />
         </Animated.View>
-        <Animated.View style={styles.gear1}>
-          <Gear1 />
+        <Animated.View style={styles.mainGear}>
+          <Animated.View style={{ position: 'absolute', transform: [{ rotate: antiClock }] }}>
+            <Gear1 />
+          </Animated.View>
+          <Animated.View style={{ position: 'absolute', transform: [{ rotate: clock }] }}>
+            <Gear0 />
+          </Animated.View>
         </Animated.View>
-        <Animated.View style={styles.gear0}>
-          <Gear0 />
-        </Animated.View>
-        <Animated.View style={styles.gear3}>
+        <Animated.View style={styles.rightGear}>
           <Gear3 />
         </Animated.View>
       </Box>
@@ -55,29 +52,25 @@ function WhirlpoolLoader() {
 
 export default WhirlpoolLoader;
 
-const getStyles = (clock, antiClock) =>
+const getStyles = (antiClock) =>
   StyleSheet.create({
-    gear3: {
+    rightGear: {
       position: 'absolute',
-      bottom: '24%',
-      left: '81%',
+      bottom: '17%',
+      right: windowWidth * 0.15,
       transform: [{ rotate: antiClock }],
     },
-    gear2: {
+    leftGear: {
       position: 'absolute',
-      top: '14%',
-      left: '4%',
-      transform: [{ rotate: antiClock }],
-    },
-    gear1: {
-      position: 'absolute',
-      right: '30%',
       top: '10%',
-    },
-    gear0: {
-      position: 'absolute',
-      top: '31%',
-      left: '41.5%',
+      left: windowWidth * 0.22,
       transform: [{ rotate: antiClock }],
+    },
+    mainGear: {
+      position: 'absolute',
+      alignItems: 'center',
+      justifyContent: 'center',
+      right: windowWidth * 0.37,
+      top: '45%',
     },
   });

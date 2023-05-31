@@ -16,6 +16,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import {
   BITBOX_SIGN,
   CREATE_CHANNEL,
+  LEDGER_SIGN,
   SIGNED_TX,
   TREZOR_SIGN,
 } from 'src/core/services/channel/constants';
@@ -29,6 +30,7 @@ import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { getSignedSerializedPSBTForBitbox02, getTxForBitBox02 } from 'src/hardware/bitbox';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
+import { signWithLedgerChannel } from 'src/hardware/ledger';
 
 function SignWithChannel() {
   const { params } = useRoute();
@@ -74,6 +76,14 @@ function SignWithChannel() {
         captureError(err);
       }
     });
+    channel.on(LEDGER_SIGN, ({ room }) => {
+      try {
+        const data = { serializedPSBT, vault: activeVault };
+        channel.emit(LEDGER_SIGN, { data, room });
+      } catch (err) {
+        captureError(err);
+      }
+    });
     channel.on(SIGNED_TX, ({ data }) => {
       try {
         if (signer.type === SignerType.TREZOR) {
@@ -85,6 +95,14 @@ function SignWithChannel() {
             serializedPSBT,
             data,
             signingPayload
+          );
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+          navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+        } else if (signer.type === SignerType.LEDGER) {
+          const { signedSerializedPSBT } = signWithLedgerChannel(
+            serializedPSBT,
+            signingPayload,
+            data
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
           navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));

@@ -22,7 +22,6 @@
     "uninstall android:dev": "adb uninstall io.hexawallet.keeper.development"
   },
   "dependencies": {
-    "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",
     "@ngraveio/bc-ur": "^1.1.6",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-firebase/app": "^14.11.1",
@@ -67,7 +66,6 @@
     "react-localization": "^1.0.18",
     "react-native": "0.68.2",
     "react-native-biometrics": "2.2.0",
-    "react-native-ble-plx": "^2.0.3",
     "react-native-camera": "^4.2.1",
     "react-native-config": "^1.4.5",
     "react-native-crypto": "^2.1.0",
