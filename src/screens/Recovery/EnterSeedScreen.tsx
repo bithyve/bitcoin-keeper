@@ -219,6 +219,7 @@ function EnterSeedScreen({ route }) {
       if (isSeedFilled(12)) {
         const seedWord = getSeedWord();
         setRecoveryLoading(true);
+
         dispatch(getAppImage(seedWord));
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
@@ -267,26 +268,25 @@ function EnterSeedScreen({ route }) {
       setActivePage(0);
     }
   };
+
   const getSuggestedWords = (text) => {
     const filteredData = bip39.wordlists.english.filter((data) =>
       data.toLowerCase().startsWith(text)
     );
     setSuggestedWords(filteredData);
   };
+
   const getPosition = (index: number) => {
     switch (index) {
       case 0:
       case 1:
         return 1;
-
       case 2:
       case 3:
         return 2;
-
       case 4:
       case 5:
         return 3;
-
       default:
         return 1;
     }
@@ -415,7 +415,7 @@ function EnterSeedScreen({ route }) {
                       setSuggestedWords([]);
                       // const focusIndex = getFocusIndex( onChangeIndex, index )
                       // if( focusIndex != 7 && focusIndex != 13&& focusIndex != 19&& focusIndex != 25 )
-                      inputRef.current[onChangeIndex + 1].focus();
+                      if (onChangeIndex !== 11) inputRef.current[onChangeIndex + 1].focus();
                     }}
                   >
                     <Text style={styles.suggestionWord}>{word}</Text>
