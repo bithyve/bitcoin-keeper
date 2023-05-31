@@ -24,12 +24,12 @@ import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
 import useVault from 'src/hooks/useVault';
-import { signWithLedger } from 'src/hardware/ledger';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { useDispatch } from 'react-redux';
-import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { captureError } from 'src/core/services/sentry';
-import useToastMessage from 'src/hooks/useToastMessage';
+// import { signWithLedger } from 'src/hardware/ledger';
+// import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+// import { useDispatch } from 'react-redux';
+// import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+// import { captureError } from 'src/core/services/sentry';
+// import useToastMessage from 'src/hooks/useToastMessage';
 import config from 'src/core/config';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
@@ -37,64 +37,64 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
-import LedgerScanningModal from '../Vault/components/LedgerScanningModal';
+// import LedgerScanningModal from '../Vault/components/LedgerScanningModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function LedgerSigningModal({
-  visible,
-  setVisible,
-  signer,
-}: {
-  visible;
-  setVisible;
-  signer: VaultSigner;
-}) {
-  const dispatch = useDispatch();
-  const { activeVault } = useVault();
-  const { showToast } = useToastMessage();
+// function LedgerSigningModal({
+//   visible,
+//   setVisible,
+//   signer,
+// }: {
+//   visible;
+//   setVisible;
+//   signer: VaultSigner;
+// }) {
+//   const dispatch = useDispatch();
+//   const { activeVault } = useVault();
+//   const { showToast } = useToastMessage();
 
-  const serializedPSBTEnvelops = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-  const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.find(
-    (envelop) => signer.signerId === envelop.signerId
-  );
-  const callback = async (transport) => {
-    try {
-      const { signedSerializedPSBT } = await signWithLedger(
-        transport,
-        serializedPSBT,
-        signingPayload,
-        activeVault
-      );
-      dispatch(
-        updatePSBTEnvelops({
-          signerId: signer.signerId,
-          signedSerializedPSBT,
-        })
-      );
-      setVisible(false);
-    } catch (error) {
-      captureError(error);
-      showToast(error.toString());
-    }
-  };
+//   const serializedPSBTEnvelops = useAppSelector(
+//     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+//   );
+//   const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.find(
+//     (envelop) => signer.signerId === envelop.signerId
+//   );
+//   const callback = async (transport) => {
+//     try {
+//       const { signedSerializedPSBT } = await signWithLedger(
+//         transport,
+//         serializedPSBT,
+//         signingPayload,
+//         activeVault
+//       );
+//       dispatch(
+//         updatePSBTEnvelops({
+//           signerId: signer.signerId,
+//           signedSerializedPSBT,
+//         })
+//       );
+//       setVisible(false);
+//     } catch (error) {
+//       captureError(error);
+//       showToast(error.toString());
+//     }
+//   };
 
-  if (!visible) {
-    return null;
-  }
+//   if (!visible) {
+//     return null;
+//   }
 
-  return (
-    <LedgerScanningModal
-      visible={visible}
-      setVisible={setVisible}
-      interactionText="Signing..."
-      infoText="Select to sign with this device"
-      callback={callback}
-    />
-  );
-}
+//   return (
+//     <LedgerScanningModal
+//       visible={visible}
+//       setVisible={setVisible}
+//       interactionText="Signing..."
+//       infoText="Select to sign with this device"
+//       callback={callback}
+//     />
+//   );
+// }
 
 function ColdCardContent({ register, isMultisig }: { register: boolean; isMultisig: boolean }) {
   let message = '';

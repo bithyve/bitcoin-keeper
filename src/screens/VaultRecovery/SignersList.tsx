@@ -28,7 +28,6 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import { crossInteractionHandler } from 'src/common/utilities';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import NFC from 'src/core/services/nfc';
-import { BleManager } from 'react-native-ble-plx';
 import { useAppSelector } from 'src/store/hooks';
 import Clipboard from '@react-native-community/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -52,23 +51,13 @@ const getnavigationState = (type) => ({
   ],
 });
 
-export const getDeviceStatus = (
-  type: SignerType,
-  isNfcSupported,
-  isBLESupported,
-  signingDevices
-) => {
+export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
-      };
-    case SignerType.LEDGER:
-      return {
-        message: !isBLESupported ? 'Start/Enable Bluetooth to use' : '',
-        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
       };
     case SignerType.POLICY_SERVER:
       if (signingDevices.length < 1) {
@@ -88,6 +77,7 @@ export const getDeviceStatus = (
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
     case SignerType.KEYSTONE:
+    case SignerType.LEDGER:
     default:
       return {
         message: '',
@@ -271,24 +261,13 @@ function SignersList({ navigation }) {
   };
   const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
-  const [isBLESupported, setBLESupport] = useState(false);
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
     setNfcSupport(isSupported);
   };
-  const getBluetoothSupport = () => {
-    new BleManager().onStateChange((state) => {
-      if (state === 'PoweredOn') {
-        setBLESupport(true);
-      } else {
-        setBLESupport(false);
-      }
-    }, true);
-  };
 
   useEffect(() => {
-    getBluetoothSupport();
     getNfcSupport();
   }, []);
 
@@ -726,12 +705,7 @@ function SignersList({ navigation }) {
             SignerType.MOBILE_KEY,
             SignerType.POLICY_SERVER,
           ].map((type: SignerType, index: number) => {
-            const { disabled, message } = getDeviceStatus(
-              type,
-              isNfcSupported,
-              isBLESupported,
-              signingDevices
-            );
+            const { disabled, message } = getDeviceStatus(type, isNfcSupported, signingDevices);
             return (
               <HardWareWallet
                 type={type}
