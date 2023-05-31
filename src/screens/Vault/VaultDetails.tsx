@@ -596,7 +596,7 @@ function VaultDetails({ route, navigation }) {
           dispatch(setIntroModal(false));
         }}
         title="Keeper Vault"
-        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
+        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`}
         modalBackground={['light.gradientStart', 'light.gradientEnd']}
         textColor="light.white"
         Content={VaultContent}
