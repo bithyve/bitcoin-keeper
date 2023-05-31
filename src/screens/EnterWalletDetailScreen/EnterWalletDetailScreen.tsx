@@ -25,6 +25,8 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { Linking } from 'react-native';
+import { resetWalletStateFlags } from 'src/store/reducers/wallets';
+import KeeperModal from 'src/components/KeeperModal';
 
 // eslint-disable-next-line react/prop-types
 function EnterWalletDetailScreen({ route }) {
@@ -43,7 +45,7 @@ function EnterWalletDetailScreen({ route }) {
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError } = useAppSelector(
     (state) => state.bhr
   );
-  const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
+  const [purpose, setPurpose] = useState(route.params?.purpose);
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
@@ -112,6 +114,25 @@ function EnterWalletDetailScreen({ route }) {
   // Example: 1000000 => 1,000,000
   const formatNumber = (value: string) =>
     value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  function FailedModalContent() {
+    return (
+      <Box w="100%">
+        <Buttons
+          primaryCallback={() => {
+            navigtaion.replace('ChoosePlan');
+          }}
+          primaryText="View Subsciption"
+          activeOpacity={0.5}
+          secondaryCallback={() => {
+            dispatch(resetWalletStateFlags());
+          }}
+          secondaryText={common.cancel}
+          paddingHorizontal={wp(30)}
+        />
+      </Box>
+    );
+  }
 
   const onQrScan = (qrData) => {
     navigtaion.goBack();
@@ -189,10 +210,11 @@ function EnterWalletDetailScreen({ route }) {
             autoCorrect={false}
             marginY={2}
             borderWidth="0"
-            maxLength={28}
+            maxLength={20}
+            testID={`input_${walletName.replace(/ /g, '_')}`}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
-            {walletName && walletName.length}/28
+            {walletName && walletName.length}/20
           </KeeperText>
         </Box>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
@@ -207,6 +229,7 @@ function EnterWalletDetailScreen({ route }) {
             borderWidth="0"
             marginY={2}
             maxLength={40}
+            testID={`input_${walletDescription.replace(/ /g, '_')}`}
           />
           <KeeperText color="light.GreyText" style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
@@ -233,6 +256,7 @@ function EnterWalletDetailScreen({ route }) {
               borderWidth="0"
               letterSpacing={3}
               color="light.greenText"
+              testID={`input_${formatNumber(transferPolicy)}`}
             />
             <Box style={styles.sats}>
               <KeeperText type="bold">{common.sats}</KeeperText>
@@ -250,7 +274,7 @@ function EnterWalletDetailScreen({ route }) {
           <Buttons
             secondaryText={common.cancel}
             secondaryCallback={() => {
-              navigtaion.goBack()
+              navigtaion.goBack();
               /* navigtaion.dispatch(
                  CommonActions.navigate({
                    name: 'ScanQR',
@@ -269,6 +293,22 @@ function EnterWalletDetailScreen({ route }) {
           />
         </View>
       </View>
+
+      <KeeperModal
+        dismissible
+        close={() => {}}
+        visible={false}
+        title="Failed"
+        Content={FailedModalContent}
+        buttonText=""
+        buttonCallback={() => {
+          // setInitiating(true)
+        }}
+        showButtons
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
     </View>
   );
 }

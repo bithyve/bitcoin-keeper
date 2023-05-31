@@ -13,13 +13,13 @@ function AppVersionHistory() {
   return (
     <ScreenWrapper>
       <HeaderTitle />
-      <Box style={styles.versionHistoryTitleWrapper}>
+      <Box style={styles.versionHistoryTitleWrapper} testID='view_VersionHistory'>
         <Text color="light.headerText" style={styles.versionHistoryTitle}>
           Version History
         </Text>
       </Box>
       <ScrollView>
-        <Box margin={10}>
+        <Box margin={10} testID='view_VersionHistoryList'>
           <VersionHistoryList />
         </Box>
       </ScrollView>

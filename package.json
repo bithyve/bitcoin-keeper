@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "0.0.1",
+  "version": "1.0.4",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
@@ -15,7 +15,11 @@
     "androidStagingDebug": "ENVFILE=.env react-native run-android --variant=stagingDebug --appIdSuffix=staging",
     "androidStagingRelease": "ENVFILE=.env react-native run-android --variant=stagingRelease --appIdSuffix=staging",
     "androidProductionDebug": "ENVFILE=.env react-native run-android --variant=productionDebug",
-    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease"
+    "androidProductionRelease": "ENVFILE=.env react-native run-android --variant=productionRelease",
+    "uninstall ios": "xcrun simctl uninstall booted io.hexawallet.keeper",
+    "uninstall ios:dev": "xcrun simctl uninstall booted io.hexawallet.hexakeeper.dev",
+    "uninstall android": "adb uninstall io.hexawallet.bitcoinkeeper",
+    "uninstall android:dev": "adb uninstall io.hexawallet.keeper.development"
   },
   "dependencies": {
     "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",
@@ -23,6 +27,7 @@
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-firebase/app": "^14.11.1",
     "@react-native-firebase/messaging": "^14.11.1",
+    "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
     "@realm/react": "^0.3.0",
@@ -38,6 +43,7 @@
     "bip32-path": "^0.4.2",
     "bip39": "^3.0.4",
     "bitcoinjs-lib": "5.2.0",
+    "bitcoinjs-message": "^2.2.0",
     "buffer": "^6.0.3",
     "buffer-reverse": "^1.0.1",
     "cktap-protocol-react-native": "git+https://github.com/bithyve/cktap-protocol-react-native.git#main",

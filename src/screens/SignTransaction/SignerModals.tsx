@@ -32,6 +32,7 @@ import { captureError } from 'src/core/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import config from 'src/core/config';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
+import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
@@ -126,8 +127,9 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
       <PassportSVG />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
-            }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
@@ -161,12 +163,14 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
       <KeystoneSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
-            }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Keystone ${isMultisig ? 'multisig menu' : 'Generic Wallet section'
-            }, press the scan icon on the top bar and wait for the QR to be scanned.`}
+          {`\u2022 On the Keystone ${
+            isMultisig ? 'multisig menu' : 'Generic Wallet section'
+          }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -206,6 +210,19 @@ function BitBox02Content() {
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function OtherSDContent() {
+  return (
+    <Box alignItems="center">
+      <OtherSDImage />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Either scan or use the export option to transfer the PSBT to the signer.`}
         </Text>
       </Box>
     </Box>
@@ -397,6 +414,8 @@ function SignerModals({
   keeperModal,
   trezorModal,
   bitbox02Modal,
+  otherSDModal,
+  setOtherSDModal,
   setTrezorModal,
   setBitbox02Modal,
   setJadeModal,
@@ -422,6 +441,7 @@ function SignerModals({
     setPassportModal(false);
     setSeedSignerModal(false);
     setKeeperModal(false);
+    setOtherSDModal(false);
     navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
   };
 
@@ -597,6 +617,21 @@ function SignerModals({
                 Content={() => <BitBox02Content />}
                 buttonText="Proceed"
                 buttonCallback={() => navigateToChannelSigning(signer)}
+              />
+            );
+          case SignerType.OTHER_SD:
+            return (
+              <KeeperModal
+                visible={currentSigner && otherSDModal}
+                close={() => {
+                  setOtherSDModal(false);
+                }}
+                title="Keep the Signer Ready"
+                subTitle="Keep your Signer ready before proceeding"
+                textColor="light.primaryText"
+                Content={() => <OtherSDContent />}
+                buttonText="Proceed"
+                buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
           case SignerType.KEEPER:

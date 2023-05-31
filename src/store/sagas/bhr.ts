@@ -21,7 +21,13 @@ import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
+import semver from 'semver';
+import { NodeDetail } from 'src/core/wallets/interfaces';
+import {
+  addNewWhirlpoolWallets,
+  refreshWallets,
+  updateSignerDetails,
+} from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
@@ -47,26 +53,38 @@ import {
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
-import semver from 'semver';
 import { applyRestoreSequence } from './restoreUpgrade';
 
 export function* updateAppImageWorker({ payload }) {
-  const { wallet } = payload;
+  const { wallets } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
-  if (wallet) {
-    const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-    walletObject[wallet.id] = encrytedWallet;
+  if (wallets) {
+    for (const wallet of wallets) {
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+      walletObject[wallet.id] = encrytedWallet;
+    }
   } else {
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
       walletObject[wallet.id] = encrytedWallet;
+    }
+  }
+
+  const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+  const nodesToUpdate = [];
+  if (nodes && nodes.length > 0) {
+    for (const index in nodes) {
+      const node = nodes[index];
+      node.isConnected = false;
+      const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
+      nodesToUpdate.push(encrytedNode);
     }
   }
   try {
@@ -77,6 +95,7 @@ export function* updateAppImageWorker({ payload }) {
       networkType,
       subscription: JSON.stringify(subscription),
       version,
+      nodes: nodesToUpdate,
     });
     return response;
   } catch (err) {
@@ -218,9 +237,9 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    let { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
+    const { appImage, vaultImage, UTXOinfos } = yield call(Relay.getAppImage, appID);
 
-    //applying the restore upgrade sequence if required
+    // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
     const newVersion = DeviceInfo.getVersion();
     if (semver.lt(previousVersion, newVersion)) {
@@ -260,8 +279,11 @@ function* getAppImageWorker({ payload }) {
       // Wallet recreation
       if (appImage.wallets) {
         for (const [key, value] of Object.entries(appImage.wallets)) {
-          const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
+          const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
           yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+          if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+            yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+          }
           yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
         }
       }
@@ -271,6 +293,12 @@ function* getAppImageWorker({ payload }) {
         const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
         yield call(dbManager.createObject, RealmSchema.Vault, vault);
       }
+
+      // UTXOinfo restore
+      if (UTXOinfos) {
+        yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
+      }
+
       yield put(setAppId(appID));
       // seed confirm for recovery
       yield call(dbManager.createObject, RealmSchema.BackupHistory, {
@@ -288,6 +316,13 @@ function* getAppImageWorker({ payload }) {
         date: new Date().toString(),
         title: 'Restored version',
       });
+
+      if (appImage.nodes) {
+        for (const node of appImage.nodes) {
+          const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+          yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+        }
+      }
     }
   } catch (err) {
     console.log(err);

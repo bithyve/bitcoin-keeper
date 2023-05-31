@@ -12,7 +12,8 @@ const initialState: {
   torEnbled: boolean;
   inheritanceModal: boolean,
   connectToMyNodeEnabled: boolean,
-  satsEnabled: boolean
+  satsEnabled: boolean,
+  whirlpoolSwiperModal: boolean,
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -22,7 +23,8 @@ const initialState: {
   torEnbled: false,
   inheritanceModal: true,
   connectToMyNodeEnabled: false,
-  satsEnabled: false
+  satsEnabled: false,
+  whirlpoolSwiperModal: true,
 }
 
 const settingsSlice = createSlice({
@@ -55,7 +57,10 @@ const settingsSlice = createSlice({
     },
     setSatsEnabled: (state, action: PayloadAction<boolean>) => {
       state.satsEnabled = action.payload
-    }
+    },
+    setWhirlpoolSwiperModal: (state, action: PayloadAction<boolean>) => {
+      state.whirlpoolSwiperModal = action.payload
+    },
   }
 })
 
@@ -68,7 +73,8 @@ export const {
   setTorEnabled,
   setInheritance,
   setConnectToMyNode,
-  setSatsEnabled
+  setSatsEnabled,
+  setWhirlpoolSwiperModal,
 } = settingsSlice.actions
 
 export default settingsSlice.reducer;

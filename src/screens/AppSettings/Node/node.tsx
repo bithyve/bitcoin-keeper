@@ -105,5 +105,4 @@ export default class Node {
         }
         return false;
     };
-
 }

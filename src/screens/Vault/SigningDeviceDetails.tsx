@@ -36,7 +36,7 @@ import Illustration from 'src/assets/images/illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ToastError from 'src/assets/images/toast_error.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg'
+import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
@@ -50,7 +50,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import { WalletMap } from './WalletMap';
+import { SDIcons } from './SigningDeviceIcons';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -177,8 +177,7 @@ function SigningDeviceDetails({ route }) {
       case SignerType.MOBILE_KEY:
         return {
           title: 'Mobile Key',
-          subTitle:
-            'You could use the wallet key on your app as one of the signing keys',
+          subTitle: 'You could use the wallet key on your app as one of the signing keys',
           assert: <MobileKeyIllustration />,
           description:
             '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
@@ -187,8 +186,7 @@ function SigningDeviceDetails({ route }) {
       case SignerType.SEED_WORDS:
         return {
           title: 'Seed Key',
-          subTitle:
-            'You could use a newly generated seed (12 words) as one of the signing keys',
+          subTitle: 'You could use a newly generated seed (12 words) as one of the signing keys',
           assert: <SeedWordsIllustration />,
           description:
             '\u2022Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
@@ -197,8 +195,7 @@ function SigningDeviceDetails({ route }) {
       case SignerType.KEEPER:
         return {
           title: 'Keeper as signing device',
-          subTitle:
-            'You can use a specific BIP-85 wallet on another Keeper app as a signer',
+          subTitle: 'You can use a specific BIP-85 wallet on another Keeper app as a signer',
           assert: <KeeperSetupImage />,
           description:
             '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
@@ -339,8 +336,6 @@ function SigningDeviceDetails({ route }) {
   const confirmHealthCheck = () => {
     navigation.goBack();
   };
-
-  console.log(nfcVisible);
 
   function HealthCheckContentTapsigner() {
     return (
@@ -502,7 +497,7 @@ function SigningDeviceDetails({ route }) {
             backgroundColor: '#725436',
           }}
         >
-          {WalletMap(signer?.type, true).Icon}
+          {SDIcons(signer?.type, true).Icon}
         </Box>
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">

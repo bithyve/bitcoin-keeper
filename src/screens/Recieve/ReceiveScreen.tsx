@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
 import { Box, Input } from 'native-base';
@@ -11,8 +12,8 @@ import Fonts from 'src/common/Fonts';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
-import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
+import TagsGreen from 'src/assets/images/tags.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -25,6 +26,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/core/wallets/operations';
+import MenuItemButton from '../../components/CustomButton/MenuItemButton';
 
 function ReceiveScreen({ route }: { route }) {
   const navigtaion = useNavigation();
@@ -144,28 +146,20 @@ function ReceiveScreen({ route }: { route }) {
         </Box>
       </TouchableOpacity>
       {/* {Add amount component} */}
-      <TouchableOpacity
-        activeOpacity={0.5}
-        style={styles.addAmountContainer}
-        onPress={() => {
-          setModalVisible(true);
-        }}
-      >
-        <Box style={styles.addAmountWrapper01} backgroundColor="light.primaryBackground">
-          <Box flexDirection="row">
-            <BtcGreen />
-            <Box flexDirection="column" marginLeft={5}>
-              <Text color="light.primaryText" style={styles.addAmountText}>
-                {home.AddAmount}
-              </Text>
-              <Text color="light.GreyText" style={styles.addAmountSubTitleText}>
-                Add a specific invoice amount
-              </Text>
-            </Box>
-          </Box>
-          <ArrowIcon />
-        </Box>
-      </TouchableOpacity>
+      <MenuItemButton
+        onPress={() => setModalVisible(true)}
+        icon={<BtcGreen />}
+        title={home.AddAmount}
+        subTitle="Add a specific invoice amount"
+      />
+      {/* {Add tags component} */}
+      {/* <MenuItemButton
+        // onPress={() => navigtaion.navigate('UTXOLabeling', { utxo: {}, wallet })}
+        onPress={() => showToast('Comming soon')}
+        icon={<TagsGreen />}
+        title="Add Tags"
+        subTitle="Tags help you remember and identify UTXOs"
+      /> */}
       {/* {Bottom note} */}
       <Box style={styles.Note}>
         <Note
@@ -225,7 +219,7 @@ const styles = StyleSheet.create({
   },
   inputWrapper: {
     flexDirection: 'row',
-    width: '90%',
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -233,28 +227,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderTopRightRadius: 10,
     borderBottomRightRadius: 10,
-  },
-  addAmountContainer: {
-    marginTop: hp(50),
-  },
-  addAmountWrapper01: {
-    flexDirection: 'row',
-    height: hp(70),
-    borderRadius: 10,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    marginHorizontal: 16,
-  },
-  addAmountText: {
-    fontWeight: '400',
-    fontSize: 14,
-    letterSpacing: 1.12,
-  },
-  addAmountSubTitleText: {
-    fontWeight: '400',
-    fontSize: 12,
-    letterSpacing: 0.6,
   },
   Container: {
     padding: 10,

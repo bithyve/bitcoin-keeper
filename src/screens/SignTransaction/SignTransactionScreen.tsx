@@ -1,5 +1,5 @@
 import { FlatList } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -46,6 +46,8 @@ function SignTransactionScreen() {
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
   const { signers, id: vaultId, scheme, shellId } = defaultVault;
+  const route = useRoute();
+  const { note, label } = route.params as { note: string; label: string };
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -58,6 +60,7 @@ function SignTransactionScreen() {
   const [keeperModal, setKeeperModal] = useState(false);
   const [trezorModal, setTrezorModal] = useState(false);
   const [bitbox02Modal, setBitbox02Modal] = useState(false);
+  const [otherSDModal, setOtherSDModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -290,6 +293,9 @@ function SignTransactionScreen() {
       case SignerType.BITBOX02:
         setBitbox02Modal(true);
         break;
+      case SignerType.OTHER_SD:
+        setOtherSDModal(true);
+        break;
       default:
         showToast(`action not set for ${type}`);
         break;
@@ -332,6 +338,8 @@ function SignTransactionScreen() {
                 sendPhaseThree({
                   wallet: defaultVault,
                   txnPriority: TxPriority.LOW,
+                  note,
+                  label,
                 })
               );
             } else {
@@ -355,6 +363,8 @@ function SignTransactionScreen() {
         keeperModal={keeperModal}
         trezorModal={trezorModal}
         bitbox02Modal={bitbox02Modal}
+        otherSDModal={otherSDModal}
+        setOtherSDModal={setOtherSDModal}
         setTrezorModal={setTrezorModal}
         setBitbox02Modal={setBitbox02Modal}
         setJadeModal={setJadeModal}

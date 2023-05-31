@@ -37,7 +37,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { WalletMap } from '../Vault/WalletMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
@@ -582,10 +582,10 @@ function SignersList({ navigation }) {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
+              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
               <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
-                {WalletMap(type).Logo}
+                {SDIcons(type).Logo}
                 <Text color="light.inActiveMsg" style={styles.messageText}>
                   {message}
                 </Text>
