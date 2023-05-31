@@ -91,9 +91,7 @@ function LoginScreen({ navigation, route }) {
     if (recepitVerificationFailed) {
       setLogging(false)
       setLoginModal(false)
-      // navigation.replace('App', { screen: 'ChoosePlan' });
-      setShowDowngradeModal(true)
-      // showToast('Failed to validate your subscription', null, 3000, true);
+      // setShowDowngradeModal(true)
     }
   }, [recepitVerificationError, recepitVerificationFailed]);
 
@@ -607,7 +605,7 @@ function LoginScreen({ navigation, route }) {
         showButtons
       />
 
-      <KeeperModal
+      {/* <KeeperModal
         dismissible
         close={() => { setShowDowngradeModal(false) }}
         visible={showDowngradeModal}
@@ -619,7 +617,7 @@ function LoginScreen({ navigation, route }) {
         showCloseIcon
         closeOnOverlayClick={() => setShowDowngradeModal(false)}
         showButtons
-      />
+      /> */}
     </LinearGradient>
   );
 }
