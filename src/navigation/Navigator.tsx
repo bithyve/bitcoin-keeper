@@ -82,9 +82,11 @@ import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
+import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import Login from '../screens/LoginScreen/Login';
+
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -139,6 +141,7 @@ function LoginStack() {
       <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
       <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
+      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannelRecovery} />
     </Stack.Navigator>
   );
 }
