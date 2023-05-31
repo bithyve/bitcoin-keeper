@@ -119,7 +119,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
           <Text fontSize={10} color="light.white">
             {(item.productType !== 'free' && item.isActive) ? isMonthly ? '/month' : '/year' : ''}
           </Text>
-          <Text bold fontSize={10} color="light.white" my={2}>
+          <Text bold fontSize={10} color="light.white" my={item.productIds.includes(subscription.productId.toLowerCase()) ? 0.5 : 2}>
             {getFreeTrail}
           </Text>
           {canSelectPlan === true ? (
