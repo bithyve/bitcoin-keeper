@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Alert, StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -34,6 +34,7 @@ import config from 'src/core/config';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
 import LedgerScanningModal from '../Vault/components/LedgerScanningModal';
@@ -207,6 +208,19 @@ function BitBox02Content() {
   return (
     <Box alignItems="center">
       <BitoxImage />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function LedgerContent() {
+  return (
+    <Box alignItems="center">
+      <LedgerImage />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
@@ -442,12 +456,14 @@ function SignerModals({
     setSeedSignerModal(false);
     setKeeperModal(false);
     setOtherSDModal(false);
+    setJadeModal(false);
     navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
   };
 
   const navigateToChannelSigning = (signer) => {
     setTrezorModal(false);
     setBitbox02Modal(false);
+    setLedgerModal(false);
     navigation.dispatch(CommonActions.navigate('SignWithChannel', { signTransaction, signer }));
   };
   return (
@@ -497,10 +513,17 @@ function SignerModals({
             );
           case SignerType.LEDGER:
             return (
-              <LedgerSigningModal
+              <KeeperModal
                 visible={currentSigner && ledgerModal}
-                setVisible={setLedgerModal}
-                signer={signer}
+                close={() => {
+                  setLedgerModal(false);
+                }}
+                title="Keep Nano X Ready"
+                subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor.`}
+                textColor="light.primaryText"
+                Content={() => <LedgerContent />}
+                buttonText="Proceed"
+                buttonCallback={() => navigateToChannelSigning(signer)}
               />
             );
           case SignerType.MOBILE_KEY:
@@ -656,16 +679,5 @@ function SignerModals({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  icon: {
-    height: 30,
-    width: 30,
-    borderRadius: 30,
-    backgroundColor: '#725436',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 export default SignerModals;

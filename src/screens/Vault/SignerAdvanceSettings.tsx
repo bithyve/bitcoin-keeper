@@ -84,8 +84,6 @@ function SignerAdvanceSettings({ route }: any) {
         dispatch(updateSignerDetails(signer, 'registered', true));
         return;
       case SignerType.LEDGER:
-        setLedgerModal(true);
-        return;
       case SignerType.BITBOX02:
         navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { signer }));
         break;
