@@ -241,17 +241,9 @@ function ChoosePlan(props) {
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken
         }
-        // requestSubscription(
-        //   { sku, subscriptionOffers: [{ sku, offerToken }], purchaseTokenAndroid },
-        // );
-        processPurchase({
-          productId: sku,
-          transactionReceipt: 'keeper-dev-mock-purchase',
-          autoRenewingAndroid: true,
-          isCanceledAmazon: false,
-          transactionDate: Date.now(),
-          transactionId: `keeper-dev-mock-purchase-${Date.now()}`
-        })
+        requestSubscription(
+          { sku, subscriptionOffers: [{ sku, offerToken }], purchaseTokenAndroid },
+        );
       }
 
     } catch (err) {
