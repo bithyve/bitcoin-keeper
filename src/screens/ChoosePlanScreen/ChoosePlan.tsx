@@ -276,8 +276,11 @@ function ChoosePlan(props) {
           if (purchase.productId === subscription.productId) {
             showToast(`Already subscribed to ${subscription.name}`)
           } else {
-            processPurchase(purchase)
-            break
+            const validPurchase = items.find(item => item.productIds.includes(purchase.productId))
+            if (validPurchase) {
+              processPurchase(purchase)
+              break
+            }
           }
         }
       }
