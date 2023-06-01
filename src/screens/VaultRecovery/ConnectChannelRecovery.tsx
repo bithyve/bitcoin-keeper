@@ -8,10 +8,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { io } from 'src/core/services/channel';
 import {
   BITBOX_SETUP,
@@ -21,11 +17,9 @@ import {
 } from 'src/core/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
-import usePlan from 'src/hooks/usePlan';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
-import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -33,11 +27,13 @@ import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import { useAppSelector } from 'src/store/hooks';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
+import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
-function ConnectChannel() {
+function ConnectChannelRecovery() {
   const route = useRoute();
   const { title = '', subtitle = '', type: signerType } = route.params as any;
   const channel = io(config.CHANNEL_URL);
@@ -45,18 +41,17 @@ function ConnectChannel() {
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { useQuery } = useContext(RealmWrapperContext);
-  const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
+  const { signingDevices } = useAppSelector((state) => state.bhr);
+  const isMultisig = signingDevices.length >= 1;
 
+  const id = Math.random();
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
+      channel.emit(CREATE_CHANNEL, { room: `${id}${data}`, network: config.NETWORK_TYPE });
       channelCreated = true;
     }
   };
@@ -74,12 +69,13 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(bitbox02));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        dispatch(setSigningDevices(bitbox02));
+        navigation.dispatch(
+          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        );
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(bitbox02.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        if (exsists) showToast('Warning: Signer already added', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -100,8 +96,10 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(trezor));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        dispatch(setSigningDevices(trezor));
+        navigation.dispatch(
+          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        );
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(trezor.signerId);
         if (exsists)
@@ -130,8 +128,10 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(ledger));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        dispatch(setSigningDevices(ledger));
+        navigation.dispatch(
+          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        );
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(ledger.signerId);
         if (exsists)
@@ -177,7 +177,7 @@ function ConnectChannel() {
   );
 }
 
-export default ConnectChannel;
+export default ConnectChannelRecovery;
 
 const styles = StyleSheet.create({
   qrcontainer: {

@@ -257,9 +257,9 @@ function ChoosePlan(props) {
 
   const getBenifitsTitle = (name) => {
     if (name === 'Diamond Hands') {
-      return `${name} means`;
+      return `${name}`;
     }
-    return `A ${name} can`;
+    return `A ${name}`;
   };
 
   const restorePurchases = async () => {
@@ -276,8 +276,11 @@ function ChoosePlan(props) {
           if (purchase.productId === subscription.productId) {
             showToast(`Already subscribed to ${subscription.name}`)
           } else {
-            processPurchase(purchase)
-            break
+            const validPurchase = items.find(item => item.productIds.includes(purchase.productId))
+            if (validPurchase) {
+              processPurchase(purchase)
+              break
+            }
           }
         }
       }
