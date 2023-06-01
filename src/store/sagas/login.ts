@@ -174,7 +174,7 @@ function* credentialsAuthWorker({ payload }) {
   if (!payload.reLogin) {
     if (appId !== '') {
       try {
-        const { id, publicId }: KeeperApp = yield call(
+        const { id, publicId, subscription }: KeeperApp = yield call(
           dbManager.getObjectByIndex,
           RealmSchema.KeeperApp
         );
@@ -204,6 +204,9 @@ function* credentialsAuthWorker({ payload }) {
         ElectrumClient.setActivePeer(privateNodes);
         yield call(ElectrumClient.connect);
         yield put(setRecepitVerificationFailed(!response.isValid));
+        if (subscription.level !== response.level) {
+          yield put(setRecepitVerificationFailed(true));
+        }
       } catch (error) {
         yield put(setRecepitVerificationError(true));
         // yield put(credsAuthenticated(false));
