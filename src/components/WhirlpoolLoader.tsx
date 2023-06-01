@@ -61,13 +61,13 @@ const getStyles = (clock, antiClock) =>
       position: 'absolute',
       bottom: '24%',
       left: '81%',
-      transform: [{ rotate: antiClock }],
+      transform: [{ rotate: clock }],
     },
     gear2: {
       position: 'absolute',
       top: '14%',
       left: '4%',
-      transform: [{ rotate: antiClock }],
+      transform: [{ rotate: clock }],
     },
     gear1: {
       position: 'absolute',
@@ -78,6 +78,6 @@ const getStyles = (clock, antiClock) =>
       position: 'absolute',
       top: '31%',
       left: '41.5%',
-      transform: [{ rotate: antiClock }],
+      transform: [{ rotate: clock }],
     },
   });

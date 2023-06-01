@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
+
 import Background from 'src/assets/images/background elements.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
@@ -27,8 +28,8 @@ function LoadingAnimation() {
   });
   const styles = getStyles(clock, antiClock);
   return (
-    <Box style={{ alignItems: 'center' }}>
-      <Box style={{ width: windowWidth * 0.5 }}>
+    <Box style={{ position: 'relative', alignItems: 'center' }}>
+      <Box style={{ width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65, alignItems: 'flex-start', }}>
         <Background />
         <Animated.View style={styles.gear2}>
           <Gear2 />
@@ -50,20 +51,20 @@ const getStyles = (clock, antiClock) =>
   StyleSheet.create({
     gear3: {
       position: 'absolute',
-      bottom: '17%',
-      right: 0,
-      transform: [{ rotate: antiClock }],
+      bottom: '20%',
+      left: '72%',
+      transform: [{ rotate: clock }],
     },
     gear2: {
       position: 'absolute',
-      top: '10%',
-      left: '10%',
-      transform: [{ rotate: antiClock }],
+      top: '14%',
+      left: '4%',
+      transform: [{ rotate: clock }],
     },
     gear1: {
       position: 'absolute',
-      right: '23%',
+      right: '36%',
       top: '10%',
-      transform: [{ rotate: antiClock }],
+      transform: [{ rotate: clock }],
     },
   });

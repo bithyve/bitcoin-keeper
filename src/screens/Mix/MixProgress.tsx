@@ -74,11 +74,11 @@ function MixProgress({
       useNativeDriver: true,
     })
   ).start();
-  const antiClock = spinValue.interpolate({
+  const clock = spinValue.interpolate({
     inputRange: [0, 1],
-    outputRange: ['360deg', '0deg'],
+    outputRange: ['0deg', '360deg'],
   });
-  const styles = getStyles(antiClock);
+  const styles = getStyles(clock);
 
   const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const statusData = [
@@ -402,8 +402,7 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${
-          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -477,7 +476,7 @@ function MixProgress({
   );
 }
 
-const getStyles = (antiClock) =>
+const getStyles = (clock) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -539,7 +538,7 @@ const getStyles = (antiClock) =>
       justifyContent: 'center',
     },
     whirlpoolIconStyle: {
-      transform: [{ rotate: antiClock }],
+      transform: [{ rotate: clock }],
     },
     verticalBorderWrapper: {
       marginVertical: hp(5),
