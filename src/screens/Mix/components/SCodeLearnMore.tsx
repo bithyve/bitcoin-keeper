@@ -5,16 +5,19 @@ import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
-import ScodeIllustration from 'src/assets/images/ScodeIllustration.svg'
+import ScodeIllustration from 'src/assets/images/SomeDefination.svg';
 
 
 function SCodeContent() {
     return (
         <Box style={styles.container}>
+            <Text style={styles.titleText} italic>SCODES</Text>
+            <Text style={styles.paraText}>SCODES are discount codes periodically released by Samurai on their social media platforms. Keep an eye out for them and use them to get attractive discounts on your whirlpool fees.</Text>
             <Box style={styles.iconWrapper}>
                 <ScodeIllustration />
             </Box>
-            <Text style={styles.paraText}>
+            <Text style={styles.titleText}>Priority</Text>
+            <Text style={styles.paraText} italic>
                 As in any bitcoin sending transaction, Priority determines how fast your transaction gets confirmed on the bitcoin blockchain.
             </Text>
         </Box>
@@ -28,8 +31,8 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
             close={() => {
                 closeModal()
             }}
-            title="SCODES and Priority"
-            subTitle="SCODES are discount codes periodically released by Samurai on their social media platforms. Keep an eye out for them and use them to get attractive discounts on your whirlpool fees."
+            title="Some Definitions:"
+            subTitle=""
             DarkCloseIcon
             modalBackground={['light.gradientStart', 'light.gradientEnd']}
             textColor="light.white"
@@ -46,6 +49,13 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
 const styles = StyleSheet.create({
     container: {
         marginVertical: 5
+    },
+    titleText: {
+        color: "white",
+        fontSize: 13,
+        letterSpacing: 0.65,
+        padding: 1,
+        fontWeight: 'bold'
     },
     paraText: {
         color: "white",
