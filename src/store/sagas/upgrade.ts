@@ -117,13 +117,17 @@ function* updateVersionHistoryWorker({
         if (Platform.OS === 'ios') notes = res.release.releaseNotes.ios;
         else notes = res.release.releaseNotes.android;
       }
-
-      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-        version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
-        releaseNote: notes,
-        date: new Date().toString(),
-        title: `Upgraded from ${previousVersion} to ${newVersion}`,
-      });
+      yield call(
+        dbManager.updateObjectById,
+        RealmSchema.VersionHistory,
+        `${newVersion}(${DeviceInfo.getBuildNumber()})`,
+        {
+          version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
+          releaseNote: notes,
+          date: new Date().toString(),
+          title: `Upgraded from ${previousVersion} to ${newVersion}`,
+        }
+      );
     }
   } catch (error) {
     console.log({ error });

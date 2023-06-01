@@ -42,11 +42,12 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.get(`${RELAY}releasesNotes?version=${version}`);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       if (err.response) console.log(err.response.data.err);
       if (err.code) console.log(err.code);
     }
-    return res.data || res.json;
   };
 
   public static updateFCMTokens = async (
