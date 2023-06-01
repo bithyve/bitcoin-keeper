@@ -7,6 +7,9 @@ import Relay from 'src/core/services/operations/Relay';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 import { setAppVersion, setPinHash } from '../reducers/storage';
 import { stringToArrayBuffer } from './login';
 import { createWatcher } from '../utilities';
@@ -18,9 +21,6 @@ import {
 import { RootState } from '../store';
 import { generateSeedHash } from '../sagaActions/login';
 import { setupKeeperAppWorker } from './storage';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 
 export const SWITCH_TO_MAINNET_VERSION = '0.0.99';
 export const ADDITION_OF_VAULTSHELL_VERSION = '1.0.1';
@@ -73,7 +73,7 @@ function* additionOfVaultShellId() {
       vault.shellId = id;
       const encryptionKey = generateEncryptionKey(primarySeed);
       const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
-      //updating the vault image on relay
+      // updating the vault image on relay
       const response = yield call(Relay.updateVaultImage, {
         vaultShellId: vault.shellId,
         vaultId: vault.id,
@@ -105,7 +105,7 @@ function* updateVersionHistoryWorker({
         version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
         releaseNote: '',
         date: new Date().toString(),
-        title: `Upgraded from ${previousVersion}`,
+        title: `Upgraded from ${previousVersion} to ${newVersion}`,
       });
       messaging().unsubscribeFromTopic(getReleaseTopic(previousVersion));
       messaging().subscribeToTopic(getReleaseTopic(newVersion));
@@ -122,7 +122,7 @@ function* updateVersionHistoryWorker({
         version: `${newVersion}(${DeviceInfo.getBuildNumber()})`,
         releaseNote: notes,
         date: new Date().toString(),
-        title: `Upgraded from ${previousVersion}`,
+        title: `Upgraded from ${previousVersion} to ${newVersion}`,
       });
     }
   } catch (error) {
