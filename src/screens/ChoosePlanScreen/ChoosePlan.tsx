@@ -257,9 +257,9 @@ function ChoosePlan(props) {
 
   const getBenifitsTitle = (name) => {
     if (name === 'Diamond Hands') {
-      return `${name} means`;
+      return `${name}`;
     }
-    return `A ${name} can`;
+    return `A ${name}`;
   };
 
   const restorePurchases = async () => {
