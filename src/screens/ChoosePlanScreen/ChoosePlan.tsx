@@ -33,6 +33,7 @@ import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
+import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan(props) {
@@ -240,9 +241,17 @@ function ChoosePlan(props) {
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken
         }
-        requestSubscription(
-          { sku, subscriptionOffers: [{ sku, offerToken }], purchaseTokenAndroid },
-        );
+        // requestSubscription(
+        //   { sku, subscriptionOffers: [{ sku, offerToken }], purchaseTokenAndroid },
+        // );
+        processPurchase({
+          productId: sku,
+          transactionReceipt: 'keeper-dev-mock-purchase',
+          autoRenewingAndroid: true,
+          isCanceledAmazon: false,
+          transactionDate: Date.now(),
+          transactionId: `keeper-dev-mock-purchase-${Date.now()}`
+        })
       }
 
     } catch (err) {
@@ -293,7 +302,7 @@ function ChoosePlan(props) {
   function LoginModalContent() {
     return (
       <Box>
-        <WhirlpoolLoader />
+        <LoadingAnimation />
         <Text color="light.greenText" fontSize={13}>
           {choosePlan.youCanChange}
         </Text>
