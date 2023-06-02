@@ -52,8 +52,14 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
   );
 }
 
-function Footer({ wallet, onPressBuyBitcoin }) {
-  return <TransactionFooter currentWallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />;
+function Footer({ wallet, onPressBuyBitcoin, walletIndex }) {
+  return (
+    <TransactionFooter
+      currentWallet={wallet}
+      onPressBuyBitcoin={onPressBuyBitcoin}
+      walletIndex={walletIndex}
+    />
+  );
 }
 
 function WalletDetails({ route }) {
@@ -61,7 +67,7 @@ function WalletDetails({ route }) {
   const dispatch = useDispatch();
   const currencyCode = useCurrencyCode();
   const exchangeRates = useExchangeRates();
-  const { autoRefresh, walletId } = route?.params || {};
+  const { autoRefresh, walletId, walletIndex } = route?.params || {};
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -254,7 +260,11 @@ function WalletDetails({ route }) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <Footer wallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />
+            <Footer
+              wallet={wallet}
+              onPressBuyBitcoin={onPressBuyBitcoin}
+              walletIndex={walletIndex}
+            />
           </>
         ) : (
           <Box style={styles.addNewWalletContainer}>
