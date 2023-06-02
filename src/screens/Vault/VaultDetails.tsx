@@ -536,7 +536,7 @@ function VaultDetails({ route, navigation }) {
   };
 
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-
+  const subtitle = subscriptionScheme.n > 1 ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created` : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
   return (
     <LinearGradient
       colors={['#B17F44', '#6E4A35']}
@@ -583,7 +583,7 @@ function VaultDetails({ route, navigation }) {
       <KeeperModal
         visible={vaultCreated}
         title="New Vault Created"
-        subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        subTitle={subtitle}
         buttonText="View Vault"
         subTitleColor="light.secondaryText"
         buttonCallback={closeVaultCreatedDialog}
