@@ -48,6 +48,8 @@ function SignWithQR() {
         } else if (signer.type === SignerType.KEYSTONE) {
           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
           dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: tx.toHex() }));
+        } else {
+          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, signedSerializedPSBT }));
         }
       } else {
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
