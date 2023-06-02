@@ -29,7 +29,7 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => {},
+    onQrScan = () => { },
     setup = false,
     type,
   } = route.params as any;
@@ -102,7 +102,7 @@ function ScanQR() {
     <ScreenWrapper>
       <MockWrapper signerType={type} enable={setup && type}>
         <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} />
+          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
           <Box style={styles.qrcontainer}>
             <RNCamera
               autoFocus="on"

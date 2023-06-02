@@ -19,7 +19,6 @@ import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import KeeperLoader from 'src/components/KeeperLoader';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
@@ -34,7 +33,6 @@ import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
-import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
@@ -67,7 +65,7 @@ import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import NewHomeScreen from 'src/screens/NewHomeScreen';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
-import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
+// import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
@@ -84,9 +82,11 @@ import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
+import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import Login from '../screens/LoginScreen/Login';
+
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -115,11 +115,6 @@ function LoginStack() {
         name="ColdCardReocvery"
         component={ColdCardReocvery}
       />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="LedgerRecovery"
-        component={LedgerRecovery}
-      />
       <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
@@ -146,6 +141,7 @@ function LoginStack() {
       <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
       <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
+      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannelRecovery} />
     </Stack.Navigator>
   );
 }
@@ -161,7 +157,6 @@ function AppStack() {
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
-        <Stack.Screen name="AddLedger" component={SetupLedger} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />

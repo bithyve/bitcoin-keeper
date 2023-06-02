@@ -1,11 +1,14 @@
 export const CREATE_CHANNEL = 'CREATE_CHANNEL';
 export const JOIN_CHANNEL = 'JOIN_CHANNEL';
 export const BITBOX_SETUP = 'BITBOX_SETUP';
+export const LEDGER_SETUP = 'LEDGER_SETUP';
 export const BITBOX_REGISTER = 'BITBOX_REGISTER';
+export const LEDGER_REGISTER = 'LEDGER_REGISTER';
 export const BITBOX_SIGN = 'BITBOX_SIGN';
 export const TREZOR_SETUP = 'TREZOR_SETUP';
 export const TREZOR_REGISTER = 'TREZOR_REGISTER';
 export const TREZOR_SIGN = 'TREZOR_SIGN';
+export const LEDGER_SIGN = 'LEDGER_SIGN';
 export const SIGNED_TX = 'SIGNED_TX';
 
 // whirlpool events

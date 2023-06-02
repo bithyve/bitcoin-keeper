@@ -4,8 +4,6 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-
 import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -19,13 +17,10 @@ import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { globalStyles } from 'src/common/globalStyles';
-import { regsiterWithLedger } from 'src/hardware/ledger';
 import useVault from 'src/hooks/useVault';
-import { captureError } from 'src/core/services/sentry';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
-import LedgerScanningModal from './components/LedgerScanningModal';
 
 const { width } = Dimensions.get('screen');
 
@@ -43,7 +38,6 @@ function SignerAdvanceSettings({ route }: any) {
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
   const [visible, setVisible] = useState(false);
-  const [ledgerModal, setLedgerModal] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
@@ -52,26 +46,6 @@ function SignerAdvanceSettings({ route }: any) {
 
   const registerColdCard = async () => {
     await withNfcModal(() => registerToColcard({ vault: activeVault }));
-  };
-
-  const registerLedger = async (transport) => {
-    try {
-      const { policyId } = await regsiterWithLedger(activeVault, transport);
-      setLedgerModal(false);
-      if (policyId) {
-        dispatch(updateSignerDetails(signer, 'registered', true));
-      }
-    } catch (err) {
-      if (
-        err.toString() ===
-        'TransportStatusError: Ledger device: Condition of use not satisfied (denied by the user?) (0x6985)'
-      ) {
-        showToast('Registration was denied by the user', <ToastErrorIcon />);
-        return;
-      }
-      setLedgerModal(false);
-      captureError(err);
-    }
   };
 
   const navigation: any = useNavigation();
@@ -84,8 +58,6 @@ function SignerAdvanceSettings({ route }: any) {
         dispatch(updateSignerDetails(signer, 'registered', true));
         return;
       case SignerType.LEDGER:
-        setLedgerModal(true);
-        return;
       case SignerType.BITBOX02:
         navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { signer }));
         break;
@@ -131,7 +103,6 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
-  const isLedger = signer.type === SignerType.LEDGER;
   const isOtherSD = signer.type === SignerType.OTHER_SD;
 
   const changePolicy = () => {
@@ -141,7 +112,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { font12, font10, font14 } = globalStyles;
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Advanced Settings" headerTitleColor="light.textBlack" />
+      <HeaderTitle title="Advanced Settings" headerTitleColor="light.textBlack" paddingLeft={25} />
       <Box backgroundColor={gradientStyles} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
@@ -200,15 +171,6 @@ function SignerAdvanceSettings({ route }: any) {
             <RightArrowIcon />
           </HStack>
         </TouchableOpacity>
-      )}
-      {ledgerModal && isLedger && (
-        <LedgerScanningModal
-          visible={ledgerModal}
-          setVisible={setLedgerModal}
-          callback={registerLedger}
-          infoText="Select to register the vault with this device"
-          interactionText="Registering..."
-        />
       )}
       {isOtherSD && (
         <TouchableOpacity onPress={navigateToAssignSigner}>
