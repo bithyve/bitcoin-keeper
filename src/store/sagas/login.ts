@@ -17,6 +17,7 @@ import ElectrumClient from 'src/core/services/electrum/client';
 import Relay from 'src/core/services/operations/Relay';
 import semver from 'semver';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { Alert } from 'react-native';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -45,7 +46,6 @@ import {
 } from '../reducers/storage';
 
 import { RootState } from '../store';
-import { autoSyncWallets } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import { fetchFeeRates, fetchExchangeRates } from '../sagaActions/send_and_receive';
@@ -88,13 +88,6 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setCredStored());
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
-    // connect electrum-client
-    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-    ElectrumClient.setActivePeer(privateNodes);
-    yield call(ElectrumClient.connect);
-
-    // fetch fee and exchange rates
-    yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
 
     yield put(
@@ -108,6 +101,15 @@ function* credentialsStorageWorker({ payload }) {
       date: new Date().toString(),
       title: 'Initially installed',
     });
+
+    // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
+    const connected = yield call(ElectrumClient.connect);
+    if (connected) yield put(fetchFeeRates());
+    else
+      Alert.alert(
+        'Connection error',
+        'Unable to connect to public electrum servers, please try again later!'
+      );
   } catch (error) {
     console.log(error);
   }
@@ -166,13 +168,9 @@ function* credentialsAuthWorker({ payload }) {
 
   yield put(setKey(key));
 
-  // connect electrum-client
-  const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-  ElectrumClient.setActivePeer(privateNodes);
-  yield call(ElectrumClient.connect);
-
   if (!payload.reLogin) {
-    if (appId !== '') {
+    // case: login
+    if (appId) {
       try {
         const { id, publicId, subscription }: KeeperApp = yield call(
           dbManager.getObjectByIndex,
@@ -181,15 +179,12 @@ function* credentialsAuthWorker({ payload }) {
         const response = yield call(Relay.verifyReceipt, id, publicId);
         yield put(credsAuthenticated(true));
         yield put(setKey(key));
-        // case: login
+
         const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
-        yield put(autoSyncWallets());
-        // fetch fee and exchange rates
-        yield put(fetchFeeRates());
+        yield put(setWarning(history));
+
         yield put(fetchExchangeRates());
         yield put(getMessages());
-        yield put(setWarning(history));
-        yield put(fetchExchangeRates());
         yield put(
           uaiChecks([
             uaiType.SIGNING_DEVICES_HEALTH_CHECK,
@@ -199,10 +194,6 @@ function* credentialsAuthWorker({ payload }) {
           ])
         );
         yield call(generateSeedHash);
-        // connect electrum-client
-        const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
-        ElectrumClient.setActivePeer(privateNodes);
-        yield call(ElectrumClient.connect);
         yield put(setRecepitVerificationFailed(!response.isValid));
         if (subscription.level !== response.level) {
           yield put(setRecepitVerificationFailed(true));
@@ -212,14 +203,19 @@ function* credentialsAuthWorker({ payload }) {
         // yield put(credsAuthenticated(false));
         console.log(error);
       }
-    } else {
-      yield put(credsAuthenticated(true));
-      const privateNodes = yield select((state: RootState) => state.settings.nodeDetails);
-      ElectrumClient.setActivePeer(privateNodes);
-    }
-  } else {
-    yield put(credsAuthenticated(true));
-  }
+    } else yield put(credsAuthenticated(true));
+  } else yield put(credsAuthenticated(true));
+
+  // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
+  const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+  ElectrumClient.setActivePeer(privateNodes);
+  const connected = yield call(ElectrumClient.connect);
+  if (connected) yield put(fetchFeeRates());
+  else
+    Alert.alert(
+      'Connection error',
+      'Unable to connect to public electrum servers, please try again later!'
+    );
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);

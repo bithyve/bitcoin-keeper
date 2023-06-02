@@ -108,7 +108,7 @@ export default class ElectrumClient {
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
       const nextPeer = ElectrumClient.getNextPeer();
       if (!nextPeer) {
-        console.log('Could not find the working electrum server. Please try again later.');
+        console.log('Could not find working electrum server. Please try again later.');
         return ELECTRUM_CLIENT.isClientConnected;
       }
 
