@@ -147,9 +147,10 @@ function* credentialsAuthWorker({ payload }) {
     const lastElement = versionCollection[versionCollection.length - 1];
     const lastVersionCode = lastElement.version.split(/[()]/);
     const currentVersionCode = DeviceInfo.getBuildNumber();
+    console.log(`lastVersionCode${lastVersionCode[1]}`, `currentVersionCode${currentVersionCode}`)
     if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
-    } else if (currentVersionCode !== lastVersionCode) {
+    } else if (currentVersionCode !== lastVersionCode[1]) {
       yield call(dbManager.createObject, RealmSchema.VersionHistory, {
         version: `${newVersion}(${currentVersionCode})`,
         releaseNote: '',
