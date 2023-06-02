@@ -47,6 +47,7 @@ import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
@@ -84,7 +85,7 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
           onPress={() => {
             featureMap.vaultRecieve
               ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }))
-              : showToast('Please Upgrade');
+              : showToast('Please Upgrade', <ToastErrorIcon />);
           }}
         >
           <Recieve />
@@ -571,6 +572,7 @@ function VaultDetails({ route, navigation }) {
         visible={tireChangeModal}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
+            setTireChangeModal(false);
             return;
           }
           setTireChangeModal(false);
