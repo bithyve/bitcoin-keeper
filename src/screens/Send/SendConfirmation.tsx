@@ -234,8 +234,7 @@ function SendConfirmation({ route }) {
         routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
-    }
-    if (whirlPoolWalletTypes.includes(sender.type)) {
+    } else if (whirlPoolWalletTypes.includes(sender.type)) {
       const popAction = StackActions.pop(3);
       navigation.dispatch(popAction);
     } else {
