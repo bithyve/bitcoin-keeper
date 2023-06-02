@@ -45,13 +45,13 @@ import {
 } from '../sagaActions/send_and_receive';
 import { createUTXOReferenceWorker } from './utxos';
 
-function* fetchFeeRatesWorker() {
+export function* fetchFeeRatesWorker() {
   try {
     const averageTxFeeByNetwork = yield call(WalletOperations.calculateAverageTxFee);
-    if (!averageTxFeeByNetwork) console.log('Failed to calculate fee rates');
+    if (!averageTxFeeByNetwork) console.log('Failed to calculate current fee rates');
     else yield put(setAverageTxFee(averageTxFeeByNetwork));
   } catch (err) {
-    console.log('Failed to calculate fee rates', { err });
+    console.log('Failed to calculate current fee rates', { err });
   }
 }
 
@@ -63,7 +63,7 @@ function* fetchExchangeRatesWorker() {
     if (!exchangeRates) console.log('Failed to fetch exchange rates');
     else yield put(setExchangeRates(exchangeRates));
   } catch (err) {
-    console.log('Failed to fetch fee and exchange rates', { err });
+    console.log('Failed to fetch latest exchange rates', { err });
   }
 }
 
