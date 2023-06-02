@@ -382,7 +382,7 @@ function ChoosePlan(props) {
       >
         <Note
           title="Note"
-          subtitle={formatString(choosePlan.noteSubTitle, Platform.select({ ios: 'App Store', android: 'PlayStore' }))}
+          subtitle={formatString(choosePlan.noteSubTitle)}
           subtitleColor="GreyText" />
 
         <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases}>
