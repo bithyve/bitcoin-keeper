@@ -21,11 +21,9 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
-import Relay from 'src/core/services/operations/Relay';
 import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import SubScription from 'src/common/data/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
@@ -57,13 +55,11 @@ function LoginScreen({ navigation, route }) {
   const { appId, failedAttempts, lastLoginFailedAt, } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const { showToast } = useToastMessage();
-  const [showDowngradeModal, setShowDowngradeModal] = useState(false)
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const [canLogin, setCanLogin] = useState(false);
-  const { isAuthenticated, authenticationFailed, recepitVerificationError, recepitVerificationFailed } = useAppSelector((state) => state.login);
+  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -83,17 +79,6 @@ function LoginScreen({ navigation, route }) {
     };
   }, [loggingIn]);
 
-  useEffect(() => {
-    if (recepitVerificationError) {
-      setLogging(false)
-      setLoginModal(false)
-    }
-    if (recepitVerificationFailed) {
-      setLogging(false)
-      setLoginModal(false)
-      // setShowDowngradeModal(true)
-    }
-  }, [recepitVerificationError, recepitVerificationFailed]);
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -305,19 +290,6 @@ function LoginScreen({ navigation, route }) {
     );
   }
 
-  async function downgradeToPleb() {
-    try {
-      const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
-      const response = await Relay.updateSubscription(app.id, app.publicId, { productId: SubscriptionTier.L1.toLowerCase(), })
-      if (response.updated) {
-        resetToPleb()
-      } else {
-        showToast('Failed to downgrade', null, 3000, true);
-      }
-    } catch (error) {
-      //
-    }
-  }
 
   function resetToPleb() {
     const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
@@ -387,57 +359,6 @@ function LoginScreen({ navigation, route }) {
         </Box>
       </Box>
     )
-  }
-
-
-  // eslint-disable-next-line react/no-unstable-nested-components
-  function DowngradeModalContent() {
-    return (
-      <Box>
-        <DowngradeToPleb />
-        <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text>
-        <Box alignItems="center" flexDirection="row">
-          <TouchableOpacity
-            style={[
-              styles.cancelBtn,
-            ]}
-            onPress={() => {
-              setShowDowngradeModal(false)
-              navigation.replace('App', { screen: 'ChoosePlan' });
-            }}
-            activeOpacity={0.5}
-          >
-            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
-              View Subscription
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              setShowDowngradeModal(false);
-              downgradeToPleb()
-            }}
-          >
-            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-              <Box
-                style={[styles.createBtn]}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
-              >
-                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-                  Continue as Pleb
-                </Text>
-              </Box>
-            </Shadow>
-          </TouchableOpacity>
-        </Box>
-      </Box>
-    );
   }
 
   return (
