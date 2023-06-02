@@ -10,6 +10,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { hp } from 'src/common/data/responsiveness/responsive';
 
 function HeaderBar() {
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+    paddingTop: hp(20)
   },
   torStatusWrapper: {
     width: '60%',

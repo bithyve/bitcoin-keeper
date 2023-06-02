@@ -216,19 +216,33 @@ function WalletDetails({ route }) {
                 Transactions
               </Text>
               {wallet?.specs.transactions.length ? (
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('VaultTransactions', {
+                      title: 'Wallet Transactions',
+                      subtitle: 'All incoming and outgoing transactions',
+                    })
+                  }
+                >
                   <HStack alignItems="center">
-                    <TouchableOpacity onPress={() => {}}>
-                      <Text
-                        color="light.primaryGreen"
-                        marginRight={2}
-                        fontSize={11}
-                        bold
-                        letterSpacing={0.6}
-                      >
-                        View All
-                      </Text>
-                    </TouchableOpacity>
+                    {/* <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('VaultTransactions', {
+                          title: 'Wallet Transactions',
+                          subtitle: 'All incoming and outgoing transactions',
+                        })
+                      }
+                    > */}
+                    <Text
+                      color="light.primaryGreen"
+                      marginRight={2}
+                      fontSize={11}
+                      bold
+                      letterSpacing={0.6}
+                    >
+                      View All
+                    </Text>
+                    {/* </TouchableOpacity> */}
                     <IconArrowBlack />
                   </HStack>
                 </TouchableOpacity>

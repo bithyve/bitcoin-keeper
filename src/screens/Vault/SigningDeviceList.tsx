@@ -198,6 +198,7 @@ function SigningDeviceList() {
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
+        paddingLeft={25}
       />
       <Box style={styles.scrollViewContainer}>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -253,7 +254,7 @@ function SigningDeviceList() {
             dispatch(setSdIntroModal(false));
           }}
           title="Signing Devices"
-          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your vault"
+          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
           modalBackground={['light.gradientStart', 'light.gradientEnd']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"

@@ -66,7 +66,9 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -162,7 +164,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Box style={styles.tileContainer}>
           <Tile
             title="Start New"
-            subTitle="New wallets and vault"
+            subTitle="New wallets and Vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -203,9 +205,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Box>
           <Box style={styles.subTitleWrapper}>
             <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
-            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
             <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
-            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
           </Box>
         </Box>
       </Box>
@@ -240,9 +242,25 @@ function NewKeeperApp({ navigation }: { navigation }) {
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
     </ScreenWrapper>
   );
 }
+
 const styles = StyleSheet.create({
   titleWrapper02: {
     marginTop: hp(70),

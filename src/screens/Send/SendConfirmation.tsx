@@ -116,11 +116,11 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
-      setTitle('Sending to vault');
+      setTitle('Sending to Vault');
     } else if (walletTransfers.includes(transferType)) {
       setTitle('Sending to wallet');
     } else if (internalTransfers.includes(transferType)) {
-      setTitle('Transfer Funds to the new vault');
+      setTitle('Transfer Funds to the new Vault');
       setSubTitle('On-chain transaction incurs fees');
     }
   }, []);

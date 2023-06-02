@@ -160,7 +160,7 @@ export default function WhirlpoolConfiguration({ route }) {
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle paddingLeft={10} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
+      <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
       <Box style={styles.scode}>

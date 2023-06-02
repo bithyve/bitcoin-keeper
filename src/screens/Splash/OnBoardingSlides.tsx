@@ -123,7 +123,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
+              <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/')}>
                 <Box borderColor="light.lightAccent" style={styles.seeFAQWrapper}>
                   <Text color="light.lightAccent" bold style={styles.seeFAQText}>
                     {common.seeFAQs}

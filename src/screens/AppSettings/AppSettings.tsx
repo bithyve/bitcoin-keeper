@@ -197,7 +197,7 @@ function AppSettings({ navigation }) {
       <Box style={styles.appSettingTitleWrapper}>
         <Box width="70%">
           <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
-          <Text style={styles.appSettingSubTitle}>For the vault and wallets</Text>
+          <Text style={styles.appSettingSubTitle}>For the Vault and wallets</Text>
         </Box>
         <Box style={styles.currentTypeSwitchWrapper}>
           <CurrencyTypeSwitch />
@@ -317,13 +317,13 @@ function AppSettings({ navigation }) {
                 </Text>
               </Pressable>
               <Text color="light.textColor2">|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='btn_termsCondition'>
+              <Pressable onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')} testID='btn_termsCondition'>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.TermsConditions}
                 </Text>
               </Pressable>
               <Text color="light.textColor2">|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID='btn_privacyPolicy'>
+              <Pressable onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')} testID='btn_privacyPolicy'>
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.PrivacyPolicy}
                 </Text>

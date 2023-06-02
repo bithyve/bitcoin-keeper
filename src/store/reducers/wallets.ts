@@ -23,6 +23,8 @@ export type WalletsState = {
 
   resetTwoFALoader: boolean;
   introModal: boolean;
+
+  err: string;
   whirlpoolIntro: boolean;
   whirlpoolModal: boolean;
 
@@ -49,6 +51,8 @@ const initialState: WalletsState = {
 
   resetTwoFALoader: false,
   introModal: true,
+
+  err: '',
   whirlpoolIntro: true,
   whirlpoolModal: true,
 
@@ -86,6 +90,23 @@ const walletSlice = createSlice({
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
     },
+    walletGenerationFailed: (state, action: PayloadAction<string>) => {
+      state.hasNewWalletsGenerationFailed = true;
+      state.isGeneratingNewWallet = false;
+      state.err = action.payload;
+    },
+    newWalletCreated: (state) => {
+      state.isGeneratingNewWallet = false;
+      state.hasNewWalletsGenerationSucceeded = true;
+      state.hasNewWalletsGenerationFailed = false;
+      state.err = '';
+    },
+    resetWalletStateFlags: (state) => {
+      state.isGeneratingNewWallet = false;
+      state.hasNewWalletsGenerationSucceeded = false;
+      state.hasNewWalletsGenerationFailed = false;
+      state.err = '';
+    },
     setWhirlpoolIntro: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolIntro = action.payload;
     },
@@ -95,7 +116,6 @@ const walletSlice = createSlice({
     setWhirlpoolWallets: (state, action: PayloadAction<Wallet[]>) => {
       state.whirlpoolWallets = action.payload;
     },
-
     resetWhirlpoolWallets: (state) => {
       state.whirlpoolWallets = null;
     },
@@ -119,6 +139,7 @@ const walletSlice = createSlice({
       state.isGeneratingNewWallet = true;
       state.hasNewWalletsGenerationSucceeded = false;
       state.hasNewWalletsGenerationFailed = false;
+      state.err = '';
     });
   },
 });
@@ -129,6 +150,9 @@ export const {
   setTestCoinsReceived,
   setTestCoinsFailed,
   setIntroModal,
+  walletGenerationFailed,
+  newWalletCreated,
+  resetWalletStateFlags,
   setWhirlpoolIntro,
   setWhirlpoolModal,
   setWhirlpoolWallets,
@@ -141,6 +165,14 @@ export const {
 const walletPersistConfig = {
   key: 'wallet',
   storage: reduxStorage,
-  blacklist: ['testCoinsReceived', 'testCoinsFailed', 'whirlpoolWallets', 'whirlpoolWalletCreated'],
+  blacklist: [
+    'testCoinsReceived',
+    'testCoinsFailed',
+    'hasNewWalletsGenerationFailed',
+    'hasNewWalletsGenerationSucceeded',
+    'isGeneratingNewWallet',
+    'whirlpoolWallets',
+    'whirlpoolWalletCreated',
+  ],
 };
 export default persistReducer(walletPersistConfig, walletSlice.reducer);

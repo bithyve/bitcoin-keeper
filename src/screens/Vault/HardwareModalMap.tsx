@@ -161,7 +161,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
           `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
         ],
         title: 'Setting up a Signing Server',
-        subTitle: 'A Signing Server will hold one of the keys in the vault',
+        subTitle: 'A Signing Server will hold one of the keys in the Vault',
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${

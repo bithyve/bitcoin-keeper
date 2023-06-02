@@ -314,7 +314,6 @@
 				9058DBE1B59D0231E2824D50 /* [CP] Embed Pods Frameworks */,
 				3396F4301D018D25956442D1 /* [CP] Copy Pods Resources */,
 				FE1F61DC2F2586BE1F6A2BFD /* [CP-User] [RNFB] Core Configuration */,
-				AE3C79C5380614BA70089389 /* [CP-User] [instabug-reactnative] Upload Sourcemap */,
 			);
 			buildRules = (
 			);
@@ -338,7 +337,6 @@
 				B6B26DBEB931623A05CCBB02 /* [CP] Embed Pods Frameworks */,
 				554138FCE9E8F5D4A093C183 /* [CP] Copy Pods Resources */,
 				3733FF46514E02C2ACC27EDF /* [CP-User] [RNFB] Core Configuration */,
-				AAB2A2FEECCCAF4BD47C3CCA /* [CP-User] [instabug-reactnative] Upload Sourcemap */,
 			);
 			buildRules = (
 			);
@@ -538,26 +536,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-hexa_keeper/Pods-hexa_keeper-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		AAB2A2FEECCCAF4BD47C3CCA /* [CP-User] [instabug-reactnative] Upload Sourcemap */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			name = "[CP-User] [instabug-reactnative] Upload Sourcemap";
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\ncd ${PROJECT_DIR}\ncd ..\nif [ -s \"$HOME/.nvm/nvm.sh\" ]; then\n. \"$HOME/.nvm/nvm.sh\"\nelif [ -x \"$(command -v brew)\" ] && [ -s \"$(brew --prefix nvm)/nvm.sh\" ]; then\n. \"$(brew --prefix nvm)/nvm.sh\"\nfi\nexport NODE_BINARY=node\n\nINSTABUG_SOURCEMAPS_UPLOAD_DISABLE=$(echo $INSTABUG_SOURCEMAPS_UPLOAD_DISABLE | tr 'A-Z' 'a-z')\nif [ \"${INSTABUG_SOURCEMAPS_UPLOAD_DISABLE}\" = \"true\" ]; then\n    echo \"Instabug: Environment variable INSTABUG_SOURCEMAPS_UPLOAD_DISABLE was set to true, skipping sourcemap upload\"\n    exit 0\nfi\n\nif [ ! \"$INFOPLIST_FILE\" ] || [ -z \"$INFOPLIST_FILE\" ]; then\n    echo \"Instabug: INFOPLIST_FILE not found in Xcode build settings, skipping sourcemap upload\"\n    exit 0\nfi\n\nif [ ! \"${PROJECT_DIR}\" ] || [ -z \"${PROJECT_DIR}\" ]; then\n    echo \"Instabug: PROJECT_DIR not found in Xcode build settings, skipping sourcemap upload\"\n    exit 0\nfi\n\nPLIST_ABS_PATH=\"$PROJECT_DIR/$INFOPLIST_FILE\"\necho \"Instabug: PLIST_ABS_PATH: $PLIST_ABS_PATH\"\n\nif [ ! \"${INSTABUG_APP_TOKEN}\" ] || [ -z \"${INSTABUG_APP_TOKEN}\" ]; then\n    echo \"Instabug: Looking for Token...\"\n    INSTABUG_APP_TOKEN=$(grep -r --exclude-dir={node_modules,ios,android} \"Instabug.start[WithToken]*([\\\"\\'][0-9a-zA-Z]*[\\\"\\']\" ./ -m 1 | grep -o \"[\\\"\\'][0-9a-zA-Z]*[\\\"\\']\" | cut -d \"\\\"\" -f 2 | cut -d \"'\" -f 2)\nfi\n\nif [ ! \"${INSTABUG_APP_TOKEN}\" ] || [ -z \"${INSTABUG_APP_TOKEN}\" ]; then\n    echo \"Instabug: INSTABUG_APP_TOKEN not found. Make sure you've added the SDK initialization line Instabug.start Or added the environment variable INSTABUG_APP_TOKEN\"\n    exit 0\nelse\n    if [ ! \"${INSTABUG_APP_VERSION_CODE}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE}\" ]; then\n        INSTABUG_APP_VERSION_CODE=$(/usr/libexec/PlistBuddy -c 'print CFBundleVersion' ${PLIST_ABS_PATH} )\n        if [ ! \"${INSTABUG_APP_VERSION_CODE}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE}\" ]; then\n            echo \"CFBundleVersion could not be found, please upload the sourcemap files manually\"\n            exit 0\n        fi\n        INSTABUG_APP_VERSION_CODE_ENV=$(grep -o '$(.*)' <<< $INSTABUG_APP_VERSION_CODE | cut -d \"(\" -f2 | cut -d \")\" -f1)\n        if !([ ! \"${INSTABUG_APP_VERSION_CODE_ENV}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE_ENV}\" ]); then\n            INSTABUG_APP_VERSION_CODE=${!INSTABUG_APP_VERSION_CODE_ENV}\n            if [ ! \"${INSTABUG_APP_VERSION_CODE}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE}\" ]; then\n                echo \"Environment variable $INSTABUG_APP_VERSION_CODE_ENV was specified inside Info.plist but was not found, please upload the sourcemap files manually\" \n                exit 0\n            fi\n        fi\n    fi\n    if [ ! \"${INSTABUG_APP_VERSION_NAME}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME}\" ]; then\n        INSTABUG_APP_VERSION_NAME=$(/usr/libexec/PlistBuddy -c 'print CFBundleShortVersionString' ${PLIST_ABS_PATH} )\n        if [ ! \"${INSTABUG_APP_VERSION_NAME}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME}\" ]; then\n            echo \"CFBundleShortVersionString could not be found, please upload the sourcemap files manually\"\n            exit 0\n        fi\n        INSTABUG_APP_VERSION_NAME_ENV=$(grep -o '$(.*)' <<< $INSTABUG_APP_VERSION_NAME | cut -d \"(\" -f2 | cut -d \")\" -f1)\n        if !([ ! \"${INSTABUG_APP_VERSION_NAME_ENV}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME_ENV}\" ]); then\n            INSTABUG_APP_VERSION_NAME=${!INSTABUG_APP_VERSION_NAME_ENV}\n            if [ ! \"${INSTABUG_APP_VERSION_NAME}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME}\" ]; then\n                echo \"Environment variable $INSTABUG_APP_VERSION_NAME_ENV was specified inside Info.plist but was not found, please upload the sourcemap files manually\" \n                exit 0\n            fi\n        fi\n    fi\n    if [ -z \"${INSTABUG_ENTRY_FILE}\" ]; then \n        ENTRY_FILE='index.js'\n    else \n        ENTRY_FILE=${INSTABUG_ENTRY_FILE}\n    fi\n    if [ ! -f $ENTRY_FILE ]; then\n        echo \"Instabug: err: entry file not found. Make sure\" \"\\\"${ENTRY_FILE}\\\"\" \"exists in your projects root directory. Or add the environment variable INSTABUG_ENTRY_FILE with the name of your entry file\"\n        exit 0\n    fi\n    VERSION='{\"code\":\"'\"$INSTABUG_APP_VERSION_CODE\"'\",\"name\":\"'\"$INSTABUG_APP_VERSION_NAME\"'\"}'\n    echo \"Instabug: Token:\" \"\\\"\"${INSTABUG_APP_TOKEN}\"\\\"\"\n    echo \"Instabug: VERSION: $VERSION\"\n    echo \"Instabug: Entry file found\" \"\\\"\"${ENTRY_FILE}\"\\\"\"\n    echo \"Instabug: Generating sourcemap files...\"\n    HERMES_ENABLED=$(grep hermes-engine ./ios/Podfile.lock -m 1)\n    INSTALLED_RN_VERSION_MAJOR=$(node -p \"require('./node_modules/react-native/package.json').version\" | cut -d \".\" -f2)\n    if [[ ! -z \"$HERMES_ENABLED\" && \"$INSTALLED_RN_VERSION_MAJOR\" -lt 70  ]]; then\n        EXTRA_ARGS=\"--minify false\"\n    fi\n    #Generate ios sourcemap\n    npx react-native bundle --platform ios \\\n    --reset-cache \\\n    --entry-file $ENTRY_FILE \\\n    --dev false \\\n    --bundle-output ./ios/main.jsbundle \\\n    --sourcemap-output ./ios-sourcemap.json \\\n    $EXTRA_ARGS\n    \n    echo \"Instabug: Uploading files...\"\n    #Upload ios sourcemap\n    curl -X POST 'https://api.instabug.com/api/sdk/v3/symbols_files' -F \"app_version=${VERSION}\" -F \"symbols_file=@./ios-sourcemap.json\"  -F \"application_token=${INSTABUG_APP_TOKEN}\"  -F \"platform=react_native\"  -F \"os=ios\" \n    rm -rf ios-sourcemap.json\n    echo \nfi\n";
-		};
-		AE3C79C5380614BA70089389 /* [CP-User] [instabug-reactnative] Upload Sourcemap */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			name = "[CP-User] [instabug-reactnative] Upload Sourcemap";
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "#!/bin/sh\ncd ${PROJECT_DIR}\ncd ..\nif [ -s \"$HOME/.nvm/nvm.sh\" ]; then\n. \"$HOME/.nvm/nvm.sh\"\nelif [ -x \"$(command -v brew)\" ] && [ -s \"$(brew --prefix nvm)/nvm.sh\" ]; then\n. \"$(brew --prefix nvm)/nvm.sh\"\nfi\nexport NODE_BINARY=node\n\nINSTABUG_SOURCEMAPS_UPLOAD_DISABLE=$(echo $INSTABUG_SOURCEMAPS_UPLOAD_DISABLE | tr 'A-Z' 'a-z')\nif [ \"${INSTABUG_SOURCEMAPS_UPLOAD_DISABLE}\" = \"true\" ]; then\n    echo \"Instabug: Environment variable INSTABUG_SOURCEMAPS_UPLOAD_DISABLE was set to true, skipping sourcemap upload\"\n    exit 0\nfi\n\nif [ ! \"$INFOPLIST_FILE\" ] || [ -z \"$INFOPLIST_FILE\" ]; then\n    echo \"Instabug: INFOPLIST_FILE not found in Xcode build settings, skipping sourcemap upload\"\n    exit 0\nfi\n\nif [ ! \"${PROJECT_DIR}\" ] || [ -z \"${PROJECT_DIR}\" ]; then\n    echo \"Instabug: PROJECT_DIR not found in Xcode build settings, skipping sourcemap upload\"\n    exit 0\nfi\n\nPLIST_ABS_PATH=\"$PROJECT_DIR/$INFOPLIST_FILE\"\necho \"Instabug: PLIST_ABS_PATH: $PLIST_ABS_PATH\"\n\nif [ ! \"${INSTABUG_APP_TOKEN}\" ] || [ -z \"${INSTABUG_APP_TOKEN}\" ]; then\n    echo \"Instabug: Looking for Token...\"\n    INSTABUG_APP_TOKEN=$(grep -r --exclude-dir={node_modules,ios,android} \"Instabug.start[WithToken]*([\\\"\\'][0-9a-zA-Z]*[\\\"\\']\" ./ -m 1 | grep -o \"[\\\"\\'][0-9a-zA-Z]*[\\\"\\']\" | cut -d \"\\\"\" -f 2 | cut -d \"'\" -f 2)\nfi\n\nif [ ! \"${INSTABUG_APP_TOKEN}\" ] || [ -z \"${INSTABUG_APP_TOKEN}\" ]; then\n    echo \"Instabug: INSTABUG_APP_TOKEN not found. Make sure you've added the SDK initialization line Instabug.start Or added the environment variable INSTABUG_APP_TOKEN\"\n    exit 0\nelse\n    if [ ! \"${INSTABUG_APP_VERSION_CODE}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE}\" ]; then\n        INSTABUG_APP_VERSION_CODE=$(/usr/libexec/PlistBuddy -c 'print CFBundleVersion' ${PLIST_ABS_PATH} )\n        if [ ! \"${INSTABUG_APP_VERSION_CODE}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE}\" ]; then\n            echo \"CFBundleVersion could not be found, please upload the sourcemap files manually\"\n            exit 0\n        fi\n        INSTABUG_APP_VERSION_CODE_ENV=$(grep -o '$(.*)' <<< $INSTABUG_APP_VERSION_CODE | cut -d \"(\" -f2 | cut -d \")\" -f1)\n        if !([ ! \"${INSTABUG_APP_VERSION_CODE_ENV}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE_ENV}\" ]); then\n            INSTABUG_APP_VERSION_CODE=${!INSTABUG_APP_VERSION_CODE_ENV}\n            if [ ! \"${INSTABUG_APP_VERSION_CODE}\" ] || [ -z \"${INSTABUG_APP_VERSION_CODE}\" ]; then\n                echo \"Environment variable $INSTABUG_APP_VERSION_CODE_ENV was specified inside Info.plist but was not found, please upload the sourcemap files manually\" \n                exit 0\n            fi\n        fi\n    fi\n    if [ ! \"${INSTABUG_APP_VERSION_NAME}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME}\" ]; then\n        INSTABUG_APP_VERSION_NAME=$(/usr/libexec/PlistBuddy -c 'print CFBundleShortVersionString' ${PLIST_ABS_PATH} )\n        if [ ! \"${INSTABUG_APP_VERSION_NAME}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME}\" ]; then\n            echo \"CFBundleShortVersionString could not be found, please upload the sourcemap files manually\"\n            exit 0\n        fi\n        INSTABUG_APP_VERSION_NAME_ENV=$(grep -o '$(.*)' <<< $INSTABUG_APP_VERSION_NAME | cut -d \"(\" -f2 | cut -d \")\" -f1)\n        if !([ ! \"${INSTABUG_APP_VERSION_NAME_ENV}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME_ENV}\" ]); then\n            INSTABUG_APP_VERSION_NAME=${!INSTABUG_APP_VERSION_NAME_ENV}\n            if [ ! \"${INSTABUG_APP_VERSION_NAME}\" ] || [ -z \"${INSTABUG_APP_VERSION_NAME}\" ]; then\n                echo \"Environment variable $INSTABUG_APP_VERSION_NAME_ENV was specified inside Info.plist but was not found, please upload the sourcemap files manually\" \n                exit 0\n            fi\n        fi\n    fi\n    if [ -z \"${INSTABUG_ENTRY_FILE}\" ]; then \n        ENTRY_FILE='index.js'\n    else \n        ENTRY_FILE=${INSTABUG_ENTRY_FILE}\n    fi\n    if [ ! -f $ENTRY_FILE ]; then\n        echo \"Instabug: err: entry file not found. Make sure\" \"\\\"${ENTRY_FILE}\\\"\" \"exists in your projects root directory. Or add the environment variable INSTABUG_ENTRY_FILE with the name of your entry file\"\n        exit 0\n    fi\n    VERSION='{\"code\":\"'\"$INSTABUG_APP_VERSION_CODE\"'\",\"name\":\"'\"$INSTABUG_APP_VERSION_NAME\"'\"}'\n    echo \"Instabug: Token:\" \"\\\"\"${INSTABUG_APP_TOKEN}\"\\\"\"\n    echo \"Instabug: VERSION: $VERSION\"\n    echo \"Instabug: Entry file found\" \"\\\"\"${ENTRY_FILE}\"\\\"\"\n    echo \"Instabug: Generating sourcemap files...\"\n    HERMES_ENABLED=$(grep hermes-engine ./ios/Podfile.lock -m 1)\n    INSTALLED_RN_VERSION_MAJOR=$(node -p \"require('./node_modules/react-native/package.json').version\" | cut -d \".\" -f2)\n    if [[ ! -z \"$HERMES_ENABLED\" && \"$INSTALLED_RN_VERSION_MAJOR\" -lt 70  ]]; then\n        EXTRA_ARGS=\"--minify false\"\n    fi\n    #Generate ios sourcemap\n    npx react-native bundle --platform ios \\\n    --reset-cache \\\n    --entry-file $ENTRY_FILE \\\n    --dev false \\\n    --bundle-output ./ios/main.jsbundle \\\n    --sourcemap-output ./ios-sourcemap.json \\\n    $EXTRA_ARGS\n    \n    echo \"Instabug: Uploading files...\"\n    #Upload ios sourcemap\n    curl -X POST 'https://api.instabug.com/api/sdk/v3/symbols_files' -F \"app_version=${VERSION}\" -F \"symbols_file=@./ios-sourcemap.json\"  -F \"application_token=${INSTABUG_APP_TOKEN}\"  -F \"platform=react_native\"  -F \"os=ios\" \n    rm -rf ios-sourcemap.json\n    echo \nfi\n";
 		};
 		B6B26DBEB931623A05CCBB02 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -768,7 +746,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
-				CURRENT_PROJECT_VERSION = 180;
+				CURRENT_PROJECT_VERSION = 185;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -807,7 +785,6 @@
 					"\"${PODS_ROOT}/Headers/Public/RNFS\"",
 					"\"${PODS_ROOT}/Headers/Public/RNGestureHandler\"",
 					"\"${PODS_ROOT}/Headers/Public/RNIap\"",
-					"\"${PODS_ROOT}/Headers/Public/RNInstabug\"",
 					"\"${PODS_ROOT}/Headers/Public/RNKeychain\"",
 					"\"${PODS_ROOT}/Headers/Public/RNLocalize\"",
 					"\"${PODS_ROOT}/Headers/Public/RNPermissions\"",
@@ -877,7 +854,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -899,7 +876,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper/hexa_keeper.entitlements;
-				CURRENT_PROJECT_VERSION = 180;
+				CURRENT_PROJECT_VERSION = 185;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -937,7 +914,6 @@
 					"\"${PODS_ROOT}/Headers/Public/RNFS\"",
 					"\"${PODS_ROOT}/Headers/Public/RNGestureHandler\"",
 					"\"${PODS_ROOT}/Headers/Public/RNIap\"",
-					"\"${PODS_ROOT}/Headers/Public/RNInstabug\"",
 					"\"${PODS_ROOT}/Headers/Public/RNKeychain\"",
 					"\"${PODS_ROOT}/Headers/Public/RNLocalize\"",
 					"\"${PODS_ROOT}/Headers/Public/RNPermissions\"",
@@ -1007,7 +983,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1151,7 +1127,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "dev-AppIcon";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
-				CURRENT_PROJECT_VERSION = 180;
+				CURRENT_PROJECT_VERSION = 185;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -1190,7 +1166,6 @@
 					"\"${PODS_ROOT}/Headers/Public/RNFS\"",
 					"\"${PODS_ROOT}/Headers/Public/RNGestureHandler\"",
 					"\"${PODS_ROOT}/Headers/Public/RNIap\"",
-					"\"${PODS_ROOT}/Headers/Public/RNInstabug\"",
 					"\"${PODS_ROOT}/Headers/Public/RNKeychain\"",
 					"\"${PODS_ROOT}/Headers/Public/RNLocalize\"",
 					"\"${PODS_ROOT}/Headers/Public/RNPermissions\"",
@@ -1261,7 +1236,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1284,7 +1259,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "dev-AppIcon";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = hexa_keeper_dev.entitlements;
-				CURRENT_PROJECT_VERSION = 180;
+				CURRENT_PROJECT_VERSION = 185;
 				DEVELOPMENT_TEAM = Y5TCB759QL;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1322,7 +1297,6 @@
 					"\"${PODS_ROOT}/Headers/Public/RNFS\"",
 					"\"${PODS_ROOT}/Headers/Public/RNGestureHandler\"",
 					"\"${PODS_ROOT}/Headers/Public/RNIap\"",
-					"\"${PODS_ROOT}/Headers/Public/RNInstabug\"",
 					"\"${PODS_ROOT}/Headers/Public/RNKeychain\"",
 					"\"${PODS_ROOT}/Headers/Public/RNLocalize\"",
 					"\"${PODS_ROOT}/Headers/Public/RNPermissions\"",
@@ -1393,7 +1367,7 @@
 					"$(PROJECT_DIR)",
 					"\"$(SRCROOT)\"",
 				);
-				MARKETING_VERSION = 1.0.4;
+				MARKETING_VERSION = 1.0.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

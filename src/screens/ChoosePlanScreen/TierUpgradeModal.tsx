@@ -15,8 +15,8 @@ function Content({ isUpgrade }) {
       <Box marginTop={hp(40)}>
         <Text color="light.greenText" fontSize={11} padding={1} letterSpacing={0.65}>
           {isUpgrade
-            ? `To use the vault, add signing devices`
-            : 'To use the vault, remove signing devices'}
+            ? `Add signing devices to use the Vault`
+            : 'To use the Vault, remove signing devices'}
         </Text>
       </Box>
     </Box>

@@ -26,7 +26,7 @@ function WhirlpoolLoader() {
     inputRange: [0, 1],
     outputRange: ['360deg', '0deg'],
   });
-  const styles = getStyles(antiClock);
+  const styles = getStyles(clock);
   return (
     <Box style={{ alignItems: 'center' }}>
       <Box style={{ width: windowWidth * 0.8, alignItems: 'center', justifyContent: 'center' }}>
@@ -52,19 +52,30 @@ function WhirlpoolLoader() {
 
 export default WhirlpoolLoader;
 
-const getStyles = (antiClock) =>
+const getStyles = (clock) =>
   StyleSheet.create({
     rightGear: {
       position: 'absolute',
-      bottom: '17%',
-      right: windowWidth * 0.15,
-      transform: [{ rotate: antiClock }],
+      bottom: '24%',
+      left: '81%',
+      transform: [{ rotate: clock }],
     },
     leftGear: {
       position: 'absolute',
+      top: '14%',
+      left: '4%',
+      transform: [{ rotate: clock }],
+    },
+    gear1: {
+      position: 'absolute',
+      right: '30%',
       top: '10%',
-      left: windowWidth * 0.22,
-      transform: [{ rotate: antiClock }],
+    },
+    gear0: {
+      position: 'absolute',
+      top: '31%',
+      left: '41.5%',
+      transform: [{ rotate: clock }],
     },
     mainGear: {
       position: 'absolute',

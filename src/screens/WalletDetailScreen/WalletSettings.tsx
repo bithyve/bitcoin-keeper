@@ -177,6 +177,7 @@ function WalletSettings({ route }) {
           headerTitleColor="light.textBlack"
           titleFontSize={20}
           paddingTop={hp(5)}
+          paddingLeft={20}
         />
       </Box>
       <Box
