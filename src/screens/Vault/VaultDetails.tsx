@@ -47,6 +47,7 @@ import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
@@ -84,7 +85,7 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
           onPress={() => {
             featureMap.vaultRecieve
               ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }))
-              : showToast('Please Upgrade');
+              : showToast('Please Upgrade', <ToastErrorIcon />);
           }}
         >
           <Recieve />
@@ -535,7 +536,8 @@ function VaultDetails({ route, navigation }) {
     }
   };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  // const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const subtitle = subscriptionScheme.n > 1 ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created` : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   return (
     <LinearGradient
@@ -571,6 +573,7 @@ function VaultDetails({ route, navigation }) {
         visible={tireChangeModal}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
+            setTireChangeModal(false);
             return;
           }
           setTireChangeModal(false);
@@ -583,7 +586,7 @@ function VaultDetails({ route, navigation }) {
       <KeeperModal
         visible={vaultCreated}
         title="New Vault Created"
-        subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        subTitle={subtitle}
         buttonText="View Vault"
         subTitleColor="light.secondaryText"
         buttonCallback={closeVaultCreatedDialog}
