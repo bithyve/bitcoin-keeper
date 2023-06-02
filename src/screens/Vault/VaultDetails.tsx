@@ -536,8 +536,9 @@ function VaultDetails({ route, navigation }) {
     }
   };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  // const onPressBuyBitcoin = () => setShowBuyRampModal(true);
   const subtitle = subscriptionScheme.n > 1 ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created` : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
+
   return (
     <LinearGradient
       colors={['#B17F44', '#6E4A35']}
