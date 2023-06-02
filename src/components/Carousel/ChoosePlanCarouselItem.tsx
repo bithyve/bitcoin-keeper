@@ -98,13 +98,15 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
         ]}
       >
         <Box py={2} alignItems="center" justifyContent="center">
-          {item.productIds.includes(subscription.productId.toLowerCase()) && (
+          {item.productIds.includes(subscription.productId.toLowerCase()) ? (
             <Box alignSelf="flex-start" backgroundColor="light.white" borderRadius={10} mx={2} py={0.5} px={2}>
               <Text fontSize={8} letterSpacing={0.64} bold>
                 Current
               </Text>
             </Box>
-          )}
+          ) : <Box alignSelf="flex-start" borderRadius={10} mx={2} py={0.5} px={2}>
+            <Text fontSize={8} letterSpacing={0.64} bold />
+          </Box>}
           {/* <Box my={15}>{currentPosition === index ? <SvgUri uri={`${config.RELAY}${item.iconFocused}`} /> : <SvgUri uri={`${config.RELAY}${item.icon}`} />}</Box> */}
           <Text fontSize={13} bold color="light.white" mt={2}>
             {item.name}
