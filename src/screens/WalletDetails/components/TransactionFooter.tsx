@@ -1,17 +1,25 @@
 import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box } from 'native-base';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import BuyBitcoin from 'src/assets/images/icon_buy.svg';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useFeatureMap from 'src/hooks/useFeatureMap';
+import useToastMessage from 'src/hooks/useToastMessage';
+
 import BottomMenuItem from '../BottomMenuItem';
 import { allowedRecieveTypes, allowedSendTypes } from '..';
 
-function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
+
+function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
+  const { showToast } = useToastMessage();
+  const featureMap = useFeatureMap({ walletIndex });
   const navigation = useNavigation();
   const { bottom } = useSafeAreaInsets();
   return (
@@ -33,7 +41,10 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
         {allowedRecieveTypes.includes(currentWallet.type) && (
           <BottomMenuItem
             onPress={() =>
-              navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
+              featureMap.walletRecieve
+                ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
+                : showToast('Please Upgrade', <ToastErrorIcon />)
+
             }
             icon={<Recieve />}
             title="Receive"

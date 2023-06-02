@@ -113,6 +113,7 @@ function ReceiveScreen({ route }: { route }) {
         onPressHandler={() => navigtaion.goBack()}
         headerTitleColor="light.textBlack"
         paddingTop={hp(6)}
+        paddingLeft={hp(25)}
       />
       <Box style={styles.qrWrapper}>
         <QRCode
