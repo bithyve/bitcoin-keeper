@@ -291,7 +291,7 @@ function LoginScreen({ navigation, route }) {
       <Box style={{ width: wp(280) }}>
         <Box
           style={{
-            width: '100%',
+            width: '88%',
             alignItems: 'center',
             paddingVertical: hp(20),
           }}
