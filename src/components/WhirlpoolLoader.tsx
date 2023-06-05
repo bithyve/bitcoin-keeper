@@ -6,9 +6,10 @@ import Gear0 from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
 import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 function WhirlpoolLoader() {
+  console.log('windowHeight', windowHeight)
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -57,13 +58,13 @@ const getStyles = (clock) =>
     rightGear: {
       position: 'absolute',
       bottom: '24%',
-      left: '81%',
+      left: windowHeight > 800 ? '76%' : '81%',
       transform: [{ rotate: clock }],
     },
     leftGear: {
       position: 'absolute',
       top: '14%',
-      left: '4%',
+      left: windowHeight > 800 ? '20%' : '15%',
       transform: [{ rotate: clock }],
     },
     gear1: {
