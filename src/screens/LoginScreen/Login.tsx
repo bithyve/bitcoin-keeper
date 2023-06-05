@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
@@ -289,18 +290,15 @@ function LoginScreen({ navigation, route }) {
   function LoginModalContent() {
     return (
       <Box style={{ width: wp(280) }}>
-        <Box
-          style={{
-            width: '88%',
-            alignItems: 'center',
-            paddingVertical: hp(20),
-          }}
-        >
+        <Box style={styles.modalAssetsWrapper}>
           {modelAsset}
         </Box>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(275)}>
+        <Text color="light.greenText" style={styles.modalMessageText}>
           {modelMessage}
         </Text>
+        {modelButtonText === null ? <Text color="light.greenText" style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
+          This step will take a few seconds. You would be able to proceed soon
+        </Text> : null}
       </Box>
     );
   }
@@ -700,6 +698,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.84,
   },
+  modalAssetsWrapper: {
+    width: '88%',
+    alignItems: 'center',
+    paddingVertical: hp(20),
+  },
+  modalMessageText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: wp(275),
+  }
 });
 
 export default LoginScreen;
