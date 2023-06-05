@@ -195,7 +195,11 @@ function* credentialsAuthWorker({ payload }) {
         );
         yield call(generateSeedHash);
         yield put(setRecepitVerificationFailed(!response.isValid));
-        if (subscription.level !== response.level) {
+        if (subscription.level === 1 && subscription.name === 'Hodler') {
+          yield put(setRecepitVerificationFailed(true));
+        } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
+          yield put(setRecepitVerificationFailed(true));
+        } else if (subscription.level !== response.level) {
           yield put(setRecepitVerificationFailed(true));
         }
       } catch (error) {
