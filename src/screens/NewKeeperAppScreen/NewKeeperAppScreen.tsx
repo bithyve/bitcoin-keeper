@@ -131,19 +131,19 @@ function NewKeeperApp({ navigation }: { navigation }) {
       dispatch(setupKeeperApp());
     }
   }
-  const modalTitle = isTestnet() ? `Setting up your app(Testnet)` : 'Setting up your app'
+
   const getSignUpModalContent = () => ({
-    title: modalTitle,
-    subTitle: 'Setup will take a few seconds. You would be able to proceed soon.',
+    title: 'Setting up your app',
+    subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
     message:
-      'Shake your phone and let us know if you find a bug. Our team will get your message along with other app-related information.',
+      'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
   function SignUpModalContent() {
     return (
       <Box style={{ width: windowWidth * 0.7 }}>
         {/* <ShakingAssetsAnimation /> */}
-        <Box style={{ width: windowWidth * 0.6 }}>
+        <Box style={{ width: windowWidth * 0.6, marginBottom: hp(20) }}>
           <WhirlpoolLoader />
         </Box>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
