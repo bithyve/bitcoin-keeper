@@ -19,6 +19,7 @@ import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import openLink from 'src/utils/OpenLink';
 import Fonts from 'src/common/Fonts';
+import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 
@@ -130,21 +131,27 @@ function NewKeeperApp({ navigation }: { navigation }) {
       dispatch(setupKeeperApp());
     }
   }
-  const modalTitle = isTestnet() ? `Setting up your app(Testnet)` : 'Setting up your app'
+
   const getSignUpModalContent = () => ({
-    title: modalTitle,
-    subTitle: 'Setup will take a few seconds. You would be able to proceed soon.',
+    title: 'Setting up your app',
+    subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
     message:
-      'Shake your phone and let us know if you find a bug. Our team will get your message along with other app-related information.',
+      'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
   function SignUpModalContent() {
     return (
       <Box style={{ width: windowWidth * 0.7 }}>
-        <ShakingAssetsAnimation />
+        {/* <ShakingAssetsAnimation /> */}
+        <Box style={{ width: windowWidth * 0.6, marginBottom: hp(20) }}>
+          <WhirlpoolLoader />
+        </Box>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
+        {!appCreated ? <Text color="light.greenText" fontSize={13} letterSpacing={0.65} pt={5}>
+          This step will take a few seconds. You would be able to proceed soon
+        </Text> : null}
       </Box>
     );
   }
