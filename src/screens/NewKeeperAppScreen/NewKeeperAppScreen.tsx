@@ -145,6 +145,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
+        {!appCreated ? <Text color="light.greenText" fontSize={13} letterSpacing={0.65} pt={5}>
+          This step will take a few seconds. You would be able to proceed soon
+        </Text> : null}
       </Box>
     );
   }
