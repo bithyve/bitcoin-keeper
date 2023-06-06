@@ -33,7 +33,7 @@ function MenuItemButton(props) {
 }
 const styles = StyleSheet.create({
     addAmountContainer: {
-        marginTop: hp(10),
+        marginTop: hp(8),
     },
     addAmountWrapper01: {
         flexDirection: 'row',
