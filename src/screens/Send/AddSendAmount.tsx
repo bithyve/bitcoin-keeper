@@ -27,11 +27,14 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
+import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import TagsGreen from 'src/assets/images/tags.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
 import idx from 'idx';
 import WalletSendInfo from './WalletSendInfo';
+
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -208,13 +211,6 @@ function AddSendAmount({ route }) {
 
         <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
           <Box
-            alignItems="center"
-            style={{
-              marginVertical: hp(10),
-            }}
-          />
-
-          <Box
             style={{
               paddingHorizontal: 10,
             }}
@@ -315,14 +311,14 @@ function AddSendAmount({ route }) {
               />
             </Box>
 
-            {/* <MenuItemButton
-            // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
-            onPress={() => showToast('Comming soon')}
-            icon={<TagsGreen />}
-            title="Add Tags"
-            subTitle="Tags help you remember and identify UTXOs"
-          /> */}
-            <Box
+            <MenuItemButton
+              // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
+              onPress={() => showToast('Comming soon')}
+              icon={<TagsGreen />}
+              title="Add Tags"
+              subTitle="Tags help you remember and identify UTXOs"
+            />
+            {/* <Box
               backgroundColor="light.primaryBackground"
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
               style={styles.inputWrapper}
@@ -342,7 +338,7 @@ function AddSendAmount({ route }) {
                   setLabel(value);
                 }}
               />
-            </Box>
+            </Box> */}
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
@@ -423,7 +419,7 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
   },
   ctaBtnWrapper: {
-    marginBottom: hp(5),
+    marginTop: hp(10),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
