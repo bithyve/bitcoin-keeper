@@ -311,14 +311,14 @@ function AddSendAmount({ route }) {
               />
             </Box>
 
-            <MenuItemButton
+            {/* <MenuItemButton
               // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
               onPress={() => showToast('Comming soon')}
               icon={<TagsGreen />}
               title="Add Tags"
               subTitle="Tags help you remember and identify UTXOs"
-            />
-            {/* <Box
+            /> */}
+            <Box
               backgroundColor="light.primaryBackground"
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
               style={styles.inputWrapper}
@@ -338,7 +338,7 @@ function AddSendAmount({ route }) {
                   setLabel(value);
                 }}
               />
-            </Box> */}
+            </Box>
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
