@@ -34,6 +34,7 @@ import Relay from 'src/core/services/operations/Relay';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useDispatch } from 'react-redux';
 import { setRecepitVerificationFailed } from 'src/store/reducers/login';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
 import BalanceToggle from './components/BalanceToggle';
@@ -98,7 +99,9 @@ function WalletItem({
   const opacity = isActive ? 1 : 0.5;
   return (
     <View style={[styles.walletContainer, { width: TILE_WIDTH, opacity }]}>
-      <TouchableOpacity onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
+      >
         {!(item?.presentationData && item?.specs) ? (
           <AddNewWalletTile
             walletIndex={walletIndex}
@@ -206,7 +209,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
 }
 
 const WalletsScreen = ({ navigation }) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
@@ -223,21 +226,32 @@ const WalletsScreen = ({ navigation }) => {
       setWalletIndex(index?.index);
     }
   });
-  const { recepitVerificationError, recepitVerificationFailed } = useAppSelector((state) => state.login);
+  const { recepitVerificationError, recepitVerificationFailed } = useAppSelector(
+    (state) => state.login
+  );
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
 
   const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
+  const electrumClientConnectionStatus = useAppSelector(
+    (state) => state.login.electrumClientConnectionStatus
+  );
 
   useEffect(() => {
+    if (electrumClientConnectionStatus.success) {
+      showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
+    } else if (electrumClientConnectionStatus.failed) {
+      showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
+    }
+  }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
 
-  }, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
-      const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
+      const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
       const updatedSubscription: SubScription = {
         receipt: '',
         productId: SubscriptionTier.L1,
@@ -249,7 +263,9 @@ const WalletsScreen = ({ navigation }) => {
         subscription: updatedSubscription,
       });
       dispatch(setRecepitVerificationFailed(false));
-      const response = await Relay.updateSubscription(app.id, app.publicId, { productId: SubscriptionTier.L1.toLowerCase(), })
+      const response = await Relay.updateSubscription(app.id, app.publicId, {
+        productId: SubscriptionTier.L1.toLowerCase(),
+      });
     } catch (error) {
       //
     }
@@ -263,9 +279,7 @@ const WalletsScreen = ({ navigation }) => {
         {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
         <Box alignItems="center" flexDirection="row">
           <TouchableOpacity
-            style={[
-              styles.cancelBtn,
-            ]}
+            style={[styles.cancelBtn]}
             onPress={() => {
               navigation.replace('ChoosePlan');
               dispatch(setRecepitVerificationFailed(false));
@@ -279,7 +293,7 @@ const WalletsScreen = ({ navigation }) => {
 
           <TouchableOpacity
             onPress={() => {
-              downgradeToPleb()
+              downgradeToPleb();
             }}
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
@@ -303,7 +317,6 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
     );
   }
-
 
   return (
     <HomeScreenWrapper>
@@ -337,33 +350,37 @@ const WalletsScreen = ({ navigation }) => {
       />
       <Box style={styles.listItemsWrapper}>
         <Box style={styles.whirlpoolListItemWrapper}>
-          {presentationName.length > 0 ? <ListItemView
-            icon={<WhirlpoolWhiteIcon />}
-            title="Whirlpool & UTXOs"
-            subTitle="Manage wallet UTXOs and use Whirlpool"
-            iconBackColor="light.greenText2"
-            onPress={() => {
-              if (Platform.OS === 'ios') {
-                if (currentWallet)
-                  navigation.navigate('UTXOManagement', {
-                    data: currentWallet,
-                    routeName: 'Wallet',
-                    accountType: WalletType.DEFAULT,
-                  });
-              } else {
-                showToast('Coming Soon')
-              }
-
-            }}
-          /> :
+          {presentationName.length > 0 ? (
+            <ListItemView
+              icon={<WhirlpoolWhiteIcon />}
+              title="Whirlpool & UTXOs"
+              subTitle="Manage wallet UTXOs and use Whirlpool"
+              iconBackColor="light.greenText2"
+              onPress={() => {
+                if (Platform.OS === 'ios') {
+                  if (currentWallet)
+                    navigation.navigate('UTXOManagement', {
+                      data: currentWallet,
+                      routeName: 'Wallet',
+                      accountType: WalletType.DEFAULT,
+                    });
+                } else {
+                  showToast('Coming Soon');
+                }
+              }}
+            />
+          ) : (
             <Box style={styles.AddNewWalletIllustrationWrapper}>
               <Box style={styles.addNewWallIconWrapper}>
                 <AddNewWalletIllustration />
               </Box>
               <Box style={styles.addNewWallTextWrapper}>
-                <Text color="light.secondaryText" style={styles.addNewWallText}>Add a new Wallet or Import one</Text>
+                <Text color="light.secondaryText" style={styles.addNewWallText}>
+                  Add a new Wallet or Import one
+                </Text>
               </Box>
-            </Box>}
+            </Box>
+          )}
         </Box>
       </Box>
       <KeeperModal
@@ -398,14 +415,14 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        closeOnOverlayClick={() => {}}
         showButtons
         showCloseIcon={false}
       />
@@ -428,7 +445,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
-    marginTop: hp(20)
+    marginTop: hp(20),
   },
   titleText: {
     fontSize: 16,
@@ -559,18 +576,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginLeft: wp(30),
     marginTop: hp(20),
-    width: '100%'
+    width: '100%',
   },
   addNewWallIconWrapper: {
     marginRight: wp(10),
-    alignItems: 'flex-start'
+    alignItems: 'flex-start',
   },
   addNewWallTextWrapper: {
     width: '30%',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   addNewWallText: {
-    fontSize: 14
+    fontSize: 14,
   },
   cancelBtn: {
     marginRight: wp(20),
@@ -583,6 +600,6 @@ const styles = StyleSheet.create({
   createBtn: {
     paddingVertical: hp(15),
     borderRadius: 10,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
 });

@@ -1,5 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface ElectrumClientConnectionStatusPayload {
+  successful: boolean;
+  connectedTo?: string;
+  error?: string;
+}
+
 export const initialState: {
   hasCreds: boolean;
   isAuthenticated: boolean;
@@ -19,6 +25,13 @@ export const initialState: {
   appCreationError: boolean;
   recepitVerificationError: boolean;
   recepitVerificationFailed: boolean;
+  electrumClientConnectionStatus: {
+    inProgress: boolean;
+    success: boolean;
+    connectedTo: string;
+    failed: boolean;
+    error: string;
+  };
 } = {
   hasCreds: false,
   isAuthenticated: false,
@@ -38,6 +51,13 @@ export const initialState: {
   appCreationError: false,
   recepitVerificationError: false,
   recepitVerificationFailed: false,
+  electrumClientConnectionStatus: {
+    inProgress: false,
+    success: false,
+    connectedTo: null,
+    failed: false,
+    error: null,
+  },
 };
 
 const loginSlice = createSlice({
@@ -86,6 +106,25 @@ const loginSlice = createSlice({
     setRecepitVerificationFailed: (state, action: PayloadAction<boolean>) => {
       state.recepitVerificationFailed = action.payload;
     },
+
+    electrumClientConnectionInitiated: (state) => {
+      state.electrumClientConnectionStatus = {
+        ...initialState.electrumClientConnectionStatus,
+        inProgress: true,
+      };
+    },
+    electrumClientConnectionExecuted: (
+      state,
+      action: PayloadAction<ElectrumClientConnectionStatusPayload>
+    ) => {
+      state.electrumClientConnectionStatus = {
+        inProgress: false,
+        success: action.payload.successful,
+        connectedTo: action.payload.connectedTo,
+        failed: !action.payload.successful,
+        error: action.payload.error,
+      };
+    },
   },
 });
 
@@ -99,5 +138,7 @@ export const {
   setAppCreationError,
   setRecepitVerificationError,
   setRecepitVerificationFailed,
+  electrumClientConnectionInitiated,
+  electrumClientConnectionExecuted,
 } = loginSlice.actions;
 export default loginSlice.reducer;

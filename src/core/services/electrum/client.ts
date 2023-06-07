@@ -60,8 +60,13 @@ export default class ElectrumClient {
   public static async connect() {
     try {
       if (!ELECTRUM_CLIENT.activePeer) {
-        console.log('No active peer is available');
-        return;
+        console.log(
+          'Unable to connect to any electrum server. Please switch network and try again!'
+        );
+        return {
+          connected: ELECTRUM_CLIENT.isClientConnected,
+          error: 'Unable to connect to any electrum server. Please switch network and try again!',
+        };
       }
 
       ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
@@ -105,7 +110,11 @@ export default class ElectrumClient {
       console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), error);
     }
 
-    if (ELECTRUM_CLIENT.isClientConnected) return ELECTRUM_CLIENT.isClientConnected;
+    if (ELECTRUM_CLIENT.isClientConnected)
+      return {
+        connected: ELECTRUM_CLIENT.isClientConnected,
+        connectedTo: ELECTRUM_CLIENT.activePeer?.host,
+      };
     return ElectrumClient.reconnect();
   }
 
@@ -119,8 +128,13 @@ export default class ElectrumClient {
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
       const nextPeer = ElectrumClient.getNextPeer();
       if (!nextPeer) {
-        console.log('Could not find working electrum server. Please try again later.');
-        return ELECTRUM_CLIENT.isClientConnected;
+        console.log(
+          'Unable to connect to any electrum server. Please switch network and try again!'
+        );
+        return {
+          connected: ELECTRUM_CLIENT.isClientConnected,
+          error: 'Unable to connect to any electrum server. Please switch network and try again!',
+        };
       }
 
       ELECTRUM_CLIENT.activePeer = nextPeer;
