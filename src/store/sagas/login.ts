@@ -103,6 +103,8 @@ function* credentialsStorageWorker({ payload }) {
     });
 
     // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
+    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    ElectrumClient.setActivePeer(privateNodes);
     const connected = yield call(ElectrumClient.connect);
     if (connected) yield put(fetchFeeRates());
     else
