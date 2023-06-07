@@ -143,7 +143,6 @@ function NewKeeperApp({ navigation }: { navigation }) {
   function SignUpModalContent() {
     return (
       <Box style={{ width: windowWidth * 0.7 }}>
-        {/* <ShakingAssetsAnimation /> */}
         <Box style={{ width: windowWidth * 0.7, marginBottom: hp(20) }}>
           <LoadingAnimation />
         </Box>
