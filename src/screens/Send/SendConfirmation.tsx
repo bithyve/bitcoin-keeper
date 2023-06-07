@@ -116,11 +116,11 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
-      setTitle('Sending to vault');
+      setTitle('Sending to Vault');
     } else if (walletTransfers.includes(transferType)) {
       setTitle('Sending to wallet');
     } else if (internalTransfers.includes(transferType)) {
-      setTitle('Transfer Funds to the new vault');
+      setTitle('Transfer Funds to the new Vault');
       setSubTitle('On-chain transaction incurs fees');
     }
   }, []);
@@ -191,6 +191,7 @@ function SendConfirmation({ route }) {
         setVisibleTransVaultModal(true);
       }
     } else {
+      dispatch(sendPhaseTwoReset());
       setProgress(true);
       dispatch(
         sendPhaseTwo({
@@ -216,7 +217,9 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
 
-  const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
+  const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo
+  );
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -234,8 +237,7 @@ function SendConfirmation({ route }) {
         routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
-    }
-    if (whirlPoolWalletTypes.includes(sender.type)) {
+    } else if (whirlPoolWalletTypes.includes(sender.type)) {
       const popAction = StackActions.pop(3);
       navigation.dispatch(popAction);
     } else {
@@ -256,6 +258,10 @@ function SendConfirmation({ route }) {
       setVisibleModal(true);
     }
   }, [walletSendSuccessful]);
+
+  useEffect(() => {
+    if (sendPhaseTwoFailed) setProgress(false);
+  }, [sendPhaseTwoFailed]);
 
   useEffect(() => {
     if (crossTransferSuccess) {

@@ -15,10 +15,12 @@ import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 // asserts
 import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
+import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 function VaultTransactions({ route }) {
   const dispatch = useDispatch();
@@ -29,7 +31,11 @@ function VaultTransactions({ route }) {
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const transactions = vault?.specs?.transactions || [];
+  const wallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)
+    .filter((wallet) => !wallet.archived)[0];
+
+  const vaultTrans = vault?.specs?.transactions || [];
+  const walletTrans = wallet?.specs.transactions || [];
   const title = route?.params?.title;
   const subtitle = route?.params?.subtitle;
 
@@ -54,8 +60,8 @@ function VaultTransactions({ route }) {
         </Box>
 
         <Box flexDirection="row" alignItems="center">
-          <VaultIcon />
-          <Box>
+          {title === 'Wallet Transactions' ? <LinkedWallet /> : <VaultIcon />}
+          <Box marginX={5}>
             <Text fontSize={16} letterSpacing={0.8} color="light.headerText">
               {title}
             </Text>
@@ -66,7 +72,7 @@ function VaultTransactions({ route }) {
         </Box>
         <Box marginTop={hp(10)} paddingBottom={hp(300)}>
           <FlatList
-            data={transactions}
+            data={title === 'Wallet Transactions' ? walletTrans : vaultTrans}
             refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
             renderItem={renderTransactionElement}
             keyExtractor={(item) => item}

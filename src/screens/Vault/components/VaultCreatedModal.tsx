@@ -14,6 +14,7 @@ function VaultCreatedModal({
   vaultCreated: boolean;
   close: () => void;
 }) {
+  const subtitle = vault.scheme.n > 1 ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup will be created` : `Vault with ${vault.scheme.m} of ${vault.scheme.n} setup will be created`;
   const NewVaultContent = useCallback(
     () => (
       <View>
@@ -31,7 +32,7 @@ function VaultCreatedModal({
     <KeeperModal
       visible={vaultCreated}
       title="New Vault Created"
-      subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+      subTitle={subtitle}
       buttonText="View Vault"
       subTitleColor="light.secondaryText"
       buttonCallback={close}

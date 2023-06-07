@@ -52,8 +52,14 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
   );
 }
 
-function Footer({ wallet, onPressBuyBitcoin }) {
-  return <TransactionFooter currentWallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />;
+function Footer({ wallet, onPressBuyBitcoin, walletIndex }) {
+  return (
+    <TransactionFooter
+      currentWallet={wallet}
+      onPressBuyBitcoin={onPressBuyBitcoin}
+      walletIndex={walletIndex}
+    />
+  );
 }
 
 function WalletDetails({ route }) {
@@ -61,7 +67,7 @@ function WalletDetails({ route }) {
   const dispatch = useDispatch();
   const currencyCode = useCurrencyCode();
   const exchangeRates = useExchangeRates();
-  const { autoRefresh, walletId } = route?.params || {};
+  const { autoRefresh, walletId, walletIndex } = route?.params || {};
   const wallet = useWallets({ walletIds: [walletId] })?.wallets[0];
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -216,19 +222,33 @@ function WalletDetails({ route }) {
                 Transactions
               </Text>
               {wallet?.specs.transactions.length ? (
-                <TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('VaultTransactions', {
+                      title: 'Wallet Transactions',
+                      subtitle: 'All incoming and outgoing transactions',
+                    })
+                  }
+                >
                   <HStack alignItems="center">
-                    <TouchableOpacity onPress={() => {}}>
-                      <Text
-                        color="light.primaryGreen"
-                        marginRight={2}
-                        fontSize={11}
-                        bold
-                        letterSpacing={0.6}
-                      >
-                        View All
-                      </Text>
-                    </TouchableOpacity>
+                    {/* <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate('VaultTransactions', {
+                          title: 'Wallet Transactions',
+                          subtitle: 'All incoming and outgoing transactions',
+                        })
+                      }
+                    > */}
+                    <Text
+                      color="light.primaryGreen"
+                      marginRight={2}
+                      fontSize={11}
+                      bold
+                      letterSpacing={0.6}
+                    >
+                      View All
+                    </Text>
+                    {/* </TouchableOpacity> */}
                     <IconArrowBlack />
                   </HStack>
                 </TouchableOpacity>
@@ -240,7 +260,11 @@ function WalletDetails({ route }) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <Footer wallet={wallet} onPressBuyBitcoin={onPressBuyBitcoin} />
+            <Footer
+              wallet={wallet}
+              onPressBuyBitcoin={onPressBuyBitcoin}
+              walletIndex={walletIndex}
+            />
           </>
         ) : (
           <Box style={styles.addNewWalletContainer}>

@@ -8,7 +8,6 @@ import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsivenes
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import Alert from 'src/assets/images/alert_illustration.svg';
-import { BleManager } from 'react-native-ble-plx';
 import HeaderTitle from 'src/components/HeaderTitle';
 
 import KeeperModal from 'src/components/KeeperModal';
@@ -50,24 +49,13 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   return { disabled: false, message: '' };
 };
 
-const getDeviceStatus = (
-  type: SignerType,
-  isNfcSupported,
-  isBLESupported,
-  isOnL1,
-  vaultSigners
-) => {
+const getDeviceStatus = (type: SignerType, isNfcSupported, isOnL1, vaultSigners) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
       return {
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
-      };
-    case SignerType.LEDGER:
-      return {
-        message: !isBLESupported ? 'Start/Enable Bluetooth to use' : '',
-        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
       };
     case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
@@ -83,6 +71,7 @@ const getDeviceStatus = (
     case SignerType.BITBOX02:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
+    case SignerType.LEDGER:
     case SignerType.KEYSTONE:
     default:
       return {
@@ -92,7 +81,7 @@ const getDeviceStatus = (
   }
 };
 
-function SigningDeviceList({ navigation }: { navigation }) {
+function SigningDeviceList() {
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
@@ -102,7 +91,6 @@ function SigningDeviceList({ navigation }: { navigation }) {
 
   const [nfcAlert, setNfcAlert] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
-  const [isBLESupported, setBLESupport] = useState(false);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
   const { vault } = translations;
@@ -126,18 +114,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     );
   }
 
-  const getBluetoothSupport = () => {
-    new BleManager().onStateChange((state) => {
-      if (state === 'PoweredOn') {
-        setBLESupport(true);
-      } else {
-        setBLESupport(false);
-      }
-    }, true);
-  };
-
   useEffect(() => {
-    getBluetoothSupport();
     getNfcSupport();
   }, []);
 
@@ -221,6 +198,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
+        paddingLeft={25}
       />
       <Box style={styles.scrollViewContainer}>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -232,7 +210,6 @@ function SigningDeviceList({ navigation }: { navigation }) {
                 const { disabled, message: connectivityStatus } = getDeviceStatus(
                   type,
                   isNfcSupported,
-                  isBLESupported,
                   isOnL1,
                   vaultSigners
                 );
@@ -277,7 +254,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
             dispatch(setSdIntroModal(false));
           }}
           title="Signing Devices"
-          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your vault"
+          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
           modalBackground={['light.gradientStart', 'light.gradientEnd']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"

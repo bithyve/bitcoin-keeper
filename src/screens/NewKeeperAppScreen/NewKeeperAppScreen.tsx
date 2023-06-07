@@ -19,6 +19,7 @@ import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import openLink from 'src/utils/OpenLink';
 import Fonts from 'src/common/Fonts';
+import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 
@@ -66,7 +67,9 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 
 function NewKeeperApp({ navigation }: { navigation }) {
   const dispatch = useAppDispatch();
-  const { appImageRecoverd, appRecreated, appImageError } = useAppSelector((state) => state.bhr);
+  const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
+    (state) => state.bhr
+  );
   const appCreated = useAppSelector((state) => state.storage.appId);
   const { showToast } = useToastMessage();
   const [keeperInitiating, setInitiating] = useState(false);
@@ -128,21 +131,27 @@ function NewKeeperApp({ navigation }: { navigation }) {
       dispatch(setupKeeperApp());
     }
   }
-  const modalTitle = isTestnet() ? `Setting up your app(Testnet)` : 'Setting up your app'
+
   const getSignUpModalContent = () => ({
-    title: modalTitle,
-    subTitle: 'Setup will take a few seconds. You would be able to proceed soon.',
+    title: 'Setting up your app',
+    subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
     message:
-      'Shake your phone and let us know if you find a bug. Our team will get your message along with other app-related information.',
+      'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
   function SignUpModalContent() {
     return (
       <Box style={{ width: windowWidth * 0.7 }}>
-        <ShakingAssetsAnimation />
+        {/* <ShakingAssetsAnimation /> */}
+        <Box style={{ width: windowWidth * 0.6, marginBottom: hp(20) }}>
+          <WhirlpoolLoader />
+        </Box>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
+        {!appCreated ? <Text color="light.greenText" fontSize={13} letterSpacing={0.65} pt={5}>
+          This step will take a few seconds. You would be able to proceed soon
+        </Text> : null}
       </Box>
     );
   }
@@ -162,7 +171,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Box style={styles.tileContainer}>
           <Tile
             title="Start New"
-            subTitle="New wallets and vault"
+            subTitle="New wallets and Vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -203,9 +212,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
           </Box>
           <Box style={styles.subTitleWrapper}>
             <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
-            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/terms-of-service')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
             <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
-            <TouchableOpacity onPress={() => openLink('https://www.bitcoinkeeper.app/privacypolicy')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
           </Box>
         </Box>
       </Box>
@@ -240,9 +249,25 @@ function NewKeeperApp({ navigation }: { navigation }) {
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
     </ScreenWrapper>
   );
 }
+
 const styles = StyleSheet.create({
   titleWrapper02: {
     marginTop: hp(70),

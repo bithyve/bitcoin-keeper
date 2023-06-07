@@ -62,6 +62,7 @@ function EditWalletSettings({ route }) {
         subtitle={walletText.EditWalletDeatils}
         onPressHandler={() => navigtaion.goBack()}
         paddingTop={3}
+        paddingLeft={25}
       />
       <View style={styles.inputWrapper}>
         <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>

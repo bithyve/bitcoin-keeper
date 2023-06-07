@@ -23,10 +23,13 @@ import {
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
+  newWalletCreated,
   setNetBalance,
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
+  signingServerRegistrationVerified,
+  walletGenerationFailed,
   setWhirlpoolCreated,
 } from 'src/store/reducers/wallets';
 
@@ -43,8 +46,14 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import {
+  encrypt,
+  generateEncryptionKey,
+  getRandomBytes,
+  generateKey,
+  hash256,
+} from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { generateKey, hash256 } from 'src/core/services/operations/encryption';
 import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { RootState } from '../store';
 import {
@@ -440,7 +449,9 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
             })
           );
         }
-        return true;
+      } else {
+        yield put(walletGenerationFailed(response.error));
+        yield put(relayWalletUpdateFail(response.error));
       }
       yield put(relayWalletUpdateFail(response.error));
       return false;
@@ -661,15 +672,13 @@ function* refreshWalletsWorker({
 }) {
   const { wallets } = payload;
   const { options } = payload;
+  yield put(setSyncing({ wallets, isSyncing: true }));
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
       options,
     },
   });
-
-  yield put(setSyncing({ wallets, isSyncing: true }));
-
   for (const synchedWallet of synchedWallets) {
     if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 

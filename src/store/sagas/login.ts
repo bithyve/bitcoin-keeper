@@ -14,8 +14,10 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import ElectrumClient from 'src/core/services/electrum/client';
+import Relay from 'src/core/services/operations/Relay';
 import semver from 'semver';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { Alert } from 'react-native';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -33,6 +35,10 @@ import {
   setCredStored,
   setKey,
   setupLoading,
+  setRecepitVerificationError,
+  setRecepitVerificationFailed,
+  electrumClientConnectionInitiated,
+  electrumClientConnectionExecuted,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -42,7 +48,6 @@ import {
 } from '../reducers/storage';
 
 import { RootState } from '../store';
-import { autoSyncWallets } from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import { fetchFeeRates, fetchExchangeRates } from '../sagaActions/send_and_receive';
@@ -85,13 +90,6 @@ function* credentialsStorageWorker({ payload }) {
     yield put(setCredStored());
     yield put(setAppVersion(DeviceInfo.getVersion()));
 
-    // connect electrum-client
-    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-    ElectrumClient.setActivePeer(privateNodes);
-    yield call(ElectrumClient.connect);
-
-    // fetch fee and exchange rates
-    yield put(fetchFeeRates());
     yield put(fetchExchangeRates());
 
     yield put(
@@ -105,6 +103,18 @@ function* credentialsStorageWorker({ payload }) {
       date: new Date().toString(),
       title: 'Initially installed',
     });
+
+    // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
+    yield put(electrumClientConnectionInitiated());
+    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    ElectrumClient.setActivePeer(privateNodes);
+    const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+    if (connected) {
+      yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
+      yield put(fetchFeeRates());
+    } else {
+      yield put(electrumClientConnectionExecuted({ successful: connected, error }));
+    }
   } catch (error) {
     console.log(error);
   }
@@ -114,17 +124,18 @@ export const credentialStorageWatcher = createWatcher(credentialsStorageWorker, 
 
 function* credentialsAuthWorker({ payload }) {
   let key;
+  const appId = yield select((state: RootState) => state.storage.appId);
   try {
+    yield put(setRecepitVerificationError(false));
+    yield put(setRecepitVerificationFailed(false));
     const { method } = payload;
     yield put(setupLoading('authenticating'));
-
     let hash;
     let encryptedKey;
     if (method === LoginMethod.PIN) {
       hash = yield call(hash512, payload.passcode);
       encryptedKey = yield call(SecureStore.fetch, hash);
     } else if (method === LoginMethod.BIOMETRIC) {
-      const appId = yield select((state: RootState) => state.storage.appId);
       const res = yield call(SecureStore.verifyBiometricAuth, payload.passcode, appId);
       if (!res.success) throw new Error('Biometric Auth Failed');
       hash = res.hash;
@@ -135,23 +146,22 @@ function* credentialsAuthWorker({ payload }) {
     if (!key) throw new Error('Encryption key is missing');
     const uint8array = yield call(stringToArrayBuffer, key);
     yield call(dbManager.initializeRealm, uint8array);
-    yield call(generateSeedHash);
     yield put(setPinHash(hash));
 
     const previousVersion = yield select((state) => state.storage.appVersion);
     const newVersion = DeviceInfo.getVersion();
-    const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory)
+    const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
     const lastElement = versionCollection[versionCollection.length - 1];
     const lastVersionCode = lastElement.version.split(/[()]/);
     const currentVersionCode = DeviceInfo.getBuildNumber();
     if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
-    } else if (currentVersionCode !== lastVersionCode) {
+    } else if (currentVersionCode !== lastVersionCode[1]) {
       yield call(dbManager.createObject, RealmSchema.VersionHistory, {
         version: `${newVersion}(${currentVersionCode})`,
         releaseNote: '',
         date: new Date().toString(),
-        title: `Upgraded from  ${newVersion}(${lastVersionCode[1]}) to ${newVersion}(${currentVersionCode})`,
+        title: `Upgraded from  ${lastVersionCode[1]} to ${currentVersionCode}`,
       });
     }
   } catch (err) {
@@ -163,32 +173,59 @@ function* credentialsAuthWorker({ payload }) {
 
   yield put(setKey(key));
 
-  // connect electrum-client
-  const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-  ElectrumClient.setActivePeer(privateNodes);
-  yield call(ElectrumClient.connect);
-
   if (!payload.reLogin) {
     // case: login
-    const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
+    if (appId) {
+      try {
+        const { id, publicId, subscription }: KeeperApp = yield call(
+          dbManager.getObjectByIndex,
+          RealmSchema.KeeperApp
+        );
+        const response = yield call(Relay.verifyReceipt, id, publicId);
+        yield put(credsAuthenticated(true));
+        yield put(setKey(key));
 
-    yield call(autoSyncWallets);
+        const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
+        yield put(setWarning(history));
 
-    // fetch fee and exchange rates
+        yield put(fetchExchangeRates());
+        yield put(getMessages());
+        yield put(
+          uaiChecks([
+            uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+            uaiType.SECURE_VAULT,
+            uaiType.VAULT_MIGRATION,
+            uaiType.DEFAULT,
+          ])
+        );
+        yield call(generateSeedHash);
+        yield put(setRecepitVerificationFailed(!response.isValid));
+        if (subscription.level === 1 && subscription.name === 'Hodler') {
+          yield put(setRecepitVerificationFailed(true));
+        } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
+          yield put(setRecepitVerificationFailed(true));
+        } else if (subscription.level !== response.level) {
+          yield put(setRecepitVerificationFailed(true));
+        }
+      } catch (error) {
+        yield put(setRecepitVerificationError(true));
+        // yield put(credsAuthenticated(false));
+        console.log(error);
+      }
+    } else yield put(credsAuthenticated(true));
+  } else yield put(credsAuthenticated(true));
+
+  // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
+  yield put(electrumClientConnectionInitiated());
+  const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+  ElectrumClient.setActivePeer(privateNodes);
+  const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+  if (connected) {
+    yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
     yield put(fetchFeeRates());
-    yield put(fetchExchangeRates());
-    yield put(setWarning(history));
-    yield put(getMessages());
-    yield put(
-      uaiChecks([
-        uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-        uaiType.SECURE_VAULT,
-        uaiType.VAULT_MIGRATION,
-        uaiType.DEFAULT,
-      ])
-    );
+  } else {
+    yield put(electrumClientConnectionExecuted({ successful: connected, error }));
   }
-  yield put(credsAuthenticated(true));
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
