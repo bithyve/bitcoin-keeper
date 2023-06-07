@@ -37,6 +37,8 @@ import {
   setupLoading,
   setRecepitVerificationError,
   setRecepitVerificationFailed,
+  electrumClientConnectionInitiated,
+  electrumClientConnectionExecuted,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,
@@ -103,13 +105,16 @@ function* credentialsStorageWorker({ payload }) {
     });
 
     // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
-    const connected = yield call(ElectrumClient.connect);
-    if (connected) yield put(fetchFeeRates());
-    else
-      Alert.alert(
-        'Connection error',
-        'Unable to connect to public electrum servers, please try again later!'
-      );
+    yield put(electrumClientConnectionInitiated());
+    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+    ElectrumClient.setActivePeer(privateNodes);
+    const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+    if (connected) {
+      yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
+      yield put(fetchFeeRates());
+    } else {
+      yield put(electrumClientConnectionExecuted({ successful: connected, error }));
+    }
   } catch (error) {
     console.log(error);
   }
@@ -211,15 +216,16 @@ function* credentialsAuthWorker({ payload }) {
   } else yield put(credsAuthenticated(true));
 
   // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
+  yield put(electrumClientConnectionInitiated());
   const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
   ElectrumClient.setActivePeer(privateNodes);
-  const connected = yield call(ElectrumClient.connect);
-  if (connected) yield put(fetchFeeRates());
-  else
-    Alert.alert(
-      'Connection error',
-      'Unable to connect to public electrum servers, please try again later!'
-    );
+  const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+  if (connected) {
+    yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
+    yield put(fetchFeeRates());
+  } else {
+    yield put(electrumClientConnectionExecuted({ successful: connected, error }));
+  }
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);

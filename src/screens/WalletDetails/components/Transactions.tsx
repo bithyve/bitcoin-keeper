@@ -7,6 +7,7 @@ import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Transaction } from 'src/core/wallets/interfaces';
+import { useAppSelector } from 'src/store/hooks';
 
 function TransactionItem({ item, wallet, navigation }) {
   return (
@@ -33,6 +34,9 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
     dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
     setPullRefresh(false);
   };
+
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
   return (
     <FlatList
       refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
@@ -40,6 +44,7 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
       renderItem={({ item }) => (
         <TransactionItem item={item} navigation={navigation} wallet={currentWallet} />
       )}
+      refreshing={syncing}
       keyExtractor={(item: Transaction) => `${item.txid}${item.transactionType}`}
       showsVerticalScrollIndicator={false}
       ListEmptyComponent={
