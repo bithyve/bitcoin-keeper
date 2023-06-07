@@ -313,9 +313,9 @@ const WalletsScreen = ({ navigation }) => {
           <Text style={styles.titleText} color="light.primaryText">
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
-          <Text style={styles.subTitleText} color="light.secondaryText">
+          {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on this app
-          </Text>
+          </Text> */}
         </Box>
         <Box style={styles.netBalanceView}>
           <CurrencyInfo
