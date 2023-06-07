@@ -191,6 +191,7 @@ function SendConfirmation({ route }) {
         setVisibleTransVaultModal(true);
       }
     } else {
+      dispatch(sendPhaseTwoReset());
       setProgress(true);
       dispatch(
         sendPhaseTwo({
@@ -216,7 +217,9 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
 
-  const walletSendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseTwo.txid);
+  const { txid: walletSendSuccessful, hasFailed: sendPhaseTwoFailed } = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseTwo
+  );
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -255,6 +258,10 @@ function SendConfirmation({ route }) {
       setVisibleModal(true);
     }
   }, [walletSendSuccessful]);
+
+  useEffect(() => {
+    if (sendPhaseTwoFailed) setProgress(false);
+  }, [sendPhaseTwoFailed]);
 
   useEffect(() => {
     if (crossTransferSuccess) {
