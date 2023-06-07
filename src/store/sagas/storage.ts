@@ -18,6 +18,7 @@ import { SETUP_KEEPER_APP, SETUP_KEEPER_APP_VAULT_RECOVERY } from '../sagaAction
 import { addNewWalletsWorker, NewWalletInfo } from './wallets';
 import { setAppId } from '../reducers/storage';
 import { setAppCreationError } from '../reducers/login';
+import { resetRealyWalletState } from '../reducers/bhr';
 
 export const defaultTransferPolicyThreshold =
   config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
@@ -84,6 +85,7 @@ export function* setupKeeperAppWorker({ payload }) {
       };
       yield call(addNewWalletsWorker, { payload: [defaultWallet] });
       yield put(setAppId(appID));
+      yield put(resetRealyWalletState());
     } else {
       yield put(setAppCreationError(true));
     }
@@ -146,6 +148,7 @@ function* setupKeeperVaultRecoveryAppWorker({ payload }) {
     yield call(addNewWalletsWorker, { payload: [defaultWallet] });
 
     yield put(setAppId(appID));
+    yield put(resetRealyWalletState());
   } catch (error) {
     console.log({ error });
   }
