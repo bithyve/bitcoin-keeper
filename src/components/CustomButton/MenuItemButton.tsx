@@ -3,7 +3,7 @@ import React from 'react'
 import { Box } from 'native-base';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from 'src/components/KeeperText';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 function MenuItemButton(props) {
     return (
@@ -12,7 +12,7 @@ function MenuItemButton(props) {
             style={styles.addAmountContainer}
             onPress={props.onPress}
         >
-            <Box style={styles.addAmountWrapper01} backgroundColor="light.primaryBackground">
+            <Box style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]} backgroundColor="light.primaryBackground">
                 <Box style={styles.iconWrapper}>
                     {props.icon}
                 </Box>
@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     },
     addAmountWrapper01: {
         flexDirection: 'row',
-        height: hp(70),
         width: '100%',
         borderRadius: 10,
         // justifyContent: 'space-between',
