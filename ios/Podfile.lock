@@ -134,8 +134,6 @@ PODS:
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
   - OpenSSL-Universal (1.1.1100)
-  - Permission-BluetoothPeripheral (3.6.1):
-    - RNPermissions
   - PromisesObjC (2.1.1)
   - QrCode (1.0.0):
     - React
@@ -473,7 +471,7 @@ PODS:
     - React-Core
   - RNGestureHandler (2.5.0):
     - React-Core
-  - RNIap (9.0.1):
+  - RNIap (12.10.5):
     - React-Core
   - RNKeychain (8.1.1):
     - React-Core
@@ -553,7 +551,6 @@ DEPENDENCIES:
   - FlipperKit/SKIOSNetworkPlugin (= 0.125.0)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - OpenSSL-Universal (= 1.1.1100)
-  - Permission-BluetoothPeripheral (from `../node_modules/react-native-permissions/ios/BluetoothPeripheral`)
   - QrCode (from `../node_modules/react-native-qr-decode-image-camera`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -656,8 +653,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
-  Permission-BluetoothPeripheral:
-    :path: "../node_modules/react-native-permissions/ios/BluetoothPeripheral"
   QrCode:
     :path: "../node_modules/react-native-qr-decode-image-camera"
   RCT-Folly:
@@ -801,7 +796,6 @@ SPEC CHECKSUMS:
   MMKVCore: 89f5c8a66bba2dcd551779dea4d412eeec8ff5bb
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
-  Permission-BluetoothPeripheral: 67708853584bb9208c76d36d0e0ea4eafb97ea5b
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   QrCode: 703276888a8e1e5a77606392f82ce758d895a450
   RCT-Folly: 4d8508a426467c48885f1151029bc15fa5d7b3b8
@@ -850,7 +844,7 @@ SPEC CHECKSUMS:
   RNFBMessaging: 3e2682ea5e15fe86da24d16d16019395a881f33c
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
-  RNIap: 73f0114671e9a3879bde4b9b3914359e96ba1493
+  RNIap: c397f49db45af3b10dca64b2325f21bb8078ad21
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
   RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
@@ -863,6 +857,6 @@ SPEC CHECKSUMS:
   Yoga: 99652481fcd320aefa4a7ef90095b95acd181952
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 4b291126e8f4983429514cc463711dc4af7dda9c
+PODFILE CHECKSUM: bee48a8bd753ec26c7380bf1654672ef4230a909
 
 COCOAPODS: 1.12.1
