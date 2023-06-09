@@ -3,7 +3,7 @@ import React from 'react'
 import { Box } from 'native-base';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from 'src/components/KeeperText';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/common/data/responsiveness/responsive';
 
 function MenuItemButton(props) {
     return (
