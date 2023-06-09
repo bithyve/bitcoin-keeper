@@ -271,7 +271,7 @@ const WalletsScreen = ({ navigation }) => {
           }}
           icon={<AddWallet />}
           title="Add Wallet"
-          subTitle="Name and description for the wallet"
+          subTitle="Separate wallets for different purposes"
           height={80}
         />
         <MenuItemButton
@@ -281,11 +281,11 @@ const WalletsScreen = ({ navigation }) => {
           }}
           icon={<ImportWallet />}
           title="Import Wallet"
-          subTitle="Scan your seed words/Backup Phrase"
+          subTitle="Manage wallets in other apps"
           height={80}
         />
         <Box >
-          <Text color="light.greenText" style={styles.addImportParaContent}>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do</Text>
+          <Text color="light.greenText" style={styles.addImportParaContent}>Please ensure that Keeper is properly backed up to ensure your bitcoin's security</Text>
         </Box>
       </Box>
     )
@@ -449,7 +449,7 @@ const WalletsScreen = ({ navigation }) => {
         visible={addImportVisible}
         close={() => setAddImportVisible(false)}
         title="Add or Import Wallet"
-        subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do"
+        subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
         Content={() => <AddImportWallet />}
@@ -632,6 +632,7 @@ const styles = StyleSheet.create({
   },
   addImportParaContent: {
     fontSize: 13,
-    padding: 2
+    padding: 2,
+    marginTop: hp(20)
   }
 });
