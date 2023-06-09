@@ -54,7 +54,7 @@ function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImp
         onPress={() => setAddImportVisible()}
       >
         <Text color="light.white" style={styles.addWalletText}>
-          {wallet.AddNewWallet}
+          {wallet.AddImportNewWallet}
         </Text>
       </TouchableOpacity>
       {/* <TouchableOpacity
@@ -511,6 +511,7 @@ const styles = StyleSheet.create({
   addWalletText: {
     fontSize: 14,
     marginTop: hp(10),
+    textAlign: 'center'
   },
   walletCard: {
     paddingTop: windowHeight > 680 ? hp(20) : 0,
