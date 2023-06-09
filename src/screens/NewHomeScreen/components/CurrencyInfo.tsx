@@ -6,7 +6,6 @@ import { Box, HStack } from 'native-base';
 import useBalance from 'src/hooks/useBalance';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
-import { useAppSelector } from 'src/store/hooks';
 
 interface ICurrencyInfo {
   hideAmounts: boolean;
