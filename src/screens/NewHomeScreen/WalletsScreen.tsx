@@ -5,14 +5,13 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
-import { Box, FlatList, ScrollView } from 'native-base';
+import { Box, FlatList } from 'native-base';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
-import AddSCardIcon from 'src/assets/images/card_add.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import AddWallet from 'src/assets/images/addWallet.svg';
@@ -39,7 +38,6 @@ import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
 import { setRecepitVerificationFailed } from 'src/store/reducers/login';
 import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
-import BalanceToggle from './components/BalanceToggle';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
 
@@ -156,7 +154,7 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, hideAmount
 
 function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts }) {
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
-
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   return (
     <Box>
       <Box style={styles.walletCard}>
@@ -198,7 +196,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
         <CurrencyInfo
           hideAmounts={hideAmounts}
           amount={balances?.confirmed + balances?.unconfirmed}
-          fontSize={20}
+          fontSize={satsEnabled ? 17 : 20}
           color={Colors.White}
           variation="light"
         />
