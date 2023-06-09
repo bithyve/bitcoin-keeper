@@ -6,6 +6,7 @@ import { Box, HStack } from 'native-base';
 import useBalance from 'src/hooks/useBalance';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
+import { useAppSelector } from 'src/store/hooks';
 
 interface ICurrencyInfo {
   hideAmounts: boolean;
@@ -22,13 +23,14 @@ function CurrencyInfo({
   variation = 'grey',
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+
   return (
     <HStack style={styles.vaultBalanceContainer}>
       {getCurrencyIcon(BTC, variation)}
       {!hideAmounts ? (
         <Box style={styles.rowCenter}>
           <Text color={color} style={{ fontSize }}>
-            {`${getSatUnit()} ${getBalance(amount)}`}
+            {` ${getBalance(amount)} ${getSatUnit()}`}
           </Text>
         </Box>
       ) : (
