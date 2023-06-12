@@ -2,6 +2,7 @@ import SecutityTip from 'src/assets/images/securityTip.svg';
 import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import SigningDeviceSafe from 'src/assets/images/signingDeviceSafe.svg'
 import React from 'react';
+import LoadingAnimation from 'src/components/Loader';
 
 export const securityTips = [
   // {
@@ -24,6 +25,13 @@ export const securityTips = [
     subTitle: 'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones',
     assert: <WhirlpoolLoader />,
     message: 'For increased privacy and security, remix sats a few times, then transfer them to the Vault',
+  },
+  {
+    title: 'Connecting to Node',
+    subTitle:
+      'It might take upto a minute',
+    assert: <LoadingAnimation />,
+    message: '',
   },
   {
     title: 'Security Tip',
