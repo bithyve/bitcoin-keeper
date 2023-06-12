@@ -124,7 +124,7 @@ const bhrSlice = createSlice({
       state.relayWalletUpdate = true;
       state.relayWalletError = false;
       state.relayWalletUpdateLoading = false;
-      state.realyWalletErrorMessage = '';
+      state.realyWalletErrorMessage = null;
     },
     relayWalletUpdateFail: (state, action: PayloadAction<string>) => {
       state.relayWalletError = true;

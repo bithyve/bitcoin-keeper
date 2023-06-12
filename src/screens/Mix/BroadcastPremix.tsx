@@ -30,7 +30,7 @@ import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import BroadcastTX0Illustration from 'src/assets/images/BroadcastTX0Illustration.svg'
+import BroadcastTX0Illustration from 'src/assets/images/BroadcastTX0Illustration.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
@@ -160,13 +160,6 @@ export default function BroadcastPremix({ route, navigation }) {
               })
             );
           }
-
-          setTimeout(async () => {
-            // auto refresh post 3 seconds, allowing for the indexer to sync
-            dispatch(
-              refreshWallets([depositWallet, premixWallet, badbankWallet], { hardRefresh: true })
-            );
-          }, 3000);
           showToast(
             'Your Tx0 was broadcasted successfully, you should find the new UTXOs in the Premix account',
             <TickIcon />,
@@ -181,12 +174,28 @@ export default function BroadcastPremix({ route, navigation }) {
         }
       } else {
         setLoading(false);
-        showToast('Error in creating SerializedPSBT ', <ToastErrorIcon />, 3000);
+        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />, 3000);
       }
-    } catch (e) {
-      showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
+    } catch (error) {
+      const problem = error?.message || '';
+      let solution = '';
+      switch (problem) {
+        case 'txn-mempool-conflict': // the input has already been consumed in a tx0(unconfirmed)
+        case 'bad-txns-inputs-missingorspent': // the input has already been consumed in a tx0(confirmed)
+        case 'Duplicate input detected.': // same input selected twice(for some reason - UI glitch)
+          solution = 'Please refresh the Deposit account & try again!';
+          break;
+
+        case 'address-reuse': // reusing premix addresses for vouts
+          solution = 'Please refresh the Premix account & try again!';
+          break;
+
+        default:
+      }
+
+      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />, 3000);
       setLoading(false);
-      captureError(e);
+      captureError(error);
     }
   };
 
@@ -202,7 +211,7 @@ export default function BroadcastPremix({ route, navigation }) {
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={10}
+        paddingLeft={25}
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore
@@ -314,7 +323,10 @@ export default function BroadcastPremix({ route, navigation }) {
             <Box style={styles.BroadcastIllustrationWrapper}>
               <BroadcastTX0Illustration />
             </Box>
-            <Text color="light.greenText" style={styles.BroadcastContentText}>The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but are encouraged to mix the sats before hodling or spending them.</Text>
+            <Text color="light.greenText" style={styles.BroadcastContentText}>
+              The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but
+              are encouraged to mix the sats before hodling or spending them.
+            </Text>
             <Box style={styles.modalFooter}>
               <Box style={{ alignSelf: 'flex-end' }}>
                 <Buttons
@@ -363,13 +375,13 @@ const styles = StyleSheet.create({
   },
   BroadcastIllustrationWrapper: {
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   BroadcastContentText: {
     fontSize: 13,
     padding: 1,
     letterSpacing: 0.65,
-    marginVertical: 10
+    marginVertical: 10,
   },
   modalFooter: {
     marginTop: 10,

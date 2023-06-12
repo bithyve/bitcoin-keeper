@@ -45,13 +45,13 @@ import {
 } from '../sagaActions/send_and_receive';
 import { createUTXOReferenceWorker } from './utxos';
 
-function* fetchFeeRatesWorker() {
+export function* fetchFeeRatesWorker() {
   try {
     const averageTxFeeByNetwork = yield call(WalletOperations.calculateAverageTxFee);
-    if (!averageTxFeeByNetwork) console.log('Failed to calculate fee rates');
+    if (!averageTxFeeByNetwork) console.log('Failed to calculate current fee rates');
     else yield put(setAverageTxFee(averageTxFeeByNetwork));
   } catch (err) {
-    console.log('Failed to calculate fee rates', { err });
+    console.log('Failed to calculate current fee rates', { err });
   }
 }
 
@@ -63,7 +63,7 @@ function* fetchExchangeRatesWorker() {
     if (!exchangeRates) console.log('Failed to fetch exchange rates');
     else yield put(setExchangeRates(exchangeRates));
   } catch (err) {
-    console.log('Failed to fetch fee and exchange rates', { err });
+    console.log('Failed to fetch latest exchange rates', { err });
   }
 }
 
@@ -179,18 +179,20 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       default:
         throw new Error('Invalid Entity: not a Vault/Wallet');
     }
-    const vout = txPrerequisites[txnPriority].outputs.findIndex(
-      (o) => o.address === recipients[0].address
-    );
-    yield call(createUTXOReferenceWorker, {
-      payload: [
-        {
-          labels,
-          txId: txid,
-          vout,
-        },
-      ],
-    });
+    if (wallet.entityKind === EntityKind.WALLET) {
+      const vout = txPrerequisites[txnPriority].outputs.findIndex(
+        (o) => o.address === recipients[0].address
+      );
+      yield call(createUTXOReferenceWorker, {
+        payload: [
+          {
+            labels,
+            txId: txid,
+            vout,
+          },
+        ],
+      });
+    }
   } catch (err) {
     yield put(
       sendPhaseTwoExecuted({
@@ -211,7 +213,8 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
-  const { wallet, txnPriority } = payload;
+  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+  const { wallet, txnPriority, note, label } = payload;
   try {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
@@ -246,6 +249,23 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     );
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
+    });
+    if (note) wallet.specs.txNote[txid] = note;
+    const labels = [];
+    if (label) {
+      labels.concat([{ name: label, type: LabelType.USER }]);
+    }
+    const vout = txPrerequisites[txnPriority].outputs.findIndex(
+      (o) => o.address === recipients[0].address
+    );
+    yield call(createUTXOReferenceWorker, {
+      payload: [
+        {
+          labels,
+          txId: txid,
+          vout,
+        },
+      ],
     });
   } catch (err) {
     yield put(

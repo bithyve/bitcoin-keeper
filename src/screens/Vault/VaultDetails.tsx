@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View } from 'native-base';
+import { Box, HStack, VStack, View, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -47,6 +47,7 @@ import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
@@ -54,12 +55,14 @@ import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
+import useFeatureMap from 'src/hooks/useFeatureMap';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
 function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+  const featureMap = useFeatureMap({ scheme: vault.scheme });
 
   const styles = getStyles(0);
   return (
@@ -80,7 +83,9 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+            featureMap.vaultRecieve
+              ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }))
+              : showToast('Please Upgrade', <ToastErrorIcon />);
           }}
         >
           <Recieve />
@@ -88,7 +93,12 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
             Receive
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.IconText} onPress={onPressBuy}>
+        <TouchableOpacity
+          style={styles.IconText}
+          onPress={() => {
+            featureMap.vaultBuy ? onPressBuy : showToast('Please Upgrade');
+          }}
+        >
           <Buy />
           <Text color="light.primaryText" style={styles.footerText}>
             Buy
@@ -208,34 +218,31 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.09 }}>
-        <HStack justifyContent="space-between">
+      <VStack style={{ paddingTop: windowHeight * 0.13 }}>
+        <HStack justifyContent="space-between" alignItems="center">
           <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
-          {transactions.lenth ? (
-            <TouchableOpacity>
+          {transactions ? (
+            <TouchableOpacity
+              onPress={() => {
+                navigation.dispatch(
+                  CommonActions.navigate('VaultTransactions', {
+                    title: 'Vault Transactions',
+                    subtitle: 'All incoming and outgoing transactions',
+                  })
+                );
+              }}>
               <HStack alignItems="center">
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.dispatch(
-                      CommonActions.navigate('VaultTransactions', {
-                        title: 'Vault Transactions',
-                        subtitle: 'All incoming and outgoing transactions',
-                      })
-                    );
-                  }}
+                <Text
+                  color="light.primaryGreen"
+                  marginRight={2}
+                  fontSize={11}
+                  bold
+                  letterSpacing={0.6}
                 >
-                  <Text
-                    color="light.primaryGreen"
-                    marginRight={2}
-                    fontSize={11}
-                    bold
-                    letterSpacing={0.6}
-                  >
-                    View All
-                  </Text>
-                </TouchableOpacity>
+                  View All
+                </Text>
                 <IconArrowBlack />
               </HStack>
             </TouchableOpacity>
@@ -529,7 +536,8 @@ function VaultDetails({ route, navigation }) {
     }
   };
 
-  const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  // const onPressBuyBitcoin = () => setShowBuyRampModal(true);
+  const subtitle = subscriptionScheme.n > 1 ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created` : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   return (
     <LinearGradient
@@ -565,6 +573,7 @@ function VaultDetails({ route, navigation }) {
         visible={tireChangeModal}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
+            setTireChangeModal(false);
             return;
           }
           setTireChangeModal(false);
@@ -577,7 +586,7 @@ function VaultDetails({ route, navigation }) {
       <KeeperModal
         visible={vaultCreated}
         title="New Vault Created"
-        subTitle={`Your vault with ${vault.scheme.m} of ${vault.scheme.n} has been successfully setup. You can start receiving bitcoin in it`}
+        subTitle={subtitle}
         buttonText="View Vault"
         subTitleColor="light.secondaryText"
         buttonCallback={closeVaultCreatedDialog}
@@ -590,7 +599,7 @@ function VaultDetails({ route, navigation }) {
           dispatch(setIntroModal(false));
         }}
         title="Keeper Vault"
-        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
+        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`}
         modalBackground={['light.gradientStart', 'light.gradientEnd']}
         textColor="light.white"
         Content={VaultContent}

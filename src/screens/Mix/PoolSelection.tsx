@@ -15,7 +15,7 @@ import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import PageIndicator from 'src/components/PageIndicator';
 import Fonts from 'src/common/Fonts';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import { Preview } from 'src/nativemodules/interface';
+import { InputStructure, PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import useBalance from 'src/hooks/useBalance';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -118,10 +118,33 @@ export default function PoolSelection({ route, navigation }) {
     });
   };
 
-  const onPoolSelectionCallback = async (pool, tx0) => {
+  const calculateMinimumMixAmount = async (pool: PoolData) => {
+    const inputStructure: InputStructure = {
+      nP2pkhInputs: 0,
+      nP2shP2wpkhInputs: 0,
+      nP2wpkhInputs: utxos.length,
+    };
+    let inputsValue = 0;
+    utxos.forEach((input) => {
+      inputsValue += input.value;
+    });
+
+    const approximateTx0Size = Number(
+      await WhirlpoolClient.estimateTx0Size(
+        inputStructure,
+        Math.floor(inputsValue / pool.mustMixBalanceMin) + 2
+      )
+    );
+    const tx0Fee = premixFee.fee * approximateTx0Size;
+    const coordinatorFee = pool.feeValue;
+    const minMixAmount = pool.mustMixBalanceCap + coordinatorFee + tx0Fee;
+    return minMixAmount;
+  };
+
+  const onPoolSelectionCallback = async (pool: PoolData, tx0: TX0Data[]) => {
     try {
       setSelectedPool(pool);
-      const minMixAmount = pool.mustMixBalanceCap + pool.feeValue + premixFee.averageTxFee; // TODO: expose and use fee-estimation function from whirlpool-rust-client
+      const minMixAmount = await calculateMinimumMixAmount(pool);
       setMinMixAmount(minMixAmount);
       if (utxoTotal < minMixAmount) return;
 
@@ -142,10 +165,10 @@ export default function PoolSelection({ route, navigation }) {
         setTx0Preview(tx0Preview);
         setShowPools(false);
       } else {
-        showToast('Error in fetching the Tx0 preview', <ToastErrorIcon />, 3000);
+        showToast('Error in creating Tx0 preview', <ToastErrorIcon />, 3000);
       }
     } catch (error) {
-      showToast('Error in fetching the Tx0 preview', <ToastErrorIcon />, 3000);
+      showToast(`Tx0 preview error: ${error?.message || ''}`, <ToastErrorIcon />, 3000);
       captureError(error);
     }
   };
@@ -159,7 +182,7 @@ export default function PoolSelection({ route, navigation }) {
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={10}
+        paddingLeft={25}
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
         learnMore

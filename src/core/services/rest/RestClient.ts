@@ -172,7 +172,7 @@ class RestClient {
         true
       );
     }
-    return axios.post(path, {
+    return axios.get(path, {
       headers: {
         ...RestClient.headers,
         ...headers,

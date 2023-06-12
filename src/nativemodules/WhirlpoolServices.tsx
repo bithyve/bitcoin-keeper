@@ -45,6 +45,38 @@ export default class WhirlpoolServices {
   };
 
   /**
+   * estimates the size of tx0 transaction
+   * @param  {string} nP2pkhInputs
+   * @param  {string} nP2shP2wpkhInputs
+   * @param  {string} nP2wpkhInputs
+   * @param  {string} nP2wpkhOutputs
+   * @returns {Promise<string>} size
+   */
+  static estimateTx0Size = async (
+    nP2pkhInputs: number,
+    nP2shP2wpkhInputs: number,
+    nP2wpkhInputs: number,
+    nP2wpkhOutputs: number
+  ): Promise<string> => {
+    try {
+      const response = await Whirlpool.estimateTx0Size(
+        `${nP2pkhInputs}`,
+        `${nP2shP2wpkhInputs}`,
+        `${nP2wpkhInputs}`,
+        `${nP2wpkhOutputs}`
+      );
+      if (response.error) {
+        console.log({ error: response.error });
+        throw new Error(response.error);
+      }
+      return JSON.parse(response);
+    } catch (error) {
+      logMessage(error);
+      throw error;
+    }
+  };
+
+  /**
    * Computes a TX0 preview containing output values that can be used to construct a real TX0.
    * If err, it means that the total value of inputs is insufficient to successully construct one.
    * @param  {number} inputsValue
@@ -123,7 +155,7 @@ export default class WhirlpoolServices {
     inputs: WhirlpoolInput[],
     addressBank: string[],
     changeAddress: string
-  ): Promise<string | false> => {
+  ): Promise<string> => {
     try {
       let result = await Whirlpool.intoPsbt(
         JSON.stringify(preview),
@@ -162,41 +194,9 @@ export default class WhirlpoolServices {
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
-        throw new Error(result.error);
+        throw new Error(result.error?.message);
       }
       return result.txid;
-    } catch (error) {
-      logMessage(error);
-      throw error;
-    }
-  };
-
-  /**
-   * estimaes the soze of tx0 treansaction
-   * @param  {string} nP2pkhInputs
-   * @param  {string} nP2shP2wpkhInputs
-   * @param  {string} nP2wpkhInputs
-   * @param  {string} nP2wpkhOutputs
-   * @returns {Promise<string>} size
-   */
-  static estimateTx0Size = async (
-    nP2pkhInputs: string,
-    nP2shP2wpkhInputs: string,
-    nP2wpkhInputs: string,
-    nP2wpkhOutputs: string
-  ): Promise<string> => {
-    try {
-      const response = await Whirlpool.estimateTx0Size(
-        nP2pkhInputs,
-        nP2shP2wpkhInputs,
-        nP2wpkhInputs,
-        nP2wpkhOutputs
-      );
-      if (response.error) {
-        console.log({ error: response.error });
-        throw new Error(response.error);
-      }
-      return JSON.parse(response);
     } catch (error) {
       logMessage(error);
       throw error;

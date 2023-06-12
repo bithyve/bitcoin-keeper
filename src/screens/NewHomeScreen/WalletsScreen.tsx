@@ -1,6 +1,6 @@
 /* eslint-disable react/function-component-definition */
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import React, { useContext, useRef, useState } from 'react';
+import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
@@ -16,7 +16,7 @@ import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
-import BitcoinIcon from 'src/assets/images/icon_bitcoin_white.svg';
+import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -24,11 +24,22 @@ import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useToastMessage from 'src/hooks/useToastMessage';
 import idx from 'idx';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import ListItemView from './components/ListItemView';
-import HomeScreenWrapper from './components/HomeScreenWrapper';
-import BalanceToggle from './components/BalanceToggle';
-import CurrencyInfo from './components/CurrencyInfo';
+import { Shadow } from 'react-native-shadow-2';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import dbManager from 'src/storage/realm/dbManager';
+import { SubscriptionTier, AppSubscriptionLevel } from 'src/common/data/enums/SubscriptionTier';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import SubScription from 'src/common/data/models/interfaces/Subscription';
+import Relay from 'src/core/services/operations/Relay';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { useDispatch } from 'react-redux';
+import { setRecepitVerificationFailed } from 'src/store/reducers/login';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import RampModal from '../WalletDetails/components/RampModal';
+import CurrencyInfo from './components/CurrencyInfo';
+import BalanceToggle from './components/BalanceToggle';
+import HomeScreenWrapper from './components/HomeScreenWrapper';
+import ListItemView from './components/ListItemView';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(170);
@@ -88,7 +99,9 @@ function WalletItem({
   const opacity = isActive ? 1 : 0.5;
   return (
     <View style={[styles.walletContainer, { width: TILE_WIDTH, opacity }]}>
-      <TouchableOpacity onPress={() => navigation.navigate('WalletDetails', { walletId: item.id })}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
+      >
         {!(item?.presentationData && item?.specs) ? (
           <AddNewWalletTile
             walletIndex={walletIndex}
@@ -196,6 +209,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
 }
 
 const WalletsScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
@@ -203,7 +217,7 @@ const WalletsScreen = ({ navigation }) => {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
   const currentWallet = wallets[walletIndex];
   const flatListRef = useRef(null);
-  const [hideAmounts, setHideAmounts] = useState(true);
+  const [hideAmounts, setHideAmounts] = useState(false);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
@@ -212,15 +226,101 @@ const WalletsScreen = ({ navigation }) => {
       setWalletIndex(index?.index);
     }
   });
+  const { recepitVerificationError, recepitVerificationFailed } = useAppSelector(
+    (state) => state.login
+  );
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 40 });
 
   const receivingAddress = idx(currentWallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(currentWallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(currentWallet, (_) => _.presentationData.name) || '';
+  const electrumClientConnectionStatus = useAppSelector(
+    (state) => state.login.electrumClientConnectionStatus
+  );
+
+  useEffect(() => {
+    if (electrumClientConnectionStatus.success) {
+      showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
+    } else if (electrumClientConnectionStatus.failed) {
+      showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
+    }
+  }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
+
+  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
+
+  async function downgradeToPleb() {
+    try {
+      const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
+      const updatedSubscription: SubScription = {
+        receipt: '',
+        productId: SubscriptionTier.L1,
+        name: SubscriptionTier.L1,
+        level: AppSubscriptionLevel.L1,
+        icon: 'assets/ic_pleb.svg',
+      };
+      dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+        subscription: updatedSubscription,
+      });
+      dispatch(setRecepitVerificationFailed(false));
+      const response = await Relay.updateSubscription(app.id, app.publicId, {
+        productId: SubscriptionTier.L1.toLowerCase(),
+      });
+    } catch (error) {
+      //
+    }
+  }
+
+  // eslint-disable-next-line react/no-unstable-nested-components
+  function DowngradeModalContent() {
+    return (
+      <Box>
+        <DowngradeToPleb />
+        {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
+        <Box alignItems="center" flexDirection="row">
+          <TouchableOpacity
+            style={[styles.cancelBtn]}
+            onPress={() => {
+              navigation.replace('ChoosePlan');
+              dispatch(setRecepitVerificationFailed(false));
+            }}
+            activeOpacity={0.5}
+          >
+            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+              View Subscription
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              downgradeToPleb();
+            }}
+          >
+            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+              <Box
+                style={[styles.createBtn]}
+                backgroundColor={{
+                  linearGradient: {
+                    colors: ['light.gradientStart', 'light.gradientEnd'],
+                    start: [0, 0],
+                    end: [1, 1],
+                  },
+                }}
+              >
+                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                  Continue as Pleb
+                </Text>
+              </Box>
+            </Shadow>
+          </TouchableOpacity>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <HomeScreenWrapper>
-      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
+      {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
           <Text style={styles.titleText} color="light.primaryText">
@@ -250,21 +350,37 @@ const WalletsScreen = ({ navigation }) => {
       />
       <Box style={styles.listItemsWrapper}>
         <Box style={styles.whirlpoolListItemWrapper}>
-          <ListItemView
-            icon={<WhirlpoolWhiteIcon />}
-            title="Whirlpool & UTXOs"
-            subTitle="Manage UTXOs and Whirlpool"
-            iconBackColor="light.greenText2"
-            onPress={() => {
-              if (currentWallet)
-                navigation.navigate('UTXOManagement', {
-                  data: currentWallet,
-                  routeName: 'Wallet',
-                  accountType: WalletType.DEFAULT,
-                });
-            }}
-            disabled={presentationName.length === 0}
-          />
+          {presentationName.length > 0 ? (
+            <ListItemView
+              icon={<WhirlpoolWhiteIcon />}
+              title="Whirlpool & UTXOs"
+              subTitle="Manage wallet UTXOs and use Whirlpool"
+              iconBackColor="light.greenText2"
+              onPress={() => {
+                if (Platform.OS === 'ios') {
+                  if (currentWallet)
+                    navigation.navigate('UTXOManagement', {
+                      data: currentWallet,
+                      routeName: 'Wallet',
+                      accountType: WalletType.DEFAULT,
+                    });
+                } else {
+                  showToast('Coming Soon');
+                }
+              }}
+            />
+          ) : (
+            <Box style={styles.AddNewWalletIllustrationWrapper}>
+              <Box style={styles.addNewWallIconWrapper}>
+                <AddNewWalletIllustration />
+              </Box>
+              <Box style={styles.addNewWallTextWrapper}>
+                <Text color="light.secondaryText" style={styles.addNewWallText}>
+                  Add a new Wallet or Import one
+                </Text>
+              </Box>
+            </Box>
+          )}
         </Box>
       </Box>
       <KeeperModal
@@ -296,6 +412,20 @@ const WalletsScreen = ({ navigation }) => {
         balance={balance}
         name={presentationName}
       />
+
+      <KeeperModal
+        dismissible={false}
+        close={() => {}}
+        visible={recepitVerificationFailed}
+        title="Failed to validate your subscription"
+        subTitle="Do you want to downgrade to Pleb and continue?"
+        Content={DowngradeModalContent}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        closeOnOverlayClick={() => {}}
+        showButtons
+        showCloseIcon={false}
+      />
     </HomeScreenWrapper>
   );
 };
@@ -315,6 +445,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
+    marginTop: hp(20),
   },
   titleText: {
     fontSize: 16,
@@ -439,5 +570,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-evenly',
     width: '100%',
+  },
+  AddNewWalletIllustrationWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: wp(30),
+    marginTop: hp(20),
+    width: '100%',
+  },
+  addNewWallIconWrapper: {
+    marginRight: wp(10),
+    alignItems: 'flex-start',
+  },
+  addNewWallTextWrapper: {
+    width: '30%',
+    justifyContent: 'center',
+  },
+  addNewWallText: {
+    fontSize: 14,
+  },
+  cancelBtn: {
+    marginRight: wp(20),
+    borderRadius: 10,
+  },
+  btnText: {
+    fontSize: 12,
+    letterSpacing: 0.84,
+  },
+  createBtn: {
+    paddingVertical: hp(15),
+    borderRadius: 10,
+    paddingHorizontal: 20,
   },
 });

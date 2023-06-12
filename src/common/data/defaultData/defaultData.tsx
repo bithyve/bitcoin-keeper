@@ -6,7 +6,7 @@ export const securityTips = [
   {
     title: 'Security Tip',
     subTitle:
-      'Check the send-to address on a signing device you are going to use to sign the transaction.',
+      'Check the send-to address on a signing device you are going to use to sign the transaction',
     assert: <SecutityTip />,
     message:
       'This ensures that the signed transaction has the intended recipient and the address was not swapped',
@@ -17,6 +17,12 @@ export const securityTips = [
       'Devices with Register Vault tag provide additional checks when you are sending funds from your Vault',
     assert: <SecutityTip />,
     message: 'These provide additional security checks when you make an outgoing transaction',
+  },
+  {
+    title: 'Introducing Whirlpool',
+    subTitle: 'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones',
+    assert: <WhirlpoolLoader />,
+    message: 'For increased privacy and security, remix sats a few times, then transfer them to the Vault',
   },
   {
     title: 'Security Tip',
@@ -35,19 +41,14 @@ export const securityTips = [
   {
     title: 'Security Tip',
     subTitle:
-      'Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step.',
+      'Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check whether the balances are appropriately reflected across all the coordinators after each step',
     assert: <SecutityTip />,
     message: 'Testing out your setup before using it is always a good idea',
   },
-  {
-    title: 'Introducing Whirlpool',
-    subTitle: 'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones.',
-    assert: <WhirlpoolLoader />,
-    message: 'For increased privacy and security, remix sats a few times, then transfer them to the Vault.',
-  },
+
 ];
-export const getSecurityTip = () =>
-  // const selected = Math.floor(Math.random() * securityTips.length); //Comment for creating wallet modal WP
-  // return securityTips[selected];
-  securityTips[5]
-  ;
+export const getSecurityTip = () => {
+  const selected = Math.floor(Math.random() * securityTips.length); // Comment for creating wallet modal WP
+  return securityTips[selected];
+  // securityTips[5];
+}

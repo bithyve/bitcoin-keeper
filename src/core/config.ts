@@ -99,8 +99,6 @@ class Configuration {
 
   public ENVIRONMENT: string;
 
-  public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN?.trim() ? config.INSTABUG_TOKEN.trim() : '';
-
   public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
     ? config.CHANNEL_URL.trim()
     : DEFAULT_CONFIG.CHANNEL_URL.trim();

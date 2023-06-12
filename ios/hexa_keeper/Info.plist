@@ -52,18 +52,10 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Allow Keeper to use BLE to communicate with Ledger. Deny the request if you don't plan to use Ledger or want to enable later in the settings</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Allow Keeper to use BLE to communicate with Ledger. Deny the request if you don't plan to use Ledger or want to enable later in the settings</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Allow Keeper requires FaceID access to allows you quick and secure access.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Please allow microphone access to record your screen and send app feedback</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Please allow photo library access to campture screenshots and send app feedback</string>
 	<key>UIAppFonts</key>
@@ -78,7 +70,6 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>bluetooth-central</string>
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>

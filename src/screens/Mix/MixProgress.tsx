@@ -104,8 +104,8 @@ function MixProgress({
       error: false,
     },
     {
-      title: 'Waiting For Coordinator',
-      subTitle: 'Entering UTXOs into the pool.',
+      title: 'Waiting For Co-ordinator',
+      subTitle: 'Waiting for others to join the pool. Hold tight.',
       referenceCode: Step.WaitingForCoordinator,
       completed: false,
       error: false,
@@ -125,7 +125,7 @@ function MixProgress({
       error: false,
     },
     {
-      title: isRemix ? 'Remix completed successfully' : 'Mix completed successfully',
+      title: isRemix ? 'Remix completed' : 'Mix completed',
       subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
@@ -238,7 +238,7 @@ function MixProgress({
             {title}
           </Text>
           {inProgress ? (
-            <Text color="light.secondaryText" style={styles.timeLineTitle}>
+            <Text color="light.secondaryText" numberOfLines={3} style={styles.timeLineTitle}>
               {subTitle}
             </Text>
           ) : null}
@@ -402,9 +402,8 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        err.error
-          ? err.error
-          : 'Mix failed. Please try again later, our best minds are working on it.',
+        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
       );
@@ -570,11 +569,13 @@ const getStyles = (clock) =>
       letterSpacing: 0.5,
       marginLeft: wp(25),
       marginTop: hp(3),
+      width: wp(270)
     },
     settingUpTitle: {
       marginTop: hp(12),
       paddingLeft: 5,
       fontWeight: 'bold',
+      width: wp(270),
     },
     note: {
       position: 'absolute',

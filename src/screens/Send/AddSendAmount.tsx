@@ -190,6 +190,7 @@ function AddSendAmount({ route }) {
               ? `Sending to Wallet`
               : `Enter the Amount`
           }
+          paddingLeft={25}
         />
         <Box
           style={{
@@ -328,7 +329,7 @@ function AddSendAmount({ route }) {
             >
               <Input
                 autoCapitalize="sentences"
-                placeholder="Add a lable"
+                placeholder="Add a label"
                 placeholderTextColor="light.greenText"
                 opacity={label ? 1 : 0.5}
                 width="90%"
@@ -358,12 +359,12 @@ function AddSendAmount({ route }) {
             </Box>
           </Box>
         </ScrollView>
-        <Box style={styles.infoNoteWrapper}>
+        {/* <Box style={styles.infoNoteWrapper}>
           <Text style={styles.infoNoteText}>
             <Text style={styles.infoText}>Info : </Text>Contact labels help to keep your future
             activity private and organised. The information is not shared with anyone
           </Text>
-        </Box>
+        </Box> */}
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );

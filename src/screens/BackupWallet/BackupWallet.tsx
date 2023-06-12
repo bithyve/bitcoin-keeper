@@ -78,6 +78,7 @@ function BackupWallet() {
           subtitle={BackupWallet.backupWalletSubTitle}
           onPressHandler={() => navigation.goBack()}
           paddingTop={hp(5)}
+          paddingLeft={25}
         />
       </Box>
       <Box style={styles.optionWrapper}>

@@ -6,14 +6,15 @@ import Gear0 from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
 import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 function WhirlpoolLoader() {
+  console.log('windowHeight', windowHeight)
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
       toValue: 1,
-      duration: 10000,
+      duration: 5000,
       easing: Easing.linear,
       useNativeDriver: true,
     })
@@ -26,26 +27,23 @@ function WhirlpoolLoader() {
     inputRange: [0, 1],
     outputRange: ['360deg', '0deg'],
   });
-  const styles = getStyles(clock, antiClock);
+  const styles = getStyles(clock);
   return (
-    <Box style={{ position: 'relative' }}>
-      <Box
-        style={{
-          width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65,
-          alignItems: 'flex-start',
-        }}
-      >
+    <Box style={{ alignItems: 'center' }}>
+      <Box style={{ width: windowWidth * 0.8, alignItems: 'center', justifyContent: 'center' }}>
         <Background />
-        <Animated.View style={styles.gear2}>
+        <Animated.View style={styles.leftGear}>
           <Gear2 />
         </Animated.View>
-        <Animated.View style={styles.gear1}>
-          <Gear1 />
+        <Animated.View style={styles.mainGear}>
+          <Animated.View style={{ position: 'absolute', transform: [{ rotate: antiClock }] }}>
+            <Gear1 />
+          </Animated.View>
+          <Animated.View style={{ position: 'absolute', transform: [{ rotate: clock }] }}>
+            <Gear0 />
+          </Animated.View>
         </Animated.View>
-        <Animated.View style={styles.gear0}>
-          <Gear0 />
-        </Animated.View>
-        <Animated.View style={styles.gear3}>
+        <Animated.View style={styles.rightGear}>
           <Gear3 />
         </Animated.View>
       </Box>
@@ -55,19 +53,19 @@ function WhirlpoolLoader() {
 
 export default WhirlpoolLoader;
 
-const getStyles = (clock, antiClock) =>
+const getStyles = (clock) =>
   StyleSheet.create({
-    gear3: {
+    rightGear: {
       position: 'absolute',
       bottom: '24%',
-      left: '81%',
-      transform: [{ rotate: antiClock }],
+      left: windowHeight > 800 ? '76%' : '81%',
+      transform: [{ rotate: clock }],
     },
-    gear2: {
+    leftGear: {
       position: 'absolute',
       top: '14%',
-      left: '4%',
-      transform: [{ rotate: antiClock }],
+      left: windowHeight > 800 ? '20%' : '15%',
+      transform: [{ rotate: clock }],
     },
     gear1: {
       position: 'absolute',
@@ -79,5 +77,12 @@ const getStyles = (clock, antiClock) =>
       top: '31%',
       left: '41.5%',
       transform: [{ rotate: clock }],
+    },
+    mainGear: {
+      position: 'absolute',
+      alignItems: 'center',
+      justifyContent: 'center',
+      right: windowWidth * 0.37,
+      top: '45%',
     },
   });

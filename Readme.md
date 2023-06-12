@@ -2,6 +2,9 @@
 
 Bitcoin Keeper is a React Native app written in TypeScript. It uses Yarn as a package manager to handle dependencies.
 
+<img width="1728" alt="Screenshot 2023-05-26 at 6 41 23 PM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/fe3a8cdb-260f-44a0-913a-8f94d5791b6b">
+
+
 ## Prerequisites
 
 Before getting started, make sure you have the following software installed on your machine:

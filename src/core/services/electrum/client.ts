@@ -10,6 +10,7 @@ import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import { Alert } from 'react-native';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
@@ -34,7 +35,7 @@ const ELECTRUM_CLIENT_CONFIG = {
     { host: 'electrum.hodlister.co', ssl: '50002' },
   ]),
   maxConnectionAttempt: 3,
-  reconnectDelay: 1000, // 1 second
+  reconnectDelay: 200, // 1/5th of a second
 };
 
 const ELECTRUM_CLIENT = {
@@ -45,12 +46,27 @@ const ELECTRUM_CLIENT = {
   activePeer: null,
 };
 
+const showElectrumError = () => {
+  setTimeout(() => {
+    Alert.alert(
+      'Unable to connect to public electrum server',
+      'Please change the network and try again!'
+    );
+  }, 1000);
+  throw new Error('Electrum client is not connected');
+};
+
 export default class ElectrumClient {
   public static async connect() {
     try {
       if (!ELECTRUM_CLIENT.activePeer) {
-        console.log('No active peer is available');
-        return;
+        console.log(
+          'Unable to connect to any electrum server. Please switch network and try again!'
+        );
+        return {
+          connected: ELECTRUM_CLIENT.isClientConnected,
+          error: 'Unable to connect to any electrum server. Please switch network and try again!',
+        };
       }
 
       ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
@@ -94,7 +110,11 @@ export default class ElectrumClient {
       console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), error);
     }
 
-    if (ELECTRUM_CLIENT.isClientConnected) return ELECTRUM_CLIENT.isClientConnected;
+    if (ELECTRUM_CLIENT.isClientConnected)
+      return {
+        connected: ELECTRUM_CLIENT.isClientConnected,
+        connectedTo: ELECTRUM_CLIENT.activePeer?.host,
+      };
     return ElectrumClient.reconnect();
   }
 
@@ -108,8 +128,13 @@ export default class ElectrumClient {
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
       const nextPeer = ElectrumClient.getNextPeer();
       if (!nextPeer) {
-        console.log('Could not find the working electrum server. Please try again later.');
-        return ELECTRUM_CLIENT.isClientConnected;
+        console.log(
+          'Unable to connect to any electrum server. Please switch network and try again!'
+        );
+        return {
+          connected: ELECTRUM_CLIENT.isClientConnected,
+          error: 'Unable to connect to any electrum server. Please switch network and try again!',
+        };
       }
 
       ELECTRUM_CLIENT.activePeer = nextPeer;
@@ -125,13 +150,13 @@ export default class ElectrumClient {
   }
 
   public static forceDisconnect() {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client not available');
     if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
     ELECTRUM_CLIENT.isClientConnected = false;
   }
 
   public static async serverFeatures() {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
     return ELECTRUM_CLIENT.electrumClient.server_features();
   }
 
@@ -152,7 +177,7 @@ export default class ElectrumClient {
   }
 
   public static async ping() {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client not available');
 
     try {
       await ELECTRUM_CLIENT.electrumClient.server_ping();
@@ -227,7 +252,7 @@ export default class ElectrumClient {
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
   ): Promise<{ [address: string]: ElectrumUTXO[] }> {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
     const res = {};
 
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
@@ -279,7 +304,7 @@ export default class ElectrumClient {
     txids: any[];
     txidToAddress: { [tx_hash: string]: string };
   }> {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
     const historyByAddress = {};
     const txids = [];
     const txidToAddress = {};
@@ -328,7 +353,7 @@ export default class ElectrumClient {
     verbose: boolean = true,
     batchsize: number = 40
   ): Promise<{ [txid: string]: ElectrumTransaction }> {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
     const res = {};
     txids = [...new Set(txids)]; // remove duplicates, if any
 
@@ -360,14 +385,14 @@ export default class ElectrumClient {
   }
 
   public static async estimateFee(numberOfBlocks: number = 1) {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
     const feePerKB = await ELECTRUM_CLIENT.electrumClient.blockchainEstimatefee(numberOfBlocks); // in bitcoin
     if (feePerKB === -1) return 1;
     return Math.round((feePerKB / 1024) * 1e8); // feePerByte(sats)
   }
 
   public static async broadcast(txHex: string) {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
     return ELECTRUM_CLIENT.electrumClient.blockchainTransaction_broadcast(txHex);
   }
 
