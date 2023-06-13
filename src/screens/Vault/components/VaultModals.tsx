@@ -17,6 +17,7 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import useVault from 'src/hooks/useVault';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import TierUpgradeModal from 'src/screens/ChoosePlanScreen/TierUpgradeModal';
+import openLink from 'src/utils/OpenLink';
 import RampModal from './RampModal';
 import VaultCreatedModal from './VaultCreatedModal';
 
@@ -108,6 +109,7 @@ function VaultModals({
         }}
         DarkCloseIcon
         learnMore
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
       <RampModal
         vault={vault}

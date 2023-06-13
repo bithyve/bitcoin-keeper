@@ -6,16 +6,19 @@ import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
-import { Alert, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { TransferType } from 'src/common/data/enums/TransferType';
-import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
+import useToastMessage from 'src/hooks/useToastMessage';
+import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState<UAI | {}>({});
   const [uaiConfig, setUaiConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
   const { activeVault } = useVault();
+  const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -71,13 +74,13 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.DEFAULT:
         return {
           cta: () => {
-            activeVault ? navigtaion.navigate('VaultDetails') : Alert.alert('No vaults found');
+            activeVault ? navigtaion.navigate('VaultDetails') : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
       default:
         return {
           cta: () => {
-            activeVault ? navigtaion.navigate('VaultDetails') : Alert.alert('No vaults found');
+            activeVault ? navigtaion.navigate('VaultDetails') : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
     }
@@ -108,7 +111,7 @@ function UaiDisplay({ uaiStack }) {
       <>
         <UAIView
           title={uai?.title}
-          primaryCallbackText={'Continue'}
+          primaryCallbackText="Continue"
           secondaryCallbackText={uai?.uaiType !== uaiType.DEFAULT ? 'Skip' : null}
           secondaryCallback={uaiSetActionFalse}
           primaryCallback={pressHandler}
