@@ -180,21 +180,13 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
             <Text color="light.white" style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
-            <Text
-              color="light.white"
-              style={styles.walletDescription}
-              ellipsizeMode="tail"
-              numberOfLines={1}
-            >
-              {wallet?.presentationData?.description}
-            </Text>
           </Box>
         </Box>
       </Box>
 
       <Box style={styles.walletBalance}>
         <Text color="light.white" style={styles.walletName}>
-          Available Balance
+          Balance
         </Text>
         <CurrencyInfo
           hideAmounts={hideAmounts}
@@ -248,7 +240,7 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
 
-  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => { }, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
@@ -449,14 +441,14 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />
