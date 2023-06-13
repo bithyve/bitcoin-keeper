@@ -381,16 +381,12 @@ const WalletsScreen = ({ navigation }) => {
               subTitle="Manage wallet UTXOs and use Whirlpool"
               iconBackColor="light.greenText2"
               onPress={() => {
-                if (Platform.OS === 'ios') {
-                  if (currentWallet)
-                    navigation.navigate('UTXOManagement', {
-                      data: currentWallet,
-                      routeName: 'Wallet',
-                      accountType: WalletType.DEFAULT,
-                    });
-                } else {
-                  showToast('Coming Soon');
-                }
+                if (currentWallet)
+                  navigation.navigate('UTXOManagement', {
+                    data: currentWallet,
+                    routeName: 'Wallet',
+                    accountType: WalletType.DEFAULT,
+                  });
               }}
             />
           ) : (
