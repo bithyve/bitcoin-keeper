@@ -6,7 +6,7 @@ import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
@@ -83,23 +83,24 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
           ? [
-            ccInstructions,
-            `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-          ]
+              ccInstructions,
+              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+            ]
           : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-        } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+        isMultisig ? 'MultiSig' : 'SingleSig'
+      } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-            jadeInstructions,
-            `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-          ]
+              jadeInstructions,
+              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+            ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -119,22 +120,11 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         Illustration: <MobileKeyIllustration />,
         Instructions: [
           `Make sure that this wallet's Recovery Phrase is backed-up properly to secure this key.`,
-          `This key available for signing transactions if you confirm your passcode or biometrics`,
         ],
         title: 'Set up a Mobile Key',
-        subTitle:
-          'Your passcode or biometrics act as your key for signing transactions',
+        subTitle: 'Your passcode or biometrics act as your key for signing transactions',
       };
-    case SignerType.LEDGER:
-      return {
-        Illustration: <LedgerImage />,
-        Instructions: [
-          `Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network.`,
-          `Proceed once you are on the app on the Nano X. Keeper will scan for your hardware and fetch the xPub.`,
-        ],
-        title: ledger.SetupTitle,
-        subTitle: ledger.SetupDescription,
-      };
+
     case SignerType.KEYSTONE:
       const keystoneInstructions = isMultisig
         ? `Make sure the BTC-only firmware is installed and export the xPub by going to the Side Menu > Multisig Wallet > Extended menu (three dots) from the top right corner > Show/Export XPUB > Nested SegWit.\n`
@@ -143,23 +133,24 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-            keystoneInstructions,
-            `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-          ]
+              keystoneInstructions,
+              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+            ]
           : [keystoneInstructions],
         title: 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-            passportInstructions,
-            `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-          ]
+              passportInstructions,
+              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+            ]
           : [passportInstructions],
         title: 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -172,18 +163,19 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
           `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
         ],
         title: 'Setting up a Signing Server',
-        subTitle: 'A Signing Server will hold one of the keys in the vault',
+        subTitle: 'A Signing Server will hold one of the keys in the Vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-            seedSignerInstructions,
-            `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
-          ]
+              seedSignerInstructions,
+              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
+            ]
           : [seedSignerInstructions],
         title: 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
@@ -208,6 +200,16 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
         title: trezor.SetupTitle,
         subTitle: trezor.SetupDescription,
       };
+    case SignerType.LEDGER:
+      return {
+        Illustration: <LedgerImage />,
+        Instructions: [
+          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Ledger. `,
+          `Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network.`,
+        ],
+        title: ledger.SetupTitle,
+        subTitle: ledger.SetupDescription,
+      };
     case SignerType.SEED_WORDS:
       return {
         Illustration: <SeedWordsIllustration />,
@@ -216,8 +218,7 @@ const getSignerContent = (type: SignerType, isMultisig: boolean, translations: a
           `Make sure that you're noting down the words in private as exposing them will compromise the Seed Key`,
         ],
         title: 'Setting up Seed Key',
-        subTitle:
-          'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
+        subTitle: 'Seed Key is a 12 word Recovery Phrase. Please note them down and store safely',
       };
     case SignerType.TAPSIGNER:
       return {
@@ -407,16 +408,16 @@ function PasswordEnter({
 }) {
   const [password, setPassword] = useState('');
   const { showToast } = useToastMessage();
-  const [inProgress, setInProgress] = useState(false)
+  const [inProgress, setInProgress] = useState(false);
 
   const addMobileKeyWithProgress = () => {
-    setInProgress(true)
-  }
+    setInProgress(true);
+  };
   useEffect(() => {
     if (inProgress) {
-      addMobileKey()
+      addMobileKey();
     }
-  }, [inProgress])
+  }, [inProgress]);
   const addMobileKey = async () => {
     try {
       const currentPinHash = hash512(password);
@@ -425,18 +426,20 @@ function PasswordEnter({
         dispatch(addSigningDevice(mobileKey));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
         showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
-        setInProgress(false)
+        setInProgress(false);
       } else {
-        setInProgress(false)
+        setInProgress(false);
         showToast('Incorrect password. Try again!', <ToastErrorIcon />);
       }
     } catch (error) {
-      setInProgress(false)
+      setInProgress(false);
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);
-      } else if (error.toString() === 'Error') { /* empty */ } else captureError(error);
+      } else if (error.toString() === 'Error') {
+        /* empty */
+      } else captureError(error);
     }
-  }
+  };
   const onPressNumber = (text) => {
     let tmpPasscode = password;
     if (password.length < 4) {
@@ -468,15 +471,15 @@ function PasswordEnter({
       </Text>
       <Box mt={10} alignSelf="flex-end" mr={2}>
         <Box>
-          {inProgress ?
+          {inProgress ? (
             <ActivityIndicator size="small" />
-            :
+          ) : (
             <Buttons
               primaryCallback={addMobileKeyWithProgress}
               primaryText="Confirm"
               primaryLoading={inProgress}
             />
-          }
+          )}
         </Box>
       </Box>
       <KeyPadView
@@ -503,7 +506,7 @@ function HardwareModalMap({
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
   const [passwordModal, setPasswordModal] = useState(false);
-  const [inProgress, setInProgress] = useState(false)
+  const [inProgress, setInProgress] = useState(false);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
   const { useQuery } = useContext(RealmWrapperContext);
@@ -520,10 +523,6 @@ function HardwareModalMap({
 
   const navigateToColdCardSetup = () => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddColdCard', params: {} }));
-  };
-
-  const navigateToLedgerSetup = () => {
-    navigation.dispatch(CommonActions.navigate({ name: 'AddLedger', params: {} }));
   };
 
   const navigateToSigningServerSetup = () => {
@@ -645,7 +644,7 @@ function HardwareModalMap({
   const biometricAuth = async () => {
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
-        setInProgress(true)
+        setInProgress(true);
         setTimeout(async () => {
           const { success, signature } = await RNBiometrics.createSignature({
             promptMessage: 'Authenticate',
@@ -653,7 +652,7 @@ function HardwareModalMap({
             cancelButtonText: 'Use PIN',
           });
           if (success) {
-            setInProgress(false)
+            setInProgress(false);
             const res = await SecureStore.verifyBiometricAuth(signature, appId);
             if (res.success) {
               const mobileKey = await setupMobileKey({ primaryMnemonic });
@@ -666,11 +665,11 @@ function HardwareModalMap({
           }
         }, 200);
       } catch (error) {
-        setInProgress(false)
+        setInProgress(false);
         captureError(error);
       }
     } else {
-      setInProgress(false)
+      setInProgress(false);
       setPasswordModal(true);
     }
   };
@@ -692,8 +691,6 @@ function HardwareModalMap({
         return navigateToTapsignerSetup();
       case SignerType.COLDCARD:
         return navigateToColdCardSetup();
-      case SignerType.LEDGER:
-        return navigateToLedgerSetup();
       case SignerType.POLICY_SERVER:
         return navigateToSigningServerSetup();
       case SignerType.MOBILE_KEY:
@@ -702,6 +699,7 @@ function HardwareModalMap({
         return navigateToSeedWordSetup();
       case SignerType.BITBOX02:
       case SignerType.TREZOR:
+      case SignerType.LEDGER:
         return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
@@ -747,8 +745,8 @@ function HardwareModalMap({
 }
 const styles = StyleSheet.create({
   passwordContainer: {
-    width: wp(300),
-    marginLeft: wp(5)
+    width: wp(280),
+    marginLeft: wp(5),
   },
   bulletContainer: {
     marginTop: 4,
@@ -765,7 +763,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     padding: 3,
     fontSize: 13,
-    width: wp(300),
+    width: wp(285),
   },
 });
 export default HardwareModalMap;

@@ -26,6 +26,8 @@ class RestClient {
 
   public static torPort: number | null = null;
 
+  public static whirlpoolTorPort: number = 19032;
+
   subscribers = [];
 
   subToTorStatus(observer) {
@@ -81,6 +83,10 @@ class RestClient {
     return RestClient.torPort;
   }
 
+  getWhirlpoolTorPort(): number | null {
+    return RestClient.whirlpoolTorPort || RestClient.torPort;
+  }
+
   private async initTor() {
     try {
       this.updateTorStatus(TorStatus.CONNECTING);
@@ -110,6 +116,25 @@ class RestClient {
       }
       return value;
     };
+  }
+
+  async initWhirlpoolTor() {
+    try {
+      const port = await tor.startIfNotStarted();
+      if (port) {
+        console.log('Whirlpool tor started on PORT: ', port);
+        RestClient.whirlpoolTorPort = port;
+      } else {
+        console.log('failed to init whrlp tor');
+      }
+    } catch (error) {
+      console.log('tor whrlp connect error', error);
+      await tor.stopIfRunning();
+    }
+  }
+
+  stopWhirlpoolTor() {
+    tor.stopIfRunning();
   }
 
   async post(
@@ -147,7 +172,7 @@ class RestClient {
         true
       );
     }
-    return axios.post(path, {
+    return axios.get(path, {
       headers: {
         ...RestClient.headers,
         ...headers,

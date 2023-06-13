@@ -13,7 +13,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { io } from 'src/core/services/channel';
-import { BITBOX_SETUP, CREATE_CHANNEL, TREZOR_SETUP } from 'src/core/services/channel/constants';
+import {
+  BITBOX_SETUP,
+  CREATE_CHANNEL,
+  LEDGER_SETUP,
+  TREZOR_SETUP,
+} from 'src/core/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import usePlan from 'src/hooks/usePlan';
@@ -28,6 +33,7 @@ import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
+import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -98,6 +104,36 @@ function ConnectChannel() {
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(trezor.signerId);
+        if (exsists)
+          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+      } catch (error) {
+        if (error instanceof HWError) {
+          showToast(error.message, <ToastErrorIcon />, 3000);
+        } else if (error.toString() === 'Error') {
+          // ignore if user cancels NFC interaction
+        } else captureError(error);
+      }
+    });
+
+    channel.on(LEDGER_SETUP, async (data) => {
+      try {
+        const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
+          data,
+          isMultisig
+        );
+        const ledger = generateSignerFromMetaData({
+          xpub,
+          derivationPath,
+          xfp,
+          isMultisig,
+          signerType: SignerType.LEDGER,
+          storageType: SignerStorage.COLD,
+          xpubDetails,
+        });
+        dispatch(addSigningDevice(ledger));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${ledger.signerName} added successfully`, <TickIcon />);
+        const exsists = await checkSigningDevice(ledger.signerId);
         if (exsists)
           showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {

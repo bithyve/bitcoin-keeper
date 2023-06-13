@@ -19,7 +19,6 @@ def common_pods
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
   permissions_path = '../node_modules/react-native-permissions/ios'
-  pod 'Permission-BluetoothPeripheral', :path => "#{permissions_path}/BluetoothPeripheral"
 end
 
 target 'hexa_keeper' do

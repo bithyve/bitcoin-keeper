@@ -1,18 +1,20 @@
-import { Box } from 'native-base';
-import React, { useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { Box, Pressable } from 'native-base';
+import React, { MutableRefObject, useRef, useState } from 'react';
+import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 // hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
+import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
-import { swiperData } from '../swiperModalData';
 // colors, aserts
 import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
+import CloseGreen from 'src/assets/images/modal_close_green.svg';
+import { swiperData } from '../swiperModalData';
 
-const SwiperModalContent = ({ contentTitle, contentSubTitle }) => {
+function SwiperModalContent({ contentTitle, contentSubTitle }) {
   return (
     <Box>
       <Box>
@@ -23,111 +25,118 @@ const SwiperModalContent = ({ contentTitle, contentSubTitle }) => {
       </Box>
     </Box>
   );
-};
+}
 
-const renderItem = ({ item }) => {
-  return (
-    <Box style={styles.contentContaner}>
-      <SwiperModalContent
-        contentTitle={item.firstContentHeading.contentTitle}
-        contentSubTitle={item.firstContentHeading.contentSubTitle}
-      />
-      <SwiperModalContent
-        contentTitle={item.secondContentHeading.contentTitle}
-        contentSubTitle={item.secondContentHeading.contentSubTitle}
-      />
-      <Box style={styles.swiperModalIcon}>
-        <SwiperModalIcon />
-      </Box>
-      <SwiperModalContent
-        contentTitle={item.firstContentFooter.contentTitle}
-        contentSubTitle={item.firstContentFooter.contentSubTitle}
-      />
-      <SwiperModalContent
-        contentTitle={item.secondContentFooter.contentTitle}
-        contentSubTitle={item.secondContentFooter.contentSubTitle}
-      />
+const renderItem = ({ item }) => (
+  <Box style={styles.contentContaner}>
+    <SwiperModalContent
+      contentTitle={item.firstContentHeading.contentTitle}
+      contentSubTitle={item.firstContentHeading.contentSubTitle}
+    />
+    <SwiperModalContent
+      contentTitle={item.secondContentHeading.contentTitle}
+      contentSubTitle={item.secondContentHeading.contentSubTitle}
+    />
+    <Box style={styles.swiperModalIcon}>
+      <SwiperModalIcon />
     </Box>
-  );
+    <SwiperModalContent
+      contentTitle={item.firstContentFooter.contentTitle}
+      contentSubTitle={item.firstContentFooter.contentSubTitle}
+    />
+    <SwiperModalContent
+      contentTitle={item.secondContentFooter.contentTitle}
+      contentSubTitle={item.secondContentFooter.contentSubTitle}
+    />
+  </Box>
+);
+const linearGradientBtn = {
+  colors: ['#FFFFFF', '#80A8A1'],
+  start: [0, 0],
+  end: [1, 1],
 };
-
-const List = () => {
+function List(props) {
+  const listRef = useRef(null)
+  const dispatch = useAppDispatch();
   const [currentPosition, setCurrentPosition] = useState(0);
 
   const onViewRef = React.useRef((viewableItems) => {
     setCurrentPosition(viewableItems.changed[0].index);
+    // closeRef.current = viewableItems.changed[0].index !== 0
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 50 });
 
+  const pressNext = () => {
+    listRef.current.scrollToEnd({ animated: true });
+  };
+
   return (
     <Box>
+      {currentPosition !== 0 ?
+        <TouchableOpacity style={styles.close} onPress={() => dispatch(setWhirlpoolSwiperModal(false))}>
+          <CloseGreen />
+        </TouchableOpacity> : null}
+      <Box style={styles.headerContainer}>
+        <Text style={styles.title} color='light.white'>
+          Some Definitions:
+        </Text>
+      </Box>
+
       <FlatList
+        ref={listRef}
         data={swiperData}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        nestedScrollEnabled={true}
+        nestedScrollEnabled
         horizontal
         snapToInterval={windowWidth}
         showsHorizontalScrollIndicator={false}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewConfigRef.current}
       />
-      <Box style={styles.paginationDots}>
-        {currentPosition === 0 && (
-          <>
-            <Box style={styles.selectedDot} />
-            <Box style={styles.unSelectedDot} />
-          </>
-        )}
+      <Box style={styles.ctaWrapper}>
+        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+          <Pressable onPress={() => { openLink('https://www.bitcoinkeeper.app/') }}>
+            <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+              See FAQs
+            </Text>
+          </Pressable>
+        </Box>
+        <Box>
+          <TouchableOpacity onPress={() => currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))}>
+            <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+              <Text style={styles.ctaText} color='light.greenText02' bold>
+                {currentPosition === 0 ? 'Next' : 'Proceed'}
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        </Box>
       </Box>
     </Box>
   );
-};
+}
 
-const SwiperModal = () => {
+function SwiperModal() {
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
-
   return (
     <KeeperModal
       visible={whirlpoolSwiperModal}
       close={() => {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
-      title="Some Definitions:"
+      title=""
       modalBackground={['light.gradientStart', 'light.gradientEnd']}
       textColor="light.white"
-      Content={() => {
-        return <List />;
-      }}
-      DarkCloseIcon
-      learnMore
+      Content={() => <List />}
+      showCloseIcon={false}
     />
   );
-};
+}
 
 const styles = StyleSheet.create({
-  paginationDots: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    height: 6,
-  },
-  selectedDot: {
-    width: 25,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: '#E3BE96',
-    marginEnd: 5,
-  },
-  unSelectedDot: {
-    width: 6,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: '#89AEA7',
-    marginEnd: 5,
-  },
   contentContaner: {
-    width: wp(290),
+    width: wp(286),
   },
   swiperModalIcon: {
     alignSelf: 'center',
@@ -149,6 +158,50 @@ const styles = StyleSheet.create({
     color: Colors.White,
     marginBottom: hp(15),
     maxWidth: wp(270),
+  },
+  seeFAQs: {
+    fontSize: 13,
+  },
+  learnMoreContainer: {
+    borderRadius: hp(40),
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#00433A',
+    height: hp(34),
+    width: wp(110),
+  },
+  ctaWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  cta: {
+    borderRadius: 10,
+    width: wp(110),
+    height: hp(45),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  ctaText: {
+    fontSize: 13,
+    letterSpacing: 1,
+  },
+  headerContainer: {
+    alignSelf: 'flex-start',
+    borderBottomWidth: 0,
+    backgroundColor: 'transparent',
+    width: '90%',
+  },
+  title: {
+    fontSize: 19,
+    letterSpacing: 1,
+    marginVertical: 20
+  },
+  close: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 });
 

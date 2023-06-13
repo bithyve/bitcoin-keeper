@@ -93,9 +93,10 @@ function ImportWalletScreen({ route }) {
       >
         <HeaderTitle
           title={home.ImportWallet}
-          subtitle="Name and description for the wallet"
+          subtitle="Scan your seed words/Backup Phrase"
           headerTitleColor={Colors.TropicalRainForest}
           paddingTop={hp(5)}
+          paddingLeft={25}
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>

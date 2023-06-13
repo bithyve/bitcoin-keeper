@@ -192,7 +192,6 @@ function VaultRecovery({ navigation }) {
     if (relayVaultUpdate) {
       setRecoveryLoading(false);
       setSuccessModalVisible(true);
-      navigation.replace('App');
     }
     if (relayVaultError) {
       Alert.alert('Something went wrong!');
@@ -307,6 +306,7 @@ function VaultRecovery({ navigation }) {
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
+          navigation.replace('App');
         }}
       />
     </ScreenWrapper>

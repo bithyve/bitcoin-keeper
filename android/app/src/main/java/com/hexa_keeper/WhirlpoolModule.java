@@ -33,18 +33,18 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void initiate(Promise promise) {
-        promise.resolve(WhirlpoolBridge.initiate());
+    public void initiate(String port, Promise promise) {
+        promise.resolve(WhirlpoolBridge.initiate(port));
     }
 
     @ReactMethod
-    public void getTx0Data(String scode,Promise promise) {
-        promise.resolve(WhirlpoolBridge.gettx0data(scode));
+    public void getTx0Data(String scode, String port, Promise promise) {
+        promise.resolve(WhirlpoolBridge.gettx0data(scode, port));
     }
 
     @ReactMethod
-    public void getPools(Promise promise) {
-        promise.resolve(WhirlpoolBridge.pools());
+    public void getPools(String port, Promise promise) {
+        promise.resolve(WhirlpoolBridge.pools(port));
     }
 
     @ReactMethod
@@ -53,8 +53,8 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void tx0Push(String txStr, String poolIdStr, Promise promise) {
-        promise.resolve(WhirlpoolBridge.tx0push(txStr, poolIdStr));
+    public void tx0Push(String txStr, String poolIdStr, String port, Promise promise) {
+        promise.resolve(WhirlpoolBridge.tx0push(txStr, poolIdStr, port));
     }
 
     @ReactMethod
@@ -68,7 +68,12 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, Promise promise) {
-        promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId));
+    public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, String port, Promise promise) {
+        promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId, port));
+    }
+
+    @ReactMethod
+    public void estimateTx0Size(String nP2pkhInputs, String nP2shP2wpkhInputs, String nP2wpkhInputs, String nP2wpkhOutputs, Promise promise) {
+        promise.resolve(WhirlpoolBridge.estimatetx0size(nP2pkhInputs, nP2shP2wpkhInputs, nP2wpkhInputs, nP2wpkhOutputs));
     }
 }

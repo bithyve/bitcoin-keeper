@@ -1,5 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
 import { logMessage } from 'src/core/services/sentry';
+import RestClient from 'src/core/services/rest/RestClient';
 import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
@@ -11,7 +12,7 @@ export default class WhirlpoolServices {
    */
   static getPools = async (): Promise<PoolData[]> => {
     try {
-      let result = await Whirlpool.getPools();
+      let result = await Whirlpool.getPools(RestClient.getWhirlpoolTorPort().toString());
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
@@ -30,13 +31,45 @@ export default class WhirlpoolServices {
    */
   static getTx0Data = async (scode = ''): Promise<TX0Data[]> => {
     try {
-      let result = await Whirlpool.getTx0Data(scode);
+      let result = await Whirlpool.getTx0Data(scode, RestClient.getWhirlpoolTorPort().toString());
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
         throw new Error(result.error);
       }
       return result;
+    } catch (error) {
+      logMessage(error);
+      throw error;
+    }
+  };
+
+  /**
+   * estimates the size of tx0 transaction
+   * @param  {string} nP2pkhInputs
+   * @param  {string} nP2shP2wpkhInputs
+   * @param  {string} nP2wpkhInputs
+   * @param  {string} nP2wpkhOutputs
+   * @returns {Promise<string>} size
+   */
+  static estimateTx0Size = async (
+    nP2pkhInputs: number,
+    nP2shP2wpkhInputs: number,
+    nP2wpkhInputs: number,
+    nP2wpkhOutputs: number
+  ): Promise<string> => {
+    try {
+      const response = await Whirlpool.estimateTx0Size(
+        `${nP2pkhInputs}`,
+        `${nP2shP2wpkhInputs}`,
+        `${nP2wpkhInputs}`,
+        `${nP2wpkhOutputs}`
+      );
+      if (response.error) {
+        console.log({ error: response.error });
+        throw new Error(response.error);
+      }
+      return JSON.parse(response);
     } catch (error) {
       logMessage(error);
       throw error;
@@ -122,7 +155,7 @@ export default class WhirlpoolServices {
     inputs: WhirlpoolInput[],
     addressBank: string[],
     changeAddress: string
-  ): Promise<string | false> => {
+  ): Promise<string> => {
     try {
       let result = await Whirlpool.intoPsbt(
         JSON.stringify(preview),
@@ -152,12 +185,16 @@ export default class WhirlpoolServices {
    */
   static tx0Push = async (txHex: string, poolId: string): Promise<string> => {
     try {
-      let result = await Whirlpool.tx0Push(txHex, poolId);
+      let result = await Whirlpool.tx0Push(
+        txHex,
+        poolId,
+        RestClient.getWhirlpoolTorPort().toString()
+      );
       console.log({ result });
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
-        throw new Error(result.error);
+        throw new Error(result.error?.message);
       }
       return result.txid;
     } catch (error) {
@@ -202,7 +239,8 @@ export default class WhirlpoolServices {
         network,
         blockHeight,
         signedRegistrationMessage,
-        appId
+        appId,
+        RestClient.getWhirlpoolTorPort().toString()
       );
       result = JSON.parse(result);
       if (result.error) {

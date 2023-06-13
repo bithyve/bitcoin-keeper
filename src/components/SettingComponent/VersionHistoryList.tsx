@@ -11,7 +11,6 @@ import DotView from '../DotView';
 function VersionHistoryList() {
   const { useQuery } = useContext(RealmWrapperContext);
   const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
-  console.log('VersionHistoryData', VersionHistoryData);
 
   return (
     <FlatList

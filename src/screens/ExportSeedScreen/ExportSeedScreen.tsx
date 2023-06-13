@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -87,9 +87,10 @@ function ExportSeedScreen({ route, navigation }) {
         title={seedText.recoveryPhrase}
         subtitle={seedText.SeedDesc}
         onPressHandler={() => navigtaion.goBack()}
+        paddingLeft={25}
       />
 
-      <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.88}>
+      <Box style={{ flex: 1 }}>
         <FlatList
           data={words}
           numColumns={2}
@@ -155,6 +156,7 @@ function ExportSeedScreen({ route, navigation }) {
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
+              console.log('pressed')
               setConfirmSeedModal(false);
             }}
             words={words}
@@ -202,13 +204,14 @@ function ExportSeedScreen({ route, navigation }) {
           />
         )}
       />
+      <SafeAreaView />
     </Box>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 15,
+    padding: 10,
   },
   seedCardContainer: {
     width: '50%',
@@ -248,7 +251,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginHorizontal: 10,
-    marginBottom: hp(25),
+    marginBottom: hp(15),
   },
   qrItem: {
     alignItems: 'center',

@@ -33,7 +33,7 @@ export const UPDATE_WALLET_DETAILS = 'UPDATE_WALLET_DETAILS';
 export const UPDATE_SIGNER_DETAILS = 'UPDATE_SIGNER_DETAILS';
 export const ADD_WHIRLPOOL_WALLETS = 'ADD_WHIRLPOOL_WALLETS';
 export const ADD_WHIRLPOOL_WALLETS_LOCAL = 'ADD_WHIRLPOOL_WALLETS_LOCAL';
-export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_DETAILS';
+export const UPDATE_WALLET_PATH_PURPOSE_DETAILS = 'UPDATE_WALLET_PATH_PURPOSE_DETAILS';
 
 export const syncWallets = (
   wallets: (Wallet | Vault)[],
@@ -98,12 +98,15 @@ export const autoSyncWallets = (syncAll?: boolean, hardRefresh?: boolean) => ({
 });
 
 export const incrementAddressIndex = (
-  wallets: (Wallet | Vault)[],
-  options: { external: boolean; internal: boolean }
+  wallet: Wallet | Vault,
+  options: {
+    external?: { incrementBy: number };
+    internal?: { incrementBy: number };
+  }
 ) => ({
   type: INCREMENT_ADDRESS_INDEX,
   payload: {
-    wallets,
+    wallet,
     options,
   },
 });

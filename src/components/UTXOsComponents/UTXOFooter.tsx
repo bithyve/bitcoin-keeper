@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box } from 'native-base';
 import MixIcon from 'src/assets/images/icon_mix.svg';
@@ -6,7 +6,9 @@ import Send from 'src/assets/images/send.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetailScreen/WalletDetails';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import BottomMenuItem from '../../screens/WalletDetailScreen/BottomMenuItem';
+import Colors from 'src/theme/Colors';
+import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import BottomMenuItem from '../../screens/WalletDetails/BottomMenuItem';
 
 function UTXOFooter({
   setEnableSelection,
@@ -43,7 +45,7 @@ function UTXOFooter({
               setInitateWhirlpoolMix(true);
             }}
             icon={<MixIcon />}
-            title={wallet?.type === WalletType.POST_MIX ? 'Start Remix' : 'Start Mix'}
+            title={wallet?.type === WalletType.POST_MIX ? 'Select for Remix' : 'Select for Mix'}
           />
         )}
         {allowedSendTypes.includes(wallet?.type) && (
@@ -64,8 +66,11 @@ export default UTXOFooter;
 const styles = StyleSheet.create({
   footerContainer: {
     height: 70,
-    width: '100%',
-    justifyContent: 'space-around',
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? 10 : 15,
+    width: windowWidth,
+    paddingHorizontal: '10%',
+    backgroundColor: Colors.LightWhite,
   },
   footerItemContainer: {
     marginTop: 20,

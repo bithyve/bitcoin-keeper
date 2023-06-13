@@ -15,18 +15,21 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
   const { labels } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
-  const extraLabelMap = new Map();
+  const [extraLabelMap, setExtraLabelMap] = useState(new Map());
   const onLayout = (event, index) => {
     const { y } = event.nativeEvent.layout;
     if (y > 9) {
-      extraLabelMap.set(index, true);
+      extraLabelMap.set(`${index}`, true);
+      setExtraLabelMap(extraLabelMap);
     } else {
-      extraLabelMap.delete(index);
+      extraLabelMap.delete(`${index}`);
+      setExtraLabelMap(extraLabelMap);
     }
     setExtraLabelCount(extraLabelMap.size);
   };
@@ -51,7 +54,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96' }]}>
+        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96', maxHeight: 19 }]}>
           <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>
@@ -72,15 +75,24 @@ function UTXOElement({
   labels,
   currentWallet,
   selectedAccount,
+  initateWhirlpoolMix,
 }: any) {
   const utxoId = `${item.txId}${item.vout}`;
   const allowSelection = enableSelection && item.confirmed;
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
+
   return (
     <TouchableOpacity
       style={styles.utxoCardContainer}
       onPress={() => {
+        if (enableSelection && !item.confirmed) {
+          showToast(
+            'Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID',
+            <ToastErrorIcon />
+          );
+          return;
+        }
         if (allowSelection) {
           const mapToUpdate = selectedUTXOMap;
           if (selectedUTXOMap[utxoId]) {
@@ -88,7 +100,8 @@ function UTXOElement({
           } else {
             if (
               (selectedAccount === WalletType.PRE_MIX || selectedAccount === WalletType.POST_MIX) &&
-              Object.keys(selectedUTXOMap).length >= 1
+              Object.keys(selectedUTXOMap).length >= 1 &&
+              initateWhirlpoolMix
             ) {
               showToast('Only a single UTXO mix allowed at a time', null, 3000);
               return;
@@ -167,6 +180,7 @@ function UTXOList({
   currentWallet,
   emptyIcon,
   selectedAccount,
+  initateWhirlpoolMix,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -176,7 +190,7 @@ function UTXOList({
   return (
     <FlatList
       data={utxoState}
-      contentContainerStyle={{ paddingBottom: 20 }}
+      contentContainerStyle={{ paddingBottom: 70 }}
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
@@ -192,6 +206,7 @@ function UTXOList({
           colorMode={colorMode}
           currentWallet={currentWallet}
           selectedAccount={selectedAccount}
+          initateWhirlpoolMix={initateWhirlpoolMix}
         />
       )}
       keyExtractor={(item: UTXO) => `${item.txId}${item.vout}${item.confirmed}`}

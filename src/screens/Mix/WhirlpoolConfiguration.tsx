@@ -10,6 +10,7 @@ import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import RadioButton from 'src/components/RadioButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PageIndicator from 'src/components/PageIndicator';
 import { useAppSelector } from 'src/store/hooks';
@@ -22,29 +23,6 @@ import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
 import LearnMoreModal from '../UTXOManagement/components/LearnMoreModal';
-
-const feesContent = (fees, onFeeSelectionCallback) => (
-  <Box style={styles.feeContent}>
-    <Box style={styles.feeHeaderItem}>
-      <Text style={styles.feeItemHeader}>Priority</Text>
-      <Text style={styles.feeItemHeader}>Arrival Time</Text>
-      <Text style={styles.feeItemHeader}>Fee</Text>
-    </Box>
-    {fees &&
-      fees.map((fee) => (
-        <TouchableOpacity onPress={() => onFeeSelectionCallback(fee)}>
-          <Box style={styles.feeItem}>
-            <Text style={styles.feeItemText}>{fee?.priority}</Text>
-            <Text style={styles.feeItemText}>{fee?.time}</Text>
-            <Text style={styles.feeItemText}>
-              {fee?.fee} {fee?.fee > 1 ? 'sats' : 'sat'}/vB
-            </Text>
-          </Box>
-          <Box style={styles.feeItemBorder} />
-        </TouchableOpacity>
-      ))}
-  </Box>
-);
 
 // function WhirlpoolContent() {
 //   return (
@@ -76,6 +54,41 @@ export default function WhirlpoolConfiguration({ route }) {
   const [utxoCount, setUtxoCount] = useState(0);
   const [utxoTotal, setUtxoTotal] = useState(0);
   const [scodeModalVisible, setScodeModalVisible] = useState(false);
+  const [transactionPriority, setTransactionPriority] = useState('high')
+
+  const feesContent = (fees, onFeeSelectionCallback) => (
+    <Box style={styles.feeContent}>
+      <Box style={styles.feeHeaderItem}>
+        <Text style={styles.feeItemHeader}>Priority</Text>
+        <Text style={styles.feeItemHeader}>Arrival Time</Text>
+        <Text style={styles.feeItemHeader}>Fee</Text>
+      </Box>
+      {fees &&
+        fees.map((fee) => (
+          <TouchableOpacity onPress={() => { onFeeSelectionCallback(fee); setTransactionPriority(fee?.priority) }}>
+            <Box style={styles.feeItem}>
+              <Box style={styles.priorityWrapper}>
+                <RadioButton
+                  size={15}
+                  isChecked={transactionPriority === fee?.priority}
+                  borderColor="#E3E3E3"
+                  onpress={() => {
+                    setTransactionPriority(fee?.priority);
+                    // onTransactionPriorityChanged(priority)
+                  }}
+                />
+                <Text style={styles.feeItemText}>&nbsp;&nbsp;{fee?.priority}</Text>
+              </Box>
+              <Text style={styles.feeItemText}>{fee?.time}</Text>
+              <Text style={styles.feeItemText}>
+                {fee?.fee} {fee?.fee > 1 ? 'sats' : 'sat'}/vB
+              </Text>
+            </Box>
+            <Box style={styles.feeItemBorder} />
+          </TouchableOpacity>
+        ))}
+    </Box>
+  );
 
   useEffect(() => {
     if (whirlpoolModal) {
@@ -147,7 +160,7 @@ export default function WhirlpoolConfiguration({ route }) {
 
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle paddingLeft={10} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
+      <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
       <Box style={styles.scode}>
@@ -345,8 +358,12 @@ const styles = StyleSheet.create({
   },
   feeItemText: {
     color: '#656565',
-    width: 120,
+    width: 100,
     fontSize: 13,
     textAlign: 'left',
   },
+  priorityWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
 });

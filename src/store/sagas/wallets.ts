@@ -23,10 +23,13 @@ import {
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
+  newWalletCreated,
   setNetBalance,
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
+  signingServerRegistrationVerified,
+  walletGenerationFailed,
   setWhirlpoolCreated,
 } from 'src/store/reducers/wallets';
 
@@ -43,8 +46,14 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import {
+  encrypt,
+  generateEncryptionKey,
+  getRandomBytes,
+  generateKey,
+  hash256,
+} from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { generateKey, hash256 } from 'src/core/services/operations/encryption';
 import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { RootState } from '../store';
 import {
@@ -440,7 +449,9 @@ export function* addNewWalletsWorker({ payload: newWalletInfo }: { payload: NewW
             })
           );
         }
-        return true;
+      } else {
+        yield put(walletGenerationFailed(response.error));
+        yield put(relayWalletUpdateFail(response.error));
       }
       yield put(relayWalletUpdateFail(response.error));
       return false;
@@ -661,15 +672,13 @@ function* refreshWalletsWorker({
 }) {
   const { wallets } = payload;
   const { options } = payload;
+  yield put(setSyncing({ wallets, isSyncing: true }));
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
       options,
     },
   });
-
-  yield put(setSyncing({ wallets, isSyncing: true }));
-
   for (const synchedWallet of synchedWallets) {
     if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
@@ -741,39 +750,40 @@ function* addressIndexIncrementWorker({
   payload,
 }: {
   payload: {
-    wallets: (Wallet | Vault)[];
-    options: { external: boolean; internal: boolean };
+    wallet: Wallet | Vault;
+    options: {
+      external?: { incrementBy: number };
+      internal?: { incrementBy: number };
+    };
   };
 }) {
   // increments the address index(external/internal chain)
   // usage: resolves the address reuse issues(during whirlpool) due to a slight delay in fetching updates from Fulcrum
-  const { wallets } = payload;
-  const { options } = payload;
+  const { wallet } = payload;
+  const { external, internal } = payload.options;
 
-  for (const wallet of wallets) {
-    if (options.external) {
-      wallet.specs.nextFreeAddressIndex += 1;
-      wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
-        entity: wallet.entityKind,
-        isMultiSig: (wallet as Vault).isMultiSig,
-        specs: wallet.specs,
-        networkType: wallet.networkType,
-        scheme: (wallet as Vault).scheme,
-        derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
-      }).receivingAddress;
-    }
+  if (external) {
+    wallet.specs.nextFreeAddressIndex += external.incrementBy;
+    wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
+      entity: wallet.entityKind,
+      isMultiSig: (wallet as Vault).isMultiSig,
+      specs: wallet.specs,
+      networkType: wallet.networkType,
+      scheme: (wallet as Vault).scheme,
+      derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
+    }).receivingAddress;
+  }
 
-    if (options.internal) wallet.specs.nextFreeChangeAddressIndex += 1;
+  if (internal) wallet.specs.nextFreeChangeAddressIndex += internal.incrementBy;
 
-    if (wallet.entityKind === EntityKind.VAULT) {
-      yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
-        specs: wallet.specs,
-      });
-    } else {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
-        specs: wallet.specs,
-      });
-    }
+  if (wallet.entityKind === EntityKind.VAULT) {
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
+      specs: wallet.specs,
+    });
+  } else {
+    yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, {
+      specs: wallet.specs,
+    });
   }
 }
 

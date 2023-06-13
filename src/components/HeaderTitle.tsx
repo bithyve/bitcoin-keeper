@@ -1,5 +1,7 @@
 import { Box } from 'native-base';
-import BackButton from 'src/assets/images/back.svg';
+
+import BackBlackButton from 'src/assets/images/back.svg';
+import BackWhiteButton from 'src/assets/images/back_white.svg';
 import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
@@ -9,7 +11,7 @@ import Text from 'src/components/KeeperText';
 
 type Props = {
   title?: string;
-  subtitle?: string;
+  subtitle?: string | Element;
   onPressHandler?: () => void;
   enableBack?: boolean;
   headerTitleColor?: string;
@@ -18,6 +20,7 @@ type Props = {
   learnMore?: boolean;
   learnMorePressed?: () => void;
   titleFontSize?: number;
+  backBtnColor?: boolean;
 };
 function HeaderTitle({
   title = '',
@@ -30,6 +33,8 @@ function HeaderTitle({
   learnMore = false,
   learnMorePressed = () => { },
   titleFontSize = 16,
+  textPadding = 0,
+  backBtnBlackColor = true
 }: Props) {
   const navigation = useNavigation();
   return (
@@ -42,7 +47,7 @@ function HeaderTitle({
           ]}
         >
           <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.backButton}>
-            <BackButton />
+            {backBtnBlackColor ? <BackBlackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
@@ -69,14 +74,20 @@ function HeaderTitle({
           {title && (
             <Text
               numberOfLines={1}
-              style={[styles.addWalletText, { fontSize: titleFontSize }]}
+              style={[
+                styles.addWalletText,
+                { fontSize: titleFontSize, paddingHorizontal: textPadding },
+              ]}
               color={headerTitleColor}
             >
               {title}
             </Text>
           )}
           {subtitle && (
-            <Text style={styles.addWalletDescription} color="light.primaryText">
+            <Text
+              style={[styles.addWalletDescription, { paddingHorizontal: textPadding }]}
+              color="light.primaryText"
+            >
               {subtitle}
             </Text>
           )}
@@ -93,13 +104,13 @@ const styles = ScaledSheet.create({
   addWalletText: {
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    paddingHorizontal: '20@s',
+    // paddingHorizontal: '20@s',
   },
   addWalletDescription: {
     fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    paddingHorizontal: '20@s',
+    // paddingHorizontal: '20@s',
     fontWeight: '200',
   },
   backContainer: {

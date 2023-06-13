@@ -10,8 +10,8 @@ import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView'
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => { },
-  secondaryCallback = () => { },
+  primaryCallback = () => {},
+  secondaryCallback = () => {},
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
@@ -82,7 +82,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 5,
   },
   createBtn: {
     paddingVertical: hp(15),

@@ -22,11 +22,13 @@ export const bulkUpdateLabels = (payload: {
   payload,
 });
 
-export const createUTXOReference = (payload: {
-  labels: Array<{ name: string; type: LabelType }>;
-  txId: string;
-  vout: number;
-}) => ({
+export const createUTXOReference = (
+  payload: {
+    labels: Array<{ name: string; type: LabelType }>;
+    txId: string;
+    vout: number;
+  }[]
+) => ({
   type: CREATE_UTXO_REFERENCE,
   payload,
 });

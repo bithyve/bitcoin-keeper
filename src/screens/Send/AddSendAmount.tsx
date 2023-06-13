@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input, Pressable } from 'native-base';
-import { TextInput } from 'react-native';
+import { Box, Input, KeyboardAvoidingView, Pressable } from 'native-base';
+import { Platform, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -30,8 +30,7 @@ import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
-import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
-import TagsGreen from 'src/assets/images/tags.svg';
+import idx from 'idx';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -86,53 +85,46 @@ function AddSendAmount({ route }) {
   }
 
   useEffect(() => {
-    const confirmBalance = sender.specs.balances.confirmed;
-    const sendMaxBalance = confirmBalance - sendMaxFee;
-
+    // sets amount to send(based on currency selection)
     if (currentCurrency === CurrencyKind.BITCOIN) {
-      if (satsEnabled) {
-        setAmountToSend(amount);
-      } else {
-        setAmountToSend(BtcToSats(parseFloat(amount)).toString());
-      }
-    } else {
-      setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
-    }
-
-    if (Number(amountToSend) > sendMaxBalance) {
-      setErrorMessage('Amount entered is more than available to spend');
-    } else {
-      setErrorMessage('');
-    }
-
-    if (selectedUTXOs && selectedUTXOs.length) {
-      if (
-        Number(utxoTotal) > Number(amount) &&
-        Number(utxoTotal) < Number(amount) + Number(SatsToBtc(minimumAvgFeeRequired))
-      ) {
-        setErrorMessage('Please select enough UTXOs to accommodate fee');
-      }
-      if (Number(utxoTotal) < Number(amount)) {
-        setErrorMessage('Please select enough UTXOs to send');
-      }
-    }
-  }, [amount, amountToSend]);
+      if (satsEnabled) setAmountToSend(amount);
+      else setAmountToSend(BtcToSats(parseFloat(amount)).toString());
+    } else setAmountToSend(convertFiatToSats(parseFloat(amount)).toFixed(0).toString());
+  }, [currentCurrency, satsEnabled, amount]);
 
   useEffect(() => {
-    const confirmBalance = sender.specs.balances.confirmed;
-    if (sendMaxFee && confirmBalance) {
-      const sendMaxBalance = confirmBalance - sendMaxFee;
+    // error handler
+    let availableToSpend = idx(sender, (_) => _.specs.balances.confirmed);
+    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
+    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
+
+    if (haveSelectedUTXOs) {
+      if (availableToSpend < Number(amountToSend))
+        setErrorMessage('Please select enough UTXOs to send');
+      else if (availableToSpend < Number(amountToSend) + Number(SatsToBtc(minimumAvgFeeRequired)))
+        setErrorMessage('Please select enough UTXOs to accommodate fee');
+      else setErrorMessage('');
+    } else if (availableToSpend < Number(amountToSend))
+      setErrorMessage('Amount entered is more than available to spend');
+    else setErrorMessage('');
+  }, [amountToSend, selectedUTXOs]);
+
+  useEffect(() => {
+    // send max handler
+    if (!sendMaxFee) return;
+
+    let availableToSpend = idx(sender, (_) => _.specs.balances.confirmed);
+    const haveSelectedUTXOs = selectedUTXOs && selectedUTXOs.length;
+    if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
+
+    if (availableToSpend) {
+      const sendMaxBalance = availableToSpend - sendMaxFee;
       if (currentCurrency === CurrencyKind.BITCOIN) {
-        if (satsEnabled) {
-          setAmount(sendMaxBalance.toString());
-        } else {
-          setAmount(`${SatsToBtc(sendMaxBalance)}`);
-        }
-      } else {
-        setAmount(convertSatsToFiat(sendMaxBalance).toString());
-      }
+        if (satsEnabled) setAmount(sendMaxBalance.toString());
+        else setAmount(`${SatsToBtc(sendMaxBalance)}`);
+      } else setAmount(convertSatsToFiat(sendMaxBalance).toString());
     }
-  }, [sendMaxFee]);
+  }, [sendMaxFee, selectedUTXOs]);
 
   const navigateToNext = () => {
     navigation.dispatch(
@@ -164,7 +156,7 @@ function AddSendAmount({ route }) {
       sendPhaseOne({
         wallet: sender,
         recipients,
-        UTXOs: selectedUTXOs,
+        selectedUTXOs,
       })
     );
   };
@@ -186,179 +178,195 @@ function AddSendAmount({ route }) {
   );
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title={
-          transferType === TransferType.WALLET_TO_WALLET ? `Sending to Wallet` : `Enter the Amount`
-        }
-      />
-      <Box
-        style={{
-          marginVertical: hp(5),
-        }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : null}
+        enabled
+        keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
+        style={styles.Container}
       >
-        <WalletSendInfo
-          selectedUTXOs={selectedUTXOs}
-          availableAmt={getBalance(sender?.specs.balances.confirmed)}
-          walletName={sender?.presentationData.name}
-          currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
-          isSats={satsEnabled}
+        <HeaderTitle
+          title={
+            transferType === TransferType.WALLET_TO_WALLET
+              ? `Sending to Wallet`
+              : `Enter the Amount`
+          }
+          paddingLeft={25}
         />
-      </Box>
-
-      <Box
-        alignItems="center"
-        style={{
-          marginVertical: hp(10),
-        }}
-      />
-
-      <Box
-        style={{
-          paddingHorizontal: 10,
-        }}
-      >
-        {errorMessage && (
-          <Text
-            color="light.indicator"
-            style={{
-              fontSize: 10,
-              letterSpacing: 0.1,
-              fontStyle: 'italic',
-              textAlign: 'right',
-              marginRight: 10,
-            }}
-          >
-            {errorMessage}
-          </Text>
-        )}
         <Box
-          backgroundColor="light.primaryBackground"
-          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
-          style={styles.inputWrapper}
+          style={{
+            marginVertical: hp(5),
+          }}
         >
-          <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
-            <Box marginRight={2}>{getCurrencyIcon(BitcoinInput, 'dark')}</Box>
-            <Box
-              marginLeft={2}
-              width={0.5}
-              backgroundColor="light.divider"
-              opacity={0.3}
-              height={7}
-            />
-            <Input
-              placeholder="Enter Amount"
-              placeholderTextColor="light.greenText"
-              color="light.greenText"
-              opacity={0.5}
-              width="90%"
-              fontSize={14}
-              fontWeight={300}
-              letterSpacing={1.04}
-              borderWidth="0"
-              value={amount}
-              onChangeText={(value) => {
-                if (!isNaN(Number(value))) {
-                  setAmount(
-                    value
-                      .split('.')
-                      .map((el, i) => (i ? el.split('').join('') : el))
-                      .join('.')
-                  );
-                }
-              }}
-              keyboardType="decimal-pad"
-            />
-          </Box>
-          <Pressable
-            onPress={() => {
-              const confirmBalance = sender.specs.balances.confirmed;
-              if (confirmBalance)
-                dispatch(
-                  calculateSendMaxFee({ numberOfRecipients: recipientCount, wallet: sender })
-                );
-            }}
-            backgroundColor="light.accent"
-            style={styles.sendMaxWrapper}
-          >
-            <Text color="light.sendMax" style={styles.sendMaxText}>
-              Send Max
-            </Text>
-          </Pressable>
-        </Box>
-
-        <Box
-          backgroundColor="light.primaryBackground"
-          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
-          style={styles.inputWrapper}
-        >
-          <Input
-            placeholder="Add a note"
-            autoCapitalize="sentences"
-            placeholderTextColor="light.greenText"
-            color="light.greenText"
-            opacity={note ? 1 : 0.5}
-            width="90%"
-            fontSize={14}
-            fontWeight={300}
-            letterSpacing={1.04}
-            borderWidth="0"
-            value={note}
-            onChangeText={(value) => {
-              setNote(value);
-            }}
+          <WalletSendInfo
+            selectedUTXOs={selectedUTXOs}
+            availableAmt={getBalance(sender?.specs.balances.confirmed)}
+            walletName={sender?.presentationData.name}
+            currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
+            isSats={satsEnabled}
           />
         </Box>
 
-        {/* <MenuItemButton
+        <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
+          <Box
+            alignItems="center"
+            style={{
+              marginVertical: hp(10),
+            }}
+          />
+
+          <Box
+            style={{
+              paddingHorizontal: 10,
+            }}
+          >
+            {errorMessage && (
+              <Text
+                color="light.indicator"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: 0.1,
+                  fontStyle: 'italic',
+                  textAlign: 'right',
+                  marginRight: 10,
+                }}
+              >
+                {errorMessage}
+              </Text>
+            )}
+            <Box
+              backgroundColor="light.primaryBackground"
+              borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+              style={styles.inputWrapper}
+            >
+              <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
+                <Box marginRight={2}>{getCurrencyIcon(BitcoinInput, 'dark')}</Box>
+                <Box
+                  marginLeft={2}
+                  width={0.5}
+                  backgroundColor="light.divider"
+                  opacity={0.3}
+                  height={7}
+                />
+                <Input
+                  placeholder="Enter Amount"
+                  placeholderTextColor="light.greenText"
+                  color="light.greenText"
+                  opacity={0.5}
+                  width="90%"
+                  fontSize={14}
+                  fontWeight={300}
+                  letterSpacing={1.04}
+                  borderWidth="0"
+                  value={amount}
+                  onChangeText={(value) => {
+                    if (!isNaN(Number(value))) {
+                      setAmount(
+                        value
+                          .split('.')
+                          .map((el, i) => (i ? el.split('').join('') : el))
+                          .join('.')
+                      );
+                    }
+                  }}
+                  keyboardType="decimal-pad"
+                />
+              </Box>
+              <Pressable
+                onPress={() => {
+                  const confirmBalance = sender.specs.balances.confirmed;
+                  if (confirmBalance)
+                    dispatch(
+                      calculateSendMaxFee({
+                        numberOfRecipients: recipientCount,
+                        wallet: sender,
+                        selectedUTXOs,
+                      })
+                    );
+                }}
+                backgroundColor="light.accent"
+                style={styles.sendMaxWrapper}
+              >
+                <Text color="light.sendMax" style={styles.sendMaxText}>
+                  Send Max
+                </Text>
+              </Pressable>
+            </Box>
+
+            <Box
+              backgroundColor="light.primaryBackground"
+              borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+              style={styles.inputWrapper}
+            >
+              <Input
+                placeholder="Add a note"
+                autoCapitalize="sentences"
+                placeholderTextColor="light.greenText"
+                color="light.greenText"
+                opacity={note ? 1 : 0.5}
+                width="90%"
+                fontSize={14}
+                fontWeight={300}
+                letterSpacing={1.04}
+                borderWidth="0"
+                value={note}
+                onChangeText={(value) => {
+                  setNote(value);
+                }}
+              />
+            </Box>
+
+            {/* <MenuItemButton
             // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
             onPress={() => showToast('Comming soon')}
             icon={<TagsGreen />}
             title="Add Tags"
             subTitle="Tags help you remember and identify UTXOs"
           /> */}
-        <Box
-          backgroundColor="light.primaryBackground"
-          borderColor={errorMessage ? 'light.indicator' : 'transparent'}
-          style={styles.inputWrapper}
-        >
-          <Input
-            autoCapitalize="sentences"
-            placeholder="Add a lable"
-            placeholderTextColor="light.greenText"
-            opacity={label ? 1 : 0.5}
-            width="90%"
-            fontSize={14}
-            fontWeight={300}
-            letterSpacing={1.04}
-            borderWidth="0"
-            value={label}
-            onChangeText={(value) => {
-              setLabel(value);
-            }}
-          />
-        </Box>
-        <Box style={styles.ctaBtnWrapper}>
-          <Box ml={windowWidth * -0.09}>
-            <Buttons
-              secondaryText="Cancel"
-              secondaryCallback={() => {
-                navigation.goBack();
-              }}
-              secondaryDisable={Boolean(!amount || errorMessage)}
-              primaryText="Send"
-              primaryDisable={Boolean(!amount || errorMessage)}
-              primaryCallback={executeSendPhaseOne}
-            />
+            <Box
+              backgroundColor="light.primaryBackground"
+              borderColor={errorMessage ? 'light.indicator' : 'transparent'}
+              style={styles.inputWrapper}
+            >
+              <Input
+                autoCapitalize="sentences"
+                placeholder="Add a label"
+                placeholderTextColor="light.greenText"
+                opacity={label ? 1 : 0.5}
+                width="90%"
+                fontSize={14}
+                fontWeight={300}
+                letterSpacing={1.04}
+                borderWidth="0"
+                value={label}
+                onChangeText={(value) => {
+                  setLabel(value);
+                }}
+              />
+            </Box>
+            <Box style={styles.ctaBtnWrapper}>
+              <Box ml={windowWidth * -0.09}>
+                <Buttons
+                  secondaryText="Cancel"
+                  secondaryCallback={() => {
+                    navigation.goBack();
+                  }}
+                  secondaryDisable={Boolean(!amount || errorMessage)}
+                  primaryText="Send"
+                  primaryDisable={Boolean(!amount || errorMessage)}
+                  primaryCallback={executeSendPhaseOne}
+                />
+              </Box>
+            </Box>
           </Box>
-        </Box>
-      </Box>
-      <Box style={styles.infoNoteWrapper}>
-        <Text style={styles.infoNoteText}>
-          <Text style={styles.infoText}>Info : </Text>Contact labels help to keep your future
-          activity private and organised. The information is not shared with anyone
-        </Text>
-      </Box>
-    </ScreenWrapper >
+        </ScrollView>
+        {/* <Box style={styles.infoNoteWrapper}>
+          <Text style={styles.infoNoteText}>
+            <Text style={styles.infoText}>Info : </Text>Contact labels help to keep your future
+            activity private and organised. The information is not shared with anyone
+          </Text>
+        </Box> */}
+      </KeyboardAvoidingView>
+    </ScreenWrapper>
   );
 }
 

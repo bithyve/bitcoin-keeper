@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   SafeAreaView,
@@ -27,6 +27,7 @@ import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideC
 const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
+  const onboardingSlideRef = useRef(null);
   const { translations } = useContext(LocalizationContext);
   const { onboarding } = translations;
   const { common } = translations;
@@ -62,7 +63,8 @@ function OnBoardingSlides({ navigation }) {
       id: 3,
       title: (
         <>
-          <Text style={styles.info}>{onboarding.whirlpool}</Text>
+          {`${onboarding.slide07Title} `}
+          <Text italic style={styles.info}>{onboarding.whirlpool}</Text>
         </>
       ),
       paragraph: onboarding.slide07Paragraph,
@@ -85,7 +87,7 @@ function OnBoardingSlides({ navigation }) {
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
-            {currentPosition !== 1 && (
+            {currentPosition !== 2 && (
               <TouchableOpacity
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={styles.skipTextWrapper}
@@ -99,6 +101,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box flex={0.9}>
             <FlatList
+              ref={onboardingSlideRef}
               data={items}
               horizontal
               snapToInterval={width}
@@ -106,6 +109,7 @@ function OnBoardingSlides({ navigation }) {
               snapToAlignment="center"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
+              keyExtractor={item => item.id}
               renderItem={({ item }) => (
                 <OnboardingSlideComponent
                   title={item.title}
@@ -119,7 +123,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink('https://hexawallet.io/faq/')}>
+              <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/')}>
                 <Box borderColor="light.lightAccent" style={styles.seeFAQWrapper}>
                   <Text color="light.lightAccent" bold style={styles.seeFAQText}>
                     {common.seeFAQs}
@@ -138,8 +142,13 @@ function OnBoardingSlides({ navigation }) {
               ) : (
                 <Box alignSelf="center" backgroundColor="transparent">
                   <TouchableOpacity
-                    onPress={() =>
-                      navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                    onPress={() => {
+                      if (currentPosition < items.length - 1) {
+                        onboardingSlideRef.current.scrollToIndex({ animated: true, index: currentPosition + 1 });
+                      } else {
+                        navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
+                      }
+                    }
                     }
                   >
                     <LinearGradient
@@ -159,7 +168,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
         </SafeAreaView>
       </ImageBackground>
-    </LinearGradient>
+    </LinearGradient >
   );
 }
 
@@ -215,7 +224,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 14,
-    textAlign: 'right',
+    textAlign: 'center',
     opacity: 0.7,
   },
   startAppText: {

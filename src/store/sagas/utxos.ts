@@ -37,19 +37,22 @@ function* bulkUpdateLabelsWorker({
 export function* createUTXOReferenceWorker({
   payload,
 }: {
-  payload: { labels: Array<{ name: string; type: LabelType }>; txId: string; vout: number };
+  payload: { labels: Array<{ name: string; type: LabelType }>; txId: string; vout: number }[];
 }) {
-  const { txId, vout, labels } = payload;
-  const UTXOInfo = {
-    id: `${txId}${vout}`,
-    txId,
-    vout,
-    walletId: 'ABC123',
-    labels,
-  };
+  const UTXOInfos = [];
+  payload.forEach((item) => {
+    const { txId, vout, labels } = item;
+    UTXOInfos.push({
+      id: `${txId}${vout}`,
+      txId,
+      vout,
+      walletId: 'ABC123',
+      labels,
+    });
+  });
   const keeper = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  yield call(Relay.addUTXOinfos, keeper.id, [UTXOInfo]);
-  yield call(dbManager.createObject, RealmSchema.UTXOInfo, UTXOInfo);
+  yield call(Relay.addUTXOinfos, keeper.id, UTXOInfos);
+  yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOInfos);
 }
 
 export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);

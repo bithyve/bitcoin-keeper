@@ -1,7 +1,8 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from 'native-base';
-import { StyleSheet, FlatList, Platform } from 'react-native';
+import { StyleSheet, FlatList, Platform, Animated, Easing, BackHandler } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -12,11 +13,11 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
-import { createUTXOReference } from 'src/store/sagaActions/utxos';
+import { WalletType } from 'src/core/wallets/enums';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Gear0 from 'src/assets/images/WP.svg';
 import ElectrumClient from 'src/core/services/electrum/client';
 import config from 'src/core/config';
 import {
@@ -36,6 +37,8 @@ import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
 import { io } from 'src/core/services/channel';
+import KeepAwake from 'src/nativemodules/KeepScreenAwake';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -46,38 +49,6 @@ const getBackgroungColor = (completed: boolean, error: boolean): string => {
   }
   return 'light.dustySageGreen';
 };
-
-function TimeLine({
-  title,
-  isLast,
-  completed,
-  error,
-}: {
-  title: string;
-  isLast: boolean;
-  completed: boolean;
-  error: boolean;
-}) {
-  return (
-    <Box style={styles.contentWrapper}>
-      <Box style={styles.timeLineWrapper}>
-        <Box style={styles.circularborder}>
-          <Box backgroundColor={getBackgroungColor(completed, error)} style={styles.greentDot} />
-        </Box>
-        {isLast ? null : (
-          <Box style={styles.verticalBorderWrapper}>
-            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-            <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
-          </Box>
-        )}
-      </Box>
-      <Text color="light.secondaryText" style={styles.timeLineTitle}>
-        {title}
-      </Text>
-    </Box>
-  );
-}
 
 function MixProgress({
   route,
@@ -94,45 +65,68 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const spinValue = new Animated.Value(0);
+  Animated.loop(
+    Animated.timing(spinValue, {
+      toValue: 1,
+      duration: 10000,
+      easing: Easing.linear,
+      useNativeDriver: true,
+    })
+  ).start();
+  const clock = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+  const styles = getStyles(clock);
+
+  const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const statusData = [
     {
       title: 'Subscribing',
+      subTitle: 'Checking connection to the Coordinator',
       referenceCode: Step.Subscribing,
       completed: false,
       error: false,
     },
     {
       title: 'Registering Input',
+      subTitle: 'Checking whether the UTXOs are ready to enter the pool',
       referenceCode: Step.RegisteringInput,
       completed: false,
       error: false,
     },
     {
       title: 'Confirming Input',
+      subTitle: 'Entering UTXOs into the pool.',
       completed: false,
       referenceCode: Step.ConfirmingInput,
       error: false,
     },
     {
-      title: 'Waiting For Coordinator',
+      title: 'Waiting For Co-ordinator',
+      subTitle: 'Waiting for others to join the pool. Hold tight.',
       referenceCode: Step.WaitingForCoordinator,
       completed: false,
       error: false,
     },
     {
       title: 'Registering Output',
+      subTitle: 'Constructing a transaction to create a brand new UTXO',
       referenceCode: Step.RegisteringOutput,
       completed: false,
       error: false,
     },
     {
       title: 'Signing',
+      subTitle: 'Signing and broadcasting the transaction',
       referenceCode: Step.Signing,
       completed: false,
       error: false,
     },
     {
-      title: 'Mix completed successfully',
+      title: isRemix ? 'Remix completed' : 'Mix completed',
+      subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
       isLast: true,
@@ -140,7 +134,6 @@ function MixProgress({
     },
   ];
 
-  const { selectedUTXOs, depositWallet, isRemix } = route.params;
   const dispatch = useDispatch();
   const [currentUtxo, setCurrentUtxo] = React.useState(
     selectedUTXOs.length ? `${selectedUTXOs[0].txId}:${selectedUTXOs[0].vout}` : ''
@@ -166,8 +159,12 @@ function MixProgress({
 
   useEffect(() => {
     getPoolsData();
-    // const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
-    // return () => backHandler.remove();
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => true);
+    KeepAwake.activate();
+    return () => {
+      KeepAwake.deactivate();
+      backHandler.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -188,6 +185,67 @@ function MixProgress({
     }
     return selectedPool;
   };
+
+  function TimeLine({
+    title,
+    subTitle,
+    isLast,
+    completed,
+    error,
+    index,
+  }: {
+    title: string;
+    subTitle: string;
+    isLast: boolean;
+    completed: boolean;
+    error: boolean;
+    index: number;
+  }) {
+    const inProgress = statuses[index].completed && !statuses[index + 1]?.completed;
+    return (
+      <Box style={styles.contentWrapper}>
+        <Box style={inProgress ? styles.timeLineProgressWrapper : styles.timeLineWrapper}>
+          {inProgress ? (
+            <Box style={styles.animatedCircularborder}>
+              <Box backgroundColor="light.forestGreen" style={styles.animatedGreentDot}>
+                <Animated.View style={styles.whirlpoolIconStyle}>
+                  <Gear0 />
+                </Animated.View>
+              </Box>
+            </Box>
+          ) : (
+            <Box style={styles.circularborder}>
+              <Box
+                backgroundColor={getBackgroungColor(completed, error)}
+                style={styles.greentDot}
+              />
+            </Box>
+          )}
+          {isLast ? null : (
+            <Box
+              style={
+                inProgress ? styles.verticalProgressBorderWrapper : styles.verticalBorderWrapper
+              }
+            >
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+              <Box backgroundColor="light.fadedblue" style={styles.verticalBorder} />
+            </Box>
+          )}
+        </Box>
+        <Box flexDirection="column">
+          <Text color="light.secondaryText" style={styles.timeLineTitle}>
+            {title}
+          </Text>
+          {inProgress ? (
+            <Text color="light.secondaryText" numberOfLines={3} style={styles.timeLineTitle}>
+              {subTitle}
+            </Text>
+          ) : null}
+        </Box>
+      </Box>
+    );
+  }
 
   const updateStep = (step: Step) => {
     const updatedArray = [...statuses];
@@ -256,35 +314,23 @@ function MixProgress({
       const walletsToRefresh = [source];
       if (!isRemix) walletsToRefresh.push(destination);
       dispatch(
-        incrementAddressIndex([destination], {
-          external: true,
-          internal: false,
+        incrementAddressIndex(destination, {
+          external: { incrementBy: 1 },
         })
+      );
+      showToast(
+        'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
+        <TickIcon />,
+        3000
       );
       setTimeout(async () => {
         dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-        const transaction = await ElectrumClient.getTransactionsById([txid]);
-        const vout = transaction[txid].vout.findIndex(
-          (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
-        );
-        dispatch(
-          createUTXOReference({
-            labels: [
-              {
-                name: depositWallet.presentationData.name.toUpperCase(),
-                type: LabelType.SYSTEM,
-              },
-            ],
-            txId: txid,
-            vout,
-          })
-        );
+        navigation.navigate('UTXOManagement', {
+          data: depositWallet,
+          accountType: WalletType.POST_MIX,
+          routeName: 'Wallet',
+        });
       }, 3000);
-      navigation.navigate('UTXOManagement', {
-        data: depositWallet,
-        accountType: WalletType.POST_MIX,
-        routeName: 'Wallet',
-      });
     }
   };
 
@@ -356,9 +402,8 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        err.error
-          ? err.error
-          : 'Mix failed. Please try again later, our best minds are working on it.',
+        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
       );
@@ -369,15 +414,26 @@ function MixProgress({
     }
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item, index }) => (
     <TimeLine
       title={item.title}
+      subTitle={item.subTitle}
       completed={item.completed}
       isLast={item?.isLast}
       error={item.error}
+      index={index}
     />
   );
-
+  function MixDurationText() {
+    return (
+      <Text style={styles.mixingSubtitleText}>
+        Please<Text style={styles.durationTextStyle}>&nbsp;do not exit the app.&nbsp;</Text>
+        {isRemix
+          ? 'This step takes upto five minutes but can also take longer'
+          : 'This step takes a couple of minutes but may take more in some cases'}
+      </Text>
+    );
+  }
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
@@ -386,8 +442,8 @@ function MixProgress({
           paddingTop={hp(30)}
           headerTitleColor=""
           titleFontSize={20}
-          title="Mix Progress"
-          subtitle="Do not exit this app, this may take upto 2 minutes"
+          title={isRemix ? 'Remix Progress' : 'Mix Progress'}
+          subtitle={<MixDurationText />}
         />
         <Box style={styles.currentUtxo}>
           <Text color="light.secondaryText" style={styles.currentUtxoTitle}>
@@ -420,94 +476,134 @@ function MixProgress({
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  timeLineContainer: {
-    paddingHorizontal: wp(10),
-  },
-  flatList: {
-    marginTop: hp(20),
-    paddingBottom: 70,
-  },
-  circularborder: {
-    borderRadius: 50,
-    borderWidth: 1,
-    borderColor: Colors.Black,
-    borderStyle: 'dotted',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: hp(25),
-    height: hp(25),
-    zIndex: 999,
-  },
-  whirlpoolLoaderSolidBorder: {
-    borderWidth: 1,
-    borderColor: Colors.Black,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 50,
-    padding: 3,
-  },
-  dottedBorderContainer: {
-    alignItems: 'center',
-    paddingLeft: 3,
-  },
-  whirlpoolLoaderMainWrapper: {
-    flexDirection: 'row',
-  },
-  greentDot: {
-    width: hp(19),
-    height: hp(19),
-    borderRadius: 50,
-  },
-  verticalBorderWrapper: {
-    marginVertical: hp(5),
-  },
-  verticalBorder: {
-    width: hp(3),
-    height: hp(3),
-    marginVertical: hp(5),
-  },
-  timeLineWrapper: {
-    alignItems: 'center',
-    marginHorizontal: wp(10),
-  },
-  contentWrapper: {
-    flexDirection: 'row',
-  },
-  timeLineTitle: {
-    fontSize: 14,
-    letterSpacing: 0.5,
-    marginLeft: wp(25),
-    marginTop: hp(3),
-  },
-  settingUpTitle: {
-    marginTop: hp(12),
-    paddingLeft: 5,
-    fontWeight: 'bold',
-  },
-  note: {
-    position: 'absolute',
-    bottom: hp(0),
-    left: wp(40),
-    width: '100%',
-    height: hp(90),
-  },
-  currentUtxo: {
-    marginTop: 20,
-    marginLeft: 20,
-    flexDirection: 'row',
-  },
-  currentUtxoTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  currentUtxoText: {
-    fontSize: 14,
-    width: '60%',
-  },
-});
+const getStyles = (clock) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    timeLineContainer: {
+      paddingHorizontal: wp(10),
+    },
+    flatList: {
+      marginTop: hp(20),
+      paddingBottom: 70,
+    },
+    circularborder: {
+      borderRadius: 50,
+      borderWidth: 1,
+      borderColor: Colors.Black,
+      borderStyle: 'dotted',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: hp(25),
+      height: hp(25),
+      zIndex: 999,
+    },
+    whirlpoolLoaderSolidBorder: {
+      borderWidth: 1,
+      borderColor: Colors.Black,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 50,
+      padding: 3,
+    },
+    dottedBorderContainer: {
+      alignItems: 'center',
+      paddingLeft: 3,
+    },
+    whirlpoolLoaderMainWrapper: {
+      flexDirection: 'row',
+    },
+    greentDot: {
+      width: hp(19),
+      height: hp(19),
+      borderRadius: 50,
+    },
+    animatedCircularborder: {
+      borderRadius: 50,
+      borderWidth: 1,
+      borderColor: Colors.Black,
+      borderStyle: 'dotted',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: hp(35),
+      height: hp(35),
+      zIndex: 999,
+    },
+    animatedGreentDot: {
+      width: hp(30),
+      height: hp(30),
+      borderRadius: 50,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    whirlpoolIconStyle: {
+      transform: [{ rotate: clock }],
+    },
+    verticalBorderWrapper: {
+      marginVertical: hp(5),
+    },
+    verticalProgressBorderWrapper: {
+      marginVertical: hp(10),
+    },
+    verticalBorder: {
+      width: hp(3),
+      height: hp(3),
+      marginVertical: hp(5),
+    },
+    timeLineWrapper: {
+      alignItems: 'center',
+      marginHorizontal: wp(10),
+      justifyContent: 'center',
+    },
+    timeLineProgressWrapper: {
+      alignItems: 'center',
+      marginHorizontal: wp(5),
+      justifyContent: 'center',
+    },
+    contentWrapper: {
+      flexDirection: 'row',
+    },
+    timeLineTitle: {
+      fontSize: 14,
+      letterSpacing: 0.5,
+      marginLeft: wp(25),
+      marginTop: hp(3),
+      width: wp(270)
+    },
+    settingUpTitle: {
+      marginTop: hp(12),
+      paddingLeft: 5,
+      fontWeight: 'bold',
+      width: wp(270),
+    },
+    note: {
+      position: 'absolute',
+      bottom: hp(0),
+      left: wp(40),
+      width: '100%',
+      height: hp(90),
+    },
+    currentUtxo: {
+      marginTop: 20,
+      marginLeft: 20,
+      flexDirection: 'row',
+    },
+    currentUtxoTitle: {
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    currentUtxoText: {
+      fontSize: 14,
+      width: '60%',
+    },
+    mixingSubtitleText: {
+      fontSize: 12,
+    },
+    durationTextStyle: {
+      fontWeight: 'bold',
+      fontStyle: 'italic',
+    },
+  });
 
 export default MixProgress;

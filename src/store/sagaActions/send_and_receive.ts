@@ -5,6 +5,7 @@ import { Recipient } from 'src/common/data/models/interfaces/Recipient';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { TransferType } from 'src/common/data/enums/TransferType';
 import { Satoshis } from '../../common/data/typealiases/UnitAliases';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
@@ -121,7 +122,7 @@ export interface SendPhaseOneAction extends Action {
       address: string;
       amount: number;
     }[];
-    UTXOs?: UTXO[];
+    selectedUTXOs?: UTXO[];
   };
 }
 
@@ -131,7 +132,7 @@ export const sendPhaseOne = (payload: {
     address: string;
     amount: number;
   }[];
-  UTXOs?: UTXO[];
+  selectedUTXOs?: UTXO[];
 }): SendPhaseOneAction => ({
   type: SEND_PHASE_ONE,
   payload,
@@ -162,6 +163,7 @@ export interface SendPhaseTwoAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
+    transferType: TransferType;
     note?: string;
     label?: string;
   };
@@ -170,6 +172,7 @@ export interface SendPhaseTwoAction extends Action {
 export const sendPhaseTwo = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
+  transferType: TransferType;
   token?: number;
   note?: string;
   label?: string;
@@ -183,12 +186,16 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
+    note: string;
+    label: string;
   };
 }
 
 export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
+  note: string;
+  label: string;
 }): SendPhaseThreeAction => ({
   type: SEND_PHASE_THREE,
   payload,
@@ -240,12 +247,14 @@ export interface CalculateSendMaxFeeAction extends Action {
   payload: {
     numberOfRecipients: number;
     wallet: Wallet | Vault;
+    selectedUTXOs?: UTXO[];
   };
 }
 
 export const calculateSendMaxFee = (payload: {
   numberOfRecipients: number;
   wallet: Wallet | Vault;
+  selectedUTXOs?: UTXO[];
 }): CalculateSendMaxFeeAction => ({
   type: CALCULATE_SEND_MAX_FEE,
   payload,

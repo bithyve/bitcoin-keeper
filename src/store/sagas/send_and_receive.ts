@@ -11,6 +11,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
+import { TransferType } from 'src/common/data/enums/TransferType';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import {
@@ -44,13 +45,13 @@ import {
 } from '../sagaActions/send_and_receive';
 import { createUTXOReferenceWorker } from './utxos';
 
-function* fetchFeeRatesWorker() {
+export function* fetchFeeRatesWorker() {
   try {
     const averageTxFeeByNetwork = yield call(WalletOperations.calculateAverageTxFee);
-    if (!averageTxFeeByNetwork) console.log('Failed to calculate fee rates');
+    if (!averageTxFeeByNetwork) console.log('Failed to calculate current fee rates');
     else yield put(setAverageTxFee(averageTxFeeByNetwork));
   } catch (err) {
-    console.log('Failed to calculate fee rates', { err });
+    console.log('Failed to calculate current fee rates', { err });
   }
 }
 
@@ -62,7 +63,7 @@ function* fetchExchangeRatesWorker() {
     if (!exchangeRates) console.log('Failed to fetch exchange rates');
     else yield put(setExchangeRates(exchangeRates));
   } catch (err) {
-    console.log('Failed to fetch fee and exchange rates', { err });
+    console.log('Failed to fetch latest exchange rates', { err });
   }
 }
 
@@ -72,7 +73,7 @@ export const fetchExchangeRatesWatcher = createWatcher(
 );
 
 function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
-  const { wallet, recipients, UTXOs } = payload;
+  const { wallet, recipients, selectedUTXOs } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -93,7 +94,7 @@ function* sendPhaseOneWorker({ payload }: SendPhaseOneAction) {
       wallet,
       recipients,
       averageTxFeeByNetwork,
-      UTXOs
+      selectedUTXOs
     );
 
     if (!txPrerequisites) throw new Error('Send failed: unable to generate tx pre-requisite');
@@ -123,7 +124,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
-  const { wallet, txnPriority, note, label } = payload;
+  const { wallet, txnPriority, note, label, transferType } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
@@ -137,7 +138,10 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       recipients
       // customTxPrerequisites
     );
-    const systemLableOnSend = [{ name: wallet.presentationData.name, type: LabelType.SYSTEM }];
+    const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
+    const systemLableOnSend = enabledTransferTypes.includes(transferType)
+      ? [{ name: wallet.presentationData.name, type: LabelType.SYSTEM }]
+      : [];
     let labels = systemLableOnSend;
     switch (wallet.entityKind) {
       case EntityKind.WALLET:
@@ -175,16 +179,20 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       default:
         throw new Error('Invalid Entity: not a Vault/Wallet');
     }
-    const vout = txPrerequisites[txnPriority].outputs.findIndex(
-      (o) => o.address === recipients[0].address
-    );
-    yield call(createUTXOReferenceWorker, {
-      payload: {
-        labels,
-        txId: txid,
-        vout,
-      },
-    });
+    if (wallet.entityKind === EntityKind.WALLET) {
+      const vout = txPrerequisites[txnPriority].outputs.findIndex(
+        (o) => o.address === recipients[0].address
+      );
+      yield call(createUTXOReferenceWorker, {
+        payload: [
+          {
+            labels,
+            txId: txid,
+            vout,
+          },
+        ],
+      });
+    }
   } catch (err) {
     yield put(
       sendPhaseTwoExecuted({
@@ -205,7 +213,8 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
-  const { wallet, txnPriority } = payload;
+  const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
+  const { wallet, txnPriority, note, label } = payload;
   try {
     const threshold = (wallet as Vault).scheme.m;
     let availableSignatures = 0;
@@ -240,6 +249,23 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     );
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
+    });
+    if (note) wallet.specs.txNote[txid] = note;
+    const labels = [];
+    if (label) {
+      labels.concat([{ name: label, type: LabelType.USER }]);
+    }
+    const vout = txPrerequisites[txnPriority].outputs.findIndex(
+      (o) => o.address === recipients[0].address
+    );
+    yield call(createUTXOReferenceWorker, {
+      payload: [
+        {
+          labels,
+          txId: txid,
+          vout,
+        },
+      ],
     });
   } catch (err) {
     yield put(
@@ -313,7 +339,7 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
 export const corssTransferWatcher = createWatcher(corssTransferWorker, CROSS_TRANSFER);
 
 function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
-  const { numberOfRecipients, wallet } = payload;
+  const { numberOfRecipients, wallet, selectedUTXOs } = payload;
   const averageTxFees: AverageTxFeesByNetwork = yield select(
     (state) => state.network.averageTxFees
   );
@@ -325,7 +351,8 @@ function* calculateSendMaxFee({ payload }: CalculateSendMaxFeeAction) {
     wallet,
     numberOfRecipients,
     feePerByte,
-    network
+    network,
+    selectedUTXOs
   );
 
   yield put(setSendMaxFee(fee));

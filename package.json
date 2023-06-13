@@ -1,6 +1,6 @@
 {
   "name": "hexa_keeper",
-  "version": "0.0.1",
+  "version": "1.0.5",
   "private": true,
   "scripts": {
     "ios": "react-native run-ios",
@@ -22,11 +22,11 @@
     "uninstall android:dev": "adb uninstall io.hexawallet.keeper.development"
   },
   "dependencies": {
-    "@ledgerhq/react-native-hw-transport-ble": "^6.27.8",
     "@ngraveio/bc-ur": "^1.1.6",
     "@react-native-community/clipboard": "^1.5.1",
     "@react-native-firebase/app": "^14.11.1",
     "@react-native-firebase/messaging": "^14.11.1",
+    "@react-navigation/bottom-tabs": "^6.5.7",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
     "@realm/react": "^0.3.0",
@@ -53,7 +53,6 @@
     "electrum-client": "git+https://github.com/bithyve/rn-electrum-client.git",
     "events": "1.0.0",
     "idx": "2.5.6",
-    "instabug-reactnative": "11.2.0",
     "jsc-android": "^294992.0.0",
     "lodash": "4.17.21",
     "moment": "2.29.4",
@@ -67,7 +66,6 @@
     "react-localization": "^1.0.18",
     "react-native": "0.68.2",
     "react-native-biometrics": "2.2.0",
-    "react-native-ble-plx": "^2.0.3",
     "react-native-camera": "^4.2.1",
     "react-native-config": "^1.4.5",
     "react-native-crypto": "^2.1.0",
@@ -76,7 +74,7 @@
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.3.2",
     "react-native-get-random-values": "^1.7.2",
-    "react-native-iap": "9.0.1",
+    "react-native-iap": "12.10.5",
     "react-native-image-picker": "^4.10.3",
     "react-native-keychain": "^8.0.0",
     "react-native-linear-gradient": "^2.5.6",

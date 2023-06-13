@@ -19,7 +19,6 @@ import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import KeeperLoader from 'src/components/KeeperLoader';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
@@ -62,15 +61,16 @@ import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
-import WalletDetails from 'src/screens/WalletDetailScreen/WalletDetails';
+import WalletDetails from 'src/screens/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/core/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
+import NewHomeScreen from 'src/screens/NewHomeScreen';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
-import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
+// import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
@@ -87,8 +87,11 @@ import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
+import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
+import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import Login from '../screens/LoginScreen/Login';
+
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -117,11 +120,6 @@ function LoginStack() {
         name="ColdCardReocvery"
         component={ColdCardReocvery}
       />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="LedgerRecovery"
-        component={LedgerRecovery}
-      />
       <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
@@ -148,6 +146,7 @@ function LoginStack() {
       <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
       <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
+      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannelRecovery} />
     </Stack.Navigator>
   );
 }
@@ -157,12 +156,12 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="NewHome" component={HomeScreen} />
+        <Stack.Screen name="NewHomeScreen" component={NewHomeScreen} />
+        <Stack.Screen name="NewHome" component={NewHomeScreen} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
         <Stack.Screen name="AddColdCard" component={SetupColdCard} />
-        <Stack.Screen name="AddLedger" component={SetupLedger} />
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
@@ -222,10 +221,11 @@ function AppStack() {
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen
-          options={{ gestureEnabled: false }}
           name="MixProgress"
           component={MixProgress}
+          options={{ gestureEnabled: false }}
         />
+        <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
       </Stack.Navigator>
     </RealmProvider>
   );

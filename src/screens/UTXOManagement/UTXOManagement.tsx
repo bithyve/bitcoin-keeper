@@ -12,22 +12,19 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
-// import { AccountSelectionTab, AccountTypes } from 'src/components/AccountSelectionTab';
 import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
-import BatteryIllustration from 'src/assets/images/illustration_battery.svg';
-import useVault from 'src/hooks/useVault';
+import BatteryIllustration from 'src/assets/images/CautionIllustration.svg';
 import useWallets from 'src/hooks/useWallets';
 import { Box, HStack, VStack } from 'native-base';
-import deviceInfoModule from 'react-native-device-info';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
@@ -67,6 +64,8 @@ function Footer({
   initateWhirlpoolMix,
   setShowBatteryWarningModal,
   setSendBadBankModalVisible,
+  selectedAccount,
+  isRemix,
 }) {
   const navigation = useNavigation();
 
@@ -101,12 +100,15 @@ function Footer({
           inititateWhirlpoolMixProcess();
         } else if (initiateWhirlpool) {
           goToWhirlpoolConfiguration();
-        } else {
+        } else if (selectedAccount === WalletType.BAD_BANK) {
           setSendBadBankModalVisible();
-          // navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+        } else {
+          setEnableSelection(false);
+          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
         }
       }}
       selectedUTXOs={selectedUTXOs}
+      isRemix={isRemix}
     />
   ) : (
     <UTXOFooter
@@ -133,11 +135,8 @@ function UTXOManagement({ route, navigation }) {
   const [enableSelection, _setEnableSelection] = useState(false);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
-  const { id, entityKind } = data;
-  const wallet =
-    entityKind === EntityKind.VAULT
-      ? useVault().activeVault
-      : useWallets({ walletIds: [id] }).wallets[0];
+  const { id } = data;
+  const wallet = useWallets({ walletIds: [id] }).wallets[0];
 
   const whirlpoolWalletAccountMap: whirlpoolWalletAccountMapInterface = useWhirlpoolWallets({
     wallets: [wallet],
@@ -147,7 +146,6 @@ function UTXOManagement({ route, navigation }) {
   const [selectedWallet, setSelectedWallet] = useState<Wallet | Vault>(wallet);
   const [selectedAccount, setSelectedAccount] = useState<string>();
   const [depositWallet, setDepositWallet] = useState<any>();
-  const [utxos, setUtxos] = useState([]);
   const [selectedUTXOs, setSelectedUTXOs] = useState([]);
   const [isRemix, setIsRemix] = useState(false);
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
@@ -193,32 +191,27 @@ function UTXOManagement({ route, navigation }) {
     setSelectedWallet(walletAccount);
   };
 
-  useEffect(() => {
-    const { confirmedUTXOs, unconfirmedUTXOs } = selectedWallet?.specs || {
-      confirmedUTXOs: [],
-      unconfirmedUTXOs: [],
-    };
-    const utxos =
-      confirmedUTXOs
-        .map((utxo) => {
+  const utxos = selectedWallet
+    ? selectedWallet.specs.confirmedUTXOs
+        ?.map((utxo) => {
           utxo.confirmed = true;
           return utxo;
         })
         .concat(
-          unconfirmedUTXOs.map((utxo) => {
+          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
             utxo.confirmed = false;
             return utxo;
           })
-        ) || [];
-    setUtxos(utxos);
-  }, [selectedWallet]);
+        )
+    : [];
 
   useEffect(() => {
-    const selectedUTXOsFiltered = utxos.filter(
+    const selectedUtxos = utxos || [];
+    const selectedUTXOsFiltered = selectedUtxos.filter(
       (utxo) => selectedUTXOMap[`${utxo.txId}${utxo.vout}`]
     );
     setSelectedUTXOs(selectedUTXOsFiltered);
-  }, [utxos, selectedUTXOMap, selectionTotal]);
+  }, [selectedUTXOMap, selectionTotal]);
 
   const cleanUp = useCallback(() => {
     setSelectedUTXOMap({});
@@ -271,9 +264,10 @@ function UTXOManagement({ route, navigation }) {
           currentWallet={selectedWallet}
           emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
           selectedAccount={selectedAccount}
+          initateWhirlpoolMix={initateWhirlpoolMix}
         />
       </Box>
-      {utxos.length ? (
+      {utxos?.length ? (
         <Footer
           utxos={utxos}
           setInitiateWhirlpool={setInitiateWhirlpool}
@@ -284,10 +278,12 @@ function UTXOManagement({ route, navigation }) {
           initiateWhirlpool={initiateWhirlpool}
           initateWhirlpoolMix={initateWhirlpoolMix}
           setIsRemix={setIsRemix}
+          isRemix={isRemix}
           enableSelection={enableSelection}
           selectedUTXOs={selectedUTXOs}
           setShowBatteryWarningModal={setShowBatteryWarningModal}
           setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
+          selectedAccount={selectedAccount}
         />
       ) : null}
       <KeeperModal
@@ -296,61 +292,49 @@ function UTXOManagement({ route, navigation }) {
         close={() => {
           setShowBatteryWarningModal(false);
         }}
-        title="Managing your mobile mixes"
-        subTitle="Mix might take a while to complete. Dont close the app until the mix is complete."
+        title="Caution during the mix"
+        subTitle="The mix may take some time to complete. Please do not close the app or navigate away."
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
-        Content={() => {
-          const [batteryPercentage, setBatteryPercentage] = useState(0);
-          useEffect(() => {
-            deviceInfoModule.getBatteryLevel().then((batteryLevel) => {
-              setBatteryPercentage(batteryLevel * 100);
-            });
-          }, []);
-
-          return (
-            <Box>
-              <Box style={styles.batteryModalContent}>
-                <Box style={styles.batteryImage}>
-                  <BatteryIllustration />
-                </Box>
-                <Box style={styles.batteryModalTextArea}>
-                  <Box style={{ flexDirection: 'row' }}>
-                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                    <Text style={styles.batteryModalText}>Connect to power</Text>
-                  </Box>
-                  <Box style={{ flexDirection: 'row' }}>
-                    <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text>
-                    <Text style={styles.batteryModalText}>20% battery required</Text>
-                  </Box>
-                </Box>
+        Content={() => (
+          <Box>
+            <Box style={styles.batteryModalContent}>
+              <Box style={styles.batteryImage}>
+                <BatteryIllustration />
               </Box>
-
-              <Box style={styles.mixSuccesModalFooter}>
-                <Box style={{ alignSelf: 'flex-end' }}>
-                  <Buttons
-                    primaryDisable={batteryPercentage < 20}
-                    primaryText="Continue"
-                    primaryCallback={() => {
-                      setShowBatteryWarningModal(false);
-                      setEnableSelection(false);
-                      navigation.navigate('MixProgress', {
-                        selectedUTXOs,
-                        depositWallet,
-                        selectedWallet,
-                        walletPoolMap,
-                        isRemix,
-                      });
-                    }}
-                  />
+              <Box style={styles.batteryModalTextArea}>
+                <Box style={{ flexDirection: 'row' }}>
+                  {/* <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text> */}
+                  <Text style={styles.batteryModalText}>
+                    You will see the progress of your mix in the next step.
+                  </Text>
                 </Box>
               </Box>
             </Box>
-          );
-        }}
+
+            <Box style={styles.mixSuccesModalFooter}>
+              <Box style={{ alignSelf: 'flex-end' }}>
+                <Buttons
+                  primaryText="Continue"
+                  primaryCallback={() => {
+                    setShowBatteryWarningModal(false);
+                    setEnableSelection(false);
+                    navigation.navigate('MixProgress', {
+                      selectedUTXOs,
+                      depositWallet,
+                      selectedWallet,
+                      walletPoolMap,
+                      isRemix,
+                    });
+                  }}
+                />
+              </Box>
+            </Box>
+          </Box>
+        )}
       />
       <LearnMoreModal visible={learnModalVisible} closeModal={() => setLearnModalVisible(false)} />
       <SendBadBankSatsModal
@@ -358,7 +342,13 @@ function UTXOManagement({ route, navigation }) {
         closeModal={() => setSendBadBankModalVisible(false)}
         onclick={() => {
           setSendBadBankModalVisible(false);
-          navigation.dispatch(CommonActions.navigate('Send', { sender: wallet, selectedUTXOs }));
+          setEnableSelection(false);
+          navigation.dispatch(
+            CommonActions.navigate('Send', {
+              sender: whirlpoolWalletAccountMap.badbankWallet,
+              selectedUTXOs,
+            })
+          );
         }}
       />
 

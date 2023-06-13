@@ -19,10 +19,9 @@ import {
   incrementAddressIndex,
   refreshWallets,
 } from 'src/store/sagaActions/wallets';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
-import { createUTXOReference } from 'src/store/sagaActions/utxos';
 import useWallets from 'src/hooks/useWallets';
 import { InputUTXOs } from 'src/core/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
@@ -31,9 +30,11 @@ import WhirlpoolClient from 'src/core/services/whirlpool/client';
 import useBalance from 'src/hooks/useBalance';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import BroadcastTX0Illustration from 'src/assets/images/BroadcastTX0Illustration.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import UtxoSummary from './UtxoSummary';
 import SwiperModal from './components/SwiperModal';
 
@@ -81,7 +82,7 @@ export default function BroadcastPremix({ route, navigation }) {
 
   const setPremixOutputsAndBadbank = () => {
     const outputs = [];
-    for (let i = 0; i < tx0Preview.nPremixOutputs; i++) {
+    for (let i = 0; i < tx0Preview.nPremixOutputs; i += 1) {
       outputs.push(tx0Preview.premixValue);
     }
     setPremixOutputs(outputs);
@@ -120,7 +121,7 @@ export default function BroadcastPremix({ route, navigation }) {
       for (
         let i = premixWallet.specs.nextFreeAddressIndex;
         i < premixWallet.specs.nextFreeAddressIndex + tx0Preview.nPremixOutputs;
-        i++
+        i += 1
       ) {
         premixAddresses.push(
           WalletUtilities.getAddressByIndex(premixWallet.specs.xpub, false, i, network)
@@ -147,46 +148,22 @@ export default function BroadcastPremix({ route, navigation }) {
         network
       );
       if (serializedPSBT) {
-        const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
+        const { txHex } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
         const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
         if (txid) {
-          dispatch(
-            incrementAddressIndex([premixWallet, badbankWallet], {
-              external: true,
-              internal: false,
-            })
-          );
-
-          setTimeout(async () => {
-            // auto refresh post 3 seconds, allowing for the indexer to sync
+          for (const wallet of [premixWallet, badbankWallet]) {
+            let incrementBy = 1;
+            if (wallet.type === WalletType.PRE_MIX) incrementBy = premixAddresses.length;
             dispatch(
-              refreshWallets([depositWallet, premixWallet, badbankWallet], { hardRefresh: true })
+              incrementAddressIndex(wallet, {
+                external: { incrementBy },
+              })
             );
-          }, 3000);
-
-          const outputs = PSBT.txOutputs;
-          const voutPremix = outputs.findIndex((o) => o.address === premixAddresses[0]);
-          const voutBadBank = outputs.findIndex(
-            (o) => o.address === badbankWallet.specs.receivingAddress
-          );
-          dispatch(
-            createUTXOReference({
-              labels: [
-                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-              ],
-              txId: txid,
-              vout: voutPremix,
-            })
-          );
-          dispatch(
-            createUTXOReference({
-              labels: [
-                { name: wallet.presentationData.name.toUpperCase(), type: LabelType.SYSTEM },
-                { name: 'Doxxic Change', type: LabelType.SYSTEM },
-              ],
-              txId: txid,
-              vout: voutBadBank,
-            })
+          }
+          showToast(
+            'Your Tx0 was broadcasted successfully, you should find the new UTXOs in the Premix account',
+            <TickIcon />,
+            3000
           );
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
           setShowBroadcastModal(true);
@@ -197,12 +174,28 @@ export default function BroadcastPremix({ route, navigation }) {
         }
       } else {
         setLoading(false);
-        showToast('Error in creating SerializedPSBT ', <ToastErrorIcon />, 3000);
+        showToast('Error in creating PSBT from Preview ', <ToastErrorIcon />, 3000);
       }
-    } catch (e) {
-      showToast('Error in broadcasting Tx0 ', <ToastErrorIcon />, 3000);
+    } catch (error) {
+      const problem = error?.message || '';
+      let solution = '';
+      switch (problem) {
+        case 'txn-mempool-conflict': // the input has already been consumed in a tx0(unconfirmed)
+        case 'bad-txns-inputs-missingorspent': // the input has already been consumed in a tx0(confirmed)
+        case 'Duplicate input detected.': // same input selected twice(for some reason - UI glitch)
+          solution = 'Please refresh the Deposit account & try again!';
+          break;
+
+        case 'address-reuse': // reusing premix addresses for vouts
+          solution = 'Please refresh the Premix account & try again!';
+          break;
+
+        default:
+      }
+
+      showToast(`Error in broadcasting Tx0: ${problem} ${solution}`, <ToastErrorIcon />, 3000);
       setLoading(false);
-      captureError(e);
+      captureError(error);
     }
   };
 
@@ -218,7 +211,7 @@ export default function BroadcastPremix({ route, navigation }) {
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={10}
+        paddingLeft={25}
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore
@@ -319,19 +312,28 @@ export default function BroadcastPremix({ route, navigation }) {
         visible={showBroadcastModal}
         close={() => navigateToWalletDetails()}
         title="Broadcasting Tx0"
-        subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool. The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but are encouraged to mix the sats before hodling or spending them."
+        subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
         subTitleColor="#5F6965"
         modalBackground={['#F7F2EC', '#F7F2EC']}
         buttonBackground={['#00836A', '#073E39']}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (
-          <Box style={styles.modalFooter}>
-            <Box style={{ alignSelf: 'flex-end' }}>
-              <Buttons
-                primaryText="View Premix Account"
-                primaryCallback={() => navigateToWalletDetails()}
-              />
+          <Box>
+            <Box style={styles.BroadcastIllustrationWrapper}>
+              <BroadcastTX0Illustration />
+            </Box>
+            <Text color="light.greenText" style={styles.BroadcastContentText}>
+              The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but
+              are encouraged to mix the sats before hodling or spending them.
+            </Text>
+            <Box style={styles.modalFooter}>
+              <Box style={{ alignSelf: 'flex-end' }}>
+                <Buttons
+                  primaryText="View Premix Account"
+                  primaryCallback={() => navigateToWalletDetails()}
+                />
+              </Box>
             </Box>
           </Box>
         )}
@@ -371,8 +373,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     paddingTop: 10,
   },
+  BroadcastIllustrationWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  BroadcastContentText: {
+    fontSize: 13,
+    padding: 1,
+    letterSpacing: 0.65,
+    marginVertical: 10,
+  },
   modalFooter: {
-    marginTop: 80,
+    marginTop: 10,
     flexDirection: 'row',
     alignContent: 'flex-end',
     justifyContent: 'flex-end',

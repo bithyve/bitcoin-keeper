@@ -1,5 +1,6 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Switch } from 'native-base';
+import { Box } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -18,14 +19,21 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import SubScription from 'src/common/data/models/interfaces/Subscription';
+import dbManager from 'src/storage/realm/dbManager';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { Shadow } from 'react-native-shadow-2';
 import ResetPassSuccess from './components/ResetPassSuccess';
 import { credsAuth } from '../../store/sagaActions/login';
-import { credsAuthenticated } from '../../store/reducers/login';
+import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
 import KeyPadView from '../../components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
@@ -45,14 +53,14 @@ function LoginScreen({ navigation, route }) {
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const { loginMethod, torEnbled } = useAppSelector((state) => state.settings);
-  const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
+  const { appId, failedAttempts, lastLoginFailedAt, } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const [canLogin, setCanLogin] = useState(false);
-  const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
+  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector((state) => state.login);
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -71,6 +79,7 @@ function LoginScreen({ navigation, route }) {
       RestClient.unsubscribe(onChangeTorStatus);
     };
   }, [loggingIn]);
+
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -266,20 +275,88 @@ function LoginScreen({ navigation, route }) {
   function LoginModalContent() {
     return (
       <Box style={{ width: wp(280) }}>
-        <Box
-          style={{
-            width: '100%',
-            alignItems: 'center',
-            paddingVertical: hp(20),
-          }}
-        >
+        <Box style={styles.modalAssetsWrapper}>
           {modelAsset}
         </Box>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(275)}>
+        <Text color="light.greenText" style={styles.modalMessageText}>
           {modelMessage}
         </Text>
+        {modelButtonText === null ? <Text color="light.greenText" style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
+          This step will take a few seconds. You would be able to proceed soon
+        </Text> : null}
       </Box>
     );
+  }
+
+
+  function resetToPleb() {
+    const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
+    const updatedSubscription: SubScription = {
+      receipt: '',
+      productId: SubscriptionTier.L1,
+      name: SubscriptionTier.L1,
+      level: AppSubscriptionLevel.L1,
+      icon: 'assets/ic_pleb.svg',
+    };
+    dbManager.updateObjectById(RealmSchema.KeeperApp, app.id, {
+      subscription: updatedSubscription,
+    });
+    navigation.replace('App');
+  }
+
+  // eslint-disable-next-line react/no-unstable-nested-components
+  function NoInternetModalContent() {
+    return (
+      <Box width={wp(250)}>
+        <DowngradeToPleb />
+        {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
+        <Box mt={10} alignItems="center" flexDirection="row">
+          <TouchableOpacity
+            style={[
+              styles.cancelBtn,
+            ]}
+            onPress={() => {
+              setLoginError(false);
+              setLogging(false);
+              dispatch(setRecepitVerificationError(false));
+              resetToPleb()
+            }}
+            activeOpacity={0.5}
+          >
+            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+              Continue as Pleb
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {
+              setLoginError(false);
+              setLogging(true);
+              dispatch(setRecepitVerificationError(false));
+            }}
+          >
+            <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
+              <Box
+                style={[styles.createBtn,]}
+                paddingLeft={10}
+                paddingRight={10}
+                backgroundColor={{
+                  linearGradient: {
+                    colors: ['light.gradientStart', 'light.gradientEnd'],
+                    start: [0, 0],
+                    end: [1, 1],
+                  },
+                }}
+              >
+                <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
+                  Retry
+                </Text>
+              </Box>
+            </Shadow>
+          </TouchableOpacity>
+        </Box>
+      </Box>
+    )
   }
 
   return (
@@ -433,6 +510,33 @@ function LoginScreen({ navigation, route }) {
         Content={LoginModalContent}
         subTitleWidth={wp(250)}
       />
+
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={recepitVerificationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={NoInternetModalContent}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+        showButtons
+      />
+
+      {/* <KeeperModal
+        dismissible
+        close={() => { setShowDowngradeModal(false) }}
+        visible={showDowngradeModal}
+        title="Failed to validate your subscription"
+        subTitle="Do you want to downgrade to pleb and continue?"
+        Content={DowngradeModalContent}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon
+        closeOnOverlayClick={() => setShowDowngradeModal(false)}
+        showButtons
+      /> */}
     </LinearGradient>
   );
 }
@@ -502,6 +606,29 @@ const styles = StyleSheet.create({
     marginRight: 15,
     width: '35%',
   },
+  createBtn: {
+    paddingVertical: hp(15),
+    borderRadius: 10,
+    paddingHorizontal: 20
+  },
+  cancelBtn: {
+    marginRight: wp(20),
+    borderRadius: 10,
+  },
+  btnText: {
+    fontSize: 12,
+    letterSpacing: 0.84,
+  },
+  modalAssetsWrapper: {
+    width: '88%',
+    alignItems: 'center',
+    paddingVertical: hp(20),
+  },
+  modalMessageText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: wp(275),
+  }
 });
 
 export default LoginScreen;

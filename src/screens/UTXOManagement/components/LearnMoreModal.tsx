@@ -63,6 +63,10 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+      buttonText='Proceed'
+      buttonTextColor="light.greenText02"
+      buttonBackground={['#FFFFFF', '#80A8A1']}
+      buttonCallback={() => closeModal()}
     />
   );
 }

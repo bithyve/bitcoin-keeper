@@ -14,7 +14,11 @@ import { RNCamera } from 'react-native-camera';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { io } from 'src/core/services/channel';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { BITBOX_REGISTER, CREATE_CHANNEL } from 'src/core/services/channel/constants';
+import {
+  BITBOX_REGISTER,
+  CREATE_CHANNEL,
+  LEDGER_REGISTER,
+} from 'src/core/services/channel/constants';
 import { captureError } from 'src/core/services/sentry';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -46,6 +50,15 @@ function RegisterWithChannel() {
       try {
         const walletConfig = getWalletConfigForBitBox02({ vault });
         channel.emit(BITBOX_REGISTER, { data: walletConfig, room });
+        dispatch(updateSignerDetails(signer, 'registered', true));
+        navgation.goBack();
+      } catch (error) {
+        captureError(error);
+      }
+    });
+    channel.on(LEDGER_REGISTER, async ({ room }) => {
+      try {
+        channel.emit(LEDGER_REGISTER, { data: { vault }, room });
         dispatch(updateSignerDetails(signer, 'registered', true));
         navgation.goBack();
       } catch (error) {
