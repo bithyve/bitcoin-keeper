@@ -3,7 +3,7 @@ import { Box, Pressable, ScrollView } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
@@ -39,15 +39,15 @@ function VaultScreen() {
 
   return (
     <HomeScreenWrapper>
-      <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} />
+      {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Text style={styles.titleText} color="light.primaryText">
             Your Vault
           </Text>
-          <Text style={styles.subTitleText} color="light.secondaryText">
+          {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on Signing Devices
-          </Text>
+          </Text> */}
         </Box>
         <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
           <Box
@@ -76,30 +76,17 @@ function VaultScreen() {
                       ))}
                     </Box>
                   </Box>
-                  <Box style={styles.unConfirmBalanceView}>
-                    <Text style={styles.unconfirmText} color="light.white">
-                      Unconfirmed
-                    </Text>
+                </Box>
+                <Box style={styles.availableBalanceWrapper}>
+                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)}>
                     <CurrencyInfo
                       hideAmounts={hideAmounts}
                       amount={confirmedBalance + unconfirmedBalance}
-                      fontSize={14}
+                      fontSize={20}
                       color={Colors.White}
                       variation="grey"
                     />
-                  </Box>
-                </Box>
-                <Box style={styles.availableBalanceWrapper}>
-                  <Text style={styles.availableText} color="light.white">
-                    Available Balance
-                  </Text>
-                  <CurrencyInfo
-                    hideAmounts={hideAmounts}
-                    amount={confirmedBalance + unconfirmedBalance}
-                    fontSize={20}
-                    color={Colors.White}
-                    variation="grey"
-                  />
+                  </TouchableOpacity>
                 </Box>
               </>
             )}
@@ -124,7 +111,8 @@ export default VaultScreen;
 
 const styles = StyleSheet.create({
   titleWrapper: {
-    marginVertical: hp(5),
+    marginVertical: windowHeight > 680 ? hp(5) : 0,
+    marginTop: hp(20),
   },
   titleText: {
     fontSize: 16,
