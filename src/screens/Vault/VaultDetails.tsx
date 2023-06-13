@@ -56,6 +56,7 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
 import useFeatureMap from 'src/hooks/useFeatureMap';
+import openLink from 'src/utils/OpenLink';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 
@@ -611,6 +612,7 @@ function VaultDetails({ route, navigation }) {
         }}
         DarkCloseIcon
         learnMore
+        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
 
       <KeeperModal

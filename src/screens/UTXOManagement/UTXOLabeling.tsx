@@ -114,8 +114,7 @@ function UTXOLabeling() {
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        utxo.txId
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${utxo.txId
       }`
     );
   };
@@ -125,6 +124,7 @@ function UTXOLabeling() {
       <HeaderTitle
         title="UTXO Details"
         subtitle="Easily identify specific aspects of various UTXOs"
+        paddingLeft={25}
       />
       <ScrollView
         style={styles.scrollViewWrapper}
@@ -173,8 +173,8 @@ function UTXOLabeling() {
                       item.type === LabelType.SYSTEM
                         ? '#23A289'
                         : editingIndex !== index
-                        ? '#E0B486'
-                        : '#A88763',
+                          ? '#E0B486'
+                          : '#A88763',
                   },
                 ]}
               >

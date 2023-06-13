@@ -22,13 +22,14 @@ function CurrencyInfo({
   variation = 'grey',
 }: ICurrencyInfo) {
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
+
   return (
     <HStack style={styles.vaultBalanceContainer}>
       {getCurrencyIcon(BTC, variation)}
       {!hideAmounts ? (
         <Box style={styles.rowCenter}>
           <Text color={color} style={{ fontSize }}>
-            {`${getSatUnit()} ${getBalance(amount)}`}
+            {` ${getBalance(amount)} ${getSatUnit()}`}
           </Text>
         </Box>
       ) : (
