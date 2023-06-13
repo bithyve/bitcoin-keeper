@@ -75,9 +75,6 @@ function VaultScreen() {
                   </Box>
                 </Box>
                 <Box style={styles.availableBalanceWrapper}>
-                  <Text style={styles.availableText} color="light.white">
-                    Balance
-                  </Text>
                   <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)}>
                     <CurrencyInfo
                       hideAmounts={hideAmounts}

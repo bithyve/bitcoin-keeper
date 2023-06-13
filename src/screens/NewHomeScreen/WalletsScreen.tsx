@@ -98,7 +98,9 @@ function WalletItem({
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
   return (
-    <View style={[styles.walletContainer, { width: TILE_WIDTH, opacity }]}>
+    <View
+      style={[styles.walletContainer, { width: TILE_WIDTH, opacity, justifyContent: 'flex-end' }]}
+    >
       <TouchableOpacity
         onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
       >
@@ -183,11 +185,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           </Box>
         </Box>
       </Box>
-
       <Box style={styles.walletBalance}>
-        <Text color="light.white" style={styles.walletName}>
-          Balance
-        </Text>
         <CurrencyInfo
           hideAmounts={hideAmounts}
           amount={balances?.confirmed + balances?.unconfirmed}
@@ -428,11 +426,13 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     position: 'relative',
+    justifyContent: 'flex-end',
   },
   titleWrapper: {
     marginVertical: windowHeight > 680 ? hp(5) : 0,
     flexDirection: 'row',
     width: '100%',
+    alignSelf: 'center',
     alignItems: 'center',
     marginTop: hp(20),
   },
@@ -479,7 +479,6 @@ const styles = StyleSheet.create({
     paddingTop: windowHeight > 680 ? hp(20) : 0,
   },
   walletInnerView: {
-    flexDirection: 'column',
     width: wp(170),
   },
   walletDescription: {
