@@ -40,6 +40,10 @@ export interface InheritanceNotification {
   targets: string[];
 }
 
+export interface InheritanceAlert {
+  emails: string[];
+}
+
 export interface InheritanceConfiguration {
   m: number;
   n: number;
@@ -49,6 +53,7 @@ export interface InheritanceConfiguration {
 
 export interface InheritancePolicy {
   notification: InheritanceNotification;
+  alert: InheritanceAlert;
 }
 
 export interface InheritanceKey {
