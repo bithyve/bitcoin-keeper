@@ -160,13 +160,6 @@ export default function BroadcastPremix({ route, navigation }) {
               })
             );
           }
-
-          setTimeout(async () => {
-            // auto refresh post 3 seconds, allowing for the indexer to sync
-            dispatch(
-              refreshWallets([depositWallet, premixWallet, badbankWallet], { hardRefresh: true })
-            );
-          }, 3000);
           showToast(
             'Your Tx0 was broadcasted successfully, you should find the new UTXOs in the Premix account',
             <TickIcon />,

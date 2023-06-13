@@ -672,15 +672,13 @@ function* refreshWalletsWorker({
 }) {
   const { wallets } = payload;
   const { options } = payload;
+  yield put(setSyncing({ wallets, isSyncing: true }));
   const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
     payload: {
       wallets,
       options,
     },
   });
-
-  yield put(setSyncing({ wallets, isSyncing: true }));
-
   for (const synchedWallet of synchedWallets) {
     if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
