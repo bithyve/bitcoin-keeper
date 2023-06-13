@@ -180,21 +180,13 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
             <Text color="light.white" style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
-            <Text
-              color="light.white"
-              style={styles.walletDescription}
-              ellipsizeMode="tail"
-              numberOfLines={1}
-            >
-              {wallet?.presentationData?.description}
-            </Text>
           </Box>
         </Box>
       </Box>
 
       <Box style={styles.walletBalance}>
         <Text color="light.white" style={styles.walletName}>
-          Available Balance
+          Balance
         </Text>
         <CurrencyInfo
           hideAmounts={hideAmounts}
@@ -325,9 +317,6 @@ const WalletsScreen = ({ navigation }) => {
         <Box style={styles.titleInfoView}>
           <Text style={styles.titleText} color="light.primaryText">
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
-          </Text>
-          <Text style={styles.subTitleText} color="light.secondaryText">
-            Keys on this app
           </Text>
         </Box>
         <Box style={styles.netBalanceView}>
