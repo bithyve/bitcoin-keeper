@@ -115,6 +115,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.OTHER_SD:
       name = 'Other Signing Device';
       break;
+    case SignerType.INHERITANCEKEY:
+      name = 'Inheritance Key';
+      break;
     default:
       name = type;
       break;
