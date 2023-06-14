@@ -19,6 +19,7 @@ function UTXOFooter({
   wallet,
   utxos,
   selectedUTXOs,
+  setRemixingToVault,
 }) {
   const { bottom } = useSafeAreaInsets();
   return (
@@ -46,6 +47,19 @@ function UTXOFooter({
             }}
             icon={<MixIcon />}
             title={wallet?.type === WalletType.POST_MIX ? 'Select for Remix' : 'Select for Mix'}
+          />
+        )}
+        {WalletType.POST_MIX === wallet?.type && (
+          <BottomMenuItem
+            disabled={!utxos.length}
+            onPress={() => {
+              setEnableSelection(!enableSelection);
+              setIsRemix(wallet?.type === WalletType.POST_MIX);
+              setInitateWhirlpoolMix(true);
+              setRemixingToVault(true);
+            }}
+            icon={<MixIcon />}
+            title="Remix to Vault"
           />
         )}
         {allowedSendTypes.includes(wallet?.type) && (
