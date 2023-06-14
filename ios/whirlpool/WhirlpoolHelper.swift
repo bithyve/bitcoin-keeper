@@ -19,22 +19,22 @@ import Foundation
     callback(str)
   }
 
-  @objc func initiateClient(port: String, callback: @escaping ((String)-> Void)){
-    let result = initiate(port)
+  @objc func initiateClient(port: String, network: String, callback: @escaping ((String)-> Void)){
+    let result = initiate(port, network)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
 
-  @objc func getPools(port: String, callback: @escaping ((String)-> Void)){
-    let result = pools(port)
+  @objc func getPools(port: String, network: String, callback: @escaping ((String)-> Void)){
+    let result = pools(port, network)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
   }
   
-  @objc func getTx0Data(scode: String, port: String, callback: @escaping ((String)-> Void)){
-    let result = gettx0data(scode, port)
+  @objc func getTx0Data(scode: String, port: String, network: String, callback: @escaping ((String)-> Void)){
+    let result = gettx0data(scode, port, network)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
@@ -54,8 +54,8 @@ import Foundation
     callback(str)
   }
   
-  @objc func tx0push(tx_str:String, pool_id_str:String, port: String, callback: @escaping ((String)-> Void)){
-    let result = tx0_push(tx_str, pool_id_str, port)
+  @objc func tx0push(tx_str:String, pool_id_str:String, port: String, network: String, callback: @escaping ((String)-> Void)){
+    let result = tx0_push(tx_str, pool_id_str, port, network)
     let str =  String(cString: result!)
     free_cstring(UnsafeMutablePointer(mutating: result))
     callback(str)
