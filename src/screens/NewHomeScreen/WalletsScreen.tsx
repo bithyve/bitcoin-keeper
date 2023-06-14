@@ -35,7 +35,10 @@ import Relay from 'src/core/services/operations/Relay';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useDispatch } from 'react-redux';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
-import { setRecepitVerificationFailed } from 'src/store/reducers/login';
+import {
+  resetElectrumNotConnectedErr,
+  setRecepitVerificationFailed,
+} from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
@@ -243,11 +246,14 @@ const WalletsScreen = ({ navigation }) => {
       // showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
       setElectrumErrorVisible(true);
     }
-  }, [
-    electrumClientConnectionStatus,
-    electrumClientConnectionStatus.success,
-    electrumClientConnectionStatus.error,
-  ]);
+  }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
+
+  useEffect(() => {
+    if (electrumClientConnectionStatus.setElectrumNotConnectedErr) {
+      showToast(`${electrumClientConnectionStatus.setElectrumNotConnectedErr}`, <ToastErrorIcon />);
+      dispatch(resetElectrumNotConnectedErr());
+    }
+  }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
   useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
 
