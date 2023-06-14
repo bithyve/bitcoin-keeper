@@ -30,7 +30,6 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-  const [visible, setVisible] = useState(false);
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
@@ -142,7 +141,8 @@ export default function CreatePin(props) {
             Please try again later
           </Text>
         </Box>
-      </Box>)
+      </Box>
+    );
   }
 
   return (
@@ -172,7 +172,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                    `light.error`
+                      `light.error`
                     : 'transparent'
                 }
               />
@@ -226,18 +226,6 @@ export default function CreatePin(props) {
           />
         </Box>
       </Box>
-      <KeeperModal
-        visible={visible}
-        close={() => setVisible(false)}
-        title="Connection error"
-        subTitle="Unable to connect to public electrum servers"
-        subTitleColor="light.secondaryText"
-        buttonText="Continue"
-        buttonTextColor="light.white"
-        buttonCallback={() => setVisible(false)}
-        textColor="light.primaryText"
-        Content={ElectrumErrorContent}
-      />
     </LinearGradient>
   );
 }
@@ -252,7 +240,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 0.7
+    flex: 0.7,
   },
   welcomeText: {
     marginLeft: 18,

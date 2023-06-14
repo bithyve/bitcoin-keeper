@@ -42,7 +42,6 @@ import CurrencyInfo from './components/CurrencyInfo';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
 
-
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(170);
 const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
@@ -50,10 +49,7 @@ const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
     <View style={styles.addWalletContent}>
-      <TouchableOpacity
-        style={styles.addWalletContainer}
-        onPress={() => setAddImportVisible()}
-      >
+      <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
         <Text color="light.white" style={styles.addWalletText}>
           {wallet.AddImportNewWallet}
         </Text>
@@ -77,7 +73,7 @@ function WalletItem({
   navigation,
   translations,
   hideAmounts,
-  setAddImportVisible
+  setAddImportVisible,
 }: {
   currentIndex: number;
   item: Wallet;
@@ -86,7 +82,7 @@ function WalletItem({
   navigation;
   translations;
   hideAmounts: boolean;
-  setAddImportVisible: any
+  setAddImportVisible: any;
 }) {
   if (!item) {
     return null;
@@ -120,11 +116,18 @@ function WalletItem({
           />
         )}
       </TouchableOpacity>
-    </View >
+    </View>
   );
 }
 
-function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, hideAmounts, setAddImportVisible }: any) {
+function WalletList({
+  walletIndex,
+  onViewRef,
+  viewConfigRef,
+  wallets,
+  hideAmounts,
+  setAddImportVisible,
+}: any) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
 
@@ -208,8 +211,10 @@ const WalletsScreen = ({ navigation }) => {
   const currentWallet = wallets[walletIndex];
   const flatListRef = useRef(null);
   const [hideAmounts, setHideAmounts] = useState(false);
-  const [addImportVisible, setAddImportVisible] = useState(false)
+  const [addImportVisible, setAddImportVisible] = useState(false);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+  const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
+
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
@@ -233,12 +238,18 @@ const WalletsScreen = ({ navigation }) => {
   useEffect(() => {
     if (electrumClientConnectionStatus.success) {
       showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
+      if (electrumErrorVisible) setElectrumErrorVisible(false);
     } else if (electrumClientConnectionStatus.failed) {
-      showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
+      // showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
+      setElectrumErrorVisible(true);
     }
-  }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
+  }, [
+    electrumClientConnectionStatus,
+    electrumClientConnectionStatus.success,
+    electrumClientConnectionStatus.error,
+  ]);
 
-  useEffect(() => { }, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
@@ -266,12 +277,12 @@ const WalletsScreen = ({ navigation }) => {
       <Box>
         <MenuItemButton
           onPress={() => {
-            setAddImportVisible(false)
+            setAddImportVisible(false);
             navigation.navigate('EnterWalletDetail', {
               name: `Wallet ${walletIndex + 1}`,
               description: 'Single-sig Wallet',
               type: WalletType.DEFAULT,
-            })
+            });
           }}
           icon={<AddWallet />}
           title="Add Wallet"
@@ -280,20 +291,38 @@ const WalletsScreen = ({ navigation }) => {
         />
         <MenuItemButton
           onPress={() => {
-            setAddImportVisible(false)
-            navigation.navigate('ImportWallet')
+            setAddImportVisible(false);
+            navigation.navigate('ImportWallet');
           }}
           icon={<ImportWallet />}
           title="Import Wallet"
           subTitle="Manage wallets in other apps"
           height={80}
         />
-        <Box >
-          <Text color="light.greenText" style={styles.addImportParaContent}>Please ensure that Keeper is properly backed up to ensure your bitcoin's security</Text>
+        <Box>
+          <Text color="light.greenText" style={styles.addImportParaContent}>
+            Please ensure that Keeper is properly backed up to ensure your bitcoin's security
+          </Text>
         </Box>
       </Box>
-    )
+    );
   }
+
+  function ElectrumErrorContent() {
+    return (
+      <Box width={wp(320)}>
+        <Box margin={hp(5)}>
+          <DowngradeToPleb />
+        </Box>
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            Please change the network and try again later
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   // eslint-disable-next-line react/no-unstable-nested-components
   function DowngradeModalContent() {
     return (
@@ -435,14 +464,14 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        closeOnOverlayClick={() => {}}
         showButtons
         showCloseIcon={false}
       />
@@ -454,6 +483,18 @@ const WalletsScreen = ({ navigation }) => {
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
         Content={() => <AddImportWallet />}
+      />
+      <KeeperModal
+        visible={electrumErrorVisible}
+        close={() => setElectrumErrorVisible(false)}
+        title="Connection error"
+        subTitle="Unable to connect to public electrum servers"
+        subTitleColor="light.secondaryText"
+        buttonText="Continue"
+        buttonTextColor="light.white"
+        buttonCallback={() => setElectrumErrorVisible(false)}
+        textColor="light.primaryText"
+        Content={ElectrumErrorContent}
       />
     </HomeScreenWrapper>
   );
@@ -516,7 +557,7 @@ const styles = StyleSheet.create({
   addWalletText: {
     fontSize: 14,
     marginTop: hp(10),
-    textAlign: 'center'
+    textAlign: 'center',
   },
   walletCard: {
     paddingTop: windowHeight > 680 ? hp(20) : 0,
@@ -636,6 +677,6 @@ const styles = StyleSheet.create({
   addImportParaContent: {
     fontSize: 13,
     padding: 2,
-    marginTop: hp(20)
-  }
+    marginTop: hp(20),
+  },
 });
