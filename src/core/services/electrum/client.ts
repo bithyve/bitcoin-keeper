@@ -24,18 +24,15 @@ function shufflePeers(peers) {
 }
 
 const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: shufflePeers([
-    { host: 'testnet.qtornado.com', ssl: '51002' },
-    { host: 'testnet.aranguren.org', ssl: '51002' },
-  ]),
+  predefinedTestnetPeers: shufflePeers([{ host: 'testnet.qtornado.com', ssl: '51002' }]),
   predefinedPeers: shufflePeers([
-    { host: 'electrum.acinq.co', ssl: '50002' },
-    { host: 'electrum.bitaroo.net', ssl: '50002' },
     { host: 'electrumx-core.1209k.com', ssl: '50002' },
-    { host: 'electrum.hodlister.co', ssl: '50002' },
+    { host: 'bitcoin.lukechilds.co', ssl: '50002' },
+    { host: 'electrum1.bluewallet.io', ssl: '443' },
+    { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
   ]),
   maxConnectionAttempt: 3,
-  reconnectDelay: 200, // 1/5th of a second
+  reconnectDelay: 500, // retry after half a second
 };
 
 const ELECTRUM_CLIENT = {
