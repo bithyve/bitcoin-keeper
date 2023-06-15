@@ -12,6 +12,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
 import { TransferType } from 'src/common/data/enums/TransferType';
+import { ELECTRUM_NOT_CONNECTED_ERR } from 'src/core/services/electrum/client';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import {
@@ -44,6 +45,7 @@ import {
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
 import { createUTXOReferenceWorker } from './utxos';
+import { setElectrumNotConnectedErr } from '../reducers/login';
 
 export function* fetchFeeRatesWorker() {
   try {
@@ -194,6 +196,9 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       });
     }
   } catch (err) {
+    if (err?.message === ELECTRUM_NOT_CONNECTED_ERR)
+      yield put(setElectrumNotConnectedErr(ELECTRUM_NOT_CONNECTED_ERR));
+
     yield put(
       sendPhaseTwoExecuted({
         successful: false,
@@ -268,6 +273,9 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       ],
     });
   } catch (err) {
+    if (err?.message === ELECTRUM_NOT_CONNECTED_ERR)
+      yield put(setElectrumNotConnectedErr(ELECTRUM_NOT_CONNECTED_ERR));
+
     yield put(
       sendPhaseThreeExecuted({
         successful: false,
