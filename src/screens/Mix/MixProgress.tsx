@@ -39,6 +39,8 @@ import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
 import { io } from 'src/core/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import useVault from 'src/hooks/useVault';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -61,6 +63,7 @@ function MixProgress({
       selectedWallet: any;
       walletPoolMap: any;
       isRemix: boolean;
+      remixingToVault: boolean;
     };
   };
   navigation: any;
@@ -80,7 +83,7 @@ function MixProgress({
   });
   const styles = getStyles(clock);
 
-  const { selectedUTXOs, depositWallet, isRemix } = route.params;
+  const { selectedUTXOs, depositWallet, isRemix, remixingToVault } = route.params;
   const statusData = [
     {
       title: 'Subscribing',
@@ -125,7 +128,11 @@ function MixProgress({
       error: false,
     },
     {
-      title: isRemix ? 'Remix completed' : 'Mix completed',
+      title: isRemix
+        ? remixingToVault
+          ? 'Remix to Vault successful'
+          : 'Remix completed successful'
+        : 'Mix completed successfully',
       subTitle: 'Mixed UTXO available in Postmix',
       completed: false,
       referenceCode: 'Success',
@@ -147,8 +154,9 @@ function MixProgress({
   const { postmixWallet, premixWallet } = useWhirlpoolWallets({ wallets: [depositWallet] })[
     depositWallet.id
   ];
+  const { activeVault } = useVault();
   const source = isRemix ? postmixWallet : premixWallet;
-  const destination = postmixWallet;
+  const destination = isRemix && remixingToVault ? activeVault : postmixWallet;
 
   const getPoolsData = async () => {
     const poolsDataResponse = await WhirlpoolClient.getPools();
@@ -311,7 +319,7 @@ function MixProgress({
       const updatedArray = [...statuses];
       updatedArray[6].completed = true;
       setStatus(updatedArray);
-      const walletsToRefresh = [source];
+      const walletsToRefresh = [source] as (Wallet | Vault)[];
       if (!isRemix) walletsToRefresh.push(destination);
       dispatch(
         incrementAddressIndex(destination, {
@@ -402,7 +410,8 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${
+          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -569,7 +578,7 @@ const getStyles = (clock) =>
       letterSpacing: 0.5,
       marginLeft: wp(25),
       marginTop: hp(3),
-      width: wp(270)
+      width: wp(270),
     },
     settingUpTitle: {
       marginTop: hp(12),

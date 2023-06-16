@@ -10,7 +10,6 @@ import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import { isTestnet } from 'src/common/constants/Bitcoin';
-import { Alert } from 'react-native';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
@@ -24,18 +23,15 @@ function shufflePeers(peers) {
 }
 
 const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: shufflePeers([
-    { host: 'testnet.qtornado.com', ssl: '51002' },
-    { host: 'testnet.aranguren.org', ssl: '51002' },
-  ]),
+  predefinedTestnetPeers: shufflePeers([{ host: 'testnet.qtornado.com', ssl: '51002' }]),
   predefinedPeers: shufflePeers([
-    { host: 'electrum.acinq.co', ssl: '50002' },
-    { host: 'electrum.bitaroo.net', ssl: '50002' },
     { host: 'electrumx-core.1209k.com', ssl: '50002' },
-    { host: 'electrum.hodlister.co', ssl: '50002' },
+    { host: 'bitcoin.lukechilds.co', ssl: '50002' },
+    { host: 'electrum1.bluewallet.io', ssl: '443' },
+    { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
   ]),
   maxConnectionAttempt: 3,
-  reconnectDelay: 200, // 1/5th of a second
+  reconnectDelay: 500, // retry after half a second
 };
 
 const ELECTRUM_CLIENT = {
@@ -45,16 +41,7 @@ const ELECTRUM_CLIENT = {
   connectionAttempt: 0,
   activePeer: null,
 };
-
-const showElectrumError = () => {
-  setTimeout(() => {
-    Alert.alert(
-      'Unable to connect to public electrum server',
-      'Please change the network and try again!'
-    );
-  }, 1000);
-  throw new Error('Electrum client is not connected');
-};
+export const ELECTRUM_NOT_CONNECTED_ERR = 'Electrum client is not connected';
 
 export default class ElectrumClient {
   public static async connect() {
@@ -156,7 +143,7 @@ export default class ElectrumClient {
   }
 
   public static async serverFeatures() {
-    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
+    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
     return ELECTRUM_CLIENT.electrumClient.server_features();
   }
 
@@ -252,7 +239,7 @@ export default class ElectrumClient {
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
   ): Promise<{ [address: string]: ElectrumUTXO[] }> {
-    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
+    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
     const res = {};
 
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
@@ -304,7 +291,7 @@ export default class ElectrumClient {
     txids: any[];
     txidToAddress: { [tx_hash: string]: string };
   }> {
-    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
+    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
     const historyByAddress = {};
     const txids = [];
     const txidToAddress = {};
@@ -353,7 +340,8 @@ export default class ElectrumClient {
     verbose: boolean = true,
     batchsize: number = 40
   ): Promise<{ [txid: string]: ElectrumTransaction }> {
-    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
+    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+
     const res = {};
     txids = [...new Set(txids)]; // remove duplicates, if any
 
@@ -385,14 +373,16 @@ export default class ElectrumClient {
   }
 
   public static async estimateFee(numberOfBlocks: number = 1) {
-    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
+    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+
     const feePerKB = await ELECTRUM_CLIENT.electrumClient.blockchainEstimatefee(numberOfBlocks); // in bitcoin
     if (feePerKB === -1) return 1;
     return Math.round((feePerKB / 1024) * 1e8); // feePerByte(sats)
   }
 
   public static async broadcast(txHex: string) {
-    if (!ELECTRUM_CLIENT.isClientConnected) showElectrumError();
+    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+
     return ELECTRUM_CLIENT.electrumClient.blockchainTransaction_broadcast(txHex);
   }
 

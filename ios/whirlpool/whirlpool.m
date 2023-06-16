@@ -26,29 +26,32 @@ RCT_EXPORT_METHOD(hello:(NSString*)name
 }
 
 RCT_EXPORT_METHOD(initiate:(NSString*)port
+                  network:(NSString *)network
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper initiateClientWithPort:port callback:^(NSString * _Nonnull response) {
+  [helper initiateClientWithPort:port network:network callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
 
 RCT_EXPORT_METHOD(getPools:(NSString *)port
+                  network:(NSString *)network
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper getPoolsWithPort:port callback:^(NSString * _Nonnull response) {
+  [helper getPoolsWithPort:port network:network callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
 
 RCT_EXPORT_METHOD(getTx0Data:(NSString *)scode
                   port:(NSString *)port
+                  network:(NSString *)network
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject){
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
-  [helper getTx0DataWithScode:scode port:port callback:^(NSString * _Nonnull response) {
+  [helper getTx0DataWithScode:scode port:port network:network callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
@@ -90,12 +93,13 @@ RCT_EXPORT_METHOD(intoPsbt:(NSString *)preview_str
 RCT_EXPORT_METHOD(tx0Push:(NSString *)tx_str
                   pool_id_str:(NSString *)pool_id_str
                   port:(NSString *)port
+                  network:(NSString *)network
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
   WhirlpoolHelper *helper = [[WhirlpoolHelper alloc]init];
   
-  [helper tx0pushWithTx_str:tx_str pool_id_str:pool_id_str port:port callback:^(NSString * _Nonnull response) {
+  [helper tx0pushWithTx_str:tx_str pool_id_str:pool_id_str port:port network:network callback:^(NSString * _Nonnull response) {
     resolve(response);
   }];
 }
