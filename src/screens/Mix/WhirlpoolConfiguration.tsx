@@ -55,6 +55,14 @@ export default function WhirlpoolConfiguration({ route }) {
   const [scodeModalVisible, setScodeModalVisible] = useState(false);
   const [transactionPriority, setTransactionPriority] = useState('high')
 
+  function capitalizeFirstLetter(priority) {
+    const firstLetter = priority && priority.charAt(0)
+    const firstLetterCap = firstLetter && firstLetter.toUpperCase()
+    const remainingLetters = priority && priority.slice(1)
+    const capitalizedWord = firstLetterCap + remainingLetters
+    return capitalizedWord
+  }
+
   const feesContent = (fees, onFeeSelectionCallback) => (
     <Box style={styles.feeContent}>
       <Box style={styles.feeHeaderItem}>
@@ -76,7 +84,7 @@ export default function WhirlpoolConfiguration({ route }) {
                     // onTransactionPriorityChanged(priority)
                   }}
                 />
-                <Text style={styles.feeItemText}>&nbsp;&nbsp;{fee?.priority}</Text>
+                <Text style={styles.feeItemText}>&nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}</Text>
               </Box>
               <Text style={styles.feeItemText}>{fee?.time}</Text>
               <Text style={styles.feeItemText}>
@@ -184,7 +192,7 @@ export default function WhirlpoolConfiguration({ route }) {
         <Box style={styles.feeDetail}>
           <Box style={styles.column}>
             <Text style={styles.feeHeader}>Priority</Text>
-            <Text style={styles.feeValue}>{selectedFee?.priority}</Text>
+            <Text style={styles.feeValue}>{capitalizeFirstLetter(selectedFee?.priority)}</Text>
           </Box>
           <Box style={styles.column}>
             <Text style={styles.feeHeader}>Arrival Time</Text>
