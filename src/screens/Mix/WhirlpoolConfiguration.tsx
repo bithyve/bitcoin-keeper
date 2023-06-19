@@ -1,6 +1,6 @@
 import { Box, Input } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,11 +14,10 @@ import RadioButton from 'src/components/RadioButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PageIndicator from 'src/components/PageIndicator';
 import { useAppSelector } from 'src/store/hooks';
-import openLink from 'src/utils/OpenLink';
 import { setWhirlpoolModal } from 'src/store/reducers/wallets';
 import { useDispatch } from 'react-redux';
 import config from 'src/core/config';
-import { TxPriority, WalletType } from 'src/core/wallets/enums';
+import { TxPriority } from 'src/core/wallets/enums';
 import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
@@ -113,7 +112,7 @@ export default function WhirlpoolConfiguration({ route }) {
       feeStructure.push(
         {
           priority: TxPriority.HIGH,
-          time: '10 -20 minutes',
+          time: '10 - 20 minutes',
           fee: fees[TxPriority.HIGH].feePerByte,
           averageTxFee: fees[TxPriority.HIGH].averageTxFee,
         },
