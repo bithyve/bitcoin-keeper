@@ -199,16 +199,16 @@ function UTXOManagement({ route, navigation }) {
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
-        ?.map((utxo) => {
-          utxo.confirmed = true;
+      ?.map((utxo) => {
+        utxo.confirmed = true;
+        return utxo;
+      })
+      .concat(
+        selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
+          utxo.confirmed = false;
           return utxo;
         })
-        .concat(
-          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-            utxo.confirmed = false;
-            return utxo;
-          })
-        )
+      )
     : [];
 
   useEffect(() => {
@@ -257,7 +257,7 @@ function UTXOManagement({ route, navigation }) {
           </VStack>
         </HStack>
       )}
-      <Box style={{ flex: 1, paddingHorizontal: 10 }}>
+      <Box style={{ flex: 1 }}>
         {enableSelection ? (
           <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
         ) : null}
