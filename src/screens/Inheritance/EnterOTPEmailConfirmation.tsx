@@ -34,6 +34,7 @@ function EnterOTPEmailConfirmation() {
                 onPressHandler={() => navigtaion.goBack()}
                 title='Add phone or email'
                 subtitle='Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                paddingLeft={22}
             />
             {/* pin input view */}
             <Box style={styles.passwordContainer}>
