@@ -23,7 +23,7 @@ function shufflePeers(peers) {
 }
 
 const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: shufflePeers([{ host: 'testnet.qtornado.com', ssl: '51002' }]),
+  predefinedTestnetPeers: shufflePeers([{ host: 'testnet.qtornado.com', ssl: '510002' }]),
   predefinedPeers: shufflePeers([
     { host: 'electrumx-core.1209k.com', ssl: '50002' },
     { host: 'bitcoin.lukechilds.co', ssl: '50002' },
@@ -41,10 +41,16 @@ const ELECTRUM_CLIENT = {
   connectionAttempt: 0,
   activePeer: null,
 };
+
 export const ELECTRUM_NOT_CONNECTED_ERR =
   'Network Error: Bitcoin node is currently not reachable, please try again after some time';
 
+export const ELECTRUM_NOT_CONNECTED_ERR_TOR =
+  'Network Error: Connection currently failing over Tor, please disable Tor or try again after some time';
+
 export default class ElectrumClient {
+  public static connectOverTor = false;
+
   public static async connect() {
     try {
       if (!ELECTRUM_CLIENT.activePeer) {
@@ -57,11 +63,12 @@ export default class ElectrumClient {
         };
       }
 
-      ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
+      ElectrumClient.connectOverTor =
         ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') &&
-        RestClient?.getTorStatus() === TorStatus.CONNECTED
-          ? torrific
-          : global.net,
+        RestClient?.getTorStatus() === TorStatus.CONNECTED;
+
+      ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
+        ElectrumClient.connectOverTor ? torrific : global.net,
         global.tls,
         ELECTRUM_CLIENT.activePeer?.ssl || ELECTRUM_CLIENT.activePeer?.tcp,
         ELECTRUM_CLIENT.activePeer?.host,
@@ -144,7 +151,8 @@ export default class ElectrumClient {
   }
 
   public static async serverFeatures() {
-    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+    ElectrumClient.checkConnection();
+
     return ELECTRUM_CLIENT.electrumClient.server_features();
   }
 
@@ -162,6 +170,15 @@ export default class ElectrumClient {
       else peer = { host: node.host, tcp: node.port, ssl: null };
     }
     return { peer, useKeeperNode };
+  }
+
+  public static checkConnection() {
+    if (!ELECTRUM_CLIENT.isClientConnected) {
+      const connectionError = ElectrumClient.connectOverTor
+        ? ELECTRUM_NOT_CONNECTED_ERR_TOR
+        : ELECTRUM_NOT_CONNECTED_ERR;
+      throw new Error(connectionError);
+    }
   }
 
   public static async ping() {
@@ -240,9 +257,8 @@ export default class ElectrumClient {
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
   ): Promise<{ [address: string]: ElectrumUTXO[] }> {
-    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+    ElectrumClient.checkConnection();
     const res = {};
-
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
       const chunk = chunks[itr];
@@ -292,7 +308,8 @@ export default class ElectrumClient {
     txids: any[];
     txidToAddress: { [tx_hash: string]: string };
   }> {
-    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+    ElectrumClient.checkConnection();
+
     const historyByAddress = {};
     const txids = [];
     const txidToAddress = {};
@@ -341,7 +358,7 @@ export default class ElectrumClient {
     verbose: boolean = true,
     batchsize: number = 40
   ): Promise<{ [txid: string]: ElectrumTransaction }> {
-    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+    ElectrumClient.checkConnection();
 
     const res = {};
     txids = [...new Set(txids)]; // remove duplicates, if any
@@ -374,7 +391,7 @@ export default class ElectrumClient {
   }
 
   public static async estimateFee(numberOfBlocks: number = 1) {
-    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+    ElectrumClient.checkConnection();
 
     const feePerKB = await ELECTRUM_CLIENT.electrumClient.blockchainEstimatefee(numberOfBlocks); // in bitcoin
     if (feePerKB === -1) return 1;
@@ -382,16 +399,16 @@ export default class ElectrumClient {
   }
 
   public static async broadcast(txHex: string) {
-    if (!ELECTRUM_CLIENT.isClientConnected) throw new Error(ELECTRUM_NOT_CONNECTED_ERR);
+    ElectrumClient.checkConnection();
 
     return ELECTRUM_CLIENT.electrumClient.blockchainTransaction_broadcast(txHex);
   }
 
   public static async testConnection(host, tcpPort, sslPort) {
+    const connectOverTor =
+      host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED;
     const client = new ElectrumCli(
-      host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED
-        ? torrific
-        : global.net,
+      connectOverTor ? torrific : global.net,
       global.tls,
       sslPort || tcpPort,
       host,
@@ -405,12 +422,7 @@ export default class ElectrumClient {
     try {
       const rez = await Promise.race([
         new Promise((resolve) => {
-          timeoutId = setTimeout(
-            () => resolve('timeout'),
-            host.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED
-              ? 21000
-              : 5000
-          );
+          timeoutId = setTimeout(() => resolve('timeout'), connectOverTor ? 21000 : 5000);
         }),
         client.connect(),
       ]);

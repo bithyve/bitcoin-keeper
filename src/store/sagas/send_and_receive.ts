@@ -12,7 +12,10 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import _ from 'lodash';
 import idx from 'idx';
 import { TransferType } from 'src/common/data/enums/TransferType';
-import { ELECTRUM_NOT_CONNECTED_ERR } from 'src/core/services/electrum/client';
+import {
+  ELECTRUM_NOT_CONNECTED_ERR,
+  ELECTRUM_NOT_CONNECTED_ERR_TOR,
+} from 'src/core/services/electrum/client';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
 import {
@@ -196,8 +199,8 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       });
     }
   } catch (err) {
-    if (err?.message === ELECTRUM_NOT_CONNECTED_ERR)
-      yield put(setElectrumNotConnectedErr(ELECTRUM_NOT_CONNECTED_ERR));
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+      yield put(setElectrumNotConnectedErr(err?.message));
 
     yield put(
       sendPhaseTwoExecuted({
@@ -273,8 +276,8 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       ],
     });
   } catch (err) {
-    if (err?.message === ELECTRUM_NOT_CONNECTED_ERR)
-      yield put(setElectrumNotConnectedErr(ELECTRUM_NOT_CONNECTED_ERR));
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+      yield put(setElectrumNotConnectedErr(err?.message));
 
     yield put(
       sendPhaseThreeExecuted({
