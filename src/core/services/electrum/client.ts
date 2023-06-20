@@ -23,7 +23,7 @@ function shufflePeers(peers) {
 }
 
 const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: shufflePeers([{ host: 'testnet.qtornado.com', ssl: '510002' }]),
+  predefinedTestnetPeers: shufflePeers([{ host: 'testnet.qtornado.com', ssl: '51002' }]),
   predefinedPeers: shufflePeers([
     { host: 'electrumx-core.1209k.com', ssl: '50002' },
     { host: 'bitcoin.lukechilds.co', ssl: '50002' },
