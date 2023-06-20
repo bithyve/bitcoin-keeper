@@ -173,6 +173,7 @@ const walletPersistConfig = {
     'isGeneratingNewWallet',
     'whirlpoolWallets',
     'whirlpoolWalletCreated',
+    'walletSyncing',
   ],
 };
 export default persistReducer(walletPersistConfig, walletSlice.reducer);

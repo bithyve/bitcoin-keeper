@@ -3,21 +3,19 @@
 /* eslint-disable camelcase */
 import * as bitcoinJS from 'bitcoinjs-lib';
 import WalletOperations from 'src/core/wallets/operations';
-import { InputUTXOs, OutputUTXOs } from 'src/core/wallets/interfaces';
+import { InputUTXOs } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import WhirlpoolServices from 'src/nativemodules/WhirlpoolServices';
 import { NetworkType } from 'src/core/wallets/enums';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import {
-  Info,
   InputStructure,
   Network,
   PoolData,
   Preview,
-  Step,
   TorConfig,
   TX0Data,
-  WhirlpoolAPI,
   WhirlpoolInput,
 } from '../../../nativemodules/interface';
 import { hash256 } from '../operations/encryption';
@@ -212,7 +210,7 @@ export default class WhirlpoolClient {
   static startMix = async (
     input: InputUTXOs,
     source: Wallet,
-    destination: Wallet,
+    destination: Wallet | Vault,
     pool: PoolData,
     blockHeight: number,
     appId: string
