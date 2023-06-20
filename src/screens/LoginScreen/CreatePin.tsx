@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { Dimensions, StatusBar, StyleSheet } from 'react-native';
@@ -14,6 +15,8 @@ import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import KeeperModal from 'src/components/KeeperModal';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
@@ -27,7 +30,6 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
@@ -128,6 +130,21 @@ export default function CreatePin(props) {
     }
   }, [passcode, confirmPasscode]);
 
+  function ElectrumErrorContent() {
+    return (
+      <Box width={wp(320)}>
+        <Box margin={hp(5)}>
+          <DowngradeToPleb />
+        </Box>
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            Please try again later
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <LinearGradient
       testID="main"
@@ -155,7 +172,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                    `light.error`
+                      `light.error`
                     : 'transparent'
                 }
               />
@@ -223,7 +240,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     marginTop: windowHeight > 670 ? hp('5%') : 0,
-    flex: 0.7
+    flex: 0.7,
   },
   welcomeText: {
     marginLeft: 18,

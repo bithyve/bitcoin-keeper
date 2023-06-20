@@ -66,6 +66,8 @@ function Footer({
   setSendBadBankModalVisible,
   selectedAccount,
   isRemix,
+  setRemixingToVault,
+  remixingToVault,
 }) {
   const navigation = useNavigation();
 
@@ -109,6 +111,8 @@ function Footer({
       }}
       selectedUTXOs={selectedUTXOs}
       isRemix={isRemix}
+      remixingToVault={remixingToVault}
+      setRemixingToVault={setRemixingToVault}
     />
   ) : (
     <UTXOFooter
@@ -120,6 +124,7 @@ function Footer({
       wallet={wallet}
       utxos={utxos}
       selectedUTXOs
+      setRemixingToVault={setRemixingToVault}
     />
   );
 }
@@ -151,6 +156,7 @@ function UTXOManagement({ route, navigation }) {
   const [initiateWhirlpool, setInitiateWhirlpool] = useState(false);
   const [initateWhirlpoolMix, setInitateWhirlpoolMix] = useState(false);
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
+  const [remixingToVault, setRemixingToVault] = useState(false);
   const { walletPoolMap, walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const [learnModalVisible, setLearnModalVisible] = useState(false);
@@ -284,6 +290,8 @@ function UTXOManagement({ route, navigation }) {
           setShowBatteryWarningModal={setShowBatteryWarningModal}
           setSendBadBankModalVisible={() => setSendBadBankModalVisible(true)}
           selectedAccount={selectedAccount}
+          setRemixingToVault={setRemixingToVault}
+          remixingToVault={remixingToVault}
         />
       ) : null}
       <KeeperModal
@@ -328,6 +336,7 @@ function UTXOManagement({ route, navigation }) {
                       selectedWallet,
                       walletPoolMap,
                       isRemix,
+                      remixingToVault,
                     });
                   }}
                 />

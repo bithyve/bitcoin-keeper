@@ -33,6 +33,7 @@ import { TxPriority } from 'src/core/wallets/enums';
 import idx from 'idx';
 import WalletSendInfo from './WalletSendInfo';
 
+
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -208,13 +209,6 @@ function AddSendAmount({ route }) {
 
         <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
           <Box
-            alignItems="center"
-            style={{
-              marginVertical: hp(10),
-            }}
-          />
-
-          <Box
             style={{
               paddingHorizontal: 10,
             }}
@@ -316,12 +310,12 @@ function AddSendAmount({ route }) {
             </Box>
 
             {/* <MenuItemButton
-            // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
-            onPress={() => showToast('Comming soon')}
-            icon={<TagsGreen />}
-            title="Add Tags"
-            subTitle="Tags help you remember and identify UTXOs"
-          /> */}
+              // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
+              onPress={() => showToast('Comming soon')}
+              icon={<TagsGreen />}
+              title="Add Tags"
+              subTitle="Tags help you remember and identify UTXOs"
+            /> */}
             <Box
               backgroundColor="light.primaryBackground"
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
@@ -423,7 +417,7 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
   },
   ctaBtnWrapper: {
-    marginBottom: hp(5),
+    marginTop: hp(10),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },

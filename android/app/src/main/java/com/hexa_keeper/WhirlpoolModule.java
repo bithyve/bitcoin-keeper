@@ -1,9 +1,17 @@
 package com.hexa_keeper;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.Observer;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -16,9 +24,12 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
 
     public static final String NAME = "Whirlpool";
     public static final String TAG = "WhirlpoolMODULE";
-
+    private OneTimeWorkRequest workRequest;
+    private Context mContext;
     public WhirlpoolModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        mContext = reactContext;
+
     }
 
     @Override
@@ -33,18 +44,18 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void initiate(String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.initiate(port));
+    public void initiate(String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.initiate(port, network));
     }
 
     @ReactMethod
-    public void getTx0Data(String scode, String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.gettx0data(scode, port));
+    public void getTx0Data(String scode, String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.gettx0data(scode, port, network));
     }
 
     @ReactMethod
-    public void getPools(String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.pools(port));
+    public void getPools(String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.pools(port, network));
     }
 
     @ReactMethod
@@ -53,8 +64,8 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void tx0Push(String txStr, String poolIdStr, String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.tx0push(txStr, poolIdStr, port));
+    public void tx0Push(String txStr, String poolIdStr, String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.tx0push(txStr, poolIdStr, port, network));
     }
 
     @ReactMethod
@@ -69,7 +80,50 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
 
     @ReactMethod
     public void blocking(String input, String privateKey, String destination,String poolId, String denomination, String preUserHash, String network, String blockHeight, String signedRegistrationMessage, String appId, String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId, port));
+
+
+        workRequest = new OneTimeWorkRequest.Builder(BackgroundWorker.class)
+                .setInputData(
+                        new Data.Builder()
+                                .putString("input", input)
+                                .putString("privateKey", privateKey)
+                                .putString("destination", destination)
+                                .putString("poolId", poolId)
+                                .putString("denomination", denomination)
+                                .putString("preUserHash", preUserHash)
+                                .putString("network", network)
+                                .putString("blockHeight", blockHeight)
+                                .putString("signedRegistrationMessage", signedRegistrationMessage)
+                                .putString("appId", appId)
+                                .putString("port", port)
+                                .build()
+                )
+                .build();
+
+        WorkManager.getInstance(mContext).enqueueUniqueWork("whirlpoolmix", ExistingWorkPolicy.KEEP, workRequest);
+        /*
+        WorkManager.getInstance(mContext)
+                        .getWorkInfoByIdLiveData(workRequest.getId())
+                .observe((LifecycleOwner) this, new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        if (workInfo != null) {
+                            switch (workInfo.getState()){
+                                case FAILED:
+                                case SUCCEEDED: {
+                                    String mixResult = workInfo.getOutputData().getString("MIX_RESULT");
+                                    Log.d(TAG, "onChanged: "+mixResult);
+                                    promise.resolve(mixResult);
+
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });*/
+
+
+       //promise.resolve(WhirlpoolBridge.start(input, privateKey, destination, poolId, denomination, preUserHash, network,blockHeight, signedRegistrationMessage, appId, port));
     }
 
     @ReactMethod

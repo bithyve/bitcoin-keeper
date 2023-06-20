@@ -15,14 +15,24 @@ function FinalizeFooter({
   initateWhirlpoolMix,
   setInitateWhirlpoolMix,
   selectedUTXOs,
-  isRemix
+  isRemix,
+  remixingToVault,
+  setRemixingToVault,
 }) {
   const { bottom } = useSafeAreaInsets();
   return (
     <Box style={[styles.footerContainer, { marginBottom: bottom }]}>
       <Buttons
         primaryText={
-          initiateWhirlpool ? 'Initiate Premix' : initateWhirlpoolMix ? isRemix ? 'Start Remix' : 'Start Mix' : 'Send'
+          initiateWhirlpool
+            ? 'Initiate Premix'
+            : initateWhirlpoolMix
+            ? isRemix
+              ? remixingToVault
+                ? 'Remix to Vault'
+                : 'Start Remix'
+              : 'Start Mix'
+            : 'Send'
         }
         secondaryText={secondaryText}
         secondaryCallback={() => {
@@ -31,6 +41,9 @@ function FinalizeFooter({
           }
           if (initateWhirlpoolMix) {
             setInitateWhirlpoolMix(false);
+          }
+          if (remixingToVault) {
+            setRemixingToVault(false);
           }
           setEnableSelection(false);
         }}

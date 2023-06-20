@@ -31,6 +31,7 @@ export const initialState: {
     connectedTo: string;
     failed: boolean;
     error: string;
+    setElectrumNotConnectedErr: string;
   };
 } = {
   hasCreds: false,
@@ -57,6 +58,7 @@ export const initialState: {
     connectedTo: null,
     failed: false,
     error: null,
+    setElectrumNotConnectedErr: '',
   },
 };
 
@@ -123,7 +125,15 @@ const loginSlice = createSlice({
         connectedTo: action.payload.connectedTo,
         failed: !action.payload.successful,
         error: action.payload.error,
+        setElectrumNotConnectedErr: '',
       };
+    },
+    setElectrumNotConnectedErr: (state, action: PayloadAction<string>) => {
+      state.electrumClientConnectionStatus.setElectrumNotConnectedErr = action.payload;
+    },
+    resetElectrumNotConnectedErr: (state) => {
+      state.electrumClientConnectionStatus.setElectrumNotConnectedErr =
+        initialState.electrumClientConnectionStatus.setElectrumNotConnectedErr;
     },
   },
 });
@@ -140,5 +150,7 @@ export const {
   setRecepitVerificationFailed,
   electrumClientConnectionInitiated,
   electrumClientConnectionExecuted,
+  setElectrumNotConnectedErr,
+  resetElectrumNotConnectedErr,
 } = loginSlice.actions;
 export default loginSlice.reducer;

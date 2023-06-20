@@ -1,20 +1,21 @@
+/* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/function-component-definition */
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
-import { Box, FlatList, ScrollView } from 'native-base';
+import { Box, FlatList } from 'native-base';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
-import AddSCardIcon from 'src/assets/images/card_add.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
-import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
+import AddWallet from 'src/assets/images/addWallet.svg';
+import ImportWallet from 'src/assets/images/importWallet.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -33,11 +34,14 @@ import SubScription from 'src/common/data/models/interfaces/Subscription';
 import Relay from 'src/core/services/operations/Relay';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useDispatch } from 'react-redux';
-import { setRecepitVerificationFailed } from 'src/store/reducers/login';
+import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import {
+  resetElectrumNotConnectedErr,
+  setRecepitVerificationFailed,
+} from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
-import BalanceToggle from './components/BalanceToggle';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
 
@@ -45,31 +49,22 @@ const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(170);
 const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
-function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
+function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
     <View style={styles.addWalletContent}>
-      <TouchableOpacity
-        style={styles.addWalletContainer}
-        onPress={() =>
-          navigation.navigate('EnterWalletDetail', {
-            name: `Wallet ${walletIndex + 1}`,
-            description: 'Single-sig Wallet',
-            type: WalletType.DEFAULT,
-          })
-        }
-      >
+      <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
         <Text color="light.white" style={styles.addWalletText}>
-          {wallet.AddNewWallet}
+          {wallet.AddImportNewWallet}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.addWalletContainer}
         onPress={() => navigation.navigate('ImportWallet')}
       >
         <Text color="light.white" style={styles.addWalletText}>
           {wallet.ImportAWallet}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 }
@@ -81,6 +76,7 @@ function WalletItem({
   navigation,
   translations,
   hideAmounts,
+  setAddImportVisible,
 }: {
   currentIndex: number;
   item: Wallet;
@@ -89,6 +85,7 @@ function WalletItem({
   navigation;
   translations;
   hideAmounts: boolean;
+  setAddImportVisible: any;
 }) {
   if (!item) {
     return null;
@@ -98,7 +95,9 @@ function WalletItem({
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
   return (
-    <View style={[styles.walletContainer, { width: TILE_WIDTH, opacity }]}>
+    <View
+      style={[styles.walletContainer, { width: TILE_WIDTH, opacity, justifyContent: 'flex-end' }]}
+    >
       <TouchableOpacity
         onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
       >
@@ -108,6 +107,7 @@ function WalletItem({
             isActive={isActive}
             wallet={wallet}
             navigation={navigation}
+            setAddImportVisible={setAddImportVisible}
           />
         ) : (
           <WalletTile
@@ -123,7 +123,14 @@ function WalletItem({
   );
 }
 
-function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, hideAmounts }: any) {
+function WalletList({
+  walletIndex,
+  onViewRef,
+  viewConfigRef,
+  wallets,
+  hideAmounts,
+  setAddImportVisible,
+}: any) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
 
@@ -146,6 +153,7 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, hideAmount
             walletIndex={walletIndex}
             navigation={navigation}
             translations={translations}
+            setAddImportVisible={setAddImportVisible}
           />
         )}
         onViewableItemsChanged={onViewRef.current}
@@ -157,7 +165,7 @@ function WalletList({ walletIndex, onViewRef, viewConfigRef, wallets, hideAmount
 
 function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts }) {
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
-
+  const { satsEnabled } = useAppSelector((state) => state.settings);
   return (
     <Box>
       <Box style={styles.walletCard}>
@@ -180,26 +188,14 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
             <Text color="light.white" style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
-            <Text
-              color="light.white"
-              style={styles.walletDescription}
-              ellipsizeMode="tail"
-              numberOfLines={1}
-            >
-              {wallet?.presentationData?.description}
-            </Text>
           </Box>
         </Box>
       </Box>
-
       <Box style={styles.walletBalance}>
-        <Text color="light.white" style={styles.walletName}>
-          Available Balance
-        </Text>
         <CurrencyInfo
           hideAmounts={hideAmounts}
           amount={balances?.confirmed + balances?.unconfirmed}
-          fontSize={20}
+          fontSize={satsEnabled ? 17 : 20}
           color={Colors.White}
           variation="light"
         />
@@ -218,7 +214,10 @@ const WalletsScreen = ({ navigation }) => {
   const currentWallet = wallets[walletIndex];
   const flatListRef = useRef(null);
   const [hideAmounts, setHideAmounts] = useState(false);
+  const [addImportVisible, setAddImportVisible] = useState(false);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
+  const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
+
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
     const index = viewableItems.changed.find((item) => item.isViewable === true);
@@ -242,10 +241,19 @@ const WalletsScreen = ({ navigation }) => {
   useEffect(() => {
     if (electrumClientConnectionStatus.success) {
       showToast(`Connected to: ${electrumClientConnectionStatus.connectedTo}`, <TickIcon />);
+      if (electrumErrorVisible) setElectrumErrorVisible(false);
     } else if (electrumClientConnectionStatus.failed) {
-      showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
+      // showToast(`${electrumClientConnectionStatus.error}`, <ToastErrorIcon />);
+      setElectrumErrorVisible(true);
     }
   }, [electrumClientConnectionStatus.success, electrumClientConnectionStatus.error]);
+
+  useEffect(() => {
+    if (electrumClientConnectionStatus.setElectrumNotConnectedErr) {
+      showToast(`${electrumClientConnectionStatus.setElectrumNotConnectedErr}`, <ToastErrorIcon />);
+      dispatch(resetElectrumNotConnectedErr());
+    }
+  }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
   useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
 
@@ -269,6 +277,56 @@ const WalletsScreen = ({ navigation }) => {
     } catch (error) {
       //
     }
+  }
+  function AddImportWallet() {
+    return (
+      <Box>
+        <MenuItemButton
+          onPress={() => {
+            setAddImportVisible(false);
+            navigation.navigate('EnterWalletDetail', {
+              name: `Wallet ${walletIndex + 1}`,
+              description: 'Single-sig Wallet',
+              type: WalletType.DEFAULT,
+            });
+          }}
+          icon={<AddWallet />}
+          title="Add Wallet"
+          subTitle="Separate wallets for different purposes"
+          height={80}
+        />
+        <MenuItemButton
+          onPress={() => {
+            setAddImportVisible(false);
+            navigation.navigate('ImportWallet');
+          }}
+          icon={<ImportWallet />}
+          title="Import Wallet"
+          subTitle="Manage wallets in other apps"
+          height={80}
+        />
+        <Box>
+          <Text color="light.greenText" style={styles.addImportParaContent}>
+            Please ensure that Keeper is properly backed up to ensure your bitcoin's security
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
+  function ElectrumErrorContent() {
+    return (
+      <Box width={wp(320)}>
+        <Box margin={hp(5)}>
+          <DowngradeToPleb />
+        </Box>
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            Please change the network and try again later
+          </Text>
+        </Box>
+      </Box>
+    );
   }
 
   // eslint-disable-next-line react/no-unstable-nested-components
@@ -326,9 +384,9 @@ const WalletsScreen = ({ navigation }) => {
           <Text style={styles.titleText} color="light.primaryText">
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
-          <Text style={styles.subTitleText} color="light.secondaryText">
+          {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on this app
-          </Text>
+          </Text> */}
         </Box>
         <Box style={styles.netBalanceView}>
           <CurrencyInfo
@@ -347,6 +405,7 @@ const WalletsScreen = ({ navigation }) => {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
+        setAddImportVisible={() => setAddImportVisible(true)}
       />
       <Box style={styles.listItemsWrapper}>
         <Box style={styles.whirlpoolListItemWrapper}>
@@ -357,16 +416,12 @@ const WalletsScreen = ({ navigation }) => {
               subTitle="Manage wallet UTXOs and use Whirlpool"
               iconBackColor="light.greenText2"
               onPress={() => {
-                if (Platform.OS === 'ios') {
-                  if (currentWallet)
-                    navigation.navigate('UTXOManagement', {
-                      data: currentWallet,
-                      routeName: 'Wallet',
-                      accountType: WalletType.DEFAULT,
-                    });
-                } else {
-                  showToast('Coming Soon');
-                }
+                if (currentWallet)
+                  navigation.navigate('UTXOManagement', {
+                    data: currentWallet,
+                    routeName: 'Wallet',
+                    accountType: WalletType.DEFAULT,
+                  });
               }}
             />
           ) : (
@@ -426,6 +481,27 @@ const WalletsScreen = ({ navigation }) => {
         showButtons
         showCloseIcon={false}
       />
+      <KeeperModal
+        visible={addImportVisible}
+        close={() => setAddImportVisible(false)}
+        title="Add or Import Wallet"
+        subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
+        subTitleColor="light.secondaryText"
+        textColor="light.primaryText"
+        Content={() => <AddImportWallet />}
+      />
+      <KeeperModal
+        visible={electrumErrorVisible}
+        close={() => setElectrumErrorVisible(false)}
+        title="Connection error"
+        subTitle="Unable to connect to public electrum servers"
+        subTitleColor="light.secondaryText"
+        buttonText="Continue"
+        buttonTextColor="light.white"
+        buttonCallback={() => setElectrumErrorVisible(false)}
+        textColor="light.primaryText"
+        Content={ElectrumErrorContent}
+      />
     </HomeScreenWrapper>
   );
 };
@@ -439,11 +515,13 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     position: 'relative',
+    justifyContent: 'flex-end',
   },
   titleWrapper: {
     marginVertical: windowHeight > 680 ? hp(5) : 0,
     flexDirection: 'row',
     width: '100%',
+    alignSelf: 'center',
     alignItems: 'center',
     marginTop: hp(20),
   },
@@ -485,12 +563,12 @@ const styles = StyleSheet.create({
   addWalletText: {
     fontSize: 14,
     marginTop: hp(10),
+    textAlign: 'center',
   },
   walletCard: {
     paddingTop: windowHeight > 680 ? hp(20) : 0,
   },
   walletInnerView: {
-    flexDirection: 'column',
     width: wp(170),
   },
   walletDescription: {
@@ -601,5 +679,10 @@ const styles = StyleSheet.create({
     paddingVertical: hp(15),
     borderRadius: 10,
     paddingHorizontal: 20,
+  },
+  addImportParaContent: {
+    fontSize: 13,
+    padding: 2,
+    marginTop: hp(20),
   },
 });
