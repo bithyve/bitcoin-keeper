@@ -42,7 +42,7 @@ function InheritanceStatus() {
                         infoData: SafeGuardTips,
                         icon: <Vault />
                     })} />
-                <InheritanceDownloadView icon={<Vault />} title='Setup Inheritance Key' subTitle='How to store your keys securely'
+                <InheritanceDownloadView icon={<Vault />} title='Setup Inheritance Key' subTitle='Add a Keeper custodied key to create a 3-of-6 vault'
                     onPress={() => setVisibleModal(true)} />
                 <Box style={styles.signingDevicesView}>
                     <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
