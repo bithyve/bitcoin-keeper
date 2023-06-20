@@ -55,6 +55,11 @@ import {
 } from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { UTXOInfo } from 'src/core/wallets/interfaces';
+import { captureError } from 'src/core/services/sentry';
+import {
+  ELECTRUM_NOT_CONNECTED_ERR,
+  ELECTRUM_NOT_CONNECTED_ERR_TOR,
+} from 'src/core/services/electrum/client';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -97,6 +102,7 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
+import { setElectrumNotConnectedErr } from '../reducers/login';
 
 export interface NewVaultDetails {
   name?: string;
@@ -670,46 +676,55 @@ function* refreshWalletsWorker({
     options: { hardRefresh?: boolean };
   };
 }) {
-  const { wallets } = payload;
-  const { options } = payload;
-  yield put(setSyncing({ wallets, isSyncing: true }));
-  const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(syncWalletsWorker, {
-    payload: {
-      wallets,
-      options,
-    },
-  });
-  for (const synchedWallet of synchedWallets) {
-    if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+  const { wallets, options } = payload;
+  try {
+    yield put(setSyncing({ wallets, isSyncing: true }));
+    const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(
+      syncWalletsWorker,
+      {
+        payload: {
+          wallets,
+          options,
+        },
+      }
+    );
+    for (const synchedWallet of synchedWallets) {
+      if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
-    if (synchedWallet.entityKind === EntityKind.VAULT) {
-      yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
-        specs: synchedWallet.specs,
-      });
-    } else {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
-        specs: synchedWallet.specs,
-      });
+      if (synchedWallet.entityKind === EntityKind.VAULT) {
+        yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
+          specs: synchedWallet.specs,
+        });
+      } else {
+        yield call(dbManager.updateObjectById, RealmSchema.Wallet, synchedWallet.id, {
+          specs: synchedWallet.specs,
+        });
+      }
     }
+
+    const existingWallets: Wallet[] = yield call(
+      dbManager.getObjectByIndex,
+      RealmSchema.Wallet,
+      null,
+      true
+    );
+    // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
+
+    let netBalance = 0;
+    existingWallets.forEach((wallet) => {
+      const { confirmed, unconfirmed } = wallet.specs.balances;
+      netBalance = netBalance + confirmed + unconfirmed;
+    });
+
+    yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
+    yield put(setNetBalance(netBalance));
+  } catch (err) {
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+      yield put(setElectrumNotConnectedErr(err?.message));
+    else captureError(err);
+  } finally {
+    yield put(setSyncing({ wallets, isSyncing: false }));
   }
-
-  const existingWallets: Wallet[] = yield call(
-    dbManager.getObjectByIndex,
-    RealmSchema.Wallet,
-    null,
-    true
-  );
-  // const vaults: Vault[] = yield call(dbManager.getObjectByIndex, RealmSchema.Vault, null, true);
-
-  let netBalance = 0;
-  existingWallets.forEach((wallet) => {
-    const { confirmed, unconfirmed } = wallet.specs.balances;
-    netBalance = netBalance + confirmed + unconfirmed;
-  });
-
-  yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
-  yield put(setNetBalance(netBalance));
-  yield put(setSyncing({ wallets, isSyncing: false }));
 }
 
 export const refreshWalletsWatcher = createWatcher(refreshWalletsWorker, REFRESH_WALLETS);
