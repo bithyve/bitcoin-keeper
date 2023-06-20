@@ -12,7 +12,7 @@ function MenuItemButton(props) {
             style={styles.addAmountContainer}
             onPress={props.onPress}
         >
-            <Box style={styles.addAmountWrapper01} backgroundColor="light.primaryBackground">
+            <Box style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]} backgroundColor="light.primaryBackground">
                 <Box style={styles.iconWrapper}>
                     {props.icon}
                 </Box>
@@ -33,11 +33,10 @@ function MenuItemButton(props) {
 }
 const styles = StyleSheet.create({
     addAmountContainer: {
-        marginTop: hp(10),
+        marginTop: hp(8),
     },
     addAmountWrapper01: {
         flexDirection: 'row',
-        height: hp(70),
         width: '100%',
         borderRadius: 10,
         // justifyContent: 'space-between',

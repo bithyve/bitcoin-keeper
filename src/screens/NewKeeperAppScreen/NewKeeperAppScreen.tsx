@@ -20,6 +20,7 @@ import { isTestnet } from 'src/common/constants/Bitcoin';
 import openLink from 'src/utils/OpenLink';
 import Fonts from 'src/common/Fonts';
 import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
+import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 
@@ -142,9 +143,8 @@ function NewKeeperApp({ navigation }: { navigation }) {
   function SignUpModalContent() {
     return (
       <Box style={{ width: windowWidth * 0.7 }}>
-        {/* <ShakingAssetsAnimation /> */}
-        <Box style={{ width: windowWidth * 0.6, marginBottom: hp(20) }}>
-          <WhirlpoolLoader />
+        <Box style={{ width: windowWidth * 0.7, marginBottom: hp(20) }}>
+          <LoadingAnimation />
         </Box>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
