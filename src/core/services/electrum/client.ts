@@ -41,7 +41,8 @@ const ELECTRUM_CLIENT = {
   connectionAttempt: 0,
   activePeer: null,
 };
-export const ELECTRUM_NOT_CONNECTED_ERR = 'Electrum client is not connected';
+export const ELECTRUM_NOT_CONNECTED_ERR =
+  'Network Error: Bitcoin node is currently not reachable, please try again after some time';
 
 export default class ElectrumClient {
   public static async connect() {
