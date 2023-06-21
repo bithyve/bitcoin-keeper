@@ -446,6 +446,7 @@
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
     "nodesUsedPreviously": "Nodes connected previously",
+    "currentlyConnected": "Currently connected to",
     "ipAddress": "IP Address",
     "portNumber": "Port Number",
     "addNewNode": "Add a new node",
