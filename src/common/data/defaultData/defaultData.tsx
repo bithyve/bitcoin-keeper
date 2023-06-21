@@ -29,9 +29,9 @@ export const securityTips = [
   {
     title: 'Connecting to Node',
     subTitle:
-      'It might take upto a minute',
+      'Interact with the bitcoin network more privately and securely',
     assert: <LoadingAnimation />,
-    message: '',
+    message: 'Eliminate reliance on third parties to validate financial transactions and hold your funds.',
   },
   {
     title: 'Security Tip',
