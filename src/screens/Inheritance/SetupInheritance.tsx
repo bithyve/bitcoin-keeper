@@ -201,6 +201,7 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   topContainer: {
+    marginTop: hp(25),
     alignItems: 'center',
     paddingHorizontal: 1,
   },
@@ -208,13 +209,14 @@ const styles = ScaledSheet.create({
     fontSize: 16,
     letterSpacing: 0.96,
     marginTop: hp(10),
+    fontWeight: 'bold'
   },
   subtitle: {
     textAlign: 'center',
-    width: wp(250),
+    width: wp(270),
     marginTop: hp(4),
-    fontSize: 13,
-    letterSpacing: 1.3,
+    fontSize: 12,
+    letterSpacing: 0.80,
   },
   header: {
     marginBottom: -50,
