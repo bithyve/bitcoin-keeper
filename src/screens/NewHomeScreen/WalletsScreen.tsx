@@ -339,7 +339,7 @@ const WalletsScreen = ({ navigation }) => {
           <TouchableOpacity
             style={[styles.cancelBtn]}
             onPress={() => {
-              navigation.replace('ChoosePlan');
+              navigation.navigate('ChoosePlan');
               dispatch(setRecepitVerificationFailed(false));
             }}
             activeOpacity={0.5}

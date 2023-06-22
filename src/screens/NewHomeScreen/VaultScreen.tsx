@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Pressable, ScrollView } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
