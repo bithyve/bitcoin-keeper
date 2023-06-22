@@ -42,7 +42,7 @@ function VaultScreen() {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color="light.primaryText">
+          <Text style={styles.titleText} color="light.primaryText" testID='text_YourVault'>
             Your Vault
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
@@ -78,7 +78,7 @@ function VaultScreen() {
                   </Box>
                 </Box>
                 <Box style={styles.availableBalanceWrapper}>
-                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)}>
+                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)} testID='btn_vaultBalance'>
                     <CurrencyInfo
                       hideAmounts={hideAmounts}
                       amount={confirmedBalance + unconfirmedBalance}
