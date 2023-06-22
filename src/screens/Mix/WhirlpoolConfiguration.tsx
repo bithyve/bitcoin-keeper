@@ -1,7 +1,7 @@
-import { Box, Input } from 'native-base';
+import { Box, Input, ScrollView } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -14,11 +14,10 @@ import RadioButton from 'src/components/RadioButton';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import PageIndicator from 'src/components/PageIndicator';
 import { useAppSelector } from 'src/store/hooks';
-import openLink from 'src/utils/OpenLink';
 import { setWhirlpoolModal } from 'src/store/reducers/wallets';
 import { useDispatch } from 'react-redux';
 import config from 'src/core/config';
-import { TxPriority, WalletType } from 'src/core/wallets/enums';
+import { TxPriority } from 'src/core/wallets/enums';
 import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
@@ -56,6 +55,14 @@ export default function WhirlpoolConfiguration({ route }) {
   const [scodeModalVisible, setScodeModalVisible] = useState(false);
   const [transactionPriority, setTransactionPriority] = useState('high')
 
+  function capitalizeFirstLetter(priority) {
+    const firstLetter = priority && priority.charAt(0)
+    const firstLetterCap = firstLetter && firstLetter.toUpperCase()
+    const remainingLetters = priority && priority.slice(1)
+    const capitalizedWord = firstLetterCap + remainingLetters
+    return capitalizedWord
+  }
+
   const feesContent = (fees, onFeeSelectionCallback) => (
     <Box style={styles.feeContent}>
       <Box style={styles.feeHeaderItem}>
@@ -77,7 +84,7 @@ export default function WhirlpoolConfiguration({ route }) {
                     // onTransactionPriorityChanged(priority)
                   }}
                 />
-                <Text style={styles.feeItemText}>&nbsp;&nbsp;{fee?.priority}</Text>
+                <Text style={styles.feeItemText}>&nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}</Text>
               </Box>
               <Text style={styles.feeItemText}>{fee?.time}</Text>
               <Text style={styles.feeItemText}>
@@ -113,7 +120,7 @@ export default function WhirlpoolConfiguration({ route }) {
       feeStructure.push(
         {
           priority: TxPriority.HIGH,
-          time: '10 -20 minutes',
+          time: '10 - 20 minutes',
           fee: fees[TxPriority.HIGH].feePerByte,
           averageTxFee: fees[TxPriority.HIGH].averageTxFee,
         },
@@ -141,15 +148,18 @@ export default function WhirlpoolConfiguration({ route }) {
   };
 
   const onProceed = () => {
-    navigation.navigate('PoolSelection', {
-      scode,
-      premixFee: selectedFee,
-      minerFee: fees[0],
-      utxos,
-      utxoCount,
-      utxoTotal,
-      wallet,
-    });
+    Keyboard.dismiss()
+    setTimeout(() => {
+      navigation.navigate('PoolSelection', {
+        scode,
+        premixFee: selectedFee,
+        minerFee: fees[0],
+        utxos,
+        utxoCount,
+        utxoTotal,
+        wallet,
+      });
+    }, 0)
   };
 
   const onFeeSelectionCallback = (fee) => {
@@ -159,81 +169,90 @@ export default function WhirlpoolConfiguration({ route }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
-      <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
-      <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : null}
+      enabled
+      keyboardVerticalOffset={Platform.select({ ios: 8, android: 0 })}
+      style={styles.keyBoardAvoidViewWrapper}
+    >
+      <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
+        <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
+        <ScrollView style={styles.scrollViewWrapper} keyboardShouldPersistTaps='always'>
+          <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
-      <Box style={styles.scode}>
-        <Input
-          placeholderTextColor="grey"
-          backgroundColor="light.primaryBackground"
-          placeholder="Enter SCODE"
-          borderRadius={10}
-          borderWidth={0}
-          height="12"
-          fontSize={13}
-          width="95%"
-          value={scode}
-          autoCorrect={false}
-          autoComplete="off"
-          onChangeText={(text) => {
-            setScode(text);
-          }}
+          <Box style={styles.scode}>
+            <Input
+              placeholderTextColor="grey"
+              backgroundColor="light.primaryBackground"
+              placeholder="Enter SCODE"
+              borderRadius={10}
+              borderWidth={0}
+              height="12"
+              fontSize={13}
+              width="95%"
+              value={scode}
+              autoCorrect={false}
+              autoComplete="off"
+              onChangeText={(text) => {
+                setScode(text);
+              }}
+            />
+          </Box>
+          <Box style={styles.feeSelection}>
+            <Box style={styles.feeDetail}>
+              <Box style={styles.column}>
+                <Text style={styles.feeHeader}>Priority</Text>
+                <Text style={styles.feeValue}>{capitalizeFirstLetter(selectedFee?.priority)}</Text>
+              </Box>
+              <Box style={styles.column}>
+                <Text style={styles.feeHeader}>Arrival Time</Text>
+                <Text style={styles.feeValue}>{selectedFee?.time}</Text>
+              </Box>
+              <Box style={styles.column}>
+                <Text style={styles.feeHeader}>Fee</Text>
+                <Text style={styles.feeValue}>
+                  {selectedFee?.fee} {selectedFee?.fee > 1 ? 'sats' : 'sat'}/vB
+                </Text>
+              </Box>
+            </Box>
+          </Box>
+          <Box backgroundColor="light.primaryBackground" style={styles.changePriority}>
+            <TouchableOpacity onPress={() => setShowFee(true)}>
+              <Box style={styles.changePriorityDirection}>
+                <Text style={styles.changePriorityText}>Change Priority</Text>
+                <RightArrowIcon />
+              </Box>
+            </TouchableOpacity>
+          </Box>
+        </ScrollView>
+
+        <Box style={styles.footerContainer}>
+          <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
+              <PageIndicator currentPage={0} totalPage={2} />
+            </Box>
+            <Box style={styles.footerItemContainer}>
+              <Buttons primaryText="Proceed" primaryCallback={() => onProceed()} />
+            </Box>
+          </Box>
+        </Box>
+        <KeeperModal
+          justifyContent="flex-end"
+          visible={showFee}
+          close={closeFeeSelectionModal}
+          title="Change Priority"
+          subTitle="Select a priority for your transaction"
+          subTitleColor="#5F6965"
+          modalBackground={['#F7F2EC', '#F7F2EC']}
+          buttonBackground={['#00836A', '#073E39']}
+          buttonText=""
+          buttonTextColor="#FAFAFA"
+          buttonCallback={closeFeeSelectionModal}
+          closeOnOverlayClick={false}
+          Content={() => feesContent(fees, onFeeSelectionCallback)}
         />
-      </Box>
-      <Box style={styles.feeSelection}>
-        <Box style={styles.feeDetail}>
-          <Box style={styles.column}>
-            <Text style={styles.feeHeader}>Priority</Text>
-            <Text style={styles.feeValue}>{selectedFee?.priority}</Text>
-          </Box>
-          <Box style={styles.column}>
-            <Text style={styles.feeHeader}>Arrival Time</Text>
-            <Text style={styles.feeValue}>{selectedFee?.time}</Text>
-          </Box>
-          <Box style={styles.column}>
-            <Text style={styles.feeHeader}>Fee</Text>
-            <Text style={styles.feeValue}>
-              {selectedFee?.fee} {selectedFee?.fee > 1 ? 'sats' : 'sat'}/vB
-            </Text>
-          </Box>
-        </Box>
-      </Box>
-      <Box backgroundColor="light.primaryBackground" style={styles.changePriority}>
-        <TouchableOpacity onPress={() => setShowFee(true)}>
-          <Box style={styles.changePriorityDirection}>
-            <Text style={styles.changePriorityText}>Change Priority</Text>
-            <RightArrowIcon />
-          </Box>
-        </TouchableOpacity>
-      </Box>
-      <Box style={styles.footerContainer}>
-        <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
-            <PageIndicator currentPage={0} totalPage={2} />
-          </Box>
-          <Box style={styles.footerItemContainer}>
-            <Buttons primaryText="Proceed" primaryCallback={() => onProceed()} />
-          </Box>
-        </Box>
-      </Box>
-      <KeeperModal
-        justifyContent="flex-end"
-        visible={showFee}
-        close={closeFeeSelectionModal}
-        title="Change Priority"
-        subTitle="Select a priority for your transaction"
-        subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonText=""
-        buttonTextColor="#FAFAFA"
-        buttonCallback={closeFeeSelectionModal}
-        closeOnOverlayClick={false}
-        Content={() => feesContent(fees, onFeeSelectionCallback)}
-      />
 
-      {/* <KeeperModal
+        {/* <KeeperModal
         visible={showWhirlpoolModal}
         close={() => {
           setShowWhirlpoolModal(false);
@@ -248,18 +267,25 @@ export default function WhirlpoolConfiguration({ route }) {
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       /> */}
-      <LearnMoreModal
-        visible={showWhirlpoolModal}
-        closeModal={() => {
-          setShowWhirlpoolModal(false);
-          dispatch(setWhirlpoolModal(false));
-        }} />
-      <SCodeLearnMore visible={scodeModalVisible} closeModal={() => setScodeModalVisible(false)} />
-    </ScreenWrapper>
+        <LearnMoreModal
+          visible={showWhirlpoolModal}
+          closeModal={() => {
+            setShowWhirlpoolModal(false);
+            dispatch(setWhirlpoolModal(false));
+          }} />
+        <SCodeLearnMore visible={scodeModalVisible} closeModal={() => setScodeModalVisible(false)} />
+      </ScreenWrapper>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  keyBoardAvoidViewWrapper: {
+    flex: 1
+  },
+  scrollViewWrapper: {
+    height: '60%',
+  },
   scode: {
     marginTop: 20,
     marginLeft: 30,
@@ -314,16 +340,16 @@ const styles = StyleSheet.create({
   footerContainer: {
     position: 'absolute',
     bottom: 0,
-    width: wp(375),
-    paddingHorizontal: 5,
+    width: '100%',
+    // paddingHorizontal: 5,
   },
   footerItemContainer: {
     flexDirection: 'row',
-    marginTop: windowHeight > 800 ? 5 : 5,
+    marginTop: 5,
     marginBottom: windowHeight > 800 ? hp(10) : 0,
-    paddingBottom: 15,
+    // paddingBottom: 15,
     justifyContent: 'flex-end',
-    marginHorizontal: 16,
+    // marginHorizontal: 16,
   },
 
   feeContent: {
