@@ -54,7 +54,7 @@ function Element(props) {
 
 function MonthlyYearlySwitch({ value, onValueChange }: Props) {
   return (
-    <TouchableOpacity activeOpacity={0.6} onPress={onValueChange} style={styles.container}>
+    <TouchableOpacity activeOpacity={0.6} onPress={onValueChange} style={styles.container} testID='btn_monthlyYearlySwitch'>
       <KeeperGradient
         start={[0, 0]}
         end={[1, 0]}

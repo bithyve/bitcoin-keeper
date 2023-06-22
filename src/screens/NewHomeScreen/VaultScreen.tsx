@@ -42,7 +42,7 @@ function VaultScreen() {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color="light.primaryText">
+          <Text style={styles.titleText} color="light.primaryText" testID='text_yourVault'>
             Your Vault
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
