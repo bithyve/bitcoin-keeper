@@ -13,16 +13,16 @@ function UAIView({
 }) {
   return (
     <Box style={styles.wrapper}>
-      <Box style={styles.uaiMessageWrapper}>
+      <Box style={styles.uaiMessageWrapper} testID='btn_uaiTitleText'>
         <Text style={styles.uaiMessageText}>{title}</Text>
       </Box>
-      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback}>
+      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID='btn_uaiSkip'>
         <Text style={styles.skipText} color="light.learnMoreBorder">
           {secondaryCallbackText}
         </Text>
       </TouchableOpacity>
       {primaryCallbackText && primaryCallback && (
-        <TouchableOpacity style={styles.addNowWrapper} onPress={primaryCallback}>
+        <TouchableOpacity style={styles.addNowWrapper} onPress={primaryCallback} testID='btn_uaiPrimary'>
           <Box style={styles.addNowCTAWrapper} backgroundColor="light.greenText">
             <Text style={styles.addNowCTAText} color="light.white">
               {primaryCallbackText}

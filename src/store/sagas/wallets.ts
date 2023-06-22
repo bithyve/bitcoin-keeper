@@ -55,6 +55,11 @@ import {
 } from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { UTXOInfo } from 'src/core/wallets/interfaces';
+import { captureError } from 'src/core/services/sentry';
+import {
+  ELECTRUM_NOT_CONNECTED_ERR,
+  ELECTRUM_NOT_CONNECTED_ERR_TOR,
+} from 'src/core/services/electrum/client';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -97,7 +102,7 @@ import {
   setRelayVaultUpdateLoading,
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
-import { captureError } from 'src/core/services/sentry';
+import { setElectrumNotConnectedErr } from '../reducers/login';
 
 export interface NewVaultDetails {
   name?: string;
@@ -714,7 +719,9 @@ function* refreshWalletsWorker({
     yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
     yield put(setNetBalance(netBalance));
   } catch (err) {
-    captureError(err);
+    if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
+      yield put(setElectrumNotConnectedErr(err?.message));
+    else captureError(err);
   } finally {
     yield put(setSyncing({ wallets, isSyncing: false }));
   }

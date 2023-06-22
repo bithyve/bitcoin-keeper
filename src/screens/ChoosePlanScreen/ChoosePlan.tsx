@@ -385,7 +385,7 @@ function ChoosePlan(props) {
           subtitle={formatString(choosePlan.noteSubTitle)}
           subtitleColor="GreyText" />
 
-        <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases}>
+        <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
           <Box
             borderColor="light.learnMoreBorder"
             backgroundColor="light.lightAccent"

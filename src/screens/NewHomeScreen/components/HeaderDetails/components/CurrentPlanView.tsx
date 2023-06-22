@@ -13,7 +13,7 @@ function CurrentPlanView({ plan }) {
       <Text style={styles.titleTxet} color="light.secondaryText">
         You are at
       </Text>
-      <TouchableOpacity onPress={() => navigation.navigate('ChoosePlan')}>
+      <TouchableOpacity onPress={() => navigation.navigate('ChoosePlan')} testID="btn_choosePlan">
         <Text style={styles.currentPlanText} color="light.greenText2">
           {plan}
         </Text>
