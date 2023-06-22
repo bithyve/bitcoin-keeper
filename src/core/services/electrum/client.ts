@@ -93,7 +93,7 @@ export default class ElectrumClient {
 
       console.log('Initiate electrum server');
       const ver = await ELECTRUM_CLIENT.electrumClient.initElectrum({
-        client: 'bitcoin-keeper',
+        client: 'btc-k',
         version: '1.4',
       });
       console.log('Connection to electrum server is established', { ver });
