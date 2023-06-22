@@ -93,7 +93,7 @@ export default class ElectrumClient {
 
       console.log('Initiate electrum server');
       const ver = await ELECTRUM_CLIENT.electrumClient.initElectrum({
-        client: 'bitcoin-keeper',
+        client: 'btc-k',
         version: '1.4',
       });
       console.log('Connection to electrum server is established', { ver });
@@ -159,17 +159,13 @@ export default class ElectrumClient {
   public static getBlockchainHeaders = async (): Promise<{ height: number; hex: string }> =>
     ELECTRUM_CLIENT.electrumClient.blockchainHeaders_subscribe();
 
-  public static getActivePrivateNodeToUse(peers: NodeDetail[]) {
-    const node = peers?.filter((node) => node.isConnected)[0];
+  public static getActivePrivateNodeToUse(node: NodeDetail) {
     let peer = null;
-    let useKeeperNode = false;
-
     if (node) {
-      useKeeperNode = node?.useKeeperNode || false;
       if (node.useSSL) peer = { host: node.host, ssl: node.port, tcp: null };
       else peer = { host: node.host, tcp: node.port, ssl: null };
     }
-    return { peer, useKeeperNode };
+    return { peer };
   }
 
   public static checkConnection() {
@@ -197,31 +193,13 @@ export default class ElectrumClient {
   }
 
   // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
-  // if saved private node is not available, and use keeper node is true, it will use the keeper node
   // if current peer to use is provided, it will use that peer
   public static setActivePeer(savedPrivateNodes: NodeDetail[], currentPeerToUse = null) {
-    const { peer: privatePeer, useKeeperNode } = ElectrumClient.getActivePrivateNodeToUse(
-      currentPeerToUse != null ? [currentPeerToUse] : savedPrivateNodes
+    const { peer: privatePeer } = ElectrumClient.getActivePrivateNodeToUse(
+      currentPeerToUse || savedPrivateNodes?.filter((node) => node.isConnected)[0]
     );
-    let peer = null;
-    if (privatePeer != null) {
-      peer = privatePeer;
-      if (ElectrumClient.testConnection(peer?.host, peer?.tcp, peer?.ssl)) {
-        ELECTRUM_CLIENT.activePeer = peer;
-        return;
-      }
 
-      if (useKeeperNode) {
-        peer = ElectrumClient.getNextPeer();
-        ELECTRUM_CLIENT.activePeer = peer;
-        return;
-      }
-
-      ELECTRUM_CLIENT.activePeer = null;
-      return;
-    }
-    peer = ElectrumClient.getNextPeer();
-    ELECTRUM_CLIENT.activePeer = peer;
+    ELECTRUM_CLIENT.activePeer = privatePeer || ElectrumClient.getNextPeer();
   }
 
   public static getPredefinedCurrentPeer() {

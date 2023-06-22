@@ -95,9 +95,6 @@ function NodeSettings() {
     if (nodes?.length === 0 || selectedItem.isConnected) {
       setConnectToNode(false);
       dispatch(setConnectToMyNode(false));
-      setLoading(true);
-      await Node.connectToDefaultNode();
-      setLoading(false);
     }
   };
 
@@ -107,11 +104,12 @@ function NodeSettings() {
     let node = { ...selectedItem };
 
     if (!selectedItem.isConnected) {
-      node = await Node.connect(selectedItem, nodeList);
-      Node.update(node?.id, { isConnected: node?.isConnected });
-      dispatch(updateAppImage(null));
-    }
-    else {
+      node = await Node.connect(selectedItem);
+      if (node?.isConnected) {
+        Node.update(node?.id, { isConnected: node?.isConnected });
+        dispatch(updateAppImage(null));
+      }
+    } else {
       await disconnectNode(node);
       Node.update(node?.id, { isConnected: node?.isConnected });
       dispatch(updateAppImage(null));
@@ -134,7 +132,7 @@ function NodeSettings() {
 
   const disconnectNode = async (node) => {
     node.isConnected = false;
-    await Node.connectToDefaultNode();
+    await Node.disconnect(node);
     setConnectToNode(node?.isConnected);
     dispatch(setConnectToMyNode(node?.isConnected));
     updateNode(node);
@@ -161,12 +159,7 @@ function NodeSettings() {
     if (value) {
       setSelectedNodeItem(Node.getModalParams(null));
       openAddNodeModal();
-    } else {
-      setLoading(true);
-      updateNode(null);
-      await Node.connectToDefaultNode();
-      setLoading(false);
-    }
+    } else updateNode(null);
   };
 
   return (
@@ -201,11 +194,7 @@ function NodeSettings() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => onSelectedNodeitem(item)}
-                style={
-                  item.id === selectedNodeItem?.id
-                    ? styles.selectedItem
-                    : null
-                }
+                style={item.id === selectedNodeItem?.id ? styles.selectedItem : null}
               >
                 <Box
                   backgroundColor={ConnectToNode ? 'light.primaryBackground' : 'light.fadedGray'}
@@ -297,7 +286,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -371,7 +360,7 @@ const styles = StyleSheet.create({
     width: '64%',
     flexDirection: 'row',
     paddingHorizontal: 3,
-    paddingVertical: 22
+    paddingVertical: 22,
   },
   nodeList: {
     flexDirection: 'row',
