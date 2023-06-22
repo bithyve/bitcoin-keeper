@@ -35,7 +35,10 @@ type HWProps = {
   last?: boolean;
 };
 const findKeyInServer = (vaultSigners, type: SignerType) =>
-  vaultSigners.find((element) => element.type === type);
+  vaultSigners.find(
+    (element) =>
+      element.type === type && [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY].includes(type)
+  );
 
 const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   // Keys Incase of level 1 we have level 1
@@ -49,7 +52,14 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   return { disabled: false, message: '' };
 };
 
-const getDeviceStatus = (type: SignerType, isNfcSupported, isOnL1, vaultSigners) => {
+const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  vaultSigners,
+  isOnL1,
+  isOnL2,
+  isOnL3
+) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
@@ -59,13 +69,12 @@ const getDeviceStatus = (type: SignerType, isNfcSupported, isOnL1, vaultSigners)
       };
     case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
-    case SignerType.SEED_WORDS:
-    case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnL1, vaultSigners).message,
         disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
       };
-
+    case SignerType.SEED_WORDS:
+    case SignerType.KEEPER:
     case SignerType.TREZOR:
     case SignerType.JADE:
     case SignerType.BITBOX02:
@@ -86,6 +95,8 @@ function SigningDeviceList() {
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
+  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
 
@@ -210,8 +221,10 @@ function SigningDeviceList() {
                 const { disabled, message: connectivityStatus } = getDeviceStatus(
                   type,
                   isNfcSupported,
+                  vaultSigners,
                   isOnL1,
-                  vaultSigners
+                  isOnL2,
+                  isOnL3
                 );
                 let message = connectivityStatus;
                 if (!connectivityStatus) {
