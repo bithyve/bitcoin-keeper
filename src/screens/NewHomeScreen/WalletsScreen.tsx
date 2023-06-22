@@ -255,7 +255,7 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
-  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => { }, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
@@ -339,7 +339,7 @@ const WalletsScreen = ({ navigation }) => {
           <TouchableOpacity
             style={[styles.cancelBtn]}
             onPress={() => {
-              navigation.replace('ChoosePlan');
+              navigation.navigate('ChoosePlan');
               dispatch(setRecepitVerificationFailed(false));
             }}
             activeOpacity={0.5}
@@ -470,14 +470,14 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />
