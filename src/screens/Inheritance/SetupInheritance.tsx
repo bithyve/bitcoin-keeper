@@ -125,21 +125,21 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color="light.textWallet" style={styles.title}>
+        <Text color="light.textWallet" style={styles.title} testID='text_InheritanceSupport'>
           Inheritance Support
         </Text>
-        <Text color="light.secondaryText" style={styles.subtitle}>
+        <Text color="light.secondaryText" style={styles.subtitle} testID='text_InheritanceSupportSubtitle'>
           Keeper provides you with the tips and tools you need to include the vault in your estate
           planning
         </Text>
       </Box>
 
-      <Box style={styles.bottomContainer}>
+      <Box style={styles.bottomContainer} testID='view_InheritanceSupportAssert'>
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
           {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
         </Text>
-        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID='btn_ISContinue'>
           <Buttons
             primaryText="Continue"
             primaryCallback={() => {
@@ -149,7 +149,7 @@ function SetupInheritance() {
           />
         </Box>
       </Box>
-      <Box style={styles.note}>
+      <Box style={styles.note} testID='view_ISNote'>
         <Note
           title="Note"
           subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
