@@ -125,21 +125,21 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color="light.textWallet" style={styles.title}>
+        <Text color="light.textWallet" style={styles.title} testID='text_InheritanceSupport'>
           Inheritance Support
         </Text>
-        <Text color="light.secondaryText" style={styles.subtitle}>
+        <Text color="light.secondaryText" style={styles.subtitle} testID='text_InheritanceSupportSubtitle'>
           Keeper provides you with the tips and tools you need to include the vault in your estate
           planning
         </Text>
       </Box>
 
-      <Box style={styles.bottomContainer}>
+      <Box style={styles.bottomContainer} testID='view_InheritanceSupportAssert'>
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
           {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
         </Text>
-        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID='btn_ISContinue'>
           <Buttons
             primaryText="Continue"
             primaryCallback={() => {
@@ -149,7 +149,7 @@ function SetupInheritance() {
           />
         </Box>
       </Box>
-      <Box style={styles.note}>
+      <Box style={styles.note} testID='view_ISNote'>
         <Note
           title="Note"
           subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
@@ -201,6 +201,7 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   topContainer: {
+    marginTop: hp(25),
     alignItems: 'center',
     paddingHorizontal: 1,
   },
@@ -208,13 +209,14 @@ const styles = ScaledSheet.create({
     fontSize: 16,
     letterSpacing: 0.96,
     marginTop: hp(10),
+    fontWeight: 'bold'
   },
   subtitle: {
     textAlign: 'center',
-    width: wp(250),
+    width: wp(270),
     marginTop: hp(4),
-    fontSize: 13,
-    letterSpacing: 1.3,
+    fontSize: 12,
+    letterSpacing: 0.80,
   },
   header: {
     marginBottom: -50,
