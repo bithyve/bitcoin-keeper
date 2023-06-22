@@ -380,15 +380,15 @@ const WalletsScreen = ({ navigation }) => {
     <HomeScreenWrapper>
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
-        <Box style={styles.titleInfoView} testID='view_hotWallets'>
-          <Text style={styles.titleText} color="light.primaryText">
+        <Box style={styles.titleInfoView}>
+          <Text style={styles.titleText} color="light.primaryText" testID='text_HotWallet'>
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on this app
           </Text> */}
         </Box>
-        <Box style={styles.netBalanceView}>
+        <Box style={styles.netBalanceView} testID='view_netBalance'>
           <CurrencyInfo
             hideAmounts={hideAmounts}
             amount={netBalance}
@@ -408,7 +408,7 @@ const WalletsScreen = ({ navigation }) => {
         setAddImportVisible={() => setAddImportVisible(true)}
       />
       <Box style={styles.listItemsWrapper}>
-        <Box style={styles.whirlpoolListItemWrapper}>
+        <Box style={styles.whirlpoolListItemWrapper} testID='view_WhirlpoolUTXOs'>
           {presentationName.length > 0 ? (
             <ListItemView
               icon={<WhirlpoolWhiteIcon />}

@@ -6,14 +6,14 @@ import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 function ListItemView(props) {
   return (
-    <TouchableOpacity style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress} testID='btn_listItemView'>
+    <TouchableOpacity style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress} testID={`btn_${props.title.replace(/ /g, '_')}`}>
       <Box>
         <Box style={styles.iconView} backgroundColor={props.iconBackColor} testID='view_listIcon'>
           {props.icon}
         </Box>
       </Box>
       <Box style={styles.titleWrapper}>
-        <Text color="light.primaryText" style={styles.titleText} testID='text_listTitle'>
+        <Text color="light.primaryText" style={styles.titleText} testID={`text_${props.title.replace(/ /g, '_')}`}>
           {props.title}
         </Text>
         <Text color="light.primaryText" style={styles.subTitleText} testID='text_listSubTitle'>
