@@ -24,7 +24,7 @@ function CurrencyInfo({
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
-    <HStack style={styles.vaultBalanceContainer}>
+    <HStack style={styles.vaultBalanceContainer} testID='view_currencyView'>
       {getCurrencyIcon(BTC, variation)}
       {!hideAmounts ? (
         <Box style={styles.rowCenter}>
@@ -33,7 +33,7 @@ function CurrencyInfo({
           </Text>
         </Box>
       ) : (
-        <Box style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}>
+        <Box style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]} testID='view_hideCurrencyView'>
           <Hidden style={{ color }} />
         </Box>
       )}

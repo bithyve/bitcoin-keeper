@@ -22,9 +22,9 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
+import { updateAppImage } from 'src/store/sagaActions/bhr';
 import AddNode from './AddNodeModal';
 import Node from './node';
-import { updateAppImage } from 'src/store/sagaActions/bhr';
 
 function NodeSettings() {
   const dispatch = useAppDispatch();
@@ -293,7 +293,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>

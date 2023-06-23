@@ -107,6 +107,8 @@ function OnBoardingSlides({ navigation }) {
               snapToInterval={width}
               showsHorizontalScrollIndicator={false}
               snapToAlignment="center"
+              disableIntervalMomentum
+              decelerationRate="fast"
               onViewableItemsChanged={onViewRef.current}
               viewabilityConfig={viewConfigRef.current}
               keyExtractor={item => item.id}

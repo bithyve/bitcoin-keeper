@@ -33,7 +33,6 @@ import { TxPriority } from 'src/core/wallets/enums';
 import idx from 'idx';
 import WalletSendInfo from './WalletSendInfo';
 
-
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -119,7 +118,7 @@ function AddSendAmount({ route }) {
     if (haveSelectedUTXOs) availableToSpend = selectedUTXOs.reduce((a, c) => a + c.value, 0);
 
     if (availableToSpend) {
-      const sendMaxBalance = availableToSpend - sendMaxFee;
+      const sendMaxBalance = Math.max(availableToSpend - sendMaxFee, 0);
       if (currentCurrency === CurrencyKind.BITCOIN) {
         if (satsEnabled) setAmount(sendMaxBalance.toString());
         else setAmount(`${SatsToBtc(sendMaxBalance)}`);
