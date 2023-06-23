@@ -39,6 +39,7 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -186,6 +187,7 @@ function SignTransactionScreen() {
           dispatch(
             updatePSBTEnvelops({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
           );
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -202,6 +204,7 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
             showOTPModal,
@@ -213,6 +216,7 @@ function SignTransactionScreen() {
             shellId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -222,6 +226,7 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         }
       }
     },

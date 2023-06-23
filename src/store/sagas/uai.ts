@@ -19,12 +19,20 @@ import {
   UAI_CHECKS,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 
 const healthCheckRemider = (signer: VaultSigner) => {
   const today = new Date();
   const Difference_In_Time = today.getTime() - signer.lastHealthCheck.getTime();
   const Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
   return Difference_In_Days;
+};
+
+const healthCheckReminderHours = (signer: VaultSigner) => {
+  const today = new Date();
+  const differenceInTime = today.getTime() - signer.lastHealthCheck.getTime();
+  const differenceInHours = Math.round(differenceInTime / (1000 * 3600));
+  return differenceInHours;
 };
 
 function* addToUaiStackWorker({ payload }) {
@@ -74,7 +82,9 @@ function* uaiChecksWorker({ payload }) {
       if (vault) {
         for (const signer of vault.signers) {
           const lastHealthCheckDays = healthCheckRemider(signer);
-          if (lastHealthCheckDays >= 90) {
+          const lastHealthCheckHours = healthCheckReminderHours(signer);
+          const testnet = isTestnet();
+          if (testnet ? lastHealthCheckHours >= 3 : lastHealthCheckDays >= 180) {
             const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
             if (!uais.length) {
               yield put(

@@ -23,13 +23,14 @@ import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
-function SetupColdCard() {
+function SetupColdCard({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { subscriptionScheme } = usePlan();
   const isMultisig = subscriptionScheme.n !== 1;
-
+  const { isHealthcheck = false, signer } = route.params;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
   const { start } = useAsync();
@@ -37,7 +38,10 @@ function SetupColdCard() {
   useEffect(() => {
     NfcManager.isSupported().then((supported) => {
       if (supported) {
-        addColdCardWithProgress();
+        if (isHealthcheck) verifyColdCardWithProgress();
+        else {
+          addColdCardWithProgress();
+        }
       } else if (!DeviceInfo.isEmulator()) {
         showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
       }
@@ -46,6 +50,10 @@ function SetupColdCard() {
 
   const addColdCardWithProgress = async () => {
     await start(addColdCard);
+  };
+
+  const verifyColdCardWithProgress = async () => {
+    await start(verifyColdCard);
   };
 
   const addColdCard = async () => {
@@ -75,6 +83,26 @@ function SetupColdCard() {
     }
   };
 
+  const verifyColdCard = async () => {
+    try {
+      const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
+      const { xpub } = ccDetails;
+      if (xpub === signer.xpub) {
+        dispatch(healthCheckSigner([signer]));
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`ColdCard verified successfully`, <TickIcon />);
+      } else {
+        showToast('Something went worng!', <ToastErrorIcon />, 3000);
+      }
+    } catch (error) {
+      if (error instanceof HWError) {
+        showToast(error.message, <ToastErrorIcon />, 3000);
+      } else if (error.toString() === 'Error') {
+        // ignore if user cancels NFC interaction
+      } else captureError(error);
+    }
+  };
+
   const instructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
   return (
     <ScreenWrapper>
@@ -82,7 +110,7 @@ function SetupColdCard() {
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
-              title="Setting up Coldcard"
+              title={isHealthcheck ? 'Verify Coldcard' : 'Setting up Coldcard'}
               subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
             />
