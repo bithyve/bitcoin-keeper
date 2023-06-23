@@ -20,6 +20,9 @@ type ModalProps = {
   buttonBackground?: string[];
   buttonText?: string;
   buttonTextColor?: string;
+  secButtonTextColor?: string;
+  secondaryButtonText?: string;
+  secondaryCallback?: any;
   buttonCallback?: any;
   textColor?: string;
   subTitleColor?: string;
@@ -42,7 +45,10 @@ KeeperModal.defaultProps = {
   buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
   buttonText: null,
   buttonTextColor: 'white',
-  buttonCallback: () => { },
+  secButtonTextColor: '#073E39',
+  buttonCallback: () => {},
+  secondaryButtonText: null,
+  secondaryCallback: () => {},
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -50,7 +56,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => { },
+  learnMoreCallback: () => {},
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
@@ -70,12 +76,15 @@ function KeeperModal(props: ModalProps) {
     buttonCallback,
     textColor,
     subTitleColor: ignored,
+    secondaryButtonText,
+    secondaryCallback,
     DarkCloseIcon,
     Content,
     dismissible,
     showButtons,
     learnMore,
     learnMoreCallback,
+    secButtonTextColor,
     closeOnOverlayClick,
     showCloseIcon,
     justifyContent,
@@ -113,17 +122,23 @@ function KeeperModal(props: ModalProps) {
       <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
         <GestureHandlerRootView>
           <Box backgroundColor={{ linearGradient }} style={styles.container}>
-            {showCloseIcon ? <TouchableOpacity style={styles.close} onPress={close}>
-              {getCloseIcon()}
-            </TouchableOpacity> : null}
-            {title || subTitle ? <Modal.Header style={styles.headerContainer}>
-              <Text style={styles.title} color={textColor}>
-                {title}
-              </Text>
-              {subTitle ? <Text style={styles.subTitle} color={subTitleColor}>
-                {`${subTitle}`}
-              </Text> : null}
-            </Modal.Header> : null}
+            {showCloseIcon ? (
+              <TouchableOpacity style={styles.close} onPress={close}>
+                {getCloseIcon()}
+              </TouchableOpacity>
+            ) : null}
+            {title || subTitle ? (
+              <Modal.Header style={styles.headerContainer}>
+                <Text style={styles.title} color={textColor}>
+                  {title}
+                </Text>
+                {subTitle ? (
+                  <Text style={styles.subTitle} color={subTitleColor}>
+                    {`${subTitle}`}
+                  </Text>
+                ) : null}
+              </Modal.Header>
+            ) : null}
             <Modal.Body>
               <Content />
             </Modal.Body>
@@ -139,6 +154,15 @@ function KeeperModal(props: ModalProps) {
                   </Box>
                 ) : (
                   <Box />
+                )}
+                {!!secondaryButtonText && (
+                  <TouchableOpacity onPress={secondaryCallback}>
+                    <Box style={styles.secCta}>
+                      <Text style={styles.ctaText} color={secButtonTextColor} bold>
+                        {showButtons ? secondaryButtonText : null}
+                      </Text>
+                    </Box>
+                  </TouchableOpacity>
                 )}
                 {!!buttonText && (
                   <TouchableOpacity onPress={buttonCallback}>
@@ -175,6 +199,14 @@ const getStyles = (subTitleWidth) =>
       fontSize: 12,
       letterSpacing: 1,
       width: subTitleWidth,
+    },
+    secCta: {
+      color: '#073E39',
+      borderRadius: 10,
+      width: wp(110),
+      height: hp(45),
+      justifyContent: 'center',
+      alignItems: 'center',
     },
     cta: {
       borderRadius: 10,
