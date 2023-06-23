@@ -31,6 +31,7 @@ import { getSignedSerializedPSBTForBitbox02, getTxForBitBox02 } from 'src/hardwa
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
 import { signWithLedgerChannel } from 'src/hardware/ledger';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SignWithChannel() {
   const { params } = useRoute();
@@ -89,6 +90,7 @@ function SignWithChannel() {
         if (signer.type === SignerType.TREZOR) {
           const { serializedTx: txHex } = data;
           dispatch(updatePSBTEnvelops({ txHex, signerId: signer.signerId }));
+          dispatch(healthCheckSigner([signer]));
           navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
         } else if (signer.type === SignerType.BITBOX02) {
           const { signedSerializedPSBT } = getSignedSerializedPSBTForBitbox02(
@@ -97,6 +99,7 @@ function SignWithChannel() {
             signingPayload
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+          dispatch(healthCheckSigner([signer]));
           navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
         } else if (signer.type === SignerType.LEDGER) {
           const { signedSerializedPSBT } = signWithLedgerChannel(
@@ -105,6 +108,7 @@ function SignWithChannel() {
             data
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+          dispatch(healthCheckSigner([signer]));
           navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
         }
       } catch (error) {

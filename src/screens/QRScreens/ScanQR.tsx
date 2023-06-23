@@ -29,9 +29,11 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => { },
+    onQrScan = () => {},
     setup = false,
     type,
+    isHealthcheck = false,
+    signer,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -47,7 +49,11 @@ function ScanQR() {
 
   useEffect(() => {
     if (qrData) {
-      onQrScan(qrData, resetQR);
+      if (isHealthcheck) {
+        onQrScan(qrData, resetQR, signer);
+      } else {
+        onQrScan(qrData, resetQR);
+      }
     }
     return () => {
       decoder = new URRegistryDecoder();
