@@ -868,7 +868,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
     throw new Error('Failed to update the policy');
   }
 
-  const signers: VaultSigner[] = getJSONFromRealmObject(activeVault.signers);
+  const { signers } = activeVault;
   for (const current of signers) {
     if (current.signerId === signer.signerId) {
       current.signerPolicy = {
