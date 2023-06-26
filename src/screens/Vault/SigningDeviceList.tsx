@@ -242,7 +242,7 @@ function SigningDeviceList() {
               })}
               <Note
                 title="Security Tip"
-                subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
+                subtitle="Please use the Health Check feature to ensure that your device is working and available as expected"
                 subtitleColor="GreyText"
                 width={windowWidth * 0.8}
               />
