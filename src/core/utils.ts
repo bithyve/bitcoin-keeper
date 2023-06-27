@@ -17,13 +17,12 @@ export const getKeyExpression = (masterFingerprint: string, derivationPath: stri
   `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}/**`;
 
 export const genrateOutputDescriptors = (
-  isMultisig: boolean,
-  signers: VaultSigner[],
-  scheme: VaultScheme,
-  vault: Vault
+  vault: Vault,
+  includePatchRestrictions: boolean = true
 ) => {
   const receivingAddress = WalletOperations.getNextFreeAddress(vault);
-  if (!isMultisig) {
+  const { signers, scheme } = vault;
+  if (!vault.isMultiSig) {
     const signer: VaultSigner = signers[0];
     // eslint-disable-next-line no-use-before-define
     const des = `wpkh(${getKeyExpression(
@@ -33,9 +32,9 @@ export const genrateOutputDescriptors = (
     )})\nNo path restrictions\n${receivingAddress}`;
     return des;
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
-    signers
-  )})\nNo path restrictions\n${receivingAddress}`;
+  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)})${
+    includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
+  }`;
 };
 
 // PASRER
@@ -145,7 +144,7 @@ export const parseTextforVaultConfig = (secret: string) => {
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       if (line.startsWith('Policy')) {
-        let [m, n] = line.split('Policy:')[1].split('of');
+        const [m, n] = line.split('Policy:')[1].split('of');
         scheme = { m: parseInt(m), n: parseInt(n) };
         if (allowedScehemes[scheme.m] !== scheme.n) {
           throw Error('Unsupported scheme');
