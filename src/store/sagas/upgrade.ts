@@ -13,6 +13,7 @@ import { encrypt, generateEncryptionKey } from 'src/core/services/operations/enc
 import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
 import { LabelRefType } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { setAppVersion, setPinHash } from '../reducers/storage';
 import { stringToArrayBuffer } from './login';
 import { createWatcher } from '../utilities';
@@ -49,7 +50,7 @@ export function* applyUpgradeSequence({
     semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
     semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
   ) {
-    yield put(migrateLabelsToBip329(previousVersion, newVersion));
+    yield put(migrateLabelsToBip329());
   }
 }
 
@@ -152,29 +153,27 @@ export const updateVersionHistoryWatcher = createWatcher(
   UPDATE_VERSION_HISTORY
 );
 
-function* migrateLablesWorker({
-  payload,
-}: {
-  payload: { previousVersion: string; newVersion: string };
-}) {
+function* migrateLablesWorker() {
   try {
     const UTXOLabels: UTXOInfo[] = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
-    const Vault: Vault = yield call(dbManager.getCollection, RealmSchema.Vault)[0];
     const tags = [];
+    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+
     UTXOLabels.forEach((utxo) => {
       if (utxo.labels.length) {
+        const wallet = wallets.find((w) => w.id === utxo.walletId);
+        const origin = genrateOutputDescriptors(wallet, false);
         utxo.labels.forEach((label) => {
           const ref = `${utxo.txId}:${utxo.vout}`;
           const labelName = label.name;
           const tag: BIP329Label = {
-            ref,
-            id: `${ref}${label}`,
+            id: `${ref}${labelName}`,
             type: LabelRefType.OUTPUT,
-            origin: 'origin',
             isSystem: false,
             label: labelName,
+            ref,
+            origin,
           };
-          console.log(tag);
           tags.push(tag);
         });
       }

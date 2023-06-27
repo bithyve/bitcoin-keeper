@@ -11,7 +11,6 @@ export const updateVersionHistory = (previousVersion, newVersion) => ({
   payload: { previousVersion, newVersion },
 });
 
-export const migrateLabelsToBip329 = (previousVersion, newVersion) => ({
+export const migrateLabelsToBip329 = () => ({
   type: MIGRATE_LABELS_329,
-  payload: { previousVersion, newVersion },
 });

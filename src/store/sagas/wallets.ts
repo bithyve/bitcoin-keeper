@@ -46,13 +46,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import {
-  encrypt,
-  generateEncryptionKey,
-  getRandomBytes,
-  generateKey,
-  hash256,
-} from 'src/core/services/operations/encryption';
+import { generateKey, hash256 } from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { captureError } from 'src/core/services/sentry';
