@@ -645,7 +645,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} />
+      <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} paddingLeft={hp(25)} />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
         <SendingCard isSend={false} />
