@@ -48,6 +48,7 @@ export const Tags: ObjectSchema = {
     ref: 'string',
     label: 'string',
     origin: 'string?',
+    isSystem: { type: 'bool', default: false },
   },
   primaryKey: 'id',
 };

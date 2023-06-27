@@ -10,7 +10,9 @@ import messaging from '@react-native-firebase/messaging';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
-import { UTXOInfo } from 'src/core/wallets/interfaces';
+import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
+import { LabelRefType } from 'src/core/wallets/enums';
+import { genrateOutputDescriptors } from 'src/core/utils';
 import { setAppVersion, setPinHash } from '../reducers/storage';
 import { stringToArrayBuffer } from './login';
 import { createWatcher } from '../utilities';
@@ -155,13 +157,28 @@ function* migrateLablesWorker({
 }: {
   payload: { previousVersion: string; newVersion: string };
 }) {
-  const { previousVersion, newVersion } = payload;
   try {
-    const UTXOLabels: UTXOInfo = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
-    const Labels: any[] = yield call(dbManager.getCollection, RealmSchema.Label);
-    console.log(previousVersion, newVersion);
-    console.log(UTXOLabels);
-    console.log(Labels);
+    const UTXOLabels: UTXOInfo[] = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
+    const Vault: Vault = yield call(dbManager.getCollection, RealmSchema.Vault)[0];
+    const tags = [];
+    UTXOLabels.forEach((utxo) => {
+      if (utxo.labels.length) {
+        utxo.labels.forEach((label) => {
+          const ref = `${utxo.txId}:${utxo.vout}`;
+          const labelName = label.name;
+          const tag: BIP329Label = {
+            ref,
+            id: `${ref}${label}`,
+            type: LabelRefType.OUTPUT,
+            origin: genrateOutputDescriptors(Vault, false),
+            isSystem: false,
+            label: labelName,
+          };
+          console.log(tag);
+          tags.push(tag);
+        });
+      }
+    });
   } catch (error) {
     console.log({ error });
   }
