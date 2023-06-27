@@ -12,6 +12,7 @@ import {
   WhirlpoolWalletDetailsSchema,
   LabelSchema,
   UTXOInfoSchema,
+  Tags,
   AddressCacheSchema,
 } from './wallet';
 import {
@@ -39,6 +40,7 @@ export default [
   BIP85ConfigSchema,
   UTXOSchema,
   UTXOInfoSchema,
+  Tags,
   AddressCacheSchema,
   LabelSchema,
   TransactionSchema,

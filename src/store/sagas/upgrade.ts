@@ -43,12 +43,12 @@ export function* applyUpgradeSequence({
     yield call(additionOfVaultShellId);
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
-  // if (
-  //   semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
-  //   semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
-  // ) {
-  //   yield put(migrateLabelsToBip329(previousVersion, newVersion));
-  // }
+  if (
+    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
+    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
+  ) {
+    yield put(migrateLabelsToBip329(previousVersion, newVersion));
+  }
 }
 
 function* switchToMainnet() {
@@ -157,9 +157,11 @@ function* migrateLablesWorker({
 }) {
   const { previousVersion, newVersion } = payload;
   try {
-    console.log('testing logs');
-    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-    console.log({ app, previousVersion, newVersion });
+    const UTXOLabels: UTXOInfo = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
+    const Labels: any[] = yield call(dbManager.getCollection, RealmSchema.Label);
+    console.log(previousVersion, newVersion);
+    console.log(UTXOLabels);
+    console.log(Labels);
   } catch (error) {
     console.log({ error });
   }
