@@ -56,7 +56,7 @@ import {
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
-import { updateVersionHistoryWatcher } from './upgrade';
+import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, createUTXOReferenceWatcher } from './utxos';
 
 const rootSaga = function* () {
@@ -123,6 +123,7 @@ const rootSaga = function* () {
     updateWalletPathAndPuposeDetailWatcher,
     // upgrade
     updateVersionHistoryWatcher,
+    migrateLablesWatcher,
 
     // utxos
     addLabelsWatcher,

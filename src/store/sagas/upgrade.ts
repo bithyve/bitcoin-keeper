@@ -10,6 +10,7 @@ import messaging from '@react-native-firebase/messaging';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
+import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { setAppVersion, setPinHash } from '../reducers/storage';
 import { stringToArrayBuffer } from './login';
 import { createWatcher } from '../utilities';
@@ -17,6 +18,8 @@ import {
   resetReduxStore,
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
+  migrateLabelsToBip329,
+  MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
 import { RootState } from '../store';
 import { generateSeedHash } from '../sagaActions/login';
@@ -24,6 +27,8 @@ import { setupKeeperAppWorker } from './storage';
 
 export const SWITCH_TO_MAINNET_VERSION = '0.0.99';
 export const ADDITION_OF_VAULTSHELL_VERSION = '1.0.1';
+export const BIP329_INTRODUCTION_VERSION = '1.0.7';
+export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -38,6 +43,12 @@ export function* applyUpgradeSequence({
     yield call(additionOfVaultShellId);
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
+  if (
+    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
+    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
+  ) {
+    yield put(migrateLabelsToBip329(previousVersion, newVersion));
+  }
 }
 
 function* switchToMainnet() {
@@ -138,3 +149,22 @@ export const updateVersionHistoryWatcher = createWatcher(
   updateVersionHistoryWorker,
   UPDATE_VERSION_HISTORY
 );
+
+function* migrateLablesWorker({
+  payload,
+}: {
+  payload: { previousVersion: string; newVersion: string };
+}) {
+  const { previousVersion, newVersion } = payload;
+  try {
+    const UTXOLabels: UTXOInfo = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
+    const Labels: any[] = yield call(dbManager.getCollection, RealmSchema.Label);
+    console.log(previousVersion, newVersion);
+    console.log(UTXOLabels);
+    console.log(Labels);
+  } catch (error) {
+    console.log({ error });
+  }
+}
+
+export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);
