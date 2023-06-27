@@ -43,12 +43,12 @@ export function* applyUpgradeSequence({
     yield call(additionOfVaultShellId);
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
-  if (
-    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
-    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
-  ) {
-    yield put(migrateLabelsToBip329(previousVersion, newVersion));
-  }
+  // if (
+  //   semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
+  //   semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
+  // ) {
+  //   yield put(migrateLabelsToBip329(previousVersion, newVersion));
+  // }
 }
 
 function* switchToMainnet() {
@@ -160,7 +160,6 @@ function* migrateLablesWorker({
     console.log('testing logs');
     const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     console.log({ app, previousVersion, newVersion });
-    yield;
   } catch (error) {
     console.log({ error });
   }
