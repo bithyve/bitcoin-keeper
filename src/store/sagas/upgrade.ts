@@ -170,7 +170,7 @@ function* migrateLablesWorker({
             ref,
             id: `${ref}${label}`,
             type: LabelRefType.OUTPUT,
-            origin: genrateOutputDescriptors(Vault, false),
+            origin: 'origin',
             isSystem: false,
             label: labelName,
           };
@@ -179,6 +179,8 @@ function* migrateLablesWorker({
         });
       }
     });
+    const migratedLabels = yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
+    console.log({ migratedLabels });
   } catch (error) {
     console.log({ error });
   }
