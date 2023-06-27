@@ -15,7 +15,7 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { captureError } from 'src/core/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
@@ -55,6 +55,7 @@ import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
+import { UAI } from 'src/common/data/models/interfaces/Uai';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallets } = payload;
@@ -413,19 +414,15 @@ function* healthCheckSignerWorker({
   payload,
 }: {
   payload: {
-    vaultId: string;
-    signerId: string;
+    signers: VaultSigner[];
   };
 }) {
   try {
-    const { vaultId, signerId } = payload;
-    const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
-    for (const signer of vault.signers) {
-      if (signer.signerId === signerId) {
-        const date = new Date();
-        yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
-        yield put(uaiActionedEntity(signer.signerId));
-      }
+    const { signers } = payload;
+    for (const signer of signers) {
+      const date = new Date();
+      yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
+      yield put(uaiActionedEntity(signer.signerId, true));
     }
   } catch (err) {
     console.log(err);

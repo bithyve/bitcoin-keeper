@@ -30,6 +30,7 @@ import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
@@ -186,6 +187,7 @@ function SignTransactionScreen() {
           dispatch(
             updatePSBTEnvelops({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
           );
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -202,6 +204,7 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
             showOTPModal,
@@ -213,6 +216,7 @@ function SignTransactionScreen() {
             shellId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -222,6 +226,7 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         }
       }
     },
@@ -257,6 +262,7 @@ function SignTransactionScreen() {
             !signerPolicy.exceptions.none &&
             outgoing <= signerPolicy.exceptions.transactionAmount
           ) {
+            showToast('Auto-signing, send amount smaller than max no-check amount');
             signTransaction({ signerId }); // case: OTP not required
           } else showOTPModal(true);
         } else showOTPModal(true);

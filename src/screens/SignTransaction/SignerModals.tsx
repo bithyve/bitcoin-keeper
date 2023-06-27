@@ -390,8 +390,8 @@ function OtpContent({ signTransaction }) {
           color="light.greenText"
           marginTop={2}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et
+          If you lose your authenticator app, use the other Signing Devices to reset the Signing
+          Server
         </Text>
         <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
@@ -546,8 +546,8 @@ function SignerModals({
                 close={() => {
                   showOTPModal(false);
                 }}
-                title="Confirm OTP to setup 2FA"
-                subTitle="Lorem ipsum dolor sit amet, "
+                title="Confirm OTP to sign transaction"
+                subTitle="To sign using signing server key"
                 textColor="light.primaryText"
                 Content={() => <OtpContent signTransaction={signTransaction} />}
               />
