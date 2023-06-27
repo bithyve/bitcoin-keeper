@@ -157,11 +157,10 @@ function* migrateLablesWorker({
 }) {
   const { previousVersion, newVersion } = payload;
   try {
-    const UTXOLabels: UTXOInfo = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
-    const Labels: any[] = yield call(dbManager.getCollection, RealmSchema.Label);
-    console.log(previousVersion, newVersion);
-    console.log(UTXOLabels);
-    console.log(Labels);
+    console.log('testing logs');
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    console.log({ app, previousVersion, newVersion });
+    yield;
   } catch (error) {
     console.log({ error });
   }
