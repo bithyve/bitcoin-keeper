@@ -350,15 +350,16 @@ const styles = StyleSheet.create({
   },
   balanceWrapper: {
     flexDirection: 'row',
-    width: '100%',
-    margin: wp(20),
+    width: '90%',
+    marginVertical: wp(20),
+    marginHorizontal: wp(20),
   },
   unconfirmBalanceView: {
-    width: '40%',
+    width: '50%',
   },
   availableBalanceView: {
-    width: '60%',
-    alignItems: 'center',
+    width: '50%',
+    alignItems: 'flex-end',
   },
   transTitleWrapper: {
     paddingTop: 20,
