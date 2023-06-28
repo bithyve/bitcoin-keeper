@@ -1,9 +1,9 @@
 export default {
-  RobotoCondensedBold: 'RobotoCondensed-Bold',
-  RobotoCondensedBoldItalic: 'RobotoCondensed-BoldItalic',
-  RobotoCondensedItalic: 'RobotoCondensed-Italic',
-  RobotoCondensedLight: 'RobotoCondensed-Light',
-  RobotoCondensedLightItalic: 'RobotoCondensed-LightItalic',
-  RobotoCondensedRegular: 'RobotoCondensed-Regular',
+  RobotoCondensedBold: 'FiraSansCondensed-Bold',
+  RobotoCondensedBoldItalic: 'FiraSansCondensed-BoldItalic',
+  RobotoCondensedItalic: 'FiraSansCondensed-Italic',
+  RobotoCondensedLight: 'FiraSansCondensed-Light',
+  RobotoCondensedLightItalic: 'FiraSansCondensed-LightItalic',
+  RobotoCondensedRegular: 'FiraSansCondensed-Regular',
   FiraSansCondensedMediumItalic: 'FiraSansCondensed-MediumItalic',
 };
