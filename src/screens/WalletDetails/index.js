@@ -101,11 +101,15 @@ function WalletDetails({ route }) {
   return (
     <Box style={styles.container} backgroundColor="light.greenText2">
       <StatusBar barStyle="light-content" backgroundColor="light.greenText2" />
-      <HeaderTitle
-        learnMore
-        learnMorePressed={() => dispatch(setIntroModal(true))}
-        backBtnBlackColor={false}
-      />
+      <VStack mr={5}>
+        <HeaderTitle
+          learnMore
+          learnMorePressed={() => dispatch(setIntroModal(true))}
+          backBtnBlackColor={false}
+          learnBackgroundColor=""
+          learnTextColor="light.white"
+        />
+      </VStack>
       <VStack>
         <Box style={styles.walletHeaderWrapper}>
           <Box style={styles.walletIconWrapper}>
@@ -350,10 +354,10 @@ const styles = StyleSheet.create({
     margin: wp(20),
   },
   unconfirmBalanceView: {
-    width: '50%',
+    width: '40%',
   },
   availableBalanceView: {
-    width: '50%',
+    width: '60%',
     alignItems: 'center',
   },
   transTitleWrapper: {
