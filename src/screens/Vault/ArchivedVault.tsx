@@ -99,7 +99,7 @@ function ArchivedVault() {
         title="Archived Vaults"
         subtitle="Previously used vaults"
         headerTitleColor="light.headerText"
-        paddingLeft={4}
+        paddingLeft={20}
         paddingTop={5}
       />
 
