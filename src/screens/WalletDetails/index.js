@@ -28,6 +28,7 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -40,8 +41,11 @@ export const allowedRecieveTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   return (
     <Box style={styles.transactionsListContainer}>
+      <ActivityIndicatorView visible={syncing} showLoader={false} />
       <Transactions
         transactions={transactions}
         setPullRefresh={setPullRefresh}
