@@ -59,6 +59,7 @@ import useFeatureMap from 'src/hooks/useFeatureMap';
 import openLink from 'src/utils/OpenLink';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
+import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
 
 function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
@@ -136,7 +137,7 @@ function Header() {
       <Box width="50%">
         <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
           <Text color="light.white" style={styles.footerText} light>
-            Know More
+            Learn More
           </Text>
         </TouchableOpacity>
       </Box>
@@ -177,24 +178,36 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
             Unconfirmed
           </Text>
-          {getNetworkAmount(
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={unconfirmed}
+            fontSize={14}
+            color="light.white"
+          />
+          {/* {getNetworkAmount(
             unconfirmed,
             exchangeRates,
             currencyCode,
             currentCurrency,
             [styles.vaultInfoText, { fontSize: 14 }],
             0.9
-          )}
+          )} */}
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
           <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
             Available Balance
           </Text>
-          {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={confirmed}
+            fontSize={22}
+            color="light.white"
+          />
+          {/* {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
             styles.vaultInfoText,
             { fontSize: 31, lineHeight: 30 },
             2,
-          ])}
+          ])} */}
         </VStack>
       </HStack>
     </VStack>

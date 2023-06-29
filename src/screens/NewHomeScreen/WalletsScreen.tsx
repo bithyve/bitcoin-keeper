@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/function-component-definition */
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -19,6 +19,7 @@ import ImportWallet from 'src/assets/images/importWallet.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import AddSCardIcon from 'src/assets/images/icon_add_white.svg';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
@@ -46,13 +47,14 @@ import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
 
 const TILE_MARGIN = wp(10);
-const TILE_WIDTH = hp(170);
+const TILE_WIDTH = hp(180);
 const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
     <View style={styles.addWalletContent}>
       <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
+        <AddSCardIcon />
         <Text color="light.white" style={styles.addWalletText}>
           {wallet.AddImportNewWallet}
         </Text>
@@ -562,7 +564,6 @@ const styles = StyleSheet.create({
   },
   addWalletText: {
     fontSize: 14,
-    marginTop: hp(10),
     textAlign: 'center',
   },
   walletCard: {

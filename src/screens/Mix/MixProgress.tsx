@@ -575,9 +575,9 @@ const getStyles = (clock) =>
     timeLineTitle: {
       fontSize: 14,
       letterSpacing: 0.5,
-      marginLeft: wp(25),
+      marginLeft: wp(18),
       marginTop: hp(3),
-      width: wp(260),
+      width: wp(280),
       flexWrap: 'wrap'
     },
     settingUpTitle: {

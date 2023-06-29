@@ -243,11 +243,11 @@ function AddSendAmount({ route }) {
                 <Input
                   placeholder="Enter Amount"
                   placeholderTextColor="light.greenText"
-                  color="light.greenText"
-                  opacity={0.5}
                   width="90%"
                   fontSize={14}
                   fontWeight={300}
+                  opacity={amount ? 1 : 0.5}
+                  color="light.greenText"
                   letterSpacing={1.04}
                   borderWidth="0"
                   value={amount}

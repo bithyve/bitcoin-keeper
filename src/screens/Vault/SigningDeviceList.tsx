@@ -240,15 +240,11 @@ function SigningDeviceList() {
                   />
                 );
               })}
-              <Note
-                title="Security Tip"
-                subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
-                subtitleColor="GreyText"
-                width={windowWidth * 0.8}
-              />
+
             </Box>
           )}
         </ScrollView>
+
         <KeeperModal
           visible={nfcAlert}
           close={() => {
@@ -282,6 +278,12 @@ function SigningDeviceList() {
           learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
         />
       </Box>
+      <Note
+        title="Security Tip"
+        subtitle="Please use the Health Check feature to ensure that your device is working and available as expected"
+        subtitleColor="GreyText"
+        width={windowWidth * 0.8}
+      />
     </ScreenWrapper>
   );
 }
@@ -296,10 +298,10 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: '8%',
+    paddingBottom: '2%',
   },
   scrollViewWrapper: {
-    height: windowHeight > 800 ? '90%' : '85%',
+    height: windowHeight > 800 ? '76%' : '74%',
   },
   contactUsText: {
     fontSize: 12,
