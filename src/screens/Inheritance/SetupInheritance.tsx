@@ -144,13 +144,6 @@ function SetupInheritance() {
           {plan !== SubscriptionTier.L3.toUpperCase() ? `This can be activated once you are at the ${SubscriptionTier.L3} level` : `Setup Inheritance Key`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID='btn_ISContinue'>
-          {/* <Buttons
-            primaryText="Continue"
-            primaryCallback={() => {
-              showToast('Inheritance flow coming soon', null, 1000);
-            }}
-            paddingHorizontal={wp(20)}
-          /> */}
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => showToast('Inheritance flow coming soon', null, 1000)}>
             <Box
               borderColor="light.learnMoreBorder"
