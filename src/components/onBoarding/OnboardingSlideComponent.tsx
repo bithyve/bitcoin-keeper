@@ -11,14 +11,14 @@ function OnboardingSlideComponent(props) {
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.titleWrapper}>
-        <Text fontSize={18} color="light.white" textAlign="center" letterSpacing={1.8}>
+        <Text fontSize={18} color="light.primaryBackground" textAlign="center" letterSpacing={1.8}>
           {props.title}
         </Text>
       </Box>
       <Box style={styles.illustartionWrapper}>{props.illustration}</Box>
       <Box style={styles.paragraphWrapper}>
         <Text
-          color="light.white"
+          color="light.primaryBackground"
           style={styles.paragraphText}
         >
           {props.paragraph}
@@ -30,7 +30,7 @@ function OnboardingSlideComponent(props) {
             onPress={() => props.navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
             style={styles.buttonWrapper}
           >
-            <Text fontSize={14} color="light.white" textAlign="center" bold>
+            <Text fontSize={14} color="light.primaryBackground" textAlign="center" bold>
               Start App&nbsp;&nbsp;
             </Text>
             <Skip />
