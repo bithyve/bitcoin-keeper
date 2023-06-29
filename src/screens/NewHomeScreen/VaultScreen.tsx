@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Pressable, ScrollView } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
@@ -42,7 +42,7 @@ function VaultScreen() {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color="light.primaryText">
+          <Text style={styles.titleText} color="light.primaryText" testID='text_YourVault'>
             Your Vault
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
@@ -78,7 +78,7 @@ function VaultScreen() {
                   </Box>
                 </Box>
                 <Box style={styles.availableBalanceWrapper}>
-                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)}>
+                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)} testID='btn_vaultBalance'>
                     <CurrencyInfo
                       hideAmounts={hideAmounts}
                       amount={confirmedBalance + unconfirmedBalance}
@@ -122,12 +122,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   vaultDetailsWrapper: {
-    padding: 15,
+    paddingVertical: 30,
+    paddingHorizontal: 15,
     borderRadius: 10,
     marginVertical: hp(20),
   },
   emptyVaultSignerWrapper: {
-    padding: 20,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
     borderRadius: 10,
     marginVertical: hp(20),
     alignItems: 'center',

@@ -9,6 +9,9 @@ export const TREZOR_SETUP = 'TREZOR_SETUP';
 export const TREZOR_REGISTER = 'TREZOR_REGISTER';
 export const TREZOR_SIGN = 'TREZOR_SIGN';
 export const LEDGER_SIGN = 'LEDGER_SIGN';
+export const BITBOX_HEALTHCHECK = 'BITBOX_HEALTHCHECK';
+export const LEDGER_HEALTHCHECK = 'LEDGER_HEALTHCHCHEK';
+export const TREZOR_HEALTHCHECK = 'TREZOR_HEALTHCHECK';
 export const SIGNED_TX = 'SIGNED_TX';
 
 // whirlpool events

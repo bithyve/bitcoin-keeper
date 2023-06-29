@@ -21,6 +21,8 @@ type Props = {
   learnMorePressed?: () => void;
   titleFontSize?: number;
   backBtnColor?: boolean;
+  learnBackgroundColor?: string;
+  learnTextColor?: string;
 };
 function HeaderTitle({
   title = '',
@@ -34,7 +36,9 @@ function HeaderTitle({
   learnMorePressed = () => { },
   titleFontSize = 16,
   textPadding = 0,
-  backBtnBlackColor = true
+  backBtnBlackColor = true,
+  learnBackgroundColor = 'light.lightAccent',
+  learnTextColor = 'light.learnMoreBorder'
 }: Props) {
   const navigation = useNavigation();
   return (
@@ -52,11 +56,11 @@ function HeaderTitle({
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
               <Box
-                borderColor="light.learnMoreBorder"
-                backgroundColor="light.lightAccent"
+                borderColor={learnTextColor === "light.white" ? "light.white" : "light.learnMoreBorder"}
+                backgroundColor={learnBackgroundColor}
                 style={styles.learnMoreContainer}
               >
-                <Text color="light.learnMoreBorder" style={styles.learnMoreText}>
+                <Text color={learnTextColor} style={styles.learnMoreText}>
                   Learn More
                 </Text>
               </Box>

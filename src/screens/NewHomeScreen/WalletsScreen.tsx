@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/function-component-definition */
-import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -19,6 +19,7 @@ import ImportWallet from 'src/assets/images/importWallet.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import AddSCardIcon from 'src/assets/images/icon_add_white.svg';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
@@ -46,13 +47,14 @@ import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
 
 const TILE_MARGIN = wp(10);
-const TILE_WIDTH = hp(170);
+const TILE_WIDTH = hp(180);
 const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
     <View style={styles.addWalletContent}>
       <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
+        <AddSCardIcon />
         <Text color="light.white" style={styles.addWalletText}>
           {wallet.AddImportNewWallet}
         </Text>
@@ -255,7 +257,7 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
-  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => { }, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
@@ -339,7 +341,7 @@ const WalletsScreen = ({ navigation }) => {
           <TouchableOpacity
             style={[styles.cancelBtn]}
             onPress={() => {
-              navigation.replace('ChoosePlan');
+              navigation.navigate('ChoosePlan');
               dispatch(setRecepitVerificationFailed(false));
             }}
             activeOpacity={0.5}
@@ -381,14 +383,14 @@ const WalletsScreen = ({ navigation }) => {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
-          <Text style={styles.titleText} color="light.primaryText">
+          <Text style={styles.titleText} color="light.primaryText" testID='text_HotWallet'>
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on this app
           </Text> */}
         </Box>
-        <Box style={styles.netBalanceView}>
+        <Box style={styles.netBalanceView} testID='view_netBalance'>
           <CurrencyInfo
             hideAmounts={hideAmounts}
             amount={netBalance}
@@ -408,7 +410,7 @@ const WalletsScreen = ({ navigation }) => {
         setAddImportVisible={() => setAddImportVisible(true)}
       />
       <Box style={styles.listItemsWrapper}>
-        <Box style={styles.whirlpoolListItemWrapper}>
+        <Box style={styles.whirlpoolListItemWrapper} testID='view_WhirlpoolUTXOs'>
           {presentationName.length > 0 ? (
             <ListItemView
               icon={<WhirlpoolWhiteIcon />}
@@ -470,14 +472,14 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />
@@ -562,7 +564,6 @@ const styles = StyleSheet.create({
   },
   addWalletText: {
     fontSize: 14,
-    marginTop: hp(10),
     textAlign: 'center',
   },
   walletCard: {

@@ -379,7 +379,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Text
               ml={5}
-              color="light.white"
+              color="light.primaryBackground"
               fontSize={22}
               style={{
                 marginTop: hp(65),
@@ -388,7 +388,7 @@ function LoginScreen({ navigation, route }) {
               {login.welcomeback}
             </Text>
             <Box>
-              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.textColor">
+              <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.primaryBackground">
                 {login.enter_your}
                 {login.passcode}
               </Text>
@@ -432,7 +432,7 @@ function LoginScreen({ navigation, route }) {
                   setForgotVisible(true);
                 }}
               >
-                <Text color="light.white" bold fontSize={14}>
+                <Text color="light.primaryBackground" bold fontSize={14}>
                   {login.ForgotPasscode}
                 </Text>
               </TouchableOpacity>
