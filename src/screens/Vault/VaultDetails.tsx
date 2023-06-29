@@ -191,8 +191,9 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <CurrencyInfo
             hideAmounts={false}
             amount={confirmed}
-            fontSize={22}
+            fontSize={20}
             color="light.white"
+            variation='light'
           />
         </VStack>
       </HStack>
