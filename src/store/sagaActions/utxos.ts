@@ -1,5 +1,6 @@
 import { LabelType } from 'src/core/wallets/enums';
 import { UTXO } from 'src/core/wallets/interfaces';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 
 // types and action creators: dispatched by components and sagas
 export const ADD_LABELS = 'ADD_LABELS';
@@ -15,8 +16,12 @@ export const addLabels = (payload: {
 });
 
 export const bulkUpdateLabels = (payload: {
-  labels: Array<{ name: string; type: LabelType }>;
+  labelChanges: {
+    added: { isSystem: boolean; name: string }[];
+    deleted: { isSystem: boolean; name: string }[];
+  };
   UTXO: UTXO;
+  wallet: Wallet;
 }) => ({
   type: BULK_UPDATE_LABELS,
   payload,
