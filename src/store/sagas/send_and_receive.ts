@@ -47,7 +47,7 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { createUTXOReferenceWorker } from './utxos';
+import { addLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 
 export function* fetchFeeRatesWorker() {
@@ -143,18 +143,11 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       recipients
       // customTxPrerequisites
     );
-    const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
-    const systemLableOnSend = enabledTransferTypes.includes(transferType)
-      ? [{ name: wallet.presentationData.name, type: LabelType.SYSTEM }]
-      : [];
-    let labels = systemLableOnSend;
+
     switch (wallet.entityKind) {
       case EntityKind.WALLET:
         if (!txid) throw new Error('Send failed: unable to generate txid');
         if (note) wallet.specs.txNote[txid] = note;
-        if (label) {
-          labels = labels.concat([{ name: label, type: LabelType.USER }]);
-        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -170,9 +163,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         if (!serializedPSBTEnvelops.length)
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
         if (note) wallet.specs.txNote[txid] = note;
-        if (label) {
-          labels = labels.concat([{ name: label, type: LabelType.USER }]);
-        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -188,14 +178,14 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       const vout = txPrerequisites[txnPriority].outputs.findIndex(
         (o) => o.address === recipients[0].address
       );
-      yield call(createUTXOReferenceWorker, {
-        payload: [
-          {
-            labels,
-            txId: txid,
-            vout,
-          },
-        ],
+      yield call(addLabelsWorker, {
+        payload: {
+          name: label,
+          txId: txid,
+          vout,
+          isSystem: false,
+          wallet,
+        },
       });
     }
   } catch (err) {
@@ -259,21 +249,17 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       specs: wallet.specs,
     });
     if (note) wallet.specs.txNote[txid] = note;
-    const labels = [];
-    if (label) {
-      labels.concat([{ name: label, type: LabelType.USER }]);
-    }
     const vout = txPrerequisites[txnPriority].outputs.findIndex(
       (o) => o.address === recipients[0].address
     );
-    yield call(createUTXOReferenceWorker, {
-      payload: [
-        {
-          labels,
-          txId: txid,
-          vout,
-        },
-      ],
+    yield call(addLabelsWorker, {
+      payload: {
+        name: label,
+        txId: txid,
+        vout,
+        isSystem: false,
+        wallet,
+      },
     });
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))

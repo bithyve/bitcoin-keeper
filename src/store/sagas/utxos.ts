@@ -10,18 +10,18 @@ import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS, CREATE_UTXO_REFERENCE } from '../sagaActions/utxos';
 
-function* addLabelsWorker({
-  payload,
-}: {
-  payload: { labels: Array<{ name: string; type: LabelType }>; UTXO: UTXO };
-}) {
-  const { UTXO, labels } = payload;
-  const { txId, vout } = UTXO;
-  const UTXOInfo = dbManager.getObjectById(RealmSchema.UTXOInfo, `${txId}${vout}`);
-  const existingLabels = UTXOInfo.toJSON().labels;
-  yield call(dbManager.updateObjectById, RealmSchema.UTXOInfo, `${txId}${vout}`, {
-    labels: existingLabels.concat(labels),
-  });
+export function* addLabelsWorker({ payload }: { payload: { txId; vout; name; isSystem; wallet } }) {
+  const { txId, vout, name, isSystem, wallet } = payload;
+  const origin = genrateOutputDescriptors(wallet, false);
+  const tag = {
+    id: `${txId}:${vout}${name}`,
+    ref: `${txId}:${vout}`,
+    type: LabelRefType.OUTPUT,
+    label: name,
+    origin,
+    isSystem,
+  };
+  yield call(dbManager.createObject, RealmSchema.Tags, tag);
 }
 
 function* bulkUpdateLabelsWorker({
