@@ -23,6 +23,8 @@
 		1882E89B2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1882E89A2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf */; };
 		18B4D55F2847898D004AB91F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 18B4D55E2847898D004AB91F /* GoogleService-Info.plist */; };
 		18BD1AA02834FA4100DB19E0 /* (null) in Resources */ = {isa = PBXBuildFile; };
+		18E8B2B22A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18E8B2B12A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf */; };
+		18E8B2B42A52DC960065205F /* FiraSansCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18E8B2B32A52DC960065205F /* FiraSansCondensed-Medium.ttf */; };
 		1F481833B9F94AB6A8820D24 /* RobotoCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E67B572D2F3047D6ABD3C5B2 /* RobotoCondensed-Italic.ttf */; };
 		1F9F460F29BF980E006C129F /* libwhirlpool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9F460E29BF980E006C129F /* libwhirlpool.a */; };
 		1F9F461029BF980E006C129F /* libwhirlpool.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9F460E29BF980E006C129F /* libwhirlpool.a */; };
@@ -87,6 +89,8 @@
 		1882E8942A4C338A009C9E0C /* FiraSansCondensed-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-LightItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-LightItalic.ttf"; sourceTree = "<group>"; };
 		1882E89A2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-BoldItalic.ttf"; sourceTree = "<group>"; };
 		18B4D55E2847898D004AB91F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		18E8B2B12A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-SemiBold.ttf"; path = "../src/assets/fonts/FiraSansCondensed-SemiBold.ttf"; sourceTree = "<group>"; };
+		18E8B2B32A52DC960065205F /* FiraSansCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Medium.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Medium.ttf"; sourceTree = "<group>"; };
 		1F04EB0F29BFB13600326473 /* hexa_keeper-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "hexa_keeper-Bridging-Header.h"; sourceTree = "<group>"; };
 		1F9F460E29BF980E006C129F /* libwhirlpool.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwhirlpool.a; sourceTree = "<group>"; };
 		1F9F461129BF981C006C129F /* whirlpoollib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = whirlpoollib.h; sourceTree = "<group>"; };
@@ -223,6 +227,8 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				18E8B2B32A52DC960065205F /* FiraSansCondensed-Medium.ttf */,
+				18E8B2B12A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf */,
 				1882E89A2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf */,
 				1882E8922A4C338A009C9E0C /* FiraSansCondensed-Bold.ttf */,
 				1882E8902A4C338A009C9E0C /* FiraSansCondensed-Italic.ttf */,
@@ -438,6 +444,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				18E8B2B42A52DC960065205F /* FiraSansCondensed-Medium.ttf in Resources */,
+				18E8B2B22A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf in Resources */,
 				1882E89B2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf in Resources */,
 				183A61962A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */,
 				1882E8952A4C338B009C9E0C /* FiraSansCondensed-Italic.ttf in Resources */,

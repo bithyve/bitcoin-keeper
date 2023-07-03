@@ -10,9 +10,9 @@ import { Transaction } from 'src/core/wallets/interfaces';
 import IconRecieve from 'src/assets/images/icon_received.svg';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
 import IconSent from 'src/assets/images/icon_sent.svg';
-import BtcBlack from 'src/assets/images/btc_black.svg';
 import IconArrow from 'src/assets/images/icon_arrow_grey.svg'
 import Text from 'src/components/KeeperText';
+import CurrencyInfo from 'src/screens/NewHomeScreen/components/CurrencyInfo';
 
 function TransactionElement({
   transaction,
@@ -49,13 +49,20 @@ function TransactionElement({
               <UnconfirmedIcon />
             </Box>
           )}
-          <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
+          {/* <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
           <Text style={styles.amountText}>
             {getBalance(transaction?.amount)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
               {getSatUnit()}
             </Text>
-          </Text>
+          </Text> */}
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={transaction?.amount}
+            fontSize={17}
+            color={`${colorMode}.dateText`}
+            variation='dark'
+          />
           <IconArrow />
         </Box>
       </Box>

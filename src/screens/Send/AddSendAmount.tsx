@@ -31,6 +31,7 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
 import { TxPriority } from 'src/core/wallets/enums';
 import idx from 'idx';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import WalletSendInfo from './WalletSendInfo';
 
 function AddSendAmount({ route }) {
@@ -184,14 +185,21 @@ function AddSendAmount({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
         style={styles.Container}
       >
-        <HeaderTitle
-          title={
-            transferType === TransferType.WALLET_TO_WALLET
-              ? `Sending to Wallet`
-              : `Enter the Amount`
-          }
-          paddingLeft={25}
-        />
+        <Box style={styles.HeaderContainer}>
+          <Box style={styles.headerWrapper}>
+            <HeaderTitle
+              title={
+                transferType === TransferType.WALLET_TO_WALLET
+                  ? `Sending to Wallet`
+                  : `Enter the Amount`
+              }
+              paddingLeft={25}
+            />
+          </Box>
+          <Box style={styles.currentTypeSwitchWrapper}>
+            <CurrencyTypeSwitch />
+          </Box>
+        </Box>
         <Box
           style={{
             marginVertical: hp(5),
@@ -220,7 +228,7 @@ function AddSendAmount({ route }) {
                   letterSpacing: 0.1,
                   fontStyle: 'italic',
                   textAlign: 'right',
-                  marginRight: 10,
+                  marginRight: 12,
                 }}
               >
                 {errorMessage}
@@ -445,6 +453,18 @@ const styles = ScaledSheet.create({
     color: Colors.Black,
     fontWeight: 'bold',
     opacity: 1,
+  },
+  HeaderContainer: {
+    flexDirection: 'row',
+    width: '100%'
+  },
+  headerWrapper: {
+    width: '75%'
+  },
+  currentTypeSwitchWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '25%',
   },
 });
 export default AddSendAmount;

@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, Pressable } from 'native-base';
+import { Box, HStack, VStack, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -32,9 +32,8 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
+import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { getNetworkAmount } from 'src/common/constants/Bitcoin';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
@@ -184,14 +183,6 @@ function VaultInfo({ vault }: { vault: Vault }) {
             fontSize={14}
             color="light.white"
           />
-          {/* {getNetworkAmount(
-            unconfirmed,
-            exchangeRates,
-            currencyCode,
-            currentCurrency,
-            [styles.vaultInfoText, { fontSize: 14 }],
-            0.9
-          )} */}
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
           <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
@@ -200,14 +191,10 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <CurrencyInfo
             hideAmounts={false}
             amount={confirmed}
-            fontSize={22}
+            fontSize={20}
             color="light.white"
+            variation='light'
           />
-          {/* {getNetworkAmount(confirmed, exchangeRates, currencyCode, currentCurrency, [
-            styles.vaultInfoText,
-            { fontSize: 31, lineHeight: 30 },
-            2,
-          ])} */}
         </VStack>
       </HStack>
     </VStack>

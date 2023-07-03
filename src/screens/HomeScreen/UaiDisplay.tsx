@@ -111,8 +111,8 @@ function UaiDisplay({ uaiStack }) {
       <>
         <UAIView
           title={uai?.title}
-          primaryCallbackText="Continue"
-          secondaryCallbackText={uai?.uaiType !== uaiType.DEFAULT ? 'Skip' : null}
+          primaryCallbackText="CONTINUE"
+          secondaryCallbackText={uai?.uaiType !== uaiType.DEFAULT ? 'SKIP' : null}
           secondaryCallback={uaiSetActionFalse}
           primaryCallback={pressHandler}
         />
