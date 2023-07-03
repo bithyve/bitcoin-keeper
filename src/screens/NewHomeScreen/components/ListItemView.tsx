@@ -3,6 +3,7 @@ import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import Fonts from 'src/common/Fonts';
 
 function ListItemView(props) {
   return (
@@ -16,7 +17,7 @@ function ListItemView(props) {
         <Text color="light.primaryText" style={styles.titleText} testID={`text_${props.title.replace(/ /g, '_')}`}>
           {props.title}
         </Text>
-        <Text color="light.primaryText" style={styles.subTitleText} testID='text_listSubTitle'>
+        <Text color="light.textColor2" style={styles.subTitleText} testID='text_listSubTitle'>
           {props.subTitle}
         </Text>
       </Box>
@@ -43,8 +44,10 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   titleText: {
+    letterSpacing: 1.04,
     fontSize: 13,
     fontWeight: '500',
+    fontFamily: Fonts.RobotoCondensedMedium,
   },
   subTitleText: {
     fontSize: 12,
