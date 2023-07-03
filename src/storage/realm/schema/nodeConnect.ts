@@ -9,6 +9,7 @@ export const NodeConnectSchema: ObjectSchema = {
     port: 'string',
     useKeeperNode: 'bool',
     isConnected: 'bool',
-    useSSL: 'bool'
+    useSSL: 'bool',
+    isDefault: 'bool?',
   },
 };
