@@ -158,10 +158,10 @@ export default function CreatePin(props) {
         <Box style={styles.wrapper}>
           <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} color="light.white">
+              <Text style={styles.welcomeText} color="light.primaryBackground">
                 {login.welcome}
               </Text>
-              <Text color="light.textColor" style={styles.labelText}>
+              <Text color="light.primaryBackground" style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -172,7 +172,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                      `light.error`
+                    `light.error`
                     : 'transparent'
                 }
               />
@@ -180,7 +180,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color="light.textColor" style={styles.labelText}>
+                <Text color="light.primaryBackground" style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
