@@ -13,6 +13,7 @@ import { isTestnet } from 'src/common/constants/Bitcoin';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
+import { predefinedMainnetNodes, predefinedTestnetNodes } from './node';
 
 function shufflePeers(peers) {
   for (let i = peers.length - 1; i > 0; i--) {
@@ -22,19 +23,25 @@ function shufflePeers(peers) {
   return peers;
 }
 
-const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: shufflePeers([{ host: 'testnet.qtornado.com', ssl: '51002' }]),
-  predefinedPeers: shufflePeers([
-    { host: 'electrumx-core.1209k.com', ssl: '50002' },
-    { host: 'bitcoin.lukechilds.co', ssl: '50002' },
-    { host: 'electrum1.bluewallet.io', ssl: '443' },
-    { host: 'electrum.jochen-hoenicke.de', ssl: '50006' },
-  ]),
+const ELECTRUM_CLIENT_CONFIG: {
+  predefinedTestnetPeers: NodeDetail[];
+  predefinedPeers: NodeDetail[];
+  maxConnectionAttempt: number;
+  reconnectDelay: number;
+} = {
+  predefinedTestnetPeers: shufflePeers(predefinedTestnetNodes),
+  predefinedPeers: shufflePeers(predefinedMainnetNodes),
   maxConnectionAttempt: 3,
   reconnectDelay: 500, // retry after half a second
 };
 
-const ELECTRUM_CLIENT = {
+const ELECTRUM_CLIENT: {
+  electrumClient: any;
+  isClientConnected: boolean;
+  currentPeerIndex: number;
+  connectionAttempt: number;
+  activePeer: NodeDetail;
+} = {
   electrumClient: null,
   isClientConnected: false,
   currentPeerIndex: -1,
@@ -70,9 +77,9 @@ export default class ElectrumClient {
       ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
         ElectrumClient.connectOverTor ? torrific : global.net,
         global.tls,
-        ELECTRUM_CLIENT.activePeer?.ssl || ELECTRUM_CLIENT.activePeer?.tcp,
-        ELECTRUM_CLIENT.activePeer?.host,
-        ELECTRUM_CLIENT.activePeer?.ssl ? 'tls' : 'tcp'
+        ELECTRUM_CLIENT.activePeer.port,
+        ELECTRUM_CLIENT.activePeer.host,
+        ELECTRUM_CLIENT.activePeer.useSSL ? 'tls' : 'tcp'
       ); // tcp or tls
 
       ELECTRUM_CLIENT.electrumClient.onError = (error) => {
@@ -82,6 +89,7 @@ export default class ElectrumClient {
           if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
           ELECTRUM_CLIENT.isClientConnected = false;
+          ELECTRUM_CLIENT.activePeer.isConnected = false;
           console.log('Error: Close the connection');
 
           setTimeout(
@@ -99,16 +107,19 @@ export default class ElectrumClient {
       console.log('Connection to electrum server is established', { ver });
       if (ver && ver[0]) {
         ELECTRUM_CLIENT.isClientConnected = true;
+        ELECTRUM_CLIENT.activePeer.isConnected = true;
       }
     } catch (error) {
       ELECTRUM_CLIENT.isClientConnected = false;
+      ELECTRUM_CLIENT.activePeer.isConnected = false;
+
       console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), error);
     }
 
     if (ELECTRUM_CLIENT.isClientConnected)
       return {
         connected: ELECTRUM_CLIENT.isClientConnected,
-        connectedTo: ELECTRUM_CLIENT.activePeer?.host,
+        connectedTo: ELECTRUM_CLIENT.activePeer.host,
       };
     return ElectrumClient.reconnect();
   }
@@ -148,6 +159,7 @@ export default class ElectrumClient {
     if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client not available');
     if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
     ELECTRUM_CLIENT.isClientConnected = false;
+    ELECTRUM_CLIENT.activePeer.isConnected = false;
   }
 
   public static async serverFeatures() {
@@ -158,15 +170,6 @@ export default class ElectrumClient {
 
   public static getBlockchainHeaders = async (): Promise<{ height: number; hex: string }> =>
     ELECTRUM_CLIENT.electrumClient.blockchainHeaders_subscribe();
-
-  public static getActivePrivateNodeToUse(node: NodeDetail) {
-    let peer = null;
-    if (node) {
-      if (node.useSSL) peer = { host: node.host, ssl: node.port, tcp: null };
-      else peer = { host: node.host, tcp: node.port, ssl: null };
-    }
-    return { peer };
-  }
 
   public static checkConnection() {
     if (!ELECTRUM_CLIENT.isClientConnected) {
@@ -195,9 +198,8 @@ export default class ElectrumClient {
   // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
   // if current peer to use is provided, it will use that peer
   public static setActivePeer(savedPrivateNodes: NodeDetail[], currentPeerToUse = null) {
-    const { peer: privatePeer } = ElectrumClient.getActivePrivateNodeToUse(
-      currentPeerToUse || savedPrivateNodes?.filter((node) => node.isConnected)[0]
-    );
+    const privatePeer =
+      currentPeerToUse || savedPrivateNodes?.filter((node) => node.isConnected)[0];
 
     ELECTRUM_CLIENT.activePeer = privatePeer || ElectrumClient.getNextPeer();
   }
