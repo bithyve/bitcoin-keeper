@@ -30,6 +30,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useAsync from 'src/hooks/useAsync';
 import useLabelsNew from 'src/hooks/useLabelsNew';
+import LabelItem from './components/LabelItem';
 
 function UTXOLabeling() {
   const navigation = useNavigation();
@@ -186,37 +187,14 @@ function UTXOLabeling() {
           </View>
           <View style={styles.listSubContainer}>
             {existingLabels.map((item, index) => (
-              <View
+              <LabelItem
+                item={item}
+                index={index}
                 key={`${item.name}:${item.isSystem}`}
-                style={[
-                  styles.labelView,
-                  {
-                    backgroundColor: item.isSystem
-                      ? '#23A289'
-                      : editingIndex !== index
-                      ? '#E0B486'
-                      : '#A88763',
-                  },
-                ]}
-              >
-                <TouchableOpacity
-                  style={styles.labelEditContainer}
-                  activeOpacity={!item.isSystem ? 0.5 : 1}
-                  onPress={() => (!item.isSystem ? onEditClick(item, index) : null)}
-                  testID={`btn_${item.name}`}
-                >
-                  <Text style={styles.itemText} bold testID={`text_${item.name}`}>
-                    {item.name.toUpperCase()}
-                  </Text>
-                  {!item.isSystem ? (
-                    <TouchableOpacity onPress={() => onCloseClick(index)}>
-                      <Box style={styles.deleteContainer}>
-                        <DeleteCross />
-                      </Box>
-                    </TouchableOpacity>
-                  ) : null}
-                </TouchableOpacity>
-              </View>
+                editingIndex={editingIndex}
+                onCloseClick={onCloseClick}
+                onEditClick={onEditClick}
+              />
             ))}
           </View>
           <Box style={styles.inputLabeWrapper}>
@@ -349,31 +327,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
     borderRadius: 10,
   },
-  labelView: {
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    flexDirection: 'row',
-    marginTop: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginEnd: 10,
-  },
   listSubContainer: {
     flexWrap: 'wrap',
     marginBottom: 20,
     flexDirection: 'row',
-  },
-  labelEditContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  itemText: {
-    color: '#fff',
-    fontSize: 11,
-  },
-  deleteContainer: {
-    paddingHorizontal: 4,
   },
 });
 

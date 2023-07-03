@@ -6,25 +6,41 @@ import { LabelRefType, LabelType } from 'src/core/wallets/enums';
 import Relay from 'src/core/services/operations/Relay';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS, CREATE_UTXO_REFERENCE } from '../sagaActions/utxos';
 
-export function* addLabelsWorker({ payload }: { payload: { txId; vout; name; isSystem; wallet } }) {
-  const { txId, vout, name, isSystem, wallet } = payload;
-  const origin = genrateOutputDescriptors(wallet, false);
-  const tag = {
-    id: `${txId}:${vout}${name}`,
-    ref: `${txId}:${vout}`,
-    type: LabelRefType.OUTPUT,
-    label: name,
-    origin,
-    isSystem,
+export function* addLabelsWorker({
+  payload,
+}: {
+  payload: {
+    txId: string;
+    vout?: number;
+    wallet: Wallet | Vault;
+    labels: { name: string; isSystem: boolean }[];
+    type;
   };
-  yield call(dbManager.createObject, RealmSchema.Tags, tag);
+}) {
+  const { txId, vout, wallet, labels, type } = payload;
+  const origin = genrateOutputDescriptors(wallet, false);
+  const tags = [];
+  labels.forEach((label) => {
+    const ref = vout !== undefined ? `${txId}:${vout}` : txId;
+    const tag = {
+      id: `${ref}${label.name}`,
+      label: label.name,
+      isSystem: label.isSystem,
+      ref,
+      type,
+      origin,
+    };
+    tags.push(tag);
+  });
+  yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
 }
 
-function* bulkUpdateLabelsWorker({
+export function* bulkUpdateLabelsWorker({
   payload,
 }: {
   payload: {

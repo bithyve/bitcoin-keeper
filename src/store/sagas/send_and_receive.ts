@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { EntityKind, LabelType, TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, LabelRefType, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -147,7 +147,17 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
     switch (wallet.entityKind) {
       case EntityKind.WALLET:
         if (!txid) throw new Error('Send failed: unable to generate txid');
-        if (note) wallet.specs.txNote[txid] = note;
+        if (note) {
+          wallet.specs.txNote[txid] = note;
+          yield call(addLabelsWorker, {
+            payload: {
+              txId: txid,
+              wallet,
+              labels: [{ name: note, isSystem: false }],
+              type: LabelRefType.TXN,
+            },
+          });
+        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -162,7 +172,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       case EntityKind.VAULT:
         if (!serializedPSBTEnvelops.length)
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
-        if (note) wallet.specs.txNote[txid] = note;
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -175,18 +184,20 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         throw new Error('Invalid Entity: not a Vault/Wallet');
     }
     if (wallet.entityKind === EntityKind.WALLET) {
-      const vout = txPrerequisites[txnPriority].outputs.findIndex(
-        (o) => o.address === recipients[0].address
-      );
-      yield call(addLabelsWorker, {
-        payload: {
-          name: label,
-          txId: txid,
-          vout,
-          isSystem: false,
-          wallet,
-        },
-      });
+      if (label && label.length) {
+        const vout = txPrerequisites[txnPriority].outputs.findIndex(
+          (o) => o.address === recipients[0].address
+        );
+        yield call(addLabelsWorker, {
+          payload: {
+            txId: txid,
+            vout,
+            wallet,
+            labels: label,
+            type: LabelRefType.OUTPUT,
+          },
+        });
+      }
     }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
@@ -248,19 +259,32 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
     });
-    if (note) wallet.specs.txNote[txid] = note;
-    const vout = txPrerequisites[txnPriority].outputs.findIndex(
-      (o) => o.address === recipients[0].address
-    );
-    yield call(addLabelsWorker, {
-      payload: {
-        name: label,
-        txId: txid,
-        vout,
-        isSystem: false,
-        wallet,
-      },
-    });
+    if (note) {
+      wallet.specs.txNote[txid] = note;
+      yield call(addLabelsWorker, {
+        payload: {
+          txId: txid,
+          wallet,
+          labels: [{ name: note, isSystem: false }],
+          type: LabelRefType.TXN,
+        },
+      });
+    }
+
+    if (label && label.length) {
+      const vout = txPrerequisites[txnPriority].outputs.findIndex(
+        (o) => o.address === recipients[0].address
+      );
+      yield call(addLabelsWorker, {
+        payload: {
+          txId: txid,
+          vout,
+          wallet,
+          labels: label,
+          type: LabelRefType.OUTPUT,
+        },
+      });
+    }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
       yield put(setElectrumNotConnectedErr(err?.message));
