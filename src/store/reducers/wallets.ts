@@ -125,6 +125,9 @@ const walletSlice = createSlice({
         state.walletSyncing = { ...state.walletSyncing, [wallet.id]: isSyncing };
       });
     },
+    resetSyncing: (state) => {
+      state.walletSyncing = {};
+    },
     setWhirlpoolCreated: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolWalletCreated = action.payload;
     },
@@ -157,6 +160,7 @@ export const {
   setWhirlpoolModal,
   setWhirlpoolWallets,
   resetWhirlpoolWallets,
+  resetSyncing,
   setSyncing,
   setWhirlpoolCreated,
   setWalletPoolMap,

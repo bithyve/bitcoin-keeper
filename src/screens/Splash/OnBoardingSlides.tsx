@@ -153,16 +153,11 @@ function OnBoardingSlides({ navigation }) {
                     }
                     }
                   >
-                    <LinearGradient
-                      start={[0, 0]}
-                      end={[1, 1]}
-                      colors={['#FFFFFF', '#80A8A1']}
-                      style={styles.cta}
-                    >
+                    <Box style={styles.cta} backgroundColor='light.white'>
                       <Text bold color="light.greenText" style={styles.startAppText}>
                         Start App
                       </Text>
-                    </LinearGradient>
+                    </Box>
                   </TouchableOpacity>
                 </Box>
               )}

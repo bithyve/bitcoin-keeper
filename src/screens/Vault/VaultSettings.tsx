@@ -174,6 +174,7 @@ function VaultSettings({ route }) {
           headerTitleColor="light.textBlack"
           titleFontSize={20}
           paddingTop={hp(5)}
+          paddingLeft={hp(25)}
         />
       </Box>
       <Box borderBottomColor="light.divider" style={styles.vaultCardWrapper}>
