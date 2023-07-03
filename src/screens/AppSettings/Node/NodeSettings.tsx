@@ -6,7 +6,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { setConnectToMyNode } from 'src/store/reducers/settings';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
@@ -23,8 +22,12 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
 import { updateAppImage } from 'src/store/sagaActions/bhr';
+import {
+  electrumClientConnectionExecuted,
+  electrumClientConnectionInitiated,
+} from 'src/store/reducers/login';
 import AddNode from './AddNodeModal';
-import Node from './node';
+import Node from '../../../core/services/electrum/node';
 
 function NodeSettings() {
   const dispatch = useAppDispatch();
@@ -33,11 +36,9 @@ function NodeSettings() {
   const { settings } = translations;
   const { showToast } = useToastMessage();
 
-  const { connectToMyNodeEnabled } = useAppSelector((state) => state.settings);
   const [nodeList, setNodeList] = useState([]);
-  const [ConnectToNode, setConnectToNode] = useState(connectToMyNodeEnabled);
   const [visible, setVisible] = useState(false);
-  const [selectedNodeItem, setSelectedNodeItem] = useState(null);
+  const [currentlySelectedNode, setCurrentlySelectedNodeItem] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -50,9 +51,6 @@ function NodeSettings() {
   };
 
   const closeAddNodeModal = async () => {
-    if (nodeList.length === 0 || nodeList.filter((item) => item.isConnected).length === 0) {
-      await onChangeConnectToMyNode(false);
-    }
     setVisible(false);
   };
 
@@ -61,105 +59,90 @@ function NodeSettings() {
     await closeAddNodeModal();
     const { nodes, node } = await Node.save(nodeDetail, nodeList);
     if (nodes === null || node === null) {
-      console.log('node not saved');
       setLoading(false);
       return;
     }
-    dispatch(updateAppImage(null));
+    // dispatch(updateAppImage(null));
+    // setCurrentlySelectedNodeItem(node);
     setNodeList(nodes);
-    setSelectedNodeItem(node);
     setLoading(false);
   };
 
   const onAdd = () => {
-    setSelectedNodeItem(null);
-    openAddNodeModal();
-  };
-
-  const onEdit = async (selectedItem: NodeDetail) => {
-    setSelectedNodeItem(selectedItem);
+    setCurrentlySelectedNodeItem(null);
     openAddNodeModal();
   };
 
   const onDelete = async (selectedItem: NodeDetail) => {
-    const status = Node.delete(selectedItem?.id);
-    dispatch(updateAppImage(null));
+    const status = Node.delete(selectedItem);
+    // dispatch(updateAppImage(null));
     let nodes = [];
     if (status) {
       nodes = Node.getNodes();
       setNodeList(nodes);
     }
 
-    setSelectedNodeItem(null);
-
-    if (nodes?.length === 0 || selectedItem.isConnected) {
-      setConnectToNode(false);
-      dispatch(setConnectToMyNode(false));
-    }
+    setCurrentlySelectedNodeItem(null);
   };
 
-  const onConnectNode = async (selectedItem) => {
-    setLoading(true);
-    setSelectedNodeItem(selectedItem);
-    let node = { ...selectedItem };
-
-    if (!selectedItem.isConnected) {
-      node = await Node.connect(selectedItem);
-      if (node?.isConnected) {
-        Node.update(node?.id, { isConnected: node?.isConnected });
-        dispatch(updateAppImage(null));
-      }
-    } else {
-      await disconnectNode(node);
-      Node.update(node?.id, { isConnected: node?.isConnected });
-      dispatch(updateAppImage(null));
-      setLoading(false);
-      return;
+  const onConnectToNode = async (selectedNode: NodeDetail) => {
+    if (
+      currentlySelectedNode &&
+      selectedNode.id !== currentlySelectedNode.id &&
+      currentlySelectedNode.isConnected
+    ) {
+      // disconnect currently selected node(if connected)
+      await Node.disconnect(currentlySelectedNode);
+      currentlySelectedNode.isConnected = false;
+      Node.update(currentlySelectedNode, { isConnected: currentlySelectedNode.isConnected });
+      setCurrentlySelectedNodeItem(null);
     }
 
-    setConnectToNode(node?.isConnected);
-    dispatch(setConnectToMyNode(node?.isConnected));
-    updateNode(node);
+    dispatch(electrumClientConnectionInitiated());
+    setLoading(true);
 
-    if (node.isConnected) {
-      showToast(`${settings.nodeConnectionSuccess}`, <TickIcon />);
+    const node = { ...selectedNode };
+    const { connected, connectedTo, error } = await Node.connect(node);
+
+    if (connected) {
+      node.isConnected = connected;
+      Node.update(node, { isConnected: connected });
+      dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, connectedTo }));
+      updateNodeList(node);
+      // dispatch(updateAppImage(null));
     } else {
+      // dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
       showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />);
     }
 
+    setCurrentlySelectedNodeItem(node);
     setLoading(false);
   };
 
-  const disconnectNode = async (node) => {
-    node.isConnected = false;
+  const onDisconnectToNode = async (selectedNode: NodeDetail) => {
+    setLoading(true);
+    const node = { ...selectedNode };
     await Node.disconnect(node);
-    setConnectToNode(node?.isConnected);
-    dispatch(setConnectToMyNode(node?.isConnected));
-    updateNode(node);
+    node.isConnected = false;
+    Node.update(node, { isConnected: node.isConnected });
+    // showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
+    updateNodeList(node);
+    setCurrentlySelectedNodeItem(null);
+    setLoading(false);
   };
 
-  const updateNode = (selectedItem) => {
+  const updateNodeList = (selectedItem) => {
     const nodes = [...nodeList];
     const updatedNodes = nodes.map((item) => {
-      const node = { ...item };
-      node.isConnected = item.id === selectedItem?.id ? selectedItem.isConnected : false;
-      return node;
+      if (item.id === selectedItem.id) return { ...selectedItem };
+      return item;
     });
 
     setNodeList(updatedNodes);
   };
 
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
-    setSelectedNodeItem(selectedItem);
-  };
-
-  const onChangeConnectToMyNode = async (value: boolean) => {
-    setConnectToNode(value);
-    dispatch(setConnectToMyNode(value));
-    if (value) {
-      setSelectedNodeItem(Node.getModalParams(null));
-      openAddNodeModal();
-    } else updateNode(null);
+    setCurrentlySelectedNodeItem(selectedItem);
   };
 
   return (
@@ -191,71 +174,82 @@ function NodeSettings() {
           <FlatList
             data={nodeList}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => onSelectedNodeitem(item)}
-                style={item.id === selectedNodeItem?.id ? styles.selectedItem : null}
-              >
-                <Box
-                  backgroundColor={ConnectToNode ? 'light.primaryBackground' : 'light.fadedGray'}
-                  style={[styles.nodeList]}
+            renderItem={({ item }) => {
+              const isConnected = Node.nodeConnectionStatus(item);
+              return (
+                <TouchableOpacity
+                  onPress={() => onSelectedNodeitem(item)}
+                  style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
-                  <Box style={[styles.nodeDetail, { backgroundColor: 'light.primaryBackground' }]}>
-                    <Box>
-                      <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
-                        {settings.host}
-                      </Text>
-                      <Text numberOfLines={1} style={styles.nodeTextValue}>
-                        {item.host}
-                      </Text>
-                    </Box>
-                    <Box>
-                      <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
-                        {settings.portNumber}
-                      </Text>
-                      <Text style={styles.nodeTextValue}>{item.port}</Text>
-                    </Box>
-                  </Box>
-                  {/* <Box borderColor="light.GreyText" style={styles.verticleSplitter} /> */}
-                  <Box style={styles.nodeButtons}>
-                    {/* <TouchableOpacity onPress={() => onEdit(item)}>
-                      <Box style={[styles.actionArea, { paddingLeft: 14, paddingRight: 14 }]}>
-                        <EditIcon />
-                        <Text style={[styles.actionText]}>{common.edit}</Text>
-                      </Box>
-                    </TouchableOpacity> */}
-                    {/* <Box borderColor="light.GreyText" style={styles.verticleSplitter} /> */}
-
-                    <TouchableOpacity onPress={() => onConnectNode(item)}>
-                      <Box
-                        style={[
-                          styles.actionArea,
-                          { width: 70, paddingTop: Node.nodeConnectionStatus(item) ? 4 : 5 },
-                        ]}
-                      >
-                        {Node.nodeConnectionStatus(item) ? <DisconnectIcon /> : <ConnectIcon />}
-                        <Text
-                          style={[
-                            styles.actionText,
-                            { paddingTop: Node.nodeConnectionStatus(item) ? 0 : 1 },
-                          ]}
-                        >
-                          {Node.nodeConnectionStatus(item) ? common.disconnect : common.connect}
+                  <Box
+                    backgroundColor={
+                      item.isConnected ? 'light.primaryBackground' : 'light.fadedGray'
+                    }
+                    style={[styles.nodeList]}
+                  >
+                    <Box
+                      style={[styles.nodeDetail, { backgroundColor: 'light.primaryBackground' }]}
+                    >
+                      <Box>
+                        <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                          {settings.host}
+                        </Text>
+                        <Text numberOfLines={1} style={styles.nodeTextValue}>
+                          {item.host}
                         </Text>
                       </Box>
-                    </TouchableOpacity>
-                    <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
-
-                    <TouchableOpacity onPress={() => onDelete(item)}>
-                      <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
-                        <DeleteIcon />
-                        <Text style={[styles.actionText, { paddingTop: 2 }]}>{common.delete}</Text>
+                      <Box>
+                        <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                          {settings.portNumber}
+                        </Text>
+                        <Text style={styles.nodeTextValue}>{item.port}</Text>
                       </Box>
-                    </TouchableOpacity>
+                    </Box>
+                    {/* <Box borderColor="light.GreyText" style={styles.verticleSplitter} /> */}
+                    <Box style={styles.nodeButtons}>
+                      {/* <TouchableOpacity onPress={() => onEdit(item)}>
+                        <Box style={[styles.actionArea, { paddingLeft: 14, paddingRight: 14 }]}>
+                          <EditIcon />
+                          <Text style={[styles.actionText]}>{common.edit}</Text>
+                        </Box>
+                      </TouchableOpacity> */}
+                      {/* <Box borderColor="light.GreyText" style={styles.verticleSplitter} /> */}
+
+                      <TouchableOpacity
+                        onPress={() => {
+                          if (!item.isConnected) onConnectToNode(item);
+                          else onDisconnectToNode(item);
+                        }}
+                      >
+                        <Box
+                          style={[
+                            styles.actionArea,
+                            { width: 70, paddingTop: isConnected ? 4 : 5 },
+                          ]}
+                        >
+                          {isConnected ? <DisconnectIcon /> : <ConnectIcon />}
+                          <Text style={[styles.actionText, { paddingTop: isConnected ? 0 : 1 }]}>
+                            {isConnected ? common.disconnect : common.connect}
+                          </Text>
+                        </Box>
+                      </TouchableOpacity>
+                      <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+
+                      {item.isDefault ? null : (
+                        <TouchableOpacity onPress={() => onDelete(item)}>
+                          <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
+                            <DeleteIcon />
+                            <Text style={[styles.actionText, { paddingTop: 2 }]}>
+                              {common.delete}
+                            </Text>
+                          </Box>
+                        </TouchableOpacity>
+                      )}
+                    </Box>
                   </Box>
-                </Box>
-              </TouchableOpacity>
-            )}
+                </TouchableOpacity>
+              );
+            }}
           />
         </Box>
       )}
@@ -284,9 +278,9 @@ function NodeSettings() {
         buttonTextColor="#FAFAFA"
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
-        Content={() => AddNode(Node.getModalParams(selectedNodeItem), onSaveCallback)}
+        Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
