@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyleSheet, ActivityIndicator, Modal, View } from 'react-native';
 
-function ActivityIndicatorView({ visible }: { visible: boolean }) {
+function ActivityIndicatorView({ visible, showLoader = true }: { visible: boolean; showLoader }) {
   if (visible) {
     return (
       <Modal transparent visible={visible} statusBarTranslucent>
         <View style={styles.container}>
-          <ActivityIndicator size="large" animating color="#00836A" />
+          {showLoader ? <ActivityIndicator size="large" animating color="#00836A" /> : null}
         </View>
       </Modal>
     );
