@@ -1,5 +1,5 @@
 import { Box } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -42,7 +42,9 @@ function NodeSettings() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const nodes = Node.getNodes();
+    const nodes: NodeDetail[] = Node.getNodes();
+    const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
+    setCurrentlySelectedNodeItem(current);
     setNodeList(nodes);
   }, []);
 
@@ -86,6 +88,7 @@ function NodeSettings() {
   };
 
   const onConnectToNode = async (selectedNode: NodeDetail) => {
+    let nodes = [...nodeList];
     if (
       currentlySelectedNode &&
       selectedNode.id !== currentlySelectedNode.id &&
@@ -95,6 +98,12 @@ function NodeSettings() {
       await Node.disconnect(currentlySelectedNode);
       currentlySelectedNode.isConnected = false;
       Node.update(currentlySelectedNode, { isConnected: currentlySelectedNode.isConnected });
+
+      nodes = nodes.map((item) => {
+        if (item.id === currentlySelectedNode.id) return { ...currentlySelectedNode };
+        return item;
+      });
+
       setCurrentlySelectedNodeItem(null);
     }
 
@@ -108,7 +117,11 @@ function NodeSettings() {
       node.isConnected = connected;
       Node.update(node, { isConnected: connected });
       dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, connectedTo }));
-      updateNodeList(node);
+
+      nodes = nodes.map((item) => {
+        if (item.id === node.id) return { ...node };
+        return item;
+      });
       // dispatch(updateAppImage(null));
     } else {
       // dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
@@ -116,29 +129,27 @@ function NodeSettings() {
     }
 
     setCurrentlySelectedNodeItem(node);
+    setNodeList(nodes);
     setLoading(false);
   };
 
   const onDisconnectToNode = async (selectedNode: NodeDetail) => {
+    let nodes = [...nodeList];
+
     setLoading(true);
     const node = { ...selectedNode };
     await Node.disconnect(node);
     node.isConnected = false;
     Node.update(node, { isConnected: node.isConnected });
     // showToast(`Disconnected from ${node.host}`, <ToastErrorIcon />);
-    updateNodeList(node);
-    setCurrentlySelectedNodeItem(null);
-    setLoading(false);
-  };
 
-  const updateNodeList = (selectedItem) => {
-    const nodes = [...nodeList];
-    const updatedNodes = nodes.map((item) => {
-      if (item.id === selectedItem.id) return { ...selectedItem };
+    nodes = nodes.map((item) => {
+      if (item.id === node.id) return { ...node };
       return item;
     });
-
-    setNodeList(updatedNodes);
+    setNodeList(nodes);
+    setCurrentlySelectedNodeItem(null);
+    setLoading(false);
   };
 
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
@@ -182,13 +193,18 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={
-                      item.isConnected ? 'light.primaryBackground' : 'light.fadedGray'
-                    }
+                    backgroundColor={isConnected ? 'light.primaryBackground' : 'light.fadedGray'}
                     style={[styles.nodeList]}
                   >
                     <Box
-                      style={[styles.nodeDetail, { backgroundColor: 'light.primaryBackground' }]}
+                      style={[
+                        styles.nodeDetail,
+                        {
+                          backgroundColor: isConnected
+                            ? 'light.primaryBackground'
+                            : 'light.fadedGray',
+                        },
+                      ]}
                     >
                       <Box>
                         <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
@@ -217,7 +233,7 @@ function NodeSettings() {
 
                       <TouchableOpacity
                         onPress={() => {
-                          if (!item.isConnected) onConnectToNode(item);
+                          if (!isConnected) onConnectToNode(item);
                           else onDisconnectToNode(item);
                         }}
                       >

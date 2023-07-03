@@ -89,10 +89,8 @@ export default class Node {
 
   public static update(nodeDetail: NodeDetail, propsToUpdate: any) {
     if (!nodeDetail) return null;
-
-    console.log({ nodeDetail });
     if (nodeDetail.isDefault) return null; // default nodes are not stored in realm
-    console.log({ isNotDefault: nodeDetail });
+
     dbManager.updateObjectById(RealmSchema.NodeConnect, nodeDetail.id.toString(), {
       ...propsToUpdate,
     });
