@@ -691,4 +691,13 @@ export default class WalletUtilities {
     const signature = bitcoinMessage.sign(message, keyPair.privateKey, keyPair.compressed);
     return signature.toString('base64');
   };
+
+  static getWalletFromAddress = (wallets: Wallet[], address: string) => {
+    for (const wallet of wallets) {
+      if (Object.values(wallet.specs.addresses.external).includes(address)) {
+        return wallet;
+      }
+    }
+    return null;
+  };
 }

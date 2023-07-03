@@ -143,18 +143,19 @@ function SendScreen({ route }) {
     info = info.trim();
     const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
     setPaymentInfo(address);
+    const sendingTo = WalletUtilities.getWalletFromAddress(allWallets, address);
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         sender.entityKind === 'VAULT'
           ? navigateToNext(address, TransferType.VAULT_TO_ADDRESS)
-          : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
+          : navigateToNext(address, TransferType.WALLET_TO_ADDRESS, null, sendingTo);
         break;
       case PaymentInfoKind.PAYMENT_URI:
         const transferType =
           sender.entityKind === 'VAULT'
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
-        navigateToNext(address, transferType, amount ? amount.toString() : null);
+        navigateToNext(address, transferType, amount ? amount.toString() : null, sendingTo);
         break;
       default:
         showToast('Invalid bitcoin address', <ToastErrorIcon />);
