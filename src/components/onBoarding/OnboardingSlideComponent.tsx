@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     letterSpacing: 1.4,
-    marginHorizontal: 5
+    marginHorizontal: 5,
+    opacity: 0.8
   },
   buttonWrapper: {
     flexDirection: 'row',
