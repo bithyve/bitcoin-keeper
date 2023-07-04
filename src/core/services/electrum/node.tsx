@@ -64,9 +64,12 @@ export default class Node {
       nodeDetail.port === null ||
       nodeDetail.port.length === 0
     )
-      return null;
+      return { saved: false };
+    if (nodeDetail.isDefault) return { saved: false }; // default nodes are not stored in realm
 
-    if (nodeDetail.isDefault) return null; // default nodes are not stored in realm
+    // test connection before saving
+    const isConnectable = await ElectrumClient.testConnection(nodeDetail);
+    if (!isConnectable) return { saved: false };
 
     const node = { ...nodeDetail };
     if (node.id === null) {
@@ -83,8 +86,7 @@ export default class Node {
         isConnected: node.isConnected,
       });
     }
-
-    return { nodes: Node.getNodes(), node };
+    return { saved: true };
   }
 
   public static update(nodeDetail: NodeDetail, propsToUpdate: any) {

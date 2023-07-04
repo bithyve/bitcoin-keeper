@@ -384,15 +384,15 @@ export default class ElectrumClient {
     return ELECTRUM_CLIENT.electrumClient.blockchainTransaction_broadcast(txHex);
   }
 
-  public static async testConnection(host, tcpPort, sslPort) {
+  public static async testConnection(node: NodeDetail) {
     const connectOverTor =
-      host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED;
+      node.host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED;
     const client = new ElectrumCli(
       connectOverTor ? torrific : global.net,
       global.tls,
-      sslPort || tcpPort,
-      host,
-      sslPort ? 'tls' : 'tcp'
+      node.port,
+      node.host,
+      node.useSSL ? 'tls' : 'tcp'
     );
 
     client.onError = (ex) => {

@@ -59,14 +59,15 @@ function NodeSettings() {
   const onSaveCallback = async (nodeDetail: NodeDetail) => {
     setLoading(true);
     await closeAddNodeModal();
-    const { nodes, node } = await Node.save(nodeDetail, nodeList);
-    if (nodes === null || node === null) {
-      setLoading(false);
-      return;
+    const { saved } = await Node.save(nodeDetail, nodeList);
+    if (saved) {
+      const updatedNodeList = Node.getNodes();
+      setNodeList(updatedNodeList);
+      // dispatch(updateAppImage(null));
+      // setCurrentlySelectedNodeItem(node);
+    } else {
+      showToast(`Failed to save, unable to connect to: ${nodeDetail.host} `, <ToastErrorIcon />);
     }
-    // dispatch(updateAppImage(null));
-    // setCurrentlySelectedNodeItem(node);
-    setNodeList(nodes);
     setLoading(false);
   };
 
