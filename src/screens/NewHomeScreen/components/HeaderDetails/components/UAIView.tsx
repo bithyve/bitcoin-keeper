@@ -3,6 +3,7 @@ import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp } from 'src/common/data/responsiveness/responsive';
+import Fonts from 'src/common/Fonts';
 
 function UAIView({
   title,
@@ -46,8 +47,9 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     color: '#24312E',
     fontSize: 12,
-    fontWeight: 'bold',
     width: 170,
+    fontFamily: Fonts.RobotoCondensedSemiBold,
+    letterSpacing: 0.6
   },
   skipWrapper: {
     width: '20%',

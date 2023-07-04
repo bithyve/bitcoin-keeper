@@ -338,7 +338,7 @@ export default function BroadcastPremix({ route, navigation }) {
           </Box>
         )}
       />
-      <SwiperModal />
+      <SwiperModal enable={!preRequistesLoading} />
     </ScreenWrapper>
   );
 }

@@ -5,5 +5,7 @@ export default {
   RobotoCondensedLight: 'FiraSansCondensed-Light',
   RobotoCondensedLightItalic: 'FiraSansCondensed-LightItalic',
   RobotoCondensedRegular: 'FiraSansCondensed-Regular',
+  RobotoCondensedSemiBold: 'FiraSansCondensed-SemiBold',
+  RobotoCondensedMedium: 'FiraSansCondensed-Medium',
   FiraSansCondensedMediumItalic: 'FiraSansCondensed-MediumItalic',
 };

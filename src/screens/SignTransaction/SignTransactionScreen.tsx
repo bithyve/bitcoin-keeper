@@ -272,6 +272,7 @@ function SignTransactionScreen() {
           CommonActions.navigate({
             name: 'InputSeedWordSigner',
             params: {
+              signerId,
               onSuccess: signTransaction,
             },
           })

@@ -56,7 +56,7 @@ const linearGradientBtn = {
   end: [1, 1],
 };
 function List(props) {
-  const listRef = useRef(null)
+  const listRef = useRef(null);
   const dispatch = useAppDispatch();
   const [currentPosition, setCurrentPosition] = useState(0);
 
@@ -72,16 +72,19 @@ function List(props) {
 
   return (
     <Box>
-      {currentPosition !== 0 ?
-        <TouchableOpacity style={styles.close} onPress={() => dispatch(setWhirlpoolSwiperModal(false))}>
+      {currentPosition !== 0 ? (
+        <TouchableOpacity
+          style={styles.close}
+          onPress={() => dispatch(setWhirlpoolSwiperModal(false))}
+        >
           <CloseGreen />
-        </TouchableOpacity> : null}
+        </TouchableOpacity>
+      ) : null}
       <Box style={styles.headerContainer}>
-        <Text style={styles.title} color='light.white'>
+        <Text style={styles.title} color="light.white">
           Some Definitions:
         </Text>
       </Box>
-
       <FlatList
         ref={listRef}
         data={swiperData}
@@ -96,16 +99,24 @@ function List(props) {
       />
       <Box style={styles.ctaWrapper}>
         <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
-          <Pressable onPress={() => { openLink('https://www.bitcoinkeeper.app/') }}>
+          <Pressable
+            onPress={() => {
+              openLink('https://www.bitcoinkeeper.app/');
+            }}
+          >
             <Text color="light.lightAccent" style={styles.seeFAQs} bold>
               See FAQs
             </Text>
           </Pressable>
         </Box>
         <Box>
-          <TouchableOpacity onPress={() => currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))}>
+          <TouchableOpacity
+            onPress={() =>
+              currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))
+            }
+          >
             <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
-              <Text style={styles.ctaText} color='light.greenText02' bold>
+              <Text style={styles.ctaText} color="light.greenText02" bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>
@@ -116,12 +127,12 @@ function List(props) {
   );
 }
 
-function SwiperModal() {
+function SwiperModal({ enable }) {
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
   return (
     <KeeperModal
-      visible={whirlpoolSwiperModal}
+      visible={enable && whirlpoolSwiperModal}
       close={() => {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
@@ -174,7 +185,7 @@ const styles = StyleSheet.create({
   ctaWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   cta: {
     borderRadius: 10,
@@ -196,7 +207,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 19,
     letterSpacing: 1,
-    marginVertical: 20
+    marginVertical: 20,
   },
   close: {
     position: 'absolute',
