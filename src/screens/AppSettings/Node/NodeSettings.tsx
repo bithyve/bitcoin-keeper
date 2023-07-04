@@ -76,6 +76,9 @@ function NodeSettings() {
   };
 
   const onDelete = async (selectedItem: NodeDetail) => {
+    const isConnected = Node.nodeConnectionStatus(selectedItem);
+    if (isConnected) await Node.disconnect(selectedItem);
+
     const status = Node.delete(selectedItem);
     // dispatch(updateAppImage(null));
     let nodes = [];

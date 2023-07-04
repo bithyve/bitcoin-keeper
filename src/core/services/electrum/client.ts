@@ -84,7 +84,7 @@ export default class ElectrumClient {
 
       ELECTRUM_CLIENT.electrumClient.onError = (error) => {
         if (ELECTRUM_CLIENT.isClientConnected) {
-          console.log('Electrum mainClient.onError():', error?.message);
+          console.log('Electrum mainClient.onError():', error?.message || error);
 
           if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
@@ -92,10 +92,10 @@ export default class ElectrumClient {
           ELECTRUM_CLIENT.activePeer.isConnected = false;
           console.log('Error: Close the connection');
 
-          setTimeout(
-            ElectrumClient.connect,
-            ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500
-          );
+          // setTimeout(
+          //   ElectrumClient.connect,
+          //   ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500
+          // );
         }
       };
 
