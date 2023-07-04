@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import { Box } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
@@ -210,7 +211,7 @@ function NodeSettings() {
                         },
                       ]}
                     >
-                      <Box>
+                      <Box style={{ width: '60%' }}>
                         <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
                           {settings.host}
                         </Text>
@@ -225,16 +226,7 @@ function NodeSettings() {
                         <Text style={styles.nodeTextValue}>{item.port}</Text>
                       </Box>
                     </Box>
-                    {/* <Box borderColor="light.GreyText" style={styles.verticleSplitter} /> */}
                     <Box style={styles.nodeButtons}>
-                      {/* <TouchableOpacity onPress={() => onEdit(item)}>
-                        <Box style={[styles.actionArea, { paddingLeft: 14, paddingRight: 14 }]}>
-                          <EditIcon />
-                          <Text style={[styles.actionText]}>{common.edit}</Text>
-                        </Box>
-                      </TouchableOpacity> */}
-                      {/* <Box borderColor="light.GreyText" style={styles.verticleSplitter} /> */}
-
                       <TouchableOpacity
                         onPress={() => {
                           if (!isConnected) onConnectToNode(item);
@@ -255,7 +247,7 @@ function NodeSettings() {
                       </TouchableOpacity>
                       <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
 
-                      {item.isDefault ? null : (
+                      {!item.isDefault ? null : (
                         <TouchableOpacity onPress={() => onDelete(item)}>
                           <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                             <DeleteIcon />
@@ -274,7 +266,7 @@ function NodeSettings() {
         </Box>
       )}
 
-      <TouchableOpacity onPress={onAdd}>
+      <TouchableOpacity onPress={onAdd} >
         <Box backgroundColor="#E3BE96" style={styles.addNewNode}>
           <AddIcon />
           <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
@@ -300,7 +292,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -354,7 +346,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     flexDirection: 'row',
     width: '100%',
-    height: '45%',
+    height: '58%',
     // alignItems: 'center',
   },
   nodeListTitle: {
