@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: windowWidth * 0.8,
     paddingLeft: 15,
+    bottom: 25,
     height: 70,
     fontSize: 13,
     elevation: 6,
