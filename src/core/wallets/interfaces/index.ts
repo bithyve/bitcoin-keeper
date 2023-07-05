@@ -195,4 +195,5 @@ export interface NodeDetail {
   isConnected: boolean;
   useKeeperNode: boolean;
   useSSL: boolean;
+  isDefault?: boolean;
 }

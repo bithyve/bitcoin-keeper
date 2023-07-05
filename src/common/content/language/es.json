@@ -91,7 +91,7 @@
     "ReEnter": "Re Enter",
     "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
-    "ForgotPasscode": "Forgot your passcode?",
+    "ForgotPasscode": "Forgot Passcode?",
     "forgotPasscodeDesc": "Lorem ipsum dolor sit amet, consectetur eiusmod tempor",
     "Invalidword": "Invalid word",
     "ResetPasscode": "Reset Passcode",
@@ -439,6 +439,7 @@
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
     "nodesUsedPreviously": "Nodes connected previously",
+    "currentlyConnected": "Currently connected to",
     "ipAddress": "IP Address",
     "portNumber": "Port Number",
     "addNewNode": "Add a new node",
@@ -468,8 +469,8 @@
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signing devices, without any intermediate step",
     "slide06Title": "Affordable plans\nand a great offer",
     "slide06Paragraph": "And now for a limited time, all tiers for the Keeper are free for the first 6 months. Download Keeper and setup your vault now.",
-    "slide07Title": "Ensure forward looking privacy with",
-    "whirlpool": "\nWhirlpool",
+    "slide07Title": "Ensure forward looking privacy \nwith",
+    "whirlpool": "Whirlpool",
     "slide07Paragraph": "You can remix your sats for free for enhanced privacy before storing them in your vault"
   },
   "choosePlan": {

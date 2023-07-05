@@ -13,7 +13,7 @@ import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { removeSigningDeviceBhr, setRelayVaultRecoveryShellId } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -41,9 +41,9 @@ function AddSigningDevice({ error }) {
       onPress={
         error
           ? () =>
-              Alert.alert(
-                'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
-              )
+            Alert.alert(
+              'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
+            )
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
       }
     >
@@ -251,6 +251,7 @@ function VaultRecovery({ navigation }) {
         subtitle="To recover your vault"
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
+        paddingLeft={wp(25)}
       />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
@@ -267,7 +268,7 @@ function VaultRecovery({ navigation }) {
             <AddSigningDevice error={error} />
           </Box>
         ) : (
-          <Box alignItems="center">
+          <Box flex={1} alignItems="center" justifyContent="center">
             <TouchableOpacity
               onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
             >
@@ -302,14 +303,14 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => {}}
+        close={() => { }}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
           navigation.replace('App');
         }}
       />
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 

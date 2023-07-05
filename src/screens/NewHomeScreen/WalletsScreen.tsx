@@ -41,6 +41,7 @@ import {
   setRecepitVerificationFailed,
 } from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import Fonts from 'src/common/Fonts';
 import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
@@ -529,7 +530,8 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 16,
-    fontWeight: '500',
+    marginLeft: wp(15),
+    fontFamily: Fonts.RobotoCondensedMedium,
   },
   subTitleText: {
     fontSize: 12,
@@ -550,7 +552,7 @@ const styles = StyleSheet.create({
   },
   walletsContainer: {
     marginTop: 18,
-    height: windowHeight > 680 ? hp(210) : hp(190),
+    height: hp(210),
     width: '100%',
   },
   walletContainer: {
@@ -558,7 +560,7 @@ const styles = StyleSheet.create({
     borderRadius: hp(10),
     width: wp(TILE_WIDTH),
     marginHorizontal: TILE_MARGIN / 2,
-    height: windowHeight > 680 ? hp(210) : hp(190),
+    height: hp(210),
     padding: wp(15),
     alignContent: 'space-between',
   },
