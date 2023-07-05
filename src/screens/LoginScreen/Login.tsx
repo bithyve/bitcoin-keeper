@@ -155,7 +155,7 @@ function LoginScreen({ navigation, route }) {
     if (authenticationFailed && passcode) {
       setLoginModal(false);
       setLoginError(true);
-      setErrMessage('Incorrect password');
+      setErrMessage('Incorrect passcode');
       setPasscode('');
       setAttempts(attempts + 1);
       setLogging(false);
