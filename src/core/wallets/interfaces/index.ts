@@ -1,5 +1,12 @@
 /* eslint-disable no-unused-vars */
-import { LabelType, NetworkType, SignerType, TransactionType, TxPriorityDefault } from '../enums';
+import {
+  LabelRefType,
+  LabelType,
+  NetworkType,
+  SignerType,
+  TransactionType,
+  TxPriorityDefault,
+} from '../enums';
 
 export interface InputUTXOs {
   txId: string;
@@ -130,6 +137,15 @@ export interface UTXOInfo {
   vout: number;
   walletId: string;
   labels?: Array<{ name: string; type: LabelType }>;
+}
+
+export interface BIP329Label {
+  id: string;
+  ref: string;
+  type: LabelRefType;
+  label: string;
+  origin?: string;
+  isSystem: boolean;
 }
 
 export interface BIP85Config {

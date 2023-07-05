@@ -13,7 +13,7 @@ import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { Step } from 'src/nativemodules/interface';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
-import { WalletType } from 'src/core/wallets/enums';
+import { LabelRefType, WalletType } from 'src/core/wallets/enums';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -31,7 +31,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { UTXO } from 'src/core/wallets/interfaces';
+import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
@@ -41,6 +41,9 @@ import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useVault from 'src/hooks/useVault';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import { genrateOutputDescriptors } from 'src/core/utils';
+import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -157,6 +160,7 @@ function MixProgress({
   const { activeVault } = useVault();
   const source = isRemix ? postmixWallet : premixWallet;
   const destination = isRemix && remixingToVault ? activeVault : postmixWallet;
+  const { labels } = useLabelsNew({ utxos: selectedUTXOs, wallet: depositWallet });
 
   const getPoolsData = async () => {
     const poolsDataResponse = await WhirlpoolClient.getPools();
@@ -313,7 +317,7 @@ function MixProgress({
     setMixFailed(data);
   };
 
-  const onSuccess = (data) => {
+  const onSuccess = async (data) => {
     const { txid } = data;
     if (txid) {
       const updatedArray = [...statuses];
@@ -331,6 +335,28 @@ function MixProgress({
         <TickIcon />,
         3000
       );
+      const postmixTags: BIP329Label[] = [];
+      const userLabels = [];
+      Object.keys(labels).forEach((key) => {
+        const tags = labels[key].filter((t) => !t.isSystem);
+        userLabels.push(...tags);
+      });
+      const origin = genrateOutputDescriptors(depositWallet, false);
+      const transaction = await ElectrumClient.getTransactionsById([txid]);
+      const vout = transaction[txid].vout.findIndex(
+        (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
+      );
+      userLabels.forEach((label) => {
+        postmixTags.push({
+          id: `${txid}:${vout}${label.name}`,
+          ref: `${txid}:${vout}`,
+          type: LabelRefType.OUTPUT,
+          label: label.name,
+          isSystem: label.isSystem,
+          origin,
+        });
+      });
+      dispatch(bulkUpdateUTXOLabels({ addedTags: postmixTags }));
       setTimeout(async () => {
         dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
         navigation.navigate('UTXOManagement', {
@@ -410,7 +436,8 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${
+          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -578,7 +605,7 @@ const getStyles = (clock) =>
       marginLeft: wp(18),
       marginTop: hp(3),
       width: wp(280),
-      flexWrap: 'wrap'
+      flexWrap: 'wrap',
     },
     settingUpTitle: {
       marginTop: hp(12),

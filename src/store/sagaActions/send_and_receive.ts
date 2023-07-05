@@ -165,7 +165,7 @@ export interface SendPhaseTwoAction extends Action {
     txnPriority: TxPriority;
     transferType: TransferType;
     note?: string;
-    label?: string;
+    label?: { name: string; isSystem: boolean }[];
   };
 }
 
@@ -175,7 +175,7 @@ export const sendPhaseTwo = (payload: {
   transferType: TransferType;
   token?: number;
   note?: string;
-  label?: string;
+  label?: { name: string; isSystem: boolean }[];
 }): SendPhaseTwoAction => ({
   type: SEND_PHASE_TWO,
   payload,
@@ -186,8 +186,8 @@ export interface SendPhaseThreeAction extends Action {
   payload: {
     wallet: Wallet | Vault;
     txnPriority: TxPriority;
-    note: string;
-    label: string;
+    note?: string;
+    label?: { name: string; isSystem: boolean }[];
   };
 }
 
@@ -195,7 +195,7 @@ export const sendPhaseThree = (payload: {
   wallet: Wallet | Vault;
   txnPriority: TxPriority;
   note: string;
-  label: string;
+  label: { name: string; isSystem: boolean }[];
 }): SendPhaseThreeAction => ({
   type: SEND_PHASE_THREE,
   payload,

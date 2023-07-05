@@ -154,6 +154,7 @@ function* credentialsAuthWorker({ payload }) {
     const lastElement = versionCollection[versionCollection.length - 1];
     const lastVersionCode = lastElement.version.split(/[()]/);
     const currentVersionCode = DeviceInfo.getBuildNumber();
+    console.log({ previousVersion, newVersion });
     if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
     } else if (currentVersionCode !== lastVersionCode[1]) {
@@ -165,6 +166,7 @@ function* credentialsAuthWorker({ payload }) {
       });
     }
   } catch (err) {
+    console.log('hmmm??? ', err);
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
     } else yield put(credsAuthenticated(false));
