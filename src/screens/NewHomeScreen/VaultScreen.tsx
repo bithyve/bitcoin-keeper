@@ -9,6 +9,7 @@ import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import Colors from 'src/theme/Colors';
+import Fonts from 'src/common/Fonts';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -116,19 +117,20 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: Fonts.RobotoCondensedMedium,
+    letterSpacing: 1.28
   },
   subTitleText: {
     fontSize: 12,
   },
   vaultDetailsWrapper: {
-    paddingVertical: 30,
+    paddingVertical: 35,
     paddingHorizontal: 15,
     borderRadius: 10,
     marginVertical: hp(20),
   },
   emptyVaultSignerWrapper: {
-    paddingVertical: 40,
+    paddingVertical: 45,
     paddingHorizontal: 20,
     borderRadius: 10,
     marginVertical: hp(20),

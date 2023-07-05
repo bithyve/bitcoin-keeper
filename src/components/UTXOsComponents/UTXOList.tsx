@@ -1,6 +1,6 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BtcBlack from 'src/assets/images/btc_black.svg';
@@ -9,16 +9,46 @@ import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/core/wallets/interfaces';
 import Selected from 'src/assets/images/selected.svg';
-import useLabels from 'src/hooks/useLabels';
-import { LabelType, WalletType } from 'src/core/wallets/enums';
+import { WalletType } from 'src/core/wallets/enums';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { useAppSelector } from 'src/store/hooks';
+import useLabelsNew from 'src/hooks/useLabelsNew';
 
-function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) {
+function Label({
+  name,
+  isSystem,
+  onLayout,
+  index,
+  setExtraLabelMap,
+  extraLabelMap,
+  setExtraLabelCount,
+}) {
+  useEffect(
+    () => () => {
+      extraLabelMap.delete(`${index}`);
+      setExtraLabelMap(extraLabelMap);
+      setExtraLabelCount(extraLabelMap.size);
+    },
+    []
+  );
+  return (
+    <Box
+      key={name}
+      onLayout={(event) => onLayout(event, index)}
+      style={[styles.utxoLabelView, { backgroundColor: isSystem ? '#23A289' : '#E0B486' }]}
+    >
+      <Text style={styles.labelText} bold testID={`text_${name.replace(/ /g, '_')}`}>
+        {name.toUpperCase()}
+      </Text>
+    </Box>
+  );
+}
+function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }) {
   const { labels } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
   const [extraLabelMap, setExtraLabelMap] = useState(new Map());
@@ -37,20 +67,17 @@ function UTXOLabel(props: { labels: Array<{ name: string; type: LabelType }> }) 
     <Box style={{ flexDirection: 'row' }}>
       <Box style={styles.labelList}>
         {labels
-          .sort((a, b) => (a.type > b.type ? 1 : a.type < b.type ? -1 : 0))
+          .sort((a, b) => (a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : 0))
           .map((item, index) => (
-            <Box
-              key={item.name}
-              onLayout={(event) => onLayout(event, index)}
-              style={[
-                styles.utxoLabelView,
-                { backgroundColor: item.type === LabelType.SYSTEM ? '#23A289' : '#E0B486' },
-              ]}
-            >
-              <Text style={styles.labelText} bold testID={`text_${item.name.replace(/ /g, '_')}`}>
-                {item.name.toUpperCase()}
-              </Text>
-            </Box>
+            <Label
+              name={item.name}
+              isSystem={item.isSystem}
+              onLayout={onLayout}
+              index={index}
+              setExtraLabelMap={setExtraLabelMap}
+              extraLabelMap={extraLabelMap}
+              setExtraLabelCount={setExtraLabelCount}
+            />
           ))}
       </Box>
       {extraLabelCount > 0 && (
@@ -184,8 +211,10 @@ function UTXOList({
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
-  const { labels, syncing } = useLabels({ utxos: utxoState, wallet: currentWallet });
+  const { labels } = useLabelsNew({ utxos: utxoState, wallet: currentWallet });
   const dispatch = useDispatch();
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
   const pullDownRefresh = () => dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
   return (
     <FlatList
@@ -195,7 +224,7 @@ function UTXOList({
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
         <UTXOElement
-          labels={labels ? labels[`${item.txId}${item.vout}`] || [] : []}
+          labels={labels ? labels[`${item.txId}:${item.vout}`] || [] : []}
           item={item}
           enableSelection={enableSelection}
           selectedUTXOMap={selectedUTXOMap}

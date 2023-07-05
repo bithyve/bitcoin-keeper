@@ -78,7 +78,7 @@ function FogotPassword(props) {
       {props.type === 'seed' ? (
         <Box>
           <Text fontSize={13} mt={10}>
-            Enter the {` ${getSeedIndexText(resetCred.index + 1)} `} word
+            Enter the {`${getSeedIndexText(resetCred.index + 1)} `} word
           </Text>
           <Input
             onChangeText={(text) => {
@@ -95,7 +95,8 @@ function FogotPassword(props) {
             backgroundColor="light.primaryBackground"
             pl={5}
             py={4}
-            my={6}
+            mt={6}
+            mb={2}
             value={passwordText}
             autoCapitalize="none"
             autoCorrect={false}
@@ -105,7 +106,7 @@ function FogotPassword(props) {
           />
 
           {invalid && (
-            <Text color="#FF0000" margin={2}>
+            <Text color="#FF0000">
               {login.Invalidword}
             </Text>
           )}

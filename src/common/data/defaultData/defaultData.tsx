@@ -37,7 +37,8 @@ export const securityTips = [
     title: 'Security Tip',
     subTitle:
       'You can get a receive address directly from a signing device and do not have to trust the Keeper app',
-    assert: <SecutityTip />,
+    // assert: <SecutityTip />,
+    assert: <LoadingAnimation />,
     message: 'This will mean that the funds are received at the correct address',
   },
   // {
@@ -50,14 +51,16 @@ export const securityTips = [
   {
     title: 'Keep your signing devices safe',
     subTitle: 'Signing devices are what control your funds.',
-    assert: <SigningDeviceSafe />,
+    // assert: <SigningDeviceSafe />,
+    assert: <LoadingAnimation />,
     message: 'These are generally offline and to keep them secure is your responsibility. ',
   },
   {
     title: 'Security Tip',
     subTitle:
       'Recreate the multisig Vault on more coordinators. Receive a small amount and send a part of it. Check whether the balances are appropriately reflected across all the coordinators after each step',
-    assert: <SecutityTip />,
+    // assert: <SecutityTip />,
+    assert: <LoadingAnimation />,
     message: 'Testing out your setup before using it is always a good idea',
   },
 

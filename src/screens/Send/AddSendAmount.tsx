@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input, KeyboardAvoidingView, Pressable } from 'native-base';
+import { Box, HStack, Input, KeyboardAvoidingView, Pressable, VStack } from 'native-base';
 import { Platform, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -29,9 +29,12 @@ import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
-import { TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, TxPriority } from 'src/core/wallets/enums';
 import idx from 'idx';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import WalletSendInfo from './WalletSendInfo';
+import LabelItem from '../UTXOManagement/components/LabelItem';
 
 function AddSendAmount({ route }) {
   const navigation = useNavigation();
@@ -42,7 +45,7 @@ function AddSendAmount({ route }) {
     address,
     amount: prefillAmount,
     transferType,
-    selectedUTXOs,
+    selectedUTXOs = [],
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -56,7 +59,7 @@ function AddSendAmount({ route }) {
   const [amountToSend, setAmountToSend] = useState('');
   const [note, setNote] = useState('');
   const [label, setLabel] = useState('');
-  const [addTagsModalVisible, setAddTagsModalVisible] = useState(false);
+  const [labelsToAdd, setLabelsToAdd] = useState([]);
 
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
   const recipientCount = 1;
@@ -69,8 +72,8 @@ function AddSendAmount({ route }) {
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const utxoTotal = selectedUTXOs ? SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0)) : 0;
   const { getBalance, getCurrencyIcon } = useBalance();
+  const { labels } = useLabelsNew({ wallet: sender, utxos: selectedUTXOs });
 
   function convertFiatToSats(fiatAmount: number) {
     return exchangeRates && exchangeRates[currencyCode]
@@ -135,7 +138,9 @@ function AddSendAmount({ route }) {
         amount: parseInt(amountToSend, 10),
         transferType,
         note,
-        label,
+        label: labelsToAdd.filter(
+          (item) => !(item.name === recipient.presentationData.name && item.isSystem) // remove wallet labels are they are internal refrerences
+        ),
       })
     );
   };
@@ -176,6 +181,36 @@ function AddSendAmount({ route }) {
     },
     []
   );
+  useEffect(() => {
+    const initialLabels = [];
+    if (recipient && recipient.presentationData) {
+      const name =
+        recipient.entityKind === EntityKind.VAULT
+          ? sender.presentationData.name
+          : recipient.presentationData.name;
+      const isSystem = true;
+      initialLabels.push({ name, isSystem });
+    }
+    selectedUTXOs.forEach((utxo) => {
+      if (labels[`${utxo.txId}:${utxo.vout}`]) {
+        const useLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((item) => !item.isSystem);
+        initialLabels.push(...useLabels);
+      }
+    });
+    setLabelsToAdd(initialLabels);
+  }, []);
+
+  const onAdd = () => {
+    if (label) {
+      labelsToAdd.push({ name: label, isSystem: false });
+      setLabelsToAdd(labelsToAdd);
+      setLabel('');
+    }
+  };
+  const onCloseClick = (index) => {
+    labelsToAdd.splice(index, 1);
+    setLabelsToAdd([...labelsToAdd]);
+  };
   return (
     <ScreenWrapper>
       <KeyboardAvoidingView
@@ -184,14 +219,21 @@ function AddSendAmount({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 0, android: 500 })}
         style={styles.Container}
       >
-        <HeaderTitle
-          title={
-            transferType === TransferType.WALLET_TO_WALLET
-              ? `Sending to Wallet`
-              : `Enter the Amount`
-          }
-          paddingLeft={25}
-        />
+        <Box style={styles.HeaderContainer}>
+          <Box style={styles.headerWrapper}>
+            <HeaderTitle
+              title={
+                transferType === TransferType.WALLET_TO_WALLET
+                  ? `Sending to Wallet`
+                  : `Enter the Amount`
+              }
+              paddingLeft={25}
+            />
+          </Box>
+          <Box style={styles.currentTypeSwitchWrapper}>
+            <CurrencyTypeSwitch />
+          </Box>
+        </Box>
         <Box
           style={{
             marginVertical: hp(5),
@@ -220,7 +262,7 @@ function AddSendAmount({ route }) {
                   letterSpacing: 0.1,
                   fontStyle: 'italic',
                   textAlign: 'right',
-                  marginRight: 10,
+                  marginRight: 12,
                 }}
               >
                 {errorMessage}
@@ -315,11 +357,26 @@ function AddSendAmount({ route }) {
               title="Add Tags"
               subTitle="Tags help you remember and identify UTXOs"
             /> */}
-            <Box
+            <VStack
               backgroundColor="light.primaryBackground"
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
-              style={styles.inputWrapper}
+              style={[
+                styles.inputWrapper,
+                { flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start' },
+              ]}
             >
+              <HStack style={styles.tagsWrapper}>
+                {labelsToAdd.map((item, index) => (
+                  <LabelItem
+                    item={item}
+                    index={index}
+                    key={`${item.name}:${item.isSystem}`}
+                    editingIndex={null}
+                    onCloseClick={onCloseClick}
+                    onEditClick={null}
+                  />
+                ))}
+              </HStack>
               <Input
                 autoCapitalize="sentences"
                 placeholder="Add a label"
@@ -334,8 +391,9 @@ function AddSendAmount({ route }) {
                 onChangeText={(value) => {
                   setLabel(value);
                 }}
+                onSubmitEditing={onAdd}
               />
-            </Box>
+            </VStack>
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
@@ -396,7 +454,8 @@ const styles = ScaledSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 10,
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
     borderWidth: 1,
   },
   sendMaxWrapper: {
@@ -445,6 +504,22 @@ const styles = ScaledSheet.create({
     color: Colors.Black,
     fontWeight: 'bold',
     opacity: 1,
+  },
+  tagsWrapper: {
+    marginLeft: 5,
+    flexWrap: 'wrap',
+  },
+  HeaderContainer: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  headerWrapper: {
+    width: '75%',
+  },
+  currentTypeSwitchWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '25%',
   },
 });
 export default AddSendAmount;

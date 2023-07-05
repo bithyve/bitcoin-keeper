@@ -48,9 +48,9 @@ function SignTransactionScreen() {
     .filter((vault) => !vault.archived)[0];
   const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const route = useRoute();
-  const { note, label } = (route.params || { note: '', label: '' }) as {
+  const { note, label } = (route.params || { note: '', label: [] }) as {
     note: string;
-    label: string;
+    label: { name: string; isSystem: boolean }[];
   };
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
@@ -272,6 +272,7 @@ function SignTransactionScreen() {
           CommonActions.navigate({
             name: 'InputSeedWordSigner',
             params: {
+              signerId,
               onSuccess: signTransaction,
             },
           })
