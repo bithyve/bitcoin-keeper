@@ -14,16 +14,12 @@ import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
-import {
-  addNewWhirlpoolWallets,
-  incrementAddressIndex,
-  refreshWallets,
-} from 'src/store/sagaActions/wallets';
-import { WalletType } from 'src/core/wallets/enums';
+import { addNewWhirlpoolWallets, incrementAddressIndex } from 'src/store/sagaActions/wallets';
+import { LabelRefType, WalletType } from 'src/core/wallets/enums';
 import { setWalletPoolMap } from 'src/store/reducers/wallets';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import useWallets from 'src/hooks/useWallets';
-import { InputUTXOs } from 'src/core/wallets/interfaces';
+import { BIP329Label, InputUTXOs } from 'src/core/wallets/interfaces';
 import { PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WhirlpoolClient from 'src/core/services/whirlpool/client';
@@ -35,8 +31,11 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { captureError } from 'src/core/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import UtxoSummary from './UtxoSummary';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
+import { genrateOutputDescriptors } from 'src/core/utils';
 import SwiperModal from './components/SwiperModal';
+import UtxoSummary from './UtxoSummary';
 
 export default function BroadcastPremix({ route, navigation }) {
   const {
@@ -66,7 +65,7 @@ export default function BroadcastPremix({ route, navigation }) {
   const [loading, setLoading] = useState(false);
   const [preRequistesLoading, setPreRequistesLoading] = useState(true);
   const { getSatUnit } = useBalance();
-  // const getSatUnit = () => (satsEnabled ? 'sats' : 'btc');
+  const { labels } = useLabelsNew({ utxos, wallet });
 
   const { showToast } = useToastMessage();
   const valueByPreferredUnit = (value) => {
@@ -148,7 +147,7 @@ export default function BroadcastPremix({ route, navigation }) {
         network
       );
       if (serializedPSBT) {
-        const { txHex } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
+        const { txHex, PSBT } = WhirlpoolClient.signTx0(serializedPSBT, depositWallet, utxos);
         const txid = await WhirlpoolClient.broadcastTx0(txHex, selectedPool.poolId);
         if (txid) {
           for (const wallet of [premixWallet, badbankWallet]) {
@@ -166,6 +165,42 @@ export default function BroadcastPremix({ route, navigation }) {
             3000
           );
           dispatch(setWalletPoolMap({ walletId: depositWallet.id, pool: selectedPool }));
+          const outputs = PSBT.txOutputs;
+          const premixTags: BIP329Label[] = [];
+          const badbankTags: BIP329Label[] = [];
+          const userLabels = [];
+          Object.keys(labels).forEach((key) => {
+            const tags = labels[key].filter((t) => !t.isSystem);
+            userLabels.push(...tags);
+          });
+          const origin = genrateOutputDescriptors(wallet, false);
+          outputs.forEach((_, i) => {
+            userLabels.forEach((label) => {
+              premixTags.push({
+                id: `${txid}:${i}${label.name}`,
+                ref: `${txid}:${i}`,
+                type: LabelRefType.OUTPUT,
+                label: label.name,
+                isSystem: label.isSystem,
+                origin,
+              });
+            });
+          });
+
+          const voutBadBank = outputs.findIndex(
+            (o) => o.address === badbankWallet.specs.receivingAddress
+          );
+          userLabels.forEach((label) => {
+            badbankTags.push({
+              id: `${txid}:${voutBadBank}${label.name}`,
+              ref: `${txid}:${voutBadBank}`,
+              type: LabelRefType.OUTPUT,
+              label: label.name,
+              isSystem: label.isSystem,
+              origin,
+            });
+          });
+          dispatch(bulkUpdateUTXOLabels({ addedTags: premixTags.concat(badbankTags) }));
           setShowBroadcastModal(true);
           setLoading(false);
         } else {
