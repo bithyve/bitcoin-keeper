@@ -35,19 +35,21 @@ const ELECTRUM_CLIENT_CONFIG: {
   reconnectDelay: 500, // retry after half a second
 };
 
-const ELECTRUM_CLIENT: {
-  electrumClient: any;
-  isClientConnected: boolean;
-  currentPeerIndex: number;
-  connectionAttempt: number;
-  activePeer: NodeDetail;
-} = {
+const ELECTRUM_CLIENT_DEFAULTS = {
   electrumClient: null,
   isClientConnected: false,
   currentPeerIndex: -1,
   connectionAttempt: 0,
   activePeer: null,
 };
+
+let ELECTRUM_CLIENT: {
+  electrumClient: any;
+  isClientConnected: boolean;
+  currentPeerIndex: number;
+  connectionAttempt: number;
+  activePeer: NodeDetail;
+} = ELECTRUM_CLIENT_DEFAULTS;
 
 export const ELECTRUM_NOT_CONNECTED_ERR =
   'Network Error: Bitcoin node is currently not reachable, please try again after some time';
@@ -59,6 +61,8 @@ export default class ElectrumClient {
   public static connectOverTor = false;
 
   public static async connect() {
+    let timeoutId = null;
+
     try {
       if (!ELECTRUM_CLIENT.activePeer) {
         console.log(
@@ -100,10 +104,18 @@ export default class ElectrumClient {
       };
 
       console.log('Initiate electrum server');
-      const ver = await ELECTRUM_CLIENT.electrumClient.initElectrum({
-        client: 'btc-k',
-        version: '1.4',
-      });
+
+      const ver = await Promise.race([
+        new Promise((resolve) => {
+          timeoutId = setTimeout(() => resolve('timeout'), 4000);
+        }),
+        ELECTRUM_CLIENT.electrumClient.initElectrum({
+          client: 'btc-k',
+          version: '1.4',
+        }), // should resolve within 4 seconds(prior to timeout)
+      ]);
+      if (ver === 'timeout') throw new Error('Connection time-out');
+
       console.log('Connection to electrum server is established', { ver });
       if (ver && ver[0]) {
         ELECTRUM_CLIENT.isClientConnected = true;
@@ -114,6 +126,8 @@ export default class ElectrumClient {
       ELECTRUM_CLIENT.activePeer.isConnected = false;
 
       console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), error);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
 
     if (ELECTRUM_CLIENT.isClientConnected)
@@ -200,6 +214,11 @@ export default class ElectrumClient {
   public static setActivePeer(savedPrivateNodes: NodeDetail[], currentPeerToUse = null) {
     const privatePeer =
       currentPeerToUse || savedPrivateNodes?.filter((node) => node.isConnected)[0];
+
+    if (ELECTRUM_CLIENT.isClientConnected && ELECTRUM_CLIENT.electrumClient?.close)
+      ELECTRUM_CLIENT.electrumClient.close(); // close previous connection
+
+    ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS; // reset to default
 
     ELECTRUM_CLIENT.activePeer = privatePeer || ElectrumClient.getNextPeer();
   }

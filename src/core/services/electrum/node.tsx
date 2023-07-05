@@ -38,8 +38,8 @@ export const predefinedTestnetNodes: NodeDetail[] = [
   },
   {
     id: 446,
-    host: 'electrum1.bluewallet.io',
-    port: '443',
+    host: 'ecdsa.net',
+    port: '110',
     isConnected: false,
     useKeeperNode: false,
     useSSL: true,
