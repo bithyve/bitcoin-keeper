@@ -154,7 +154,11 @@ function ConnectChannelRecovery() {
     <ScreenWrapper>
       <MockWrapper signerType={signerType}>
         <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} />
+          <HeaderTitle
+            title={title}
+            subtitle={subtitle}
+            paddingLeft={wp(20)}
+          />
           <Box style={styles.qrcontainer}>
             <RNCamera
               autoFocus="on"

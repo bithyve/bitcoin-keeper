@@ -1,14 +1,14 @@
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useState } from 'react';
 import { Box } from 'native-base';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Fonts from 'src/common/Fonts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
-import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 import { useNavigation } from '@react-navigation/native';
+import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
 function VaultConfigurationRecovery() {
   const [inputText, setInputText] = useState('');
@@ -22,12 +22,13 @@ function VaultConfigurationRecovery() {
           Keyboard.dismiss();
         }}
       >
-        <View>
+        <View style={styles.wrapper}>
           <HeaderTitle
             title="Reocvery through vault configuration"
             subtitle="Recover the vault from output descriptor or configuration"
             headerTitleColor="light.textBlack"
             paddingTop={hp(5)}
+            paddingLeft={wp(20)}
           />
 
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
@@ -43,15 +44,17 @@ function VaultConfigurationRecovery() {
             />
           </Box>
           <Box style={styles.tileContainer}>
-            <Tile
-              title="Scan or Import a file"
-              subTitle="From your phone"
-              onPress={() => {
-                navigate('LoginStack', {
-                  screen: 'ScanQRFileRecovery',
-                });
-              }}
-            />
+            <Box style={styles.tileWrapper}>
+              <Tile
+                title="Scan or Import a file"
+                subTitle="From your phone"
+                onPress={() => {
+                  navigate('LoginStack', {
+                    screen: 'ScanQRFileRecovery',
+                  });
+                }}
+              />
+            </Box>
             <Buttons
               primaryCallback={() => initateRecovery(inputText)}
               primaryText="Recover"
@@ -67,6 +70,9 @@ function VaultConfigurationRecovery() {
 export default VaultConfigurationRecovery;
 
 const styles = StyleSheet.create({
+  wrapper: {
+    flex: 1
+  },
   inputWrapper: {
     flexDirection: 'column',
     marginVertical: hp(20),
@@ -85,7 +91,12 @@ const styles = StyleSheet.create({
     height: 150,
   },
   tileContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
+    position: 'absolute',
+    bottom: 10,
+    width: '100%',
+
   },
+  tileWrapper: {
+    marginBottom: 15
+  }
 });
