@@ -247,7 +247,7 @@ function NodeSettings() {
                       </TouchableOpacity>
                       <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
 
-                      {!item.isDefault ? null : (
+                      {item.isDefault ? null : (
                         <TouchableOpacity onPress={() => onDelete(item)}>
                           <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                             <DeleteIcon />
