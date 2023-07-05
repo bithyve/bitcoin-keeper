@@ -168,7 +168,7 @@ function TransactionDetails({ route }) {
             showIcon={false}
             numberOfLines={transaction.recipientAddresses.length}
           />
-          {labels[transaction.txid].length && (
+          {labels[transaction.txid].length ? (
             <InfoCard
               title="Note"
               describtion={labels[transaction.txid][0].name}
@@ -176,7 +176,7 @@ function TransactionDetails({ route }) {
               letterSpacing={2.4}
               Icon={<Edit />}
             />
-          )}
+          ) : null}
         </Box>
       </ScrollView>
     </Box>
