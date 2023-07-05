@@ -692,7 +692,7 @@ export default class WalletUtilities {
     return signature.toString('base64');
   };
 
-  static getWalletFromAddress = (wallets: Wallet[], address: string) => {
+  static getWalletFromAddress = (wallets: (Wallet | Vault)[], address: string) => {
     for (const wallet of wallets) {
       if (Object.values(wallet.specs.addresses.external).includes(address)) {
         return wallet;

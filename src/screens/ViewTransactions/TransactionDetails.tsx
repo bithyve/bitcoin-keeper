@@ -118,23 +118,25 @@ function TransactionDetails({ route }) {
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
-          <InfoCard
-            title="Tags"
-            Content={() => (
-              <View style={styles.listSubContainer}>
-                {txnLabels.map((item, index) => (
-                  <LabelItem
-                    item={item}
-                    index={index}
-                    key={`${item.name}:${item.isSystem}`}
-                    editable={false}
-                  />
-                ))}
-              </View>
-            )}
-            showIcon={false}
-            letterSpacing={2.4}
-          />
+          {txnLabels.length ? (
+            <InfoCard
+              title="Tags"
+              Content={() => (
+                <View style={styles.listSubContainer}>
+                  {txnLabels.map((item, index) => (
+                    <LabelItem
+                      item={item}
+                      index={index}
+                      key={`${item.name}:${item.isSystem}`}
+                      editable={false}
+                    />
+                  ))}
+                </View>
+              )}
+              showIcon={false}
+              letterSpacing={2.4}
+            />
+          ) : null}
           <InfoCard
             title="Confirmations"
             describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}

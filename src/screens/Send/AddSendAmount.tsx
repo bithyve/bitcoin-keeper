@@ -29,7 +29,7 @@ import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
-import { TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, TxPriority } from 'src/core/wallets/enums';
 import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import WalletSendInfo from './WalletSendInfo';
@@ -44,7 +44,7 @@ function AddSendAmount({ route }) {
     address,
     amount: prefillAmount,
     transferType,
-    selectedUTXOs,
+    selectedUTXOs = [],
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -181,10 +181,15 @@ function AddSendAmount({ route }) {
     []
   );
   useEffect(() => {
-    const initialLabels =
-      recipient && recipient.presentationData
-        ? [{ name: recipient.presentationData.name, isSystem: true }]
-        : [];
+    const initialLabels = [];
+    if (recipient && recipient.presentationData) {
+      const name =
+        recipient.entityKind === EntityKind.VAULT
+          ? sender.presentationData.name
+          : recipient.presentationData.name;
+      const isSystem = true;
+      initialLabels.push({ name, isSystem });
+    }
     selectedUTXOs.forEach((utxo) => {
       if (labels[`${utxo.txId}:${utxo.vout}`]) {
         const useLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((item) => !item.isSystem);

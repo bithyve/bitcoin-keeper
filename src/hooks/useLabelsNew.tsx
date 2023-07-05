@@ -9,7 +9,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 const useLabelsNew = ({
   txid,
-  utxos,
+  utxos = [],
   wallet,
 }: {
   txid?: string;
@@ -18,6 +18,7 @@ const useLabelsNew = ({
 }) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const Schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
+  const isVault = wallet.entityKind === EntityKind.VAULT;
   const wallets = useQuery(Schema);
 
   const Tags = useQuery(RealmSchema.Tags);
@@ -41,7 +42,7 @@ const useLabelsNew = ({
   });
 
   // plug system labels only for utxos
-  if (!txid) {
+  if (!txid && !isVault) {
     const isWhirlpoolWallet =
       wallet.type === WalletType.PRE_MIX ||
       wallet.type === WalletType.POST_MIX ||
