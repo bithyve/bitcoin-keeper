@@ -64,7 +64,7 @@ export const getTxForBitBox02 = async (
     } = payload;
     const keypathAccount = getKeypathFromString(signer.derivationPath);
     const inputs = [];
-    const index = 0;
+    let index = 0;
     const { version, locktime } = psbt;
     for (const input of psbt.txInputs) {
       const { subPath } = inputsToSign[index];
@@ -95,6 +95,7 @@ export const getTxForBitBox02 = async (
           })),
         },
       });
+      index += 1;
     }
     const outputs = psbt.txOutputs.map((output, index) => {
       const isChangeOutput = output.address === changeAddress;
