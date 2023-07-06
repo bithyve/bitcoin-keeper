@@ -31,7 +31,7 @@ const ELECTRUM_CLIENT_CONFIG: {
 } = {
   predefinedTestnetPeers: shufflePeers(predefinedTestnetNodes),
   predefinedPeers: shufflePeers(predefinedMainnetNodes),
-  maxConnectionAttempt: 3,
+  maxConnectionAttempt: 2,
   reconnectDelay: 500, // retry after half a second
 };
 
