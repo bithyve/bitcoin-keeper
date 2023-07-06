@@ -124,7 +124,7 @@ function SignWithChannel() {
     <ScreenWrapper>
       <HeaderTitle
         title="Sign with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.KEEPER_HWI} to sign with the device`}
+        subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to sign with the device`}
       />
       <Box style={styles.qrcontainer}>
         <RNCamera
