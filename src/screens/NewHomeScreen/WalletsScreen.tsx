@@ -53,22 +53,14 @@ const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
-    <View style={styles.addWalletContent}>
-      <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
-        <AddSCardIcon />
-        <Text color="light.white" style={styles.addWalletText}>
-          {wallet.AddImportNewWallet}
-        </Text>
-      </TouchableOpacity>
-      {/* <TouchableOpacity
-        style={styles.addWalletContainer}
-        onPress={() => navigation.navigate('ImportWallet')}
-      >
-        <Text color="light.white" style={styles.addWalletText}>
-          {wallet.ImportAWallet}
-        </Text>
-      </TouchableOpacity> */}
-    </View>
+    // <View style={styles.addWalletContent}>
+    <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
+      <AddSCardIcon />
+      <Text color="light.white" style={styles.addWalletText}>
+        {wallet.AddImportNewWallet}
+      </Text>
+    </TouchableOpacity>
+    // </View>
   );
 }
 
@@ -99,7 +91,7 @@ function WalletItem({
   const opacity = isActive ? 1 : 0.5;
   return (
     <View
-      style={[styles.walletContainer, { width: TILE_WIDTH, opacity, justifyContent: 'flex-end' }]}
+      style={[styles.walletContainer, { width: !(item?.presentationData && item?.specs) ? 120 : TILE_WIDTH, opacity, justifyContent: 'flex-end' }]}
     >
       <TouchableOpacity
         onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
