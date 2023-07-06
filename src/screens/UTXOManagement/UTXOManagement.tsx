@@ -28,6 +28,9 @@ import { Box, HStack, VStack } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { resetSyncing } from 'src/store/reducers/wallets';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -39,12 +42,12 @@ const getWalletBasedOnAccount = (
   accountType: string
 ) => {
   switch (accountType) {
+    case WalletType.POST_MIX:
+      return whirlpoolWalletAccountMap.postmixWallet;
     case WalletType.BAD_BANK:
       return whirlpoolWalletAccountMap.badbankWallet;
     case WalletType.PRE_MIX:
       return whirlpoolWalletAccountMap.premixWallet;
-    case WalletType.POST_MIX:
-      return whirlpoolWalletAccountMap.postmixWallet;
     default:
       return depositWallet;
   }
@@ -158,11 +161,18 @@ function UTXOManagement({ route, navigation }) {
   const [showBatteryWarningModal, setShowBatteryWarningModal] = useState(false);
   const [remixingToVault, setRemixingToVault] = useState(false);
   const { walletPoolMap, walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
+  const syncing = walletSyncing && selectedWallet ? !!walletSyncing[selectedWallet.id] : false;
   const [learnModalVisible, setLearnModalVisible] = useState(false);
   const [sendBadBankModalVisible, setSendBadBankModalVisible] = useState(false);
   const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
   const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
+
+  useEffect(
+    () => () => {
+      dispatch(resetSyncing());
+    },
+    []
+  );
 
   useEffect(() => {
     setSelectedAccount(accountType || WalletType.DEFAULT);
@@ -176,6 +186,9 @@ function UTXOManagement({ route, navigation }) {
         whirlpoolWalletAccountMap,
         selectedAccount
       );
+      if (!walletSyncing[walletAccount.id]) {
+        dispatch(refreshWallets([walletAccount], { hardRefresh: true }));
+      }
       if (selectedAccount === WalletType.PRE_MIX) {
         setInitateWhirlpoolMix(true);
       } else {
@@ -185,8 +198,11 @@ function UTXOManagement({ route, navigation }) {
     } else {
       setInitateWhirlpoolMix(false);
       setSelectedWallet(wallet);
+      if (!walletSyncing[wallet.id]) {
+        dispatch(refreshWallets([wallet], { hardRefresh: true }));
+      }
     }
-  }, [syncing, selectedAccount]);
+  }, [selectedAccount]);
 
   const updateSelectedWallet = (selectedAccount) => {
     const walletAccount: Wallet = getWalletBasedOnAccount(
@@ -199,16 +215,16 @@ function UTXOManagement({ route, navigation }) {
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
-      ?.map((utxo) => {
-        utxo.confirmed = true;
-        return utxo;
-      })
-      .concat(
-        selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-          utxo.confirmed = false;
+        ?.map((utxo) => {
+          utxo.confirmed = true;
           return utxo;
         })
-      )
+        .concat(
+          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
+            utxo.confirmed = false;
+            return utxo;
+          })
+        )
     : [];
 
   useEffect(() => {
@@ -236,6 +252,7 @@ function UTXOManagement({ route, navigation }) {
 
   return (
     <ScreenWrapper>
+      <ActivityIndicatorView visible={syncing} showLoader={false} />
       <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab

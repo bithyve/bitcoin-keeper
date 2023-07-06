@@ -56,6 +56,7 @@ import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
+import { resetSyncing } from '../reducers/wallets';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -154,6 +155,7 @@ function* credentialsAuthWorker({ payload }) {
     const lastElement = versionCollection[versionCollection.length - 1];
     const lastVersionCode = lastElement.version.split(/[()]/);
     const currentVersionCode = DeviceInfo.getBuildNumber();
+    console.log({ previousVersion, newVersion });
     if (semver.lt(previousVersion, newVersion)) {
       yield call(applyUpgradeSequence, { previousVersion, newVersion });
     } else if (currentVersionCode !== lastVersionCode[1]) {
@@ -165,6 +167,7 @@ function* credentialsAuthWorker({ payload }) {
       });
     }
   } catch (err) {
+    console.log('hmmm??? ', err);
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
     } else yield put(credsAuthenticated(false));
@@ -198,6 +201,7 @@ function* credentialsAuthWorker({ payload }) {
             uaiType.DEFAULT,
           ])
         );
+        yield put(resetSyncing());
         yield call(generateSeedHash);
         yield put(setRecepitVerificationFailed(!response.isValid));
         if (subscription.level === 1 && subscription.name === 'Hodler') {

@@ -30,6 +30,7 @@ import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
@@ -39,7 +40,6 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
@@ -48,9 +48,9 @@ function SignTransactionScreen() {
     .filter((vault) => !vault.archived)[0];
   const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const route = useRoute();
-  const { note, label } = (route.params || { note: '', label: '' }) as {
+  const { note, label } = (route.params || { note: '', label: [] }) as {
     note: string;
-    label: string;
+    label: { name: string; isSystem: boolean }[];
   };
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
@@ -262,6 +262,7 @@ function SignTransactionScreen() {
             !signerPolicy.exceptions.none &&
             outgoing <= signerPolicy.exceptions.transactionAmount
           ) {
+            showToast('Auto-signing, send amount smaller than max no-check amount');
             signTransaction({ signerId }); // case: OTP not required
           } else showOTPModal(true);
         } else showOTPModal(true);
@@ -271,6 +272,7 @@ function SignTransactionScreen() {
           CommonActions.navigate({
             name: 'InputSeedWordSigner',
             params: {
+              signerId,
               onSuccess: signTransaction,
             },
           })

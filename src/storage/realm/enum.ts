@@ -9,6 +9,7 @@ export enum RealmSchema {
   UTXOInfo = 'UTXOInfo',
   AddressCache = 'AddressCache',
   Label = 'Label',
+  Tags = 'Tags',
   Transaction = 'Transaction',
   TransferPolicy = 'TransferPolicy',
   TransactionToAddressMapping = 'TransactionToAddressMapping',

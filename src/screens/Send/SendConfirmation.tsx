@@ -83,7 +83,10 @@ function SendConfirmation({ route }) {
     transferType: TransferType;
     uaiSetActionFalse: any;
     note: string;
-    label: string;
+    label: {
+      name: string;
+      isSystem: boolean;
+    }[];
   } = route.params;
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -645,7 +648,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} />
+      <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} paddingLeft={hp(25)} />
       <Box marginTop={windowHeight * 0.01} marginX={7}>
         <SendingCard isSend />
         <SendingCard isSend={false} />

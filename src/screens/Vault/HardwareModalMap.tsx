@@ -56,11 +56,11 @@ import { crossInteractionHandler } from 'src/common/utilities';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import * as SecureStore from '../../storage/secure-store';
-import { checkSigningDevice } from './AddSigningDevice';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import useVault from 'src/hooks/useVault';
+import { checkSigningDevice } from './AddSigningDevice';
+import * as SecureStore from '../../storage/secure-store';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -197,7 +197,7 @@ const getSignerContent = (
       return {
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with BitBox02. `,
+          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02. `,
           `Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.`,
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
@@ -207,7 +207,7 @@ const getSignerContent = (
       return {
         Illustration: <TrezorSetup />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor. `,
+          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor. `,
           `Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.`,
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
@@ -217,8 +217,8 @@ const getSignerContent = (
       return {
         Illustration: <LedgerImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Ledger. `,
-          `Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the your current BTC network.`,
+          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Ledger. `,
+          `Please Make sure you have the BTC app downloaded on Ledger before this step.`,
         ],
         title: ledger.SetupTitle,
         subTitle: ledger.SetupDescription,
@@ -278,9 +278,7 @@ function SignerContent({
       <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {modalType === ModalTypes.HEALTH_CHECK && (
-          <BulletPoint
-            text={'Health Check is initiated if a signing device is not used for the last 180 days'}
-          />
+          <BulletPoint text="Health Check is initiated if a signing device is not used for the last 180 days" />
         )}
         {Instructions.map((instruction) => (
           <BulletPoint text={instruction} />
@@ -642,7 +640,7 @@ function HardwareModalMap({
           setup: true,
           type,
           isHealthcheck: true,
-          signer: signer,
+          signer,
         },
       })
     );
@@ -654,10 +652,10 @@ function HardwareModalMap({
         name: 'ConnectChannel',
         params: {
           title: `${isHealthcheck ? `Verify` : `Settingup`}  ${getSignerNameFromType(type)}`,
-          subtitle: `Please visit ${config.KEEPER_HWI} to use the Keeper Hardware Interface to setup`,
+          subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
           type,
           isHealthcheck: true,
-          signer: signer,
+          signer,
         },
       })
     );

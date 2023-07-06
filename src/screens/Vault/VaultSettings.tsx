@@ -111,12 +111,9 @@ function VaultSettings({ route }) {
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const descriptorString = genrateOutputDescriptors(
-    vault.isMultiSig,
-    vault.signers,
-    vault.scheme,
-    vault
-  );
+
+  const descriptorString = genrateOutputDescriptors(vault);
+
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -174,6 +171,7 @@ function VaultSettings({ route }) {
           headerTitleColor="light.textBlack"
           titleFontSize={20}
           paddingTop={hp(5)}
+          paddingLeft={hp(25)}
         />
       </Box>
       <Box borderBottomColor="light.divider" style={styles.vaultCardWrapper}>

@@ -52,13 +52,13 @@ function SetupSigningServer({ route }: { route }) {
   const getShellId = () => {
     if (activeVault) {
       return activeVault.shellId;
-    } else if (!tempShellId) {
-      let vaultShellId = generateKey(12);
+    } if (!tempShellId) {
+      const vaultShellId = generateKey(12);
       dispatch(setTempShellId(vaultShellId));
       return vaultShellId;
-    } else {
-      return tempShellId;
     }
+    return tempShellId;
+
   };
 
   const fetchSetupData = async () => {

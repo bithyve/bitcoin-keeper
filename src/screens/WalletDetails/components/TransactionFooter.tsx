@@ -51,7 +51,7 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
           />
         )}
         {allowedRecieveTypes.includes(currentWallet.type) && (
-          <BottomMenuItem onPress={onPressBuyBitcoin} icon={<BuyBitcoin />} title="Buy Bitcoin" />
+          <BottomMenuItem onPress={onPressBuyBitcoin} icon={<BuyBitcoin />} title="Buy" />
         )}
         <BottomMenuItem
           onPress={() =>

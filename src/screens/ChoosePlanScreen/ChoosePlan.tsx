@@ -237,7 +237,7 @@ function ChoosePlan(props) {
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
         const sku = plan.productId
         const { offerToken } = plan
-        let purchaseTokenAndroid = null
+        const purchaseTokenAndroid = null
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken
         }

@@ -22,12 +22,15 @@ import Inheritance from 'src/assets/images/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import usePlan from 'src/hooks/usePlan';
+import { TouchableOpacity } from 'react-native';
 
 function SetupInheritance() {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { showToast } = useToastMessage();
+  const { plan } = usePlan();
 
   const inheritanceData = [
     {
@@ -112,6 +115,7 @@ function SetupInheritance() {
     dispatch(setInheritance(false));
     showToast('Inheritance flow coming soon', null, 1000);
   };
+
   return (
     <ScreenWrapper>
       <Box style={styles.header}>
@@ -137,16 +141,20 @@ function SetupInheritance() {
       <Box style={styles.bottomContainer} testID='view_InheritanceSupportAssert'>
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
-          {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
+          {plan !== SubscriptionTier.L3.toUpperCase() ? `This can be activated once you are at the ${SubscriptionTier.L3} level` : `Setup Inheritance Key`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID='btn_ISContinue'>
-          <Buttons
-            primaryText="Continue"
-            primaryCallback={() => {
-              showToast('Inheritance flow coming soon', null, 1000);
-            }}
-            paddingHorizontal={wp(20)}
-          />
+          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => showToast('Inheritance flow coming soon', null, 1000)}>
+            <Box
+              borderColor="light.learnMoreBorder"
+              backgroundColor="light.lightAccent"
+              style={styles.upgradeNowContainer}
+            >
+              <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
+                {plan !== SubscriptionTier.L3.toUpperCase() ? `Upgrade Now` : `Setup Inheritance Key`}
+              </Text>
+            </Box>
+          </TouchableOpacity>
         </Box>
       </Box>
       <Box style={styles.note} testID='view_ISNote'>
@@ -246,6 +254,18 @@ const styles = ScaledSheet.create({
   gradientIcon: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  upgradeNowContainer: {
+    borderWidth: 0.5,
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  upgradeNowText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    alignSelf: 'center',
   },
 });
 export default SetupInheritance;

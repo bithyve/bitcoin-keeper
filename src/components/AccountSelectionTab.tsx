@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   accountText: {
-    fontSize: 13,
+    fontSize: 12,
     letterSpacing: 1,
     width: wp(60),
     textAlign: 'center',
