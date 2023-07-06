@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-// asserts
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import BackIcon from 'src/assets/images/back_white.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
@@ -151,9 +150,6 @@ function VaultInfo({ vault }: { vault: Vault }) {
       balances: { confirmed: 0, unconfirmed: 0 },
     },
   } = vault;
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
 
   const styles = getStyles(0);
   return (
@@ -171,7 +167,6 @@ function VaultInfo({ vault }: { vault: Vault }) {
           </Text>
         </VStack>
       </HStack>
-
       <HStack justifyContent="space-between">
         <VStack paddingTop="6">
           <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
@@ -182,6 +177,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
             amount={unconfirmed}
             fontSize={14}
             color="light.white"
+            variation="grey"
           />
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
@@ -193,7 +189,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
             amount={confirmed}
             fontSize={20}
             color="light.white"
-            variation='light'
+            variation="light"
           />
         </VStack>
       </HStack>
@@ -233,7 +229,8 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
                     subtitle: 'All incoming and outgoing transactions',
                   })
                 );
-              }}>
+              }}
+            >
               <HStack alignItems="center">
                 <Text
                   color="light.primaryGreen"
@@ -324,7 +321,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
           !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
 
         return (
-          <Box style={styles.signerCard} marginRight="3">
+          <Box style={styles.signerCard} marginRight="3" key={signer.signerId}>
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
@@ -380,6 +377,70 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
       })}
       <AddSigner />
     </ScrollView>
+  );
+}
+
+function RampBuyContent({
+  buyWithRamp,
+  vault,
+  setShowBuyRampModal,
+}: {
+  buyWithRamp: boolean;
+  vault: Vault;
+  setShowBuyRampModal: any;
+}) {
+  const [buyAddress, setBuyAddress] = useState('');
+  const styles = getStyles(0);
+
+  useEffect(() => {
+    const receivingAddress = WalletOperations.getNextFreeAddress(vault);
+    setBuyAddress(receivingAddress);
+  }, []);
+
+  return (
+    <Box style={styles.rampBuyContentWrapper}>
+      <Text style={styles.byProceedingContent}>
+        By proceeding, you understand that Ramp will process the payment and transfer for the
+        purchased bitcoin
+      </Text>
+      <Box style={styles.cardWrapper}>
+        <VaultIcon />
+        <Box mx={4}>
+          <Text style={{ fontSize: 12 }} color="#5F6965">
+            Bitcoin will be transferred to
+          </Text>
+          <Text style={{ fontSize: 19, letterSpacing: 1.28 }} color="#041513">
+            {vault.presentationData.name}
+          </Text>
+          <Text
+            style={{ fontSize: 12, fontStyle: 'italic' }}
+            color="#00836A"
+          >{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
+        </Box>
+      </Box>
+
+      <Box style={styles.cardWrapper}>
+        <Box style={styles.atIconWrapper}>
+          <Text style={{ fontSize: 12 }}>@</Text>
+        </Box>
+        <Box mx={4}>
+          <Text style={{ fontSize: 12 }} color="#5F6965">
+            Address for ramp transactions
+          </Text>
+          <Text style={styles.buyAddressText} ellipsizeMode="middle" numberOfLines={1}>
+            {buyAddress}
+          </Text>
+        </Box>
+      </Box>
+      <Buttons
+        secondaryText="Cancel"
+        secondaryCallback={() => {
+          setShowBuyRampModal(false);
+        }}
+        primaryText="Buy Bitcoin"
+        primaryCallback={() => buyWithRamp(buyAddress)}
+      />
+    </Box>
   );
 }
 
@@ -468,66 +529,6 @@ function VaultDetails({ route, navigation }) {
     []
   );
 
-  function RampBuyContent() {
-    const [buyAddress, setBuyAddress] = useState('');
-
-    useEffect(() => {
-      const receivingAddress = WalletOperations.getNextFreeAddress(vault);
-      setBuyAddress(receivingAddress);
-    }, []);
-    return (
-      <Box style={styles.rampBuyContentWrapper}>
-        <Text style={styles.byProceedingContent}>
-          By proceeding, you understand that Ramp will process the payment and transfer for the
-          purchased bitcoin
-        </Text>
-        <Box
-          style={styles.cardWrapper}
-        >
-          <VaultIcon />
-          <Box mx={4}>
-            <Text fontSize={12} color="#5F6965">
-              Bitcoin will be transferred to
-            </Text>
-            <Text fontSize={19} letterSpacing={1.28} color="#041513">
-              {vault.presentationData.name}
-            </Text>
-            <Text
-              fontStyle="italic"
-              fontSize={12}
-              color="#00836A"
-            >{`Balance: ${vault.specs.balances.confirmed} sats`}</Text>
-          </Box>
-        </Box>
-
-        <Box style={styles.cardWrapper}>
-          <Box style={styles.atIconWrapper}>
-            <Text fontSize={22}>@</Text>
-          </Box>
-          <Box mx={4}>
-            <Text fontSize={12} color="#5F6965">
-              Address for ramp transactions
-            </Text>
-            <Text style={styles.buyAddressText}
-              width={wp(200)}
-              ellipsizeMode="middle"
-              numberOfLines={1}>
-              {buyAddress}
-            </Text>
-          </Box>
-        </Box>
-        <Buttons
-          secondaryText="Cancel"
-          secondaryCallback={() => {
-            setShowBuyRampModal(false);
-          }}
-          primaryText="Buy Bitcoin"
-          primaryCallback={() => buyWithRamp(buyAddress)}
-        />
-      </Box>
-    );
-  }
-
   const buyWithRamp = (address: string) => {
     try {
       setShowBuyRampModal(false);
@@ -537,8 +538,10 @@ function VaultDetails({ route, navigation }) {
     }
   };
 
-  // const onPressBuyBitcoin = () => setShowBuyRampModal(true);
-  const subtitle = subscriptionScheme.n > 1 ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created` : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
+  const subtitle =
+    subscriptionScheme.n > 1
+      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`
+      : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   return (
     <LinearGradient
@@ -624,7 +627,13 @@ function VaultDetails({ route, navigation }) {
         subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
         subTitleColor="#5F6965"
         textColor="light.primaryText"
-        Content={RampBuyContent}
+        Content={() => (
+          <RampBuyContent
+            buyWithRamp={buyWithRamp}
+            setShowBuyRampModal={setShowBuyRampModal}
+            vault={vault}
+          />
+        )}
       />
     </LinearGradient>
   );
@@ -701,31 +710,32 @@ const getStyles = (top) =>
       padding: 1,
     },
     byProceedingContent: {
-      color: "#073B36",
+      color: '#073B36',
       fontSize: 13,
       letterSpacing: 0.65,
-      marginVertical: 1
+      marginVertical: 1,
     },
     cardWrapper: {
       marginVertical: 5,
-      alignItems: "center",
+      alignItems: 'center',
       borderRadius: 10,
       padding: 5,
-      backgroundColor: "#FDF7F0",
-      flexDirection: "row"
+      backgroundColor: '#FDF7F0',
+      flexDirection: 'row',
     },
     atIconWrapper: {
-      backgroundColor: "#FAC48B",
+      backgroundColor: '#FAC48B',
       borderRadius: 20,
       height: 35,
       width: 35,
-      justifyItems: "center",
-      alignItems: "center"
+      justifyItems: 'center',
+      alignItems: 'center',
     },
     buyAddressText: {
       fontSize: 19,
       letterSpacing: 1.28,
-      color: "#041513"
-    }
+      color: '#041513',
+      width: wp(200),
+    },
   });
 export default VaultDetails;

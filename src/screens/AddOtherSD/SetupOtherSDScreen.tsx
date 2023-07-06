@@ -66,6 +66,7 @@ function SetupOtherSDScreen() {
           onChangeText={setXpub}
           placeholder="xPub"
           autoCapitalize="none"
+          placeholderTextColor="light.greenText"
         />
         <TextInput
           style={styles.input}
@@ -73,6 +74,7 @@ function SetupOtherSDScreen() {
           onChangeText={setDerivationPath}
           placeholder="Derivation path (m/84h/0h/0h)"
           autoCapitalize="none"
+          placeholderTextColor="light.greenText"
         />
         <TextInput
           style={styles.input}
@@ -80,6 +82,7 @@ function SetupOtherSDScreen() {
           onChangeText={setMasterFingerprint}
           placeholder="Master fingerprint"
           autoCapitalize="none"
+          placeholderTextColor="light.greenText"
         />
       </Box>
       <Buttons

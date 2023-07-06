@@ -5,7 +5,7 @@ import { NodeDetail } from 'src/core/wallets/interfaces';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 
-export const predefinedMainnetNodes: NodeDetail[] = [
+export const predefinedTestnetNodes: NodeDetail[] = [
   {
     id: 333, // sequence 3-x-x; avoids collision w/ own node
     host: 'testnet.qtornado.com',
@@ -17,7 +17,7 @@ export const predefinedMainnetNodes: NodeDetail[] = [
   },
 ];
 
-export const predefinedTestnetNodes: NodeDetail[] = [
+export const predefinedMainnetNodes: NodeDetail[] = [
   {
     id: 444, // sequence 4-x-x; avoids collision w/ own node
     host: 'electrumx-core.1209k.com',
