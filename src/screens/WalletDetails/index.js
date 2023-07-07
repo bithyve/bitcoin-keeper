@@ -83,13 +83,20 @@ function WalletDetails({ route }) {
   const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
-
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
+
+  useEffect(() => {
+    if (!syncing) {
+      dispatch(refreshWallets([wallet], { hardRefresh: true }));
+    }
+  }, []);
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();

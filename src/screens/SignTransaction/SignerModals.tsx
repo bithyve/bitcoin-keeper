@@ -519,7 +519,7 @@ function SignerModals({
                   setLedgerModal(false);
                 }}
                 title="Keep Nano X Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor.`}
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
                 textColor="light.primaryText"
                 Content={() => <LedgerContent />}
                 buttonText="Proceed"
@@ -620,7 +620,7 @@ function SignerModals({
                   setTrezorModal(false);
                 }}
                 title="Keep Trezor Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor.`}
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
                 textColor="light.primaryText"
                 Content={() => <TrezorContent />}
                 buttonText="Proceed"
@@ -635,7 +635,7 @@ function SignerModals({
                   setBitbox02Modal(false);
                 }}
                 title="Keep BitBox02 Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with BitBox02.`}
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
                 textColor="light.primaryText"
                 Content={() => <BitBox02Content />}
                 buttonText="Proceed"

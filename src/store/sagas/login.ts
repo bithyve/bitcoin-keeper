@@ -62,6 +62,7 @@ import { setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
 import { setDefaultNodesSaved } from '../reducers/network';
+import { resetSyncing } from '../reducers/wallets';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -218,6 +219,7 @@ function* credentialsAuthWorker({ payload }) {
             uaiType.DEFAULT,
           ])
         );
+        yield put(resetSyncing());
         yield call(generateSeedHash);
         yield put(setRecepitVerificationFailed(!response.isValid));
         if (subscription.level === 1 && subscription.name === 'Hodler') {
