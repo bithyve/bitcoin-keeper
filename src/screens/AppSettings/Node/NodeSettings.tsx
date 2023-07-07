@@ -1,12 +1,12 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { Box } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
@@ -19,10 +19,8 @@ import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
-import { updateAppImage } from 'src/store/sagaActions/bhr';
 import {
   electrumClientConnectionExecuted,
   electrumClientConnectionInitiated,
@@ -128,10 +126,7 @@ function NodeSettings() {
         return item;
       });
       // dispatch(updateAppImage(null));
-    } else {
-      // dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
-      showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />);
-    }
+    } else dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
 
     setCurrentlySelectedNodeItem(node);
     setNodeList(nodes);
@@ -289,7 +284,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>

@@ -8,6 +8,7 @@ import {
   predefinedTestnetNodes,
 } from 'src/core/services/electrum/predefinedNodes';
 import ElectrumClient from 'src/core/services/electrum/client';
+import { captureError } from 'src/core/services/sentry';
 import { setDefaultNodesSaved } from '../reducers/network';
 import { RootState } from '../store';
 import {
@@ -19,28 +20,36 @@ import { fetchFeeRates } from '../sagaActions/send_and_receive';
 import { CONNECT_TO_NODE } from '../sagaActions/network';
 
 function* connectToNodeWorker() {
-  console.log('Connecting to node...');
-  yield put(electrumClientConnectionInitiated());
+  try {
+    console.log('Connecting to node...');
+    yield put(electrumClientConnectionInitiated());
 
-  const savedDefaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
-  const areDefaultNodesSaved = yield select((state: RootState) => state.network.defaultNodesSaved);
-  console.log({ areDefaultNodesSaved, savedDefaultNodes });
-  if (!areDefaultNodesSaved && !savedDefaultNodes?.length) {
-    const hardcodedDefaultNodes =
-      config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
-    dbManager.createObjectBulk(RealmSchema.DefaultNodeConnect, hardcodedDefaultNodes);
-    yield put(setDefaultNodesSaved(true));
-  }
+    const savedDefaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
+    const areDefaultNodesSaved = yield select(
+      (state: RootState) => state.network.defaultNodesSaved
+    );
 
-  const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-  console.log({ privateNodes });
-  ElectrumClient.setActivePeer(privateNodes);
-  const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
-  if (connected) {
-    yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
-    yield put(fetchFeeRates());
-  } else {
-    yield put(electrumClientConnectionExecuted({ successful: connected, error }));
+    if (!areDefaultNodesSaved && !savedDefaultNodes?.length) {
+      const hardcodedDefaultNodes =
+        config.NETWORK_TYPE === NetworkType.TESTNET
+          ? predefinedTestnetNodes
+          : predefinedMainnetNodes;
+      dbManager.createObjectBulk(RealmSchema.DefaultNodeConnect, hardcodedDefaultNodes);
+      yield put(setDefaultNodesSaved(true));
+    }
+
+    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+
+    ElectrumClient.setActivePeer(privateNodes);
+    const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+    if (connected) {
+      yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
+      yield put(fetchFeeRates());
+    } else {
+      yield put(electrumClientConnectionExecuted({ successful: connected, error }));
+    }
+  } catch (err) {
+    captureError(err);
   }
 }
 
