@@ -13,7 +13,7 @@ import { isTestnet } from 'src/common/constants/Bitcoin';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
 import torrific from './torrific';
 import RestClient, { TorStatus } from '../rest/RestClient';
-import { predefinedMainnetNodes, predefinedTestnetNodes } from './node';
+import { predefinedMainnetNodes, predefinedTestnetNodes } from './predefinedNodes';
 
 function shufflePeers(peers) {
   for (let i = peers.length - 1; i > 0; i--) {
