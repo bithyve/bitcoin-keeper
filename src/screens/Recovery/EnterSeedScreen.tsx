@@ -345,8 +345,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -471,7 +471,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -536,11 +536,11 @@ const styles = ScaledSheet.create({
     marginVertical: 10,
   },
   indexText: {
-    width: 22,
+    width: 25,
     fontSize: 16,
     color: '#00836A',
     marginTop: 8,
-    letterSpacing: 1.23,
+    letterSpacing: 0.8,
   },
   seedDescText: {
     fontWeight: '400',
