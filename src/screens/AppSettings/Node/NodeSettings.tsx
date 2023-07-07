@@ -246,17 +246,14 @@ function NodeSettings() {
                         </Box>
                       </TouchableOpacity>
                       <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
-
-                      {item.isDefault ? null : (
-                        <TouchableOpacity onPress={() => onDelete(item)}>
-                          <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
-                            <DeleteIcon />
-                            <Text style={[styles.actionText, { paddingTop: 2 }]}>
-                              {common.delete}
-                            </Text>
-                          </Box>
-                        </TouchableOpacity>
-                      )}
+                      <TouchableOpacity onPress={() => onDelete(item)}>
+                        <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
+                          <DeleteIcon />
+                          <Text style={[styles.actionText, { paddingTop: 2 }]}>
+                            {common.delete}
+                          </Text>
+                        </Box>
+                      </TouchableOpacity>
                     </Box>
                   </Box>
                 </TouchableOpacity>
@@ -266,7 +263,7 @@ function NodeSettings() {
         </Box>
       )}
 
-      <TouchableOpacity onPress={onAdd} >
+      <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor="#E3BE96" style={styles.addNewNode}>
           <AddIcon />
           <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
@@ -292,7 +289,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
