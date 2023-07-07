@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { NodeDetail } from 'src/core/wallets/interfaces';
@@ -289,7 +289,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -323,10 +323,10 @@ const styles = StyleSheet.create({
   },
   note: {
     position: 'absolute',
-    bottom: hp(35),
+    bottom: hp(25),
     marginLeft: 22.3,
     width: '100%',
-    paddingTop: hp(10),
+    paddingTop: hp(5),
   },
   splitter: {
     marginTop: 35,
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     flexDirection: 'row',
     width: '100%',
-    height: '58%',
+    height: windowHeight > 800 ? '58%' : '50%',
     // alignItems: 'center',
   },
   nodeListTitle: {
