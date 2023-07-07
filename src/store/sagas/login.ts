@@ -55,14 +55,14 @@ import {
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
 import dbManager from '../../storage/realm/dbManager';
-import { fetchFeeRates, fetchExchangeRates } from '../sagaActions/send_and_receive';
+import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';
 import { setWarning } from '../sagaActions/bhr';
 import { uaiChecks } from '../sagaActions/uai';
 import { applyUpgradeSequence } from './upgrade';
-import { setDefaultNodesSaved } from '../reducers/network';
 import { resetSyncing } from '../reducers/wallets';
+import { connectToNode } from '../sagaActions/network';
 
 export const stringToArrayBuffer = (byteString: string): Uint8Array => {
   if (byteString) {
@@ -111,29 +111,7 @@ function* credentialsStorageWorker({ payload }) {
       title: 'Initially installed',
     });
 
-    // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
-    yield put(electrumClientConnectionInitiated());
-
-    const savedDefaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
-    const defaultNodesSaved = yield select((state: RootState) => state.network.defaultNodesSaved);
-    if (!defaultNodesSaved && !savedDefaultNodes?.length) {
-      const hardcodedDefaultNodes =
-        config.NETWORK_TYPE === NetworkType.TESTNET
-          ? predefinedTestnetNodes
-          : predefinedMainnetNodes;
-      dbManager.createObjectBulk(RealmSchema.DefaultNodeConnect, hardcodedDefaultNodes);
-      yield put(setDefaultNodesSaved(true));
-    }
-
-    const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-    ElectrumClient.setActivePeer(privateNodes);
-    const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
-    if (connected) {
-      yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
-      yield put(fetchFeeRates());
-    } else {
-      yield put(electrumClientConnectionExecuted({ successful: connected, error }));
-    }
+    yield put(connectToNode());
   } catch (error) {
     console.log(error);
   }
@@ -237,27 +215,7 @@ function* credentialsAuthWorker({ payload }) {
     } else yield put(credsAuthenticated(true));
   } else yield put(credsAuthenticated(true));
 
-  // connect electrum-client :: should be called as the last operation(thereby removing login's dependency on client connection)
-  yield put(electrumClientConnectionInitiated());
-
-  const savedDefaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
-  const defaultNodesSaved = yield select((state: RootState) => state.network.defaultNodesSaved);
-  if (!defaultNodesSaved && !savedDefaultNodes?.length) {
-    const hardcodedDefaultNodes =
-      config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
-    dbManager.createObjectBulk(RealmSchema.DefaultNodeConnect, hardcodedDefaultNodes);
-    yield put(setDefaultNodesSaved(true));
-  }
-
-  const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-  ElectrumClient.setActivePeer(privateNodes);
-  const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
-  if (connected) {
-    yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));
-    yield put(fetchFeeRates());
-  } else {
-    yield put(electrumClientConnectionExecuted({ successful: connected, error }));
-  }
+  yield put(connectToNode());
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);
