@@ -522,7 +522,6 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 16,
-    marginLeft: wp(15),
     fontFamily: Fonts.RobotoCondensedMedium,
   },
   subTitleText: {
