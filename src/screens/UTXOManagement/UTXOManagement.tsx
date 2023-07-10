@@ -12,7 +12,7 @@ import { wp } from 'src/common/data/responsiveness/responsive';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
-import { ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTotal';
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -28,13 +28,13 @@ import { Box, HStack, VStack } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
+import { refreshWallets } from 'src/store/sagaActions/wallets';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { resetSyncing } from 'src/store/reducers/wallets';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import { resetSyncing } from 'src/store/reducers/wallets';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -167,11 +167,12 @@ function UTXOManagement({ route, navigation }) {
   const [txoErrorModalVisible, setTxoErrorModalVisible] = useState(false);
   const whirlpoolIntroModal = useAppSelector((state) => state.vault.whirlpoolIntro);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       dispatch(resetSyncing());
-    };
-  }, []);
+    },
+    []
+  );
 
   useEffect(() => {
     setSelectedAccount(accountType || WalletType.DEFAULT);

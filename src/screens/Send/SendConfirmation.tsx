@@ -83,7 +83,10 @@ function SendConfirmation({ route }) {
     transferType: TransferType;
     uaiSetActionFalse: any;
     note: string;
-    label: string;
+    label: {
+      name: string;
+      isSystem: boolean;
+    }[];
   } = route.params;
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);

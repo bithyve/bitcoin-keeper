@@ -138,3 +138,12 @@ export enum LabelType {
   SYSTEM = 'SYSTEM',
   USER = 'USER',
 }
+
+export enum LabelRefType {
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT',
+  TXN = 'TXN',
+  ADDR = 'ADDR',
+  PUBKEY = 'PUBKEY',
+  XPUB = 'XPUB',
+}

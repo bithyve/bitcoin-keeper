@@ -25,7 +25,7 @@ export const SUBSCRIPTION_SCHEME_MAP = {
 const usePlan = () => {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const plan = keeper.subscription.name;
+  const plan = keeper.subscription.name.toUpperCase();
   const subscriptionScheme: VaultScheme = SUBSCRIPTION_SCHEME_MAP[plan];
   return { plan, subscriptionScheme };
 };

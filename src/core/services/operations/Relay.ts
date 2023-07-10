@@ -503,4 +503,27 @@ export default class Relay {
       if (err.code) throw new Error(err.code);
     }
   };
+
+  public static modifyLabels = async (
+    appId: string,
+    addLabels: any[],
+    deleteLabels: any[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    try {
+      const res = (await RestClient.post(`${RELAY}modifyLabels`, {
+        appId,
+        addLabels,
+        deleteLabels,
+      })) as AxiosResponse;
+      const { updated } = res.data || res.json;
+      return {
+        updated,
+      };
+    } catch (err) {
+      console.log('err', err);
+      if (err.code) throw new Error(err.code);
+    }
+  };
 }
