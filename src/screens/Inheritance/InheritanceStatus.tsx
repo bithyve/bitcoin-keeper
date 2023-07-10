@@ -37,12 +37,12 @@ function InheritanceStatus() {
             <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
                 <InheritanceDownloadView icon={<Vault />} title='Safeguarding Tips' subTitle='How to store your keys securely'
                     onPress={() => navigtaion.navigate('InheritanceSetupInfo', {
-                        title: 'Safe Guarding Tips',
+                        title: 'Key Security Tips',
                         subTitle: 'How to store your keys securely',
                         infoData: SafeGuardTips,
                         icon: <Vault />
                     })} />
-                <InheritanceDownloadView icon={<Vault />} title='Setup Inheritance Key' subTitle='Add a Keeper custodied key to create a 3-of-6 vault'
+                <InheritanceDownloadView icon={<Vault />} title='Setup Inheritance Key' subTitle='Add a Keeper custodied key to create a 3-of-6 Vault'
                     onPress={() => setVisibleModal(true)} />
                 <Box style={styles.signingDevicesView}>
                     <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
@@ -57,7 +57,7 @@ function InheritanceStatus() {
                     })} />
                 <InheritanceDownloadView icon={<Recovery />} title='Recovery Instructions' subTitle='A document for the heir only'
                     onPress={() => navigtaion.navigate('InheritanceSetupInfo', {
-                        title: 'Recovery Instructions',
+                        title: 'Restoring Inheritance Vault',
                         subTitle: 'A document for the heir only',
                         infoData: SafeGuardTips,
                         icon: <Recovery />
