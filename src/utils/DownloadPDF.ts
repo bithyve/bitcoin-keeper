@@ -1,9 +1,23 @@
 import Share from "react-native-share";
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { Platform } from "react-native";
+import config from "src/core/config";
 
+const { RELAY } = config;
+const pdfPath = (pdfFileName) => {
+    switch (pdfFileName) {
+        case 'Letter to the attorney':
+            return `${RELAY}/pdf/loa.pdf`;
+        case 'Restoring Inheritance Vault':
+            return `${RELAY}/pdf/restoring.pdf`;
+        case 'Key Security Tips':
+            return `${RELAY}/pdf/tips.pdf`;
+        default:
+            return `${RELAY}/pdf/tips.pdf`;
+    }
+}
 export default async function DownloadFile(pdfFileName) {
-    const source = "https://www.africau.edu/images/default/sample.pdf";
+    const source = pdfPath(pdfFileName)
     const { dirs } = ReactNativeBlobUtil.fs;
     const fileName = pdfFileName
     ReactNativeBlobUtil.config({
