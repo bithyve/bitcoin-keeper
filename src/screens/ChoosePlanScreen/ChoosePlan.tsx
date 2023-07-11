@@ -237,7 +237,7 @@ function ChoosePlan(props) {
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails
         const sku = plan.productId
         const { offerToken } = plan
-        let purchaseTokenAndroid = null
+        const purchaseTokenAndroid = null
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken
         }
@@ -385,7 +385,7 @@ function ChoosePlan(props) {
           subtitle={formatString(choosePlan.noteSubTitle)}
           subtitleColor="GreyText" />
 
-        <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases}>
+        <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
           <Box
             borderColor="light.learnMoreBorder"
             backgroundColor="light.lightAccent"

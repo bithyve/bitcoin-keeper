@@ -78,7 +78,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
   }, [item, isMonthly, currentPosition, index, subscription.productId])
 
   return (
-    <Pressable onPress={() => onPress(index)}>
+    <Pressable onPress={() => onPress(index)} testID='btn_selectPlan'>
       <Box
         backgroundColor={{
           linearGradient: {

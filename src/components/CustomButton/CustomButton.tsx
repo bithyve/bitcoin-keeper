@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, TouchableHighlight } from 'react-native'
 import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
 import Text from 'src/components/KeeperText';
+import { Box } from 'native-base';
 
 export interface Props {
   value: string;
@@ -25,16 +26,18 @@ function CustomButton({ value, onPress, disabled, testID, loading = false }: Pro
         onPress();
       }}
     >
-      <LinearGradient
+      {/* <LinearGradient
         start={[1, 0]}
         end={[0, 0]}
         colors={['#80A8A1', '#FFFFFF']}
-        style={styles.linearGradient}
-      >
+        
+      > */}
+      <Box style={styles.linearGradient} backgroundColor='light.white'>
         <Text color="light.greenText" fontSize={12} bold>
           {value}
         </Text>
-      </LinearGradient>
+      </Box>
+      {/* </LinearGradient> */}
     </TouchableHighlight>
   );
 }

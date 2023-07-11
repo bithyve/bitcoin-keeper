@@ -2,6 +2,7 @@ import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
 import { hash256 } from 'src/core/services/operations/encryption';
+import config from 'src/core/config';
 import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
   TransferPolicy,
@@ -169,7 +170,7 @@ export const getCosignerDetails = (wallet: Wallet, appId: string) => {
 };
 
 export const signCosignerPSBT = (wallet: Wallet, serializedPSBT: string) => {
-  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
   const { extendedKeys } = generateExtendedKeysForCosigner(wallet);
 
   let vin = 0;

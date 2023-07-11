@@ -1,63 +1,144 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { call } from 'redux-saga/effects';
-import { UTXO } from 'src/core/wallets/interfaces';
-import { LabelType } from 'src/core/wallets/enums';
+import { call, put } from 'redux-saga/effects';
+import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
+import { LabelRefType } from 'src/core/wallets/enums';
 import Relay from 'src/core/services/operations/Relay';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { genrateOutputDescriptors } from 'src/core/utils';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
 
-import { ADD_LABELS, BULK_UPDATE_LABELS, CREATE_UTXO_REFERENCE } from '../sagaActions/utxos';
+import { ADD_LABELS, BULK_UPDATE_LABELS, BULK_UPDATE_UTXO_LABELS } from '../sagaActions/utxos';
+import { setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
 
-function* addLabelsWorker({
+export function* addLabelsWorker({
   payload,
 }: {
-  payload: { labels: Array<{ name: string; type: LabelType }>; UTXO: UTXO };
+  payload: {
+    txId: string;
+    vout?: number;
+    wallet: Wallet | Vault;
+    labels: { name: string; isSystem: boolean }[];
+    type;
+  };
 }) {
-  const { UTXO, labels } = payload;
-  const { txId, vout } = UTXO;
-  const UTXOInfo = dbManager.getObjectById(RealmSchema.UTXOInfo, `${txId}${vout}`);
-  const existingLabels = UTXOInfo.toJSON().labels;
-  yield call(dbManager.updateObjectById, RealmSchema.UTXOInfo, `${txId}${vout}`, {
-    labels: existingLabels.concat(labels),
-  });
-}
-
-function* bulkUpdateLabelsWorker({
-  payload,
-}: {
-  payload: { labels: Array<{ name: string; type: LabelType }>; UTXO: UTXO };
-}) {
-  const { UTXO, labels } = payload;
-  const { txId, vout } = UTXO;
-  yield call(dbManager.updateObjectById, RealmSchema.UTXOInfo, `${txId}${vout}`, {
-    labels,
-  });
-}
-
-export function* createUTXOReferenceWorker({
-  payload,
-}: {
-  payload: { labels: Array<{ name: string; type: LabelType }>; txId: string; vout: number }[];
-}) {
-  const UTXOInfos = [];
-  payload.forEach((item) => {
-    const { txId, vout, labels } = item;
-    UTXOInfos.push({
-      id: `${txId}${vout}`,
-      txId,
-      vout,
-      walletId: 'ABC123',
-      labels,
+  try {
+    yield put(setSyncingUTXOs(true));
+    const { txId, vout, wallet, labels, type } = payload;
+    const origin = genrateOutputDescriptors(wallet, false);
+    const tags = [];
+    labels.forEach((label) => {
+      const ref = vout !== undefined ? `${txId}:${vout}` : txId;
+      const tag = {
+        id: `${ref}${label.name}`,
+        label: label.name,
+        isSystem: label.isSystem,
+        ref,
+        type,
+        origin,
+      };
+      tags.push(tag);
     });
-  });
-  const keeper = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  yield call(Relay.addUTXOinfos, keeper.id, UTXOInfos);
-  yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOInfos);
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const updated = yield call(Relay.modifyLabels, id, tags, []);
+    if (updated) {
+      yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
+    }
+  } catch (e) {
+    yield put(setSyncingUTXOError(e));
+  } finally {
+    yield put(setSyncingUTXOs(false));
+  }
+}
+
+export function* bulkUpdateLabelsWorker({
+  payload,
+}: {
+  payload: {
+    labelChanges: {
+      added: { isSystem: boolean; name: string }[];
+      deleted: { isSystem: boolean; name: string }[];
+    };
+    UTXO: UTXO;
+    wallet: Wallet;
+  };
+}) {
+  try {
+    yield put(setSyncingUTXOs(true));
+    const { labelChanges, wallet, UTXO } = payload;
+    const origin = genrateOutputDescriptors(wallet, false);
+    let addedTags: BIP329Label[] = [];
+    let deletedTagIds: string[] = [];
+    if (labelChanges.added) {
+      addedTags = labelChanges.added.map((label) => ({
+        id: `${UTXO.txId}:${UTXO.vout}${label.name}`,
+        ref: `${UTXO.txId}:${UTXO.vout}`,
+        type: LabelRefType.OUTPUT,
+        label: label.name,
+        origin,
+        isSystem: label.isSystem,
+      }));
+    }
+    if (labelChanges.deleted) {
+      deletedTagIds = labelChanges.deleted.map((label) => `${UTXO.txId}:${UTXO.vout}${label.name}`);
+    }
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const updated = yield call(
+      Relay.modifyLabels,
+      id,
+      addedTags.length ? addedTags : [],
+      deletedTagIds.length ? deletedTagIds : []
+    );
+    if (updated) {
+      yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
+      for (const element of deletedTagIds) {
+        yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
+      }
+    }
+  } catch (e) {
+    yield put(setSyncingUTXOError(e));
+  } finally {
+    yield put(setSyncingUTXOs(false));
+  }
+}
+
+export function* bulkUpdateUTXOLabelsWorker({
+  payload,
+}: {
+  payload: { addedTags?: BIP329Label[]; deletedTagIds?: string[] };
+}) {
+  try {
+    yield put(setSyncingUTXOs(true));
+    const { addedTags, deletedTagIds } = payload;
+    const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+    const updated = yield call(
+      Relay.modifyLabels,
+      id,
+      addedTags.length ? addedTags : [],
+      deletedTagIds.length ? deletedTagIds : []
+    );
+    if (updated) {
+      if (addedTags) {
+        yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
+      }
+      if (deletedTagIds) {
+        for (const element of deletedTagIds) {
+          yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
+        }
+      }
+    }
+  } catch (e) {
+    yield put(setSyncingUTXOError(e));
+  } finally {
+    yield put(setSyncingUTXOs(false));
+  }
 }
 
 export const addLabelsWatcher = createWatcher(addLabelsWorker, ADD_LABELS);
 export const bulkUpdateLabelWatcher = createWatcher(bulkUpdateLabelsWorker, BULK_UPDATE_LABELS);
-export const createUTXOReferenceWatcher = createWatcher(
-  createUTXOReferenceWorker,
-  CREATE_UTXO_REFERENCE
+export const bulkUpdateUTXOLabelWatcher = createWatcher(
+  bulkUpdateUTXOLabelsWorker,
+  BULK_UPDATE_UTXO_LABELS
 );

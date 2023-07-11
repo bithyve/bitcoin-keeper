@@ -3,6 +3,7 @@ import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp } from 'src/common/data/responsiveness/responsive';
+import Fonts from 'src/common/Fonts';
 
 function UAIView({
   title,
@@ -13,16 +14,16 @@ function UAIView({
 }) {
   return (
     <Box style={styles.wrapper}>
-      <Box style={styles.uaiMessageWrapper}>
+      <Box style={styles.uaiMessageWrapper} testID='btn_uaiTitleText'>
         <Text style={styles.uaiMessageText}>{title}</Text>
       </Box>
-      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback}>
+      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID='btn_uaiSkip'>
         <Text style={styles.skipText} color="light.learnMoreBorder">
           {secondaryCallbackText}
         </Text>
       </TouchableOpacity>
       {primaryCallbackText && primaryCallback && (
-        <TouchableOpacity style={styles.addNowWrapper} onPress={primaryCallback}>
+        <TouchableOpacity style={styles.addNowWrapper} onPress={primaryCallback} testID='btn_uaiPrimary'>
           <Box style={styles.addNowCTAWrapper} backgroundColor="light.greenText">
             <Text style={styles.addNowCTAText} color="light.white">
               {primaryCallbackText}
@@ -46,8 +47,9 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     color: '#24312E',
     fontSize: 12,
-    fontWeight: 'bold',
     width: 170,
+    fontFamily: Fonts.RobotoCondensedSemiBold,
+    letterSpacing: 0.6
   },
   skipWrapper: {
     width: '20%',

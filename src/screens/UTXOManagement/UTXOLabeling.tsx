@@ -1,18 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet, TouchableOpacity, View, ScrollView } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, ScrollView, Keyboard } from 'react-native';
 import { Box, Input, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { hp, windowWidth } from 'src/common/data/responsiveness/responsive';
-import useLabels from 'src/hooks/useLabels';
 import { UTXO } from 'src/core/wallets/interfaces';
-import { LabelType, NetworkType } from 'src/core/wallets/enums';
+import { NetworkType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
-import DeleteCross from 'src/assets/images/deletelabel.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
@@ -22,22 +20,19 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
-import Relay from 'src/core/services/operations/Relay';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import useAsync from 'src/hooks/useAsync';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import LabelItem from './components/LabelItem';
 
 function UTXOLabeling() {
+  const processDispatched = useRef(false);
   const navigation = useNavigation();
   const {
     params: { utxo, wallet },
   } = useRoute() as { params: { utxo: UTXO; wallet: any } };
   const [label, setLabel] = useState('');
-  const { labels } = useLabels({ utxos: [utxo], wallet });
+  const { labels } = useLabelsNew({ utxos: [utxo], wallet });
   const [existingLabels, setExistingLabels] = useState([]);
   const [editingIndex, setEditingIndex] = useState(-1);
   const currencyCode = useCurrencyCode();
@@ -45,25 +40,25 @@ function UTXOLabeling() {
   const exchangeRates = useExchangeRates();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { colorMode } = useColorMode();
-  const { useQuery } = useContext(RealmWrapperContext);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const getSortedNames = (labels) =>
+    labels
+      .sort((a, b) =>
+        a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : a.name > b.name ? 1 : -1
+      )
+      .reduce((a, c) => {
+        a += c.name;
+        return a;
+      }, '');
   const lablesUpdated =
-    labels[`${utxo.txId}${utxo.vout}`].reduce((a, c) => {
-      a += c.name;
-      return a;
-    }, '') !==
-    existingLabels.reduce((a, c) => {
-      a += c.name;
-      return a;
-    }, '');
+    getSortedNames(labels[`${utxo.txId}:${utxo.vout}`]) !== getSortedNames(existingLabels);
 
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
-  const { inProgress, error, data, start } = useAsync();
+  const { syncingUTXOs, apiError } = useAppSelector((state) => state.utxos);
 
   useEffect(() => {
-    setExistingLabels(labels ? labels[`${utxo.txId}${utxo.vout}`] || [] : []);
+    setExistingLabels(labels ? labels[`${utxo.txId}:${utxo.vout}`] || [] : []);
   }, []);
 
   const onCloseClick = (index) => {
@@ -78,9 +73,9 @@ function UTXOLabeling() {
   const onAdd = () => {
     if (label) {
       if (editingIndex !== -1) {
-        existingLabels[editingIndex] = { name: label, type: LabelType.USER };
+        existingLabels[editingIndex] = { name: label, isSystem: false };
       } else {
-        existingLabels.push({ name: label, type: LabelType.USER });
+        existingLabels.push({ name: label, isSystem: false });
       }
       setEditingIndex(-1);
       setExistingLabels(existingLabels);
@@ -89,32 +84,46 @@ function UTXOLabeling() {
   };
 
   useEffect(() => {
-    if (error) {
-      showToast(error.toString(), <ToastErrorIcon />, 3000);
+    if (apiError) {
+      showToast(apiError.toString(), <ToastErrorIcon />, 3000);
+      processDispatched.current = false;
     }
-    if (data) {
+    if (processDispatched.current && !syncingUTXOs) {
+      processDispatched.current = false;
       navigation.goBack();
     }
-  }, [data, error]);
+  }, [apiError, syncingUTXOs]);
+
+  function getLabelChanges(existingLabels, updatedLabels) {
+    const existingNames = new Set(existingLabels.map((label) => label.name));
+    const updatedNames = new Set(updatedLabels.map((label) => label.name));
+
+    const addedLabels = updatedLabels.filter((label) => !existingNames.has(label.name));
+    const deletedLabels = existingLabels.filter((label) => !updatedNames.has(label.name));
+
+    const labelChanges = {
+      added: addedLabels,
+      deleted: deletedLabels,
+    };
+
+    return labelChanges;
+  }
 
   const onSaveChangeClick = async () => {
-    await start(async () => {
-      const finalLabels = existingLabels.filter(
-        (label) => !(label.type === LabelType.SYSTEM) // ignore the system label since they are internal references
-      );
-      const { updated } = await Relay.modifyUTXOinfo(
-        keeper.id,
-        { labels: finalLabels },
-        `${utxo.txId}${utxo.vout}`
-      );
-      if (updated) dispatch(bulkUpdateLabels({ labels: finalLabels, UTXO: utxo }));
-      return updated;
-    });
+    Keyboard.dismiss();
+    const finalLabels = existingLabels.filter(
+      (label) => !label.isSystem // ignore the system label since they are internal references
+    );
+    const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
+    const labelChanges = getLabelChanges(initialLabels, finalLabels);
+    processDispatched.current = true;
+    dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
   };
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${utxo.txId
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        utxo.txId
       }`
     );
   };
@@ -164,38 +173,14 @@ function UTXOLabeling() {
           </View>
           <View style={styles.listSubContainer}>
             {existingLabels.map((item, index) => (
-              <View
-                key={`${item}`}
-                style={[
-                  styles.labelView,
-                  {
-                    backgroundColor:
-                      item.type === LabelType.SYSTEM
-                        ? '#23A289'
-                        : editingIndex !== index
-                          ? '#E0B486'
-                          : '#A88763',
-                  },
-                ]}
-              >
-                <TouchableOpacity
-                  style={styles.labelEditContainer}
-                  activeOpacity={item.type === LabelType.USER ? 0.5 : 1}
-                  onPress={() => (item.type === LabelType.USER ? onEditClick(item, index) : null)}
-                  testID={`btn_${item.name}`}
-                >
-                  <Text style={styles.itemText} bold testID={`text_${item.name}`}>
-                    {item.name.toUpperCase()}
-                  </Text>
-                  {item.type === LabelType.USER ? (
-                    <TouchableOpacity onPress={() => onCloseClick(index)}>
-                      <Box style={styles.deleteContainer}>
-                        <DeleteCross />
-                      </Box>
-                    </TouchableOpacity>
-                  ) : null}
-                </TouchableOpacity>
-              </View>
+              <LabelItem
+                item={item}
+                index={index}
+                key={`${item.name}:${item.isSystem}`}
+                editingIndex={editingIndex}
+                onCloseClick={onCloseClick}
+                onEditClick={onEditClick}
+              />
             ))}
           </View>
           <Box style={styles.inputLabeWrapper}>
@@ -229,7 +214,7 @@ function UTXOLabeling() {
       <Box style={styles.ctaBtnWrapper}>
         <Box ml={windowWidth * -0.09}>
           <Buttons
-            primaryLoading={inProgress}
+            primaryLoading={syncingUTXOs}
             primaryDisable={!lablesUpdated}
             primaryCallback={onSaveChangeClick}
             primaryText="Save Changes"
@@ -328,31 +313,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#FDF7F0',
     borderRadius: 10,
   },
-  labelView: {
-    borderRadius: 5,
-    paddingHorizontal: 5,
-    flexDirection: 'row',
-    marginTop: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginEnd: 10,
-  },
   listSubContainer: {
     flexWrap: 'wrap',
     marginBottom: 20,
     flexDirection: 'row',
-  },
-  labelEditContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  itemText: {
-    color: '#fff',
-    fontSize: 11,
-  },
-  deleteContainer: {
-    paddingHorizontal: 4,
   },
 });
 

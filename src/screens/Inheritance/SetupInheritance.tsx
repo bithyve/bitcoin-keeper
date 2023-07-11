@@ -20,14 +20,15 @@ import Recovery from 'src/assets/images/recovery.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import CustomYellowButton from 'src/components/CustomButton/CustomYellowButton'
-import InheritanceSupportView from './components/InheritanceSupportView';
+import usePlan from 'src/hooks/usePlan';
+import { TouchableOpacity } from 'react-native';
 
 function SetupInheritance() {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { showToast } = useToastMessage();
+  const { plan } = usePlan();
 
   const inheritanceData = [
     {
@@ -76,9 +77,11 @@ function SetupInheritance() {
 
   function InheritanceContent() {
     return (
-      <Box style={{
-        width: wp(280)
-      }}>
+      <Box
+        style={{
+          width: wp(280),
+        }}
+      >
         {inheritanceData.map((item) => (
           <InheritancePoint
             title={item.title}
@@ -95,6 +98,7 @@ function SetupInheritance() {
     dispatch(setInheritance(false));
     showToast('Inheritance flow coming soon', null, 1000);
   };
+
   return (
     <ScreenWrapper>
       <Box style={styles.header}>
@@ -106,27 +110,48 @@ function SetupInheritance() {
           }}
         />
       </Box>
-      <InheritanceSupportView title='Inheritance Support' subtitle='Keeper provides you with the tips and tools you need to include the vault in your estate planning' />
+      <Box style={styles.topContainer}>
+        <GradientIcon Icon={Inheritance} height={50} />
+        <Text color="light.textWallet" style={styles.title} testID="text_InheritanceSupport">
+          Inheritance Support
+        </Text>
+        <Text
+          color="light.secondaryText"
+          style={styles.subtitle}
+          testID="text_InheritanceSupportSubtitle"
+        >
+          Keeper provides you with the tips and tools you need to include the vault in your estate
+          planning
+        </Text>
+      </Box>
 
-      <Box style={styles.bottomContainer}>
+      <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
-          {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
+          {plan !== SubscriptionTier.L3.toUpperCase()
+            ? `This can be activated once you are at the ${SubscriptionTier.L3} level`
+            : `Setup Inheritance Key`}
         </Text>
-        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
-          {/* <Buttons
-            primaryText="Select Country"
-          <Buttons
-            primaryText="Continue"
-            primaryCallback={() => {
-              showToast('Inheritance flow coming soon', null, 1000);
-            }}
-            paddingHorizontal={wp(20)}
-          /> */}
-          <CustomYellowButton value='Upgrade Now' onPress={() => navigtaion.navigate('InheritanceStatus')} titleColor="#725436" />
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
+          <TouchableOpacity
+            testID="btn_inheritanceBtn"
+            onPress={() => showToast('Inheritance flow coming soon', null, 1000)}
+          >
+            <Box
+              borderColor="light.learnMoreBorder"
+              backgroundColor="light.lightAccent"
+              style={styles.upgradeNowContainer}
+            >
+              <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
+                {plan !== SubscriptionTier.L3.toUpperCase()
+                  ? `Upgrade Now`
+                  : `Setup Inheritance Key`}
+              </Text>
+            </Box>
+          </TouchableOpacity>
         </Box>
       </Box>
-      <Box style={styles.note}>
+      <Box style={styles.note} testID="view_ISNote">
         <Note
           title="Note"
           subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
@@ -177,8 +202,22 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   topContainer: {
+    marginTop: hp(25),
     alignItems: 'center',
     paddingHorizontal: 1,
+  },
+  title: {
+    fontSize: 16,
+    letterSpacing: 0.96,
+    marginTop: hp(10),
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    textAlign: 'center',
+    width: wp(270),
+    marginTop: hp(4),
+    fontSize: 12,
+    letterSpacing: 0.8,
   },
   header: {
     // marginBottom: -50,
@@ -204,6 +243,22 @@ const styles = ScaledSheet.create({
     width: wp(300),
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  gradientIcon: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  upgradeNowContainer: {
+    borderWidth: 0.5,
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  upgradeNowText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    alignSelf: 'center',
   },
 });
 export default SetupInheritance;

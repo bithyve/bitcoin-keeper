@@ -28,6 +28,7 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -40,8 +41,11 @@ export const allowedRecieveTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 // TODO: add type definitions to all components
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   return (
     <Box style={styles.transactionsListContainer}>
+      <ActivityIndicatorView visible={syncing} showLoader={false} />
       <Transactions
         transactions={transactions}
         setPullRefresh={setPullRefresh}
@@ -79,13 +83,20 @@ function WalletDetails({ route }) {
   const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
-
+  const { walletSyncing } = useAppSelector((state) => state.wallet);
+  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [pullRefresh, setPullRefresh] = useState(false);
+
+  useEffect(() => {
+    if (!syncing) {
+      dispatch(refreshWallets([wallet], { hardRefresh: true }));
+    }
+  }, []);
 
   useEffect(() => {
     if (autoRefresh) pullDownRefresh();
@@ -101,11 +112,15 @@ function WalletDetails({ route }) {
   return (
     <Box style={styles.container} backgroundColor="light.greenText2">
       <StatusBar barStyle="light-content" backgroundColor="light.greenText2" />
-      <HeaderTitle
-        learnMore
-        learnMorePressed={() => dispatch(setIntroModal(true))}
-        backBtnBlackColor={false}
-      />
+      <VStack mr={5}>
+        <HeaderTitle
+          learnMore
+          learnMorePressed={() => dispatch(setIntroModal(true))}
+          backBtnBlackColor={false}
+          learnBackgroundColor=""
+          learnTextColor="light.white"
+        />
+      </VStack>
       <VStack>
         <Box style={styles.walletHeaderWrapper}>
           <Box style={styles.walletIconWrapper}>
@@ -346,15 +361,16 @@ const styles = StyleSheet.create({
   },
   balanceWrapper: {
     flexDirection: 'row',
-    width: '100%',
-    margin: wp(20),
+    width: '90%',
+    marginVertical: wp(20),
+    marginHorizontal: wp(20),
   },
   unconfirmBalanceView: {
     width: '50%',
   },
   availableBalanceView: {
     width: '50%',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   transTitleWrapper: {
     paddingTop: 20,

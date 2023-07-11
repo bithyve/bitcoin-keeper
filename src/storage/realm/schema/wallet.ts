@@ -40,6 +40,19 @@ export const UTXOInfoSchema: ObjectSchema = {
   primaryKey: 'id',
 };
 
+export const Tags: ObjectSchema = {
+  name: RealmSchema.Tags,
+  properties: {
+    id: 'string',
+    type: 'string',
+    ref: 'string',
+    label: 'string',
+    origin: 'string?',
+    isSystem: { type: 'bool', default: false },
+  },
+  primaryKey: 'id',
+};
+
 export const UTXOSchema: ObjectSchema = {
   name: RealmSchema.UTXO,
   embedded: true,

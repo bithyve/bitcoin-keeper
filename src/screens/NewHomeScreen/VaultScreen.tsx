@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Pressable, ScrollView } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
@@ -9,6 +9,7 @@ import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import Colors from 'src/theme/Colors';
+import Fonts from 'src/common/Fonts';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -42,7 +43,7 @@ function VaultScreen() {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color="light.primaryText">
+          <Text style={styles.titleText} color="light.primaryText" testID='text_YourVault'>
             Your Vault
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
@@ -78,7 +79,7 @@ function VaultScreen() {
                   </Box>
                 </Box>
                 <Box style={styles.availableBalanceWrapper}>
-                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)}>
+                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)} testID='btn_vaultBalance'>
                     <CurrencyInfo
                       hideAmounts={hideAmounts}
                       amount={confirmedBalance + unconfirmedBalance}
@@ -116,18 +117,21 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontFamily: Fonts.RobotoCondensedMedium,
+    letterSpacing: 1.28
   },
   subTitleText: {
     fontSize: 12,
   },
   vaultDetailsWrapper: {
-    padding: 15,
+    paddingVertical: 35,
+    paddingHorizontal: 15,
     borderRadius: 10,
     marginVertical: hp(20),
   },
   emptyVaultSignerWrapper: {
-    padding: 20,
+    paddingVertical: 45,
+    paddingHorizontal: 20,
     borderRadius: 10,
     marginVertical: hp(20),
     alignItems: 'center',

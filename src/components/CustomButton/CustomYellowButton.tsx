@@ -18,6 +18,7 @@ function CustomYellowButton(props: Props) {
       onPress={() => {
         props.onPress();
       }}
+      testID='btn_customYellowButton'
     >
       <LinearGradient
         start={[1, 0]}
