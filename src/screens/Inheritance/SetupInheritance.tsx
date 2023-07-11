@@ -17,7 +17,7 @@ import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
 import LetterIKS from 'src/assets/images/LETTER_IKS.svg';
-import Recovery from 'src/assets/images/recovery.svg';
+import Recovery from 'src/assets/images/Recovery.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
