@@ -1,7 +1,7 @@
 /* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 import { AverageTxFeesByNetwork, SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { EntityKind, LabelType, TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, LabelRefType, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
@@ -47,7 +47,7 @@ import {
   customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
-import { createUTXOReferenceWorker } from './utxos';
+import { addLabelsWorker } from './utxos';
 import { setElectrumNotConnectedErr } from '../reducers/login';
 
 export function* fetchFeeRatesWorker() {
@@ -134,7 +134,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
-    const { txid, serializedPSBTEnvelops } = yield call(
+    const { txid, serializedPSBTEnvelops, finalOutputs } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
@@ -143,17 +143,20 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       recipients
       // customTxPrerequisites
     );
-    const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
-    const systemLableOnSend = enabledTransferTypes.includes(transferType)
-      ? [{ name: wallet.presentationData.name, type: LabelType.SYSTEM }]
-      : [];
-    let labels = systemLableOnSend;
+
     switch (wallet.entityKind) {
       case EntityKind.WALLET:
         if (!txid) throw new Error('Send failed: unable to generate txid');
-        if (note) wallet.specs.txNote[txid] = note;
-        if (label) {
-          labels = labels.concat([{ name: label, type: LabelType.USER }]);
+        if (note) {
+          wallet.specs.txNote[txid] = note;
+          yield call(addLabelsWorker, {
+            payload: {
+              txId: txid,
+              wallet,
+              labels: [{ name: note, isSystem: false }],
+              type: LabelRefType.TXN,
+            },
+          });
         }
         yield put(
           sendPhaseTwoExecuted({
@@ -169,10 +172,6 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
       case EntityKind.VAULT:
         if (!serializedPSBTEnvelops.length)
           throw new Error('Send failed: unable to generate serializedPSBTEnvelop');
-        if (note) wallet.specs.txNote[txid] = note;
-        if (label) {
-          labels = labels.concat([{ name: label, type: LabelType.USER }]);
-        }
         yield put(
           sendPhaseTwoExecuted({
             successful: true,
@@ -185,18 +184,22 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         throw new Error('Invalid Entity: not a Vault/Wallet');
     }
     if (wallet.entityKind === EntityKind.WALLET) {
-      const vout = txPrerequisites[txnPriority].outputs.findIndex(
-        (o) => o.address === recipients[0].address
-      );
-      yield call(createUTXOReferenceWorker, {
-        payload: [
-          {
-            labels,
+      const enabledTransferTypes = [TransferType.WALLET_TO_VAULT];
+      if (enabledTransferTypes.includes(transferType)) {
+        label.push({ name: wallet.presentationData.name, isSystem: true });
+      }
+      if (label && label.length) {
+        const vout = finalOutputs.findIndex((o) => o.address === recipients[0].address);
+        yield call(addLabelsWorker, {
+          payload: {
             txId: txid,
             vout,
+            wallet,
+            labels: label,
+            type: LabelRefType.OUTPUT,
           },
-        ],
-      });
+        });
+      }
     }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
@@ -240,7 +243,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
         `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
       );
 
-    const { txid } = yield call(
+    const { txid, finalOutputs } = yield call(
       WalletOperations.transferST3,
       wallet,
       serializedPSBTEnvelops,
@@ -258,23 +261,30 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     yield call(dbManager.updateObjectById, RealmSchema.Vault, wallet.id, {
       specs: wallet.specs,
     });
-    if (note) wallet.specs.txNote[txid] = note;
-    const labels = [];
-    if (label) {
-      labels.concat([{ name: label, type: LabelType.USER }]);
+    if (note) {
+      wallet.specs.txNote[txid] = note;
+      yield call(addLabelsWorker, {
+        payload: {
+          txId: txid,
+          wallet,
+          labels: [{ name: note, isSystem: false }],
+          type: LabelRefType.TXN,
+        },
+      });
     }
-    const vout = txPrerequisites[txnPriority].outputs.findIndex(
-      (o) => o.address === recipients[0].address
-    );
-    yield call(createUTXOReferenceWorker, {
-      payload: [
-        {
-          labels,
+
+    if (label && label.length) {
+      const vout = finalOutputs.findIndex((o) => o.address === recipients[0].address);
+      yield call(addLabelsWorker, {
+        payload: {
           txId: txid,
           vout,
+          wallet,
+          labels: label,
+          type: LabelRefType.OUTPUT,
         },
-      ],
-    });
+      });
+    }
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
       yield put(setElectrumNotConnectedErr(err?.message));

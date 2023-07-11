@@ -22,6 +22,7 @@ import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useNfcModal from 'src/hooks/useNfcModal';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function Card({ message, buttonText, buttonCallBack }) {
   return (
@@ -82,10 +83,12 @@ function SignWithColdCard({ route }: { route }) {
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
         dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: txn }));
+        dispatch(healthCheckSigner([signer]));
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
         dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(healthCheckSigner([signer]));
       }
     });
 

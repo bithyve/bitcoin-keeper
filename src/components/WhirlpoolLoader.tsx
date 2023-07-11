@@ -9,7 +9,6 @@ import Gear3 from 'src/assets/images/gear 3.svg';
 import { windowWidth, windowHeight } from 'src/common/data/responsiveness/responsive';
 
 function WhirlpoolLoader() {
-  console.log('windowHeight', windowHeight)
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {

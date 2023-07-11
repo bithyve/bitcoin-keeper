@@ -5,7 +5,6 @@
 import {
   DerivationPurpose,
   EntityKind,
-  NetworkType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
@@ -23,12 +22,10 @@ import {
 } from 'src/core/wallets/interfaces/wallet';
 import { call, put, select } from 'redux-saga/effects';
 import {
-  newWalletCreated,
   setNetBalance,
   setSyncing,
   setTestCoinsFailed,
   setTestCoinsReceived,
-  signingServerRegistrationVerified,
   walletGenerationFailed,
   setWhirlpoolCreated,
 } from 'src/store/reducers/wallets';
@@ -46,15 +43,8 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import {
-  encrypt,
-  generateEncryptionKey,
-  getRandomBytes,
-  generateKey,
-  hash256,
-} from 'src/core/services/operations/encryption';
+import { generateKey, hash256 } from 'src/core/services/operations/encryption';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { UTXOInfo } from 'src/core/wallets/interfaces';
 import { captureError } from 'src/core/services/sentry';
 import {
   ELECTRUM_NOT_CONNECTED_ERR,
@@ -644,23 +634,7 @@ function* syncWalletsWorker({
     wallets,
     network
   );
-  const UTXOInfos: UTXOInfo[] = [];
-  for (const wallet of synchedWallets) {
-    const allUTXOs = wallet.specs.confirmedUTXOs.concat(wallet.specs.unconfirmedUTXOs);
-    for (const utxo of allUTXOs) {
-      const utxoId = `${utxo.txId}${utxo.vout}`;
-      const utxoInfo: UTXOInfo = {
-        id: utxoId,
-        txId: utxo.txId,
-        vout: utxo.vout,
-        walletId: wallet.id,
-      };
-      UTXOInfos.push(utxoInfo);
-    }
-  }
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
-  yield call(Relay.addUTXOinfos, app.id, UTXOInfos);
-  dbManager.createObjectBulk(RealmSchema.UTXOInfo, UTXOInfos);
+
   return {
     synchedWallets,
   };
@@ -868,7 +842,7 @@ export function* updateSignerPolicyWorker({ payload }: { payload: { signer; upda
     throw new Error('Failed to update the policy');
   }
 
-  const signers: VaultSigner[] = getJSONFromRealmObject(activeVault.signers);
+  const { signers } = activeVault;
   for (const current of signers) {
     if (current.signerId === signer.signerId) {
       current.signerPolicy = {

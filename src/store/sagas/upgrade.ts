@@ -10,6 +10,10 @@ import messaging from '@react-native-firebase/messaging';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
+import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
+import { LabelRefType } from 'src/core/wallets/enums';
+import { genrateOutputDescriptors } from 'src/core/utils';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { setAppVersion, setPinHash } from '../reducers/storage';
 import { stringToArrayBuffer } from './login';
 import { createWatcher } from '../utilities';
@@ -17,6 +21,8 @@ import {
   resetReduxStore,
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
+  migrateLabelsToBip329,
+  MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
 import { RootState } from '../store';
 import { generateSeedHash } from '../sagaActions/login';
@@ -24,6 +30,8 @@ import { setupKeeperAppWorker } from './storage';
 
 export const SWITCH_TO_MAINNET_VERSION = '0.0.99';
 export const ADDITION_OF_VAULTSHELL_VERSION = '1.0.1';
+export const BIP329_INTRODUCTION_VERSION = '1.0.7';
+export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -38,6 +46,12 @@ export function* applyUpgradeSequence({
     yield call(additionOfVaultShellId);
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
+  if (
+    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
+    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
+  ) {
+    yield put(migrateLabelsToBip329());
+  }
 }
 
 function* switchToMainnet() {
@@ -138,3 +152,43 @@ export const updateVersionHistoryWatcher = createWatcher(
   updateVersionHistoryWorker,
   UPDATE_VERSION_HISTORY
 );
+
+function* migrateLablesWorker() {
+  try {
+    const UTXOLabels: UTXOInfo[] = yield call(dbManager.getCollection, RealmSchema.UTXOInfo);
+    const tags = [];
+    const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
+
+    UTXOLabels.forEach((utxo) => {
+      if (utxo.labels.length) {
+        const wallet = wallets.find((w) => w.id === utxo.walletId);
+        const origin = genrateOutputDescriptors(wallet, false);
+        utxo.labels.forEach((label) => {
+          const ref = `${utxo.txId}:${utxo.vout}`;
+          const labelName = label.name;
+          const tag: BIP329Label = {
+            id: `${ref}${labelName}`,
+            type: LabelRefType.OUTPUT,
+            isSystem: false,
+            label: labelName,
+            ref,
+            origin,
+          };
+          tags.push(tag);
+        });
+      }
+    });
+    if (tags.length) {
+      const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      const updated = yield call(Relay.modifyLabels, id, tags.length ? tags : [], []);
+      if (updated) {
+        const labelsmigrated = yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
+        console.log('Labels migrated: ', labelsmigrated);
+      }
+    }
+  } catch (error) {
+    console.log({ error });
+  }
+}
+
+export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);

@@ -55,7 +55,7 @@ export const getTxForBitBox02 = async (
 ) => {
   try {
     const payload = signingPayload[0];
-    const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+    const psbt = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
     const {
       inputs: inputUtxos,
       outputs: outputUtxos,
@@ -64,7 +64,7 @@ export const getTxForBitBox02 = async (
     } = payload;
     const keypathAccount = getKeypathFromString(signer.derivationPath);
     const inputs = [];
-    const index = 0;
+    let index = 0;
     const { version, locktime } = psbt;
     for (const input of psbt.txInputs) {
       const { subPath } = inputsToSign[index];
@@ -95,6 +95,7 @@ export const getTxForBitBox02 = async (
           })),
         },
       });
+      index += 1;
     }
     const outputs = psbt.txOutputs.map((output, index) => {
       const isChangeOutput = output.address === changeAddress;
@@ -127,7 +128,7 @@ export const getTxForBitBox02 = async (
 
 export const getSignedSerializedPSBTForBitbox02 = (unsignedPSBT, signatures, signingPayload) => {
   try {
-    const PSBT = bitcoinJS.Psbt.fromBase64(unsignedPSBT);
+    const PSBT = bitcoinJS.Psbt.fromBase64(unsignedPSBT, { network: config.NETWORK });
     const { inputsToSign } = signingPayload[0];
     for (let inputIndex = 0; inputIndex < inputsToSign.length; inputIndex += 1) {
       const { sighashType, publicKey } = inputsToSign[inputIndex];

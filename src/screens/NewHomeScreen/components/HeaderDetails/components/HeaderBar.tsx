@@ -64,7 +64,7 @@ function HeaderBar() {
   }, [torStatus]);
   return (
     <Box style={styles.wrapper}>
-      <Box style={styles.torStatusWrapper}>
+      <Box style={styles.torStatusWrapper} testID='view_homeTorStatus'>
         {getTorStatusText !== 'Tor disabled' && (
           <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
             <Text color="light.primaryText" style={styles.torText} bold>
@@ -76,6 +76,7 @@ function HeaderBar() {
       <TouchableOpacity
         style={styles.settingIconWrapper}
         onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+        testID='btn_AppSettingsIcon'
       >
         <IconSettings />
       </TouchableOpacity>

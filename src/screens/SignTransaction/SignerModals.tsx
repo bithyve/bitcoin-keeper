@@ -390,8 +390,8 @@ function OtpContent({ signTransaction }) {
           color="light.greenText"
           marginTop={2}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et
+          If you lose your authenticator app, use the other Signing Devices to reset the Signing
+          Server
         </Text>
         <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
@@ -519,7 +519,7 @@ function SignerModals({
                   setLedgerModal(false);
                 }}
                 title="Keep Nano X Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor.`}
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
                 textColor="light.primaryText"
                 Content={() => <LedgerContent />}
                 buttonText="Proceed"
@@ -546,8 +546,8 @@ function SignerModals({
                 close={() => {
                   showOTPModal(false);
                 }}
-                title="Confirm OTP to setup 2FA"
-                subTitle="Lorem ipsum dolor sit amet, "
+                title="Confirm OTP to sign transaction"
+                subTitle="To sign using signing server key"
                 textColor="light.primaryText"
                 Content={() => <OtpContent signTransaction={signTransaction} />}
               />
@@ -620,7 +620,7 @@ function SignerModals({
                   setTrezorModal(false);
                 }}
                 title="Keep Trezor Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with Trezor.`}
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
                 textColor="light.primaryText"
                 Content={() => <TrezorContent />}
                 buttonText="Proceed"
@@ -635,7 +635,7 @@ function SignerModals({
                   setBitbox02Modal(false);
                 }}
                 title="Keep BitBox02 Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your desktop to use the Keeper Hardware Interfce to connect with BitBox02.`}
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
                 textColor="light.primaryText"
                 Content={() => <BitBox02Content />}
                 buttonText="Proceed"

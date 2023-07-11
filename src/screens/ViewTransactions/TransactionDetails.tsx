@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Box, ScrollView } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -23,6 +23,9 @@ import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import useTransactionLabels from 'src/hooks/useTransactionLabels';
+import LabelItem from '../UTXOManagement/components/LabelItem';
 
 function TransactionDetails({ route }) {
   const navigation = useNavigation();
@@ -30,15 +33,18 @@ function TransactionDetails({ route }) {
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
   const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
+  const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
+  const { labels: txnLabels } = useTransactionLabels({ txid: transaction.txid, wallet });
 
   function InfoCard({
     title,
-    describtion,
+    describtion = '',
     width = 320,
     showIcon = false,
     letterSpacing = 1,
     numberOfLines = 1,
     Icon = null,
+    Content = null,
   }) {
     return (
       <Box
@@ -51,15 +57,19 @@ function TransactionDetails({ route }) {
             <Text color="light.headerText" style={styles.titleText}>
               {title}
             </Text>
-            <Text
-              style={styles.descText}
-              letterSpacing={letterSpacing}
-              color="light.GreyText"
-              width={showIcon ? '60%' : '90%'}
-              numberOfLines={numberOfLines}
-            >
-              {describtion}
-            </Text>
+            {Content ? (
+              <Content />
+            ) : (
+              <Text
+                style={styles.descText}
+                letterSpacing={letterSpacing}
+                color="light.GreyText"
+                width={showIcon ? '60%' : '90%'}
+                numberOfLines={numberOfLines}
+              >
+                {describtion}
+              </Text>
+            )}
           </Box>
           {showIcon && Icon}
         </Box>
@@ -68,7 +78,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };
@@ -79,7 +90,7 @@ function TransactionDetails({ route }) {
         <HeaderTitle
           onPressHandler={() => navigation.goBack()}
           title={transactions.TransactionDetails}
-          subtitle="Detailed information for this UTXO"
+          subtitle="Detailed information for this Transaction"
           paddingTop={hp(20)}
           paddingLeft={25}
         />
@@ -107,6 +118,25 @@ function TransactionDetails({ route }) {
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
+          {txnLabels.length ? (
+            <InfoCard
+              title="Tags"
+              Content={() => (
+                <View style={styles.listSubContainer}>
+                  {txnLabels.map((item, index) => (
+                    <LabelItem
+                      item={item}
+                      index={index}
+                      key={`${item.name}:${item.isSystem}`}
+                      editable={false}
+                    />
+                  ))}
+                </View>
+              )}
+              showIcon={false}
+              letterSpacing={2.4}
+            />
+          ) : null}
           <InfoCard
             title="Confirmations"
             describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
@@ -140,15 +170,15 @@ function TransactionDetails({ route }) {
             showIcon={false}
             numberOfLines={transaction.recipientAddresses.length}
           />
-          {wallet.specs.txNote[transaction.txid] && (
+          {labels[transaction.txid].length ? (
             <InfoCard
               title="Note"
-              describtion={wallet.specs.txNote[transaction.txid]}
+              describtion={labels[transaction.txid][0].name}
               showIcon
               letterSpacing={2.4}
               Icon={<Edit />}
             />
-          )}
+          ) : null}
         </Box>
       </ScrollView>
     </Box>
@@ -210,6 +240,11 @@ const styles = ScaledSheet.create({
   unitText: {
     letterSpacing: 0.6,
     fontSize: hp(12),
+  },
+  listSubContainer: {
+    flexWrap: 'wrap',
+    marginBottom: 20,
+    flexDirection: 'row',
   },
 });
 export default TransactionDetails;

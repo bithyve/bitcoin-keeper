@@ -7,7 +7,6 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { EntityKind, LabelType, WalletType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 
@@ -17,8 +16,7 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
   const utxoInfoTable = useQuery(RealmSchema.UTXOInfo);
   const Schema = wallet.entityKind === EntityKind.WALLET ? RealmSchema.Wallet : RealmSchema.Vault;
   const wallets = useQuery(Schema);
-  const { walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
+
   const dispatch = useDispatch();
   const isWhirlpoolWallet =
     wallet.type === WalletType.PRE_MIX ||
@@ -73,7 +71,7 @@ const useLabels = ({ utxos, wallet }: { utxos: UTXO[]; wallet: Wallet | Vault })
     return labels;
   }, [utxos, utxoInfoTable]);
 
-  return { labels, syncing };
+  return { labels };
 };
 
 export default useLabels;

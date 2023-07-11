@@ -278,11 +278,11 @@ function AppSettings({ navigation }) {
         <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
+              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground" testID='view_ KeeperTelegram'>
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
+                    <Text color="light.textColor2" style={styles.telTweetLinkTitle} testID='text_ KeeperTelegram'>
                       Keeper Telegram
                     </Text>
                   </Box>
@@ -293,11 +293,11 @@ function AppSettings({ navigation }) {
               </Box>
             </Pressable>
             <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')} testID='btn_keeperTwitter'>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
+              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground" testID='view_keeperTwitter'>
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
+                    <Text color="light.textColor2" style={styles.telTweetLinkTitle} testID='text_keeperTwitter'>
                       Keeper Twitter
                     </Text>
                   </Box>
@@ -318,13 +318,13 @@ function AppSettings({ navigation }) {
               </Pressable>
               <Text color="light.textColor2">|</Text>
               <Pressable onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')} testID='btn_termsCondition'>
-                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
+                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`} testID='text_termsCondition'>
                   {common.TermsConditions}
                 </Text>
               </Pressable>
               <Text color="light.textColor2">|</Text>
               <Pressable onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')} testID='btn_privacyPolicy'>
-                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
+                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`} testID='text_privacyPolicy'>
                   {common.PrivacyPolicy}
                 </Text>
               </Pressable>

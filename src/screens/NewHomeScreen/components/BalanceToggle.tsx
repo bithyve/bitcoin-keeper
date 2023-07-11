@@ -16,6 +16,7 @@ function BalanceToggle({ hideAmounts, setHideAmounts }) {
         left: 10,
         right: 10,
       }}
+      testID='btn_balanceToggle'
     >
       {hideAmounts ? <ShowIcon /> : <HideIcon />}
       <Text style={[styles.hideBalanceText, { color: hideAmounts ? '#2D6759' : '#704E2E' }]}>
