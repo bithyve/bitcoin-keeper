@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ToastErrorIcon from 'src/assets/images/download.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 
 
@@ -17,10 +17,16 @@ function InheritanceDownloadView(props) {
                 <Text color="light.secondaryText" style={styles.subTitleText}>{props.subTitle}</Text>
             </Box>
             <Box style={styles.btnWrapper}>
-                <TouchableOpacity style={styles.downloadBtn} onPress={props.onPress}>
-                    <ToastErrorIcon />
-                    <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text>
-                </TouchableOpacity>
+                {props.isDownload ?
+                    <TouchableOpacity style={styles.downloadBtn} onPress={props.onPress}>
+                        <ToastErrorIcon />
+                        <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text>
+                    </TouchableOpacity>
+                    :
+                    <TouchableOpacity style={styles.downloadBtn} onPress={props.onPress}>
+                        <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Setup</Text>
+                    </TouchableOpacity>
+                }
             </Box>
         </Box>
     )
@@ -46,13 +52,13 @@ const styles = StyleSheet.create({
     },
     downloadBtnText: {
         color: '#725436',
-        fontSize: 12
+        fontSize: 12,
     },
     iconWrapper: {
-        width: '20%'
+        width: '15%'
     },
     titleWrapper: {
-        width: '48%'
+        width: '53%'
     },
     btnWrapper: {
         width: '32%'

@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         textAlign: 'center',
-        width: wp(250),
+        width: wp(270),
         marginTop: hp(4),
         fontSize: 13,
         letterSpacing: 1.3,

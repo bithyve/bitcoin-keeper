@@ -16,6 +16,7 @@ function IKSAddEmailPhone() {
                 onPressHandler={() => navigtaion.goBack()}
                 title='Add phone or email'
                 subtitle='Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                paddingLeft={22}
             />
             <Box style={styles.inputWrapper}>
                 <Input

@@ -16,7 +16,8 @@ import { setInheritance } from 'src/store/reducers/settings';
 import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
-import Recovery from 'src/assets/images/recovery.svg';
+import LetterIKS from 'src/assets/images/LETTER_IKS.svg';
+import Recovery from 'src/assets/images/Recovery.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
@@ -37,6 +38,13 @@ function SetupInheritance() {
       description:
         'Consists of tips on things to consider while storing your signing devices for the purpose of inheritance (when it will be needed by someone else)',
       Icon: Vault,
+    },
+    {
+      title: 'Setup Inheritance Key',
+      subTitle: 'Keeper will have one of your Keys',
+      description:
+        'This would transform your 3-of-5 vault to a 3-of-6 with Keeper custodying one key.',
+      Icon: LetterIKS,
     },
     {
       title: 'Letter to the Attorney',
@@ -223,7 +231,7 @@ const styles = ScaledSheet.create({
     // marginBottom: -50,
   },
   modalContainer: {
-    marginBottom: hp(25),
+    // marginBottom: hp(25),
   },
   modalTitle: {
     fontSize: 15,
@@ -233,7 +241,7 @@ const styles = ScaledSheet.create({
     opacity: 0.7,
   },
   modalDesc: {
-    marginTop: hp(16),
+    marginVertical: hp(8),
     letterSpacing: 0.65,
     width: wp(280),
     alignItems: 'center',

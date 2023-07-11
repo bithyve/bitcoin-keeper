@@ -7,15 +7,16 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { setInheritance } from 'src/store/reducers/settings';
 import { useAppDispatch } from 'src/store/hooks';
-import Vault from 'src/assets/images/vault.svg';
+import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
+import SetupIK from 'src/assets/images/SetupIK.svg'
 import Letter from 'src/assets/images/LETTER.svg';
-import Recovery from 'src/assets/images/recovery.svg';
+import Recovery from 'src/assets/images/Recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { SafeGuardTips } from 'src/common/data/inheritance/Inheritance';
+import DownloadFile from 'src/utils/DownloadPDF';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
@@ -33,43 +34,48 @@ function InheritanceStatus() {
                     dispatch(setInheritance(true));
                 }}
             />
-            <InheritanceSupportView title='Inheritance Support' subtitle='For yourself, the heir and the attorney' />
+            <InheritanceSupportView title='Inheritance Support' subtitle='Keeper provides you with the tips and tools you need to include the Vault in your estate planning' />
             <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-                <InheritanceDownloadView icon={<Vault />} title='Safeguarding Tips' subTitle='How to store your keys securely'
-                    onPress={() => navigtaion.navigate('InheritanceSetupInfo', {
-                        title: 'Safe Guarding Tips',
-                        subTitle: 'How to store your keys securely',
-                        infoData: SafeGuardTips,
-                        icon: <Vault />
-                    })} />
-                <InheritanceDownloadView icon={<Vault />} title='Setup Inheritance Key' subTitle='How to store your keys securely'
-                    onPress={() => setVisibleModal(true)} />
+                <InheritanceDownloadView
+                    icon={<SafeguardingTips />}
+                    title='Key Security Tips'
+                    subTitle='How to store your keys securely'
+                    onPress={() => DownloadFile('Key Security Tips')}
+                    isDownload
+                />
+                <InheritanceDownloadView
+                    icon={<SetupIK />}
+                    title='Setup Inheritance Key'
+                    subTitle='Add a Keeper custodied key to create a 3-of-6 Vault'
+                    onPress={() => console.log('press')}
+
+                />
                 <Box style={styles.signingDevicesView}>
                     <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
                     <ToastErrorIcon />
                 </Box>
-                <InheritanceDownloadView icon={<Letter />} title='Letter to the attorney' subTitle='A partly filled pdf template'
-                    onPress={() => navigtaion.navigate('InheritanceSetupInfo', {
-                        title: 'Letter to the attorney',
-                        subTitle: 'A partly filled pdf template',
-                        infoData: SafeGuardTips,
-                        icon: <Letter />
-                    })} />
-                <InheritanceDownloadView icon={<Recovery />} title='Recovery Instructions' subTitle='A document for the heir only'
-                    onPress={() => navigtaion.navigate('InheritanceSetupInfo', {
-                        title: 'Recovery Instructions',
-                        subTitle: 'A document for the heir only',
-                        infoData: SafeGuardTips,
-                        icon: <Recovery />
-                    })} />
-            </ScrollView>
-            <Box style={styles.note}>
-                <Note
-                    title="Note"
-                    subtitle="Consult your estate planner to use the information appropriately"
-                    subtitleColor="GreyText"
+                <InheritanceDownloadView
+                    icon={<Letter />}
+                    title='Letter to the attorney'
+                    subTitle='A partly filled pdf template'
+                    onPress={() => DownloadFile('Letter to the attorney')}
+                    isDownload
                 />
-            </Box>
+                <InheritanceDownloadView
+                    icon={<Recovery />}
+                    title='Restoring Inheritance Vault'
+                    subTitle='A document for the heir only'
+                    onPress={() => DownloadFile('Restoring Inheritance Vault')}
+                    isDownload
+                />
+            </ScrollView>
+            {/* <Box style={styles.note}> */}
+            <Note
+                title="Note"
+                subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+                subtitleColor="GreyText"
+            />
+            {/* </Box> */}
             <IKSetupSuccessModal visible={visibleModal} closeModal={() => setVisibleModal(false)} />
         </ScreenWrapper>
     )
@@ -82,13 +88,14 @@ const styles = StyleSheet.create({
         right: 3
     },
     scrollViewWrapper: {
+        height: '50%'
     },
     signingDevicesText: {
         color: '#E07962',
         fontSize: 14
     },
     note: {
-        bottom: hp(10),
+        bottom: hp(5),
         justifyContent: 'center',
         width: wp(320),
     },
