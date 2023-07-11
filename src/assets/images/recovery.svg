@@ -1,12 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="34.654" height="34" viewBox="0 0 34.654 34">
-  <g id="recovery" transform="translate(-161 -530)">
-    <g id="Group_42017" data-name="Group 42017" transform="translate(161 530)">
-      <ellipse id="Ellipse_218" data-name="Ellipse 218" cx="17.327" cy="17" rx="17.327" ry="17" transform="translate(0 0)" fill="#00433a"/>
-      <g id="Ellipse_220" data-name="Ellipse 220" transform="translate(3.238 3.238)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1" stroke-dasharray="0.2 3" opacity="0.511">
-        <ellipse cx="14.089" cy="13.762" rx="14.089" ry="13.762" stroke="none"/>
-        <ellipse cx="14.089" cy="13.762" rx="13.589" ry="13.262" fill="none"/>
-      </g>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.177" y1="0.092" x2="0.924" y2="0.837" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#00836a"/>
+      <stop offset="1" stop-color="#073e39"/>
+    </linearGradient>
+  </defs>
+  <g id="Recovery" transform="translate(-48 -596)">
+    <circle id="Ellipse_218" data-name="Ellipse 218" cx="15" cy="15" r="15" transform="translate(48 596)" fill="url(#linear-gradient)"/>
+    <g id="Ellipse_220" data-name="Ellipse 220" transform="translate(50.5 598.5)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1" stroke-dasharray="0.2 3" opacity="0.511">
+      <circle cx="12.5" cy="12.5" r="12.5" stroke="none"/>
+      <circle cx="12.5" cy="12.5" r="12" fill="none"/>
     </g>
-    <path id="Synchronize" d="M22.406,14.074a.887.887,0,0,1-1.256,0l-.865-.865v3.258a3.451,3.451,0,0,1-3.447,3.447h-6.8a.889.889,0,1,1,0-1.777h6.8a1.668,1.668,0,0,0,1.67-1.67V13.21l-.865.865a.887.887,0,0,1-1.256,0,.894.894,0,0,1,0-1.256l2.381-2.381a.792.792,0,0,1,.3-.19.557.557,0,0,1,.19-.047c.047,0,.095-.024.142-.024a17997.7,17997.7,0,0,0,.332.071.792.792,0,0,1,.3.19l2.381,2.381A.894.894,0,0,1,22.406,14.074ZM4.47,12.44a.894.894,0,0,1,1.256,0l.865.865V9.667A3.458,3.458,0,0,1,10.038,6.22h6.8a.889.889,0,0,1,0,1.777h-6.8a1.668,1.668,0,0,0-1.67,1.67V13.3l.865-.865a.894.894,0,0,1,1.256,0,.873.873,0,0,1,0,1.256L8.107,16.077a.859.859,0,0,1-.628.261.879.879,0,0,1-.628-.261L4.47,13.7A.894.894,0,0,1,4.47,12.44Z" transform="translate(164.889 533.392)" fill="#79b1a7"/>
+    <path id="Synchronize" d="M18.014,12.178a.673.673,0,0,1-.953,0l-.656-.656v2.471a2.618,2.618,0,0,1-2.615,2.615H8.632a.674.674,0,0,1,0-1.348H13.79a1.266,1.266,0,0,0,1.267-1.267V11.522l-.656.656a.673.673,0,0,1-.953,0,.678.678,0,0,1,0-.953l1.806-1.806a.6.6,0,0,1,.225-.144.423.423,0,0,1,.144-.036c.036,0,.072-.018.108-.018a49711.247,49711.247,0,0,1,.252.054.6.6,0,0,1,.225.144l1.806,1.806A.678.678,0,0,1,18.014,12.178ZM4.408,10.938a.678.678,0,0,1,.953,0l.656.656V8.835A2.623,2.623,0,0,1,8.632,6.22H13.79a.674.674,0,0,1,0,1.348H8.632A1.266,1.266,0,0,0,7.365,8.835v2.759l.656-.656a.678.678,0,0,1,.953,0,.662.662,0,0,1,0,.953L7.167,13.7a.652.652,0,0,1-.476.2.667.667,0,0,1-.476-.2L4.408,11.891A.678.678,0,0,1,4.408,10.938Z" transform="translate(51.789 599.586)" fill="#f0f0f0"/>
   </g>
 </svg>
