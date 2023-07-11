@@ -1,6 +1,7 @@
 import { NativeModules, Platform } from 'react-native';
 import { logMessage } from 'src/core/services/sentry';
 import RestClient from 'src/core/services/rest/RestClient';
+import config from 'src/core/config';
 import { WhirlpoolInput, InputStructure, PoolData, Preview, TX0Data } from './interface';
 
 const { Whirlpool } = NativeModules;
@@ -12,7 +13,10 @@ export default class WhirlpoolServices {
    */
   static getPools = async (): Promise<PoolData[]> => {
     try {
-      let result = await Whirlpool.getPools(RestClient.getWhirlpoolTorPort().toString());
+      let result = await Whirlpool.getPools(
+        RestClient.getWhirlpoolTorPort().toString(),
+        config.NETWORK_TYPE
+      );
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
@@ -31,7 +35,11 @@ export default class WhirlpoolServices {
    */
   static getTx0Data = async (scode = ''): Promise<TX0Data[]> => {
     try {
-      let result = await Whirlpool.getTx0Data(scode, RestClient.getWhirlpoolTorPort().toString());
+      let result = await Whirlpool.getTx0Data(
+        scode,
+        RestClient.getWhirlpoolTorPort().toString(),
+        config.NETWORK_TYPE
+      );
       result = JSON.parse(result);
       if (result.error) {
         console.log({ error: result.error });
@@ -188,7 +196,8 @@ export default class WhirlpoolServices {
       let result = await Whirlpool.tx0Push(
         txHex,
         poolId,
-        RestClient.getWhirlpoolTorPort().toString()
+        RestClient.getWhirlpoolTorPort().toString(),
+        config.NETWORK_TYPE
       );
       console.log({ result });
       result = JSON.parse(result);

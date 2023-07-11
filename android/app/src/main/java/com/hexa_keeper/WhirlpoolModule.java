@@ -44,18 +44,18 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void initiate(String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.initiate(port));
+    public void initiate(String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.initiate(port, network));
     }
 
     @ReactMethod
-    public void getTx0Data(String scode, String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.gettx0data(scode, port));
+    public void getTx0Data(String scode, String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.gettx0data(scode, port, network));
     }
 
     @ReactMethod
-    public void getPools(String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.pools(port));
+    public void getPools(String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.pools(port, network));
     }
 
     @ReactMethod
@@ -64,8 +64,8 @@ public class WhirlpoolModule extends ReactContextBaseJavaModule{
     }
 
     @ReactMethod
-    public void tx0Push(String txStr, String poolIdStr, String port, Promise promise) {
-        promise.resolve(WhirlpoolBridge.tx0push(txStr, poolIdStr, port));
+    public void tx0Push(String txStr, String poolIdStr, String port, String network, Promise promise) {
+        promise.resolve(WhirlpoolBridge.tx0push(txStr, poolIdStr, port, network));
     }
 
     @ReactMethod
