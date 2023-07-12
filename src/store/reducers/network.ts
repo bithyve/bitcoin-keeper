@@ -4,9 +4,11 @@ import { AverageTxFeesByNetwork, ExchangeRates } from 'src/core/wallets/interfac
 const initialState: {
   exchangeRates: ExchangeRates;
   averageTxFees: AverageTxFeesByNetwork;
+  defaultNodesSaved: Boolean;
 } = {
   exchangeRates: null,
   averageTxFees: null,
+  defaultNodesSaved: false,
 };
 
 const networkSlice = createSlice({
@@ -20,9 +22,13 @@ const networkSlice = createSlice({
     setAverageTxFee: (state, action: PayloadAction<AverageTxFeesByNetwork>) => {
       state.averageTxFees = action.payload;
     },
+
+    setDefaultNodesSaved: (state, action: PayloadAction<Boolean>) => {
+      state.defaultNodesSaved = action.payload;
+    },
   },
 });
 
-export const { setExchangeRates, setAverageTxFee } = networkSlice.actions;
+export const { setExchangeRates, setAverageTxFee, setDefaultNodesSaved } = networkSlice.actions;
 
 export default networkSlice.reducer;
