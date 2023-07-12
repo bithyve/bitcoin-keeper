@@ -53,14 +53,15 @@ export default class Node {
     return status;
   }
 
-  public static getNodes(): NodeDetail[] {
+  public static getAllNodes(): NodeDetail[] {
     const defaultNodes: NodeDetail[] = dbManager.getCollection(RealmSchema.DefaultNodeConnect);
-    const nodes: NodeDetail[] = dbManager.getCollection(RealmSchema.NodeConnect);
-    return [...defaultNodes, ...nodes];
+    const personalNodes: NodeDetail[] = dbManager.getCollection(RealmSchema.NodeConnect);
+    return [...defaultNodes, ...personalNodes];
   }
 
-  public static async connect(selectedNode: NodeDetail) {
-    ElectrumClient.setActivePeer([], selectedNode);
+  public static async connectToSelectedNode(selectedNode: NodeDetail) {
+    // connects to the selected node(in case of failure, won't have default/private nodes as fallback)
+    ElectrumClient.setActivePeer([], [], selectedNode);
     const { connected, connectedTo, error } = await ElectrumClient.connect();
     return { connected, connectedTo, error };
   }

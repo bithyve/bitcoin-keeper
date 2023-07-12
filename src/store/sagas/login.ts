@@ -13,16 +13,9 @@ import LoginMethod from 'src/common/data/enums/LoginMethod';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
-import ElectrumClient from 'src/core/services/electrum/client';
 import Relay from 'src/core/services/operations/Relay';
 import semver from 'semver';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { NetworkType } from 'src/core/wallets/enums';
-import config from 'src/core/config';
-import {
-  predefinedMainnetNodes,
-  predefinedTestnetNodes,
-} from 'src/core/services/electrum/predefinedNodes';
 import * as SecureStore from '../../storage/secure-store';
 
 import {
@@ -42,8 +35,6 @@ import {
   setupLoading,
   setRecepitVerificationError,
   setRecepitVerificationFailed,
-  electrumClientConnectionInitiated,
-  electrumClientConnectionExecuted,
 } from '../reducers/login';
 import {
   resetPinFailAttempts,

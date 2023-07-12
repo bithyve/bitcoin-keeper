@@ -38,9 +38,10 @@ function* connectToNodeWorker() {
       yield put(setDefaultNodesSaved(true));
     }
 
+    const defaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
     const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
 
-    ElectrumClient.setActivePeer(privateNodes);
+    ElectrumClient.setActivePeer(defaultNodes, privateNodes);
     const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
     if (connected) {
       yield put(electrumClientConnectionExecuted({ successful: connected, connectedTo }));

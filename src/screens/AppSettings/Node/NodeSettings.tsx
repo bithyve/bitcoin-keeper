@@ -41,7 +41,7 @@ function NodeSettings() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const nodes: NodeDetail[] = Node.getNodes();
+    const nodes: NodeDetail[] = Node.getAllNodes();
     const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
     setCurrentlySelectedNodeItem(current);
     setNodeList(nodes);
@@ -60,7 +60,7 @@ function NodeSettings() {
     await closeAddNodeModal();
     const { saved } = await Node.save(nodeDetail, nodeList);
     if (saved) {
-      const updatedNodeList = Node.getNodes();
+      const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
       // dispatch(updateAppImage(null));
       // setCurrentlySelectedNodeItem(node);
@@ -83,7 +83,7 @@ function NodeSettings() {
     // dispatch(updateAppImage(null));
     let nodes = [];
     if (status) {
-      nodes = Node.getNodes();
+      nodes = Node.getAllNodes();
       setNodeList(nodes);
     }
 
@@ -114,7 +114,7 @@ function NodeSettings() {
     setLoading(true);
 
     const node = { ...selectedNode };
-    const { connected, connectedTo, error } = await Node.connect(node);
+    const { connected, connectedTo, error } = await Node.connectToSelectedNode(node);
 
     if (connected) {
       node.isConnected = connected;
@@ -177,9 +177,9 @@ function NodeSettings() {
         </Box>
       </Box> */}
       {/* <Box borderColor="light.GreyText" style={styles.splitter} /> */}
-      <Box style={styles.nodeListHeader}>
+      {/* <Box style={styles.nodeListHeader}>
         <Text style={styles.nodeListTitle}>{settings.currentlyConnected}</Text>
-      </Box>
+      </Box> */}
       {nodeList.length > 0 && (
         <Box style={styles.nodesListWrapper}>
           <FlatList
