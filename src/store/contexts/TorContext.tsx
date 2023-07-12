@@ -53,6 +53,7 @@ export function TorContextProvider({ children }: any) {
     }
     if (globalTorStatus === TorStatus.CHECKING) {
       setTorStatus(TorStatus.CHECKING);
+      setOrbotTorStatus(TorStatus.CHECKING);
     }
   }, [globalTorStatus, inAppTor]);
 

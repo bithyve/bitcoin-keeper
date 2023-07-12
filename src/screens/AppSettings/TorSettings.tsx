@@ -50,14 +50,9 @@ function TorSettings() {
     <ScreenWrapper>
       <HeaderTitle title="Tor Settings" subtitle="Tor deamon" />
       <Box paddingY="10">
-        <HStack>
-          {torStatus === TorStatus.CHECKING || torStatus === TorStatus.CONNECTING ? (
-            <ActivityIndicator />
-          ) : null}
-          <Text color="light.GreyText" fontSize={12} pl={3}>
-            {`Status: ${torStatus}`}
-          </Text>
-        </HStack>
+        <Text color="light.GreyText" fontSize={12} pl={3}>
+          {`Status: ${torStatus}`}
+        </Text>
         <SettingsSwitchCard
           title="In App Tor"
           description="Enable tor daemon"
