@@ -3,6 +3,7 @@ import { Box, Pressable } from 'native-base';
 
 import React from 'react';
 import Switch from '../../components/Switch/Switch';
+import { ActivityIndicator } from 'react-native';
 
 function SettingsSwitchCard(props) {
   return (
@@ -37,6 +38,8 @@ function SettingsSwitchCard(props) {
       <Box justifyContent="center" alignItems="flex-end" testID={`view_${props.title}`}>
         {props.renderStatus ? (
           props.renderStatus()
+        ) : props.loading ? (
+          <ActivityIndicator />
         ) : (
           <Switch
             onValueChange={(value) => props.onSwitchToggle(value)}

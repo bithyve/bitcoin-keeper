@@ -154,7 +154,6 @@ function* credentialsAuthWorker({ payload }) {
       });
     }
   } catch (err) {
-    console.log('hmmm??? ', err);
     if (payload.reLogin) {
       // yield put(switchReLogin(false));
     } else yield put(credsAuthenticated(false));

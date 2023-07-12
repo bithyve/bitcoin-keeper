@@ -1,14 +1,12 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
-import { TorStatus } from 'src/core/services/rest/RestClient';
+import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { captureError } from 'src/core/services/sentry';
 
 const SendIntentAndroid = require('react-native-send-intent');
 
-const NOT_CONNECTED = 'Sorry. You are not using Tor.';
-const CONNECTED = 'Congratulations. This browser is configured to use Tor.';
-const TOR_ENDPOINT = 'https://check.torproject.org/';
+const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
 const ORBOT_PACKAGE_NAME = 'org.torproject.android';
 const ORBOT_PLAYSTORE_URL = `market://details?id=${ORBOT_PACKAGE_NAME}`;
 const ORBOT_APPSTORE_URL = 'itms-apps://apps.apple.com/id/app/orbot/id1609461599?l=id';
@@ -19,13 +17,12 @@ const useOrbot = (keepStatusCheck: boolean) => {
   const checkTorConnection = async () => {
     console.log('Checking Tor connection...');
     setGlobalStatus(TorStatus.CHECKING);
-    axios
-      .get(TOR_ENDPOINT)
+    RestClient.get(TOR_ENDPOINT, { timeout: 20000 })
       .then((resp) => {
-        if (resp.data.includes(NOT_CONNECTED)) {
+        if (!resp.data.IsTor) {
           setGlobalStatus(TorStatus.OFF);
           console.log('Tor is not connected.');
-        } else if (resp.data.includes(CONNECTED)) {
+        } else {
           setGlobalStatus(TorStatus.CONNECTED);
           console.log('Tor is connected.');
         }
@@ -52,7 +49,7 @@ const useOrbot = (keepStatusCheck: boolean) => {
     };
   }, []);
 
-  const openOrbotApp = async () => {
+  const openOrbotApp = async (start = true) => {
     switch (Platform.OS) {
       case 'android':
         SendIntentAndroid.isAppInstalled(ORBOT_PACKAGE_NAME).then((isInstalled) => {
@@ -69,7 +66,11 @@ const useOrbot = (keepStatusCheck: boolean) => {
             if (!supported) {
               Linking.openURL(ORBOT_APPSTORE_URL);
             } else {
-              Linking.openURL('https://orbot.app/rc/show');
+              if (start) {
+                Linking.openURL('https://orbot.app/rc/start');
+              } else {
+                Linking.openURL('https://orbot.app/rc/stop');
+              }
             }
           })
           .catch((_) => {
