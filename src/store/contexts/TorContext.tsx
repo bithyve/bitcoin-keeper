@@ -28,7 +28,10 @@ export function TorContextProvider({ children }: any) {
 
   useEffect(() => {
     console.log(inAppTor, globalTorStatus);
-
+    if (inAppTor === TorStatus.CONNECTED && globalTorStatus === TorStatus.CONNECTED) {
+      setOrbotTorStatus(TorStatus.OFF);
+      setTorStatus(TorStatus.CONNECTED);
+    }
     if (!(inAppTor === TorStatus.CONNECTED) && globalTorStatus === TorStatus.CONNECTED) {
       setOrbotTorStatus(TorStatus.CONNECTED);
       setTorStatus(TorStatus.CONNECTED);
@@ -41,10 +44,7 @@ export function TorContextProvider({ children }: any) {
       setOrbotTorStatus(TorStatus.OFF);
       setTorStatus(TorStatus.OFF);
     }
-    if (inAppTor === TorStatus.CONNECTED && globalTorStatus === TorStatus.CONNECTED) {
-      setOrbotTorStatus(TorStatus.OFF);
-      setTorStatus(TorStatus.CONNECTED);
-    }
+
     if (inAppTor === TorStatus.ERROR || globalTorStatus === TorStatus.ERROR) {
       setTorStatus(TorStatus.ERROR);
     }

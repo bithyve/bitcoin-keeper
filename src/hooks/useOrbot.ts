@@ -1,6 +1,7 @@
-import axios from 'axios';
+import { AxiosResponse } from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
+import { RequestResponse } from 'react-native-tor';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { captureError } from 'src/core/services/sentry';
 
@@ -19,7 +20,8 @@ const useOrbot = (keepStatusCheck: boolean) => {
     setGlobalStatus(TorStatus.CHECKING);
     RestClient.get(TOR_ENDPOINT, { timeout: 20000 })
       .then((resp) => {
-        if (!resp.data.IsTor) {
+        const response = (resp as AxiosResponse).data || (resp as RequestResponse).json;
+        if (!response.IsTor) {
           setGlobalStatus(TorStatus.OFF);
           console.log('Tor is not connected.');
         } else {
