@@ -1,68 +1,73 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { setTorEnabled } from 'src/store/reducers/settings';
-import { useAppDispatch } from 'src/store/hooks';
-import useToastMessage from 'src/hooks/useToastMessage';
+import { TorContext } from 'src/store/contexts/TorContext';
+import { useDispatch } from 'react-redux';
+import TorModalMap from './TorModalMap';
 
 function TorSettings() {
-  const { colorMode } = useColorMode();
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
-  const { showToast } = useToastMessage();
-  const [message, setMessage] = useState('');
-  const dispatch = useAppDispatch();
+  const { torStatus, setTorStatus, orbotTorStatus, setOrbotTorStatus, inAppTor, setInAppTor } =
+    useContext(TorContext);
+  const dispatch = useDispatch();
+  const [showTorModal, setShowTorModal] = useState(false);
 
-  const onChangeTorStatus = (status: TorStatus, message) => {
-    settorStatus(status);
-    if (status === TorStatus.ERROR) {
-      setMessage(message);
+  const handleInAppTor = () => {
+    setInAppTor(TorStatus.CONNECTING);
+    setTorStatus(TorStatus.CONNECTING);
+    if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CONNECTING) {
+      // kill orbot tor
+    }
+    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
+      setShowTorModal(true);
+      RestClient.setUseTor(true);
+      dispatch(setTorEnabled(true));
     } else {
-      setMessage('');
+      RestClient.setUseTor(false);
+      dispatch(setTorEnabled(false));
+      setShowTorModal(false);
     }
   };
 
-  useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus);
-    return () => {
-      RestClient.unsubscribe(onChangeTorStatus);
-    };
-  }, []);
-
-  const toggleTor = () => {
-    if (torStatus === TorStatus.CONNECTED) {
+  const handleOrbotTor = () => {
+    if (inAppTor === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CONNECTING) {
       RestClient.setUseTor(false);
-      dispatch(setTorEnabled(false));
-    } else {
-      RestClient.setUseTor(true);
-      showToast('Connecting to Tor');
-      dispatch(setTorEnabled(true));
     }
   };
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Tos Settings" subtitle="Tor deamon" />
+      <HeaderTitle title="Tor Settings" subtitle="Tor deamon" />
       <Box paddingY="10">
         <Text color="light.GreyText" fontSize={12} pl={10}>
           {`Status: ${torStatus}`}
         </Text>
-        <Text color="light.GreyText" fontSize={11} pl={10}>
-          {message}
-        </Text>
         <SettingsSwitchCard
-          title="Enable"
+          title="In App Tor"
           description="Enable tor daemon"
           my={2}
-          bgColor={`${colorMode}.backgroundColor2`}
-          onSwitchToggle={toggleTor}
-          value={torStatus === TorStatus.CONNECTED}
+          onSwitchToggle={handleInAppTor}
+          loading={inAppTor === TorStatus.CONNECTING}
+          value={inAppTor === TorStatus.CONNECTED}
+        />
+        <SettingsSwitchCard
+          title="Orbot Tor"
+          my={2}
+          onSwitchToggle={handleOrbotTor}
+          loading={orbotTorStatus === TorStatus.CONNECTING}
+          value={orbotTorStatus === TorStatus.CONNECTED}
         />
       </Box>
+      <TorModalMap
+        onPressTryAgain={handleInAppTor}
+        visible={showTorModal}
+        close={() => setShowTorModal(false)}
+      />
     </ScreenWrapper>
   );
 }
