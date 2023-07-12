@@ -87,7 +87,6 @@ import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDeta
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import Login from '../screens/LoginScreen/Login';
 
-
 const defaultTheme = {
   ...DefaultTheme,
   colors: {

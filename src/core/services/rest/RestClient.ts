@@ -13,6 +13,7 @@ const tor = Tor({
 enum TorStatus {
   OFF = 'OFF',
   CONNECTING = 'CONNECTING',
+  CHECKING = 'CHECKING',
   ERROR = 'ERROR',
   CONNECTED = 'CONNECTED',
 }
