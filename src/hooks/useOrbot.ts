@@ -1,36 +1,35 @@
 import axios from 'axios';
 import { useEffect, useRef, useState } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
+import { TorStatus } from 'src/core/services/rest/RestClient';
+import { captureError } from 'src/core/services/sentry';
 
 const SendIntentAndroid = require('react-native-send-intent');
 
-export enum OrbotStatus {
-  DISCONNECTED = 'DISCONNECTED',
-  CHECKING = 'CHECKING',
-  CONNECTED = 'CONNECTED',
-  ERROR = 'ERROR',
-}
+const NOT_CONNECTED = 'Sorry. You are not using Tor.';
+const CONNECTED = 'Congratulations. This browser is configured to use Tor.';
+const TOR_ENDPOINT = 'https://check.torproject.org/';
 
 const useOrbot = (keepStatusCheck: boolean) => {
   const appState = useRef(AppState.currentState);
-  const [status, setStatus] = useState<OrbotStatus>(OrbotStatus.DISCONNECTED);
+  const [globalTorStatus, setGlobalStatus] = useState<TorStatus>(TorStatus.OFF);
   const checkTorConnection = async () => {
     console.log('Checking Tor connection...');
-    setStatus(OrbotStatus.CHECKING);
+    setGlobalStatus(TorStatus.CHECKING);
     axios
-      .get('https://check.torproject.org/')
+      .get(TOR_ENDPOINT)
       .then((resp) => {
-        if (resp.data.includes('Sorry. You are not using Tor.')) {
-          setStatus(OrbotStatus.DISCONNECTED);
+        if (resp.data.includes(NOT_CONNECTED)) {
+          setGlobalStatus(TorStatus.OFF);
           console.log('Tor is not connected.');
-        } else if (resp.data.includes('Congratulations. This browser is configured to use Tor.')) {
-          setStatus(OrbotStatus.CONNECTED);
+        } else if (resp.data.includes(CONNECTED)) {
+          setGlobalStatus(TorStatus.CONNECTED);
           console.log('Tor is connected.');
         }
       })
       .catch((err) => {
-        console.log(err);
-        setStatus(OrbotStatus.ERROR);
+        captureError(err);
+        setGlobalStatus(TorStatus.ERROR);
       });
   };
 
@@ -75,7 +74,7 @@ const useOrbot = (keepStatusCheck: boolean) => {
     }
   };
 
-  return { status, openOrbotApp };
+  return { globalTorStatus, openOrbotApp };
 };
 
 export default useOrbot;

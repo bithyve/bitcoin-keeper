@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import { Box } from 'native-base';
+import React, { useContext, useState } from 'react';
 
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -12,18 +12,16 @@ import { useDispatch } from 'react-redux';
 import TorModalMap from './TorModalMap';
 
 function TorSettings() {
-  const { torStatus, setTorStatus, orbotTorStatus, setOrbotTorStatus, inAppTor, setInAppTor } =
-    useContext(TorContext);
+  const { torStatus, orbotTorStatus, inAppTor, openOrbotApp } = useContext(TorContext);
   const dispatch = useDispatch();
   const [showTorModal, setShowTorModal] = useState(false);
 
   const handleInAppTor = () => {
-    setInAppTor(TorStatus.CONNECTING);
-    setTorStatus(TorStatus.CONNECTING);
-    if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CONNECTING) {
-      // kill orbot tor
+    if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
+      openOrbotApp();
+      return;
     }
-    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
+    if (inAppTor === TorStatus.OFF || inAppTor === TorStatus.ERROR) {
       setShowTorModal(true);
       RestClient.setUseTor(true);
       dispatch(setTorEnabled(true));
@@ -35,9 +33,11 @@ function TorSettings() {
   };
 
   const handleOrbotTor = () => {
-    if (inAppTor === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CONNECTING) {
+    if (inAppTor === TorStatus.CONNECTED || inAppTor === TorStatus.CONNECTING) {
       RestClient.setUseTor(false);
+      setShowTorModal(false);
     }
+    openOrbotApp();
   };
 
   return (
