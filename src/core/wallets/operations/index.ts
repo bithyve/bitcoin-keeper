@@ -909,7 +909,7 @@ export default class WalletOperations {
   ): { signedSerializedPSBT: string } => {
     try {
       const network = WalletUtilities.getNetworkByType(wallet.networkType);
-      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+      const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
 
       let vin = 0;
       for (const input of inputs) {
@@ -972,7 +972,7 @@ export default class WalletOperations {
         PSBT.toBase64(),
         signer.xpriv
       );
-      PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT);
+      PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
       isSigned = true;
     } else if (
       (signer.type === SignerType.TAPSIGNER && !isSignerAMF(signer)) ||
@@ -1145,10 +1145,12 @@ export default class WalletOperations {
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
         txid?;
+        finalOutputs?: bitcoinJS.TxOutput[];
       }
     | {
         serializedPSBTEnvelop?;
         txid: string;
+        finalOutputs: bitcoinJS.TxOutput[];
       }
   > => {
     const { PSBT, inputs, outputs, change } = await WalletOperations.createTransaction(
@@ -1183,10 +1185,13 @@ export default class WalletOperations {
 
     const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
     if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
-    const txHex = signedPSBT.finalizeAllInputs().extractTransaction().toHex();
+    const tx = signedPSBT.finalizeAllInputs();
+    const txHex = tx.extractTransaction().toHex();
+    const finalOutputs = tx.txOutputs;
     const txid = await this.broadcastTransaction(wallet, txHex, inputs);
     return {
       txid,
+      finalOutputs,
     };
   };
 
@@ -1198,15 +1203,17 @@ export default class WalletOperations {
     txHex?: string
   ): Promise<{
     txid: string;
+    finalOutputs: bitcoinJS.TxOutput[];
   }> => {
     const { inputs } = txPrerequisites[txnPriority];
     let combinedPSBT: bitcoinJS.Psbt = null;
+    let finalOutputs: bitcoinJS.TxOutput[];
 
     if (!txHex) {
       // construct the txHex by combining the signed PSBTs
       for (const serializedPSBTEnvelop of serializedPSBTEnvelops) {
         const { signerType, serializedPSBT, signingPayload } = serializedPSBTEnvelop;
-        const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+        const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
         if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
@@ -1229,12 +1236,15 @@ export default class WalletOperations {
       if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
 
       // finalise and construct the txHex
-      txHex = combinedPSBT.finalizeAllInputs().extractTransaction().toHex();
+      const tx = combinedPSBT.finalizeAllInputs();
+      finalOutputs = tx.txOutputs;
+      txHex = tx.extractTransaction().toHex();
     }
 
     const txid = await this.broadcastTransaction(wallet, txHex, inputs);
     return {
       txid,
+      finalOutputs,
     };
   };
 }
