@@ -9,6 +9,9 @@ const SendIntentAndroid = require('react-native-send-intent');
 const NOT_CONNECTED = 'Sorry. You are not using Tor.';
 const CONNECTED = 'Congratulations. This browser is configured to use Tor.';
 const TOR_ENDPOINT = 'https://check.torproject.org/';
+const ORBOT_PACKAGE_NAME = 'org.torproject.android';
+const ORBOT_PLAYSTORE_URL = `market://details?id=${ORBOT_PACKAGE_NAME}`;
+const ORBOT_APPSTORE_URL = 'itms-apps://apps.apple.com/id/app/orbot/id1609461599?l=id';
 
 const useOrbot = (keepStatusCheck: boolean) => {
   const appState = useRef(AppState.currentState);
@@ -52,22 +55,26 @@ const useOrbot = (keepStatusCheck: boolean) => {
   const openOrbotApp = async () => {
     switch (Platform.OS) {
       case 'android':
-        SendIntentAndroid.isAppInstalled('org.torproject.android').then((isInstalled) => {
+        SendIntentAndroid.isAppInstalled(ORBOT_PACKAGE_NAME).then((isInstalled) => {
           if (isInstalled) {
-            SendIntentAndroid.openApp('org.torproject.android');
+            SendIntentAndroid.openApp(ORBOT_PACKAGE_NAME);
           } else {
-            Linking.openURL('market://details?id=org.torproject.android');
+            Linking.openURL(ORBOT_PLAYSTORE_URL);
           }
         });
         break;
       case 'ios':
-        Linking.canOpenURL('orbot://').then((supported) => {
-          if (!supported) {
-            Linking.openURL('itms-apps://apps.apple.com/id/app/orbot/id1609461599?l=id');
-          } else {
-            Linking.openURL('https://orbot.app/rc/show');
-          }
-        });
+        Linking.canOpenURL('orbot://')
+          .then((supported) => {
+            if (!supported) {
+              Linking.openURL(ORBOT_APPSTORE_URL);
+            } else {
+              Linking.openURL('https://orbot.app/rc/show');
+            }
+          })
+          .catch((_) => {
+            Linking.openURL(ORBOT_APPSTORE_URL);
+          });
         break;
       default:
         break;
