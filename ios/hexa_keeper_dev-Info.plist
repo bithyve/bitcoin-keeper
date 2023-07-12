@@ -101,6 +101,7 @@
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>itms-apps</string>
+		<string>orbot</string>
 	</array>
 </dict>
 </plist>
