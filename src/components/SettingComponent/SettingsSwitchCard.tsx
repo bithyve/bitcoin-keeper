@@ -14,12 +14,23 @@ function SettingsSwitchCard(props) {
       borderRadius={10}
       {...props}
       testID={`btn_${props.title}`}
+      disabled={props.disabled}
     >
       <Box flex={1}>
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.04} testID={`text_${props.title}`}>
+        <Text
+          color="light.primaryText"
+          fontSize={14}
+          letterSpacing={1.04}
+          testID={`text_${props.title}`}
+        >
           {props.title}
         </Text>
-        <Text color="light.GreyText" letterSpacing={0.36} fontSize={12} testID={`text_${props.description}`}>
+        <Text
+          color="light.GreyText"
+          letterSpacing={0.36}
+          fontSize={12}
+          testID={`text_${props.description}`}
+        >
           {props.description}
         </Text>
       </Box>
@@ -27,10 +38,14 @@ function SettingsSwitchCard(props) {
         {props.renderStatus ? (
           props.renderStatus()
         ) : (
-          <Switch onValueChange={(value) => props.onSwitchToggle(value)} value={props.value} />
+          <Switch
+            onValueChange={(value) => props.onSwitchToggle(value)}
+            value={props.value}
+            loading={props.loading}
+          />
         )}
       </Box>
-    </Pressable >
+    </Pressable>
   );
 }
 
