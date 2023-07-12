@@ -29,7 +29,7 @@ import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
-import { NodeConnectSchema } from './nodeConnect';
+import { NodeConnectSchema, DefaultNodeConnectSchema } from './nodeConnect';
 
 export default [
   KeeperAppSchema,
@@ -57,6 +57,7 @@ export default [
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
+  DefaultNodeConnectSchema,
   NodeConnectSchema,
   WhirlpoolConfigSchema,
   WhirlpoolWalletDetailsSchema,
