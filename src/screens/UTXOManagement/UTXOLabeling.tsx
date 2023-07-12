@@ -23,6 +23,7 @@ import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useLabelsNew from 'src/hooks/useLabelsNew';
+import { resetState } from 'src/store/reducers/utxos';
 import LabelItem from './components/LabelItem';
 
 function UTXOLabeling() {
@@ -59,6 +60,9 @@ function UTXOLabeling() {
 
   useEffect(() => {
     setExistingLabels(labels ? labels[`${utxo.txId}:${utxo.vout}`] || [] : []);
+    return () => {
+      dispatch(resetState());
+    };
   }, []);
 
   const onCloseClick = (index) => {

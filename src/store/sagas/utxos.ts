@@ -11,7 +11,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS, BULK_UPDATE_UTXO_LABELS } from '../sagaActions/utxos';
-import { setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
+import { resetState, setSyncingUTXOError, setSyncingUTXOs } from '../reducers/utxos';
 
 export function* addLabelsWorker({
   payload,
@@ -45,6 +45,7 @@ export function* addLabelsWorker({
     const updated = yield call(Relay.modifyLabels, id, tags, []);
     if (updated) {
       yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
+      yield put(resetState());
     }
   } catch (e) {
     yield put(setSyncingUTXOError(e));
@@ -95,6 +96,7 @@ export function* bulkUpdateLabelsWorker({
       yield call(dbManager.createObjectBulk, RealmSchema.Tags, addedTags);
       for (const element of deletedTagIds) {
         yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
+        yield put(resetState());
       }
     }
   } catch (e) {
@@ -128,6 +130,7 @@ export function* bulkUpdateUTXOLabelsWorker({
           yield call(dbManager.deleteObjectById, RealmSchema.Tags, element);
         }
       }
+      yield put(resetState());
     }
   } catch (e) {
     yield put(setSyncingUTXOError(e));
