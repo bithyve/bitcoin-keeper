@@ -155,7 +155,7 @@ function NodeSettings() {
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
     setCurrentlySelectedNodeItem(selectedItem);
   };
-
+  console.log('windowHeight', windowHeight)
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
@@ -284,7 +284,7 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -335,10 +335,10 @@ const styles = StyleSheet.create({
     height: 45,
   },
   nodesListWrapper: {
-    marginBottom: 4,
+    marginVertical: 10,
     flexDirection: 'row',
     width: '100%',
-    height: windowHeight > 800 ? '58%' : '50%',
+    height: windowHeight > 800 ? '65%' : '50%',
     // alignItems: 'center',
   },
   nodeListTitle: {
