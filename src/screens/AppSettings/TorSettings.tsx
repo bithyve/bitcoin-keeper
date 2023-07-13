@@ -9,9 +9,10 @@ import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCa
 import { setTorEnabled } from 'src/store/reducers/settings';
 import { TorContext } from 'src/store/contexts/TorContext';
 import { useDispatch } from 'react-redux';
-import TorModalMap from './TorModalMap';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { ActivityIndicator } from 'react-native';
+import { wp } from 'src/common/data/responsiveness/responsive';
+import TorModalMap from './TorModalMap';
 
 function TorSettings() {
   const { torStatus, orbotTorStatus, inAppTor, openOrbotApp } = useContext(TorContext);
@@ -48,7 +49,7 @@ function TorSettings() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Tor Settings" subtitle="Tor deamon" />
+      <HeaderTitle title="Tor Settings" subtitle="Tor deamon" paddingLeft={wp(25)} />
       <Box paddingY="10">
         <Text color="light.GreyText" fontSize={12} pl={3}>
           {`Status: ${torStatus}`}
