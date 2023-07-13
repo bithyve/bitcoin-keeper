@@ -146,10 +146,10 @@ export default function CreatePin(props) {
   }
 
   return (
-    <LinearGradient
+    <Box
       testID="main"
-      colors={['light.gradientStart', 'light.gradientEnd']}
       style={styles.linearGradient}
+      backgroundColor='light.pantoneGreen'
     >
       <Box style={styles.wrapper}>
         <Box pt={50}>
@@ -226,7 +226,7 @@ export default function CreatePin(props) {
           />
         </Box>
       </Box>
-    </LinearGradient>
+    </Box>
   );
 }
 

@@ -433,7 +433,10 @@ function SendConfirmation({ route }) {
           ...styles.priorityTableText,
           flex: 1,
         }}
-      >{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
+      >
+        {/* {`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`} */}
+        {amt} sats
+      </Text>
     );
   }
 

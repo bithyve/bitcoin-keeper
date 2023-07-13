@@ -37,9 +37,9 @@ import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function ConnectChannel() {
   const route = useRoute();
@@ -216,7 +216,7 @@ function ConnectChannel() {
     <ScreenWrapper>
       <MockWrapper signerType={signerType}>
         <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} />
+          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(25)} />
           <Box style={styles.qrcontainer}>
             <RNCamera
               autoFocus="on"

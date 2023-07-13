@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     width: wp(280),
   },
   feeHeaderItem: {
-    width: '90%',
+    width: '78%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 10,
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   },
 
   feeItem: {
-    width: '80%',
+    width: '75%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 10,
