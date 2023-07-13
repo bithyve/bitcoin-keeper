@@ -67,12 +67,10 @@ const useOrbot = (keepStatusCheck: boolean) => {
           .then((supported) => {
             if (!supported) {
               Linking.openURL(ORBOT_APPSTORE_URL);
+            } else if (start) {
+              Linking.openURL('https://orbot.app/rc/start');
             } else {
-              if (start) {
-                Linking.openURL('https://orbot.app/rc/start');
-              } else {
-                Linking.openURL('https://orbot.app/rc/stop');
-              }
+              Linking.openURL('https://orbot.app/rc/stop');
             }
           })
           .catch((_) => {

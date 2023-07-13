@@ -27,7 +27,6 @@ export function TorContextProvider({ children }: any) {
   }, []);
 
   useEffect(() => {
-    console.log(inAppTor, globalTorStatus);
     if (inAppTor === TorStatus.CONNECTED && globalTorStatus === TorStatus.CONNECTED) {
       setOrbotTorStatus(TorStatus.OFF);
       setTorStatus(TorStatus.CONNECTED);
