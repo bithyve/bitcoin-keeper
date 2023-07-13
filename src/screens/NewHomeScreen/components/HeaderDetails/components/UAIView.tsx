@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     color: '#24312E',
     fontSize: 12,
-    width: 170,
+    width: 185,
     fontFamily: Fonts.RobotoCondensedSemiBold,
     letterSpacing: 0.6
   },
