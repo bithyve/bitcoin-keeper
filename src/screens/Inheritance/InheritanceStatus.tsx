@@ -63,7 +63,7 @@ function InheritanceStatus() {
                 />
                 <InheritanceDownloadView
                     icon={<Recovery />}
-                    title='Restoring Inheritance Vault'
+                    title='Recovery Instructions'
                     subTitle='A document for the heir only'
                     onPress={() => DownloadFile('Restoring Inheritance Vault')}
                     isDownload
