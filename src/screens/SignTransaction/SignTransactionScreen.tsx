@@ -224,6 +224,7 @@ function SignTransactionScreen() {
             seedBasedSingerMnemonic,
             serializedPSBT,
             signerId,
+            isMultisig: defaultVault.isMultiSig,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
