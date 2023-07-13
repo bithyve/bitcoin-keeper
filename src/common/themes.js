@@ -93,6 +93,7 @@ export const customTheme = extendTheme({
       fadedblue: Colors.FadeBlue,
       dustySageGreen: Colors.DustySageGreen,
       forestGreen: Colors.ForestGreen,
+      pantoneGreen: Colors.pantoneGreen,
     },
     dark: {
       black: Colors.Black,

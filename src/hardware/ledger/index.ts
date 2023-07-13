@@ -3,6 +3,7 @@ import { XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/core/wallets/interfaces';
 import { captureError } from 'src/core/services/sentry';
+import config from 'src/core/config';
 
 const bscript = require('bitcoinjs-lib/src/script');
 
@@ -26,7 +27,7 @@ export const getLedgerDetailsFromChannel = (data, isMultisig) => {
 };
 
 export const signWithLedgerChannel = (serializedPSBT, signingPayload: SigningPayload[], result) => {
-  const psbtv0 = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+  const psbtv0 = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
   const signedData = result.map((input) => ({
     inputIndex: input[0], // the index of the input being signed.
     pubkeySecret: Buffer.from(input[1].pubkey), // a Buffer with either a 33-byte compressed pubkey or a 32-byte x-only pubkey whose corresponding secret key was used to sign.

@@ -1,0 +1,65 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-Bold.ttf",
+      "sha1": "36a923b3350a74d310b2263f1963870d90ef63ec"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-BoldItalic.ttf",
+      "sha1": "4e4e61c7090b6a6fa6ac5b8fb93caef420311e2d"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-Italic.ttf",
+      "sha1": "cb11ad56633a862330f25296d443c757f0312501"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-Light.ttf",
+      "sha1": "9c58d76978b642adc803500f444d486fdb4f8709"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-LightItalic.ttf",
+      "sha1": "7ede17ed02f38180a4b3d63561fbb987a448063e"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-Medium.ttf",
+      "sha1": "6b43ddab1b895f4b4d4d93f6f603c48efeb2b870"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-MediumItalic.ttf",
+      "sha1": "77dfef273d9822c6a78cf3fdc549707ab85c817f"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-Regular.ttf",
+      "sha1": "93b30c42add0edaf6d8138e246b7457e48f9865e"
+    },
+    {
+      "path": "src/assets/fonts/FiraSansCondensed-SemiBold.ttf",
+      "sha1": "31fa4deffe82a25c86284d5bd98d69a618eded6b"
+    },
+    {
+      "path": "src/assets/fonts/RobotoCondensed-Bold.ttf",
+      "sha1": "15e8faa21a00eb5b40d3837e16960a39d78fe45c"
+    },
+    {
+      "path": "src/assets/fonts/RobotoCondensed-BoldItalic.ttf",
+      "sha1": "2195d05ea6a9338a69929445e4ddf0a9650dfc12"
+    },
+    {
+      "path": "src/assets/fonts/RobotoCondensed-Italic.ttf",
+      "sha1": "56725c6d7698dcfee226424bb1f21565f23a0573"
+    },
+    {
+      "path": "src/assets/fonts/RobotoCondensed-Light.ttf",
+      "sha1": "124307ef220bd49e2c5a964b730e6403bf8a31ef"
+    },
+    {
+      "path": "src/assets/fonts/RobotoCondensed-LightItalic.ttf",
+      "sha1": "0b979a3ab679afa18c5f31995b78120398f2fdf5"
+    },
+    {
+      "path": "src/assets/fonts/RobotoCondensed-Regular.ttf",
+      "sha1": "e0d7acf2ca3dd0ff68f533797bb94b0580397e95"
+    }
+  ]
+}

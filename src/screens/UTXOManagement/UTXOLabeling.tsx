@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -11,7 +11,6 @@ import { NetworkType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { bulkUpdateLabels } from 'src/store/sagaActions/utxos';
 import LinkIcon from 'src/assets/images/link.svg';
-import DeleteCross from 'src/assets/images/deletelabel.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
@@ -21,18 +20,14 @@ import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
-import Relay from 'src/core/services/operations/Relay';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import useAsync from 'src/hooks/useAsync';
 import useLabelsNew from 'src/hooks/useLabelsNew';
+import { resetState } from 'src/store/reducers/utxos';
 import LabelItem from './components/LabelItem';
 
 function UTXOLabeling() {
+  const processDispatched = useRef(false);
   const navigation = useNavigation();
   const {
     params: { utxo, wallet },
@@ -61,10 +56,13 @@ function UTXOLabeling() {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
 
-  const { inProgress, error, data, start } = useAsync();
+  const { syncingUTXOs, apiError } = useAppSelector((state) => state.utxos);
 
   useEffect(() => {
     setExistingLabels(labels ? labels[`${utxo.txId}:${utxo.vout}`] || [] : []);
+    return () => {
+      dispatch(resetState());
+    };
   }, []);
 
   const onCloseClick = (index) => {
@@ -90,13 +88,15 @@ function UTXOLabeling() {
   };
 
   useEffect(() => {
-    if (error) {
-      showToast(error.toString(), <ToastErrorIcon />, 3000);
+    if (apiError) {
+      showToast(apiError.toString(), <ToastErrorIcon />, 3000);
+      processDispatched.current = false;
     }
-    if (data) {
+    if (processDispatched.current && !syncingUTXOs) {
+      processDispatched.current = false;
       navigation.goBack();
     }
-  }, [data, error]);
+  }, [apiError, syncingUTXOs]);
 
   function getLabelChanges(existingLabels, updatedLabels) {
     const existingNames = new Set(existingLabels.map((label) => label.name));
@@ -115,23 +115,13 @@ function UTXOLabeling() {
 
   const onSaveChangeClick = async () => {
     Keyboard.dismiss();
-    await start(async () => {
-      const finalLabels = existingLabels.filter(
-        (label) => !label.isSystem // ignore the system label since they are internal references
-      );
-
-      // TODO: migrate to v2 label apis
-      // const { updated } = await Relay.modifyUTXOinfo(
-      //   keeper.id,
-      //   { labels: finalLabels },
-      //   `${utxo.txId}${utxo.vout}`
-      // );
-      // if (updated)
-      // return updated;
-      const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
-      const labelChanges = getLabelChanges(initialLabels, finalLabels);
-      dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
-    });
+    const finalLabels = existingLabels.filter(
+      (label) => !label.isSystem // ignore the system label since they are internal references
+    );
+    const initialLabels = labels[`${utxo.txId}:${utxo.vout}`].filter((label) => !label.isSystem);
+    const labelChanges = getLabelChanges(initialLabels, finalLabels);
+    processDispatched.current = true;
+    dispatch(bulkUpdateLabels({ labelChanges, UTXO: utxo, wallet }));
   };
 
   const redirectToBlockExplorer = () => {
@@ -228,7 +218,7 @@ function UTXOLabeling() {
       <Box style={styles.ctaBtnWrapper}>
         <Box ml={windowWidth * -0.09}>
           <Buttons
-            primaryLoading={inProgress}
+            primaryLoading={syncingUTXOs}
             primaryDisable={!lablesUpdated}
             primaryCallback={onSaveChangeClick}
             primaryText="Save Changes"

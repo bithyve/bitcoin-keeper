@@ -21,9 +21,10 @@ import HWError from 'src/hardware/HWErrorState';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { wp } from 'src/common/data/responsiveness/responsive';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SetupColdCard({ route }) {
   const dispatch = useDispatch();
@@ -113,6 +114,7 @@ function SetupColdCard({ route }) {
               title={isHealthcheck ? 'Verify Coldcard' : 'Setting up Coldcard'}
               subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
+              paddingLeft={wp(25)}
             />
           </Box>
           <NfcPrompt visible={nfcVisible} close={closeNfc} />

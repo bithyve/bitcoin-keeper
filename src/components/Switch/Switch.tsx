@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { Box, Text } from 'native-base';
 import LinearGradient from 'src/components/KeeperGradient';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
@@ -15,11 +15,12 @@ const styles = StyleSheet.create({
 type Props = {
   value: boolean;
   onValueChange: Function;
+  loading: boolean;
 };
 
-function Switch({ value, onValueChange }: Props) {
+function Switch({ value, onValueChange, loading }: Props) {
   return (
-    <TouchableOpacity onPress={() => onValueChange(!value)}>
+    <TouchableOpacity onPress={() => onValueChange(!value)} disabled={loading}>
       <LinearGradient
         start={[0, 0]}
         end={[1, 0]}

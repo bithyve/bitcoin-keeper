@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6
   },
   skipWrapper: {
-    width: '20%',
+    width: '19%',
     alignItems: 'center',
   },
   skipText: {
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   addNowWrapper: {
-    width: '20%',
+    width: '22%',
   },
   addNowCTAWrapper: {
     padding: 5,

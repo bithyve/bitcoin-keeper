@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   illustartionWrapper: {
     flex: 0.6,
     justifyContent: 'center',
-    marginTop: hp(-10),
+    marginTop: hp(25),
   },
   paragraphWrapper: {
     flex: 0.3,
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: 1.4,
     marginHorizontal: 5,
-    opacity: 0.8
+    opacity: 1
   },
   buttonWrapper: {
     flexDirection: 'row',
