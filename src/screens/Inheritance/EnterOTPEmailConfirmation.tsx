@@ -33,7 +33,7 @@ function EnterOTPEmailConfirmation() {
             <HeaderTitle
                 onPressHandler={() => navigtaion.goBack()}
                 title='Add phone or email'
-                subtitle=''
+                subtitle='Check your email for OTP'
                 paddingLeft={22}
             />
             {/* pin input view */}
