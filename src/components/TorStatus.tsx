@@ -70,4 +70,10 @@ const styles = StyleSheet.create({
   torStatusText: {
     fontSize: 12,
   },
+  torText: {
+    letterSpacing: 0.75,
+    fontSize: 11,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+  },
 });
