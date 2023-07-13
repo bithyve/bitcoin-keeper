@@ -245,7 +245,7 @@ function MixProgress({
             </Box>
           )}
         </Box>
-        <Box flexDirection="column">
+        <Box style={styles.progressStepsTextWrapper} >
           <Text color="light.secondaryText" style={styles.timeLineTitle}>
             {title}
           </Text>
@@ -587,30 +587,31 @@ const getStyles = (clock) =>
     },
     timeLineWrapper: {
       alignItems: 'center',
-      marginHorizontal: wp(10),
+      marginHorizontal: wp(5),
       justifyContent: 'center',
+      width: '15%'
     },
     timeLineProgressWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(5),
       justifyContent: 'center',
+      width: '15%'
     },
     contentWrapper: {
       flexDirection: 'row',
+      width: '100%'
     },
     timeLineTitle: {
-      fontSize: 14,
-      letterSpacing: 0.5,
-      marginLeft: wp(15),
+      fontSize: 13,
+      letterSpacing: 0.4,
+      marginLeft: wp(5),
       marginTop: hp(3),
-      width: wp(285),
+      width: '100%',
       flexWrap: 'wrap',
     },
-    settingUpTitle: {
-      marginTop: hp(12),
-      paddingLeft: 5,
-      fontWeight: 'bold',
-      width: wp(270),
+    progressStepsTextWrapper: {
+      flexDirection: "column",
+      width: '85%'
     },
     note: {
       position: 'absolute',
