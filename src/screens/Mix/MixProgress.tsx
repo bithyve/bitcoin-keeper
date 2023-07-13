@@ -436,8 +436,7 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${
-          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -602,9 +601,9 @@ const getStyles = (clock) =>
     timeLineTitle: {
       fontSize: 14,
       letterSpacing: 0.5,
-      marginLeft: wp(18),
+      marginLeft: wp(15),
       marginTop: hp(3),
-      width: wp(280),
+      width: wp(285),
       flexWrap: 'wrap',
     },
     settingUpTitle: {
