@@ -98,5 +98,10 @@
 		<string>D2760000850100</string>
 		<string>D2760000850101</string>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>itms-apps</string>
+		<string>orbot</string>
+	</array>
 </dict>
 </plist>

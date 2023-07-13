@@ -4,7 +4,7 @@ import * as bip39 from 'bip39';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -415,16 +415,20 @@ const setupMobileKey = async ({ primaryMnemonic }) => {
   return mobileKey;
 };
 
-const setupSeedWordsBasedKey = (mnemonic) => {
+const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
   const networkType = config.NETWORK_TYPE;
-  const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
+  const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
+    mnemonic,
+    networkType,
+    entity
+  );
   const softSigner = generateSignerFromMetaData({
     xpub,
     derivationPath,
     xfp: masterFingerprint,
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
-    isMultisig: true,
+    isMultisig: entity !== EntityKind.WALLET,
   });
 
   return softSigner;

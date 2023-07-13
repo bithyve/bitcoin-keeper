@@ -1,37 +1,18 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { InteractionManager, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useContext, useMemo } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box } from 'native-base';
 import Text from 'src/components/KeeperText';
 import IconSettings from 'src/assets/images/new_icon_settings.svg';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { identifyUser } from 'src/core/services/sentry';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp } from 'src/common/data/responsiveness/responsive';
+import { TorContext } from 'src/store/contexts/TorContext';
+import { TorStatus } from 'src/core/services/rest/RestClient';
 
 function HeaderBar() {
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
-  const { useQuery } = useContext(RealmWrapperContext);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-
-  const onChangeTorStatus = (status: TorStatus) => {
-    settorStatus(status);
-  };
+  const { torStatus } = useContext(TorContext);
 
   const navigation = useNavigation();
-
-  useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      RestClient.subToTorStatus(onChangeTorStatus);
-      identifyUser(keeper.publicId);
-    });
-    return () => {
-      RestClient.unsubscribe(onChangeTorStatus);
-    };
-  }, []);
 
   const getTorStatusText = useMemo(() => {
     switch (torStatus) {
@@ -64,7 +45,7 @@ function HeaderBar() {
   }, [torStatus]);
   return (
     <Box style={styles.wrapper}>
-      <Box style={styles.torStatusWrapper} testID='view_homeTorStatus'>
+      <Box style={styles.torStatusWrapper} testID="view_homeTorStatus">
         {getTorStatusText !== 'Tor disabled' && (
           <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
             <Text color="light.primaryText" style={styles.torText} bold>
@@ -76,7 +57,7 @@ function HeaderBar() {
       <TouchableOpacity
         style={styles.settingIconWrapper}
         onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
-        testID='btn_AppSettingsIcon'
+        testID="btn_AppSettingsIcon"
       >
         <IconSettings />
       </TouchableOpacity>
@@ -88,7 +69,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
-    paddingTop: hp(20)
+    paddingTop: hp(20),
   },
   torStatusWrapper: {
     width: '60%',
