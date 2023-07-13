@@ -17,11 +17,13 @@ import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
 import LetterIKS from 'src/assets/images/LETTER_IKS.svg';
-import Recovery from 'src/assets/images/Recovery.svg';
+import Recovery from 'src/assets/images/recovery.svg';
+import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
+import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import { TouchableOpacity } from 'react-native';
 
 function SetupInheritance() {

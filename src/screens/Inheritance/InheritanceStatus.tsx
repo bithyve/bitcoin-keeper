@@ -10,7 +10,7 @@ import { useAppDispatch } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg'
 import Letter from 'src/assets/images/LETTER.svg';
-import Recovery from 'src/assets/images/Recovery.svg';
+import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import Text from 'src/components/KeeperText';
