@@ -178,8 +178,14 @@ function* migrateLablesWorker() {
         });
       }
     });
-    const migratedLabels = yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
-    console.log({ migratedLabels });
+    if (tags.length) {
+      const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+      const updated = yield call(Relay.modifyLabels, id, tags.length ? tags : [], []);
+      if (updated) {
+        const labelsmigrated = yield call(dbManager.createObjectBulk, RealmSchema.Tags, tags);
+        console.log('Labels migrated: ', labelsmigrated);
+      }
+    }
   } catch (error) {
     console.log({ error });
   }

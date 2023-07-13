@@ -15,6 +15,7 @@ import vaultReducer from './reducers/vaults';
 import walletReducer from './reducers/wallets';
 import networkReducer from './reducers/network';
 import uaiReducer from './reducers/uai';
+import utxoReducer from './reducers/utxos';
 import { RESET_REDUX_STORE } from './sagaActions/upgrade';
 import reduxPersistMigrations from './migrations';
 
@@ -29,6 +30,7 @@ const appReducer = combineReducers({
   vault: vaultReducer,
   network: networkReducer,
   uai: uaiReducer,
+  utxos: utxoReducer,
 });
 
 const rootReducer = (state, action) => {
@@ -46,7 +48,7 @@ export type AppDispatch = typeof store.dispatch;
 const persistConfig = {
   key: 'root',
   storage: reduxStorage,
-  blacklist: ['login', 'bhr', 'sendAndReceive'],
+  blacklist: ['login', 'bhr', 'sendAndReceive', 'utxos'],
   version: 1, // redux persist migration version(initiate to the lateste migration version once the migration state is written)
   migrate: createMigrate(reduxPersistMigrations, {
     debug: false,

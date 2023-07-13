@@ -124,16 +124,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   vaultDetailsWrapper: {
-    paddingVertical: 35,
     paddingHorizontal: 15,
     borderRadius: 10,
     marginVertical: hp(20),
+    height: hp(210),
+    justifyContent: 'center'
   },
   emptyVaultSignerWrapper: {
-    paddingVertical: 45,
+    // paddingVertical: 45,
     paddingHorizontal: 20,
     borderRadius: 10,
     marginVertical: hp(20),
+    height: hp(210),
     alignItems: 'center',
     justifyContent: 'center',
   },

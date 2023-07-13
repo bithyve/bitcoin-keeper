@@ -144,7 +144,8 @@ export const generateMobileKey = async (
 
 export const generateSeedWordsKey = (
   mnemonic: string,
-  networkType: NetworkType
+  networkType: NetworkType,
+  entity: EntityKind = EntityKind.VAULT
 ): {
   xpub: string;
   xpriv: string;
@@ -156,7 +157,7 @@ export const generateSeedWordsKey = (
 
   const DEFAULT_CHILD_PATH = 0;
   const xDerivationPath = WalletUtilities.getDerivationPath(
-    EntityKind.VAULT,
+    entity,
     networkType,
     DEFAULT_CHILD_PATH
   );

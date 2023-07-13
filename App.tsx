@@ -10,11 +10,12 @@ import { NativeBaseProvider } from 'native-base';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { sentryConfig } from 'src/core/services/sentry';
-import { withIAPContext, initConnection, endConnection, } from 'react-native-iap';
+import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
 import { customTheme } from './src/common/themes';
 import Navigator from './src/navigation/Navigator';
 import { LocalizationProvider } from './src/common/content/LocContext';
 import { persistor, store } from './src/store/store';
+import { TorContextProvider } from 'src/store/contexts/TorContext';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -31,13 +32,12 @@ if (Platform.OS === 'android') {
 
 function App() {
   useEffect(() => {
-    initConnection()
+    initConnection();
     Sentry.init(sentryConfig);
     return () => {
-      endConnection()
-    }
+      endConnection();
+    };
   }, []);
-
 
   // linear-gradient configs for NativeBase
   const config = {
@@ -52,7 +52,9 @@ function App() {
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
         <LocalizationProvider>
           <AppContextProvider>
-            <Navigator />
+            <TorContextProvider>
+              <Navigator />
+            </TorContextProvider>
           </AppContextProvider>
         </LocalizationProvider>
       </NativeBaseProvider>

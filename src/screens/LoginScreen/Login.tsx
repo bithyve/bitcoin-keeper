@@ -360,10 +360,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <LinearGradient
-      colors={['light.gradientStart', 'light.gradientEnd']}
-      style={styles.linearGradient}
-    >
+    <Box style={styles.linearGradient} backgroundColor='light.pantoneGreen'>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -537,7 +534,7 @@ function LoginScreen({ navigation, route }) {
         closeOnOverlayClick={() => setShowDowngradeModal(false)}
         showButtons
       /> */}
-    </LinearGradient>
+    </Box>
   );
 }
 
