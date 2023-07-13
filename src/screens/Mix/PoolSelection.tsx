@@ -268,8 +268,8 @@ export default function PoolSelection({ route, navigation }) {
         <Box style={styles.noteWrapper}>
           <Note title="Note" subtitle="Pool may take sometime to load" />
         </Box>
-        <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
+        <Box style={styles.footerWrapper}>
+          <Box style={styles.pageIndicatorWrapper}>
             <PageIndicator currentPage={1} totalPage={2} />
           </Box>
           <Box style={styles.footerItemContainer}>
@@ -323,19 +323,24 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 40,
   },
+  footerWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    bottom: 10
+  },
   footerContainer: {
     position: 'absolute',
     bottom: 0,
-    width: wp(375),
+    width: '100%',
     paddingHorizontal: 5,
   },
   footerItemContainer: {
-    flexDirection: 'row',
-    marginTop: windowHeight > 800 ? 5 : 5,
-    marginBottom: windowHeight > 800 ? hp(10) : 0,
-    paddingBottom: 15,
-    justifyContent: 'flex-end',
-    marginHorizontal: 16,
+    marginTop: 5,
+    width: '65%',
+  },
+  pageIndicatorWrapper: {
+    width: '40%'
   },
   poolTextDirection: {
     flexDirection: 'row',
