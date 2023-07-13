@@ -147,7 +147,7 @@ function SwiperModal({ enable }) {
 
 const styles = StyleSheet.create({
   contentContaner: {
-    width: wp(286),
+    width: wp(290),
   },
   swiperModalIcon: {
     alignSelf: 'center',
