@@ -134,7 +134,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
-    const { txid, serializedPSBTEnvelops } = yield call(
+    const { txid, serializedPSBTEnvelops, finalOutputs } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
@@ -189,9 +189,7 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
         label.push({ name: wallet.presentationData.name, isSystem: true });
       }
       if (label && label.length) {
-        const vout = txPrerequisites[txnPriority].outputs.findIndex(
-          (o) => o.address === recipients[0].address
-        );
+        const vout = finalOutputs.findIndex((o) => o.address === recipients[0].address);
         yield call(addLabelsWorker, {
           payload: {
             txId: txid,
@@ -245,7 +243,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
         `Insufficient signatures, required:${threshold} provided:${availableSignatures}`
       );
 
-    const { txid } = yield call(
+    const { txid, finalOutputs } = yield call(
       WalletOperations.transferST3,
       wallet,
       serializedPSBTEnvelops,
@@ -276,9 +274,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
     }
 
     if (label && label.length) {
-      const vout = txPrerequisites[txnPriority].outputs.findIndex(
-        (o) => o.address === recipients[0].address
-      );
+      const vout = finalOutputs.findIndex((o) => o.address === recipients[0].address);
       yield call(addLabelsWorker, {
         payload: {
           txId: txid,

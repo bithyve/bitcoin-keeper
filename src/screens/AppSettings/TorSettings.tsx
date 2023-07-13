@@ -1,68 +1,79 @@
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import { Box, HStack } from 'native-base';
+import React, { useContext, useState } from 'react';
 
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import { setTorEnabled } from 'src/store/reducers/settings';
-import { useAppDispatch } from 'src/store/hooks';
+import { TorContext } from 'src/store/contexts/TorContext';
+import { useDispatch } from 'react-redux';
+import TorModalMap from './TorModalMap';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { ActivityIndicator } from 'react-native';
 
 function TorSettings() {
-  const { colorMode } = useColorMode();
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+  const { torStatus, orbotTorStatus, inAppTor, openOrbotApp } = useContext(TorContext);
+  const dispatch = useDispatch();
+  const [showTorModal, setShowTorModal] = useState(false);
   const { showToast } = useToastMessage();
-  const [message, setMessage] = useState('');
-  const dispatch = useAppDispatch();
 
-  const onChangeTorStatus = (status: TorStatus, message) => {
-    settorStatus(status);
-    if (status === TorStatus.ERROR) {
-      setMessage(message);
+  const handleInAppTor = () => {
+    if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
+      showToast('Please switch off orbot to connect to in-app tor.');
+      setTimeout(() => {
+        openOrbotApp(false);
+      }, 3000);
+      return;
+    }
+    if (inAppTor === TorStatus.OFF || inAppTor === TorStatus.ERROR) {
+      setShowTorModal(true);
+      RestClient.setUseTor(true);
+      dispatch(setTorEnabled(true));
     } else {
-      setMessage('');
+      RestClient.setUseTor(false);
+      dispatch(setTorEnabled(false));
+      setShowTorModal(false);
     }
   };
 
-  useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus);
-    return () => {
-      RestClient.unsubscribe(onChangeTorStatus);
-    };
-  }, []);
-
-  const toggleTor = () => {
-    if (torStatus === TorStatus.CONNECTED) {
+  const handleOrbotTor = () => {
+    if (inAppTor === TorStatus.CONNECTED || inAppTor === TorStatus.CONNECTING) {
       RestClient.setUseTor(false);
-      dispatch(setTorEnabled(false));
-    } else {
-      RestClient.setUseTor(true);
-      showToast('Connecting to Tor');
-      dispatch(setTorEnabled(true));
+      setShowTorModal(false);
     }
+    openOrbotApp(orbotTorStatus !== TorStatus.CONNECTED);
   };
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Tos Settings" subtitle="Tor deamon" />
+      <HeaderTitle title="Tor Settings" subtitle="Tor deamon" />
       <Box paddingY="10">
-        <Text color="light.GreyText" fontSize={12} pl={10}>
+        <Text color="light.GreyText" fontSize={12} pl={3}>
           {`Status: ${torStatus}`}
         </Text>
-        <Text color="light.GreyText" fontSize={11} pl={10}>
-          {message}
-        </Text>
         <SettingsSwitchCard
-          title="Enable"
+          title="In App Tor"
           description="Enable tor daemon"
           my={2}
-          bgColor={`${colorMode}.backgroundColor2`}
-          onSwitchToggle={toggleTor}
-          value={torStatus === TorStatus.CONNECTED}
+          onSwitchToggle={handleInAppTor}
+          loading={inAppTor === TorStatus.CONNECTING}
+          value={inAppTor === TorStatus.CONNECTED}
+        />
+        <SettingsSwitchCard
+          title="Orbot Tor"
+          my={2}
+          onSwitchToggle={handleOrbotTor}
+          loading={orbotTorStatus === TorStatus.CHECKING}
+          value={orbotTorStatus === TorStatus.CONNECTED}
         />
       </Box>
+      <TorModalMap
+        onPressTryAgain={handleInAppTor}
+        visible={showTorModal}
+        close={() => setShowTorModal(false)}
+      />
     </ScreenWrapper>
   );
 }
