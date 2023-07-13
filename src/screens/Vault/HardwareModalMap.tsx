@@ -10,6 +10,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
+import { XpubTypes } from 'src/core/wallets/enums';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -33,7 +34,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
@@ -415,20 +416,32 @@ const setupMobileKey = async ({ primaryMnemonic }) => {
   return mobileKey;
 };
 
-const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
+const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
   const networkType = config.NETWORK_TYPE;
-  const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
+  // fetched multi-sig seed words based key
+  const {
+    xpub: multiSigXpub,
+    derivationPath: multiSigPath,
+    masterFingerprint,
+  } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
+  // fetched single-sig seed words based key
+  const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
     mnemonic,
     networkType,
-    entity
+    EntityKind.WALLET
   );
+
+  const xpubDetails: XpubDetailsType = {};
+  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+
   const softSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
+    xpub: isMultisig ? multiSigXpub : singleSigXpub,
+    derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
-    isMultisig: entity !== EntityKind.WALLET,
+    isMultisig,
   });
 
   return softSigner;
@@ -682,7 +695,7 @@ function HardwareModalMap({
           isHealthcheck,
           onSuccess: (mnemonic) => {
             if (isHealthcheck) {
-              const softSigner = setupSeedWordsBasedKey(mnemonic);
+              const softSigner = setupSeedWordsBasedKey(mnemonic, isMultisig);
               if (softSigner.xpub === signer.xpub) {
                 dispatch(healthCheckSigner([signer]));
                 navigation.dispatch(CommonActions.goBack());
@@ -691,7 +704,7 @@ function HardwareModalMap({
                 showToast('Error in Health check', <ToastErrorIcon />, 3000);
               }
             } else {
-              const softSigner = setupSeedWordsBasedKey(mnemonic);
+              const softSigner = setupSeedWordsBasedKey(mnemonic, isMultisig);
               dispatch(addSigningDevice(softSigner));
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
               showToast(`${softSigner.signerName} added successfully`, <TickIcon />);

@@ -58,14 +58,7 @@ const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
     return true;
   }
   return signersState.every(
-    (signer) =>
-      signer &&
-      ![
-        SignerType.MOBILE_KEY,
-        SignerType.POLICY_SERVER,
-        SignerType.KEEPER,
-        SignerType.SEED_WORDS,
-      ].includes(signer.type)
+    (signer) => signer && ![SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
   );
 };
 
