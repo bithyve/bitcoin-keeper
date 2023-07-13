@@ -20,6 +20,7 @@ import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import AdvnaceOptions from 'src/assets/images/Advancedoptions.svg';
 import Change from 'src/assets/images/change.svg';
 import HealthCheck from 'src/assets/images/heathcheck.svg';
+import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
@@ -33,11 +34,11 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { SignerType } from 'src/core/wallets/enums';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import { SDIcons } from './SigningDeviceIcons';
-import { SignerType } from 'src/core/wallets/enums';
 import HardwareModalMap, { ModalTypes } from './HardwareModalMap';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SigningDeviceDetails({ route }) {
   const navigation = useNavigation();
@@ -191,16 +192,19 @@ function SigningDeviceDetails({ route }) {
     }
   };
 
-  const HealthCheckContentTapsigner = () => {
+  function HealthCheckContentTapsigner() {
     return (
       <Box>
+        <Box style={styles.skipHealthIllustration}>
+          <SkipHealthCheck />
+        </Box>
         <Text>
           You can choose to manually confirm the health of the Signing Device if you are sure that
           they are secure and accessible. Or you can choose to do the Health Check when you can
         </Text>
       </Box>
     );
-  };
+  }
 
   function FooterItem({ Icon, title, onPress }) {
     return (
@@ -339,10 +343,8 @@ function SigningDeviceDetails({ route }) {
         <KeeperModal
           visible={skipHealthCheckModalVisible}
           close={() => setSkipHealthCheckModalVisible(false)}
-          title={'Skipping Health Check'}
-          subTitle={
-            'It is very important that you keep your Signing Devices secure and fairly accessible at all times.'
-          }
+          title="Skipping Health Check"
+          subTitle="It is very important that you keep your Signing Devices secure and fairly accessible at all times."
           buttonText="Do Later"
           secondaryButtonText="Confirm Access"
           buttonTextColor="light.white"
@@ -365,6 +367,9 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     left: -7,
   },
+  skipHealthIllustration: {
+    marginLeft: wp(25)
+  }
 });
 
 export default SigningDeviceDetails;
