@@ -106,7 +106,8 @@ function SetupInheritance() {
 
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    showToast('Inheritance flow coming soon', null, 1000);
+    navigtaion.navigate('InheritanceStatus')
+    // showToast('Inheritance flow coming soon', null, 1000);
   };
 
   return (
