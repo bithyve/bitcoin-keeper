@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack } from 'native-base';
-import React, { useContext, useState } from 'react';
+import { Box } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
 
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -8,26 +8,33 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { setTorEnabled } from 'src/store/reducers/settings';
 import { TorContext } from 'src/store/contexts/TorContext';
 import { useDispatch } from 'react-redux';
-import TorModalMap from './TorModalMap';
 import useToastMessage from 'src/hooks/useToastMessage';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import { hp } from 'src/common/data/responsiveness/responsive';
+import Buttons from 'src/components/Buttons';
+import TorModalMap from './TorModalMap';
 
 function TorSettings() {
-  const { torStatus, orbotTorStatus, inAppTor, openOrbotApp } = useContext(TorContext);
+  const { torStatus, setTorStatus, orbotTorStatus, inAppTor, openOrbotApp, checkTorConnection } =
+    useContext(TorContext);
   const dispatch = useDispatch();
   const [showTorModal, setShowTorModal] = useState(false);
   const [showOrbotTorModal, setShowOrbotTorModal] = useState(false);
   const { showToast } = useToastMessage();
 
+  useEffect(() => {
+    checkTorConnection();
+  }, []);
+
   const handleInAppTor = () => {
     if (orbotTorStatus === TorStatus.CONNECTED || orbotTorStatus === TorStatus.CHECKING) {
       showToast('Please switch off orbot to connect to in-app tor.');
       setTimeout(() => {
-        openOrbotApp(false);
+        openOrbotApp();
+        setTorStatus(TorStatus.CHECK_STATUS);
       }, 3000);
       return;
     }
@@ -48,7 +55,8 @@ function TorSettings() {
       RestClient.setUseTor(false);
       setShowTorModal(false);
     }
-    openOrbotApp(orbotTorStatus !== TorStatus.CONNECTED);
+    openOrbotApp();
+    setTorStatus(TorStatus.CHECK_STATUS);
   };
 
   return (
@@ -80,6 +88,11 @@ function TorSettings() {
           value={orbotTorStatus === TorStatus.CONNECTED}
           onPress={() => setShowOrbotTorModal(true)}
         />
+        <Buttons
+          primaryText="Check Status"
+          primaryCallback={() => checkTorConnection()}
+          primaryLoading={torStatus === TorStatus.CONNECTING || torStatus === TorStatus.CHECKING}
+        />
       </Box>
       <Box style={styles.note}>
         <Note
@@ -97,10 +110,19 @@ function TorSettings() {
         close={() => {
           setShowOrbotTorModal(false);
         }}
-        title="Warning"
-        subTitle="Warning Text"
+        title="Orbot Connection"
+        subTitle="To connect to Tor via Orbot, you need to have the Orbot app installed on your device."
         buttonText="Connect"
         buttonCallback={handleOrbotTor}
+        Content={() => (
+          <Box alignItems="center">
+            <Box marginTop={2}>
+              <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+                {`\u2022 This will redirect you to the Orbot app and you can configure the connection from there.`}
+              </Text>
+            </Box>
+          </Box>
+        )}
       />
     </ScreenWrapper>
   );

@@ -7,11 +7,10 @@ import { setTorEnabled } from '../reducers/settings';
 export const TorContext = createContext(null);
 
 export function TorContextProvider({ children }: any) {
-  const { globalTorStatus, openOrbotApp } = useOrbot(true);
+  const { globalTorStatus, openOrbotApp, checkTorConnection } = useOrbot();
   const [torStatus, setTorStatus] = useState<TorStatus>(globalTorStatus);
   const [orbotTorStatus, setOrbotTorStatus] = useState(TorStatus.OFF);
   const [inAppTor, setInAppTor] = useState<TorStatus>(RestClient.getTorStatus());
-
   const dispatch = useDispatch();
 
   const onChangeTorStatus = (status: TorStatus) => {
@@ -43,7 +42,6 @@ export function TorContextProvider({ children }: any) {
       setOrbotTorStatus(TorStatus.OFF);
       setTorStatus(TorStatus.OFF);
     }
-
     if (inAppTor === TorStatus.ERROR || globalTorStatus === TorStatus.ERROR) {
       setTorStatus(TorStatus.ERROR);
     }
@@ -65,6 +63,7 @@ export function TorContextProvider({ children }: any) {
       setInAppTor,
       openOrbotApp,
       setOrbotTorStatus,
+      checkTorConnection,
     }),
     [torStatus, orbotTorStatus, inAppTor, orbotTorStatus]
   );
