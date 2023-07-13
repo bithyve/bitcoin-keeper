@@ -1,10 +1,11 @@
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useContext, useMemo } from 'react';
 import { Box } from 'native-base';
 import { TorStatus } from 'src/core/services/rest/RestClient';
 import { TorContext } from 'src/store/contexts/TorContext';
+import Text from './KeeperText';
 
-const TorStatusTag = () => {
+function TorStatusTag() {
   const { torStatus } = useContext(TorContext);
 
   const getTorStatusText = useMemo(() => {
@@ -51,7 +52,7 @@ const TorStatusTag = () => {
       )}
     </Box>
   );
-};
+}
 
 export default TorStatusTag;
 
@@ -69,5 +70,11 @@ const styles = StyleSheet.create({
   },
   torStatusText: {
     fontSize: 12,
+  },
+  torText: {
+    letterSpacing: 0.75,
+    fontSize: 11,
+    textAlign: 'center',
+    textTransform: 'uppercase',
   },
 });
