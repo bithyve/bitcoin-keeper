@@ -20,6 +20,8 @@ function TorStatusTag() {
         return 'Tor error';
       case TorStatus.CHECKING:
         return 'Checking';
+      case TorStatus.CHECK_STATUS:
+        return 'Check status';
       default:
         return torStatus;
     }
@@ -43,13 +45,11 @@ function TorStatusTag() {
   }, [torStatus]);
   return (
     <Box style={styles.torStatusWrapper} testID="view_homeTorStatus">
-      {getTorStatusText !== 'Tor disabled' && (
-        <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
-          <Text color="light.primaryText" style={styles.torText} bold>
-            {getTorStatusText}
-          </Text>
-        </Box>
-      )}
+      <Box backgroundColor={getTorStatusColor} borderRadius={10} px={2}>
+        <Text color="light.primaryText" style={styles.torText} bold>
+          {getTorStatusText}
+        </Text>
+      </Box>
     </Box>
   );
 }
