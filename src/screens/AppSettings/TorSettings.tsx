@@ -15,6 +15,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import { hp } from 'src/common/data/responsiveness/responsive';
+import TorStatusTag from 'src/components/TorStatus';
 
 function TorSettings() {
   const { torStatus, orbotTorStatus, inAppTor, openOrbotApp } = useContext(TorContext);
@@ -59,9 +60,7 @@ function TorSettings() {
       />
       <Box paddingTop={10}>
         <Box>
-          <Text color="light.GreyText" fontSize={12} pl={3}>
-            {`Status: ${torStatus}`}
-          </Text>
+          <TorStatusTag />
         </Box>
         <SettingsCard
           title="In-app Tor"
