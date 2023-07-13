@@ -33,7 +33,7 @@ function EnterOTPEmailConfirmation() {
             <HeaderTitle
                 onPressHandler={() => navigtaion.goBack()}
                 title='Add phone or email'
-                subtitle='Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                subtitle=''
                 paddingLeft={22}
             />
             {/* pin input view */}
