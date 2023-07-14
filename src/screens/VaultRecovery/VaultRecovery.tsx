@@ -42,7 +42,7 @@ function AddSigningDevice({ error }) {
         error
           ? () =>
             Alert.alert(
-              'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
+              'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
             )
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
       }
@@ -248,7 +248,7 @@ function VaultRecovery({ navigation }) {
     <ScreenWrapper>
       <HeaderTitle
         title="Add signing devices"
-        subtitle="To recover your vault"
+        subtitle="To recover your Vault"
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
         paddingLeft={wp(25)}
@@ -300,7 +300,7 @@ function VaultRecovery({ navigation }) {
       <KeeperModal
         visible={successModalVisible}
         title="Vault Recovered!"
-        subTitle="Your Keeper vault has successfully been recovered."
+        subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
         close={() => { }}

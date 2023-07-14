@@ -24,8 +24,8 @@ function VaultConfigurationRecovery() {
       >
         <View style={styles.wrapper}>
           <HeaderTitle
-            title="Reocvery through vault configuration"
-            subtitle="Recover the vault from output descriptor or configuration"
+            title="Reocvery through Vault configuration"
+            subtitle="Recover the Vault from output descriptor or configuration"
             headerTitleColor="light.textBlack"
             paddingTop={hp(5)}
             paddingLeft={wp(20)}
@@ -33,7 +33,7 @@ function VaultConfigurationRecovery() {
 
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
             <TextInput
-              placeholder="Enter the vault configuration or output descriptor"
+              placeholder="Enter the Vault configuration or output descriptor"
               placeholderTextColor="light.GreyText"
               style={styles.textInput}
               value={inputText}
