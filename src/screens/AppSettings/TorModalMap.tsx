@@ -56,7 +56,8 @@ function TorConnectionFailed() {
       </Box>
       <Box marginTop={hp(40)}>
         <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
-          There was an error when connecting via Tor
+          Could not established connection with Whirlpool client over in-app Tor. Try again later or
+          use other options
         </Text>
       </Box>
     </Box>
@@ -79,18 +80,24 @@ function TorEnabledContent() {
 }
 
 function TorModalMap({ visible, close, onPressTryAgain }) {
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
+  const [torStatus, settorStatus] = useState<TorStatus>(TorStatus.CONNECTING);
 
   const onChangeTorStatus = (status: TorStatus) => {
     settorStatus(status);
   };
 
-  useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus);
-    return () => {
-      RestClient.unsubscribe(onChangeTorStatus);
-    };
-  }, []);
+  if (visible) {
+    setTimeout(() => {
+      settorStatus(TorStatus.ERROR);
+    }, 5000);
+  }
+
+  // useEffect(() => {
+  //   RestClient.subToTorStatus(onChangeTorStatus);
+  //   return () => {
+  //     RestClient.unsubscribe(onChangeTorStatus);
+  //   };
+  // }, []);
 
   return (
     <>
@@ -109,15 +116,16 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         title="Connection Error"
         subTitle="This can be due to the network or other conditions "
         subTitleColor="light.secondaryText"
-        buttonText="Try Again"
+        buttonText="Close"
         buttonTextColor="light.white"
         buttonCallback={() => {
-          onPressTryAgain();
+          // onPressTryAgain();
+          close();
         }}
         textColor="light.primaryText"
         Content={TorConnectionFailed}
       />
-      <KeeperModal
+      {/* <KeeperModal
         visible={visible && torStatus === TorStatus.CONNECTED}
         close={close}
         title="Tor Enabled Successfully!"
@@ -128,7 +136,7 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         buttonCallback={close}
         textColor="light.primaryText"
         Content={TorEnabledContent}
-      />
+      /> */}
     </>
   );
 }
