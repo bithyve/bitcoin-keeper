@@ -17,8 +17,8 @@ import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import DisplayQR from '../QRScreens/DisplayQR';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import DisplayQR from '../QRScreens/DisplayQR';
 
 function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(

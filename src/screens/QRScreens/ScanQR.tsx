@@ -29,7 +29,7 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => {},
+    onQrScan = () => { },
     setup = false,
     type,
     isHealthcheck = false,
