@@ -294,11 +294,7 @@ function MixProgress({
   useEffect(() => {
     if (mixFailed) {
       const toastDuration = 3000;
-      showToast(
-        'Mix failed. Please try again later, our best minds are working on it.',
-        <ToastErrorIcon />,
-        toastDuration
-      );
+      showToast('Mix failed. Please try again later, our best minds are working on it.', <ToastErrorIcon />, toastDuration);
       setTimeout(() => {
         navigation.goBack();
       }, toastDuration);
@@ -330,11 +326,7 @@ function MixProgress({
           external: { incrementBy: 1 },
         })
       );
-      showToast(
-        'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
-        <TickIcon />,
-        3000
-      );
+      showToast('Mix completed successfully. Your UTXOs will be available in your postmix account shortly.', <TickIcon />, 3000);
       const postmixTags: BIP329Label[] = [];
       const userLabels = [];
       Object.keys(labels).forEach((key) => {
