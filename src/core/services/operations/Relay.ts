@@ -10,6 +10,7 @@ import { captureError } from '../sentry';
 import config from '../../config';
 
 const { HEXA_ID, RELAY } = config;
+const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -524,6 +525,17 @@ export default class Relay {
     } catch (err) {
       console.log('err', err);
       if (err.code) throw new Error(err.code);
+    }
+  };
+
+  public static checkTorStatus = async () => {
+    try {
+      const response = await RestClient.get(TOR_ENDPOINT, { timeout: 20000 });
+      const data = (response as AxiosResponse).data || (response as any).json;
+      return data.IsTor;
+    } catch (error) {
+      captureError(error);
+      throw error;
     }
   };
 }
