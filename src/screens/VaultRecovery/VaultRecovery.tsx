@@ -30,18 +30,22 @@ import { hash256 } from 'src/core/services/operations/encryption';
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
 import { setTempShellId } from 'src/store/reducers/vaults';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+
 
 const allowedSignerLength = [1, 3, 5];
 
 function AddSigningDevice({ error }) {
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
   return (
     <Pressable
       onPress={
         error
           ? () =>
-            Alert.alert(
+            showToast(
               'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
             )
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
@@ -131,6 +135,7 @@ function SuccessModalContent() {
 }
 
 function VaultRecovery({ navigation }) {
+  const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { signingDevices, relayVaultError, relayVaultUpdate } = useAppSelector(
     (state) => state.bhr
@@ -194,7 +199,7 @@ function VaultRecovery({ navigation }) {
       setSuccessModalVisible(true);
     }
     if (relayVaultError) {
-      Alert.alert('Something went wrong!');
+      showToast('Something went wrong!', <ToastErrorIcon />);
     }
   }, [relayVaultUpdate, relayVaultError]);
 
@@ -206,7 +211,7 @@ function VaultRecovery({ navigation }) {
       setScheme(response.scheme);
     } else {
       setRecoveryLoading(false);
-      Alert.alert('Vault does not exist with this signer combination');
+      showToast('Vault does not exist with this signer combination', <ToastErrorIcon />);
     }
   };
 
