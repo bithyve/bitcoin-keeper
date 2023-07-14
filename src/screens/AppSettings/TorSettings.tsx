@@ -100,31 +100,10 @@ function TorSettings() {
           subtitle="Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings"
         />
       </Box>
-      {/* <TorModalMap
+      <TorModalMap
         onPressTryAgain={handleInAppTor}
         visible={showTorModal}
         close={() => setShowTorModal(false)}
-      /> */}
-      <KeeperModal
-        visible={showTorModal}
-        close={() => {
-          setShowTorModal(false);
-        }}
-        title="Tor Error"
-        subTitle=""
-        buttonText="Okay"
-        buttonCallback={() => {
-          setShowTorModal(false);
-        }}
-        Content={() => (
-          <Box alignItems="center">
-            <Box marginTop={2}>
-              <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-                {`Connection Failed! Whirlpool error with tor`}
-              </Text>
-            </Box>
-          </Box>
-        )}
       />
       <KeeperModal
         visible={showOrbotTorModal}
