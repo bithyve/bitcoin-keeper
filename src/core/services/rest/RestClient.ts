@@ -16,6 +16,7 @@ enum TorStatus {
   CHECKING = 'CHECKING',
   ERROR = 'ERROR',
   CONNECTED = 'CONNECTED',
+  CHECK_STATUS = 'CHECK_STATUS',
 }
 
 class RestClient {
