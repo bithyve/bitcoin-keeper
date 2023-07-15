@@ -31,9 +31,9 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SetupTapsigner({ route }) {
   const [cvc, setCvc] = React.useState('');
@@ -163,6 +163,7 @@ function SetupTapsigner({ route }) {
           title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
+          paddingLeft={wp(25)}
         />
         <MockWrapper signerType={SignerType.TAPSIGNER}>
           <ScrollView>
