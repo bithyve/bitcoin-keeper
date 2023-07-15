@@ -276,7 +276,7 @@ function WalletDetails({ route }) {
           Keeper
         </Text>
         <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-          When the funds in a wallet cross a threshold, a transfer to the vault is triggered. This
+          When the funds in a wallet cross a threshold, a transfer to the Vault is triggered. This
           ensures you don’t have more sats in hot wallets than you need.
         </Text>
       </View>

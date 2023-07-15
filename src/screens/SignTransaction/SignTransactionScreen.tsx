@@ -19,7 +19,7 @@ import SigningServer from 'src/core/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
@@ -319,6 +319,7 @@ function SignTransactionScreen() {
         title="Sign Transaction"
         subtitle={`Chose any ${scheme.m} to sign the transaction`}
         paddingTop={hp(5)}
+        paddingLeft={wp(25)}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '10%' }}

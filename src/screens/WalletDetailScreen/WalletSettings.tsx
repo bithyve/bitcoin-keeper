@@ -243,7 +243,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Transfer Policy"
-            subTitle={`Transfer to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+            subTitle={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
             }}

@@ -13,7 +13,7 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Buttons from 'src/components/Buttons';
 import TorStatusTag from 'src/components/TorStatus';
 import TorModalMap from './TorModalMap';
@@ -65,6 +65,7 @@ function TorSettings() {
       <HeaderTitle
         title="Tor Settings"
         subtitle="Tor improves your network privacy. To learn more visit: https://www.torproject.org/"
+        paddingLeft={wp(25)}
       />
       <Box paddingTop={10}>
         <Box>

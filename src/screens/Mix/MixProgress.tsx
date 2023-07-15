@@ -245,7 +245,7 @@ function MixProgress({
             </Box>
           )}
         </Box>
-        <Box flexDirection="column">
+        <Box style={styles.progressStepsTextWrapper} >
           <Text color="light.secondaryText" style={styles.timeLineTitle}>
             {title}
           </Text>
@@ -294,11 +294,7 @@ function MixProgress({
   useEffect(() => {
     if (mixFailed) {
       const toastDuration = 3000;
-      showToast(
-        'Mix failed. Please try again later, our best minds are working on it.',
-        <ToastErrorIcon />,
-        toastDuration
-      );
+      showToast('Mix failed. Please try again later, our best minds are working on it.', <ToastErrorIcon />, toastDuration);
       setTimeout(() => {
         navigation.goBack();
       }, toastDuration);
@@ -330,11 +326,7 @@ function MixProgress({
           external: { incrementBy: 1 },
         })
       );
-      showToast(
-        'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
-        <TickIcon />,
-        3000
-      );
+      showToast('Mix completed successfully. Your UTXOs will be available in your postmix account shortly.', <TickIcon />, 3000);
       const postmixTags: BIP329Label[] = [];
       const userLabels = [];
       Object.keys(labels).forEach((key) => {
@@ -436,8 +428,7 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${
-          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -588,30 +579,31 @@ const getStyles = (clock) =>
     },
     timeLineWrapper: {
       alignItems: 'center',
-      marginHorizontal: wp(10),
+      marginHorizontal: wp(5),
       justifyContent: 'center',
+      width: '15%'
     },
     timeLineProgressWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(5),
       justifyContent: 'center',
+      width: '15%'
     },
     contentWrapper: {
       flexDirection: 'row',
+      width: '100%'
     },
     timeLineTitle: {
-      fontSize: 14,
-      letterSpacing: 0.5,
-      marginLeft: wp(18),
+      fontSize: 13,
+      letterSpacing: 0.4,
+      marginLeft: wp(5),
       marginTop: hp(3),
-      width: wp(280),
+      width: '100%',
       flexWrap: 'wrap',
     },
-    settingUpTitle: {
-      marginTop: hp(12),
-      paddingLeft: 5,
-      fontWeight: 'bold',
-      width: wp(270),
+    progressStepsTextWrapper: {
+      flexDirection: "column",
+      width: '85%'
     },
     note: {
       position: 'absolute',
