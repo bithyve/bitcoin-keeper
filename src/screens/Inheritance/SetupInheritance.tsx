@@ -106,10 +106,17 @@ function SetupInheritance() {
 
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    navigtaion.navigate('InheritanceStatus')
-    // showToast('Inheritance flow coming soon', null, 1000);
+    if (plan === SubscriptionTier.L3.toUpperCase()) {
+      navigtaion.navigate('InheritanceStatus')
+    }
   };
-
+  const toSetupInheritance = () => {
+    if (plan !== SubscriptionTier.L3.toUpperCase()) {
+      navigtaion.navigate('ChoosePlan');
+    } else {
+      dispatch(setInheritance(true))
+    }
+  }
   return (
     <ScreenWrapper>
       <Box style={styles.header}>
@@ -117,7 +124,7 @@ function SetupInheritance() {
           onPressHandler={() => navigtaion.goBack()}
           learnMore
           learnMorePressed={() => {
-            dispatch(setInheritance(true));
+            // dispatch(setInheritance(true));
           }}
         />
       </Box>
@@ -146,7 +153,7 @@ function SetupInheritance() {
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
           <TouchableOpacity
             testID="btn_inheritanceBtn"
-            onPress={() => showToast('Inheritance flow coming soon', null, 1000)}
+            onPress={() => toSetupInheritance()}
           >
             <Box
               borderColor="light.learnMoreBorder"

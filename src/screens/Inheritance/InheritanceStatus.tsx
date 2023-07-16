@@ -15,7 +15,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import DownloadFile from 'src/utils/DownloadPDF';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
         right: 3
     },
     scrollViewWrapper: {
-        height: '50%'
+        height: windowHeight > 800 ? '50%' : '40%'
     },
     signingDevicesText: {
         color: '#E07962',
