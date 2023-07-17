@@ -70,10 +70,10 @@ function NewHomeScreen({ navigation }) {
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: params.name,
+            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${params.name}`,
+            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -93,11 +93,11 @@ function NewHomeScreen({ navigation }) {
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: params.name,
+              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${params.name}`,
+              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
               type: WalletType.IMPORTED,
             });
           } else {
