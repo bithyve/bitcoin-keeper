@@ -22,7 +22,7 @@ function SignWithTapsigner() {
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
 
-  const { params = { signTransaction: () => {}, signer: null } as any } = useRoute();
+  const { params = { signTransaction: () => { }, signer: null } as any } = useRoute();
   const { signTransaction, textRef } = params;
 
   const onPressHandler = (digit) => {
@@ -73,6 +73,7 @@ function SignWithTapsigner() {
           title="Sign with TAPSIGNER"
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
+          paddingLeft={wp(25)}
         />
         <ScrollView>
           <TextInput

@@ -64,16 +64,17 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
       <Pressable onPress={navigateToSignerList}>
         <Box style={styles.signerItemContainer}>
           <HStack style={styles.signerItem}>
-            <HStack alignItems='center'>
+            <HStack alignItems="center">
               <AddIcon />
-              <VStack marginX='4' maxWidth='64'>
+              <VStack marginX="4" maxWidth="64">
                 <Text
-                  color='light.primaryText'
+                  color="light.primaryText"
                   numberOfLines={2}
-                  style={[globalStyles.font15, { letterSpacing: 1.12, alignItems: 'center' }]}>
+                  style={[globalStyles.font15, { letterSpacing: 1.12, alignItems: 'center' }]}
+                >
                   {`Add ${getPlaceholder(index)} Signing Device`}
                 </Text>
-                <Text color='light.GreyText' style={[globalStyles.font13, { letterSpacing: 0.06 }]}>
+                <Text color="light.GreyText" style={[globalStyles.font13, { letterSpacing: 0.06 }]}>
                   Select signing device
                 </Text>
               </VStack>
@@ -101,32 +102,35 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
         alignItems: 'center',
         marginHorizontal: 10,
         marginBottom: hp(windowHeight < 700 ? 5 : 25),
-      }}>
+      }}
+    >
       <HStack style={styles.signerItem}>
         <HStack>
           <Box
-            width='8'
-            height='8'
+            width="8"
+            height="8"
             borderRadius={30}
-            backgroundColor='#725436'
-            justifyContent='center'
-            alignItems='center'
-            alignSelf='center'>
+            backgroundColor="#725436"
+            justifyContent="center"
+            alignItems="center"
+            alignSelf="center"
+          >
             {SDIcons(signer.type, true).Icon}
           </Box>
-          <VStack marginLeft='4' maxWidth='80%'>
+          <VStack marginLeft="4" maxWidth="80%">
             <Text
-              color='light.primaryText'
+              color="light.primaryText"
               numberOfLines={1}
               style={[
                 globalStyles.font15,
                 { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
-              ]}>
+              ]}
+            >
               {`${signer.signerName}`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
-            <Text color='light.GreyText' style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
-              {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
+            <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+              {`Added ${moment(signer.lastHealthCheck).calendar()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
               <Box style={styles.descriptionBox}>
@@ -137,7 +141,8 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
                     globalStyles.font12,
                     { letterSpacing: 0.6, fontStyle: signer.signerDescription ? null : 'italic' },
                   ]}
-                  bold={!signer.signerDescription}>
+                  bold={!signer.signerDescription}
+                >
                   {signer.signerDescription ? signer.signerDescription : 'Add Description'}
                 </Text>
               </Box>
@@ -145,7 +150,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
-          <Text color='light.GreyText' style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+          <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
             {shouldReconfigure ? 'Re-configure' : 'Remove'}
           </Text>
         </Pressable>
@@ -210,7 +215,7 @@ function AddSigningDevice() {
       <HeaderTitle
         title={`${preTitle}`}
         subtitle={subtitle}
-        headerTitleColor='light.textBlack'
+        headerTitleColor="light.textBlack"
         enableBack={planStatus !== VaultMigrationType.DOWNGRADE}
         paddingLeft={25}
       />
@@ -221,7 +226,7 @@ function AddSigningDevice() {
         planStatus={planStatus}
       />
       <FlatList
-        keyboardShouldPersistTaps='always'
+        keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         extraData={vaultSigners}
         data={signersState}
@@ -245,32 +250,32 @@ function AddSigningDevice() {
         {invalidSigners.length ? (
           <Box style={styles.noteContainer}>
             <Note
-              title='WARNING'
+              title="WARNING"
               subtitle={`A few signers (${invalidSigners
                 .map((signer) => getSignerNameFromType(signer.type))
                 .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
                 SubscriptionTier.L3
               }. Please remove them or upgrade your plan.`}
-              subtitleColor='error'
+              subtitleColor="error"
             />
           </Box>
         ) : misMatchedSigners.length ? (
           <Box style={styles.noteContainer}>
             <Note
-              title='WARNING'
+              title="WARNING"
               subtitle={`Looks like you've added a ${
                 plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
               } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
-              subtitleColor='error'
+              subtitleColor="error"
             />
           </Box>
         ) : null}
         <Buttons
           primaryDisable={areSignersValid}
           primaryLoading={relayVaultUpdateLoading}
-          primaryText='Create Vault'
+          primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
-          secondaryText='Cancel'
+          secondaryText="Cancel"
           secondaryCallback={
             planStatus !== VaultMigrationType.DOWNGRADE
               ? navigation.goBack
