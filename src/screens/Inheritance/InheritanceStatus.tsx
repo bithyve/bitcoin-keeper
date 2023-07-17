@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, ScrollView } from 'native-base';
+import { ScrollView } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -11,9 +11,9 @@ import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg'
 import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+// import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
-import Text from 'src/components/KeeperText';
+// import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import DownloadFile from 'src/utils/DownloadPDF';
