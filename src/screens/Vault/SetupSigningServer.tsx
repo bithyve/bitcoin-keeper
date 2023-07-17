@@ -254,7 +254,7 @@ function SetupSigningServer({ route }: { route }) {
       </Box>
 
       {/* {Bottom note} */}
-      <Box position="absolute" bottom={hp(45)} marginX={5} width="100%">
+      <Box position="absolute" bottom={hp(35)} marginX={5} width="100%">
         <Box marginBottom={hp(30)}>
           <Note
             title="Note"
