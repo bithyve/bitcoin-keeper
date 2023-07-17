@@ -33,6 +33,10 @@ import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
+import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
+import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
+import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
+import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConfirmation';
 import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
@@ -160,6 +164,10 @@ function AppStack() {
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
+        <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
+        <Stack.Screen name="InheritanceSetupInfo" component={InheritanceSetupInfo} />
+        <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
+        <Stack.Screen name="EnterOTPEmailConfirmation" component={EnterOTPEmailConfirmation} />
         <Stack.Screen name="Send" component={SendScreen} />
         <Stack.Screen name="UTXOLabeling" component={UTXOLabeling} />
         <Stack.Screen name="Receive" component={ReceiveScreen} />
@@ -238,7 +246,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />

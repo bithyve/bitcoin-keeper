@@ -6,10 +6,11 @@ import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import VaultIcon from 'src/assets/images/vaultTab.svg';
 import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/common/data/responsiveness/responsive';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
+import Fonts from 'src/common/Fonts';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
 
@@ -69,10 +70,10 @@ function NewHomeScreen({ navigation }) {
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: params.name,
+            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${params.name}`,
+            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -92,11 +93,11 @@ function NewHomeScreen({ navigation }) {
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: params.name,
+              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${params.name}`,
+              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -175,6 +176,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 14,
     fontWeight: '500',
+    fontFamily: Fonts.RobotoCondensedRegular,
   },
   tabBarStyle: {
     borderTopLeftRadius: 20,
