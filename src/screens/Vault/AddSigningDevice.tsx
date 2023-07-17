@@ -130,7 +130,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
-              {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
+              {`Added ${moment(signer.lastHealthCheck).calendar()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
               <Box style={styles.descriptionBox}>

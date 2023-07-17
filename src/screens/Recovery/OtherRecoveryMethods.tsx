@@ -28,7 +28,7 @@ function OtherRecoveryMethods() {
         />
         <Tile
           title="Vault Configuration File"
-          subTitle="Use this method if you have the vault configuration file."
+          subTitle="Use this method if you have the Vault configuration file."
           onPress={() => {
             navigate('LoginStack', { screen: 'VaultConfigurationRecovery' });
           }}

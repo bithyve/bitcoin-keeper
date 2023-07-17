@@ -123,8 +123,9 @@ function ChoosePolicyNew({ navigation, route }) {
         >
           <HeaderTitle
             title="Choose Policy"
-            subtitle="for the signing server"
+            subtitle="For the signing server"
             paddingTop={hp(20)}
+            paddingLeft={wp(25)}
           />
 
           <Box
@@ -155,7 +156,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => {}}
+          clear={() => { }}
           color="light.greenText"
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon

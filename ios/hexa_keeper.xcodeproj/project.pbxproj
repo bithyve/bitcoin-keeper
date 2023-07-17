@@ -12,6 +12,14 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		183722102A651CBD00120228 /* FiraSansCondensed-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183722072A651CBD00120228 /* FiraSansCondensed-Light.ttf */; };
+		183722112A651CBD00120228 /* FiraSansCondensed-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183722082A651CBD00120228 /* FiraSansCondensed-Bold.ttf */; };
+		183722122A651CBD00120228 /* FiraSansCondensed-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183722092A651CBD00120228 /* FiraSansCondensed-Regular.ttf */; };
+		183722132A651CBD00120228 /* FiraSansCondensed-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220A2A651CBD00120228 /* FiraSansCondensed-Italic.ttf */; };
+		183722142A651CBD00120228 /* FiraSansCondensed-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220C2A651CBD00120228 /* FiraSansCondensed-Medium.ttf */; };
+		183722152A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220D2A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf */; };
+		183722162A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */; };
+		183722172A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */; };
 		183A61952A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */; };
 		183A61962A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */; };
 		18788ED8284652050002EFFD /* BuildFile in Resources */ = {isa = PBXBuildFile; };
@@ -80,6 +88,15 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = hexa_keeper/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = hexa_keeper/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = hexa_keeper/main.m; sourceTree = "<group>"; };
+		183722072A651CBD00120228 /* FiraSansCondensed-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Light.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Light.ttf"; sourceTree = "<group>"; };
+		183722082A651CBD00120228 /* FiraSansCondensed-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Bold.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Bold.ttf"; sourceTree = "<group>"; };
+		183722092A651CBD00120228 /* FiraSansCondensed-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Regular.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Regular.ttf"; sourceTree = "<group>"; };
+		1837220A2A651CBD00120228 /* FiraSansCondensed-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Italic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Italic.ttf"; sourceTree = "<group>"; };
+		1837220B2A651CBD00120228 /* FiraSansCondensed-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-MediumItalic.ttf"; sourceTree = "<group>"; };
+		1837220C2A651CBD00120228 /* FiraSansCondensed-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Medium.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Medium.ttf"; sourceTree = "<group>"; };
+		1837220D2A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-SemiBold.ttf"; path = "../src/assets/fonts/FiraSansCondensed-SemiBold.ttf"; sourceTree = "<group>"; };
+		1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-LightItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-LightItalic.ttf"; sourceTree = "<group>"; };
+		1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-BoldItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-BoldItalic.ttf"; sourceTree = "<group>"; };
 		183A61942A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-MediumItalic.ttf"; sourceTree = "<group>"; };
 		1882E88F2A4C338A009C9E0C /* FiraSansCondensed-MediumItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-MediumItalic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-MediumItalic.ttf"; sourceTree = "<group>"; };
 		1882E8902A4C338A009C9E0C /* FiraSansCondensed-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "FiraSansCondensed-Italic.ttf"; path = "../src/assets/fonts/FiraSansCondensed-Italic.ttf"; sourceTree = "<group>"; };
@@ -227,15 +244,24 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				1837220E2A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf */,
 				18E8B2B32A52DC960065205F /* FiraSansCondensed-Medium.ttf */,
 				18E8B2B12A52D6F10065205F /* FiraSansCondensed-SemiBold.ttf */,
 				1882E89A2A4C3535009C9E0C /* FiraSansCondensed-BoldItalic.ttf */,
 				1882E8922A4C338A009C9E0C /* FiraSansCondensed-Bold.ttf */,
+				1837220F2A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf */,
 				1882E8902A4C338A009C9E0C /* FiraSansCondensed-Italic.ttf */,
+				183722082A651CBD00120228 /* FiraSansCondensed-Bold.ttf */,
+				1837220A2A651CBD00120228 /* FiraSansCondensed-Italic.ttf */,
 				1882E8912A4C338A009C9E0C /* FiraSansCondensed-Light.ttf */,
 				1882E8942A4C338A009C9E0C /* FiraSansCondensed-LightItalic.ttf */,
+				1837220C2A651CBD00120228 /* FiraSansCondensed-Medium.ttf */,
 				1882E88F2A4C338A009C9E0C /* FiraSansCondensed-MediumItalic.ttf */,
+				1837220B2A651CBD00120228 /* FiraSansCondensed-MediumItalic.ttf */,
 				1882E8932A4C338A009C9E0C /* FiraSansCondensed-Regular.ttf */,
+				183722072A651CBD00120228 /* FiraSansCondensed-Light.ttf */,
+				183722092A651CBD00120228 /* FiraSansCondensed-Regular.ttf */,
+				1837220D2A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf */,
 				F4F7F75B2A0558220027FE4C /* keepScreenAwake */,
 				1F9F461229BF9D5D006C129F /* whirlpool */,
 				13B07FAE1A68108700A75B9A /* hexa_keeper */,
@@ -425,7 +451,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				183722102A651CBD00120228 /* FiraSansCondensed-Light.ttf in Resources */,
+				183722112A651CBD00120228 /* FiraSansCondensed-Bold.ttf in Resources */,
+				183722122A651CBD00120228 /* FiraSansCondensed-Regular.ttf in Resources */,
+				183722132A651CBD00120228 /* FiraSansCondensed-Italic.ttf in Resources */,
 				183A61952A1F72A700E4DAF9 /* FiraSansCondensed-MediumItalic.ttf in Resources */,
+				183722142A651CBD00120228 /* FiraSansCondensed-Medium.ttf in Resources */,
+				183722152A651CBD00120228 /* FiraSansCondensed-SemiBold.ttf in Resources */,
+				183722162A651CBD00120228 /* FiraSansCondensed-LightItalic.ttf in Resources */,
+				183722172A651CBD00120228 /* FiraSansCondensed-BoldItalic.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				18BD1AA02834FA4100DB19E0 /* BuildFile in Resources */,
