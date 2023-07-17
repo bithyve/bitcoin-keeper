@@ -58,6 +58,7 @@ import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
 import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
 import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
+import { connectToNodeWatcher } from './network';
 
 const rootSaga = function* () {
   const sagas = [
@@ -69,6 +70,10 @@ const rootSaga = function* () {
     credentialStorageWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
+
+    // network
+    connectToNodeWatcher,
+
     // notification
     updateFCMTokensWatcher,
     getMessageWatcher,

@@ -18,10 +18,11 @@ import HWError from 'src/hardware/HWErrorState';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useAppSelector } from 'src/store/hooks';
-import MockWrapper from '../Vault/MockWrapper';
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import { wp } from 'src/common/data/responsiveness/responsive';
+import MockWrapper from '../Vault/MockWrapper';
 
 function ColdCardReocvery({ route }) {
   const { isConfigRecovery = false } = route.params || {};
@@ -82,6 +83,7 @@ function ColdCardReocvery({ route }) {
               title={isConfigRecovery ? 'Recover from ColdCard' : 'Setting up Coldcard'}
               subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
+              paddingLeft={wp(25)}
             />
             <Box style={styles.buttonContainer}>
               <Buttons

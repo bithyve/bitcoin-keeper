@@ -47,12 +47,12 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     color: '#24312E',
     fontSize: 12,
-    width: 170,
+    width: '100%',
     fontFamily: Fonts.RobotoCondensedSemiBold,
     letterSpacing: 0.6
   },
   skipWrapper: {
-    width: '20%',
+    width: '16%',
     alignItems: 'center',
   },
   skipText: {
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   addNowWrapper: {
-    width: '20%',
+    width: '24%',
   },
   addNowCTAWrapper: {
     padding: 5,

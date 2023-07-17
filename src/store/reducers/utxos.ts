@@ -20,10 +20,13 @@ const utxoSlice = createSlice({
     setSyncingUTXOError: (state, action) => {
       state.apiError = action.payload;
     },
+    resetState: (state) => {
+      state = initialState;
+    },
   },
 });
 
-export const { setSyncingUTXOs, setSyncingUTXOError } = utxoSlice.actions;
+export const { setSyncingUTXOs, setSyncingUTXOError, resetState } = utxoSlice.actions;
 
 const utxoPersistConfig = {
   key: 'utxos',

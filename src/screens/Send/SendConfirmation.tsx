@@ -433,7 +433,10 @@ function SendConfirmation({ route }) {
           ...styles.priorityTableText,
           flex: 1,
         }}
-      >{`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`}</Text>
+      >
+        {/* {`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`} */}
+        {amt} sats
+      </Text>
     );
   }
 
@@ -660,7 +663,7 @@ function SendConfirmation({ route }) {
         {transferType === TransferType.VAULT_TO_VAULT ? (
           <Note
             title="Note"
-            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"
+            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
           />
         ) : null}
       </Box>

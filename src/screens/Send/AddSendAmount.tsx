@@ -262,7 +262,8 @@ function AddSendAmount({ route }) {
                   letterSpacing: 0.1,
                   fontStyle: 'italic',
                   textAlign: 'right',
-                  marginRight: 12,
+                  paddingRight: wp(10),
+                  width: '100%',
                 }}
               >
                 {errorMessage}

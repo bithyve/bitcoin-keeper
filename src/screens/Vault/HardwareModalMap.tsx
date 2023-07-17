@@ -4,12 +4,13 @@ import * as bip39 from 'bip39';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
+import { XpubTypes } from 'src/core/wallets/enums';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -34,7 +35,7 @@ import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
@@ -95,24 +96,23 @@ const getSignerContent = (
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
           ? [
-              ccInstructions,
-              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-            ]
+            ccInstructions,
+            `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+          ]
           : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
-        isMultisig ? 'MultiSig' : 'SingleSig'
-      } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
+        } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-              jadeInstructions,
-              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-            ]
+            jadeInstructions,
+            `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+          ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -145,24 +145,23 @@ const getSignerContent = (
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-              keystoneInstructions,
-              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-            ]
+            keystoneInstructions,
+            `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+          ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-              passportInstructions,
-              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-            ]
+            passportInstructions,
+            `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+          ]
           : [passportInstructions],
         title: 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -173,23 +172,22 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signing server will be made to checks it health']
           : [
-              `A 2FA authenticator will have to be set up to use this option.`,
-              `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
-            ],
+            `A 2FA authenticator will have to be set up to use this option.`,
+            `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
+          ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
         subTitle: 'A Signing Server will hold one of the keys in the Vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-              seedSignerInstructions,
-              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
-            ]
+            seedSignerInstructions,
+            `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
+          ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
@@ -429,16 +427,32 @@ const setupMobileKey = async ({ primaryMnemonic }) => {
   return mobileKey;
 };
 
-const setupSeedWordsBasedKey = (mnemonic) => {
+const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
   const networkType = config.NETWORK_TYPE;
-  const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(mnemonic, networkType);
+  // fetched multi-sig seed words based key
+  const {
+    xpub: multiSigXpub,
+    derivationPath: multiSigPath,
+    masterFingerprint,
+  } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
+  // fetched single-sig seed words based key
+  const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
+    mnemonic,
+    networkType,
+    EntityKind.WALLET
+  );
+
+  const xpubDetails: XpubDetailsType = {};
+  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+
   const softSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
+    xpub: isMultisig ? multiSigXpub : singleSigXpub,
+    derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
-    isMultisig: true,
+    isMultisig,
   });
 
   return softSigner;
@@ -662,7 +676,7 @@ function HardwareModalMap({
       CommonActions.navigate({
         name: 'ConnectChannel',
         params: {
-          title: `${isHealthcheck ? `Verify` : `Settingup`}  ${getSignerNameFromType(type)}`,
+          title: `${isHealthcheck ? `Verify` : `Setting up`} ${getSignerNameFromType(type)}`,
           subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
           type,
           isHealthcheck: true,
@@ -692,7 +706,7 @@ function HardwareModalMap({
           isHealthcheck,
           onSuccess: (mnemonic) => {
             if (isHealthcheck) {
-              const softSigner = setupSeedWordsBasedKey(mnemonic);
+              const softSigner = setupSeedWordsBasedKey(mnemonic, isMultisig);
               if (softSigner.xpub === signer.xpub) {
                 dispatch(healthCheckSigner([signer]));
                 navigation.dispatch(CommonActions.goBack());
@@ -701,7 +715,7 @@ function HardwareModalMap({
                 showToast('Error in Health check', <ToastErrorIcon />, 3000);
               }
             } else {
-              const softSigner = setupSeedWordsBasedKey(mnemonic);
+              const softSigner = setupSeedWordsBasedKey(mnemonic, isMultisig);
               dispatch(addSigningDevice(softSigner));
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
               showToast(`${softSigner.signerName} added successfully`, <TickIcon />);

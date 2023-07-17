@@ -58,6 +58,7 @@ function SetupOtherSDScreen() {
       <HeaderTitle
         title="Setup other signing device"
         subtitle="Manually provide the signer details"
+        paddingLeft={wp(25)}
       />
       <Box style={styles.flex}>
         <TextInput

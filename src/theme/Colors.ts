@@ -40,6 +40,7 @@ const Colors = {
   FadeBlue: 'rgba(183,201,196,1)',
   DustySageGreen: 'rgba(139,160,153,1)',
   ForestGreen: 'rgba(0,131,105,1)',
-  PearlGrey: 'rgba(250,252,252,1)'
+  PearlGrey: 'rgba(250,252,252,1)',
+  pantoneGreen: 'rgba(45,103,89,1)'
 };
 export default Colors;

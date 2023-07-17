@@ -13,8 +13,10 @@ const tor = Tor({
 enum TorStatus {
   OFF = 'OFF',
   CONNECTING = 'CONNECTING',
+  CHECKING = 'CHECKING',
   ERROR = 'ERROR',
   CONNECTED = 'CONNECTED',
+  CHECK_STATUS = 'CHECK_STATUS',
 }
 
 class RestClient {

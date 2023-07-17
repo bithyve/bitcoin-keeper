@@ -83,7 +83,7 @@ function OnBoardingSlides({ navigation }) {
   });
   const viewConfigRef = React.useRef({ viewAreaCoveragePercentThreshold: 100 });
   return (
-    <LinearGradient colors={['light.gradientStart', 'light.gradientEnd']} style={styles.container}>
+    <Box style={styles.container} backgroundColor='light.pantoneGreen'>
       <ImageBackground resizeMode="cover" style={styles.container} source={OnboardingBackImage}>
         <SafeAreaView style={styles.safeAreaViewWrapper}>
           <Box justifyContent="center" mr={4} mt={windowHeight > 715 ? 10 : 2} height={10}>
@@ -126,7 +126,7 @@ function OnBoardingSlides({ navigation }) {
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
               <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/')}>
-                <Box borderColor="light.lightAccent" style={styles.seeFAQWrapper}>
+                <Box borderColor="light.lightAccent" backgroundColor='light.gradientEnd' style={styles.seeFAQWrapper}>
                   <Text color="light.lightAccent" bold style={styles.seeFAQText}>
                     {common.seeFAQs}
                   </Text>
@@ -165,7 +165,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
         </SafeAreaView>
       </ImageBackground>
-    </LinearGradient >
+    </Box >
   );
 }
 

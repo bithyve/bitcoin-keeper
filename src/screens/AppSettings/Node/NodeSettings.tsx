@@ -1,12 +1,12 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { Box } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
@@ -19,10 +19,8 @@ import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
-import { updateAppImage } from 'src/store/sagaActions/bhr';
 import {
   electrumClientConnectionExecuted,
   electrumClientConnectionInitiated,
@@ -43,7 +41,7 @@ function NodeSettings() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const nodes: NodeDetail[] = Node.getNodes();
+    const nodes: NodeDetail[] = Node.getAllNodes();
     const current = nodes.filter((node) => Node.nodeConnectionStatus(node))[0];
     setCurrentlySelectedNodeItem(current);
     setNodeList(nodes);
@@ -62,7 +60,7 @@ function NodeSettings() {
     await closeAddNodeModal();
     const { saved } = await Node.save(nodeDetail, nodeList);
     if (saved) {
-      const updatedNodeList = Node.getNodes();
+      const updatedNodeList = Node.getAllNodes();
       setNodeList(updatedNodeList);
       // dispatch(updateAppImage(null));
       // setCurrentlySelectedNodeItem(node);
@@ -85,7 +83,7 @@ function NodeSettings() {
     // dispatch(updateAppImage(null));
     let nodes = [];
     if (status) {
-      nodes = Node.getNodes();
+      nodes = Node.getAllNodes();
       setNodeList(nodes);
     }
 
@@ -116,7 +114,7 @@ function NodeSettings() {
     setLoading(true);
 
     const node = { ...selectedNode };
-    const { connected, connectedTo, error } = await Node.connect(node);
+    const { connected, connectedTo, error } = await Node.connectToSelectedNode(node);
 
     if (connected) {
       node.isConnected = connected;
@@ -128,10 +126,7 @@ function NodeSettings() {
         return item;
       });
       // dispatch(updateAppImage(null));
-    } else {
-      // dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
-      showToast(`${settings.nodeConnectionFailure}`, <ToastErrorIcon />);
-    }
+    } else dispatch(electrumClientConnectionExecuted({ successful: node.isConnected, error }));
 
     setCurrentlySelectedNodeItem(node);
     setNodeList(nodes);
@@ -160,7 +155,7 @@ function NodeSettings() {
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
     setCurrentlySelectedNodeItem(selectedItem);
   };
-
+  console.log('windowHeight', windowHeight)
   return (
     <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
       <HeaderTitle
@@ -182,9 +177,9 @@ function NodeSettings() {
         </Box>
       </Box> */}
       {/* <Box borderColor="light.GreyText" style={styles.splitter} /> */}
-      <Box style={styles.nodeListHeader}>
+      {/* <Box style={styles.nodeListHeader}>
         <Text style={styles.nodeListTitle}>{settings.currentlyConnected}</Text>
-      </Box>
+      </Box> */}
       {nodeList.length > 0 && (
         <Box style={styles.nodesListWrapper}>
           <FlatList
@@ -246,17 +241,14 @@ function NodeSettings() {
                         </Box>
                       </TouchableOpacity>
                       <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
-
-                      {item.isDefault ? null : (
-                        <TouchableOpacity onPress={() => onDelete(item)}>
-                          <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
-                            <DeleteIcon />
-                            <Text style={[styles.actionText, { paddingTop: 2 }]}>
-                              {common.delete}
-                            </Text>
-                          </Box>
-                        </TouchableOpacity>
-                      )}
+                      <TouchableOpacity onPress={() => onDelete(item)}>
+                        <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
+                          <DeleteIcon />
+                          <Text style={[styles.actionText, { paddingTop: 2 }]}>
+                            {common.delete}
+                          </Text>
+                        </Box>
+                      </TouchableOpacity>
                     </Box>
                   </Box>
                 </TouchableOpacity>
@@ -266,7 +258,7 @@ function NodeSettings() {
         </Box>
       )}
 
-      <TouchableOpacity onPress={onAdd} >
+      <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor="#E3BE96" style={styles.addNewNode}>
           <AddIcon />
           <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
@@ -326,10 +318,10 @@ const styles = StyleSheet.create({
   },
   note: {
     position: 'absolute',
-    bottom: hp(35),
+    bottom: hp(25),
     marginLeft: 22.3,
     width: '100%',
-    paddingTop: hp(10),
+    paddingTop: hp(5),
   },
   splitter: {
     marginTop: 35,
@@ -343,10 +335,10 @@ const styles = StyleSheet.create({
     height: 45,
   },
   nodesListWrapper: {
-    marginBottom: 4,
+    marginVertical: 10,
     flexDirection: 'row',
     width: '100%',
-    height: '58%',
+    height: windowHeight > 800 ? '65%' : '50%',
     // alignItems: 'center',
   },
   nodeListTitle: {

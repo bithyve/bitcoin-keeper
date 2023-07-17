@@ -1,7 +1,7 @@
 import { Box, Input, ScrollView } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -84,10 +84,10 @@ export default function WhirlpoolConfiguration({ route }) {
                     // onTransactionPriorityChanged(priority)
                   }}
                 />
-                <Text style={styles.feeItemText}>&nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}</Text>
+                <Text style={[styles.feeItemText, { width: 90 }]}>&nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}</Text>
               </Box>
-              <Text style={styles.feeItemText}>{fee?.time}</Text>
-              <Text style={styles.feeItemText}>
+              <Text style={[styles.feeItemText, { width: 110 }]}>{fee?.time}</Text>
+              <Text style={[styles.feeItemText, { width: 110 }]}>
                 {fee?.fee} {fee?.fee > 1 ? 'sats' : 'sat'}/vB
               </Text>
             </Box>
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     width: wp(280),
   },
   feeHeaderItem: {
-    width: '90%',
+    width: '78%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 10,
@@ -365,11 +365,11 @@ const styles = StyleSheet.create({
     color: '#656565',
     fontSize: 13,
     textAlign: 'left',
-    width: 120,
+    width: 110,
   },
 
   feeItem: {
-    width: '80%',
+    width: '75%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: 10,
@@ -384,7 +384,6 @@ const styles = StyleSheet.create({
   },
   feeItemText: {
     color: '#656565',
-    width: 100,
     fontSize: 13,
     textAlign: 'left',
   },

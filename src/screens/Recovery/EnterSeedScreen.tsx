@@ -34,7 +34,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/common/utilities';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/core/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -166,12 +166,13 @@ function EnterSeedScreen({ route }) {
     return seedWord.trim();
   };
 
-  const setupSeedWordsBasedKey = (mnemonic) => {
+  const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
     try {
       const networkType = config.NETWORK_TYPE;
       const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
         mnemonic,
-        networkType
+        networkType,
+        entity
       );
       const softSigner = generateSignerFromMetaData({
         xpub,
@@ -179,7 +180,7 @@ function EnterSeedScreen({ route }) {
         xfp: masterFingerprint,
         signerType: SignerType.SEED_WORDS,
         storageType: SignerStorage.WARM,
-        isMultisig: true,
+        isMultisig: entity !== EntityKind.WALLET,
       });
       dispatch(setSigningDevices(softSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -345,8 +346,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -471,7 +472,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -536,11 +537,11 @@ const styles = ScaledSheet.create({
     marginVertical: 10,
   },
   indexText: {
-    width: 22,
+    width: 25,
     fontSize: 16,
     color: '#00836A',
     marginTop: 8,
-    letterSpacing: 1.23,
+    letterSpacing: 0.8,
   },
   seedDescText: {
     fontWeight: '400',
