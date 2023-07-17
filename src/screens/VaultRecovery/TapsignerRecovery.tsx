@@ -124,6 +124,7 @@ function TapSignerRecovery() {
           title="Setting up TAPSIGNER"
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
+          paddingLeft={wp(25)}
         />
         <MockWrapper signerType={SignerType.TAPSIGNER} isRecovery>
           <ScrollView>
