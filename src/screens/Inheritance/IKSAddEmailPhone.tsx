@@ -15,7 +15,7 @@ function IKSAddEmailPhone() {
             <HeaderTitle
                 onPressHandler={() => navigtaion.goBack()}
                 title='Add phone or email'
-                subtitle='Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                subtitle='If notification is not declined continuously for 30 days, the Key would be activated'
                 paddingLeft={22}
             />
             <Box style={styles.inputWrapper}>

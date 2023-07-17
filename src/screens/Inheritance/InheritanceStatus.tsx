@@ -10,12 +10,12 @@ import { useAppDispatch } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg'
 import Letter from 'src/assets/images/LETTER.svg';
-import Recovery from 'src/assets/images/Recovery.svg';
+import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import DownloadFile from 'src/utils/DownloadPDF';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
@@ -63,7 +63,7 @@ function InheritanceStatus() {
                 />
                 <InheritanceDownloadView
                     icon={<Recovery />}
-                    title='Restoring Inheritance Vault'
+                    title='Recovery Instructions'
                     subTitle='A document for the heir only'
                     onPress={() => DownloadFile('Restoring Inheritance Vault')}
                     isDownload
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
         right: 3
     },
     scrollViewWrapper: {
-        height: '50%'
+        height: windowHeight > 800 ? '50%' : '40%'
     },
     signingDevicesText: {
         color: '#E07962',
