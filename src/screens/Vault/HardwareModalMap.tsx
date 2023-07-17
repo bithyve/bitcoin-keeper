@@ -31,6 +31,7 @@ import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
+import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
@@ -248,6 +249,16 @@ const getSignerContent = (
           `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
         ],
         title: 'Keep your signing device ready',
+        subTitle: 'Keep your signing device ready before proceeding',
+      };
+    case SignerType.INHERITANCEKEY:
+      return {
+        Illustration: <InheritanceKeyIllustration />,
+        Instructions: [
+          'Manually provide the signing device details',
+          `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+        ],
+        title: 'Setting up a Inheritance Key',
         subTitle: 'Keep your signing device ready before proceeding',
       };
     default:
@@ -713,6 +724,16 @@ function HardwareModalMap({
       })
     );
   };
+  const navigateToSendConfirmation = () => {
+    // navigation.dispatch(
+    //   CommonActions.navigate('SendConfirmation', {
+    //     sender: {},
+    //     recipients: {},
+    //     transferType: TransferType.VAULT_TO_VAULT,
+    //   })
+    // );
+    navigation.dispatch(CommonActions.navigate('IKSAddEmailPhone'));
+  };
 
   const onQRScan = async (qrData, resetQR) => {
     let hw: VaultSigner;
@@ -878,6 +899,8 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
+      case SignerType.INHERITANCEKEY:
+        return navigateToSendConfirmation();
       default:
         return null;
     }

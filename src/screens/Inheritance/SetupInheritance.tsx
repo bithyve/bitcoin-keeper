@@ -3,11 +3,10 @@ import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import LinearGradient from 'src/components/KeeperGradient';
 // components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Buttons from 'src/components/Buttons';
+// import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -17,12 +16,14 @@ import { setInheritance } from 'src/store/reducers/settings';
 import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
+import LetterIKS from 'src/assets/images/LETTER_IKS.svg';
 import Recovery from 'src/assets/images/recovery.svg';
-import Inheritance from 'src/assets/images/inheritance_Inner.svg';
+import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
+import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import { TouchableOpacity } from 'react-native';
 
 function SetupInheritance() {
@@ -39,6 +40,13 @@ function SetupInheritance() {
       description:
         'Consists of tips on things to consider while storing your signing devices for the purpose of inheritance (when it will be needed by someone else)',
       Icon: Vault,
+    },
+    {
+      title: 'Setup Inheritance Key',
+      subTitle: 'Keeper will have one of your Keys',
+      description:
+        'This would transform your 3-of-5 vault to a 3-of-6 with Keeper custodying one key.',
+      Icon: LetterIKS,
     },
     {
       title: 'Letter to the Attorney',
@@ -79,9 +87,11 @@ function SetupInheritance() {
 
   function InheritanceContent() {
     return (
-      <Box style={{
-        width: wp(280)
-      }}>
+      <Box
+        style={{
+          width: wp(280),
+        }}
+      >
         {inheritanceData.map((item) => (
           <InheritancePoint
             title={item.title}
@@ -94,28 +104,19 @@ function SetupInheritance() {
     );
   }
 
-  function GradientIcon({ height, Icon }) {
-    return (
-      <LinearGradient
-        colors={['light.gradientStart', 'light.gradientEnd']}
-        start={[0, 0]}
-        end={[1, 1]}
-        style={{
-          ...styles.gradientIcon,
-          height: hp(height),
-          width: hp(height),
-          borderRadius: height,
-        }}
-      >
-        <Icon />
-      </LinearGradient>
-    );
-  }
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    showToast('Inheritance flow coming soon', null, 1000);
+    if (plan === SubscriptionTier.L3.toUpperCase()) {
+      navigtaion.navigate('InheritanceStatus')
+    }
   };
-
+  const toSetupInheritance = () => {
+    if (plan !== SubscriptionTier.L3.toUpperCase()) {
+      navigtaion.navigate('ChoosePlan');
+    } else {
+      dispatch(setInheritance(true))
+    }
+  }
   return (
     <ScreenWrapper>
       <Box style={styles.header}>
@@ -123,41 +124,52 @@ function SetupInheritance() {
           onPressHandler={() => navigtaion.goBack()}
           learnMore
           learnMorePressed={() => {
-            dispatch(setInheritance(true));
+            // dispatch(setInheritance(true));
           }}
         />
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color="light.textWallet" style={styles.title} testID='text_InheritanceSupport'>
+        <Text color="light.textWallet" style={styles.title} testID="text_InheritanceSupport">
           Inheritance Support
         </Text>
-        <Text color="light.secondaryText" style={styles.subtitle} testID='text_InheritanceSupportSubtitle'>
+        <Text
+          color="light.secondaryText"
+          style={styles.subtitle}
+          testID="text_InheritanceSupportSubtitle"
+        >
           Keeper provides you with the tips and tools you need to include the vault in your estate
           planning
         </Text>
       </Box>
 
-      <Box style={styles.bottomContainer} testID='view_InheritanceSupportAssert'>
+      <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
-          {plan !== SubscriptionTier.L3.toUpperCase() ? `This can be activated once you are at the ${SubscriptionTier.L3} level` : `Setup Inheritance Key`}
+          {plan !== SubscriptionTier.L3.toUpperCase()
+            ? `This can be activated once you are at the ${SubscriptionTier.L3} level`
+            : `Setup Inheritance Key`}
         </Text>
-        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID='btn_ISContinue'>
-          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => showToast('Inheritance flow coming soon', null, 1000)}>
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
+          <TouchableOpacity
+            testID="btn_inheritanceBtn"
+            onPress={() => toSetupInheritance()}
+          >
             <Box
               borderColor="light.learnMoreBorder"
               backgroundColor="light.lightAccent"
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {plan !== SubscriptionTier.L3.toUpperCase() ? `Upgrade Now` : `Setup Inheritance Key`}
+                {plan !== SubscriptionTier.L3.toUpperCase()
+                  ? `Upgrade Now`
+                  : `Setup Inheritance Key`}
               </Text>
             </Box>
           </TouchableOpacity>
         </Box>
       </Box>
-      <Box style={styles.note} testID='view_ISNote'>
+      <Box style={styles.note} testID="view_ISNote">
         <Note
           title="Note"
           subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
@@ -194,7 +206,6 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
     width: wp(340),
   },
-
   message: {
     opacity: 0.85,
     fontSize: 12,
@@ -217,20 +228,20 @@ const styles = ScaledSheet.create({
     fontSize: 16,
     letterSpacing: 0.96,
     marginTop: hp(10),
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   subtitle: {
     textAlign: 'center',
     width: wp(270),
     marginTop: hp(4),
     fontSize: 12,
-    letterSpacing: 0.80,
+    letterSpacing: 0.8,
   },
   header: {
-    marginBottom: -50,
+    // marginBottom: -50,
   },
   modalContainer: {
-    marginBottom: hp(25),
+    // marginBottom: hp(25),
   },
   modalTitle: {
     fontSize: 15,
@@ -240,7 +251,7 @@ const styles = ScaledSheet.create({
     opacity: 0.7,
   },
   modalDesc: {
-    marginTop: hp(16),
+    marginVertical: hp(8),
     letterSpacing: 0.65,
     width: wp(280),
     alignItems: 'center',
