@@ -72,15 +72,6 @@ function TorSettings() {
           <TorStatusTag />
         </Box>
         <SettingsCard
-          title="In-app Tor"
-          description="Use direct Tor. No need to download a separate app. May be slow and unreliable"
-          my={2}
-          onPress={handleInAppTor}
-          loading={inAppTor === TorStatus.CONNECTING}
-          value={inAppTor === TorStatus.CONNECTED}
-          on
-        />
-        <SettingsCard
           title="Tor via Orbot"
           description="Use the Orbot app. Greater control, quicker connection and advanced options"
           my={2}
@@ -88,6 +79,16 @@ function TorSettings() {
           value={orbotTorStatus === TorStatus.CONNECTED}
           onPress={() => setShowOrbotTorModal(true)}
         />
+        <SettingsCard
+          title="In-app Tor"
+          description="Use direct Tor. No need to download a separate app. May be slow and unreliable"
+          my={2}
+          onPress={() => setShowTorModal(true)}
+          loading={inAppTor === TorStatus.CONNECTING}
+          value={inAppTor === TorStatus.CONNECTED}
+          on
+        />
+
         <Buttons
           primaryText="Check Status"
           primaryCallback={() => checkTorConnection()}
