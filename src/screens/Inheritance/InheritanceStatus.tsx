@@ -50,10 +50,11 @@ function InheritanceStatus() {
                     onPress={() => console.log('press')}
 
                 />
-                <Box style={styles.signingDevicesView}>
+                {/* Error view - Need to add condition for this */}
+                {/* <Box style={styles.signingDevicesView}>
                     <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
                     <ToastErrorIcon />
-                </Box>
+                </Box> */}
                 <InheritanceDownloadView
                     icon={<Letter />}
                     title='Letter to the attorney'
