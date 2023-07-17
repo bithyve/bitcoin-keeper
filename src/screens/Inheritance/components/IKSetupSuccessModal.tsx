@@ -4,7 +4,6 @@ import { Box } from 'native-base';
 
 import Assert from 'src/assets/images/illustration.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
-import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { modalParams } from 'src/common/data/models/interfaces/UTXOs';

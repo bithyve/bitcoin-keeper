@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView } from 'native-base';
+import { Box, ScrollView } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -11,9 +11,9 @@ import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg'
 import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
-// import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
-// import Text from 'src/components/KeeperText';
+import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import DownloadFile from 'src/utils/DownloadPDF';
@@ -25,6 +25,7 @@ function InheritanceStatus() {
     const navigtaion = useNavigation();
     const dispatch = useAppDispatch();
     const [visibleModal, setVisibleModal] = useState(false);
+    const [visibleErrorView] = useState(false);
     return (
         <ScreenWrapper>
             <HeaderTitle
@@ -51,10 +52,10 @@ function InheritanceStatus() {
 
                 />
                 {/* Error view - Need to add condition for this */}
-                {/* <Box style={styles.signingDevicesView}>
+                {visibleErrorView && <Box style={styles.signingDevicesView}>
                     <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
                     <ToastErrorIcon />
-                </Box> */}
+                </Box>}
                 <InheritanceDownloadView
                     icon={<Letter />}
                     title='Letter to the attorney'

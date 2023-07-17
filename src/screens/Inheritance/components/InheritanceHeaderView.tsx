@@ -2,7 +2,6 @@ import React from 'react'
 import { Box } from 'native-base'
 import Text from 'src/components/KeeperText'
 import { StyleSheet } from 'react-native'
-import { hp } from 'src/common/data/responsiveness/responsive'
 
 function InheritanceHeaderView(props) {
     return (

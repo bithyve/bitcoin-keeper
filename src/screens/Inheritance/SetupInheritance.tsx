@@ -6,11 +6,9 @@ import { useNavigation } from '@react-navigation/native';
 // components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
-// import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
 import Assert from 'src/assets/images/illustration.svg';
@@ -30,7 +28,6 @@ function SetupInheritance() {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
-  const { showToast } = useToastMessage();
   const { plan } = usePlan();
 
   const inheritanceData = [
