@@ -8,7 +8,6 @@ HexaToastMessages.defaultProps = {
   Image: null,
   error: false,
 };
-console.log('windowHeight', windowHeight)
 function HexaToastMessages({
   Image,
   error,
@@ -33,7 +32,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: windowWidth * 0.8,
     paddingLeft: 15,
-    bottom: windowHeight > 800 ? hp(40) : hp(25),
+    bottom: hp(40),
     height: 70,
     fontSize: 13,
     elevation: 6,
