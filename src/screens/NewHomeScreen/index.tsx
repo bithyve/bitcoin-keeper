@@ -10,6 +10,7 @@ import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
+import Fonts from 'src/common/Fonts';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
 
@@ -175,6 +176,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     fontSize: 14,
     fontWeight: '500',
+    fontFamily: Fonts.RobotoCondensedRegular,
   },
   tabBarStyle: {
     borderTopLeftRadius: 20,
