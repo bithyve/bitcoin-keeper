@@ -183,6 +183,7 @@ function SetupSigningServer({ route }: { route }) {
           onPressHandler={() => navigation.goBack()}
           headerTitleColor="light.headerText"
           paddingTop={hp(5)}
+          paddingLeft={wp(25)}
         />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
