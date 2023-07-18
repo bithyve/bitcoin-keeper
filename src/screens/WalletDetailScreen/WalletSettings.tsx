@@ -350,7 +350,10 @@ function WalletSettings({ route }) {
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           buttonText="Done"
-          buttonCallback={() => { setCosignerVisible(false); setAddWalletCosignerVisible(true) }}
+          buttonCallback={() => {
+            setCosignerVisible(false);
+            // setAddWalletCosignerVisible(true) 
+          }}
           Content={() => (
             <ShowXPub
               data=""
