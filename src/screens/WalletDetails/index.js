@@ -23,12 +23,12 @@ import BtcBlack from 'src/assets/images/btc_black.svg';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from 'src/hooks/useExchangeRates';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -194,24 +194,13 @@ function WalletDetails({ route }) {
                 >
                   Transfer Policy is set at{'  '}
                 </Text>
-                <Text
-                  bold
+                <CurrencyInfo
+                  hideAmounts={false}
+                  amount={wallet?.transferPolicy.threshold}
+                  fontSize={14}
                   color="light.learnMoreBorder"
-                  style={{
-                    fontSize: 14,
-                    letterSpacing: 0.7,
-                  }}
-                >
-                  {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}{' '}
-                  {getAmt(
-                    wallet?.transferPolicy.threshold,
-                    exchangeRates,
-                    currencyCode,
-                    currentCurrency,
-                    satsEnabled
-                  )}
-                  {getUnit(currentCurrency, satsEnabled)}
-                </Text>
+                  variation="dark"
+                />
               </Box>
               <Box>
                 <Arrow />
