@@ -44,7 +44,7 @@ export const securityTips = [
   {
     title: 'Introducing Inheritance Tools',
     subTitle:
-      'Use Inheritance Documents for your inheritance planning. Inheritance Key is an assisted key that can be availed by your heir',
+      'Use Inheritance documents for your inheritance planning. Inheritance Key is an assisted key that can be availed by your heir',
     assert: <LoadingAnimation />,
     message: 'Consult your estate planner for incorporating documents from this app in your will',
   },
