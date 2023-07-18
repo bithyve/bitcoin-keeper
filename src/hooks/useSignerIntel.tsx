@@ -114,6 +114,16 @@ const useSignerIntel = () => {
       }
     }
   });
+  const getInvalidSignerForTire = () => {
+    if (plan === SubscriptionTier.L1.toUpperCase() && signersState) {
+      return signersState.filter(
+        (signer) =>
+          signer && [SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
+      );
+    }
+    return [];
+  };
+  const invalidSigners = getInvalidSignerForTire();
 
   const areSignersValid =
     signersState.every((signer) => !signer) ||
@@ -122,7 +132,14 @@ const useSignerIntel = () => {
     !areSignersValidInCurrentScheme({ plan, signersState }) ||
     misMatchedSigners.length;
 
-  return { planStatus, signersState, areSignersValid, amfSigners, misMatchedSigners };
+  return {
+    planStatus,
+    signersState,
+    areSignersValid,
+    amfSigners,
+    misMatchedSigners,
+    invalidSigners,
+  };
 };
 
 export default useSignerIntel;

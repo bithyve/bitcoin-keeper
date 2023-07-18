@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 0,
     position: 'absolute',
-    padding: 20,
+    paddingHorizontal: 20,
   },
 });
 

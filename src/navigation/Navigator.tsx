@@ -37,7 +37,6 @@ import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
 import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
 import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
 import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConfirmation';
-import SetupLedger from 'src/screens/AddLedger/SetupLedger';
 import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
 import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
 import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';

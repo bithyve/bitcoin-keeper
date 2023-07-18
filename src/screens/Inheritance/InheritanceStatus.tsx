@@ -25,6 +25,7 @@ function InheritanceStatus() {
     const navigtaion = useNavigation();
     const dispatch = useAppDispatch();
     const [visibleModal, setVisibleModal] = useState(false);
+    const [visibleErrorView] = useState(false);
     return (
         <ScreenWrapper>
             <HeaderTitle
@@ -50,10 +51,11 @@ function InheritanceStatus() {
                     onPress={() => console.log('press')}
 
                 />
-                <Box style={styles.signingDevicesView}>
+                {/* Error view - Need to add condition for this */}
+                {visibleErrorView && <Box style={styles.signingDevicesView}>
                     <Text style={styles.signingDevicesText}>Signing Devices have been changed&nbsp;</Text>
                     <ToastErrorIcon />
-                </Box>
+                </Box>}
                 <InheritanceDownloadView
                     icon={<Letter />}
                     title='Letter to the attorney'

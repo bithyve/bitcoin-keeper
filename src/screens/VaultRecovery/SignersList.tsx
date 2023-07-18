@@ -779,7 +779,7 @@ function SignersList({ navigation }) {
     <ScreenWrapper>
       <HeaderTitle
         title="Select Signing Device"
-        subtitle="To recover your vault"
+        subtitle="To recover your Vault"
         headerTitleColor="light.textBlack"
         onPressHandler={() =>
           navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
