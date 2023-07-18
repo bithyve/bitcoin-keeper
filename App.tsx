@@ -11,11 +11,14 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { sentryConfig } from 'src/core/services/sentry';
 import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
+import { TorContextProvider } from 'src/store/contexts/TorContext';
+import { QueryClient, QueryClientProvider } from 'react-query';
 import { customTheme } from './src/common/themes';
 import Navigator from './src/navigation/Navigator';
 import { LocalizationProvider } from './src/common/content/LocContext';
 import { persistor, store } from './src/store/store';
-import { TorContextProvider } from 'src/store/contexts/TorContext';
+
+const queryClient = new QueryClient();
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -50,13 +53,15 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NativeBaseProvider theme={customTheme} config={config}>
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-        <LocalizationProvider>
-          <AppContextProvider>
-            <TorContextProvider>
-              <Navigator />
-            </TorContextProvider>
-          </AppContextProvider>
-        </LocalizationProvider>
+        <QueryClientProvider client={queryClient}>
+          <LocalizationProvider>
+            <AppContextProvider>
+              <TorContextProvider>
+                <Navigator />
+              </TorContextProvider>
+            </AppContextProvider>
+          </LocalizationProvider>
+        </QueryClientProvider>
       </NativeBaseProvider>
     </GestureHandlerRootView>
   );

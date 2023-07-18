@@ -41,13 +41,7 @@ function AddNewWalletTile({ walletIndex, isActive, wallet, navigation }) {
   );
 }
 
-function WalletTile({
-  isActive,
-  wallet,
-  balances,
-  isWhirlpoolWallet,
-}) {
-
+function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet }) {
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
 
   return (
@@ -68,9 +62,7 @@ function WalletTile({
             />
           )}
 
-          <Box
-            style={styles.walletDetailsWrapper}
-          >
+          <Box style={styles.walletDetailsWrapper}>
             <Text color="light.white" style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
@@ -257,7 +249,7 @@ const styles = StyleSheet.create({
     width: wp(170),
   },
   walletDescription: {
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
     fontSize: 13,
   },
   walletName: {
@@ -300,6 +292,6 @@ const styles = StyleSheet.create({
   },
   walletDetailsWrapper: {
     marginLeft: 10,
-    width: '68%'
-  }
+    width: '68%',
+  },
 });

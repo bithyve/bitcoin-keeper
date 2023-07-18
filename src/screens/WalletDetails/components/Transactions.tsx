@@ -1,13 +1,11 @@
 import { FlatList, RefreshControl } from 'react-native';
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Transaction } from 'src/core/wallets/interfaces';
-import { useAppSelector } from 'src/store/hooks';
+import useSyncWallet from 'src/queries/syncWallet';
 
 function TransactionItem({ item, wallet, navigation }) {
   return (
@@ -25,21 +23,14 @@ function TransactionItem({ item, wallet, navigation }) {
   );
 }
 
-function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet }) {
-  const dispatch = useDispatch();
+function Transactions({ transactions, currentWallet }) {
   const navigation = useNavigation();
+  const { query } = useSyncWallet({ wallet: currentWallet });
+  const syncing = query.isFetching;
 
-  const pullDownRefresh = () => {
-    setPullRefresh(true);
-    dispatch(refreshWallets([currentWallet], { hardRefresh: true }));
-    setPullRefresh(false);
-  };
-
-  const { walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
   return (
     <FlatList
-      refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
+      refreshControl={<RefreshControl onRefresh={query.refetch} refreshing={syncing} />}
       data={transactions}
       renderItem={({ item }) => (
         <TransactionItem item={item} navigation={navigation} wallet={currentWallet} />

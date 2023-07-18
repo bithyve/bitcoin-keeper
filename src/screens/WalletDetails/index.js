@@ -11,7 +11,6 @@ import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import Arrow from 'src/assets/images/arrow_brown.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -23,12 +22,12 @@ import BtcBlack from 'src/assets/images/btc_black.svg';
 import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from 'src/hooks/useExchangeRates';
+import useSyncWallet from 'src/queries/syncWallet';
 import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
-import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -40,18 +39,10 @@ export const allowedRecieveTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 
 export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 // TODO: add type definitions to all components
-function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
-  const { walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
+function TransactionsAndUTXOs({ transactions, wallet }) {
   return (
     <Box style={styles.transactionsListContainer}>
-      <ActivityIndicatorView visible={syncing} showLoader={false} />
-      <Transactions
-        transactions={transactions}
-        setPullRefresh={setPullRefresh}
-        pullRefresh={pullRefresh}
-        currentWallet={wallet}
-      />
+      <Transactions transactions={transactions} currentWallet={wallet} />
     </Box>
   );
 }
@@ -83,30 +74,24 @@ function WalletDetails({ route }) {
   const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
-  const { walletSyncing } = useAppSelector((state) => state.wallet);
-  const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   const isWhirlpoolWallet = Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails);
   const introModal = useAppSelector((state) => state.wallet.introModal) || false;
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  const [pullRefresh, setPullRefresh] = useState(false);
+
+  const { query } = useSyncWallet({ wallet });
 
   useEffect(() => {
-    if (!syncing) {
-      dispatch(refreshWallets([wallet], { hardRefresh: true }));
+    if (!query.isFetching) {
+      query.refetch();
     }
   }, []);
 
   useEffect(() => {
-    if (autoRefresh) pullDownRefresh();
+    if (autoRefresh) query.refetch();
   }, [autoRefresh]);
 
-  const pullDownRefresh = () => {
-    setPullRefresh(true);
-    dispatch(refreshWallets([wallet], { hardRefresh: true }));
-    setPullRefresh(false);
-  };
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
@@ -269,12 +254,7 @@ function WalletDetails({ route }) {
                 </TouchableOpacity>
               ) : null}
             </HStack>
-            <TransactionsAndUTXOs
-              transactions={wallet?.specs.transactions}
-              setPullRefresh={setPullRefresh}
-              pullRefresh={pullRefresh}
-              wallet={wallet}
-            />
+            <TransactionsAndUTXOs transactions={wallet?.specs.transactions} wallet={wallet} />
             <Footer
               wallet={wallet}
               onPressBuyBitcoin={onPressBuyBitcoin}
