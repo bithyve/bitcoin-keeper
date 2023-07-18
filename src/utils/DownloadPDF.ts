@@ -2,7 +2,6 @@ import Share from "react-native-share";
 import ReactNativeBlobUtil from "react-native-blob-util"
 import { Platform } from "react-native";
 import config from "src/core/config";
-import useToastMessage from "src/hooks/useToastMessage";
 
 const { RELAY } = config;
 const pdfPath = (pdfFileName) => {
@@ -18,7 +17,6 @@ const pdfPath = (pdfFileName) => {
     }
 }
 export default async function DownloadFile(pdfFileName) {
-    const { showToast } = useToastMessage();
     const source = pdfPath(pdfFileName)
     const { dirs } = ReactNativeBlobUtil.fs;
     const fileName = pdfFileName
@@ -49,9 +47,6 @@ export default async function DownloadFile(pdfFileName) {
                     .then((resp) => console.log(resp))
                     .catch((err) => console.log(err));
             }
-            if (res) {
-                showToast('Document has been downloaded.');
-            }
         })
-        .catch((err) => showToast(err));
+        .catch((err) => console.log(err));
 };
