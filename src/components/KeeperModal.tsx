@@ -241,7 +241,7 @@ const getStyles = (subTitleWidth) =>
       alignSelf: 'flex-start',
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
-      width: '90%',
+      width: '95%',
     },
     bodyContainer: {
       width: '80%',
