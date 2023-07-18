@@ -241,7 +241,7 @@ function AddSendAmount({ route }) {
         >
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
-            availableAmt={getBalance(sender?.specs.balances.confirmed)}
+            availableAmt={sender?.specs.balances.confirmed}
             walletName={sender?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}

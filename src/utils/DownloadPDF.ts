@@ -48,5 +48,5 @@ export default async function DownloadFile(pdfFileName) {
                     .catch((err) => console.log(err));
             }
         })
-        .catch((err) => console.log('BLOB ERROR -> ', err));
+        .catch((err) => console.log(err));
 };
