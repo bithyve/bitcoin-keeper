@@ -12,16 +12,19 @@ import SetupIK from 'src/assets/images/SetupIK.svg'
 import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import TickIcon from 'src/assets/images/icon_tick.svg';
 
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import DownloadFile from 'src/utils/DownloadPDF';
+import useToastMessage from 'src/hooks/useToastMessage';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 
 function InheritanceStatus() {
+    const { showToast } = useToastMessage();
     const navigtaion = useNavigation();
     const dispatch = useAppDispatch();
     const [visibleModal, setVisibleModal] = useState(false);
@@ -41,14 +44,16 @@ function InheritanceStatus() {
                     icon={<SafeguardingTips />}
                     title='Key Security Tips'
                     subTitle='How to store your keys securely'
-                    onPress={() => DownloadFile('Key Security Tips')}
+                    onPress={() => DownloadFile('Key Security Tips').then(() => {
+                        showToast('Document has been downloaded.', <TickIcon />);
+                    })}
                     isDownload
                 />
                 <InheritanceDownloadView
                     icon={<SetupIK />}
                     title='Setup Inheritance Key'
                     subTitle='Add an assisted key to create a 3 of 6 Vault'
-                    onPress={() => console.log('press')}
+                    onPress={() => showToast('Inheritance key setup flow: coming soon', <ToastErrorIcon />)}
 
                 />
                 {/* Error view - Need to add condition for this */}
@@ -60,14 +65,18 @@ function InheritanceStatus() {
                     icon={<Letter />}
                     title='Letter to the attorney'
                     subTitle='A partly filled pdf template'
-                    onPress={() => DownloadFile('Letter to the attorney')}
+                    onPress={() => DownloadFile('Letter to the attorney').then(() => {
+                        showToast('Document has been downloaded.', <TickIcon />);
+                    })}
                     isDownload
                 />
                 <InheritanceDownloadView
                     icon={<Recovery />}
                     title='Recovery Instructions'
                     subTitle='A document for the heir only'
-                    onPress={() => DownloadFile('Restoring Inheritance Vault')}
+                    onPress={() => DownloadFile('Restoring Inheritance Vault').then(() => {
+                        showToast('Document has been downloaded.', <TickIcon />);
+                    })}
                     isDownload
                 />
             </ScrollView>
