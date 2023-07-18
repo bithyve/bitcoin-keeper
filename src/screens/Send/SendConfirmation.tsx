@@ -640,7 +640,7 @@ function SendConfirmation({ route }) {
           letterSpacing={1.12}
           marginTop={windowHeight * 0.011}
         >
-          <BTC />
+          <BTC />&nbsp;
           {transferType === TransferType.WALLET_TO_VAULT
             ? sendMaxFee
             : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
@@ -745,6 +745,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-end',
     marginBottom: hp(40),
+    marginTop: hp(20)
   },
   customPriority: {
     fontStyle: 'italic',
