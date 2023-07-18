@@ -206,7 +206,7 @@ const getStyles = (subTitleWidth) =>
       width: wp(110),
       height: hp(45),
       justifyContent: 'center',
-      alignItems: 'center',
+      alignItems: 'flex-end',
     },
     cta: {
       borderRadius: 10,
