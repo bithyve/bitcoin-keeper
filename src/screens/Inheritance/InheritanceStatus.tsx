@@ -47,7 +47,7 @@ function InheritanceStatus() {
                 <InheritanceDownloadView
                     icon={<SetupIK />}
                     title='Setup Inheritance Key'
-                    subTitle='Add a Keeper custodied key to create a 3-of-6 Vault'
+                    subTitle='Add an assisted key to create a 3 of 6 Vault'
                     onPress={() => console.log('press')}
 
                 />
