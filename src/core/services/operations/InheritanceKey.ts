@@ -11,12 +11,12 @@ const { HEXA_ID, SIGNING_SERVER } = config;
 
 export default class InheritanceKeyServer {
   /**
-   * @param  {string} vaultId
+   * @param  {string} vaultShellId
    * @param  {InheritancePolicy} policy
    * @returns Promise
    */
   static setupIK = async (
-    vaultId: string,
+    vaultShellId: string,
     configuration: InheritanceConfiguration,
     policy: InheritancePolicy
   ): Promise<{
@@ -32,7 +32,7 @@ export default class InheritanceKeyServer {
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/setupInheritanceKey`, {
         HEXA_ID,
-        vaultId,
+        vaultId: vaultShellId,
         configuration,
         policy,
       });
@@ -49,13 +49,13 @@ export default class InheritanceKeyServer {
   };
 
   /**
-   * @param  {string} vaultId
+   * @param  {string} vaultShellId
    * @param  {string[]} existingThresholdIDescriptors
    * @param  {InheritanceConfiguration} newConfiguration
    * @returns {Promise<boolean>} updated
    */
   static updateInheritanceConfig = async (
-    vaultId: string,
+    vaultShellId: string,
     existingThresholdIDescriptors: string[],
     newConfiguration: InheritanceConfiguration
   ): Promise<{
@@ -65,7 +65,7 @@ export default class InheritanceKeyServer {
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritancePolicy`, {
         HEXA_ID,
-        vaultId,
+        vaultId: vaultShellId,
         existingThresholdIDescriptors,
         newConfiguration,
       });
@@ -82,13 +82,13 @@ export default class InheritanceKeyServer {
   };
 
   /**
-   * @param  {string} vaultId
+   * @param  {string} vaultShellId
    * @param  {any} updates
    * @param {string[]} thresholdDescriptors
    * @returns {Promise<boolean>} updated
    */
   static updateInheritancePolicy = async (
-    vaultId: string,
+    vaultShellId: string,
     updates: {
       notification?: InheritanceNotification;
     },
@@ -100,7 +100,7 @@ export default class InheritanceKeyServer {
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritancePolicy`, {
         HEXA_ID,
-        vaultId,
+        vaultId: vaultShellId,
         updates,
         thresholdDescriptors,
       });
@@ -117,7 +117,7 @@ export default class InheritanceKeyServer {
   };
 
   static signPSBT = async (
-    vaultId: string,
+    vaultShellId: string,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -136,7 +136,7 @@ export default class InheritanceKeyServer {
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v2/signTransactionViaInheritanceKey`, {
         HEXA_ID,
-        vaultId,
+        vaultId: vaultShellId,
         serializedPSBT,
         childIndexArray,
         thresholdDescriptors,
@@ -154,7 +154,7 @@ export default class InheritanceKeyServer {
 
   static requestInheritanceKey = async (
     requestId: string,
-    vaultId: string,
+    vaultShellId: string,
     thresholdDescriptors: string[]
   ): Promise<{
     isRequestApproved: boolean;
@@ -172,7 +172,7 @@ export default class InheritanceKeyServer {
       res = await RestClient.post(`${SIGNING_SERVER}v2/requestInheritanceKey`, {
         HEXA_ID,
         requestId,
-        vaultId,
+        vaultId: vaultShellId,
         thresholdDescriptors,
       });
     } catch (err) {
