@@ -41,13 +41,13 @@ export const securityTips = [
     assert: <LoadingAnimation />,
     message: 'This will mean that the funds are received at the correct address',
   },
-  // {
-  //   title: 'Security Tip',
-  //   subTitle:
-  //     'Recreate the Vault on another coordinator software and check if the multisig has the same details',
-  //   assert: <SecutityTip />,
-  //   message: 'This is a way to minimise the trust you have to have on Keeper',
-  // },
+  {
+    title: 'Introducing Inheritance Tools',
+    subTitle:
+      'Use Inheritance documents for your inheritance planning. Inheritance Key is an assisted key that can be availed by your heir',
+    assert: <LoadingAnimation />,
+    message: 'Consult your estate planner for incorporating documents from this app in your will',
+  },
   {
     title: 'Keep your signing devices safe',
     subTitle: 'Signing devices are what control your funds.',

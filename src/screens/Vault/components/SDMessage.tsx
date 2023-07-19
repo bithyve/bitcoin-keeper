@@ -36,6 +36,9 @@ function getSDMessage({ type }: { type: SignerType }) {
     case SignerType.OTHER_SD: {
       return 'Varies with different signer';
     }
+    case SignerType.INHERITANCEKEY: {
+      return '';
+    }
     default:
       return null;
   }

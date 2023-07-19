@@ -14,7 +14,6 @@ import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
-import BalanceToggle from './components/BalanceToggle';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -96,8 +95,8 @@ function VaultScreen() {
 
         <ListItemView
           icon={<InheritanceIcon />}
-          title="Inheritance"
-          subTitle="Setup inheritance Key"
+          title="Inheritance Tools"
+          subTitle="Add Inheritance key or view documents"
           iconBackColor="light.learnMoreBorder"
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));

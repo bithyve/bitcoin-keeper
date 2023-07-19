@@ -4,13 +4,12 @@ import * as bip39 from 'bip39';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
-import { XpubTypes } from 'src/core/wallets/enums';
 
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -32,6 +31,7 @@ import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
+import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
@@ -175,7 +175,7 @@ const getSignerContent = (
             `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
           ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
-        subTitle: 'A Signing Server will hold one of the keys in the Vault',
+        subTitle: 'A Signing Server will hold one of the keys of the Vault',
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
@@ -249,6 +249,16 @@ const getSignerContent = (
           `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
         ],
         title: 'Keep your signing device ready',
+        subTitle: 'Keep your signing device ready before proceeding',
+      };
+    case SignerType.INHERITANCEKEY:
+      return {
+        Illustration: <InheritanceKeyIllustration />,
+        Instructions: [
+          'Manually provide the signing device details',
+          `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+        ],
+        title: 'Setting up a Inheritance Key',
         subTitle: 'Keep your signing device ready before proceeding',
       };
     default:
@@ -714,6 +724,16 @@ function HardwareModalMap({
       })
     );
   };
+  const navigateToSendConfirmation = () => {
+    // navigation.dispatch(
+    //   CommonActions.navigate('SendConfirmation', {
+    //     sender: {},
+    //     recipients: {},
+    //     transferType: TransferType.VAULT_TO_VAULT,
+    //   })
+    // );
+    navigation.dispatch(CommonActions.navigate('IKSAddEmailPhone'));
+  };
 
   const onQRScan = async (qrData, resetQR) => {
     let hw: VaultSigner;
@@ -879,6 +899,8 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
+      case SignerType.INHERITANCEKEY:
+        return navigateToSendConfirmation();
       default:
         return null;
     }

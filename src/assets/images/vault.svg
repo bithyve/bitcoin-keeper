@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="43" height="42" viewBox="0 0 43 42">
+<svg xmlns="http://www.w3.org/2000/svg" width="34.81" height="34" viewBox="0 0 34.81 34">
   <g id="vault" transform="translate(-159.234 -147)">
-    <g id="Group_42307" data-name="Group 42307" transform="translate(159.567 147)">
-      <ellipse id="Ellipse_218" data-name="Ellipse 218" cx="21.5" cy="21" rx="21.5" ry="21" transform="translate(-0.334)" fill="#00433a"/>
-      <g id="Ellipse_220" data-name="Ellipse 220" transform="translate(3.666 3)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1" stroke-dasharray="0.2 3" opacity="0.511">
-        <circle cx="18" cy="18" r="18" stroke="none"/>
-        <circle cx="18" cy="18" r="17.5" fill="none"/>
+    <g id="Group_42307" data-name="Group 42307" transform="translate(159.234 147)">
+      <ellipse id="Ellipse_218" data-name="Ellipse 218" cx="17.405" cy="17" rx="17.405" ry="17" transform="translate(0)" fill="#00433a"/>
+      <g id="Ellipse_220" data-name="Ellipse 220" transform="translate(3.238 2.429)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1" stroke-dasharray="0.2 3" opacity="0.511">
+        <circle cx="14.571" cy="14.571" r="14.571" stroke="none"/>
+        <circle cx="14.571" cy="14.571" r="14.071" fill="none"/>
       </g>
-      <path id="Shield" d="M18.537,4.944,11.565,2.055a.67.67,0,0,0-.532,0L4.062,4.944a.689.689,0,0,0-.422.633V8.962a12.379,12.379,0,0,0,7.375,11.319.736.736,0,0,0,.275.055.7.7,0,0,0,.275-.055A12.364,12.364,0,0,0,18.94,8.962V5.577A.633.633,0,0,0,18.537,4.944Z" transform="translate(10.042 9.762)" fill="#79b1a7"/>
+      <path id="Shield" d="M15.7,4.384,10.056,2.045a.543.543,0,0,0-.431,0L3.982,4.384A.558.558,0,0,0,3.64,4.9v2.74A10.021,10.021,0,0,0,9.61,16.8a.6.6,0,0,0,.223.045.568.568,0,0,0,.223-.045,10.009,10.009,0,0,0,5.97-9.163V4.9A.513.513,0,0,0,15.7,4.384Z" transform="translate(7.706 7.522)" fill="#79b1a7"/>
     </g>
   </g>
 </svg>

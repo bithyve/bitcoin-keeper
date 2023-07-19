@@ -292,6 +292,7 @@ function NodeSettings() {
     </ScreenWrapper>
   );
 }
+console.log(windowHeight)
 const styles = StyleSheet.create({
   nodeConnectSwitchWrapper: {
     flexDirection: 'row',
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     flexDirection: 'row',
     width: '100%',
-    height: windowHeight > 800 ? '65%' : '50%',
+    height: windowHeight > 800 ? '65%' : '56%',
     // alignItems: 'center',
   },
   nodeListTitle: {
