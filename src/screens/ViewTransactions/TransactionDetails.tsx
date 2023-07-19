@@ -78,8 +78,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
       }`
     );
   };
@@ -102,7 +101,7 @@ function TransactionDetails({ route }) {
                 {transaction.txid}
               </Text>
               <Text style={styles.transDateText} color="light.dateText">
-                {moment(transaction?.date).format('DD MMM YY  •  hh:mma')}
+                {moment(transaction?.date).format('DD MMM YY  •  hh:mm A')}
               </Text>
             </Box>
           </Box>
