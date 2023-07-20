@@ -17,6 +17,7 @@ import RestClient from 'src/core/services/rest/RestClient';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import idx from 'idx';
 import { Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
@@ -694,7 +695,8 @@ export default class WalletUtilities {
 
   static getWalletFromAddress = (wallets: (Wallet | Vault)[], address: string) => {
     for (const wallet of wallets) {
-      if (Object.values(wallet.specs.addresses.external).includes(address)) {
+      const externalAddresses = idx(wallet, (_) => _.specs.addresses.external);
+      if (externalAddresses && Object.values(externalAddresses).includes(address)) {
         return wallet;
       }
     }
