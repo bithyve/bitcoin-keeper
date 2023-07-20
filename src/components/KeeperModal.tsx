@@ -206,7 +206,7 @@ const getStyles = (subTitleWidth) =>
       width: wp(110),
       height: hp(45),
       justifyContent: 'center',
-      alignItems: 'center',
+      alignItems: 'flex-end',
     },
     cta: {
       borderRadius: 10,
@@ -241,7 +241,7 @@ const getStyles = (subTitleWidth) =>
       alignSelf: 'flex-start',
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
-      width: '90%',
+      width: '95%',
     },
     bodyContainer: {
       width: '80%',

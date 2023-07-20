@@ -55,13 +55,13 @@ const styles = StyleSheet.create({
         fontSize: 12,
     },
     iconWrapper: {
-        width: '15%'
+        width: '13%'
     },
     titleWrapper: {
-        width: '53%'
+        width: '57%',
     },
     btnWrapper: {
-        width: '32%'
+        width: '30%'
     },
     titleText: {
         fontSize: 14,
@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
     },
     subTitleText: {
         fontSize: 12,
-        letterSpacing: 0.80
+        letterSpacing: 0.80,
+        width: '96%'
     }
 })
 export default InheritanceDownloadView
