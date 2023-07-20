@@ -32,14 +32,15 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 const RNBiometrics = new ReactNativeBiometrics();
 
 function AppSettings({ navigation }) {
-  const { colorMode } = useColorMode();
-  const [darkMode, setDarkMode] = useState(false);
+  const { colorMode, toggleColorMode } = useColorMode();
+  // const [darkMode, setDarkMode] = useState(false);
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const state = useAppSelector((state) => state.settings)
+  console.log('colorMode', colorMode)
 
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
@@ -68,13 +69,13 @@ function AppSettings({ navigation }) {
   }, [backupHistory, backupMethod]);
 
   useEffect(() => {
-    if (darkMode) {
+    if (colorMode === 'dark') {
       dispatch(setThemeMode(ThemeMode.DARK))
     } else {
       dispatch(setThemeMode(ThemeMode.LIGHT))
     }
 
-  }, [darkMode])
+  }, [colorMode])
 
   useEffect(() => {
     init();
@@ -128,7 +129,8 @@ function AppSettings({ navigation }) {
   };
 
   const changeThemeMode = () => {
-    setDarkMode(!darkMode);
+    // setDarkMode(!darkMode);
+    toggleColorMode()
   };
 
   function Option({ title, subTitle, onPress, Icon }) {
@@ -208,7 +210,7 @@ function AppSettings({ navigation }) {
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
-            value={darkMode}
+            value={colorMode === 'dark'}
           />
           <SettingsCard
             title={settings.nodeSettings}
