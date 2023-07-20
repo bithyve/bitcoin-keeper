@@ -39,8 +39,7 @@ function AppSettings({ navigation }) {
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
-  const state = useAppSelector((state) => state.settings)
-  console.log('colorMode', colorMode)
+  // const state = useAppSelector((state) => state.settings)
 
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
@@ -169,7 +168,7 @@ function AppSettings({ navigation }) {
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content">
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
       <Box style={styles.appSettingTitleWrapper}>
         <Box width="70%">
@@ -247,19 +246,19 @@ function AppSettings({ navigation }) {
           />
         </ScrollView>
 
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.secondaryBackground`}>
+        <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
               <Box
                 style={styles.telTweetLinkWrapper}
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
                 testID="view_ KeeperTelegram"
               >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
-                      color="light.textColor2"
+                      color={`${colorMode}.textColor2`}
                       style={styles.telTweetLinkTitle}
                       testID="text_ KeeperTelegram"
                     >
@@ -278,14 +277,14 @@ function AppSettings({ navigation }) {
             >
               <Box
                 style={styles.telTweetLinkWrapper}
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
                 testID="view_keeperTwitter"
               >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
-                      color="light.textColor2"
+                      color={`${colorMode}.textColor2`}
                       style={styles.telTweetLinkTitle}
                       testID="text_keeperTwitter"
                     >
@@ -301,13 +300,13 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
+            <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
               <Pressable
                 onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
                 testID="btn_termsCondition"
@@ -320,7 +319,7 @@ function AppSettings({ navigation }) {
                   {common.TermsConditions}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
               <Pressable
                 onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}
                 testID="btn_privacyPolicy"

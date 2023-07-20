@@ -53,20 +53,20 @@ function VaultScreen() {
         <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
           <Box
             style={!activeVault ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper}
-            backgroundColor="light.learnMoreBorder"
+            backgroundColor={`${colorMode}.learnMoreBorder`}
           >
             {!activeVault ? (
               <Box>
                 <Box style={styles.emptyVaultIllustration}>
                   <EmptyVaultIllustration />
                 </Box>
-                <Text color="light.white">Add Signers to activate your Vault</Text>
+                <Text color={`${colorMode}.white`}>Add Signers to activate your Vault</Text>
               </Box>
             ) : (
               <>
                 <Box style={styles.signingDeviceWrapper}>
                   <Box style={styles.signingDeviceDetails}>
-                    <Text style={styles.signingDeviceText} color="light.white">
+                    <Text style={styles.signingDeviceText} color={`${colorMode}.white`}>
                       {`${scheme.m} of ${scheme.n} Vault`}
                     </Text>
                     <Box style={styles.signingDeviceList}>
@@ -84,8 +84,8 @@ function VaultScreen() {
                       hideAmounts={hideAmounts}
                       amount={confirmedBalance + unconfirmedBalance}
                       fontSize={20}
-                      color={Colors.White}
-                      variation="grey"
+                      color={colorMode === 'light' ? 'white' : 'black'}
+                      variation={colorMode === 'light' ? "light" : "dark"}
                     />
                   </TouchableOpacity>
                 </Box>

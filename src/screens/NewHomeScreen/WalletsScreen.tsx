@@ -82,6 +82,7 @@ function WalletItem({
   hideAmounts: boolean;
   setAddImportVisible: any;
 }) {
+  const { colorMode } = useColorMode();
   if (!item) {
     return null;
   }
@@ -90,7 +91,8 @@ function WalletItem({
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
   return (
-    <View
+    <Box
+      backgroundColor={`${colorMode}.pantoneGreen`}
       style={[styles.walletContainer, { width: !(item?.presentationData && item?.specs) ? 120 : TILE_WIDTH, opacity, justifyContent: 'flex-end' }]}
     >
       <TouchableOpacity
@@ -114,7 +116,7 @@ function WalletItem({
           />
         )}
       </TouchableOpacity>
-    </View>
+    </Box>
   );
 }
 
@@ -159,6 +161,7 @@ function WalletList({
 }
 
 function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts }) {
+  const { colorMode } = useColorMode();
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   return (
@@ -180,7 +183,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           )}
 
           <Box style={styles.walletDetailsWrapper}>
-            <Text color="light.white" style={styles.walletName}>
+            <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
           </Box>
@@ -191,8 +194,8 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           hideAmounts={hideAmounts}
           amount={balances?.confirmed + balances?.unconfirmed}
           fontSize={satsEnabled ? 17 : 20}
-          color={Colors.White}
-          variation="light"
+          color={`${colorMode}.white`}
+          variation={colorMode === 'light' ? "light" : "dark"}
         />
       </Box>
     </Box>
@@ -548,7 +551,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   walletContainer: {
-    backgroundColor: '#2D6759',
     borderRadius: hp(10),
     width: wp(TILE_WIDTH),
     marginHorizontal: TILE_MARGIN / 2,

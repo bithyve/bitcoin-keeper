@@ -1,11 +1,13 @@
 import Text from 'src/components/KeeperText';
-import { Box, Pressable } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
+import { ActivityIndicator } from 'react-native';
 
 import React from 'react';
 import Switch from '../../components/Switch/Switch';
-import { ActivityIndicator } from 'react-native';
+
 
 function SettingsSwitchCard(props) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       onPress={(value) => props.onSwitchToggle(value)}
@@ -19,7 +21,7 @@ function SettingsSwitchCard(props) {
     >
       <Box flex={1}>
         <Text
-          color="light.primaryText"
+          color={`${colorMode}.primaryText`}
           fontSize={14}
           letterSpacing={1.04}
           testID={`text_${props.title}`}
@@ -27,7 +29,7 @@ function SettingsSwitchCard(props) {
           {props.title}
         </Text>
         <Text
-          color="light.GreyText"
+          color={`${colorMode}.GreyText`}
           letterSpacing={0.36}
           fontSize={12}
           testID={`text_${props.description}`}
