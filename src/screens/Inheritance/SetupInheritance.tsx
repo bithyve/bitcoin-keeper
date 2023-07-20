@@ -135,7 +135,7 @@ function SetupInheritance() {
           style={styles.subtitle}
           testID="text_InheritanceSupportSubtitle"
         >
-          Keeper provides you with the tips and tools you need to include the vault in your estate
+          Keeper provides you with the tips and tools you need to include the Vault in your estate
           planning
         </Text>
       </Box>
@@ -145,7 +145,7 @@ function SetupInheritance() {
         <Text numberOfLines={2} light style={styles.message}>
           {plan !== SubscriptionTier.L3.toUpperCase()
             ? `This can be activated once you are at the ${SubscriptionTier.L3} level`
-            : `Setup Inheritance Key`}
+            : `Setup Inheritance Key or view documents`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
           <TouchableOpacity
@@ -160,7 +160,7 @@ function SetupInheritance() {
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
                 {plan !== SubscriptionTier.L3.toUpperCase()
                   ? `Upgrade Now`
-                  : `Setup Inheritance Key`}
+                  : `Proceed`}
               </Text>
             </Box>
           </TouchableOpacity>
@@ -208,7 +208,7 @@ const styles = ScaledSheet.create({
     fontSize: 12,
     letterSpacing: 0.6,
     marginTop: hp(36),
-    width: wp(220),
+    width: '95%',
     textAlign: 'center',
   },
   bottomContainer: {
