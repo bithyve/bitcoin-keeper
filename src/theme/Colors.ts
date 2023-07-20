@@ -1,4 +1,5 @@
 const Colors = {
+  // Light
   White: 'rgba(255,255,255,1)',
   Glass: 'rgba(255,255,255,.2)',
   LightYellow: 'rgba(253,247,240,1)',
@@ -41,6 +42,12 @@ const Colors = {
   DustySageGreen: 'rgba(139,160,153,1)',
   ForestGreen: 'rgba(0,131,105,1)',
   PearlGrey: 'rgba(250,252,252,1)',
-  pantoneGreen: 'rgba(45,103,89,1)'
+  pantoneGreen: 'rgba(45,103,89,1)',
+  // Dark
+  LightYellowDark: 'rgba(72,81,79,1)',
+  GraniteGrayDark: 'rgba(136,136,136,1)',
+  TropicalRainForestDark: 'rgba(137,174,167,1)',
+  RichBlackDark: 'rgba(208,200,190,1)',
+  RichGreenDark: 'rgba(137,174,167,1)',
 };
 export default Colors;
