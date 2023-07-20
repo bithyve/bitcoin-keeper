@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { Dimensions, StatusBar, StyleSheet } from 'react-native';
@@ -14,6 +15,8 @@ import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import KeeperModal from 'src/components/KeeperModal';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
@@ -28,7 +31,6 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
@@ -129,23 +131,38 @@ export default function CreatePin(props) {
     }
   }, [passcode, confirmPasscode]);
 
+  function ElectrumErrorContent() {
+    return (
+      <Box width={wp(320)}>
+        <Box margin={hp(5)}>
+          <DowngradeToPleb />
+        </Box>
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            Please try again later
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
-    <LinearGradient
+    <Box
       testID="main"
-      colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
       style={styles.linearGradient}
+      backgroundColor='light.pantoneGreen'
     >
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
         </Box>
         <Box style={styles.wrapper}>
-          <Box mt={windowHeight > 670 ? hp('5%') : 0}>
+          <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} color={`${colorMode}.white`}>
+              <Text style={styles.welcomeText} color="light.primaryBackground">
                 {login.welcome}
               </Text>
-              <Text color={`${colorMode}.textColor`} style={styles.labelText}>
+              <Text color="light.primaryBackground" style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -156,7 +173,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                    `${colorMode}.error`
+                    `light.error`
                     : 'transparent'
                 }
               />
@@ -164,7 +181,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color={`${colorMode}.textColor`} style={styles.labelText}>
+                <Text color="light.primaryBackground" style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
@@ -210,7 +227,7 @@ export default function CreatePin(props) {
           />
         </Box>
       </Box>
-    </LinearGradient>
+    </Box>
   );
 }
 
@@ -221,6 +238,10 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+  },
+  titleWrapper: {
+    marginTop: windowHeight > 670 ? hp('5%') : 0,
+    flex: 0.7,
   },
   welcomeText: {
     marginLeft: 18,

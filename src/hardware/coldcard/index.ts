@@ -12,21 +12,24 @@ export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const enc = NFC.encodeForColdCard(config);
   await NFC.send(NfcTech.Ndef, enc);
 };
+export const extractColdCardExport = (data, isMultisig) => {
+  const xpubDetails: XpubDetailsType = {};
+  const { bip84, bip48_2: bip48 } = data;
+  const { deriv: singleSigPath } = bip84;
+  const { xpub: singleSigXpub } = bip84;
+  const { deriv: multiSigPath } = bip48;
+  const { xpub: multiSigXpub } = bip48;
+  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+  const xpub = isMultisig ? multiSigXpub : singleSigXpub;
+  const derivationPath = isMultisig ? multiSigPath : singleSigPath;
+  return { xpub, derivationPath, xfp: data.xfp, xpubDetails };
+};
 
 export const getColdcardDetails = async (isMultisig: boolean) => {
   try {
     const { data } = (await NFC.read(NfcTech.NfcV))[0];
-    const xpubDetails: XpubDetailsType = {};
-    const { bip84, bip48_2: bip48 } = data;
-    const { deriv: singleSigPath } = bip84;
-    const { xpub: singleSigXpub } = bip84;
-    const { deriv: multiSigPath } = bip48;
-    const { xpub: multiSigXpub } = bip48;
-    xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
-    xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
-    const xpub = isMultisig ? multiSigXpub : singleSigXpub;
-    const derivationPath = isMultisig ? multiSigPath : singleSigPath;
-    return { xpub, derivationPath, xfp: data.xfp, xpubDetails };
+    return extractColdCardExport(data, isMultisig);
   } catch (_) {
     if (_.toString() === 'Error') {
       throw _;

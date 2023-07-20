@@ -4,18 +4,20 @@ import {
   addNewWalletsWatcher,
   addSigningDeviceWatcher,
   autoWalletsSyncWatcher,
+  addressIndexIncrementWatcher,
   finaliseVaultMigrationWatcher,
   migrateVaultWatcher,
   refreshWalletsWatcher,
-  registerWithSigningServerWatcher,
   syncWalletsWatcher,
   testcoinsWatcher,
   updateSignerPolicyWatcher,
   updateWalletDetailWatcher,
   updateWalletSettingsWatcher,
-  validateSigningServerRegistrationWatcher,
   updateSignerDetails,
   updateWalletsPropertyWatcher,
+  addWhirlpoolWalletsWatcher,
+  addWhirlpoolWalletsLocalWatcher,
+  updateWalletPathAndPuposeDetailWatcher,
 } from './wallets';
 import {
   addUaiStackWatcher,
@@ -54,7 +56,9 @@ import {
 import { getMessageWatcher, updateFCMTokensWatcher } from './notifications';
 
 import { setupKeeperAppWatcher, setupKeeperVaultRecoveryAppWatcher } from './storage';
-import { updateVersionHistoryWatcher } from './upgrade';
+import { migrateLablesWatcher, updateVersionHistoryWatcher } from './upgrade';
+import { addLabelsWatcher, bulkUpdateLabelWatcher, bulkUpdateUTXOLabelWatcher } from './utxos';
+import { connectToNodeWatcher } from './network';
 
 const rootSaga = function* () {
   const sagas = [
@@ -66,18 +70,23 @@ const rootSaga = function* () {
     credentialStorageWatcher,
     resetPinCredWatcher,
     setupKeeperAppWatcher,
+
+    // network
+    connectToNodeWatcher,
+
     // notification
     updateFCMTokensWatcher,
     getMessageWatcher,
 
     // wallet
     addNewWalletsWatcher,
+    addWhirlpoolWalletsWatcher,
+    addWhirlpoolWalletsLocalWatcher,
     autoWalletsSyncWatcher,
+    addressIndexIncrementWatcher,
     refreshWalletsWatcher,
     syncWalletsWatcher,
     updateWalletSettingsWatcher,
-    registerWithSigningServerWatcher,
-    validateSigningServerRegistrationWatcher,
     updateSignerPolicyWatcher,
     testcoinsWatcher,
     updateWalletDetailWatcher,
@@ -116,9 +125,15 @@ const rootSaga = function* () {
     healthCheckSignerWatcher,
     backupWarningWatcher,
     setupKeeperVaultRecoveryAppWatcher,
-
+    updateWalletPathAndPuposeDetailWatcher,
     // upgrade
     updateVersionHistoryWatcher,
+    migrateLablesWatcher,
+
+    // utxos
+    addLabelsWatcher,
+    bulkUpdateLabelWatcher,
+    bulkUpdateUTXOLabelWatcher,
   ];
 
   yield all(

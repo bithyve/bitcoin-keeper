@@ -1,4 +1,6 @@
+import { EntityKind } from './wallets/enums';
 import { Vault, VaultScheme, VaultSigner } from './wallets/interfaces/vault';
+import { Wallet } from './wallets/interfaces/wallet';
 import WalletOperations from './wallets/operations';
 
 // GENRATOR
@@ -17,26 +19,34 @@ export const getKeyExpression = (masterFingerprint: string, derivationPath: stri
   `[${masterFingerprint}/${getDerivationPath(derivationPath)}]${xpub}/**`;
 
 export const genrateOutputDescriptors = (
-  isMultisig: boolean,
-  signers: VaultSigner[],
-  scheme: VaultScheme,
-  vault: Vault
+  wallet: Vault | Wallet,
+  includePatchRestrictions: boolean = true
 ) => {
-  const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
-
-  if (!isMultisig) {
+  const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
+  if (wallet.entityKind === EntityKind.WALLET) {
+    const {
+      derivationDetails: { xDerivationPath },
+      specs: { xpub },
+    } = wallet as Wallet;
+    const des = `wpkh(${getKeyExpression(wallet.id, xDerivationPath, xpub)})${
+      includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
+    }`;
+    return des;
+  }
+  const { signers, scheme, isMultiSig } = wallet as Vault;
+  if (!isMultiSig) {
     const signer: VaultSigner = signers[0];
     // eslint-disable-next-line no-use-before-define
     const des = `wpkh(${getKeyExpression(
       signer.masterFingerprint,
       signer.derivationPath,
       signer.xpub
-    )})\nNo path restrictions\n${receivingAddress}`;
+    )})${includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''}`;
     return des;
   }
-  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(
-    signers
-  )})\nNo path restrictions\n${receivingAddress}`;
+  return `wsh(sortedmulti(${scheme.m},${getMultiKeyExpressions(signers)})${
+    includePatchRestrictions ? `\nNo path restrictions\n${receivingAddress}` : ''
+  }`;
 };
 
 // PASRER
@@ -57,6 +67,13 @@ const allowedScehemes = {
   2: 3,
   3: 5,
 };
+
+function removeEmptyLines(data) {
+  const lines = data.split('\n');
+  const nonEmptyLines = lines.filter((line) => line.trim() !== '');
+  const output = nonEmptyLines.join('\n');
+  return output;
+}
 
 const parseKeyExpression = (expression) => {
   const re = /\[([^\]]+)\](.*)/;
@@ -131,7 +148,36 @@ export const parseTextforVaultConfig = (secret: string) => {
     };
     return parsedResponse;
   }
-  throw Error('Something went wrong!');
+  if (secret.includes('Derivation')) {
+    const text = removeEmptyLines(secret);
+    const lines = text.split('\n');
+    const signersDetailsList = [];
+    let scheme;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line.startsWith('Policy')) {
+        const [m, n] = line.split('Policy:')[1].split('of');
+        scheme = { m: parseInt(m), n: parseInt(n) };
+        if (allowedScehemes[scheme.m] !== scheme.n) {
+          throw Error('Unsupported scheme');
+        }
+      }
+      if (line.startsWith('Derivation:')) {
+        const path = line.split(':')[1].trim();
+        const masterFingerprintLine = lines[i + 1].trim();
+        const masterFingerprint = masterFingerprintLine.split(':')[0].trim();
+        const xpub = lines[i + 1].split(':')[1].trim();
+        signersDetailsList.push({ xpub, masterFingerprint: masterFingerprint.toUpperCase(), path });
+      }
+    }
+    const parsedResponse: ParsedVauleText = {
+      signersDetails: signersDetailsList,
+      isMultisig: scheme.n !== 1,
+      scheme,
+    };
+    return parsedResponse;
+  }
+  throw Error('Unsupported format!');
 };
 
 export const urlParamsToObj = (url: string): object => {

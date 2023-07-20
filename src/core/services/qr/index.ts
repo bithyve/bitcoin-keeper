@@ -2,6 +2,7 @@ import {
   Bytes,
   CryptoAccount,
   CryptoPSBT,
+  CryptoOutput,
   URRegistryDecoder,
 } from 'src/core/services/qr/bc-ur-registry';
 
@@ -10,10 +11,11 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from '../sentry';
 
 export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
+  let scanPercentage;
   try {
     // Create the decoder object
     decoder.receivePart(bytes);
-    const scanPercentage = Math.floor(decoder.estimatedPercentComplete() * 100);
+    scanPercentage = Math.floor(decoder.estimatedPercentComplete() * 100);
     if (decoder.isComplete()) {
       const ur = decoder.resultUR();
       if (ur.type === 'crypto-account') {
@@ -34,6 +36,12 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
         const cryptoPsbt = CryptoPSBT.fromCBOR(ur.cbor);
         return { data: cryptoPsbt.getPSBT().toString('base64'), percentage: scanPercentage };
       }
+
+      if (ur.type === 'crypto-output') {
+        const cryptOutput = CryptoOutput.fromCBOR(ur.cbor);
+        return { data: cryptOutput.toString(), percentage: scanPercentage };
+      }
+
       const decoded = ur.decodeCBOR();
       // get the original message, assuming it was a JSON object
       const data = JSON.parse(decoded.toString());
@@ -42,6 +50,7 @@ export const decodeURBytes = (decoder: URRegistryDecoder, bytes) => {
     return { data: null, percentage: scanPercentage };
   } catch (error) {
     captureError(error);
+    return { data: null, percentage: scanPercentage };
   }
 };
 

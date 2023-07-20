@@ -31,7 +31,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
   const { common } = translations;
-  const { onSuccess } = route.params;
+  const { onSuccess, signerId } = route.params;
   const [seedData, setSeedData] = useState([
     {
       id: 1,
@@ -117,7 +117,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
   const onPressNext = async () => {
     const mnemonic = getSeedWord();
     if (bip39.validateMnemonic(mnemonic)) {
-      onSuccess({ seedBasedSingerMnemonic: mnemonic });
+      onSuccess({ signerId, seedBasedSingerMnemonic: mnemonic });
       navigation.goBack();
     } else Alert.alert('Invalid Mnemonic');
   };

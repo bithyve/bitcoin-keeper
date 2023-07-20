@@ -32,7 +32,7 @@ const initialState: {
   relayVaultError: boolean;
   realyVaultErrorMessage: string;
 
-  relayVaultReoveryAppId: string;
+  relayVaultReoveryShellId: string;
 } = {
   backupMethod: null,
   isBackupError: false,
@@ -59,7 +59,7 @@ const initialState: {
   relayVaultUpdate: false,
   relayVaultError: false,
   realyVaultErrorMessage: null,
-  relayVaultReoveryAppId: null,
+  relayVaultReoveryShellId: null,
 };
 
 const bhrSlice = createSlice({
@@ -122,7 +122,9 @@ const bhrSlice = createSlice({
     },
     relayWalletUpdateSuccess: (state) => {
       state.relayWalletUpdate = true;
+      state.relayWalletError = false;
       state.relayWalletUpdateLoading = false;
+      state.realyWalletErrorMessage = null;
     },
     relayWalletUpdateFail: (state, action: PayloadAction<string>) => {
       state.relayWalletError = true;
@@ -133,6 +135,7 @@ const bhrSlice = createSlice({
       state.relayWalletError = false;
       state.relayWalletUpdate = false;
       state.relayWalletUpdateLoading = false;
+      state.realyWalletErrorMessage = null;
     },
 
     setRelayVaultUpdateLoading: (state, action: PayloadAction<boolean>) => {
@@ -153,8 +156,8 @@ const bhrSlice = createSlice({
       state.relayVaultUpdateLoading = false;
       state.realyVaultErrorMessage = null;
     },
-    setRelayVaultRecoveryAppId: (state, action: PayloadAction<string>) => {
-      state.relayVaultReoveryAppId = action.payload;
+    setRelayVaultRecoveryShellId: (state, action: PayloadAction<string>) => {
+      state.relayVaultReoveryShellId = action.payload;
     },
   },
 });
@@ -187,7 +190,7 @@ export const {
   relayVaultUpdateFail,
   resetRealyVaultState,
 
-  setRelayVaultRecoveryAppId,
+  setRelayVaultRecoveryShellId,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {

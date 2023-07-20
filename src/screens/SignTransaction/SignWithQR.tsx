@@ -18,6 +18,7 @@ import useVault from 'src/hooks/useVault';
 import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import DisplayQR from '../QRScreens/DisplayQR';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(
@@ -48,11 +49,14 @@ function SignWithQR() {
         } else if (signer.type === SignerType.KEYSTONE) {
           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
           dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: tx.toHex() }));
+        } else {
+          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, signedSerializedPSBT }));
         }
       } else {
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
         dispatch(updateSignerDetails(signer, 'registered', true));
       }
+      dispatch(healthCheckSigner([signer]));
       navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
     } catch (err) {
       captureError(err);

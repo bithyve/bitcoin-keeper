@@ -3,9 +3,12 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { createWatcher } from '../utilities';
 import { v4 as uuidv4 } from 'uuid';
 
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { SUBSCRIPTION_SCHEME_MAP } from 'src/hooks/usePlan';
+import { setRefreshUai } from '../reducers/uai';
 import {
   addToUaiStack,
   ADD_TO_UAI_STACK,
@@ -15,16 +18,21 @@ import {
   UAI_ACTIONED_ENTITY,
   UAI_CHECKS,
 } from '../sagaActions/uai';
-import { setRefreshUai } from '../reducers/uai';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { SUBSCRIPTION_SCHEME_MAP } from 'src/hooks/usePlan';
+import { createWatcher } from '../utilities';
+import { isTestnet } from 'src/common/constants/Bitcoin';
 
 const healthCheckRemider = (signer: VaultSigner) => {
   const today = new Date();
   const Difference_In_Time = today.getTime() - signer.lastHealthCheck.getTime();
   const Difference_In_Days = Math.round(Difference_In_Time / (1000 * 3600 * 24));
   return Difference_In_Days;
+};
+
+const healthCheckReminderHours = (signer: VaultSigner) => {
+  const today = new Date();
+  const differenceInTime = today.getTime() - signer.lastHealthCheck.getTime();
+  const differenceInHours = Math.round(differenceInTime / (1000 * 3600));
+  return differenceInHours;
 };
 
 function* addToUaiStackWorker({ payload }) {
@@ -74,7 +82,9 @@ function* uaiChecksWorker({ payload }) {
       if (vault) {
         for (const signer of vault.signers) {
           const lastHealthCheckDays = healthCheckRemider(signer);
-          if (lastHealthCheckDays >= 90) {
+          const lastHealthCheckHours = healthCheckReminderHours(signer);
+          const testnet = isTestnet();
+          if (testnet ? lastHealthCheckHours >= 3 : lastHealthCheckDays >= 180) {
             const uais = dbManager.getObjectByField(RealmSchema.UAI, signer.signerId, 'entityId');
             if (!uais.length) {
               yield put(
@@ -108,7 +118,7 @@ function* uaiChecksWorker({ payload }) {
       if (!secureVaultUai) {
         yield put(
           addToUaiStack({
-            title: 'Add a signing device to activate your vault',
+            title: 'Add a signing device to activate your Vault',
             isDisplay: false,
             uaiType: uaiType.SECURE_VAULT,
             prirority: 100,
@@ -129,9 +139,9 @@ function* uaiChecksWorker({ payload }) {
       );
       for (const wallet of wallets) {
         const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
-        if (wallet.specs.balances.confirmed >= Number(wallet.transferPolicy.threshold)) {
+        if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
           if (uai) {
-            if (wallet.specs.balances.confirmed >= Number(wallet.transferPolicy.threshold)) {
+            if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
               yield put(uaiActionedEntity(uai.entityId, false));
             }
           } else {
@@ -168,7 +178,7 @@ function* uaiChecksWorker({ payload }) {
           if (!migrationUai) {
             yield put(
               addToUaiStack({
-                title: 'To use the vault, reconfigure signing device',
+                title: 'To use the Vault, reconfigure signing device',
                 isDisplay: false,
                 uaiType: uaiType.VAULT_MIGRATION,
                 prirority: 100,
@@ -177,10 +187,8 @@ function* uaiChecksWorker({ payload }) {
           } else {
             yield put(uaiActioned(migrationUai.id, false));
           }
-        } else {
-          if (migrationUai) {
-            yield put(uaiActioned(migrationUai.id));
-          }
+        } else if (migrationUai) {
+          yield put(uaiActioned(migrationUai.id));
         }
       }
     }

@@ -11,13 +11,13 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
-import { WalletMap } from '../WalletMap';
+import { SDIcons } from '../SigningDeviceIcons';
 
 function SignerData({ signer }: { signer: VaultSigner }) {
   const { colorMode } = useColorMode();
   return (
     <HStack>
-      <Box style={styles.icon}>{WalletMap(signer.type, true).Icon}</Box>
+      <Box style={styles.icon}>{SDIcons(signer.type, true).Icon}</Box>
       <VStack marginX="4" maxWidth="80%">
         <Text style={styles.name} color={`${colorMode}.primaryText`} numberOfLines={2}>
           {signer.signerName}

@@ -8,6 +8,12 @@ import {
   WalletSchema,
   WalletSpecsSchema,
   TransferPolicySchema,
+  WhirlpoolConfigSchema,
+  WhirlpoolWalletDetailsSchema,
+  LabelSchema,
+  UTXOInfoSchema,
+  Tags,
+  AddressCacheSchema,
 } from './wallet';
 import {
   VaultPresentationDataSchema,
@@ -18,13 +24,12 @@ import {
   XpubDetailsSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
-import { SigningServerSetupSchema } from './signingServerSetup';
 import { UAISchema } from './uai';
 import { VersionHistorySchema } from './versionHistory';
 import { BackupHistorySchema } from './backupHistory';
 import { StoreSubscriptionSchema } from './subscription';
 import { BackupSchema } from './backup';
-import { NodeConnectSchema } from './nodeConnect';
+import { NodeConnectSchema, DefaultNodeConnectSchema } from './nodeConnect';
 
 export default [
   KeeperAppSchema,
@@ -34,6 +39,10 @@ export default [
   WalletPresentationDataSchema,
   BIP85ConfigSchema,
   UTXOSchema,
+  UTXOInfoSchema,
+  Tags,
+  AddressCacheSchema,
+  LabelSchema,
   TransactionSchema,
   TransactionToAddressMappingSchema,
   WalletSpecsSchema,
@@ -43,11 +52,13 @@ export default [
   VaultPresentationDataSchema,
   SignerPolicy,
   VaultSpecsSchema,
-  SigningServerSetupSchema,
   BackupSchema,
   UAISchema,
   VaultSignerSchema,
   VersionHistorySchema,
   BackupHistorySchema,
+  DefaultNodeConnectSchema,
   NodeConnectSchema,
+  WhirlpoolConfigSchema,
+  WhirlpoolWalletDetailsSchema,
 ];

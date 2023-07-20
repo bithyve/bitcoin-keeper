@@ -1,5 +1,4 @@
-/* eslint-disable react/prop-types */
-import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
@@ -18,8 +17,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import openLink from 'src/utils/OpenLink';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { setThemeMode, setTorEnabled } from 'src/store/reducers/settings';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
@@ -28,8 +25,8 @@ import moment from 'moment';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getBackupDuration } from 'src/common/utilities';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { setThemeMode } from 'src/store/reducers/settings';
 import { changeLoginMethod } from '../../store/sagaActions/login';
-import TorModalMap from './TorModalMap';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const RNBiometrics = new ReactNativeBiometrics();
@@ -43,7 +40,7 @@ function AppSettings({ navigation }) {
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
   const state = useAppSelector((state) => state.settings)
-  console.log('state', state)
+
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
 
@@ -52,9 +49,6 @@ function AppSettings({ navigation }) {
   const { common } = translations;
   const { settings } = translations;
   const backupWalletStrings = translations.BackupWallet;
-
-  const [showTorModal, setShowTorModal] = useState(false);
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const backupHistory = useMemo(() => data.sorted('date', true), [data]);
   const backupSubTitle = useMemo(() => {
@@ -73,17 +67,6 @@ function AppSettings({ navigation }) {
     return backupWalletStrings[backupHistory[0].title];
   }, [backupHistory, backupMethod]);
 
-  const onChangeTorStatus = (status: TorStatus, message) => {
-    settorStatus(status);
-  };
-
-  useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus);
-    return () => {
-      RestClient.unsubscribe(onChangeTorStatus);
-    };
-  }, []);
-
   useEffect(() => {
     if (darkMode) {
       dispatch(setThemeMode(ThemeMode.DARK))
@@ -96,15 +79,6 @@ function AppSettings({ navigation }) {
   useEffect(() => {
     init();
   }, []);
-
-  const RenderTorStatus = useCallback(
-    () => (
-      <Box backgroundColor={`${colorMode}.lightAccent`} py={0.5} px={1.5} borderRadius={10}>
-        <Text fontSize={11}>{torStatus}</Text>
-      </Box>
-    ),
-    [torStatus]
-  );
 
   const init = async () => {
     try {
@@ -165,6 +139,7 @@ function AppSettings({ navigation }) {
         onPress={onPress}
         backgroundColor={`${colorMode}.primaryBackground`}
         style={styles.appBackupWrapper}
+        testID={`btn_${title.replace(/ /g, '_')}}`}
       >
         {Icon && (
           <Box style={styles.appBackupIconWrapper}>
@@ -191,25 +166,13 @@ function AppSettings({ navigation }) {
     );
   }
 
-  const onPressTor = () => {
-    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
-      setShowTorModal(true);
-      RestClient.setUseTor(true);
-      dispatch(setTorEnabled(true));
-    } else {
-      RestClient.setUseTor(false);
-      dispatch(setTorEnabled(false));
-      setShowTorModal(false);
-    }
-  };
-
   return (
     <ScreenWrapper barStyle="dark-content">
       <HeaderTitle />
       <Box style={styles.appSettingTitleWrapper}>
         <Box width="70%">
           <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
-          <Text style={styles.appSettingSubTitle}>For the vault and wallets</Text>
+          <Text style={styles.appSettingSubTitle}>For the Vault and wallets</Text>
         </Box>
         <Box style={styles.currentTypeSwitchWrapper}>
           <CurrencyTypeSwitch />
@@ -263,19 +226,14 @@ function AppSettings({ navigation }) {
             icon={false}
             onPress={() => navigation.navigate('AppVersionHistory')}
           />
-          <SettingsSwitchCard
-            title="Tor"
-            description="Tor daemon settings"
+
+          <SettingsCard
+            title="Tor Settings"
+            description="Configure in-app Tor and Orbot"
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onSwitchToggle={onPressTor}
-            renderStatus={
-              torStatus === TorStatus.OFF || torStatus === TorStatus.CONNECTED
-                ? null
-                : RenderTorStatus
-            }
-            value={torStatus === TorStatus.CONNECTED}
+            onPress={() => navigation.navigate('TorSettings')}
           />
           <SettingsCard
             title={settings.LanguageCountry}
@@ -289,12 +247,20 @@ function AppSettings({ navigation }) {
 
         <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.secondaryBackground`}>
           <Box style={styles.socialMediaLinkWrapper2}>
-            <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+            <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
+              <Box
+                style={styles.telTweetLinkWrapper}
+                backgroundColor="light.primaryBackground"
+                testID="view_ KeeperTelegram"
+              >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color={`${colorMode}.textColor2`} style={styles.telTweetLinkTitle}>
+                    <Text
+                      color="light.textColor2"
+                      style={styles.telTweetLinkTitle}
+                      testID="text_ KeeperTelegram"
+                    >
                       Keeper Telegram
                     </Text>
                   </Box>
@@ -304,12 +270,23 @@ function AppSettings({ navigation }) {
                 </Box>
               </Box>
             </Pressable>
-            <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+            <Pressable
+              onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}
+              testID="btn_keeperTwitter"
+            >
+              <Box
+                style={styles.telTweetLinkWrapper}
+                backgroundColor="light.primaryBackground"
+                testID="view_keeperTwitter"
+              >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color={`${colorMode}.textColor2`} style={styles.telTweetLinkTitle}>
+                    <Text
+                      color="light.textColor2"
+                      style={styles.telTweetLinkTitle}
+                      testID="text_keeperTwitter"
+                    >
                       Keeper Twitter
                     </Text>
                   </Box>
@@ -322,21 +299,35 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
+            <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}
                 </Text>
               </Pressable>
-              <Text color={`${colorMode}.textColor2`}>|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
-                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
+              <Text color="light.textColor2">|</Text>
+              <Pressable
+                onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
+                testID="btn_termsCondition"
+              >
+                <Text
+                  style={styles.bottomLinkText}
+                  color={`${colorMode}.textColor2`}
+                  testID="text_termsCondition"
+                >
                   {common.TermsConditions}
                 </Text>
               </Pressable>
-              <Text color={`${colorMode}.textColor2`}>|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
-                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
+              <Text color="light.textColor2">|</Text>
+              <Pressable
+                onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}
+                testID="btn_privacyPolicy"
+              >
+                <Text
+                  style={styles.bottomLinkText}
+                  color={`${colorMode}.textColor2`}
+                  testID="text_privacyPolicy"
+                >
                   {common.PrivacyPolicy}
                 </Text>
               </Pressable>
@@ -344,11 +335,6 @@ function AppSettings({ navigation }) {
           </Box>
         </Box>
       </Box>
-      <TorModalMap
-        onPressTryAgain={onPressTor}
-        visible={showTorModal}
-        close={() => setShowTorModal(false)}
-      />
     </ScreenWrapper>
   );
 }

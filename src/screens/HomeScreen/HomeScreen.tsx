@@ -25,9 +25,8 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { getAmt, getUnit, isTestnet, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
+import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 // asserts (svgs, pngs)
 import Arrow from 'src/assets/images/arrow.svg';
 import BTC from 'src/assets/images/btc.svg';
@@ -48,8 +47,9 @@ import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { urlParamsToObj } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
+import useWallets from 'src/hooks/useWallets';
 import UaiDisplay from './UaiDisplay';
-import { WalletMap } from '../Vault/WalletMap';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 function InheritanceComponent() {
   const { colorMode } = useColorMode();
@@ -62,35 +62,37 @@ function InheritanceComponent() {
 
   return (
     <Box alignItems="center" marginTop={hp(19.96)}>
-      <Box
-        style={styles.bottomCard}
-        backgroundColor={{
-          linearGradient: {
-            colors: [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
-            start: [0, 0],
-            end: [1, 1],
-          },
-        }}
-      >
-        <Box style={styles.bottomCardContent}>
-          <Inheritance />
-          <Box
-            style={{
-              marginLeft: wp(18),
-            }}
-          >
-            <Text color={`${colorMode}.white`} style={styles.bottomCardTitle}>
-              Inheritance
-            </Text>
-            <Text color={`${colorMode}.white`} style={styles.bottomCardSubtitle}>
-              {plan === SubscriptionTier.L3.toUpperCase()
-                ? 'Tools, tips and templates'
-                : 'Upgrade to secure your vault'}
-            </Text>
+      <Pressable onPress={onPress} testID="btn_Inheritance">
+        <Box
+          style={styles.bottomCard}
+          backgroundColor={{
+            linearGradient: {
+              colors: ['light.gradientStart', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
+            },
+          }}
+        >
+          <Box style={styles.bottomCardContent}>
+            <Inheritance />
+            <Box
+              style={{
+                marginLeft: wp(18),
+              }}
+            >
+              <Text color="light.white" style={styles.bottomCardTitle}>
+                Inheritance
+              </Text>
+              <Text color="light.white" style={styles.bottomCardSubtitle}>
+                {plan === SubscriptionTier.L3.toUpperCase()
+                  ? 'Tools, tips and templates'
+                  : 'Upgrade to secure your vault'}
+              </Text>
+            </Box>
           </Box>
+          <NextIcon pressHandler={() => onPress()} />
         </Box>
-        <NextIcon pressHandler={() => onPress()} />
-      </Box>
+      </Pressable>
     </Box>
   );
 }
@@ -98,14 +100,10 @@ function InheritanceComponent() {
 function LinkedWallets(props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const dispatch = useDispatch();
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   useEffect(() => {
     dispatch(resetRealyWalletState());
@@ -118,6 +116,7 @@ function LinkedWallets(props) {
         marginTop: hp(8),
       }}
       onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
+      testID="btn_LinkedWallet"
     >
       <Box
         backgroundColor={{
@@ -141,8 +140,8 @@ function LinkedWallets(props) {
             >
               {wallets?.length}
             </Text>
-            <Text color={`${colorMode}.white`} style={styles.LinkedWalletText}>
-              Linked Wallet{wallets?.length > 1 && 's'}
+            <Text color="light.white" style={styles.LinkedWalletText}>
+              Hot Wallet{wallets?.length > 1 && 's'}
             </Text>
           </Box>
         </Box>
@@ -160,7 +159,7 @@ function LinkedWallets(props) {
                   // marginBottom: -3,
                 }}
               >
-                {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+                {getCurrencyIcon(BTC, 'grey')}
               </Box>
               <Text
                 color={`${colorMode}.white`}
@@ -169,7 +168,7 @@ function LinkedWallets(props) {
                   letterSpacing: 0.6,
                 }}
               >
-                {getAmt(netBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                {getBalance(netBalance)}
               </Text>
               <Text
                 color={`${colorMode}.white`}
@@ -179,7 +178,7 @@ function LinkedWallets(props) {
                   fontSize: hp(12),
                 }}
               >
-                {getUnit(currentCurrency, satsEnabled)}
+                {getSatUnit()}
               </Text>
             </Box>
           ) : (
@@ -189,7 +188,7 @@ function LinkedWallets(props) {
                 alignItems: 'center',
               }}
             >
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+              {getCurrencyIcon(BTC, 'grey')}
               &nbsp;
               <Hidden />
             </Box>
@@ -206,15 +205,13 @@ function VaultStatus(props) {
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   const Vault: Vault =
     useQuery(RealmSchema.Vault)
       .map(getJSONFromRealmObject)
       .filter((vault) => !vault.archived)[0] || [];
+
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
       balances: { confirmed: 0, unconfirmed: 0 },
@@ -317,8 +314,8 @@ function VaultStatus(props) {
               ) : (
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
-                    <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.vaultSigner}>
-                      {WalletMap(signer.type).Icon}
+                    <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
+                      {SDIcons(signer.type).Icon}
                     </Box>
                   ))}
                 </Box>
@@ -326,15 +323,15 @@ function VaultStatus(props) {
             </Box>
 
             <HStack style={styles.vaultBalanceContainer}>
-              {getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BTC)}
+              {getCurrencyIcon(BTC, 'grey')}
               <Pressable>
                 {props.showHideAmounts ? (
                   <Box style={styles.rowCenter}>
-                    <Text color={`${colorMode}.white`} fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getAmt(vaultBalance, exchangeRates, currencyCode, currentCurrency, satsEnabled)}
+                    <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
+                      {getBalance(vaultBalance)}
                     </Text>
-                    <Text color={`${colorMode}.white`} style={styles.vaultBalanceUnit}>
-                      {getUnit(currentCurrency, satsEnabled)}
+                    <Text color="light.white" style={styles.vaultBalanceUnit}>
+                      {getSatUnit()}
                     </Text>
                   </Box>
                 ) : (
@@ -401,6 +398,7 @@ function VaultInfo() {
             <Pressable
               style={styles.subscriptionIcon}
               onPress={() => navigation.navigate('ChoosePlan')}
+              testID={`btn_${plan}`}
             >
               {getPlanIcon()}
               <Box
@@ -415,7 +413,10 @@ function VaultInfo() {
             </Pressable>
             {isTestnet() && <TestnetIndicator />}
           </Box>
-          <Pressable onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}>
+          <Pressable
+            testID="btn_AppSettings"
+            onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+          >
             <SettingIcon />
           </Pressable>
         </Box>
@@ -462,12 +463,34 @@ function HomeScreen({ navigation }) {
   const { showToast } = useToastMessage();
 
   useEffect(() => {
+    Linking.addEventListener('url', handleDeepLinkEvent);
     handleDeepLinking();
-    const backAction = () => true;
-    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    return () => backHandler.remove();
+    return () => {
+      Linking.removeAllListeners('url');
+    };
   }, []);
 
+  function handleDeepLinkEvent({ url }) {
+    if (url) {
+      if (url.includes('backup')) {
+        const splits = url.split('backup/');
+        const decoded = Buffer.from(splits[1], 'base64').toString();
+        const params = urlParamsToObj(decoded);
+        if (params.seed) {
+          navigation.navigate('EnterWalletDetail', {
+            seed: params.seed,
+            name: params.name,
+            path: params.path,
+            appId: params.appId,
+            description: `Imported from ${params.name}`,
+            type: WalletType.IMPORTED,
+          });
+        } else {
+          showToast('Invalid deeplink');
+        }
+      }
+    }
+  }
   async function handleDeepLinking() {
     try {
       const initialUrl = await Linking.getInitialURL();
@@ -482,6 +505,7 @@ function HomeScreen({ navigation }) {
               name: params.name,
               path: params.path,
               appId: params.appId,
+              purpose: params.purpose,
               description: `Imported from ${params.name}`,
               type: WalletType.IMPORTED,
             });

@@ -31,6 +31,7 @@ function Buttons({
       onPress={onPrimaryInteraction}
       disabled={primaryDisable}
       activeOpacity={activeOpacity}
+      testID="btn_primaryText"
     >
       <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
         <Box
@@ -63,6 +64,7 @@ function Buttons({
           onPress={secondaryCallback}
           disabled={secondaryDisable}
           activeOpacity={0.5}
+          testID="btn_secondaryText"
         >
           <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
             {secondaryText}
@@ -79,7 +81,7 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 5,
   },
   createBtn: {
     paddingVertical: hp(15),

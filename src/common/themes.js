@@ -90,6 +90,10 @@ export const customTheme = extendTheme({
       error: Colors.CongoPink,
       black: Colors.Black,
       fadedGray: Colors.FadedGray,
+      fadedblue: Colors.FadeBlue,
+      dustySageGreen: Colors.DustySageGreen,
+      forestGreen: Colors.ForestGreen,
+      pantoneGreen: Colors.pantoneGreen,
     },
     dark: {
       black: Colors.Black,

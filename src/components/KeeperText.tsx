@@ -7,10 +7,11 @@ interface KeeperTextProps extends TextProps {
   color?: string;
   bold?: boolean;
   light?: boolean;
+  italic?: boolean;
 }
 
 function Text(props: KeeperTextProps) {
-  const { children, style, bold, light } = props;
+  const { children, style, bold, light, italic } = props;
   let fontWeight = 200;
   if (bold) {
     fontWeight = 300;
@@ -24,7 +25,12 @@ function Text(props: KeeperTextProps) {
 
   const passedStyles = Array.isArray(style) ? Object.assign({}, ...style) : style;
   return (
-    <NativeBaseText {...updatedProps} fontWeight={fontWeight} style={[{ ...passedStyles }]}>
+    <NativeBaseText
+      {...updatedProps}
+      fontWeight={fontWeight}
+      fontStyle={italic && 'italic'}
+      style={[{ ...passedStyles }]}
+    >
       {children}
     </NativeBaseText>
   );

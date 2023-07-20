@@ -32,6 +32,8 @@ function ScanQR() {
     onQrScan = () => {},
     setup = false,
     type,
+    isHealthcheck = false,
+    signer,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -47,7 +49,11 @@ function ScanQR() {
 
   useEffect(() => {
     if (qrData) {
-      onQrScan(qrData, resetQR);
+      if (isHealthcheck) {
+        onQrScan(qrData, resetQR, signer);
+      } else {
+        onQrScan(qrData, resetQR);
+      }
     }
     return () => {
       decoder = new URRegistryDecoder();
@@ -102,7 +108,7 @@ function ScanQR() {
     <ScreenWrapper>
       <MockWrapper signerType={type} enable={setup && type}>
         <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} />
+          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
           <Box style={styles.qrcontainer}>
             <RNCamera
               autoFocus="on"

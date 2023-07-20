@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="42.808" height="42" viewBox="0 0 42.808 42">
+  <g id="LETTER" transform="translate(-40 -425)">
+    <ellipse id="Ellipse_218" data-name="Ellipse 218" cx="21.404" cy="21" rx="21.404" ry="21" transform="translate(40 425)" fill="#00433a"/>
+    <g id="Ellipse_220" data-name="Ellipse 220" transform="translate(44 429)" fill="none" stroke="#fff" stroke-linecap="round" stroke-width="1" stroke-dasharray="0.2 3" opacity="0.511">
+      <ellipse cx="17.404" cy="17" rx="17.404" ry="17" stroke="none"/>
+      <ellipse cx="17.404" cy="17" rx="16.904" ry="16.5" fill="none"/>
+    </g>
+    <path id="Clipboard" d="M17.13,3.54H15.81A1.78,1.78,0,0,0,14.06,2H9.94A1.78,1.78,0,0,0,8.19,3.54H6.86a2.8,2.8,0,0,0-2.8,2.8V19.19A2.8,2.8,0,0,0,6.86,22H17.13a2.81,2.81,0,0,0,2.81-2.81V6.34a2.8,2.8,0,0,0-2.81-2.8ZM9.67,8.91a.76.76,0,0,1-.75.75h-1a.75.75,0,0,1,0-1.5h1a.76.76,0,0,1,.75.75ZM7.13,17.14a.76.76,0,0,1,.75-.75h8.23a.75.75,0,0,1,0,1.5H7.88a.76.76,0,0,1-.75-.75Zm9-3.37H7.88a.75.75,0,0,1,0-1.5h8.23a.75.75,0,0,1,0,1.5Zm-6.44-10a.27.27,0,0,1,.27-.27h4.12a.28.28,0,0,1,.27.27v1a.28.28,0,0,1-.27.28H9.94a.27.27,0,0,1-.27-.28Z" transform="translate(49.404 434)" fill="#79b1a7"/>
+  </g>
+</svg>

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Alert, StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -24,84 +24,93 @@ import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
 import useVault from 'src/hooks/useVault';
-import { signWithLedger } from 'src/hardware/ledger';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { useDispatch } from 'react-redux';
-import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { captureError } from 'src/core/services/sentry';
-import useToastMessage from 'src/hooks/useToastMessage';
+// import { signWithLedger } from 'src/hardware/ledger';
+// import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+// import { useDispatch } from 'react-redux';
+// import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
+// import { captureError } from 'src/core/services/sentry';
+// import useToastMessage from 'src/hooks/useToastMessage';
+import config from 'src/core/config';
+import BitoxImage from 'src/assets/images/bitboxSetup.svg';
+import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
-import LedgerScanningModal from '../Vault/components/LedgerScanningModal';
+// import LedgerScanningModal from '../Vault/components/LedgerScanningModal';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
-function LedgerSigningModal({
-  visible,
-  setVisible,
-  signer,
-}: {
-  visible;
-  setVisible;
-  signer: VaultSigner;
-}) {
-  const dispatch = useDispatch();
-  const { activeVault } = useVault();
-  const { showToast } = useToastMessage();
+// function LedgerSigningModal({
+//   visible,
+//   setVisible,
+//   signer,
+// }: {
+//   visible;
+//   setVisible;
+//   signer: VaultSigner;
+// }) {
+//   const dispatch = useDispatch();
+//   const { activeVault } = useVault();
+//   const { showToast } = useToastMessage();
 
-  const serializedPSBTEnvelops = useAppSelector(
-    (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
-  );
-  const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.find(
-    (envelop) => signer.signerId === envelop.signerId
-  );
-  const callback = async (transport) => {
-    try {
-      const { signedSerializedPSBT } = await signWithLedger(
-        transport,
-        serializedPSBT,
-        signingPayload,
-        activeVault
-      );
-      dispatch(
-        updatePSBTEnvelops({
-          signerId: signer.signerId,
-          signedSerializedPSBT,
-        })
-      );
-      setVisible(false);
-    } catch (error) {
-      captureError(error);
-      showToast(error.toString());
-    }
-  };
+//   const serializedPSBTEnvelops = useAppSelector(
+//     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
+//   );
+//   const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.find(
+//     (envelop) => signer.signerId === envelop.signerId
+//   );
+//   const callback = async (transport) => {
+//     try {
+//       const { signedSerializedPSBT } = await signWithLedger(
+//         transport,
+//         serializedPSBT,
+//         signingPayload,
+//         activeVault
+//       );
+//       dispatch(
+//         updatePSBTEnvelops({
+//           signerId: signer.signerId,
+//           signedSerializedPSBT,
+//         })
+//       );
+//       setVisible(false);
+//     } catch (error) {
+//       captureError(error);
+//       showToast(error.toString());
+//     }
+//   };
 
-  if (!visible) {
-    return null;
+//   if (!visible) {
+//     return null;
+//   }
+
+//   return (
+//     <LedgerScanningModal
+//       visible={visible}
+//       setVisible={setVisible}
+//       interactionText="Signing..."
+//       infoText="Select to sign with this device"
+//       callback={callback}
+//     />
+//   );
+// }
+
+function ColdCardContent({ register, isMultisig }: { register: boolean; isMultisig: boolean }) {
+  let message = '';
+
+  if (register) {
+    message = `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`;
+  } else if (isMultisig) {
+    message = `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`;
   }
 
   return (
-    <LedgerScanningModal
-      visible={visible}
-      setVisible={setVisible}
-      interactionText="Signing..."
-      infoText="Select to sign with this device"
-      callback={callback}
-    />
-  );
-}
-
-function ColdCardContent({ register, isMultisig }: { register: boolean; isMultisig: boolean }) {
-  return (
-    <Box>
+    <Box alignItems="center">
       <ColdCardSVG />
-      <Box marginTop={2} width={wp(220)}>
+      <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {register
-            ? `\u2022 Since this is the first time you are signing with this device, the Mk4 requires for us to register the multisig wallet data before it can sign transactions.`
-            : isMultisig
-            ? `\u2022 Make sure the multisig wallet is registered with the Mk4 before signing the transaction`
-            : ''}
+          {message}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {register
@@ -115,9 +124,9 @@ function ColdCardContent({ register, isMultisig }: { register: boolean; isMultis
 
 function PassportContent({ isMultisig }: { isMultisig: boolean }) {
   return (
-    <Box>
+    <Box alignItems="center">
       <PassportSVG />
-      <Box marginTop={2} width={wp(220)}>
+      <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 Make sure ${
             isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
@@ -133,9 +142,9 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
 
 function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
   return (
-    <Box>
+    <Box alignItems="center">
       <SeedSignerSetup />
-      <Box marginTop={2} width={wp(220)}>
+      <Box marginTop={2}>
         {isMultisig ? (
           <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
             {`\u2022 The change address verification step (wallet registration) with SeedSigner shows up at the time of PSBT verification.`}
@@ -151,9 +160,9 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
 
 function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
   return (
-    <Box>
+    <Box alignItems="center">
       <KeystoneSetup />
-      <Box marginTop={2} width={wp(220)}>
+      <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 Make sure ${
             isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
@@ -171,9 +180,9 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
 
 function JadeContent() {
   return (
-    <Box>
+    <Box alignItems="center">
       <JadeSetup />
-      <Box marginTop={2} width={wp(220)}>
+      <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Jade main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
         </Text>
@@ -181,11 +190,63 @@ function JadeContent() {
     </Box>
   );
 }
+
+function TrezorContent() {
+  return (
+    <Box alignItems="center">
+      <TrezorSetup />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function BitBox02Content() {
+  return (
+    <Box alignItems="center">
+      <BitoxImage />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function LedgerContent() {
+  return (
+    <Box alignItems="center">
+      <LedgerImage />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 The Keeper Harware Interface will exchange the signed/unsigned PSBT from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function OtherSDContent() {
+  return (
+    <Box alignItems="center">
+      <OtherSDImage />
+      <Box marginTop={2}>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 Either scan or use the export option to transfer the PSBT to the signer.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
 export function KeeperContent() {
   return (
-    <Box>
+    <Box alignItems="center">
       <KeeperSetup />
-      <Box marginTop={2} width={wp(220)}>
+      <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 Within settings of KSD, choose 'Scan PSBT' option and wait for the QR to be scanned\n`}
         </Text>
@@ -329,8 +390,8 @@ function OtpContent({ signTransaction }) {
           color="light.greenText"
           marginTop={2}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et
+          If you lose your authenticator app, use the other Signing Devices to reset the Signing
+          Server
         </Text>
         <Box mt={10} alignSelf="flex-end" mr={2}>
           <Box>
@@ -364,9 +425,15 @@ function SignerModals({
   seedSignerModal,
   keystoneModal,
   jadeModal,
+  keeperModal,
+  trezorModal,
+  bitbox02Modal,
+  otherSDModal,
+  setOtherSDModal,
+  setTrezorModal,
+  setBitbox02Modal,
   setJadeModal,
   setKeystoneModal,
-  keeperModal,
   setSeedSignerModal,
   setPassportModal,
   setKeeperModal,
@@ -388,7 +455,16 @@ function SignerModals({
     setPassportModal(false);
     setSeedSignerModal(false);
     setKeeperModal(false);
+    setOtherSDModal(false);
+    setJadeModal(false);
     navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
+  };
+
+  const navigateToChannelSigning = (signer) => {
+    setTrezorModal(false);
+    setBitbox02Modal(false);
+    setLedgerModal(false);
+    navigation.dispatch(CommonActions.navigate('SignWithChannel', { signTransaction, signer }));
   };
   return (
     <>
@@ -437,10 +513,17 @@ function SignerModals({
             );
           case SignerType.LEDGER:
             return (
-              <LedgerSigningModal
+              <KeeperModal
                 visible={currentSigner && ledgerModal}
-                setVisible={setLedgerModal}
-                signer={signer}
+                close={() => {
+                  setLedgerModal(false);
+                }}
+                title="Keep Nano X Ready"
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+                textColor="light.primaryText"
+                Content={() => <LedgerContent />}
+                buttonText="Proceed"
+                buttonCallback={() => navigateToChannelSigning(signer)}
               />
             );
           case SignerType.MOBILE_KEY:
@@ -463,8 +546,8 @@ function SignerModals({
                 close={() => {
                   showOTPModal(false);
                 }}
-                title="Confirm OTP to setup 2FA"
-                subTitle="Lorem ipsum dolor sit amet, "
+                title="Confirm OTP to sign transaction"
+                subTitle="To sign using signing server key"
                 textColor="light.primaryText"
                 Content={() => <OtpContent signTransaction={signTransaction} />}
               />
@@ -529,6 +612,51 @@ function SignerModals({
                 buttonCallback={() => navigateToQrSigning(signer)}
               />
             );
+          case SignerType.TREZOR:
+            return (
+              <KeeperModal
+                visible={currentSigner && trezorModal}
+                close={() => {
+                  setTrezorModal(false);
+                }}
+                title="Keep Trezor Ready"
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+                textColor="light.primaryText"
+                Content={() => <TrezorContent />}
+                buttonText="Proceed"
+                buttonCallback={() => navigateToChannelSigning(signer)}
+              />
+            );
+          case SignerType.BITBOX02:
+            return (
+              <KeeperModal
+                visible={currentSigner && bitbox02Modal}
+                close={() => {
+                  setBitbox02Modal(false);
+                }}
+                title="Keep BitBox02 Ready"
+                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
+                textColor="light.primaryText"
+                Content={() => <BitBox02Content />}
+                buttonText="Proceed"
+                buttonCallback={() => navigateToChannelSigning(signer)}
+              />
+            );
+          case SignerType.OTHER_SD:
+            return (
+              <KeeperModal
+                visible={currentSigner && otherSDModal}
+                close={() => {
+                  setOtherSDModal(false);
+                }}
+                title="Keep the Signer Ready"
+                subTitle="Keep your Signer ready before proceeding"
+                textColor="light.primaryText"
+                Content={() => <OtherSDContent />}
+                buttonText="Proceed"
+                buttonCallback={() => navigateToQrSigning(signer)}
+              />
+            );
           case SignerType.KEEPER:
             return (
               <KeeperModal
@@ -551,16 +679,5 @@ function SignerModals({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  icon: {
-    height: 30,
-    width: 30,
-    borderRadius: 30,
-    backgroundColor: '#725436',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 export default SignerModals;

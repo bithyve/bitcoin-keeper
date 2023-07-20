@@ -2,19 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-import { Pressable } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { StyleSheet } from 'react-native';
 import { TransferType } from 'src/common/data/enums/TransferType';
-import { NextIcon } from './HomeScreen';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import useVault from 'src/hooks/useVault';
+import useToastMessage from 'src/hooks/useToastMessage';
+import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
 
 function UaiDisplay({ uaiStack }) {
-  const [uai, setUai] = useState({});
+  const [uai, setUai] = useState<UAI | {}>({});
   const [uaiConfig, setUaiConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const { activeVault } = useVault();
+  const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
@@ -70,13 +74,13 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.DEFAULT:
         return {
           cta: () => {
-            navigtaion.navigate('VaultDetails');
+            activeVault ? navigtaion.navigate('VaultDetails') : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
       default:
         return {
           cta: () => {
-            navigtaion.navigate('VaultDetails');
+            activeVault ? navigtaion.navigate('VaultDetails') : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
     }
@@ -105,12 +109,13 @@ function UaiDisplay({ uaiStack }) {
   if (uaiStack.length > 0) {
     return (
       <>
-        <Pressable backgroundColor="light.Glass" onPress={pressHandler} style={styles.container}>
-          <Text numberOfLines={2} color="light.white" style={styles.uaiTitle}>
-            {uai?.title}
-          </Text>
-          <NextIcon pressHandler={pressHandler} />
-        </Pressable>
+        <UAIView
+          title={uai?.title}
+          primaryCallbackText="CONTINUE"
+          secondaryCallbackText={uai?.uaiType !== uaiType.DEFAULT ? 'SKIP' : null}
+          secondaryCallback={uaiSetActionFalse}
+          primaryCallback={pressHandler}
+        />
         <KeeperModal
           visible={showModal}
           close={() => setShowModal(false)}

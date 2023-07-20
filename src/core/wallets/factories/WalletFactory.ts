@@ -1,6 +1,8 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
+import { hash256 } from 'src/core/services/operations/encryption';
+import config from 'src/core/config';
 import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
   TransferPolicy,
@@ -13,51 +15,15 @@ import {
 import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
+import WalletOperations from '../operations';
 
-export const generateWallet = async ({
-  type,
-  instanceNum,
-  walletName,
-  walletDescription,
-  derivationConfig,
-  primaryMnemonic,
-  importDetails,
-  networkType,
-  transferPolicy,
-}: {
-  type: WalletType;
-  instanceNum: number;
-  walletName: string;
-  walletDescription: string;
-  derivationConfig?: DerivationConfig;
-  primaryMnemonic?: string;
-  importDetails?: WalletImportDetails;
-  networkType: NetworkType;
-  transferPolicy: TransferPolicy;
-}): Promise<Wallet> => {
-  const network = WalletUtilities.getNetworkByType(networkType);
+export const whirlPoolWalletTypes = [WalletType.PRE_MIX, WalletType.POST_MIX, WalletType.BAD_BANK];
 
-  let mnemonic: string;
-  let xDerivationPath: string;
-  let bip85Config: BIP85Config;
-
-  if (type === WalletType.IMPORTED) {
-    if (!importDetails) throw new Error('Import details are missing');
-    mnemonic = importDetails.mnemonic;
-  } else {
-    if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
-    // BIP85 derivation: primary mnemonic to bip85-child mnemonic
-    bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
-    const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
-    mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
-  }
-
-  if (derivationConfig) xDerivationPath = derivationConfig.path;
-  else if (importDetails && importDetails.derivationConfig)
-    xDerivationPath = importDetails.derivationConfig.path;
-  else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
-
-  const id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+export const generateWalletSpecs = (
+  mnemonic: string,
+  network: bitcoinJS.Network,
+  xDerivationPath: string
+) => {
   // derive extended keys
   const seed = bip39.mnemonicToSeedSync(mnemonic).toString('hex');
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
@@ -67,21 +33,6 @@ export const generateWallet = async ({
   );
   const { xpriv } = extendedKeys;
   const { xpub } = extendedKeys;
-
-  const derivationDetails = {
-    instanceNum,
-    mnemonic,
-    bip85Config,
-    xDerivationPath,
-  };
-
-  const defaultShell = 1;
-  const presentationData: WalletPresentationData = {
-    name: walletName,
-    description: walletDescription,
-    visibility: VisibilityType.DEFAULT,
-    shell: defaultShell,
-  };
 
   const specs: WalletSpecs = {
     xpub,
@@ -98,7 +49,82 @@ export const generateWallet = async ({
     txNote: {},
     hasNewUpdates: false,
     lastSynched: 0,
+    receivingAddress: '',
   };
+  return specs;
+};
+
+export const generateWallet = async ({
+  type,
+  instanceNum,
+  walletName,
+  walletDescription,
+  derivationConfig,
+  primaryMnemonic,
+  importDetails,
+  networkType,
+  transferPolicy,
+  parentMnemonic,
+}: {
+  type: WalletType;
+  instanceNum: number;
+  walletName: string;
+  walletDescription: string;
+  derivationConfig?: DerivationConfig;
+  primaryMnemonic?: string;
+  importDetails?: WalletImportDetails;
+  networkType: NetworkType;
+  transferPolicy?: TransferPolicy;
+  parentMnemonic?: string;
+}): Promise<Wallet> => {
+  const network = WalletUtilities.getNetworkByType(networkType);
+
+  let mnemonic: string;
+  let xDerivationPath: string;
+  let bip85Config: BIP85Config;
+  let depositWalletId: string;
+
+  if (type === WalletType.IMPORTED) {
+    if (!importDetails) throw new Error('Import details are missing');
+    mnemonic = importDetails.mnemonic;
+  } else if (whirlPoolWalletTypes.includes(type)) {
+    mnemonic = parentMnemonic;
+  } else {
+    if (!primaryMnemonic) throw new Error('Primary mnemonic missing');
+    // BIP85 derivation: primary mnemonic to bip85-child mnemonic
+    bip85Config = BIP85.generateBIP85Configuration(type, instanceNum);
+    const entropy = await BIP85.bip39MnemonicToEntropy(bip85Config.derivationPath, primaryMnemonic);
+    mnemonic = BIP85.entropyToBIP39(entropy, bip85Config.words);
+  }
+
+  if (derivationConfig) xDerivationPath = derivationConfig.path;
+  else if (importDetails && importDetails.derivationConfig)
+    xDerivationPath = importDetails.derivationConfig.path;
+  else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
+
+  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+
+  if (whirlPoolWalletTypes.includes(type)) {
+    depositWalletId = id;
+    id = hash256(`${id}${type}`);
+  }
+
+  const derivationDetails = {
+    instanceNum,
+    mnemonic,
+    bip85Config,
+    xDerivationPath,
+  };
+
+  const defaultShell = 1;
+  const presentationData: WalletPresentationData = {
+    name: walletName,
+    description: walletDescription,
+    visibility: VisibilityType.DEFAULT,
+    shell: defaultShell,
+  };
+
+  const specs: WalletSpecs = generateWalletSpecs(mnemonic, network, xDerivationPath);
 
   const wallet: Wallet = {
     id,
@@ -111,7 +137,9 @@ export const generateWallet = async ({
     specs,
     scriptType: ScriptTypes.P2WPKH,
     transferPolicy,
+    depositWalletId,
   };
+  wallet.specs.receivingAddress = WalletOperations.getNextFreeAddress(wallet);
   return wallet;
 };
 
@@ -142,7 +170,7 @@ export const getCosignerDetails = (wallet: Wallet, appId: string) => {
 };
 
 export const signCosignerPSBT = (wallet: Wallet, serializedPSBT: string) => {
-  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT);
+  const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
   const { extendedKeys } = generateExtendedKeysForCosigner(wallet);
 
   let vin = 0;

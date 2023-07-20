@@ -1,31 +1,19 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useState } from 'react';
-import { Alert, Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, VStack, View, Center, useColorMode } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Box } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { NfcTech } from 'react-native-nfc-manager';
 import moment from 'moment';
 // Components, Hooks, functions etc
 import Text from 'src/components/KeeperText';
-import { CKTapCard } from 'cktap-protocol-react-native';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import NFC from 'src/core/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import SettingUpTapsigner from 'src/components/SettingUpTapsigner';
-import { SignerType } from 'src/core/wallets/enums';
-import SuccessModal from 'src/components/HealthCheck/SuccessModal';
-import WalletUtilities from 'src/core/wallets/operations/utils';
-import config from 'src/core/config';
-import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-import SkipHealthCheckIcon from 'src/assets/images/skipHealthCheck.svg';
 import SeedSigner from 'src/assets/images/seedsigner_setup.svg';
 import Ledger from 'src/assets/images/ledger_image.svg';
 import Keystone from 'src/assets/images/keystone_illustration.svg';
@@ -33,79 +21,41 @@ import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import AdvnaceOptions from 'src/assets/images/Advancedoptions.svg';
 import Change from 'src/assets/images/change.svg';
 import HealthCheck from 'src/assets/images/heathcheck.svg';
-import Illustration from 'src/assets/images/illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
-import ToastError from 'src/assets/images/toast_error.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg'
+import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
-
-import openLink from 'src/utils/OpenLink';
+import BitboxImage from 'src/assets/images/bitboxSetup.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import JadeSVG from 'src/assets/images/illustration_jade.svg';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { SignerType } from 'src/core/wallets/enums';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
-import { WalletMap } from './WalletMap';
+import { SDIcons } from './SigningDeviceIcons';
+import HardwareModalMap, { ModalTypes } from './HardwareModalMap';
 
 function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { showToast } = useToastMessage();
-  const { translations } = useContext(LocalizationContext);
-  const { healthcheck } = translations;
-  const { tapsigner } = translations;
-  const { coldcard } = translations;
-  const { signerId = null, vaultId } = route.params;
-  const [confirmHealthCheckModal, setconfirmHealthCheckModal] = useState(false);
-  const [healthCheckViewTapSigner, setHealthCheckViewTapsigner] = useState(false);
-  const [healthCheckViewColdCard, setHealthCheckViewColdCard] = useState(false);
-
-  const [healthCheckSkipModal, setHealthCheckSkipModal] = useState(false);
-  const [healthCheckSuccess, setHealthCheckSuccess] = useState(false);
-  const [nfcVisible, setNfcVisible] = React.useState(false);
+  const { signerId = null } = route.params;
   const [detailModal, setDetailModal] = useState(false);
-  const [cvc, setCvc] = useState('');
-  const card = React.useRef(new CKTapCard()).current;
+  const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
+  const [visible, setVisible] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
+  const { showToast } = useToastMessage();
   const activeVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const signer = activeVault.signers.filter((signer) => signer?.signerId === signerId)[0];
-  const modalHandler = (callback) =>
-    Platform.select({
-      android: async () => {
-        setNfcVisible(true);
-        const resp = await card.nfcWrapper(callback);
-        setNfcVisible(false);
-        return resp;
-      },
-      ios: async () => card.nfcWrapper(callback),
-    });
-
-  const scanMK4 = async () => {
-    setNfcVisible(true);
-    try {
-      const { data, rtdName } = (await NFC.read(NfcTech.NfcV))[0];
-      const xpub = rtdName === 'URI' ? data : rtdName === 'TEXT' ? data : data.p2wsh;
-      const path = data?.p2wsh_deriv ?? '';
-      const xfp = data?.xfp ?? '';
-      setNfcVisible(false);
-      return { xpub, path, xfp };
-    } catch (err) {
-      console.log(err);
-      setNfcVisible(false);
-    }
-  };
-
-  const getColdCardDetails = async () => {
-    const { xpub, path: derivationPath, xfp } = await scanMK4();
-    return { xpub, derivationPath, xfp };
-  };
-
+  const signer: VaultSigner = activeVault.signers.filter(
+    (signer) => signer?.signerId === signerId
+  )[0];
   const getSignerContent = (type: SignerType) => {
     switch (type) {
       case SignerType.COLDCARD:
@@ -169,8 +119,7 @@ function SigningDeviceDetails({ route }) {
       case SignerType.MOBILE_KEY:
         return {
           title: 'Mobile Key',
-          subTitle:
-            'You could use the wallet key on your app as one of the signing keys',
+          subTitle: 'You could use the wallet key on your app as one of the signing keys',
           assert: <MobileKeyIllustration />,
           description:
             '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
@@ -179,8 +128,7 @@ function SigningDeviceDetails({ route }) {
       case SignerType.SEED_WORDS:
         return {
           title: 'Seed Key',
-          subTitle:
-            'You could use a newly generated seed (12 words) as one of the signing keys',
+          subTitle: 'You could use a newly generated seed (12 words) as one of the signing keys',
           assert: <SeedWordsIllustration />,
           description:
             '\u2022Keep these safe by writing them down on a piece of paper or on a metal plate.\n\u2022 When you use them to sign a transaction, you will have to provide these in the same order.\n\u2022 These keys are considered warm because you may have to get them online when signing a transaction.',
@@ -189,8 +137,7 @@ function SigningDeviceDetails({ route }) {
       case SignerType.KEEPER:
         return {
           title: 'Keeper as signing device',
-          subTitle:
-            'You can use a specific BIP-85 wallet on another Keeper app as a signer',
+          subTitle: 'You can use a specific BIP-85 wallet on another Keeper app as a signer',
           assert: <KeeperSetupImage />,
           description:
             '\u2022Make sure that the other Keeper app is backed up using the 12-word Recovery Phrase.\n\u2022 When you want to sign a transaction using this option, you will have to navigate to the specific wallet used',
@@ -206,6 +153,35 @@ function SigningDeviceDetails({ route }) {
             '\u2022An auth app provides the 6-digit authentication code.\n\u2022 When restoring the app using signing devices, you will need to provide this code. \n\u2022 Considered a hot key as it is on a connected online server',
           FAQ: '',
         };
+      case SignerType.BITBOX02:
+        return {
+          title: 'Bitbox 02',
+          subTitle: 'Easy backup and restore with a microSD card',
+          assert: <BitboxImage />,
+          description:
+            'Minimalist and discreet design. The BitBox02 features a dual-chip design with a secure chip Limited firmware that only supports Bitcoin',
+          FAQ: 'https://shiftcrypto.ch/support/',
+        };
+      case SignerType.TREZOR:
+        return {
+          title: 'Trezor',
+          subTitle:
+            'Trezor Suite is designed for every level of user. Easily and securely send, receive, and manage coins with confidence',
+          assert: <TrezorSetup />,
+          description:
+            '\u2022Sleek, secure design.\n\u2022 Digital Independence.\n\u2022 Easy hardware wallet backup',
+          FAQ: 'https://trezor.io/support',
+        };
+      case SignerType.JADE:
+        return {
+          title: 'Jade Blockstream',
+          subTitle:
+            'Jade is an easy-to-use, purely open-source hardware wallet that offers advanced security for your Bitcoin.',
+          assert: <JadeSVG />,
+          description:
+            '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
+          FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
+        };
       default:
         return {
           title: '',
@@ -217,180 +193,20 @@ function SigningDeviceDetails({ route }) {
     }
   };
 
-  const healthCheckTapSigner = React.useCallback(() => {
-    modalHandler(async () => {
-      await card.first_look();
-      const isLegit = await card.certificate_check();
-      if (isLegit) {
-        const xpub = await card.get_xpub(cvc);
-        return { xpub };
-      }
-    })()
-      .then((resp) => {
-        const { xpub } = resp;
-        const networkType = config.NETWORK_TYPE;
-        const network = WalletUtilities.getNetworkByType(networkType);
-        const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-        if (signerIdDerived === signer?.signerId) {
-          dispatch(healthCheckSigner(vaultId, signer?.signerId));
-          setHealthCheckSuccess(true);
-        } else {
-          Alert.alert('verifivation failed');
-        }
-      })
-      .catch(console.log);
-  }, [cvc]);
-
-  const healthCheckColdCard = React.useCallback(async () => {
-    try {
-      const colcard = await getColdCardDetails();
-      let { xpub } = colcard;
-      const networkType = config.NETWORK_TYPE;
-      const network = WalletUtilities.getNetworkByType(networkType);
-      xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
-      const signerIdDerived = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
-      if (signerIdDerived === signer?.signerId) {
-        console.log('verified');
-        dispatch(healthCheckSigner(vaultId, signer?.signerId));
-        setHealthCheckSuccess(true);
-      } else {
-        Alert.alert('verification failed');
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  }, []);
-
-  const closeHealthCheckSuccessView = () => setHealthCheckSuccess(false);
-
-  const closeHealthCheckView = () => setHealthCheckViewTapsigner(false);
-
-  const healthCheckSkip = () => {
-    setHealthCheckViewTapsigner(false);
-    setHealthCheckSkipModal(true);
-  };
-
-  const closehealthCheckSkip = () => {
-    setHealthCheckSkipModal(false);
-  };
-
-  const SkipHealthCheck = () => {
-    dispatch(healthCheckSigner(vaultId, signer?.signerId));
-    setHealthCheckSkipModal(false);
-    navigation.goBack();
-  };
-
-  const onPressCVV = () => {
-    healthCheckTapSigner();
-    setconfirmHealthCheckModal(false);
-  };
-
-  const confirm = (signerType) => {
-    switch (signerType) {
-      case SignerType.TAPSIGNER:
-        setHealthCheckViewTapsigner(false);
-        setconfirmHealthCheckModal(true);
-        break;
-      case SignerType.COLDCARD:
-        setHealthCheckViewColdCard(false);
-        healthCheckColdCard();
-        break;
-    }
-  };
-
-  const confirmHealthCheck = () => {
-    navigation.goBack();
-  };
-
   function HealthCheckContentTapsigner() {
     return (
-      <View>
-        <Box alignSelf="center">
-          <TapsignerSetupImage />
-        </Box>
-        <Text color={`${colorMode}.secondaryText`} fontSize={13} padding={2}>
-          Health Check is initiated if a signning device is not used for the last 180 days
+      <Box>
+        <Text>
+          You can choose to manually confirm the health of the Signing Device if you are sure that
+          they are secure and accessible. Or you can choose to do the Health Check when you can
         </Text>
-        <Text color={`${colorMode}.secondaryText`} fontSize={13} padding={2}>
-          You will need the Pin/ CVC at the back of the card
-        </Text>
-      </View>
+      </Box>
     );
   }
-
-  function HealthCheckContentColdCard() {
-    return (
-      <View>
-        <Box alignSelf="center">
-          <ColdCardSetupImage />
-        </Box>
-        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle}>
-          Health Check is initiated if a signning device is not used for the last 180 days
-        </Text>
-        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle} />
-      </View>
-    );
-  }
-
-  function HealthCheckSkipContent() {
-    return (
-      <View>
-        <Box marginLeft={5}>
-          <SkipHealthCheckIcon />
-        </Box>
-        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle}>
-          You can choose to manually confirm the health of the signing device if you are sure that
-          they are secure and accessible.
-        </Text>
-        <Text color={`${colorMode}.secondaryText`} style={styles.textStyle}>
-          Or you can choose to do the Health Check when you can
-        </Text>
-      </View>
-    );
-  }
-
-  function HealthCheckSuccessContent() {
-    return (
-      <View>
-        <Box alignSelf="center">
-          {' '}
-          <Illustration />
-        </Box>
-        <Text color={`${colorMode}.secondaryText`} fontSize={13} padding={2}>
-          You will be reminded in 90 days for the health check
-        </Text>
-      </View>
-    );
-  }
-
-  const openHealthCheckModal = (signerType) => {
-    switch (signerType) {
-      default:
-        showToast(
-          'Health check coming soon!',
-          <ToastError />,
-          1000,
-          false,
-          '60%',
-          <Text color={`${colorMode}.black`} style={{ marginLeft: 10, width: '60%' }} numberOfLines={2}>
-            Health check for this device is
-            <Text
-              color={`${colorMode}.black`}
-              style={{
-                fontStyle: 'italic',
-                fontWeight: '600',
-              }}
-            >
-              {' coming soon!'}
-            </Text>
-          </Text>
-        );
-    }
-  };
 
   function FooterItem({ Icon, title, onPress }) {
     return (
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity style={{ width: wp(100) }} onPress={onPress}>
         <Box
           style={{
             alignItems: 'center',
@@ -408,13 +224,7 @@ function SigningDeviceDetails({ route }) {
           >
             <Icon />
           </Box>
-          <Text
-            numberOfLines={2}
-            fontSize={12}
-            letterSpacing={0.84}
-            width={wp(100)}
-            textAlign="center"
-          >
+          <Text numberOfLines={2} fontSize={12} letterSpacing={0.84} textAlign="center">
             {title}
           </Text>
         </Box>
@@ -422,23 +232,6 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
-  function SignerContent() {
-    return (
-      <Box>
-        <Center>{getSignerContent(signer?.type).assert}</Center>
-        <Text
-          color={`${colorMode}.white`}
-          style={{
-            fontSize: 13,
-            letterSpacing: 0.65,
-            marginTop: hp(25),
-          }}
-        >
-          {getSignerContent(signer?.type).description}
-        </Text>
-      </Box>
-    );
-  }
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -463,7 +256,7 @@ function SigningDeviceDetails({ route }) {
             backgroundColor: '#725436',
           }}
         >
-          {WalletMap(signer?.type, true).Icon}
+          {SDIcons(signer?.type, true).Icon}
         </Box>
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
@@ -508,8 +301,8 @@ function SigningDeviceDetails({ route }) {
 
         <Box
           style={{
-            justifyContent: 'space-between',
             flexDirection: 'row',
+            justifyContent: 'space-between',
           }}
         >
           <FooterItem
@@ -521,7 +314,8 @@ function SigningDeviceDetails({ route }) {
             Icon={HealthCheck}
             title="Health Check"
             onPress={() => {
-              openHealthCheckModal(signer?.type);
+              setVisible(true);
+              // openHealthCheckModal(signer?.type);
             }}
           />
           <FooterItem
@@ -532,85 +326,34 @@ function SigningDeviceDetails({ route }) {
             }}
           />
         </Box>
-        <SuccessModal
-          visible={healthCheckViewTapSigner}
-          close={closeHealthCheckView}
-          title={healthcheck.HealthCheck}
-          subTitle={tapsigner.SetupDescription}
-          buttonText="Proceed"
-          buttonTextColor={`${colorMode}.white`}
-          cancelButtonText="Skip"
-          cancelButtonColor={`${colorMode}.greenText`}
-          cancelButtonPressed={healthCheckSkip}
-          buttonPressed={() => confirm(SignerType.TAPSIGNER)}
-          Content={HealthCheckContentTapsigner}
+        <HardwareModalMap
+          type={signer?.type}
+          visible={visible}
+          close={() => setVisible(false)}
+          modalType={ModalTypes.HEALTH_CHECK}
+          signer={signer}
+          skipHealthCheckCallBack={() => {
+            setVisible(false);
+            setSkipHealthCheckModalVisible(true);
+          }}
         />
-        <SuccessModal
-          visible={healthCheckViewColdCard}
-          close={closeHealthCheckView}
-          title={healthcheck.HealthCheck}
-          subTitle={coldcard.SetupDescription}
-          buttonText="Proceed"
-          buttonTextColor={`${colorMode}.white`}
-          cancelButtonText="Skip"
-          cancelButtonColor={`${colorMode}.greenText`}
-          cancelButtonPressed={healthCheckSkip}
-          buttonPressed={() => confirm(SignerType.COLDCARD)}
-          Content={HealthCheckContentColdCard}
-        />
-        <SuccessModal
-          visible={healthCheckSkipModal}
-          close={closehealthCheckSkip}
-          title={healthcheck.SkippingHealthCheck}
-          subTitle="It is very important that you keep your signing devices secure and fairly accessible at all times."
-          textColor={`${colorMode}.secondaryText`}
-          buttonText="Manual Confirm"
-          buttonTextColor={`${colorMode}.white`}
-          cancelButtonText="Will Do Later"
-          cancelButtonColor={`${colorMode}.greenText`}
-          cancelButtonPressed={SkipHealthCheck}
-          buttonPressed={confirm}
-          Content={HealthCheckSkipContent}
-        />
-        <ModalWrapper
-          visible={confirmHealthCheckModal}
-          onSwipeComplete={() => setconfirmHealthCheckModal(false)}
-        >
-          <SettingUpTapsigner
-            closeBottomSheet={() => {
-              setconfirmHealthCheckModal(false);
-              setCvc('');
-            }}
-            buttonText="Proceed"
-            onPress={onPressCVV}
-            inputText={cvc}
-            setInputText={setCvc}
-          />
-        </ModalWrapper>
-        <SuccessModal
-          visible={healthCheckSuccess}
-          close={closeHealthCheckSuccessView}
-          title={healthcheck.HealthCheckSuccessful}
-          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor"
-          buttonText="Home"
-          buttonTextColor={`${colorMode}.white`}
-          cancelButtonText=""
-          cancelButtonColor={`${colorMode}.greenText`}
-          cancelButtonPressed={SkipHealthCheck}
-          buttonPressed={confirmHealthCheck}
-          Content={HealthCheckSuccessContent}
-        />
+
         <KeeperModal
-          visible={detailModal}
-          close={() => setDetailModal(false)}
-          title={getSignerContent(signer?.type).title}
-          subTitle={getSignerContent(signer?.type).subTitle}
-          modalBackground={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
-          textColor={`${colorMode}.white`}
-          learnMoreCallback={() => openLink(getSignerContent(signer?.type).FAQ)}
-          Content={SignerContent}
-          DarkCloseIcon
-          learnMore
+          visible={skipHealthCheckModalVisible}
+          close={() => setSkipHealthCheckModalVisible(false)}
+          title="Skipping Health Check"
+          subTitle="It is very important that you keep your Signing Devices secure and fairly accessible at all times."
+          buttonText="Do Later"
+          secondaryButtonText="Confirm Access"
+          buttonTextColor="light.white"
+          buttonCallback={() => setSkipHealthCheckModalVisible(false)}
+          secondaryCallback={() => {
+            dispatch(healthCheckSigner([signer]));
+            showToast('Device verified manually!');
+            setSkipHealthCheckModalVisible(false);
+          }}
+          textColor="light.primaryText"
+          Content={HealthCheckContentTapsigner}
         />
       </Box>
     </ScreenWrapper>

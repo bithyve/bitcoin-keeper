@@ -8,6 +8,7 @@ import * as bip32 from 'bip32';
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
+import bitcoinMessage from 'bitcoinjs-message';
 
 import { CryptoAccount, CryptoHDKey } from 'src/core/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
@@ -671,5 +672,32 @@ export default class WalletUtilities {
       default: // multisig wrapped segwit
         return `m/48'/${networkType}'/${account}'/2'`;
     }
+  };
+
+  static getPubkeyHashFromScript = (address: string, script: Buffer) => {
+    if (address.startsWith('tb1') || address.startsWith('bc1')) {
+      return script.slice(2);
+    }
+    if (address.startsWith('m') || address.startsWith('n') || address.startsWith('1')) {
+      return script.slice(3, 23);
+    }
+    if (address.startsWith('2') || address.startsWith('3')) {
+      return script.slice(2, 22);
+    }
+  };
+
+  static signBitcoinMessage = (message: string, privateKey: string, network: bitcoinJS.Network) => {
+    const keyPair = bitcoinJS.ECPair.fromWIF(privateKey, network);
+    const signature = bitcoinMessage.sign(message, keyPair.privateKey, keyPair.compressed);
+    return signature.toString('base64');
+  };
+
+  static getWalletFromAddress = (wallets: (Wallet | Vault)[], address: string) => {
+    for (const wallet of wallets) {
+      if (Object.values(wallet.specs.addresses.external).includes(address)) {
+        return wallet;
+      }
+    }
+    return null;
   };
 }

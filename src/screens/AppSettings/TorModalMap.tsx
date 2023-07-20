@@ -10,13 +10,14 @@ import TOR from 'src/assets/images/TorAssert.svg';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';
 import SuccessIllustration from 'src/assets/images/success_illustration.svg';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import LoadingAnimation from 'src/components/Loader';
 
 function TorConnectionContent() {
   // assert missing
   return (
     <Box width={wp(300)}>
       <Box alignItems="center">
-        <TOR />
+        <LoadingAnimation />
       </Box>
       <Box marginTop={hp(40)}>
         <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
@@ -97,7 +98,7 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         visible={visible && torStatus === TorStatus.CONNECTING}
         close={close}
         title="Connecting to Tor"
-        subTitle="Network calls and some functions may work slower when the Tor is enabled "
+        subTitle="Network calls and some functions may work slower when enabled"
         textColor="light.primaryText"
         subTitleColor="light.secondaryText"
         Content={TorConnectionContent}
@@ -122,7 +123,7 @@ function TorModalMap({ visible, close, onPressTryAgain }) {
         title="Tor Enabled Successfully!"
         subTitle="The app may be slower than usual over Tor"
         subTitleColor="light.secondaryText"
-        buttonText="Close"
+        buttonText="Continue"
         buttonTextColor="light.white"
         buttonCallback={close}
         textColor="light.primaryText"

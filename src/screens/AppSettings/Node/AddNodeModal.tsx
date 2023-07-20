@@ -14,7 +14,6 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { settings } = translations;
-
   const [useKeeperNode, setuseKeeperNode] = useState(params?.useKeeperNode);
   const [useSSL, setUseSSL] = useState(params?.useSSL);
   const [host, setHost] = useState(params?.host || '');
@@ -50,17 +49,11 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           <Text style={styles.useSSLText}>{settings.useSSL}</Text>
           <Switch value={useSSL} onValueChange={(value) => setUseSSL(value)} />
         </Box>
-        <Box style={styles.checkboxArea}>
-          <Text style={styles.useKeeperNodeText}>{settings.useKeeperNode}</Text>
-          <CheckBox
-            onPress={() => {
-              setuseKeeperNode(!useKeeperNode);
-            }}
-            isChecked={useKeeperNode}
-          />
-        </Box>
         <Box style={styles.inputArea}>
-          <Box w="50%" style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}>
+          <Box
+            w="50%"
+            style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}
+          >
             <Input
               placeholderTextColor="grey"
               backgroundColor={`${colorMode}.primaryBackground`}
@@ -79,7 +72,8 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
             />
           </Box>
           <Box style={styles.spacer} />
-          <Box w='50%'
+          <Box
+            w="50%"
             style={[!isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
           >
             <Input
@@ -157,7 +151,7 @@ const styles = StyleSheet.create({
     letterSpacing: 1.12,
     paddingTop: 7,
     paddingRight: 10,
-    width: '87%'
+    width: '87%',
   },
 });
 

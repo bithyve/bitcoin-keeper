@@ -6,7 +6,6 @@ import { Box, useColorMode } from 'native-base';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Text from './KeeperText';
 
-
 function CameraUnauthorized() {
   const { colorMode } = useColorMode();
   const requestPermission = () => {

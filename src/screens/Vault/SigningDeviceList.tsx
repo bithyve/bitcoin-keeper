@@ -8,7 +8,6 @@ import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsivenes
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import Alert from 'src/assets/images/alert_illustration.svg';
-import { BleManager } from 'react-native-ble-plx';
 import HeaderTitle from 'src/components/HeaderTitle';
 
 import KeeperModal from 'src/components/KeeperModal';
@@ -24,7 +23,7 @@ import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
 import Note from 'src/components/Note/Note';
-import { WalletMap } from './WalletMap';
+import { SDIcons } from './SigningDeviceIcons';
 import HardwareModalMap from './HardwareModalMap';
 import { getSDMessage } from './components/SDMessage';
 
@@ -36,7 +35,10 @@ type HWProps = {
   last?: boolean;
 };
 const findKeyInServer = (vaultSigners, type: SignerType) =>
-  vaultSigners.find((element) => element.type === type);
+  vaultSigners.find(
+    (element) =>
+      element.type === type && [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY].includes(type)
+  );
 
 const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   // Keys Incase of level 1 we have level 1
@@ -53,9 +55,10 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
 const getDeviceStatus = (
   type: SignerType,
   isNfcSupported,
-  isBLESupported,
+  vaultSigners,
   isOnL1,
-  vaultSigners
+  isOnL2,
+  isOnL3
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
@@ -64,25 +67,20 @@ const getDeviceStatus = (
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
-    case SignerType.LEDGER:
-      return {
-        message: !isBLESupported ? 'Start/Enable Bluetooth to use' : '',
-        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
-      };
     case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
-    case SignerType.SEED_WORDS:
-    case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnL1, vaultSigners).message,
         disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
       };
-
+    case SignerType.SEED_WORDS:
+    case SignerType.KEEPER:
     case SignerType.TREZOR:
     case SignerType.JADE:
     case SignerType.BITBOX02:
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
+    case SignerType.LEDGER:
     case SignerType.KEYSTONE:
     default:
       return {
@@ -92,18 +90,18 @@ const getDeviceStatus = (
   }
 };
 
-function SigningDeviceList({ navigation }: { navigation }) {
-  const { colorMode } = useColorMode();
+function SigningDeviceList() {
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
+  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
 
   const [nfcAlert, setNfcAlert] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
-  const [isBLESupported, setBLESupport] = useState(false);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
   const { vault } = translations;
@@ -127,18 +125,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     );
   }
 
-  const getBluetoothSupport = () => {
-    new BleManager().onStateChange((state) => {
-      if (state === 'PoweredOn') {
-        setBLESupport(true);
-      } else {
-        setBLESupport(false);
-      }
-    }, true);
-  };
-
   useEffect(() => {
-    getBluetoothSupport();
     getNfcSupport();
   }, []);
 
@@ -152,6 +139,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,
+    SignerType.OTHER_SD,
     SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
@@ -183,11 +171,11 @@ function SigningDeviceList({ navigation }: { navigation }) {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
-              <Box backgroundColor={`${colorMode}.divider`} style={styles.divider} />
+              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
+              <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
-                {WalletMap(type).Logo}
-                <Text color={`${colorMode}.inActiveMsg`} style={styles.messageText}>
+                {SDIcons(type).Logo}
+                <Text color="light.inActiveMsg" style={styles.messageText}>
                   {message}
                 </Text>
               </Box>
@@ -221,6 +209,7 @@ function SigningDeviceList({ navigation }: { navigation }) {
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
+        paddingLeft={25}
       />
       <Box style={styles.scrollViewContainer}>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -232,9 +221,10 @@ function SigningDeviceList({ navigation }: { navigation }) {
                 const { disabled, message: connectivityStatus } = getDeviceStatus(
                   type,
                   isNfcSupported,
-                  isBLESupported,
+                  vaultSigners,
                   isOnL1,
-                  vaultSigners
+                  isOnL2,
+                  isOnL3
                 );
                 let message = connectivityStatus;
                 if (!connectivityStatus) {
@@ -250,15 +240,11 @@ function SigningDeviceList({ navigation }: { navigation }) {
                   />
                 );
               })}
-              <Note
-                title="Security Tip"
-                subtitle="Devices with Register Vault tag provide additional checks when you are sending funds from your Vault"
-                subtitleColor="GreyText"
-                width={windowWidth * 0.8}
-              />
+
             </Box>
           )}
         </ScrollView>
+
         <KeeperModal
           visible={nfcAlert}
           close={() => {
@@ -277,8 +263,8 @@ function SigningDeviceList({ navigation }: { navigation }) {
             dispatch(setSdIntroModal(false));
           }}
           title="Signing Devices"
-          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your vault"
-          modalBackground={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
+          subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
+          modalBackground={['light.gradientStart', 'light.gradientEnd']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"
           buttonTextColor={`${colorMode}.greenText`}
@@ -292,6 +278,12 @@ function SigningDeviceList({ navigation }: { navigation }) {
           learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
         />
       </Box>
+      <Note
+        title="Security Tip"
+        subtitle="Please use the Health Check feature to ensure that your device is working and available as expected"
+        subtitleColor="GreyText"
+        width={windowWidth * 0.8}
+      />
     </ScreenWrapper>
   );
 }
@@ -306,10 +298,10 @@ const styles = StyleSheet.create({
   scrollViewContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: '8%',
+    paddingBottom: '2%',
   },
   scrollViewWrapper: {
-    height: windowHeight > 800 ? '90%' : '85%',
+    height: windowHeight > 800 ? '76%' : '74%',
   },
   contactUsText: {
     fontSize: 12,

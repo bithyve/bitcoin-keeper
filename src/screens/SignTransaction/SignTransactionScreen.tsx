@@ -1,5 +1,5 @@
 import { FlatList } from 'react-native';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -30,6 +30,7 @@ import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
@@ -45,7 +46,12 @@ function SignTransactionScreen() {
   const defaultVault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const { signers, id: vaultId, scheme } = defaultVault;
+  const { signers, id: vaultId, scheme, shellId } = defaultVault;
+  const route = useRoute();
+  const { note, label } = (route.params || { note: '', label: [] }) as {
+    note: string;
+    label: { name: string; isSystem: boolean }[];
+  };
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -56,6 +62,9 @@ function SignTransactionScreen() {
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
   const [keeperModal, setKeeperModal] = useState(false);
+  const [trezorModal, setTrezorModal] = useState(false);
+  const [bitbox02Modal, setBitbox02Modal] = useState(false);
+  const [otherSDModal, setOtherSDModal] = useState(false);
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
@@ -71,6 +80,9 @@ function SignTransactionScreen() {
   );
   const isMigratingNewVault = useAppSelector((state) => state.vault.isMigratingNewVault);
   const sendSuccessful = useAppSelector((state) => state.sendAndReceive.sendPhaseThree.txid);
+  const sendFailedMessage = useAppSelector(
+    (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
+  );
   const [broadcasting, setBroadcasting] = useState(false);
   const textRef = useRef(null);
   const dispatch = useDispatch();
@@ -117,6 +129,13 @@ function SignTransactionScreen() {
     },
     []
   );
+
+  useEffect(() => {
+    if (sendFailedMessage && broadcasting) {
+      setBroadcasting(false);
+      showToast(sendFailedMessage);
+    }
+  }, [sendFailedMessage, broadcasting]);
 
   const areSignaturesSufficient = () => {
     let signedTxCount = 0;
@@ -168,6 +187,7 @@ function SignTransactionScreen() {
           dispatch(
             updatePSBTEnvelops({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
           );
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -184,6 +204,7 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
             showOTPModal,
@@ -192,8 +213,10 @@ function SignTransactionScreen() {
             signingServerOTP,
             serializedPSBT,
             SigningServer,
+            shellId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -203,6 +226,7 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         }
       }
     },
@@ -238,6 +262,7 @@ function SignTransactionScreen() {
             !signerPolicy.exceptions.none &&
             outgoing <= signerPolicy.exceptions.transactionAmount
           ) {
+            showToast('Auto-signing, send amount smaller than max no-check amount');
             signTransaction({ signerId }); // case: OTP not required
           } else showOTPModal(true);
         } else showOTPModal(true);
@@ -247,6 +272,7 @@ function SignTransactionScreen() {
           CommonActions.navigate({
             name: 'InputSeedWordSigner',
             params: {
+              signerId,
               onSuccess: signTransaction,
             },
           })
@@ -266,6 +292,19 @@ function SignTransactionScreen() {
         break;
       case SignerType.KEEPER:
         setKeeperModal(true);
+        break;
+      case SignerType.TREZOR:
+        if (defaultVault.isMultiSig) {
+          showToast('Signing with trezor for multisig transactions is coming soon!', null, 4000);
+          return;
+        }
+        setTrezorModal(true);
+        break;
+      case SignerType.BITBOX02:
+        setBitbox02Modal(true);
+        break;
+      case SignerType.OTHER_SD:
+        setOtherSDModal(true);
         break;
       default:
         showToast(`action not set for ${type}`);
@@ -309,6 +348,8 @@ function SignTransactionScreen() {
                 sendPhaseThree({
                   wallet: defaultVault,
                   txnPriority: TxPriority.LOW,
+                  note,
+                  label,
                 })
               );
             } else {
@@ -329,9 +370,15 @@ function SignTransactionScreen() {
         seedSignerModal={seedSignerModal}
         keystoneModal={keystoneModal}
         jadeModal={jadeModal}
+        keeperModal={keeperModal}
+        trezorModal={trezorModal}
+        bitbox02Modal={bitbox02Modal}
+        otherSDModal={otherSDModal}
+        setOtherSDModal={setOtherSDModal}
+        setTrezorModal={setTrezorModal}
+        setBitbox02Modal={setBitbox02Modal}
         setJadeModal={setJadeModal}
         setKeystoneModal={setKeystoneModal}
-        keeperModal={keeperModal}
         setSeedSignerModal={setSeedSignerModal}
         setPassportModal={setPassportModal}
         setKeeperModal={setKeeperModal}

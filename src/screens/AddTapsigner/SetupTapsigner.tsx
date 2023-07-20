@@ -29,15 +29,18 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import config from 'src/core/config';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
+import NfcManager from 'react-native-nfc-manager';
+import DeviceInfo from 'react-native-device-info';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
-function SetupTapsigner() {
+function SetupTapsigner({ route }) {
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
-
+  const { isHealthcheck = false, signer } = route.params;
   const onPressHandler = (digit) => {
     let temp = cvc;
     if (digit !== 'x') {
@@ -61,7 +64,14 @@ function SetupTapsigner() {
   const { inProgress, start } = useAsync();
 
   const addTapsignerWithProgress = async () => {
-    await start(addTapsigner);
+    NfcManager.isSupported().then(async (supported) => {
+      if (supported) {
+        if (isHealthcheck) verifyTapsginer();
+        await start(addTapsigner);
+      } else if (!DeviceInfo.isEmulator()) {
+        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+      }
+    });
   };
 
   const addTapsigner = React.useCallback(async () => {
@@ -121,11 +131,36 @@ function SetupTapsigner() {
     }
   }, [cvc]);
 
+  const verifyTapsginer = React.useCallback(async () => {
+    try {
+      const { xpub } = await withModal(async () => getTapsignerDetails(card, cvc, isMultisig))();
+      if (xpub === signer.xpub) {
+        dispatch(healthCheckSigner([signer]));
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`Tapsigner verified successfully`, <TickIcon />);
+      } else {
+        showToast('Something went wrong, please try again!', null, 2000, true);
+      }
+    } catch (error) {
+      const errorMessage = getTapsignerErrorMessage(error);
+      if (errorMessage) {
+        if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
+        showToast(errorMessage, null, 2000, true);
+      } else if (error.toString() === 'Error') {
+        // do nothing when nfc is dismissed by the user
+      } else {
+        showToast('Something went wrong, please try again!', null, 2000, true);
+      }
+      closeNfc();
+      card.endNfcSession();
+    }
+  }, [cvc]);
+
   return (
     <ScreenWrapper>
       <Box flex={1}>
         <HeaderTitle
-          title="Setting up TAPSIGNER"
+          title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
         />
@@ -144,7 +179,7 @@ function SetupTapsigner() {
             <Box style={styles.btnContainer}>
               <Buttons
                 primaryText="Proceed"
-                primaryCallback={addTapsignerWithProgress}
+                primaryCallback={isHealthcheck ? verifyTapsginer : addTapsignerWithProgress}
                 primaryDisable={cvc.length < 6}
                 primaryLoading={inProgress}
               />

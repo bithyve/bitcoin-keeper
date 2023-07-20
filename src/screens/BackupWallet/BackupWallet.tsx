@@ -78,6 +78,7 @@ function BackupWallet() {
           subtitle={BackupWallet.backupWalletSubTitle}
           onPressHandler={() => navigation.goBack()}
           paddingTop={hp(5)}
+          paddingLeft={25}
         />
       </Box>
       <Box style={styles.optionWrapper}>
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
   optionWrapper: {
     alignItems: 'center',
     marginTop: hp(40),
-    padding: 25,
+    paddingHorizontal: 25,
   },
 });
 export default BackupWallet;

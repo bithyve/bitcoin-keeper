@@ -13,8 +13,8 @@ import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import { removeSigningDeviceBhr, setRelayVaultRecoveryAppId } from 'src/store/reducers/bhr';
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { removeSigningDeviceBhr, setRelayVaultRecoveryShellId } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
@@ -29,7 +29,8 @@ import { hash256 } from 'src/core/services/operations/encryption';
 
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
-import { WalletMap } from '../Vault/WalletMap';
+import { setTempShellId } from 'src/store/reducers/vaults';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const allowedSignerLength = [1, 3, 5];
 
@@ -40,9 +41,9 @@ function AddSigningDevice({ error }) {
       onPress={
         error
           ? () =>
-              Alert.alert(
-                'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
-              )
+            Alert.alert(
+              'Warning: No vault is assocaited with this signer, please reomve and try with another signer'
+            )
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
       }
     >
@@ -92,7 +93,7 @@ function SignerItem({ signer, index }: { signer: any | undefined; index: number 
             alignItems="center"
             alignSelf="center"
           >
-            {WalletMap(signer.type, true).Icon}
+            {SDIcons(signer.type, true).Icon}
           </Box>
           <VStack marginX="4" maxWidth="80%">
             <Text
@@ -191,7 +192,6 @@ function VaultRecovery({ navigation }) {
     if (relayVaultUpdate) {
       setRecoveryLoading(false);
       setSuccessModalVisible(true);
-      navigation.replace('App');
     }
     if (relayVaultError) {
       Alert.alert('Something went wrong!');
@@ -212,15 +212,23 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const getMetaData = async () => {
-    const xfpHash = hash256(signersList[0].masterFingerprint);
-    const response = await Relay.getVaultMetaData(xfpHash);
-    if (response?.appId) {
-      dispatch(setRelayVaultRecoveryAppId(response.appId));
+    try {
       setError(false);
-    } else if (response.error) {
-      setError(true);
-      Alert.alert('No vault is assocaited with this signer, try with another signer');
-    } else {
+      const xfpHash = hash256(signersList[0].masterFingerprint);
+
+      const response = await Relay.getVaultMetaData(xfpHash);
+      if (response?.vaultShellId) {
+        dispatch(setRelayVaultRecoveryShellId(response.vaultShellId));
+        dispatch(setTempShellId(response.vaultShellId));
+      } else if (!response?.vaultShellId && response?.appId) {
+        dispatch(setRelayVaultRecoveryShellId(response.appId));
+        dispatch(setTempShellId(response.appId));
+      } else if (response.error) {
+        setError(true);
+        Alert.alert('No vault is assocaited with this signer, try with another signer');
+      }
+    } catch (err) {
+      console.log(err);
       setError(true);
       Alert.alert('Something Went Wrong!');
     }
@@ -243,6 +251,7 @@ function VaultRecovery({ navigation }) {
         subtitle="To recover your vault"
         headerTitleColor="light.textBlack"
         paddingTop={hp(5)}
+        paddingLeft={wp(25)}
       />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
@@ -259,7 +268,7 @@ function VaultRecovery({ navigation }) {
             <AddSigningDevice error={error} />
           </Box>
         ) : (
-          <Box alignItems="center">
+          <Box flex={1} alignItems="center" justifyContent="center">
             <TouchableOpacity
               onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
             >
@@ -294,13 +303,14 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => {}}
+        close={() => { }}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
+          navigation.replace('App');
         }}
       />
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 

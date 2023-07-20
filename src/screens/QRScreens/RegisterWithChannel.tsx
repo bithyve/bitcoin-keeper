@@ -14,7 +14,11 @@ import { RNCamera } from 'react-native-camera';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { io } from 'src/core/services/channel';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { BITBOX_REGISTER, CREATE_CHANNEL } from 'src/core/services/channel/constants';
+import {
+  BITBOX_REGISTER,
+  CREATE_CHANNEL,
+  LEDGER_REGISTER,
+} from 'src/core/services/channel/constants';
 import { captureError } from 'src/core/services/sentry';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -23,7 +27,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 function RegisterWithChannel() {
   const { params } = useRoute();
   const { signer } = params as { signer: VaultSigner };
-  const channel = io(config.CHANNEL_URL); // TODO: update url once hosted
+  const channel = io(config.CHANNEL_URL);
   let channelCreated = false;
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -52,6 +56,15 @@ function RegisterWithChannel() {
         captureError(error);
       }
     });
+    channel.on(LEDGER_REGISTER, async ({ room }) => {
+      try {
+        channel.emit(LEDGER_REGISTER, { data: { vault }, room });
+        dispatch(updateSignerDetails(signer, 'registered', true));
+        navgation.goBack();
+      } catch (error) {
+        captureError(error);
+      }
+    });
     return () => {
       channel.disconnect();
     };
@@ -61,7 +74,7 @@ function RegisterWithChannel() {
     <ScreenWrapper>
       <HeaderTitle
         title="Register with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.KEEPER_HWI} to register with the device`}
+        subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to register with the device`}
       />
       <Box style={styles.qrcontainer}>
         <RNCamera

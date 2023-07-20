@@ -71,6 +71,7 @@ function SetupSeedWordSigner({ route, navigation }) {
         title="Seed Key"
         subtitle={seedText.SeedDesc}
         onPressHandler={() => navigtaion.goBack()}
+        paddingLeft={25}
       />
 
       <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>

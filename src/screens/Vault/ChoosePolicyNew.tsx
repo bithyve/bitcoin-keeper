@@ -9,7 +9,7 @@ import {
   VerificationType,
 } from 'src/core/services/interfaces';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { registerWithSigningServer, updateSignerPolicy } from 'src/store/sagaActions/wallets';
+import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
@@ -73,7 +73,6 @@ function ChoosePolicyNew({ navigation, route }) {
         exceptions,
       };
 
-      dispatch(registerWithSigningServer(policy));
       navigation.dispatch(
         CommonActions.navigate({ name: 'SetupSigningServer', params: { policy } })
       );

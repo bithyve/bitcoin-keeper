@@ -30,10 +30,21 @@ const DEFAULT_CONFIG = {
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
   CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
   KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
+  RAMP_BASE_URL: 'https://buy.ramp.network/',
+  RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
 };
 
 class Configuration {
   public RELAY = config.RELAY?.trim() ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
+
+  // RAMP details
+  public RAMP_BASE_URL: string = config.RAMP_BASE_URL
+    ? config.RAMP_BASE_URL.trim()
+    : DEFAULT_CONFIG.RAMP_BASE_URL;
+
+  public RAMP_REFERRAL_CODE: string = config.RAMP_REFERRAL_CODE
+    ? config.RAMP_REFERRAL_CODE.trim()
+    : DEFAULT_CONFIG.RAMP_REFERRAL_CODE;
 
   public SIGNING_SERVER = config.SIGNING_SERVER?.trim()
     ? config.SIGNING_SERVER.trim()
@@ -87,8 +98,6 @@ class Configuration {
   public NETWORK_TYPE: NetworkType;
 
   public ENVIRONMENT: string;
-
-  public INSTABUG_TOKEN: string = config.INSTABUG_TOKEN?.trim() ? config.INSTABUG_TOKEN.trim() : '';
 
   public CHANNEL_URL: string = config.CHANNEL_URL?.trim()
     ? config.CHANNEL_URL.trim()

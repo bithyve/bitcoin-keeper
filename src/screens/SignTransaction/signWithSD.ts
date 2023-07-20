@@ -7,6 +7,8 @@ import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 import { isSignerAMF } from 'src/hardware';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { EntityKind } from 'src/core/wallets/enums';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -129,14 +131,19 @@ export const signTransactionWithSigningServer = async ({
   signingServerOTP,
   serializedPSBT,
   SigningServer,
+  shellId,
 }) => {
   try {
     showOTPModal(false);
     const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     const outgoing = idx(signingPayload, (_) => _[0].outgoing);
     if (!childIndexArray) throw new Error('Invalid signing payload');
+
+    const vaultId = shellId;
+    const appId = keeper.id;
     const { signedPSBT } = await SigningServer.signPSBT(
-      keeper.id,
+      vaultId,
+      appId,
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
       childIndexArray,
@@ -162,7 +169,8 @@ export const signTransactionWithSeedWords = async ({
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
     const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
     const networkType = config.NETWORK_TYPE;
-    const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType);
+    const entity = (defaultVault as Vault).isMultiSig ? EntityKind.VAULT : EntityKind.WALLET;
+    const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType, entity);
     if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,

@@ -17,12 +17,14 @@ import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
 import Assert from 'src/assets/images/illustration.svg';
 import Vault from 'src/assets/images/vault.svg';
-import SettingUp from 'src/assets/images/settingup.svg';
+import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
 import Inheritance from 'src/assets/images/inheritance_Inner.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import usePlan from 'src/hooks/usePlan';
+import { TouchableOpacity } from 'react-native';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();
@@ -30,6 +32,7 @@ function SetupInheritance() {
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { showToast } = useToastMessage();
+  const { plan } = usePlan();
 
   const inheritanceData = [
     {
@@ -44,7 +47,7 @@ function SetupInheritance() {
       subTitle: 'For the estate management company',
       description:
         'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
-      Icon: SettingUp,
+      Icon: Letter,
     },
     {
       title: 'Recovery Instructions',
@@ -114,6 +117,7 @@ function SetupInheritance() {
     dispatch(setInheritance(false));
     showToast('Inheritance flow coming soon', null, 1000);
   };
+
   return (
     <ScreenWrapper>
       <Box style={styles.header}>
@@ -127,31 +131,35 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color={`${colorMode}.textWallet`} style={styles.title}>
+        <Text color="light.textWallet" style={styles.title} testID='text_InheritanceSupport'>
           Inheritance Support
         </Text>
-        <Text color={`${colorMode}.secondaryText`} style={styles.subtitle}>
+        <Text color="light.secondaryText" style={styles.subtitle} testID='text_InheritanceSupportSubtitle'>
           Keeper provides you with the tips and tools you need to include the vault in your estate
           planning
         </Text>
       </Box>
 
-      <Box style={styles.bottomContainer}>
+      <Box style={styles.bottomContainer} testID='view_InheritanceSupportAssert'>
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
-          {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
+          {plan !== SubscriptionTier.L3.toUpperCase() ? `This can be activated once you are at the ${SubscriptionTier.L3} level` : `Setup Inheritance Key`}
         </Text>
-        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
-          <Buttons
-            primaryText="Select Country"
-            primaryCallback={() => {
-              showToast('Inheritance flow coming soon', null, 1000);
-            }}
-            paddingHorizontal={wp(20)}
-          />
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID='btn_ISContinue'>
+          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => showToast('Inheritance flow coming soon', null, 1000)}>
+            <Box
+              borderColor="light.learnMoreBorder"
+              backgroundColor="light.lightAccent"
+              style={styles.upgradeNowContainer}
+            >
+              <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
+                {plan !== SubscriptionTier.L3.toUpperCase() ? `Upgrade Now` : `Setup Inheritance Key`}
+              </Text>
+            </Box>
+          </TouchableOpacity>
         </Box>
       </Box>
-      <Box style={styles.note}>
+      <Box style={styles.note} testID='view_ISNote'>
         <Note
           title="Note"
           subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
@@ -203,6 +211,7 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   topContainer: {
+    marginTop: hp(25),
     alignItems: 'center',
     paddingHorizontal: 1,
   },
@@ -210,13 +219,14 @@ const styles = ScaledSheet.create({
     fontSize: 16,
     letterSpacing: 0.96,
     marginTop: hp(10),
+    fontWeight: 'bold'
   },
   subtitle: {
     textAlign: 'center',
-    width: wp(250),
+    width: wp(270),
     marginTop: hp(4),
-    fontSize: 13,
-    letterSpacing: 1.3,
+    fontSize: 12,
+    letterSpacing: 0.80,
   },
   header: {
     marginBottom: -50,
@@ -246,6 +256,18 @@ const styles = ScaledSheet.create({
   gradientIcon: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  upgradeNowContainer: {
+    borderWidth: 0.5,
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  upgradeNowText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    alignSelf: 'center',
   },
 });
 export default SetupInheritance;

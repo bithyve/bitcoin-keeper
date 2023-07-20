@@ -22,17 +22,13 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
-import { PaymentInfoKind } from 'src/core/wallets/enums';
+import { EntityKind, PaymentInfoKind } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getNextFreeAddress } from 'src/store/sagas/send_and_receive';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -43,21 +39,29 @@ import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import WalletOperations from 'src/core/wallets/operations';
+import useWallets from 'src/hooks/useWallets';
+import { UTXO } from 'src/core/wallets/interfaces';
+import useVault from 'src/hooks/useVault';
 
 function SendScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
-  const { sender } = route.params as { sender: Wallet | Vault };
+  const { sender, selectedUTXOs } = route.params as {
+    sender: Wallet | Vault;
+    selectedUTXOs?: UTXO[];
+  };
+
   const [showNote, setShowNote] = useState(true);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [paymentInfo, setPaymentInfo] = useState('');
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
-  const allWallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject);
+  const { wallets: allWallets } = useWallets();
+  const { activeVault } = useVault();
   const otherWallets: Wallet[] = allWallets.filter(
     (existingWallet) => existingWallet.id !== sender.id
   );
@@ -95,6 +99,7 @@ function SendScreen({ route }) {
 
     launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
+        showToast('Camera device has been canceled');
       } else if (response.errorCode === 'camera_unavailable') {
         showToast('Camera not available on device');
       } else if (response.errorCode === 'permission') {
@@ -132,6 +137,7 @@ function SendScreen({ route }) {
       address,
       amount,
       transferType,
+      selectedUTXOs,
     });
   };
 
@@ -139,24 +145,42 @@ function SendScreen({ route }) {
     info = info.trim();
     const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
     setPaymentInfo(address);
+    const sendingTo = WalletUtilities.getWalletFromAddress(allWallets.concat(activeVault), address);
+    if (sendingTo) {
+      switch (sendingTo.entityKind) {
+        case EntityKind.VAULT:
+          const type =
+            sender.entityKind === EntityKind.VAULT
+              ? TransferType.VAULT_TO_VAULT
+              : TransferType.VAULT_TO_WALLET;
+          navigateToNext(address, type, amount ? amount.toString() : null, sendingTo);
+          break;
+        case EntityKind.WALLET:
+          const transferType =
+            sender.entityKind === EntityKind.WALLET
+              ? TransferType.WALLET_TO_WALLET
+              : TransferType.WALLET_TO_VAULT;
+          navigateToNext(address, transferType, amount ? amount.toString() : null, sendingTo);
+          break;
+        default:
+          showToast('Invalid bitcoin address', <ToastErrorIcon />);
+      }
+      return;
+    }
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
-        sender.entityKind === 'VAULT'
-          ? navigateToNext(address, TransferType.VAULT_TO_ADDRESS)
-          : navigateToNext(address, TransferType.WALLET_TO_ADDRESS);
+        const type =
+          sender.entityKind === 'VAULT'
+            ? TransferType.VAULT_TO_ADDRESS
+            : TransferType.WALLET_TO_ADDRESS;
+        navigateToNext(address, type, amount ? amount.toString() : null, sendingTo);
         break;
       case PaymentInfoKind.PAYMENT_URI:
-        sender.entityKind === 'VAULT'
-          ? navigateToNext(
-              address,
-              TransferType.VAULT_TO_ADDRESS,
-              amount ? amount.toString() : null
-            )
-          : navigateToNext(
-              address,
-              TransferType.WALLET_TO_ADDRESS,
-              amount ? amount.toString() : null
-            );
+        const transferType =
+          sender.entityKind === 'VAULT'
+            ? TransferType.VAULT_TO_ADDRESS
+            : TransferType.WALLET_TO_ADDRESS;
+        navigateToNext(address, transferType, amount ? amount.toString() : null, sendingTo);
         break;
       default:
         showToast('Invalid bitcoin address', <ToastErrorIcon />);
@@ -166,9 +190,19 @@ function SendScreen({ route }) {
   const renderWallets = ({ item }: { item: Wallet }) => {
     const onPress = () => {
       if (sender.entityKind === 'VAULT') {
-        navigateToNext(getNextFreeAddress(item), TransferType.VAULT_TO_WALLET, null, item);
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(item),
+          TransferType.VAULT_TO_WALLET,
+          null,
+          item
+        );
       } else {
-        navigateToNext(getNextFreeAddress(item), TransferType.WALLET_TO_WALLET, null, item);
+        navigateToNext(
+          WalletOperations.getNextFreeAddress(item),
+          TransferType.WALLET_TO_WALLET,
+          null,
+          item
+        );
       }
     };
     return (
@@ -198,58 +232,59 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        {/* <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}> */}
         <HeaderTitle
           title={common.send}
           subtitle="Scan a bitcoin address"
           headerTitleColor="light.textBlack"
           paddingTop={hp(5)}
+          paddingLeft={25}
         />
-        <Box>
-          <Box style={styles.qrcontainer}>
-            <RNCamera
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={(data) => {
-                handleTextChange(data.data);
-              }}
-              notAuthorizedView={<CameraUnauthorized />}
-            />
-          </Box>
-          {/* Upload Image */}
+        <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
+          <Box>
+            <Box style={styles.qrcontainer}>
+              <RNCamera
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={(data) => {
+                  handleTextChange(data.data);
+                }}
+                notAuthorizedView={<CameraUnauthorized />}
+              />
+            </Box>
+            {/* Upload Image */}
 
-          <UploadImage onPress={handleChooseImage} />
+            <UploadImage onPress={handleChooseImage} />
 
-          {/* send manually option */}
-          <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
-            <TextInput
-              placeholder="or enter address manually"
-              placeholderTextColor="light.GreyText"
-              style={styles.textInput}
-              value={paymentInfo}
-              onChangeText={handleTextChange}
-            />
-          </Box>
+            {/* send manually option */}
+            <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+              <TextInput
+                placeholder="or enter address manually"
+                placeholderTextColor="light.GreyText"
+                style={styles.textInput}
+                value={paymentInfo}
+                onChangeText={handleTextChange}
+              />
+            </Box>
 
-          {/* Send to Wallet options */}
-          <Box style={styles.sendToWalletWrapper}>
-            <Text marginX={2} fontSize={14} letterSpacing={1.12}>
-              or send to a wallet
-            </Text>
-            <View>
-              <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
-                <FlatList
-                  data={otherWallets}
-                  renderItem={renderWallets}
-                  keyExtractor={(item) => item.id}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                />
+            {/* Send to Wallet options */}
+            <Box style={styles.sendToWalletWrapper}>
+              <Text marginX={2} fontSize={14} letterSpacing={1.12}>
+                or send to a wallet
+              </Text>
+              <View>
+                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
+                  <FlatList
+                    data={otherWallets}
+                    renderItem={renderWallets}
+                    keyExtractor={(item) => item.id}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                  />
+                </View>
               </View>
-            </View>
+            </Box>
           </Box>
-        </Box>
-        {/* </ScrollView> */}
+        </ScrollView>
       </KeyboardAvoidingView>
 
       {/* {Bottom note} */}

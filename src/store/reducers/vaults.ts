@@ -33,6 +33,8 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
+  whirlpoolIntro: boolean;
+  tempShellId: string;
 };
 
 export type SignerUpdatePayload = {
@@ -53,6 +55,8 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
+  whirlpoolIntro: true,
+  tempShellId: null,
 };
 
 const vaultSlice = createSlice({
@@ -60,8 +64,34 @@ const vaultSlice = createSlice({
   initialState,
   reducers: {
     addSigningDevice: (state, action: PayloadAction<VaultSigner[]>) => {
-      const newSigners = action.payload.filter((signer) => !!signer && !!signer.signerId);
-      state.signers = _.uniqBy([...state.signers, ...newSigners], 'signerId');
+      const newSigners = action.payload.filter((signer) => signer && signer.signerId);
+      if (newSigners.length === 0) {
+        return state;
+      }
+      let updatedSigners = [...state.signers];
+      if (newSigners.length === 1) {
+        const newSigner = newSigners[0];
+        const existingSignerIndex = updatedSigners.findIndex(
+          (signer) => signer.masterFingerprint === newSigner.masterFingerprint
+        );
+        if (existingSignerIndex !== -1) {
+          const existingSigner = updatedSigners[existingSignerIndex];
+          const combinedSigner: VaultSigner = {
+            ...newSigner,
+            lastHealthCheck: existingSigner.lastHealthCheck,
+            signerDescription: existingSigner.signerDescription,
+            xpubDetails: { ...existingSigner.xpubDetails, ...newSigner.xpubDetails },
+          };
+
+          updatedSigners[existingSignerIndex] = combinedSigner;
+        } else {
+          updatedSigners.push(newSigner);
+        }
+      } else {
+        updatedSigners.push(...newSigners);
+      }
+      updatedSigners = _.uniqBy(updatedSigners, 'signerId');
+      return { ...state, signers: updatedSigners };
     },
     removeSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
       const signerToRemove =
@@ -113,6 +143,9 @@ const vaultSlice = createSlice({
     setSdIntroModal: (state, action: PayloadAction<boolean>) => {
       state.sdIntroModal = action.payload;
     },
+    setWhirlpoolIntro: (state, action: PayloadAction<boolean>) => {
+      state.whirlpoolIntro = action.payload;
+    },
     vaultMigrationCompleted: (state, action: PayloadAction<VaultMigrationCompletionPayload>) => {
       const { isMigratingNewVault, hasMigrationSucceeded, hasMigrationFailed, error } =
         action.payload;
@@ -121,6 +154,9 @@ const vaultSlice = createSlice({
       state.hasMigrationFailed = hasMigrationFailed;
       state.error = error;
       state.intrimVault = null;
+    },
+    setTempShellId: (state, action: PayloadAction<string>) => {
+      state.tempShellId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -141,9 +177,11 @@ export const {
   removeSigningDevice,
   setIntroModal,
   setSdIntroModal,
+  setWhirlpoolIntro,
   updateSigningDevice,
   clearSigningDevice,
   resetVaultMigration,
+  setTempShellId,
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;

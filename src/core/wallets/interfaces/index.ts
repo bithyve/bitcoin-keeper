@@ -1,6 +1,12 @@
 /* eslint-disable no-unused-vars */
-import { VerificationType } from 'src/core/services/interfaces';
-import { NetworkType, SignerType, TransactionType, TxPriorityDefault } from '../enums';
+import {
+  LabelRefType,
+  LabelType,
+  NetworkType,
+  SignerType,
+  TransactionType,
+  TxPriorityDefault,
+} from '../enums';
 
 export interface InputUTXOs {
   txId: string;
@@ -117,13 +123,29 @@ export interface Balances {
   confirmed: number;
   unconfirmed: number;
 }
-
 export interface UTXO {
   txId: string;
   vout: number;
   value: number;
   address: string;
   height: number;
+}
+
+export interface UTXOInfo {
+  id: string;
+  txId: string;
+  vout: number;
+  walletId: string;
+  labels?: Array<{ name: string; type: LabelType }>;
+}
+
+export interface BIP329Label {
+  id: string;
+  ref: string;
+  type: LabelRefType;
+  label: string;
+  origin?: string;
+  isSystem: boolean;
 }
 
 export interface BIP85Config {
@@ -133,22 +155,11 @@ export interface BIP85Config {
   derivationPath: string;
 }
 
-export interface SigningServerSetup {
-  validation?: {
-    validationType: VerificationType;
-    validationKey?: string;
-    vaildated?: boolean;
-  };
-  setupInfo?: {
-    xpub: string;
-    derivationPath: string;
-    masterFingerprint: string;
-  };
-}
-
 export interface SigningPayload {
   payloadTarget: SignerType;
-  inputs?: any;
+  inputs?: InputUTXOs[];
+  outputs?: OutputUTXOs[];
+  change?: string;
   inputsToSign?: Array<{
     digest: string;
     subPath: string;
@@ -184,4 +195,5 @@ export interface NodeDetail {
   isConnected: boolean;
   useKeeperNode: boolean;
   useSSL: boolean;
+  isDefault?: boolean;
 }

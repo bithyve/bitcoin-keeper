@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -16,35 +16,36 @@ import IconRecieve from 'src/assets/images/icon_received_lg.svg';
 import IconSend from 'src/assets/images/icon_send_lg.svg';
 import Link from 'src/assets/images/link.svg';
 import Edit from 'src/assets/images/edit.svg';
-import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 import { Transaction } from 'src/core/wallets/interfaces';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import useLabelsNew from 'src/hooks/useLabelsNew';
+import useTransactionLabels from 'src/hooks/useTransactionLabels';
+import LabelItem from '../UTXOManagement/components/LabelItem';
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance } = useBalance();
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
-  const { transaction }: { transaction: Transaction } = route.params;
+  const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
+  const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
+  const { labels: txnLabels } = useTransactionLabels({ txid: transaction.txid, wallet });
 
   function InfoCard({
     title,
-    describtion,
+    describtion = '',
     width = 320,
     showIcon = false,
     letterSpacing = 1,
     numberOfLines = 1,
     Icon = null,
+    Content = null,
   }) {
     return (
       <Box
@@ -57,15 +58,19 @@ function TransactionDetails({ route }) {
             <Text color={`${colorMode}.headerText`} style={styles.titleText}>
               {title}
             </Text>
-            <Text
-              style={styles.descText}
-              letterSpacing={letterSpacing}
-              color={`${colorMode}.GreyText`}
-              width={showIcon ? '60%' : '90%'}
-              numberOfLines={numberOfLines}
-            >
-              {describtion}
-            </Text>
+            {Content ? (
+              <Content />
+            ) : (
+              <Text
+                style={styles.descText}
+                letterSpacing={letterSpacing}
+                color="light.GreyText"
+                width={showIcon ? '60%' : '90%'}
+                numberOfLines={numberOfLines}
+              >
+                {describtion}
+              </Text>
+            )}
           </Box>
           {showIcon && Icon}
         </Box>
@@ -74,8 +79,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://blockstream.info${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''
-      }/tx/${transaction.txid}`
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      }`
     );
   };
   return (
@@ -85,8 +90,9 @@ function TransactionDetails({ route }) {
         <HeaderTitle
           onPressHandler={() => navigation.goBack()}
           title={transactions.TransactionDetails}
-          subtitle=""
+          subtitle="Detailed information for this Transaction"
           paddingTop={hp(20)}
+          paddingLeft={25}
         />
         <Box style={styles.transViewWrapper}>
           <Box flexDirection="row">
@@ -102,16 +108,35 @@ function TransactionDetails({ route }) {
           </Box>
           <Box>
             <Text style={styles.amountText}>
-              {`${getAmt(transaction.amount, exchangeRates, currencyCode, currentCurrency, satsEnabled)} `}
-              <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-                {getUnit(currentCurrency, satsEnabled)}
+              {`${getBalance(transaction.amount)} `}
+              <Text color="light.dateText" style={styles.unitText}>
+                {getSatUnit()}
               </Text>
             </Text>
-          </Box>
-        </Box>
-      </Box>
+          </Box >
+        </Box >
+      </Box >
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
+          {txnLabels.length ? (
+            <InfoCard
+              title="Tags"
+              Content={() => (
+                <View style={styles.listSubContainer}>
+                  {txnLabels.map((item, index) => (
+                    <LabelItem
+                      item={item}
+                      index={index}
+                      key={`${item.name}:${item.isSystem}`}
+                      editable={false}
+                    />
+                  ))}
+                </View>
+              )}
+              showIcon={false}
+              letterSpacing={2.4}
+            />
+          ) : null}
           <InfoCard
             title="Confirmations"
             describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
@@ -135,28 +160,28 @@ function TransactionDetails({ route }) {
           />
           <InfoCard
             title="Inputs"
-            describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
-            showIcon={false}
-            numberOfLines={transaction.recipientAddresses.length}
-          />
-          <InfoCard
-            title="Outputs"
             describtion={transaction.senderAddresses.toString().replace(/,/g, '\n')}
             showIcon={false}
             numberOfLines={transaction.senderAddresses.length}
           />
-          {transaction.notes && (
+          <InfoCard
+            title="Outputs"
+            describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
+            showIcon={false}
+            numberOfLines={transaction.recipientAddresses.length}
+          />
+          {labels[transaction.txid].length ? (
             <InfoCard
               title="Note"
-              describtion={transaction.notes}
+              describtion={labels[transaction.txid][0].name}
               showIcon
               letterSpacing={2.4}
               Icon={<Edit />}
             />
-          )}
+          ) : null}
         </Box>
       </ScrollView>
-    </Box>
+    </Box >
   );
 }
 
@@ -214,6 +239,11 @@ const styles = ScaledSheet.create({
   unitText: {
     letterSpacing: 0.6,
     fontSize: hp(12),
+  },
+  listSubContainer: {
+    flexWrap: 'wrap',
+    marginBottom: 20,
+    flexDirection: 'row',
   },
 });
 export default TransactionDetails;

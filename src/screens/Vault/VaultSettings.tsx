@@ -17,15 +17,12 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { getAmt, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import KeeperModal from 'src/components/KeeperModal';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import Colors from 'src/theme/Colors';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 
 type Props = {
   title: string;
@@ -109,19 +106,14 @@ function VaultSettings({ route }) {
   const navigtaion = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const [genratorModalVisible, setGenratorModalVisible] = useState(false);
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
-  const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { getSatUnit, getBalance } = useBalance();
+
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
-  const descriptorString = genrateOutputDescriptors(
-    vault.isMultiSig,
-    vault.signers,
-    vault.scheme,
-    vault
-  );
+
+  const descriptorString = genrateOutputDescriptors(vault);
+
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -162,7 +154,7 @@ function VaultSettings({ route }) {
           </Box>
           <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
             {vaultBalance}
-            {getUnit(currentCurrency, satsEnabled)}
+            {getSatUnit()}
           </Text>
         </Box>
       </LinearGradient>
@@ -179,19 +171,14 @@ function VaultSettings({ route }) {
           headerTitleColor="light.textBlack"
           titleFontSize={20}
           paddingTop={hp(5)}
+          paddingLeft={hp(25)}
         />
       </Box>
       <Box borderBottomColor="light.divider" style={styles.vaultCardWrapper}>
         <VaultCard
           vaultName={name}
           vaultDescription={description}
-          vaultBalance={getAmt(
-            confirmed + unconfirmed,
-            exchangeRates,
-            currencyCode,
-            currentCurrency,
-            satsEnabled
-          )}
+          vaultBalance={getBalance(confirmed + unconfirmed)}
         />
       </Box>
       <Box style={styles.optionViewWrapper}>
