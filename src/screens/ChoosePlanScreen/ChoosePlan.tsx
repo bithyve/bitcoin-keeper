@@ -1,7 +1,7 @@
 /* eslint-disable prefer-destructuring */
 import { ActivityIndicator, Platform, ScrollView, Alert, Linking, TouchableOpacity, Image } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
@@ -36,6 +36,7 @@ import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan(props) {
+  const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
   const { choosePlan } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
