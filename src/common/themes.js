@@ -117,7 +117,7 @@ export const customTheme = extendTheme({
       dateText: Colors.HookerGreen,
       Border: Colors.CastletonGreen,
       textColor: Colors.LightGray,
-      textColor2: Colors.DeepSpaceSparkle,
+      textColor2: Colors.DeepSpaceSparkleDark,
       headerText: Colors.TropicalRainForest,
       copyBackground: Colors.LightGray,
       sendCardHeading: Colors.BlueGreen,
