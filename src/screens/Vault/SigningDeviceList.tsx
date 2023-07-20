@@ -91,6 +91,7 @@ const getDeviceStatus = (
 };
 
 function SigningDeviceList() {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();

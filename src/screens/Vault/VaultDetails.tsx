@@ -47,8 +47,6 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
@@ -60,6 +58,7 @@ import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
 
 function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const featureMap = useFeatureMap({ scheme: vault.scheme });

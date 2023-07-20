@@ -4,7 +4,6 @@ import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NodeDetail } from 'src/core/wallets/interfaces';
-import CheckBox from 'src/components/Checkbox';
 import Buttons from 'src/components/Buttons';
 import Switch from 'src/components/Switch/Switch';
 import Text from 'src/components/KeeperText';

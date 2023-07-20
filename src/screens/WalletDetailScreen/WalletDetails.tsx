@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';

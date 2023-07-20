@@ -8,7 +8,7 @@ HexaToastMessages.defaultProps = {
   Image: null,
   error: false,
 };
-console.log('windowHeight', windowHeight)
+
 function HexaToastMessages({
   Image,
   error,

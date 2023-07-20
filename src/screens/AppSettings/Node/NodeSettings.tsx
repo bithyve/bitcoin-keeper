@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';

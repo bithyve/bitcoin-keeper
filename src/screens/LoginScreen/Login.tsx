@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';

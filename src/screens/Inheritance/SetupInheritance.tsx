@@ -8,7 +8,6 @@ import LinearGradient from 'src/components/KeeperGradient';
 // components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';

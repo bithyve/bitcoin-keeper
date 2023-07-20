@@ -11,12 +11,10 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
-import KeeperModal from 'src/components/KeeperModal';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;

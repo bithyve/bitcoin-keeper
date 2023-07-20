@@ -11,8 +11,6 @@ import {
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 
-import LinearGradient from 'src/components/KeeperGradient';
-
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Illustration1 from 'src/assets/images/illustration_1.svg';

@@ -1,7 +1,7 @@
 /* eslint-disable prefer-destructuring */
 import { ActivityIndicator, Platform, ScrollView, Alert, Linking, TouchableOpacity, Image } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box } from 'native-base';
 import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
@@ -32,7 +32,6 @@ import { uaiChecks } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 
