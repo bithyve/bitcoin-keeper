@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
@@ -14,10 +14,10 @@ import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
-import BalanceToggle from './components/BalanceToggle';
 
 function VaultScreen() {
   const { activeVault } = useVault();
+  const { colorMode } = useColorMode();
   const signers = idx(activeVault, (_) => _.signers) || [];
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
@@ -43,7 +43,7 @@ function VaultScreen() {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color="light.primaryText" testID='text_YourVault'>
+          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID='text_YourVault'>
             Your Vault
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">

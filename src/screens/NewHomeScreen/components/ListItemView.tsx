@@ -1,32 +1,32 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import Fonts from 'src/common/Fonts';
 
 function ListItemView(props) {
+  const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity style={[styles.wrapper, { backgroundColor: "#FDF7F0" }]} onPress={props.onPress} testID={`btn_${props.title.replace(/ /g, '_')}`}>
+    <Pressable backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper} onPress={props.onPress} testID={`btn_${props.title.replace(/ /g, '_')}`}>
       <Box>
         <Box style={styles.iconView} backgroundColor={props.iconBackColor} testID='view_listIcon'>
           {props.icon}
         </Box>
       </Box>
       <Box style={styles.titleWrapper}>
-        <Text color="light.primaryText" style={styles.titleText} testID={`text_${props.title.replace(/ /g, '_')}`}>
+        <Text color={`${colorMode}.primaryText`} style={styles.titleText} testID={`text_${props.title.replace(/ /g, '_')}`}>
           {props.title}
         </Text>
-        <Text color="light.textColor2" style={styles.subTitleText} testID='text_listSubTitle'>
+        <Text color={`${colorMode}.textColor2`} style={styles.subTitleText} testID='text_listSubTitle'>
           {props.subTitle}
         </Text>
       </Box>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 const styles = StyleSheet.create({
   wrapper: {
-    backgroundColor: 'red',
     paddingVertical: windowHeight > 680 ? 25 : 10,
     paddingHorizontal: 18,
     width: '100%',

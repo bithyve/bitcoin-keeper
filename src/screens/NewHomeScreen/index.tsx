@@ -10,6 +10,7 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { useColorMode } from 'native-base';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
 
@@ -24,18 +25,19 @@ function TabButton({
   textColorActive,
   textColor,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
-        styles.container,
+        getStyles(colorMode).container,
         { backgroundColor: active ? backgroundColorActive : backgroundColor },
       ]}
     >
       {active ? <IconActive /> : <Icon />}
       <Text
         style={[
-          styles.label,
+          getStyles(colorMode).label,
           {
             color: active ? textColorActive : textColor,
             fontWeight: active ? '600' : '300',
@@ -51,6 +53,7 @@ function TabButton({
 const Tab = createBottomTabNavigator();
 
 function NewHomeScreen({ navigation }) {
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   useEffect(() => {
     Linking.addEventListener('url', handleDeepLinkEvent);
@@ -141,10 +144,10 @@ function NewHomeScreen({ navigation }) {
       />
     );
   }, []);
-
+  const styles = getStyles(colorMode);
   return (
     <Tab.Navigator
-      sceneContainerStyle={{ backgroundColor: '#F2EDE6' }}
+      sceneContainerStyle={{ backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A' }}
       screenOptions={({ route, navigation }) => ({
         tabBarButton: ({ onPress }) => (
           <TabBarButton onPress={onPress} route={route} navigation={navigation} />
@@ -155,13 +158,13 @@ function NewHomeScreen({ navigation }) {
     >
       <Tab.Screen name="Wallet" component={WalletsScreen} />
       <Tab.Screen name="Vault" component={VaultScreen} />
-    </Tab.Navigator>
+    </Tab.Navigator >
   );
 }
 
 export default NewHomeScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (colorMode) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -177,9 +180,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   tabBarStyle: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: '#FDF7F0',
+    backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A',
+    // borderTopLeftRadius: 10,
+    // borderTopRightRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     height: Platform.OS === 'android' ? hp(55) : hp(80),

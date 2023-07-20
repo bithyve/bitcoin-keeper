@@ -7,7 +7,6 @@ import UaiDisplay from 'src/screens/HomeScreen/UaiDisplay';
 import useUaiStack from 'src/hooks/useUaiStack';
 import usePlan from 'src/hooks/usePlan';
 
-import Colors from 'src/theme/Colors';
 import HeaderBar from './components/HeaderBar';
 import CurrentPlanView from './components/CurrentPlanView';
 

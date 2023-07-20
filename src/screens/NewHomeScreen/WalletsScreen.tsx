@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
-import { Box, FlatList } from 'native-base';
+import { Box, FlatList, useColorMode } from 'native-base';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -201,6 +201,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
 
 const WalletsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const { colorMode } = useColorMode();
   const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
@@ -376,7 +377,7 @@ const WalletsScreen = ({ navigation }) => {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
-          <Text style={styles.titleText} color="light.primaryText" testID='text_HotWallet'>
+          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID='text_HotWallet'>
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
@@ -388,8 +389,8 @@ const WalletsScreen = ({ navigation }) => {
             hideAmounts={hideAmounts}
             amount={netBalance}
             fontSize={20}
-            color={Colors.black}
-            variation="dark"
+            color={`${colorMode}.primaryText`}
+            variation={colorMode === 'light' ? "dark" : "light"}
           />
         </Box>
       </Box>
