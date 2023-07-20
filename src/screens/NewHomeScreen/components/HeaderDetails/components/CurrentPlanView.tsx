@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -8,14 +8,15 @@ import Fonts from 'src/common/Fonts';
 
 function CurrentPlanView({ plan }) {
   const navigation = useNavigation();
+  const { colorMode } = useColorMode();
 
   return (
     <Box style={styles.wrapper} borderBottomColor="light.lightAccent">
-      <Text style={styles.titleTxet} color="light.secondaryText">
+      <Text style={styles.titleTxet} color={`${colorMode}.secondaryText`}>
         You are at
       </Text>
       <TouchableOpacity onPress={() => navigation.navigate('ChoosePlan')} testID="btn_choosePlan">
-        <Text style={styles.currentPlanText} color="light.greenText2">
+        <Text style={styles.currentPlanText} color={`${colorMode}.greenText2`}>
           {plan}
         </Text>
       </TouchableOpacity>

@@ -1,8 +1,9 @@
 import React, { useContext, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import IconSettings from 'src/assets/images/new_icon_settings.svg';
+import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
 
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -11,6 +12,7 @@ import { TorStatus } from 'src/core/services/rest/RestClient';
 
 function HeaderBar() {
   const { torStatus } = useContext(TorContext);
+  const { colorMode } = useColorMode();
 
   const navigation = useNavigation();
 
@@ -59,7 +61,7 @@ function HeaderBar() {
         onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
         testID="btn_AppSettingsIcon"
       >
-        <IconSettings />
+        {colorMode === 'light' ? <IconSettings /> : <IconDarkSettings />}
       </TouchableOpacity>
     </Box>
   );
