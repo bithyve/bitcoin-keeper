@@ -373,6 +373,8 @@ PODS:
     - React-Core
   - react-native-nfc-manager (3.13.5):
     - React-Core
+  - react-native-pdf (6.7.1):
+    - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (4.3.1):
@@ -579,6 +581,7 @@ DEPENDENCIES:
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-nfc-manager (from `../node_modules/react-native-nfc-manager`)
+  - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-tcp-socket (from `../node_modules/react-native-tcp-socket`)
@@ -704,6 +707,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-mmkv"
   react-native-nfc-manager:
     :path: "../node_modules/react-native-nfc-manager"
+  react-native-pdf:
+    :path: "../node_modules/react-native-pdf"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -826,6 +831,7 @@ SPEC CHECKSUMS:
   react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-mmkv: 1265a348a4711097ba29c8bcefd5971f48220f2b
   react-native-nfc-manager: 42ebc22a04f32c0c2bc63a016ab30fa6486de450
+  react-native-pdf: 7c0e91ada997bac8bac3bb5bea5b6b81f5a3caae
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 6c12e3859b6f27b25de4fee8201cfb858432d8de
   react-native-tcp-socket: c1b7297619616b4c9caae6889bcb0aba78086989
@@ -865,4 +871,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: a9d494ae1fc7e52d18273db1e20f0ceee56817df
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.12.1
