@@ -1,41 +1,40 @@
 import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import Permissions from 'react-native-permissions';
+import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box } from 'native-base';
 
-import Text from './KeeperText';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import Text from './KeeperText';
 
 function CameraUnauthorized() {
-
   const requestPermission = () => {
-    Permissions.openSettings();
+    Linking.openSettings();
   };
 
   return (
-    <View
-      style={{ ...styles.cameraView, backgroundColor: '#000' }}
-    >
+    <View style={{ ...styles.cameraView, backgroundColor: '#000' }}>
       <Box style={styles.container}>
         <Text
-          color='light.white'
+          color="light.white"
           style={{
-            fontSize: 13
-          }} >
+            fontSize: 13,
+          }}
+        >
           Camera access is turned off
         </Text>
         <Text
-          color='light.white'
+          color="light.white"
           style={{
-            fontSize: 11
+            fontSize: 11,
           }}
         >
           Turn on the camera in your device settings
         </Text>
-        <TouchableOpacity onPress={requestPermission}
+        <TouchableOpacity
+          onPress={requestPermission}
           style={{
-            marginTop: hp(15)
-          }}>
+            marginTop: hp(15),
+          }}
+        >
           <Box
             borderColor="light.learnMoreBorder"
             backgroundColor="light.lightAccent"
@@ -58,7 +57,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     flex: 1,
-    marginBottom: hp(40)
+    marginBottom: hp(40),
   },
   learnMoreContainer: {
     borderWidth: 0.5,
@@ -75,5 +74,5 @@ const styles = StyleSheet.create({
   cameraView: {
     height: hp(280),
     width: wp(375),
-  }
+  },
 });
