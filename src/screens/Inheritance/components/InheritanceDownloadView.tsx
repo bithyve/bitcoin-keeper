@@ -2,7 +2,8 @@ import React from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import ToastErrorIcon from 'src/assets/images/download.svg';
+import DownloadIcon from 'src/assets/images/download.svg';
+import ViewIcon from 'src/assets/images/icon_show.svg'
 import { hp } from 'src/common/data/responsiveness/responsive';
 
 
@@ -18,13 +19,19 @@ function InheritanceDownloadView(props) {
             </Box>
             <Box style={styles.btnWrapper}>
                 {props.isDownload ?
-                    <TouchableOpacity style={styles.downloadBtn} onPress={props.onPress}>
-                        <ToastErrorIcon />
-                        <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text>
-                    </TouchableOpacity>
+                    <Box style={styles.downloadBtnWrapper}>
+                        <TouchableOpacity style={styles.downloadBtn} onPress={props.previewPDF}>
+                            <ViewIcon />
+                            {/* <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text> */}
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.downloadBtn} onPress={props.downloadPDF}>
+                            <DownloadIcon />
+                            {/* <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text> */}
+                        </TouchableOpacity>
+                    </Box>
                     :
-                    <TouchableOpacity style={styles.downloadBtn} onPress={props.onPress}>
-                        <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Setup</Text>
+                    <TouchableOpacity style={styles.setupBtn} onPress={props.onPress}>
+                        <Text style={styles.setupBtnText}>&nbsp;&nbsp;Setup</Text>
                     </TouchableOpacity>
                 }
             </Box>
@@ -42,7 +49,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: hp(15)
     },
+    downloadBtnWrapper: {
+        flexDirection: 'row',
+        width: '100%',
+        justifyContent: 'space-between'
+    },
     downloadBtn: {
+        width: '45%',
+        padding: 5,
+        paddingVertical: 10,
+        backgroundColor: '#E3BE96',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 10,
+    },
+    setupBtn: {
         flexDirection: 'row',
         backgroundColor: '#E3BE96',
         padding: 5,
@@ -50,7 +71,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: 10,
     },
-    downloadBtnText: {
+    setupBtnText: {
         color: '#725436',
         fontSize: 12,
     },

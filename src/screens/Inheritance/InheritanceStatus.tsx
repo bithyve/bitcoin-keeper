@@ -18,11 +18,14 @@ import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import DownloadFile from 'src/utils/DownloadPDF';
+import config from "src/core/config";
 import useToastMessage from 'src/hooks/useToastMessage';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 
+
+const { RELAY } = config;
 function InheritanceStatus() {
     const { showToast } = useToastMessage();
     const navigtaion = useNavigation();
@@ -44,9 +47,14 @@ function InheritanceStatus() {
                     icon={<SafeguardingTips />}
                     title='Key Security Tips'
                     subTitle='How to store your keys securely'
-                    onPress={() => DownloadFile('Key Security Tips').then(() => {
-                        showToast('Document has been downloaded.', <TickIcon />);
-                    })}
+                    previewPDF={() =>
+                        navigtaion.navigate('PreviewPDF', { source: `${RELAY}/pdf/tips.pdf` })
+                    }
+                    downloadPDF={() => {
+                        DownloadFile('Key Security Tips').then(() => {
+                            showToast('Document has been downloaded.', <TickIcon />);
+                        })
+                    }}
                     isDownload
                 />
                 <InheritanceDownloadView
@@ -65,18 +73,24 @@ function InheritanceStatus() {
                     icon={<Letter />}
                     title='Letter to the attorney'
                     subTitle='A partly filled pdf template'
-                    onPress={() => DownloadFile('Letter to the attorney').then(() => {
+                    downloadPDF={() => DownloadFile('Letter to the attorney').then(() => {
                         showToast('Document has been downloaded.', <TickIcon />);
                     })}
+                    previewPDF={() => {
+                        navigtaion.navigate('PreviewPDF', { source: `${RELAY}/pdf/loa.pdf` })
+                    }}
                     isDownload
                 />
                 <InheritanceDownloadView
                     icon={<Recovery />}
                     title='Recovery Instructions'
                     subTitle='A document for the heir only'
-                    onPress={() => DownloadFile('Restoring Inheritance Vault').then(() => {
+                    downloadPDF={() => DownloadFile('Restoring Inheritance Vault').then(() => {
                         showToast('Document has been downloaded.', <TickIcon />);
                     })}
+                    previewPDF={() => {
+                        navigtaion.navigate('PreviewPDF', { source: `${RELAY}/pdf/restoring.pdf` })
+                    }}
                     isDownload
                 />
             </ScrollView>

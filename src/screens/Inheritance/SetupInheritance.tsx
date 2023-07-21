@@ -121,7 +121,7 @@ function SetupInheritance() {
           onPressHandler={() => navigtaion.goBack()}
           learnMore
           learnMorePressed={() => {
-            // dispatch(setInheritance(true));
+            dispatch(setInheritance(true));
           }}
         />
       </Box>
