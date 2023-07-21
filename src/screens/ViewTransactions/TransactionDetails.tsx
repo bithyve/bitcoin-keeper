@@ -102,7 +102,7 @@ function TransactionDetails({ route }) {
                 {transaction.txid}
               </Text>
               <Text style={styles.transDateText} color={`${colorMode}.dateText`}>
-                {moment(transaction?.date).format('DD MMM YY  •  hh:mma')}
+                {moment(transaction?.date).format('DD MMM YY  •  hh:mm A')}
               </Text>
             </Box>
           </Box>
