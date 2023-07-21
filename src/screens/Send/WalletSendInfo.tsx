@@ -11,6 +11,7 @@ import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
 
 function WalletSendInfo({
   availableAmt = '',
@@ -37,21 +38,25 @@ function WalletSendInfo({
           {selectedUTXOs.length ? (
             <Text fontSize={12} numberOfLines={1}>
               Sending from selected UTXOs of &nbsp;
-              {currencyIcon}
+              <BTCIcon />
               &nbsp;
               <Text bold fontSize={14}>
                 {SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0))} {isSats && 'sats'}
               </Text>
             </Text>
           ) : (
-            <Text fontSize={12} numberOfLines={1}>
-              Available to spend &nbsp;
-              {currencyIcon}
-              &nbsp;
-              <Text bold fontSize={14}>
-                {availableAmt} {isSats && 'sats'}
+            <Box style={styles.balanceWrapper}>
+              <Text fontSize={12} numberOfLines={1}>
+                Available to spend&nbsp;
               </Text>
-            </Text>
+              <CurrencyInfo
+                hideAmounts={false}
+                amount={availableAmt}
+                fontSize={14}
+                color="light.sendCardHeading"
+                variation='dark'
+              />
+            </Box>
           )}
         </Box>
       </Box>
@@ -92,5 +97,9 @@ const styles = ScaledSheet.create({
     letterSpacing: 1.12,
     width: wp(100),
   },
+  balanceWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
 });
 export default WalletSendInfo;

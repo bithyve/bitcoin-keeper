@@ -4,7 +4,7 @@ import * as bip39 from 'bip39';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -31,9 +31,10 @@ import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
+import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import config from 'src/core/config';
@@ -174,7 +175,7 @@ const getSignerContent = (
             `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
           ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
-        subTitle: 'A Signing Server will hold one of the keys in the Vault',
+        subTitle: 'A Signing Server will hold one of the keys of the Vault',
       };
     case SignerType.SEEDSIGNER:
       const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
@@ -248,6 +249,16 @@ const getSignerContent = (
           `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
         ],
         title: 'Keep your signing device ready',
+        subTitle: 'Keep your signing device ready before proceeding',
+      };
+    case SignerType.INHERITANCEKEY:
+      return {
+        Illustration: <InheritanceKeyIllustration />,
+        Instructions: [
+          'Manually provide the signing device details',
+          `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
+        ],
+        title: 'Setting up a Inheritance Key',
         subTitle: 'Keep your signing device ready before proceeding',
       };
     default:
@@ -415,20 +426,32 @@ const setupMobileKey = async ({ primaryMnemonic }) => {
   return mobileKey;
 };
 
-const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
+const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) => {
   const networkType = config.NETWORK_TYPE;
-  const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
+  // fetched multi-sig seed words based key
+  const {
+    xpub: multiSigXpub,
+    derivationPath: multiSigPath,
+    masterFingerprint,
+  } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
+  // fetched single-sig seed words based key
+  const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
     mnemonic,
     networkType,
-    entity
+    EntityKind.WALLET
   );
+
+  const xpubDetails: XpubDetailsType = {};
+  xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+  xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+
   const softSigner = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
+    xpub: isMultisig ? multiSigXpub : singleSigXpub,
+    derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
-    isMultisig: entity !== EntityKind.WALLET,
+    isMultisig,
   });
 
   return softSigner;
@@ -682,7 +705,7 @@ function HardwareModalMap({
           isHealthcheck,
           onSuccess: (mnemonic) => {
             if (isHealthcheck) {
-              const softSigner = setupSeedWordsBasedKey(mnemonic);
+              const softSigner = setupSeedWordsBasedKey(mnemonic, isMultisig);
               if (softSigner.xpub === signer.xpub) {
                 dispatch(healthCheckSigner([signer]));
                 navigation.dispatch(CommonActions.goBack());
@@ -691,7 +714,7 @@ function HardwareModalMap({
                 showToast('Error in Health check', <ToastErrorIcon />, 3000);
               }
             } else {
-              const softSigner = setupSeedWordsBasedKey(mnemonic);
+              const softSigner = setupSeedWordsBasedKey(mnemonic, isMultisig);
               dispatch(addSigningDevice(softSigner));
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
               showToast(`${softSigner.signerName} added successfully`, <TickIcon />);
@@ -700,6 +723,16 @@ function HardwareModalMap({
         },
       })
     );
+  };
+  const navigateToSendConfirmation = () => {
+    // navigation.dispatch(
+    //   CommonActions.navigate('SendConfirmation', {
+    //     sender: {},
+    //     recipients: {},
+    //     transferType: TransferType.VAULT_TO_VAULT,
+    //   })
+    // );
+    navigation.dispatch(CommonActions.navigate('IKSAddEmailPhone'));
   };
 
   const onQRScan = async (qrData, resetQR) => {
@@ -866,6 +899,8 @@ function HardwareModalMap({
         return navigateToAddQrBasedSigner();
       case SignerType.OTHER_SD:
         return navigateToSetupWithOtherSD();
+      case SignerType.INHERITANCEKEY:
+        return navigateToSendConfirmation();
       default:
         return null;
     }

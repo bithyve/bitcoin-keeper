@@ -140,7 +140,7 @@ function AddSendAmount({ route }) {
         transferType,
         note,
         label: labelsToAdd.filter(
-          (item) => !(item.name === recipient.presentationData.name && item.isSystem) // remove wallet labels are they are internal refrerences
+          (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
       })
     );
@@ -242,7 +242,7 @@ function AddSendAmount({ route }) {
         >
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
-            availableAmt={getBalance(sender?.specs.balances.confirmed)}
+            availableAmt={sender?.specs.balances.confirmed}
             walletName={sender?.presentationData.name}
             currencyIcon={getCurrencyIcon(BTCIcon, 'dark')}
             isSats={satsEnabled}
@@ -263,7 +263,8 @@ function AddSendAmount({ route }) {
                   letterSpacing: 0.1,
                   fontStyle: 'italic',
                   textAlign: 'right',
-                  marginRight: 12,
+                  paddingRight: wp(10),
+                  width: '100%',
                 }}
               >
                 {errorMessage}

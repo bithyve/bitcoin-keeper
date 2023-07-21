@@ -21,6 +21,7 @@ import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import AdvnaceOptions from 'src/assets/images/Advancedoptions.svg';
 import Change from 'src/assets/images/change.svg';
 import HealthCheck from 'src/assets/images/heathcheck.svg';
+import SkipHealthCheck from 'src/assets/images/skipHealthCheck.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
@@ -196,6 +197,9 @@ function SigningDeviceDetails({ route }) {
   function HealthCheckContentTapsigner() {
     return (
       <Box>
+        <Box style={styles.skipHealthIllustration}>
+          <SkipHealthCheck />
+        </Box>
         <Text>
           You can choose to manually confirm the health of the Signing Device if you are sure that
           they are secure and accessible. Or you can choose to do the Health Check when you can
@@ -365,6 +369,9 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     left: -7,
   },
+  skipHealthIllustration: {
+    marginLeft: wp(25)
+  }
 });
 
 export default SigningDeviceDetails;

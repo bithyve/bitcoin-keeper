@@ -156,7 +156,7 @@ function NodeSettings() {
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
     setCurrentlySelectedNodeItem(selectedItem);
   };
-
+  console.log('windowHeight', windowHeight)
   return (
     <ScreenWrapper backgroundColor={`${colorMode}.mainBackground`} barStyle="dark-content">
       <HeaderTitle
@@ -293,6 +293,7 @@ function NodeSettings() {
     </ScreenWrapper>
   );
 }
+console.log(windowHeight)
 const styles = StyleSheet.create({
   nodeConnectSwitchWrapper: {
     flexDirection: 'row',
@@ -336,10 +337,10 @@ const styles = StyleSheet.create({
     height: 45,
   },
   nodesListWrapper: {
-    marginBottom: 4,
+    marginVertical: 10,
     flexDirection: 'row',
     width: '100%',
-    height: windowHeight > 800 ? '58%' : '50%',
+    height: windowHeight > 800 ? '65%' : '56%',
     // alignItems: 'center',
   },
   nodeListTitle: {

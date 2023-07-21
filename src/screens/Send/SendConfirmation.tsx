@@ -640,7 +640,7 @@ function SendConfirmation({ route }) {
           letterSpacing={1.12}
           marginTop={windowHeight * 0.011}
         >
-          <BTC />
+          <BTC />&nbsp;
           {transferType === TransferType.WALLET_TO_VAULT
             ? sendMaxFee
             : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
@@ -663,7 +663,7 @@ function SendConfirmation({ route }) {
         {transferType === TransferType.VAULT_TO_VAULT ? (
           <Note
             title="Note"
-            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of vaults"
+            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
           />
         ) : null}
       </Box>
@@ -745,6 +745,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-end',
     marginBottom: hp(40),
+    marginTop: hp(20)
   },
   customPriority: {
     fontStyle: 'italic',

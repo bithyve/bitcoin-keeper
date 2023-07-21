@@ -155,6 +155,16 @@ export const SDIcons = (type: SignerType, light = false) => {
         ),
         type: SignerStorage.WARM,
       };
+    case SignerType.INHERITANCEKEY:
+      return {
+        Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
+        Logo: (
+          <Text style={styles.text} color="light.secondaryText">
+            Inheritance Key
+          </Text>
+        ),
+        type: SignerStorage.WARM,
+      };
     default:
       return {
         Icon: null,

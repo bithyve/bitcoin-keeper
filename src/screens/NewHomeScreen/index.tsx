@@ -11,6 +11,7 @@ import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useColorMode } from 'native-base';
+import Fonts from 'src/common/Fonts';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
 
@@ -72,10 +73,10 @@ function NewHomeScreen({ navigation }) {
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: params.name,
+            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${params.name}`,
+            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -95,11 +96,11 @@ function NewHomeScreen({ navigation }) {
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: params.name,
+              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${params.name}`,
+              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -178,6 +179,7 @@ const getStyles = (colorMode) => StyleSheet.create({
     marginLeft: 10,
     fontSize: 14,
     fontWeight: '500',
+    fontFamily: Fonts.RobotoCondensedRegular,
   },
   tabBarStyle: {
     backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A',

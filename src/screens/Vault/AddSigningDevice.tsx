@@ -27,7 +27,7 @@ import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/common/utilities';
 import usePlan from 'src/hooks/usePlan';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { getSignerSigTypeInfo } from 'src/hardware';
+import { getSignerNameFromType, getSignerSigTypeInfo } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import { globalStyles } from 'src/common/globalStyles';
@@ -130,7 +130,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
-              {`Added ${moment(signer.lastHealthCheck).calendar().toLowerCase()}`}
+              {`Added ${moment(signer.lastHealthCheck).calendar()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
               <Box style={styles.descriptionBox}>
@@ -177,8 +177,14 @@ function AddSigningDevice() {
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { planStatus, signersState, areSignersValid, amfSigners, misMatchedSigners } =
-    useSignerIntel();
+  const {
+    planStatus,
+    signersState,
+    areSignersValid,
+    amfSigners,
+    misMatchedSigners,
+    invalidSigners,
+  } = useSignerIntel();
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {
@@ -200,8 +206,10 @@ function AddSigningDevice() {
   } else {
     preTitle = 'Signing Devices';
   }
-  const subtitle = subscriptionScheme.n > 1 ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created` : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
-
+  const subtitle =
+    subscriptionScheme.n > 1
+      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`
+      : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -239,12 +247,25 @@ function AddSigningDevice() {
             />
           </Box>
         ) : null}
-        {misMatchedSigners.length ? (
+        {invalidSigners.length ? (
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`A few signers (${invalidSigners
+                .map((signer) => getSignerNameFromType(signer.type))
+                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
+                SubscriptionTier.L3
+              }. Please remove them or upgrade your plan.`}
+              subtitleColor="error"
+            />
+          </Box>
+        ) : misMatchedSigners.length ? (
+          <Box style={styles.noteContainer}>
+            <Note
+              title="WARNING"
+              subtitle={`Looks like you've added a ${
+                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>

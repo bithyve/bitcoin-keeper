@@ -14,6 +14,7 @@ import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
+import { wp } from 'src/common/data/responsiveness/responsive';
 import MockWrapper from '../Vault/MockWrapper';
 
 const { width } = Dimensions.get('screen');
@@ -27,7 +28,7 @@ function QrRecovery() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => {},
+    onQrScan = () => { },
     setup = true,
     type,
   } = route.params as any;
@@ -100,7 +101,7 @@ function QrRecovery() {
     <ScreenWrapper>
       <MockWrapper signerType={type} enable={setup && type} isRecovery>
         <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} />
+          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(20)} />
           <Box style={styles.qrcontainer}>
             <RNCamera
               style={styles.cameraView}
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 0,
     position: 'absolute',
-    padding: 20,
+    paddingHorizontal: 20,
   },
 });
 

@@ -4,6 +4,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
+import { wp } from 'src/common/data/responsiveness/responsive';
 import DisplayQR from '../QRScreens/DisplayQR';
 
 function ShowQR() {
@@ -17,7 +18,7 @@ function ShowQR() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subTitle} />
+      <HeaderTitle title={title} subtitle={subTitle} paddingLeft={wp(20)} />
       <Box style={styles.center}>
         <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
       </Box>

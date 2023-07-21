@@ -32,6 +32,7 @@ import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
 
 type Props = {
   title: string;
@@ -80,6 +81,7 @@ function WalletSettings({ route }) {
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const [addWalletCosigner, setAddWalletCosignerVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { wallets } = useWallets();
@@ -165,7 +167,18 @@ function WalletSettings({ route }) {
       })
     );
   };
-
+  function AddWalletCosignerContent() {
+    return (
+      <Box>
+        <Box m={5}>
+          <KeeperSetup />
+        </Box>
+        <Text color="light.greenText" fontSize={13}>
+          {walletTranslation?.AddWalletCosignerParagraph}
+        </Text>
+      </Box>
+    );
+  }
   return (
     <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
@@ -243,7 +256,7 @@ function WalletSettings({ route }) {
           />
           <Option
             title="Transfer Policy"
-            subTitle={`Transfer to vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+            subTitle={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
             onPress={() => {
               setTransferPolicyVisible(true);
             }}
@@ -337,7 +350,10 @@ function WalletSettings({ route }) {
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           buttonText="Done"
-          buttonCallback={() => setCosignerVisible(false)}
+          buttonCallback={() => {
+            setCosignerVisible(false);
+            // setAddWalletCosignerVisible(true) 
+          }}
           Content={() => (
             <ShowXPub
               data=""
@@ -372,6 +388,20 @@ function WalletSettings({ route }) {
               }}
             />
           )}
+        />
+        <KeeperModal
+          visible={addWalletCosigner}
+          close={() => setAddWalletCosignerVisible(false)}
+          title={walletTranslation?.AddWalletCosigner}
+          subTitleWidth={wp(240)}
+          subTitle={walletTranslation?.AddWalletCosignerSubTitle}
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
+          buttonText="Confirm"
+          buttonCallback={() => setAddWalletCosignerVisible(false)}
+          showButtons
+          secondaryButtonText="Decline"
+          Content={AddWalletCosignerContent}
         />
       </Box>
       {/* end */}

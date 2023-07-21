@@ -11,6 +11,7 @@ import Note from 'src/components/Note/Note';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadFile from 'src/components/UploadFile';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import { wp } from 'src/common/data/responsiveness/responsive';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -64,8 +65,9 @@ function ScanQRFileRecovery({ route }) {
     <ScreenWrapper>
       <Box flex={1}>
         <HeaderTitle
-          title={'Recover Using Vault Configuration File'}
-          subtitle={'Recover Using Vault Configuration File'}
+          title="Recover Using Vault Configuration File"
+          subtitle="Recover Using Vault Configuration File"
+          paddingLeft={wp(20)}
         />
         <Box style={styles.qrcontainer}>
           <RNCamera
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 0,
     position: 'absolute',
-    padding: 20,
+    paddingHorizontal: 20,
   },
 });
 
