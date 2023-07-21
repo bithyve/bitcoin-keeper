@@ -1,8 +1,8 @@
 const Colors = {
   // Light
   White: 'rgba(255,255,255,1)',
-  Glass: 'rgba(255,255,255,.2)',
-  LightYellow: 'rgba(253,247,240,1)',
+  Glass: 'rgba(255,255,255,2)',
+  LightYellow: 'rgba(242,237,230,1)',
   LightWhite: 'rgba(247,242,236,1)',
   Isabelline: 'rgba(252,246,239,1)',
   Platinum: 'rgba(227,227,227,1)',
@@ -44,12 +44,13 @@ const Colors = {
   PearlGrey: 'rgba(250,252,252,1)',
   pantoneGreen: 'rgba(45,103,89,1)',
   // Dark
-  LightYellowDark: 'rgba(72,81,79,1)',
+  LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
   TropicalRainForestDark: 'rgba(137,174,167,1)',
   RichBlackDark: 'rgba(208,200,190,1)',
   RichGreenDark: 'rgba(137,174,167,1)',
   DeepSpaceSparkleDark: 'rgba(160,160,160,1)',
   pantoneGreenDark: 'rgba(107,155,146,1)',
+  SeashellDark: 'rgba(72,81,79,1)'
 };
 export default Colors;
