@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/download.svg';
@@ -7,14 +7,15 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 
 
 function InheritanceDownloadView(props) {
+    const { colorMode } = useColorMode();
     return (
-        <Box style={styles.wrapper}>
+        <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
             <Box style={styles.iconWrapper}>
                 {props.icon}
             </Box>
             <Box style={styles.titleWrapper}>
-                <Text color="light.textWallet" style={styles.titleText}>{props.title}</Text>
-                <Text color="light.secondaryText" style={styles.subTitleText}>{props.subTitle}</Text>
+                <Text color={`${colorMode}.primaryText`} style={styles.titleText}>{props.title}</Text>
+                <Text color={`${colorMode}.textColor2`} style={styles.subTitleText}>{props.subTitle}</Text>
             </Box>
             <Box style={styles.btnWrapper}>
                 {props.isDownload ?
@@ -35,7 +36,6 @@ const styles = StyleSheet.create({
     wrapper: {
         width: '100%',
         flexDirection: 'row',
-        backgroundColor: '#FDF7F0',
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 20,

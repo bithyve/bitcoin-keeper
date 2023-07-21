@@ -129,11 +129,11 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color="light.textWallet" style={styles.title} testID="text_InheritanceSupport">
+        <Text color={`${colorMode}.primaryText`} style={styles.title} testID="text_InheritanceSupport">
           Inheritance Support
         </Text>
         <Text
-          color="light.secondaryText"
+          color={`${colorMode}.textColor2`}
           style={styles.subtitle}
           testID="text_InheritanceSupportSubtitle"
         >
@@ -144,7 +144,7 @@ function SetupInheritance() {
 
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
-        <Text numberOfLines={2} light style={styles.message}>
+        <Text numberOfLines={2} color={`${colorMode}.textColor2`} style={styles.message}>
           {plan !== SubscriptionTier.L3.toUpperCase()
             ? `This can be activated once you are at the ${SubscriptionTier.L3} level`
             : `Setup Inheritance Key or view documents`}
