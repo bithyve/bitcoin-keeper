@@ -21,7 +21,13 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
-function VaultMigrationController({ vaultCreating, signersState, planStatus, setCreating }: any) {
+function VaultMigrationController({
+  vaultCreating,
+  signersState,
+  planStatus,
+  setCreating,
+  isInheritance,
+}: any) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -136,7 +142,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
     try {
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: scheme,
+        vaultScheme: isInheritance ? { m: 3, n: 6 } : scheme,
         vaultSigners: signers,
         vaultDetails: {
           name: 'Vault',
@@ -189,7 +195,7 @@ function VaultMigrationController({ vaultCreating, signersState, planStatus, set
       const freshSignersState = sanitizeSigners();
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: subscriptionScheme,
+        vaultScheme: isInheritance ? { m: 3, n: 6 } : subscriptionScheme,
         vaultSigners: freshSignersState,
         vaultDetails: {
           name: 'Vault',

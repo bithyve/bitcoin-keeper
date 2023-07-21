@@ -139,7 +139,7 @@ function AddSendAmount({ route }) {
         transferType,
         note,
         label: labelsToAdd.filter(
-          (item) => !(item.name === recipient.presentationData.name && item.isSystem) // remove wallet labels are they are internal refrerences
+          (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
       })
     );
