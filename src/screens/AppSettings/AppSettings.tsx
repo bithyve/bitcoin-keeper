@@ -138,7 +138,7 @@ function AppSettings({ navigation }) {
         flexDirection="row"
         alignItems="center"
         onPress={onPress}
-        backgroundColor={`${colorMode}.primaryBackground`}
+        backgroundColor={`${colorMode}.seashellWhite`}
         style={styles.appBackupWrapper}
         testID={`btn_${title.replace(/ /g, '_')}}`}
       >

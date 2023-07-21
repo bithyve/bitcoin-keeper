@@ -9,7 +9,7 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 function InheritanceDownloadView(props) {
     const { colorMode } = useColorMode();
     return (
-        <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+        <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <Box style={styles.iconWrapper}>
                 {props.icon}
             </Box>

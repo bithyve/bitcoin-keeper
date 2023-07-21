@@ -17,6 +17,7 @@ function SettingsCard(props) {
         borderRadius={10}
         {...props}
         testID={`view_${props.title.replace(/ /g, '_')}`}
+        backgroundColor={`${colorMode}.seashellWhite`}
       >
         <Box flex={0.7}>
           <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.04} testID={`text_${props.title.replace(/ /g, '_')}`}>

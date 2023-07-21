@@ -141,7 +141,7 @@ export const customTheme = extendTheme({
       dustySageGreen: Colors.DustySageGreen,
       forestGreen: Colors.ForestGreen,
       pantoneGreen: Colors.pantoneGreenDark,
-      seashellWhite: Colors.Seashell,
+      seashellWhite: Colors.SeashellDark,
     },
   },
   components: {

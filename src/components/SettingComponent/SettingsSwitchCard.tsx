@@ -18,6 +18,7 @@ function SettingsSwitchCard(props) {
       {...props}
       testID={`btn_${props.title}`}
       disabled={props.disabled}
+      backgroundColor={`${colorMode}.seashellWhite`}
     >
       <Box flex={1}>
         <Text

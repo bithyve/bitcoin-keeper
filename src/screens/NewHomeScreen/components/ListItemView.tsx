@@ -8,7 +8,7 @@ import Fonts from 'src/common/Fonts';
 function ListItemView(props) {
   const { colorMode } = useColorMode();
   return (
-    <Pressable backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper} onPress={props.onPress} testID={`btn_${props.title.replace(/ /g, '_')}`}>
+    <Pressable backgroundColor={`${colorMode}.seashellWhite`} style={styles.wrapper} onPress={props.onPress} testID={`btn_${props.title.replace(/ /g, '_')}`}>
       <Box>
         <Box style={styles.iconView} backgroundColor={props.iconBackColor} testID='view_listIcon'>
           {props.icon}
