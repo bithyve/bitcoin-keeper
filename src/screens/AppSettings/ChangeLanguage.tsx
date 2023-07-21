@@ -217,7 +217,7 @@ function ChangeLanguage() {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
       <Box flex={1}>
         <Box marginLeft="5%">

@@ -117,7 +117,7 @@ function SetupInheritance() {
     }
   }
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.header}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}

@@ -303,7 +303,7 @@ function ChoosePlan(props) {
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content">
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box justifyContent='space-between' flexDirection="row">
         <HeaderTitle
           title={choosePlan.choosePlantitle}

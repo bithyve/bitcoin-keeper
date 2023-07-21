@@ -156,9 +156,8 @@ function NodeSettings() {
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
     setCurrentlySelectedNodeItem(selectedItem);
   };
-  console.log('windowHeight', windowHeight)
   return (
-    <ScreenWrapper backgroundColor={`${colorMode}.mainBackground`} barStyle="dark-content">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <HeaderTitle
         paddingLeft={25}
         title={settings.nodeSettings}
