@@ -668,7 +668,6 @@ const getStyles = (top) =>
     },
     scrollContainer: {
       padding: '8%',
-      width: Platform.select({ android: null, ios: '100%' }),
     },
     knowMore: {
       backgroundColor: '#725436',

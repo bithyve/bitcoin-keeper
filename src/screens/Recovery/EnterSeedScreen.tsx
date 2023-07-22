@@ -401,6 +401,7 @@ function EnterSeedScreen({ route }) {
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
+              keyboardShouldPersistTaps='handled'
               nestedScrollEnabled
             >
               <View style={styles.suggestionWrapper}>

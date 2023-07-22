@@ -33,6 +33,7 @@ import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
 import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
+import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
 import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
 import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
 import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
@@ -164,6 +165,7 @@ function AppStack() {
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
+        <Stack.Screen name="PreviewPDF" component={PreviewPDF} />
         <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
         <Stack.Screen name="InheritanceSetupInfo" component={InheritanceSetupInfo} />
         <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
