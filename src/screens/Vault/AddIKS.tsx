@@ -49,7 +49,7 @@ function AddIKS({ visible, close }: { visible: boolean; close: () => void }) {
     const inheritanceConfig: InheritanceConfiguration = {
       m: 3,
       n: 6,
-      identifiers: ['abc', 'bcd', 'cde', 'def', 'efg', 'fgh'],
+      descriptors: ['abc', 'bcd', 'cde', 'def', 'efg', 'fgh'],
       bsms: 'some-bsms-thing',
     };
     const inheritancePolicy: InheritancePolicy = {
@@ -65,8 +65,8 @@ function AddIKS({ visible, close }: { visible: boolean; close: () => void }) {
       inheritanceXpub: xpub,
       derivationPath,
       masterFingerprint,
-      // configuration,
-      // policy,
+      configuration,
+      policy,
     } = setupData;
     const inheritanceKey = generateSignerFromMetaData({
       xpub,
@@ -75,6 +75,10 @@ function AddIKS({ visible, close }: { visible: boolean; close: () => void }) {
       signerType: SignerType.INHERITANCEKEY,
       storageType: SignerStorage.WARM,
       isMultisig: true,
+      inheritanceKeyInfo: {
+        configuration,
+        policy,
+      },
     });
     setInProgress(false);
     dispatch(addSigningDevice(inheritanceKey));

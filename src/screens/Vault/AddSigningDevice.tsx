@@ -189,7 +189,7 @@ function AddSigningDevice() {
   const { activeVault } = useVault();
   const navigation = useNavigation();
   const route = useRoute() as { params: { isInheritance: boolean } };
-  const { isInheritance = false } = route.params;
+  const isInheritance = route?.params?.isInheritance || false;
   const dispatch = useDispatch();
   const { subscriptionScheme, plan } = usePlan();
   const vaultSigners = useAppSelector((state) => state.vault.signers);

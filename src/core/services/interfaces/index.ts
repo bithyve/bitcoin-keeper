@@ -47,18 +47,16 @@ export interface InheritanceAlert {
 export interface InheritanceConfiguration {
   m: number;
   n: number;
-  identifiers: string[];
+  descriptors: string[];
   bsms?: string;
 }
 
 export interface InheritancePolicy {
   notification: InheritanceNotification;
-  alert: InheritanceAlert;
+  alert?: InheritanceAlert;
 }
 
-export interface InheritanceKey {
-  vaultId: string;
-  xIndex: number;
+export interface InheritanceKeyInfo {
   configuration: InheritanceConfiguration;
   policy: InheritancePolicy;
 }
