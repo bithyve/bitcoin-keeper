@@ -58,7 +58,7 @@ export interface InheritancePolicy {
 
 export interface InheritanceKeyInfo {
   configuration: InheritanceConfiguration;
-  policy: InheritancePolicy;
+  policy?: InheritancePolicy;
 }
 
 export interface InheritanceKeyRequest {

@@ -85,7 +85,7 @@ export const InheritanceKeyInfoSchema: ObjectSchema = {
   embedded: true,
   properties: {
     configuration: RealmSchema.InheritanceConfiguration,
-    policy: RealmSchema.InheritancePolicy,
+    policy: `${RealmSchema.InheritancePolicy}?`,
   },
 };
 

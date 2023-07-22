@@ -310,7 +310,11 @@ function AddSigningDevice() {
           paddingHorizontal={wp(30)}
         />
       </Box>
-      <AddIKS visible={inheritanceInit} close={() => setInheritanceInit(false)} />
+      <AddIKS
+        vault={activeVault}
+        visible={inheritanceInit}
+        close={() => setInheritanceInit(false)}
+      />
     </ScreenWrapper>
   );
 }

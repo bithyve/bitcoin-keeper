@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import config from '../../config';
 import {
+  InheritanceAlert,
   InheritanceConfiguration,
   InheritanceNotification,
   InheritancePolicy,
@@ -15,14 +16,10 @@ export default class InheritanceKeyServer {
    * @param  {InheritancePolicy} policy
    * @returns Promise
    */
-  static setupIK = async (
-    vaultShellId: string,
-    configuration: InheritanceConfiguration,
-    policy: InheritancePolicy
+  static initializeIKSetup = async (
+    vaultShellId: string
   ): Promise<{
     setupData: {
-      configuration: InheritanceConfiguration;
-      policy: InheritancePolicy;
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
@@ -30,7 +27,37 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/setupInheritanceKey`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/initializeIKSetup`, {
+        HEXA_ID,
+        vaultId: vaultShellId,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { setupData } = res.data;
+    return {
+      setupData,
+    };
+  };
+
+  /**
+   * @param  {string} vaultShellId
+   * @param  {InheritanceConfiguration} configuration
+   * @param  {InheritancePolicy} policy
+   * @returns Promise
+   */
+  static finalizeIKSetup = async (
+    vaultShellId: string,
+    configuration: InheritanceConfiguration,
+    policy: InheritancePolicy
+  ): Promise<{
+    setupSuccessful: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/finalizeIKSetup`, {
         HEXA_ID,
         vaultId: vaultShellId,
         configuration,
@@ -41,10 +68,9 @@ export default class InheritanceKeyServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const { setupSuccessful, setupData } = res.data;
-    if (!setupSuccessful) throw new Error('Inheritance Key setup failed');
+    const { setupSuccessful } = res.data;
     return {
-      setupData,
+      setupSuccessful,
     };
   };
 
@@ -91,6 +117,7 @@ export default class InheritanceKeyServer {
     vaultShellId: string,
     updates: {
       notification?: InheritanceNotification;
+      alert?: InheritanceAlert;
     },
     thresholdDescriptors: string[]
   ): Promise<{
