@@ -3,7 +3,7 @@ import { XpubTypes } from 'src/core/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
-export const Scheme = {
+const Scheme = {
   type: '{}',
   properties: {
     m: 'int',
@@ -44,6 +44,51 @@ export const SignerPolicy: ObjectSchema = {
   },
 };
 
+export const InheritanceConfigurationSchema: ObjectSchema = {
+  name: RealmSchema.InheritanceConfiguration,
+  embedded: true,
+  properties: {
+    m: 'int',
+    n: 'int',
+    descriptors: 'string[]',
+    bsms: 'string?',
+  },
+};
+
+export const InheritancePolicyNotificationSchema: ObjectSchema = {
+  name: RealmSchema.InheritancePolicyNotification,
+  embedded: true,
+  properties: {
+    targets: 'string[]',
+  },
+};
+
+export const InheritancePolicyAlertSchema: ObjectSchema = {
+  name: RealmSchema.InheritancePolicyAlert,
+  embedded: true,
+  properties: {
+    emails: 'string[]',
+  },
+};
+
+export const InheritancePolicySchema: ObjectSchema = {
+  name: RealmSchema.InheritancePolicy,
+  embedded: true,
+  properties: {
+    notification: RealmSchema.InheritancePolicyNotification,
+    alert: `${RealmSchema.InheritancePolicyAlert}?`,
+  },
+};
+
+export const InheritanceKeyInfoSchema: ObjectSchema = {
+  name: RealmSchema.InheritanceKeyInfo,
+  embedded: true,
+  properties: {
+    configuration: RealmSchema.InheritanceConfiguration,
+    policy: RealmSchema.InheritancePolicy,
+  },
+};
+
 export const XpubDetailsSchema: ObjectSchema = {
   embedded: true,
   name: RealmSchema.XpubDetails,
@@ -73,10 +118,11 @@ export const VaultSignerSchema: ObjectSchema = {
     isMock: 'bool?',
     registered: { type: 'bool?', default: false },
     storageType: 'string',
-    signerPolicy: `${RealmSchema.SignerPolicy}?`,
     derivationPath: 'string',
     masterFingerprint: 'string',
     xpubDetails: RealmSchema.XpubDetails,
+    signerPolicy: `${RealmSchema.SignerPolicy}?`,
+    inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
   },
 };
 
