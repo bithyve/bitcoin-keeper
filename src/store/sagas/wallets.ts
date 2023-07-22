@@ -5,12 +5,18 @@
 import {
   DerivationPurpose,
   EntityKind,
+  SignerType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
 } from 'src/core/wallets/enums';
-import { SignerException, SignerRestriction } from 'src/core/services/interfaces';
+import {
+  InheritanceConfiguration,
+  InheritancePolicy,
+  SignerException,
+  SignerRestriction,
+} from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
@@ -50,6 +56,7 @@ import {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/core/services/electrum/client';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -80,7 +87,9 @@ import {
   ADD_NEW_VAULT,
   ADD_SIGINING_DEVICE,
   FINALISE_VAULT_MIGRATION,
+  FINALIZE_IK_SETUP,
   MIGRATE_VAULT,
+  finaliseIKSetup,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
@@ -519,6 +528,7 @@ function* addNewVaultWorker({
 
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
+      yield put(finaliseIKSetup(vault)); // update IKS, if inheritance key has been added
       return true;
     }
     throw new Error('Relay updation failed');
@@ -615,6 +625,55 @@ export const finaliseVaultMigrationWatcher = createWatcher(
   finaliseVaultMigrationWorker,
   FINALISE_VAULT_MIGRATION
 );
+
+function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
+  // finalise the IK setup
+  const { scheme, signers, shellId, id: vaultId } = payload.vault;
+  const [ikSigner] = signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
+
+  if (ikSigner) {
+    const config: InheritanceConfiguration = {
+      m: scheme.m,
+      n: scheme.n,
+      descriptors: signers.map((signer) => signer.signerId),
+      // bsms
+    };
+
+    const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
+    const policy: InheritancePolicy = {
+      notification: { targets: [fcmToken] },
+    };
+
+    const { setupSuccessful } = yield call(
+      InheritanceKeyServer.finalizeIKSetup,
+      shellId,
+      config,
+      policy
+    );
+
+    if (setupSuccessful) {
+      // send updates to realm
+      const updatedIkSigner: VaultSigner = {
+        ...ikSigner,
+        inheritanceKeyInfo: {
+          configuration: config,
+          policy,
+        },
+      };
+
+      const updatedSigners = signers.map((signer) => {
+        if (signer.type === SignerType.INHERITANCEKEY) return updatedIkSigner;
+        return signer;
+      });
+
+      yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, {
+        signers: updatedSigners,
+      });
+    } else Alert.alert('Failed to finalise the inheritance key setup');
+  }
+}
+
+export const finaliseIKSetupWatcher = createWatcher(finaliseIKSetupWorker, FINALIZE_IK_SETUP);
 
 function* syncWalletsWorker({
   payload,

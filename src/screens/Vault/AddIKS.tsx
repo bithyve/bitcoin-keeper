@@ -44,16 +44,6 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
   const setupInheritanceKey = async () => {
     close();
     setInProgress(true);
-    // const inheritanceConfig: InheritanceConfiguration = {
-    //   m: 3,
-    //   n: 6,
-    //   descriptors: ['abc', 'bcd', 'cde', 'def', 'efg', 'fgh'],
-    //   bsms: 'some-bsms-thing',
-    // };
-    // const inheritancePolicy: InheritancePolicy = {
-    //   notification: { targets: ['fcm11', 'fcm22'] },
-    //   alert: { emails: ['xyz@gmail.com'] },
-    // };
     const { setupData } = await InheritanceKeyServer.initializeIKSetup(vault.shellId);
     const { inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
     const inheritanceKey = generateSignerFromMetaData({
