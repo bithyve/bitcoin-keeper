@@ -44,7 +44,7 @@ function Buttons({
             },
           }}
         >
-          <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
+          <Text numberOfLines={1} style={styles.btnText} color='white' bold>
             {primaryText}
           </Text>
         </Box>
