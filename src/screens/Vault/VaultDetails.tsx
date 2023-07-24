@@ -120,7 +120,7 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
 }
 
 function Header() {
-  const { colorMode } = useColorMode();
+
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const styles = getStyles(0);
@@ -160,37 +160,37 @@ function VaultInfo({ vault }: { vault: Vault }) {
           <VaultIcon />
         </Box>
         <VStack>
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={16}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={16}>
             {name}
           </Text>
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={12}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={12}>
             {description}
           </Text>
         </VStack>
       </HStack>
       <HStack justifyContent="space-between">
         <VStack paddingTop="6">
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
             Unconfirmed
           </Text>
           <CurrencyInfo
             hideAmounts={false}
             amount={unconfirmed}
             fontSize={14}
-            color="light.white"
-            variation="grey"
+            color={`${colorMode}.white`}
+            variation={colorMode === 'light' ? "light" : "dark"}
           />
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
             Available Balance
           </Text>
           <CurrencyInfo
             hideAmounts={false}
             amount={confirmed}
             fontSize={20}
-            color="light.white"
-            variation="light"
+            color={`${colorMode}.white`}
+            variation={colorMode === 'light' ? "light" : "dark"}
           />
         </VStack>
       </HStack>
@@ -200,7 +200,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
 
 function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) {
   const navigation = useNavigation();
-
+  const { colorMode } = useColorMode();
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
@@ -218,7 +218,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
     <>
       <VStack style={{ paddingTop: windowHeight * 0.13 }}>
         <HStack justifyContent="space-between" alignItems="center">
-          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           {transactions ? (
@@ -234,7 +234,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
             >
               <HStack alignItems="center">
                 <Text
-                  color="light.primaryGreen"
+                  color={`${colorMode}.primaryGreen`}
                   marginRight={2}
                   fontSize={11}
                   bold
@@ -323,7 +323,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
           !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
 
         return (
-          <Box style={styles.signerCard} marginRight="3" key={signer.signerId}>
+          <Box style={styles.signerCard} marginRight="3" key={signer.signerId} backgroundColor={`${colorMode}.seashellWhite`}>
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
@@ -353,7 +353,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               </Text>
               <VStack pb={2}>
                 <Text
-                  color={`${colorMode}.textBlack`}
+                  color={`${colorMode}.black`}
                   fontSize={11}
                   letterSpacing={0.6}
                   textAlign="center"
@@ -362,7 +362,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                   {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
                 <Text
-                  color={`${colorMode}.textBlack`}
+                  color={`${colorMode}.black`}
                   fontSize={8}
                   letterSpacing={0.6}
                   textAlign="center"
@@ -547,12 +547,13 @@ function VaultDetails({ route, navigation }) {
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   return (
-    <LinearGradient
-      colors={['#B17F44', '#6E4A35']}
-      style={styles.container}
-      start={[-0.5, 1]}
-      end={[1, 1]}
-    >
+    // <LinearGradient
+    //   colors={['#B17F44', '#6E4A35']}
+    //   style={styles.container}
+    //   start={[-0.5, 1]}
+    //   end={[1, 1]}
+    // >
+    <Box style={styles.container} backgroundColor={`${colorMode}.learnMoreBorder`}>
       <VStack zIndex={1}>
         <VStack mx="8%" mt={5}>
           <Header />
@@ -639,7 +640,7 @@ function VaultDetails({ route, navigation }) {
           />
         )}
       />
-    </LinearGradient>
+    </Box>
   );
 }
 
@@ -668,7 +669,6 @@ const getStyles = (top) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: 5,
-      backgroundColor: '#FDF7F0',
     },
     scrollContainer: {
       padding: '8%',

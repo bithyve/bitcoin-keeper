@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
@@ -237,7 +237,7 @@ function SigningDeviceDetails({ route }) {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         learnMore
         learnMorePressed={() => setDetailModal(getSignerContent(signer?.type).title)}
@@ -287,7 +287,7 @@ function SigningDeviceDetails({ route }) {
         justifyContent="center"
         width={windowWidth}
         height={hp(188)}
-        backgroundColor={`${colorMode}.secondaryBackground`}
+        backgroundColor={`${colorMode}.primaryBackground`}
       >
         <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
           You will be reminded in 90 days for the health check
