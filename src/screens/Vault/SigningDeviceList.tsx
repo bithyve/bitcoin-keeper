@@ -100,7 +100,6 @@ function SigningDeviceList() {
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
 
-  const [nfcAlert, setNfcAlert] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
@@ -189,17 +188,6 @@ function SigningDeviceList() {
     );
   }
 
-  const nfcAlertConternt = () => (
-    <Box>
-      <Box justifyContent="center" alignItems="center">
-        <Alert />
-      </Box>
-      <Text fontSize={13} letterSpacing={0.65} width={wp(260)} color="light.greenText" marginY={4}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-      </Text>
-    </Box>
-  );
-
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -241,23 +229,10 @@ function SigningDeviceList() {
                   />
                 );
               })}
-
             </Box>
           )}
         </ScrollView>
 
-        <KeeperModal
-          visible={nfcAlert}
-          close={() => {
-            setNfcAlert(false);
-          }}
-          title="NFC Not supported"
-          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
-          buttonText="  CTA  "
-          buttonTextColor="light.white"
-          textColor="light.primaryText"
-          Content={nfcAlertConternt}
-        />
         <KeeperModal
           visible={sdModal}
           close={() => {

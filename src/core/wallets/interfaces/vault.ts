@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { SignerPolicy } from 'src/core/services/interfaces';
+import { InheritanceKeyInfo, SignerPolicy } from 'src/core/services/interfaces';
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
   EntityKind,
@@ -51,10 +51,11 @@ export interface VaultSigner {
   lastHealthCheck: Date;
   addedOn: Date;
   registered: boolean;
-  signerPolicy?: SignerPolicy;
   masterFingerprint: string;
   derivationPath: string;
   xpubDetails: XpubDetailsType;
+  signerPolicy?: SignerPolicy;
+  inheritanceKeyInfo?: InheritanceKeyInfo;
 }
 
 export interface Vault {
