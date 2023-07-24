@@ -120,7 +120,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </Box>
           <VStack marginLeft="4" maxWidth="80%">
             <Text
-              color="light.primaryText"
+              color={`${colorMode}.primaryText`}
               numberOfLines={1}
               style={[
                 globalStyles.font15,
@@ -151,7 +151,7 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
-          <Text color={`${colorMode}.GreyText`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+          <Text color={`${colorMode}.black`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
             {shouldReconfigure ? 'Re-configure' : 'Remove'}
           </Text>
         </Pressable>
