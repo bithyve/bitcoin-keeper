@@ -52,7 +52,7 @@ function HeaderTitle({
           ]}
         >
           <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.backButton}>
-            {colorMode === 'light' ? <BackBlackButton /> : <BackWhiteButton />}
+            {colorMode === 'light' && backBtnBlackColor ? <BackBlackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">

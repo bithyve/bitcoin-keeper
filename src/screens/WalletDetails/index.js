@@ -1,5 +1,5 @@
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Pressable, VStack } from 'native-base';
+import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -67,6 +67,7 @@ function Footer({ wallet, onPressBuyBitcoin, walletIndex }) {
 }
 
 function WalletDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const currencyCode = useCurrencyCode();
@@ -110,8 +111,8 @@ function WalletDetails({ route }) {
   const onPressBuyBitcoin = () => setShowBuyRampModal(true);
 
   return (
-    <Box style={styles.container} backgroundColor="light.greenText2">
-      <StatusBar barStyle="light-content" backgroundColor="light.greenText2" />
+    <Box style={styles.container} backgroundColor={`${colorMode}.greenText2`}>
+      <StatusBar barStyle="light-content" backgroundColor={`${colorMode}.greenText2`} />
       <VStack mr={5}>
         <HeaderTitle
           learnMore
@@ -124,42 +125,44 @@ function WalletDetails({ route }) {
       <VStack>
         <Box style={styles.walletHeaderWrapper}>
           <Box style={styles.walletIconWrapper}>
-            <Box style={styles.walletIconView} backgroundColor="light.white">
+            <Box style={styles.walletIconView} backgroundColor={`${colorMode}.white`}>
               {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletInsideGreen />}
             </Box>
           </Box>
           <Box style={styles.walletNameWrapper}>
-            <Text color="light.white" style={styles.walletNameText}>
+            <Text color={`${colorMode}.white`} style={styles.walletNameText}>
               {name}
             </Text>
-            <Text color="light.white" style={styles.walletDescText}>
+            <Text color={`${colorMode}.white`} style={styles.walletDescText}>
               {description}
             </Text>
           </Box>
         </Box>
         <Box style={styles.balanceWrapper}>
           <Box style={styles.unconfirmBalanceView}>
-            <Text color="light.white">Unconfirmed</Text>
+            <Text color={`${colorMode}.white`}>Unconfirmed</Text>
             <CurrencyInfo
               hideAmounts={false}
               amount={unconfirmed}
               fontSize={14}
-              color="light.white"
+              color={`${colorMode}.white`}
+              variation={colorMode === 'light' ? 'light' : 'dark'}
             />
           </Box>
           <Box style={styles.availableBalanceView}>
-            <Text color="light.white">Available Balance</Text>
+            <Text color={`${colorMode}.white`}>Available Balance</Text>
             <CurrencyInfo
               hideAmounts={false}
               amount={confirmed}
               fontSize={22}
-              color="light.white"
+              color={`${colorMode}.white`}
+              variation={colorMode === 'light' ? 'light' : 'dark'}
             />
           </Box>
         </Box>
       </VStack>
       <VStack
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
         px={wp(28)}
         borderTopLeftRadius={20}
         flex={1}
@@ -169,7 +172,7 @@ function WalletDetails({ route }) {
         {/* {Transfer pollicy} */}
         <Box style={styles.transferPolicyContainer}>
           <Pressable
-            backgroundColor="light.accent"
+            backgroundColor={`${colorMode}.accent`}
             style={styles.transferPolicyCard}
             onPress={() => {
               navigation.navigate('WalletSettings', {
@@ -222,7 +225,7 @@ function WalletDetails({ route }) {
             }}
           /> */}
             <HStack style={styles.transTitleWrapper}>
-              <Text color="light.textBlack" fontSize={16} letterSpacing={1.28}>
+              <Text color={`${colorMode}.black`} fontSize={16} letterSpacing={1.28}>
                 Transactions
               </Text>
               {wallet?.specs.transactions.length ? (
@@ -244,7 +247,7 @@ function WalletDetails({ route }) {
                       }
                     > */}
                     <Text
-                      color="light.primaryGreen"
+                      color={`${colorMode}.primaryGreen`}
                       marginRight={2}
                       fontSize={11}
                       bold
@@ -273,7 +276,11 @@ function WalletDetails({ route }) {
         ) : (
           <Box style={styles.addNewWalletContainer}>
             <AddWalletIcon />
-            <Text color="light.primaryText" numberOfLines={2} style={styles.addNewWalletText}>
+            <Text
+              color={`${colorMode}.primaryText`}
+              numberOfLines={2}
+              style={styles.addNewWalletText}
+            >
               Add a new wallet or import one
             </Text>
           </Box>
