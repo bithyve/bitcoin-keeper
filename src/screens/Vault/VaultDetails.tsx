@@ -595,6 +595,7 @@ function VaultDetails({ route, navigation }) {
         title="New Vault Created"
         subTitle={subtitle}
         buttonText="View Vault"
+        textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         buttonCallback={closeVaultCreatedDialog}
         close={closeVaultCreatedDialog}

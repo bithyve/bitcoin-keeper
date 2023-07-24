@@ -4,6 +4,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Success from 'src/assets/images/Success.svg';
 import Text from 'src/components/KeeperText';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import { useColorMode } from 'native-base';
 
 function VaultCreatedModal({
   vault,
@@ -14,6 +15,7 @@ function VaultCreatedModal({
   vaultCreated: boolean;
   close: () => void;
 }) {
+  const { colorMode } = useColorMode();
   const subtitle = vault.scheme.n > 1 ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup will be created` : `Vault with ${vault.scheme.m} of ${vault.scheme.n} setup will be created`;
   const NewVaultContent = useCallback(
     () => (
@@ -34,7 +36,8 @@ function VaultCreatedModal({
       title="New Vault Created"
       subTitle={subtitle}
       buttonText="View Vault"
-      subTitleColor="light.secondaryText"
+      textColor={`${colorMode}.primaryText`}
+      subTitleColor={`${colorMode}.secondaryText`}
       buttonCallback={close}
       close={close}
       Content={NewVaultContent}
