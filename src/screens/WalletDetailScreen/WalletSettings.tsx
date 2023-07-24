@@ -326,8 +326,8 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <ShowXPub
@@ -349,8 +349,8 @@ function WalletSettings({ route }) {
           title="Cosigner Details"
           subTitleWidth={wp(260)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           buttonText="Done"
           buttonCallback={() => {
             setCosignerVisible(false);
@@ -376,8 +376,8 @@ function WalletSettings({ route }) {
           }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           Content={() => (
             <TransferPolicy
               wallet={wallet}

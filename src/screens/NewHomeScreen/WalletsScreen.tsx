@@ -444,8 +444,8 @@ const WalletsScreen = ({ navigation }) => {
         }}
         title="Edit Transfer Policy"
         subTitle="Threshold amount at which transfer is triggered"
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={() => (
           <TransferPolicy
             wallet={currentWallet}

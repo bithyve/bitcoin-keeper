@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -71,17 +71,17 @@ function ShowXPub({
         </Box>
         <Box padding={2}>
           {copyable ? (
-            <TouchableOpacity
+            <Pressable
+              backgroundColor={`${colorMode}.seashellWhite`}
               onPress={() => {
                 Clipboard.setString(details);
                 copy();
               }}
               style={{
                 flexDirection: 'row',
-                backgroundColor: `${colorMode}.textInputBackground`,
                 borderTopLeftRadius: 10,
                 borderBottomLeftRadius: 10,
-                width: wp(220),
+                width: '90%',
                 marginTop: hp(30),
                 marginBottom: hp(30),
               }}
@@ -107,7 +107,7 @@ function ShowXPub({
                   <CopyIcon />
                 </Box>
               </Box>
-            </TouchableOpacity>
+            </Pressable>
           ) : null}
         </Box>
       </Box>
