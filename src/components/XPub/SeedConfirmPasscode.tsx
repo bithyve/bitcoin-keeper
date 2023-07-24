@@ -127,7 +127,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor="#041513"
+          keyColor={`${colorMode}.black`}
           ClearIcon={<DeleteIcon />}
         />
       </Box>

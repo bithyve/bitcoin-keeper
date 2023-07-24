@@ -307,8 +307,8 @@ function WalletSettings({ route }) {
           title={walletTranslation?.confirmPassTitle}
           subTitleWidth={wp(240)}
           subTitle={walletTranslation?.confirmPassSubTitle}
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <SeedConfirmPasscode
