@@ -184,8 +184,11 @@ export default class InheritanceKeyServer {
     vaultShellId: string,
     thresholdDescriptors: string[]
   ): Promise<{
-    isRequestApproved: boolean;
-    isRequestDeclined: boolean;
+    requestStatus: {
+      approvesIn: number;
+      isApproved: boolean;
+      isDeclined: boolean;
+    };
     setupInfo?: {
       inheritanceXpub: string;
       masterFingerprint: string;
@@ -207,11 +210,9 @@ export default class InheritanceKeyServer {
       if (err.code) throw new Error(err.code);
     }
 
-    const { isRequestApproved, isRequestDeclined, setupInfo } = res.data;
-
+    const { requestStatus, setupInfo } = res.data;
     return {
-      isRequestApproved,
-      isRequestDeclined,
+      requestStatus,
       setupInfo,
     };
   };
