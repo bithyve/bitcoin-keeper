@@ -1,9 +1,8 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import Colors from 'src/theme/Colors';
 
 function EmptyStateView({
   IllustartionImage,
@@ -14,13 +13,14 @@ function EmptyStateView({
   title: string;
   subTitle: string;
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.container}>
       {windowHeight > 812 ? <IllustartionImage /> : <IllustartionImage height={100} />}
-      <Text italic style={styles.noTransactionTitle}>
+      <Text italic style={styles.noTransactionTitle} color={`${colorMode}.black`}>
         {title}
       </Text>
-      <Text italic style={styles.noTransactionSubTitle}>
+      <Text italic style={styles.noTransactionSubTitle} color={`${colorMode}.black`}>
         {subTitle}
       </Text>
     </Box>
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     fontWeight: '400',
     marginTop: hp(20),
-    color: Colors.RichBlack,
   },
   noTransactionSubTitle: {
     fontSize: 12,
@@ -46,7 +45,6 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     fontWeight: '400',
     textAlign: 'center',
-    color: Colors.RichBlack,
   },
 });
 export default EmptyStateView;

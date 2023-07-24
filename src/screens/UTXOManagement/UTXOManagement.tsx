@@ -266,10 +266,10 @@ function UTXOManagement({ route, navigation }) {
         <HStack marginBottom={10}>
           <Box paddingX={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
           <VStack>
-            <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
+            <Text color={`${colorMode}.greenText`} style={[styles.vaultInfoText, { fontSize: 16 }]}>
               {wallet?.presentationData?.name}
             </Text>
-            <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
+            <Text color={`${colorMode}.black`} style={[styles.vaultInfoText, { fontSize: 12 }]}>
               {wallet?.presentationData?.description}
             </Text>
           </VStack>
