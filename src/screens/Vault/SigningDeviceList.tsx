@@ -202,11 +202,11 @@ function SigningDeviceList() {
   );
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
-        headerTitleColor={`${colorMode}.textBlack`}
+        headerTitleColor={`${colorMode}.black`}
         learnMore
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
