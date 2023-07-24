@@ -1,4 +1,4 @@
-import { Box, Modal, Pressable } from 'native-base';
+import { Box, Modal, Pressable, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -91,7 +91,7 @@ function KeeperModal(props: ModalProps) {
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
-
+  const { colorMode } = useColorMode();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   if (!visible) {
     return null;
@@ -100,7 +100,7 @@ function KeeperModal(props: ModalProps) {
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
   const linearGradient = {
-    colors: modalBackground,
+    colors: [`${colorMode}.primaryBackground`, `${colorMode}.primaryBackground`],
     start: [0, 0],
     end: [1, 1],
   };

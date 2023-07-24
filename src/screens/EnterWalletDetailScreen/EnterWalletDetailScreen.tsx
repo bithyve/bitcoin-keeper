@@ -13,6 +13,7 @@ import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
+import BitcoinWhiteIcon from 'src/assets/images/btc_white.svg';
 import KeeperText from 'src/components/KeeperText';
 import { useAppSelector } from 'src/store/hooks';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -198,7 +199,7 @@ function EnterWalletDetailScreen({ route }) {
   );
 
   return (
-    <View style={styles.Container} background={`${colorMode}.mainBackground`}>
+    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
@@ -208,7 +209,7 @@ function EnterWalletDetailScreen({ route }) {
         paddingLeft={25}
       />
       <View marginX={4} marginY={4}>
-        <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input
             placeholder={wallet.WalletNamePlaceHolder}
             placeholderTextColor={`${colorMode}.GreyText`}
@@ -226,7 +227,7 @@ function EnterWalletDetailScreen({ route }) {
             {walletName && walletName.length}/20
           </KeeperText>
         </Box>
-        <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input
             placeholder={wallet.WalletDescriptionPlaceholder}
             placeholderTextColor={`${colorMode}.GreyText`}
@@ -245,14 +246,18 @@ function EnterWalletDetailScreen({ route }) {
           </KeeperText>
         </Box>
         <Box marginTop={5}>
-          <KeeperText type="regular" style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
+          <KeeperText type="regular" style={styles.autoTransferText} color={`${colorMode}.GreyText`}>
             {wallet.AutoTransferInitiated}
           </KeeperText>
-          <Box style={styles.transferPolicyTextArea}>
+          <Box style={styles.transferPolicyTextArea} backgroundColor={`${colorMode}.seashellWhite`}>
             <Box style={styles.bitcoinLogo}>
-              <BitcoinGreyIcon height="15" width="15" />
+              {colorMode === 'light' ?
+                <BitcoinGreyIcon height="15" width="15" />
+                :
+                <BitcoinWhiteIcon height="15" width="15" />
+              }
             </Box>
-            <KeeperText style={[styles.splitter, { color: `${colorMode}.divider` }]}>|</KeeperText>
+            <KeeperText style={styles.splitter} color={`${colorMode}.divider`}>|</KeeperText>
             <Input
               placeholderTextColor={`${colorMode}.GreyText`}
               value={formatNumber(transferPolicy)}
@@ -264,7 +269,7 @@ function EnterWalletDetailScreen({ route }) {
               keyboardType="numeric"
               borderWidth="0"
               letterSpacing={3}
-              color="light.greenText"
+              color={`${colorMode}.greenText`}
               testID={`input_${formatNumber(transferPolicy)}`}
             />
             <Box style={styles.sats}>
@@ -273,7 +278,8 @@ function EnterWalletDetailScreen({ route }) {
           </Box>
           <KeeperText
             type="regular"
-            style={[styles.autoTransferTextDesc, { color: `${colorMode}.GreyText` }]}
+            style={styles.autoTransferTextDesc}
+            color={`${colorMode}.GreyText`}
           >
             {wallet.AutoTransferInitiatedDesc}
           </KeeperText>
@@ -319,7 +325,7 @@ function EnterWalletDetailScreen({ route }) {
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
-    </View>
+    </Box>
   );
 }
 
@@ -369,7 +375,6 @@ const styles = ScaledSheet.create({
     borderWidth: 0,
     borderRadius: 10,
     marginTop: 10,
-    backgroundColor: '#fdf7f1',
     borderColor: '#f4eee9',
   },
   splitter: {

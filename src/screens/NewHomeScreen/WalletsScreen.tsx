@@ -305,7 +305,7 @@ const WalletsScreen = ({ navigation }) => {
           height={80}
         />
         <Box>
-          <Text color="light.greenText" style={styles.addImportParaContent}>
+          <Text color={`${colorMode}.greenText`} style={styles.addImportParaContent}>
             Please ensure that Keeper is properly backed up to ensure your bitcoin's security
           </Text>
         </Box>
@@ -485,8 +485,8 @@ const WalletsScreen = ({ navigation }) => {
         close={() => setAddImportVisible(false)}
         title="Add or Import Wallet"
         subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={() => <AddImportWallet />}
       />
       <KeeperModal
