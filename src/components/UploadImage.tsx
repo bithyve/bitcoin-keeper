@@ -31,7 +31,7 @@ function UploadImage(
         <ImageIcon />
         <Text
           style={styles.text}
-          color={`${colorMode}.white`}
+          color='white'
         >
           Upload from gallery
         </Text>

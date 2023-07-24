@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 // libraries
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
@@ -45,6 +45,7 @@ import { UTXO } from 'src/core/wallets/interfaces';
 import useVault from 'src/hooks/useVault';
 
 function SendScreen({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
@@ -225,7 +226,7 @@ function SendScreen({ route }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
@@ -235,7 +236,7 @@ function SendScreen({ route }) {
         <HeaderTitle
           title={common.send}
           subtitle="Scan a bitcoin address"
-          headerTitleColor="light.textBlack"
+          headerTitleColor={`${colorMode}.black`}
           paddingTop={hp(5)}
           paddingLeft={25}
         />
@@ -256,10 +257,10 @@ function SendScreen({ route }) {
             <UploadImage onPress={handleChooseImage} />
 
             {/* send manually option */}
-            <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+            <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
                 placeholder="or enter address manually"
-                placeholderTextColor="light.GreyText"
+                placeholderTextColor={`${colorMode}.GreyText`}
                 style={styles.textInput}
                 value={paymentInfo}
                 onChangeText={handleTextChange}
@@ -272,7 +273,7 @@ function SendScreen({ route }) {
                 or send to a wallet
               </Text>
               <View>
-                <View style={styles.walletContainer} backgroundColor="light.textInputBackground">
+                <View style={styles.walletContainer} backgroundColor={`${colorMode}.seashellWhite`}>
                   <FlatList
                     data={otherWallets}
                     renderItem={renderWallets}
@@ -289,7 +290,7 @@ function SendScreen({ route }) {
 
       {/* {Bottom note} */}
       {showNote && (
-        <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
+        <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Note
             title={sender.entityKind === 'VAULT' ? 'Security Tip' : common.note}
             subtitle={
@@ -344,9 +345,8 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '100%',
+    borderRadius: 10,
     backgroundColor: Colors.Isabelline,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
     padding: 15,
     fontFamily: Fonts.RobotoCondensedRegular,
     opacity: 0.5,
@@ -365,9 +365,9 @@ const styles = ScaledSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     height: hp(100),
-    width: wp(330),
+    width: '95%',
     borderRadius: hp(10),
-    marginHorizontal: wp(12),
+    marginHorizontal: wp(10),
     paddingHorizontal: wp(25),
     marginTop: hp(5),
   },

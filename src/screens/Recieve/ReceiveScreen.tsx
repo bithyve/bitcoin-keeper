@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import React, { useContext, useEffect, useState } from 'react';
@@ -29,6 +29,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import MenuItemButton from '../../components/CustomButton/MenuItemButton';
 
 function ReceiveScreen({ route }: { route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
@@ -70,7 +71,7 @@ function ReceiveScreen({ route }: { route }) {
               <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
               <Input
                 placeholder={home.ConvertedAmount}
-                placeholderTextColor="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
                 borderWidth="0"
                 value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -106,12 +107,12 @@ function ReceiveScreen({ route }: { route }) {
     );
   }
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title={common.receive}
         subtitle="Native segwit address"
         onPressHandler={() => navigtaion.goBack()}
-        headerTitleColor="light.textBlack"
+        headerTitleColor={`${colorMode}.black`}
         paddingTop={hp(6)}
         paddingLeft={hp(25)}
       />
@@ -121,8 +122,8 @@ function ReceiveScreen({ route }: { route }) {
           logoBackgroundColor="transparent"
           size={hp(200)}
         />
-        <Box background="light.QrCode" style={styles.receiveAddressWrapper}>
-          <Text style={styles.receiveAddressText} color="light.recieverAddress">
+        <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
+          <Text style={styles.receiveAddressText} color={`${colorMode}.recieverAddress`}>
             Receive Address
           </Text>
         </Box>
@@ -136,12 +137,12 @@ function ReceiveScreen({ route }: { route }) {
         }}
         style={styles.inputContainer}
       >
-        <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text width="80%" marginLeft={4} numberOfLines={1}>
             {paymentURI || receivingAddress}
           </Text>
 
-          <Box backgroundColor="light.copyBackground" style={styles.copyIconWrapper}>
+          <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
             <CopyIcon />
           </Box>
         </Box>

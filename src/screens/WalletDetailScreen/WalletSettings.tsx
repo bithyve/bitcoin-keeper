@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -41,6 +41,7 @@ type Props = {
 };
 
 function Option({ title, subTitle, onPress }: Props) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       style={styles.optionContainer}
@@ -49,14 +50,14 @@ function Option({ title, subTitle, onPress }: Props) {
     >
       <Box style={{ width: '96%' }}>
         <Text
-          color="light.primaryText"
+          color={`${colorMode}.primaryText`}
           style={styles.optionTitle}
           testID={`text_${title.replace(/ /g, '_')}`}
         >
           {title}
         </Text>
         <Text
-          color="light.GreyText"
+          color={`${colorMode}.GreyText`}
           style={styles.optionSubtitle}
           numberOfLines={2}
           testID={`text_${subTitle.replace(/ /g, '_')}`}
@@ -72,6 +73,7 @@ function Option({ title, subTitle, onPress }: Props) {
 }
 
 function WalletSettings({ route }) {
+  const { colorMode } = useColorMode();
   const { wallet: walletRoute, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -180,14 +182,14 @@ function WalletSettings({ route }) {
     );
   }
   return (
-    <Box style={styles.Container} background="light.secondaryBackground">
+    <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
           title="Wallet Settings"
           subtitle="Setting for the wallet only"
           onPressHandler={() => navigation.goBack()}
-          headerTitleColor="light.textBlack"
+          headerTitleColor={`${colorMode}.black`}
           titleFontSize={20}
           paddingTop={hp(5)}
           paddingLeft={20}
@@ -291,7 +293,7 @@ function WalletSettings({ route }) {
         </ScrollView>
       </Box>
       {/* {Bottom note} */}
-      <Box style={styles.note} backgroundColor="light.secondaryBackground">
+      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
