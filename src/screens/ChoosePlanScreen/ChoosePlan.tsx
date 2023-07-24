@@ -292,10 +292,11 @@ function ChoosePlan(props) {
   }
 
   function LoginModalContent() {
+    const { colorMode } = useColorMode();
     return (
       <Box>
         <LoadingAnimation />
-        <Text color="light.greenText" fontSize={13}>
+        <Text color={`${colorMode}.greenText`} fontSize={13}>
           {choosePlan.youCanChange}
         </Text>
       </Box>
@@ -352,18 +353,18 @@ function ChoosePlan(props) {
             requesting={requesting}
           />
 
-          <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />
+          <Box opacity={0.1} backgroundColor={`${colorMode}.Border`} width="100%" height={0.5} my={5} />
 
           <Box ml={5}>
             <Box>
-              <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
+              <Text fontSize={14} color={`${colorMode}.primaryText`} letterSpacing={1.12}>
                 {getBenifitsTitle(items[currentPosition].name)}:
               </Text>
             </Box>
             <Box mt={1}>
               {items[currentPosition].benifits.map((i) => (
                 <Box flexDirection="row" alignItems="center" key={i}>
-                  <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
+                  <Text fontSize={13} color={`${colorMode}.GreyText`} mb={2} ml={3} letterSpacing={0.65}>
                     {`• ${i}`}
                   </Text>
                 </Box>
@@ -383,7 +384,8 @@ function ChoosePlan(props) {
         <Note
           title="Note"
           subtitle={formatString(choosePlan.noteSubTitle)}
-          subtitleColor="GreyText" />
+          subtitleColor="GreyText"
+          width="98%" />
 
         <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
           <Box
