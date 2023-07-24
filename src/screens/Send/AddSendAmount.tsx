@@ -251,7 +251,7 @@ function AddSendAmount({ route }) {
         <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
           <Box
             style={{
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
             }}
           >
             {errorMessage && (
