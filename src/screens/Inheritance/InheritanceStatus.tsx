@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, ScrollView } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -19,6 +19,8 @@ import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import DownloadFile from 'src/utils/DownloadPDF';
 import useToastMessage from 'src/hooks/useToastMessage';
+import useVault from 'src/hooks/useVault';
+import { SignerType } from 'src/core/wallets/enums';
 import InheritanceSupportView from './components/InheritanceSupportView';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
@@ -29,6 +31,20 @@ function InheritanceStatus() {
   const dispatch = useAppDispatch();
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
+
+  const { activeVault } = useVault();
+  const [isSetupDone, setIsSetupDone] = useState(false);
+
+  useEffect(() => {
+    if (activeVault.signers) {
+      const [ikSigner] = activeVault.signers.filter(
+        (signer) => signer.type === SignerType.INHERITANCEKEY
+      );
+      if (ikSigner) setIsSetupDone(true);
+      else setIsSetupDone(false);
+    }
+  }, [activeVault]);
+
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -58,7 +74,9 @@ function InheritanceStatus() {
           icon={<SetupIK />}
           title="Setup Inheritance Key"
           subTitle="Add an assisted key to create a 3 of 6 Vault"
+          isSetupDone={isSetupDone}
           onPress={() => {
+            if (isSetupDone) return;
             navigtaion.dispatch(
               CommonActions.navigate('AddSigningDevice', { isInheritance: true })
             );
