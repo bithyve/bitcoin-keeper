@@ -100,6 +100,7 @@ function TorSettings() {
         <Note
           title="Note"
           subtitle="Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings"
+          subtitleColor="GreyText"
         />
       </Box>
       <TorModalMap
