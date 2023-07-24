@@ -91,7 +91,7 @@ function HeaderTitle({
           {subtitle && (
             <Text
               style={[styles.addWalletDescription, { paddingHorizontal: textPadding }]}
-              color="light.primaryText"
+              color={`${colorMode}.black`}
             >
               {subtitle}
             </Text>
