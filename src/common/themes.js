@@ -135,7 +135,7 @@ export const customTheme = extendTheme({
       gradientStart: Colors.GenericViridian, // linearGradient
       gradientEnd: Colors.RichGreen, // linearGradient
       error: Colors.CongoPink,
-      black: Colors.Black,
+      black: Colors.White,
       fadedGray: Colors.FadedGray,
       fadedblue: Colors.FadeBlue,
       dustySageGreen: Colors.DustySageGreen,
