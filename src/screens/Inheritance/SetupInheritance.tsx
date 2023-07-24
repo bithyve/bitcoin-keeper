@@ -160,7 +160,7 @@ function SetupInheritance() {
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
                 {plan !== SubscriptionTier.L3.toUpperCase()
                   ? `Upgrade Now`
-                  : `Proceed`}
+                  : `Setup Inheritance Key`}
               </Text>
             </Box>
           </TouchableOpacity>
