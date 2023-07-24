@@ -72,8 +72,8 @@ function ColdCardReocvery({ route }) {
   };
 
   const instructions = isConfigRecovery
-    ? 'Export the vault config by going to Setting > Multisig > Then select the wallet > Export  '
-    : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).';
+    ? 'Export the Vault config by going to Setting > Multisig > Then select the wallet > Export  '
+    : 'Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault).';
   return (
     <ScreenWrapper>
       <MockWrapper signerType={SignerType.COLDCARD} isRecovery>

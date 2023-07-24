@@ -83,10 +83,10 @@ export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
   return signer;
 };
 
-const useSignerIntel = () => {
+const useSignerIntel = ({ isInheritance }) => {
   const { activeVault } = useVault();
   const { subscriptionScheme, plan } = usePlan();
-  const currentSignerLimit = subscriptionScheme.n;
+  const currentSignerLimit = subscriptionScheme.n + (isInheritance ? 1 : 0);
   const planStatus = hasPlanChanged(activeVault, subscriptionScheme);
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);

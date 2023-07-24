@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
+import { FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
 import AddIcon from 'src/assets/images/green_add.svg';
@@ -230,12 +230,12 @@ function VaultRecovery({ navigation }) {
         dispatch(setTempShellId(response.appId));
       } else if (response.error) {
         setError(true);
-        Alert.alert('No vault is assocaited with this signer, try with another signer');
+        showToast('No vault is assocaited with this signer, try with another signer', <ToastErrorIcon />);
       }
     } catch (err) {
       console.log(err);
       setError(true);
-      Alert.alert('Something Went Wrong!');
+      showToast('Something Went Wrong!', <ToastErrorIcon />);
     }
   };
 
@@ -244,7 +244,7 @@ function VaultRecovery({ navigation }) {
       setRecoveryLoading(true);
       vaultCheck();
     } else {
-      Alert.alert("Vault can't be recreated in this scheme");
+      showToast("Vault can't be recreated in this scheme", <ToastErrorIcon />);
     }
   };
 

@@ -241,7 +241,10 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage, subscription, UTXOinfos } = yield call(Relay.getAppImage, appID);
+    const { appImage, vaultImage, subscription, UTXOinfos, labels } = yield call(
+      Relay.getAppImage,
+      appID
+    );
 
     // applying the restore upgrade sequence if required
     const previousVersion = appImage.version;
@@ -267,7 +270,8 @@ function* getAppImageWorker({ payload }) {
           subscription,
           appImage,
           vaultImage,
-          UTXOinfos
+          UTXOinfos,
+          labels
         );
       } else {
         const plebSubscription = {
@@ -286,7 +290,8 @@ function* getAppImageWorker({ payload }) {
           plebSubscription,
           appImage,
           vaultImage,
-          UTXOinfos
+          UTXOinfos,
+          labels
         );
       }
     }
@@ -307,7 +312,8 @@ function* recoverApp(
   subscription,
   appImage,
   vaultImage,
-  UTXOinfos
+  UTXOinfos,
+  labels
 ) {
   const entropy = yield call(
     BIP85.bip39MnemonicToEntropy,
@@ -352,6 +358,7 @@ function* recoverApp(
   // Vault recreation
   if (vaultImage) {
     const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+
     yield call(dbManager.createObject, RealmSchema.Vault, vault);
   }
 
@@ -360,6 +367,12 @@ function* recoverApp(
     yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
   }
   yield put(setAppId(appID));
+
+  //Labels Restore
+  if (labels) {
+    yield call(dbManager.createObjectBulk, RealmSchema.Tags, labels);
+  }
+
   // seed confirm for recovery
   yield call(dbManager.createObject, RealmSchema.BackupHistory, {
     title: BackupAction.SEED_BACKUP_CONFIRMED,
