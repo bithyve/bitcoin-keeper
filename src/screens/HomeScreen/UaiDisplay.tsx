@@ -45,11 +45,14 @@ function UaiDisplay({ uaiStack }) {
             btnText: ' Transfer Now',
           },
           cta: () => {
-            navigtaion.navigate('SendConfirmation', {
-              uaiSetActionFalse,
-              walletId: uai?.entityId,
-              transferType: TransferType.WALLET_TO_VAULT,
-            });
+            activeVault
+              ? navigtaion.navigate('SendConfirmation', {
+                  uaiSetActionFalse,
+                  walletId: uai?.entityId,
+                  transferType: TransferType.WALLET_TO_VAULT,
+                })
+              : showToast('No vaults found', <ToastErrorIcon />);
+
             setShowModal(false);
           },
         };
@@ -74,13 +77,17 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.DEFAULT:
         return {
           cta: () => {
-            activeVault ? navigtaion.navigate('VaultDetails') : showToast('No vaults found', <ToastErrorIcon />);
+            activeVault
+              ? navigtaion.navigate('VaultDetails')
+              : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
       default:
         return {
           cta: () => {
-            activeVault ? navigtaion.navigate('VaultDetails') : showToast('No vaults found', <ToastErrorIcon />);
+            activeVault
+              ? navigtaion.navigate('VaultDetails')
+              : showToast('No vaults found', <ToastErrorIcon />);
           },
         };
     }
