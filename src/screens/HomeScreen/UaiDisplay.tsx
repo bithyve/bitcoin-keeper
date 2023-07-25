@@ -120,7 +120,7 @@ function UaiDisplay({ uaiStack }) {
           title={uai?.title}
           primaryCallbackText="CONTINUE"
           secondaryCallbackText={uai?.uaiType !== uaiType.DEFAULT ? 'SKIP' : null}
-          secondaryCallback={uaiSetActionFalse}
+          secondaryCallback={uai?.uaiType !== uaiType.DEFAULT ? uaiSetActionFalse : null}
           primaryCallback={pressHandler}
         />
         <KeeperModal
