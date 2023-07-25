@@ -14,16 +14,20 @@ function UAIView({
 }) {
   return (
     <Box style={styles.wrapper}>
-      <Box style={styles.uaiMessageWrapper} testID='btn_uaiTitleText'>
+      <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
         <Text style={styles.uaiMessageText}>{title}</Text>
       </Box>
-      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID='btn_uaiSkip'>
+      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID="btn_uaiSkip">
         <Text style={styles.skipText} color="light.learnMoreBorder">
           {secondaryCallbackText}
         </Text>
       </TouchableOpacity>
       {primaryCallbackText && primaryCallback && (
-        <TouchableOpacity style={styles.addNowWrapper} onPress={primaryCallback} testID='btn_uaiPrimary'>
+        <TouchableOpacity
+          style={styles.addNowWrapper}
+          onPress={primaryCallback}
+          testID="btn_uaiPrimary"
+        >
           <Box style={styles.addNowCTAWrapper} backgroundColor="light.greenText">
             <Text style={styles.addNowCTAText} color="light.white">
               {primaryCallbackText}
@@ -49,7 +53,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     width: '100%',
     fontFamily: Fonts.RobotoCondensedSemiBold,
-    letterSpacing: 0.6
+    letterSpacing: 0,
   },
   skipWrapper: {
     width: '16%',
