@@ -39,18 +39,13 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
-import moment from 'moment';
 import { generateKey } from 'src/core/services/operations/encryption';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { close } from '@sentry/react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
-
-function formatDuration(ms) {
-  const duration = moment.duration(ms);
-  return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
-}
+import { formatDuration } from './VaultRecovery';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -550,49 +545,27 @@ function SignersList({ navigation }) {
 
   const requestInheritanceKey = async (signers: VaultSigner[], requestId?: string) => {
     try {
+      let isNewRequest = false;
       if (!requestId) {
         requestId = `request-${generateKey(10)}`;
-        dispatch(setInheritanceRequestId(requestId));
+        isNewRequest = true;
       }
 
       const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
 
-      const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
+      const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
         vaultId,
         thresholdDescriptors
       );
 
-      if (requestStatus.isDeclined) {
-        showToast('Inheritance request has been declined', <ToastErrorIcon />);
-        return;
-      }
-
-      if (!requestStatus.isApproved) {
-        showToast(
-          `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
-          <TickIcon />
-        );
-      }
-
-      if (requestStatus.isApproved && setupInfo) {
-        const inheritanceKey = generateSignerFromMetaData({
-          xpub: setupInfo.inheritanceXpub,
-          derivationPath: setupInfo.derivationPath,
-          xfp: setupInfo.masterFingerprint,
-          signerType: SignerType.INHERITANCEKEY,
-          storageType: SignerStorage.WARM,
-          isMultisig: true,
-          inheritanceKeyInfo: {
-            configuration: setupInfo.configuration,
-            policy: setupInfo.policy,
-          },
-        });
-        dispatch(setSigningDevices(inheritanceKey));
-        navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-        showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
-      }
+      showToast(
+        `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
+        <TickIcon />
+      );
+      if (isNewRequest) dispatch(setInheritanceRequestId(requestId));
+      navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
     } catch (err) {
       showToast(`${err}`, <ToastErrorIcon />);
     }

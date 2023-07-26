@@ -1,6 +1,5 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
 import { Alert, FlatList, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
@@ -14,52 +13,52 @@ import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { removeSigningDeviceBhr, setRelayVaultRecoveryShellId } from 'src/store/reducers/bhr';
+import {
+  removeSigningDeviceBhr,
+  setRelayVaultRecoveryShellId,
+  setSigningDevices,
+} from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { captureError } from 'src/core/services/sentry';
 import { addNewVault } from 'src/store/sagaActions/vaults';
-import { VaultType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
 import Relay from 'src/core/services/operations/Relay';
 import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
 import { hash256 } from 'src/core/services/operations/encryption';
-
+import TickIcon from 'src/assets/images/icon_tick.svg';
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
 import { setTempShellId } from 'src/store/reducers/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import InheritanceIcon from 'src/assets/images/inheritanceBrown.svg'
-import TimeIcon from 'src/assets/images/time.svg'
+import InheritanceIcon from 'src/assets/images/inheritanceBrown.svg';
+import TimeIcon from 'src/assets/images/time.svg';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { generateSignerFromMetaData } from 'src/hardware';
+import moment from 'moment';
+import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
-
 
 const allowedSignerLength = [1, 3, 5];
 
+export function formatDuration(ms) {
+  const duration = moment.duration(ms);
+  return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
+}
+
 function AddSigningDevice(props) {
-  const navigation = useNavigation();
-  const { showToast } = useToastMessage();
   return (
-    <Pressable
-      onPress={
-        props.error
-          ? () =>
-            showToast(
-              'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
-            )
-          : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
-      }
-    >
+    <Pressable onPress={props.onPress}>
       <Box flexDir="row" alignItems="center" marginBottom="5" mx="3" marginTop={5}>
         <HStack style={styles.signerItem}>
           <HStack alignItems="center">
-            <Box style={{ width: '10%', alignItems: 'center' }}>
-              {props.icon}
-            </Box>
-            <VStack style={{ width: '75%', marginLeft: wp(10) }} >
+            <Box style={{ width: '10%', alignItems: 'center' }}>{props.icon}</Box>
+            <VStack style={{ width: '75%', marginLeft: wp(10) }}>
               <Text
                 color="light.primaryText"
                 fontSize={15}
@@ -141,16 +140,15 @@ function SuccessModalContent() {
 function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultError, relayVaultUpdate } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultReoveryShellId } =
+    useAppSelector((state) => state.bhr);
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState(signingDevices);
   const [error, setError] = useState(false);
-  const [IKRequest, setIKRequest] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const { inheritanceRequestId } = useAppSelector((state) => state.storage);
 
   async function createNewApp() {
     try {
@@ -160,6 +158,52 @@ function VaultRecovery({ navigation }) {
       dispatch(setupKeeperApp());
     }
   }
+
+  const checkInheritanceKeyRequest = async (signers: VaultSigner[], requestId: string) => {
+    try {
+      const vaultId = relayVaultReoveryShellId;
+      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+
+      const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
+        requestId,
+        vaultId,
+        thresholdDescriptors
+      );
+
+      if (requestStatus.isDeclined) {
+        showToast('Inheritance request has been declined', <ToastErrorIcon />);
+        // dispatch(setInheritanceRequestId('')); // clear existing request
+        return;
+      }
+
+      if (!requestStatus.isApproved) {
+        showToast(
+          `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
+          <TickIcon />
+        );
+      }
+
+      if (requestStatus.isApproved && setupInfo) {
+        const inheritanceKey = generateSignerFromMetaData({
+          xpub: setupInfo.inheritanceXpub,
+          derivationPath: setupInfo.derivationPath,
+          xfp: setupInfo.masterFingerprint,
+          signerType: SignerType.INHERITANCEKEY,
+          storageType: SignerStorage.WARM,
+          isMultisig: true,
+          inheritanceKeyInfo: {
+            configuration: setupInfo.configuration,
+            policy: setupInfo.policy,
+          },
+        });
+        dispatch(setSigningDevices(inheritanceKey));
+        dispatch(setInheritanceRequestId('')); // clear approved request
+        showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
+      }
+    } catch (err) {
+      showToast(`${err}`, <ToastErrorIcon />);
+    }
+  };
 
   useEffect(() => {
     setsignersList(
@@ -275,8 +319,30 @@ function VaultRecovery({ navigation }) {
                 marginTop: hp(32),
               }}
             />
-            {!IKRequest && <AddSigningDevice icon={<InheritanceIcon />} arrowIcon={<TimeIcon />} error={error} title='Inheritance Key Request Sent' subTitle='3 weeks remaning' />}
-            <AddSigningDevice icon={<AddIcon />} arrowIcon={<IconArrowBlack />} error={error} title='Add Another' subTitle='Select signing device' />
+            {inheritanceRequestId && (
+              <AddSigningDevice
+                icon={<InheritanceIcon />}
+                arrowIcon={<TimeIcon />}
+                onPress={() => {
+                  checkInheritanceKeyRequest(signingDevices, inheritanceRequestId);
+                }}
+                title="Inheritance Key Request Sent"
+                subTitle="3 weeks remaning"
+              />
+            )}
+            <AddSigningDevice
+              icon={<AddIcon />}
+              arrowIcon={<IconArrowBlack />}
+              onPress={() => {
+                if (error) {
+                  showToast(
+                    'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
+                  );
+                } else navigation.navigate('LoginStack', { screen: 'SignersList' });
+              }}
+              title="Add Another"
+              subTitle="Select signing device"
+            />
           </Box>
         ) : (
           <Box flex={1} alignItems="center" justifyContent="center">
@@ -314,14 +380,14 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => { }}
+        close={() => {}}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
           navigation.replace('App');
         }}
       />
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 
