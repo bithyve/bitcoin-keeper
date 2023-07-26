@@ -21,6 +21,9 @@ const GenerateSecurityTipsPDF = async () => {
               p{
                 font-size:25px;
               }
+              h4{
+                align-items: center;
+              }
             </style>
           </head>
           <body>
