@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, ScrollView } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -21,9 +21,15 @@ import DownloadFile from 'src/utils/DownloadPDF';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
-import InheritanceSupportView from './components/InheritanceSupportView';
-import InheritanceDownloadView from './components/InheritanceDownloadView';
+import GenerateRecoveryInstrPDF from 'src/utils/GenerateRecoveryInstrPDF';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { genrateOutputDescriptors } from 'src/core/utils';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
+import InheritanceDownloadView from './components/InheritanceDownloadView';
+import InheritanceSupportView from './components/InheritanceSupportView';
 
 function InheritanceStatus() {
   const { showToast } = useToastMessage();
@@ -33,6 +39,12 @@ function InheritanceStatus() {
   const [visibleErrorView] = useState(false);
 
   const { activeVault } = useVault();
+  const { useQuery } = useContext(RealmWrapperContext);
+  const vault: Vault = useQuery(RealmSchema.Vault)
+    .map(getJSONFromRealmObject)
+    .filter((vault) => !vault.archived)[0];
+
+  const descriptorString = genrateOutputDescriptors(vault);
   const [isSetupDone, setIsSetupDone] = useState(false);
 
   useEffect(() => {
@@ -63,10 +75,11 @@ function InheritanceStatus() {
           icon={<SafeguardingTips />}
           title="Key Security Tips"
           subTitle="How to store your keys securely"
-          onPress={() =>
+          downloadPDF={() => {
             DownloadFile('Key Security Tips').then(() => {
               showToast('Document has been downloaded.', <TickIcon />);
             })
+          }
           }
           isDownload
         />
@@ -93,7 +106,7 @@ function InheritanceStatus() {
           icon={<Letter />}
           title="Letter to the attorney"
           subTitle="A partly filled pdf template"
-          onPress={() =>
+          downloadPDF={() =>
             DownloadFile('Letter to the attorney').then(() => {
               showToast('Document has been downloaded.', <TickIcon />);
             })
@@ -104,8 +117,11 @@ function InheritanceStatus() {
           icon={<Recovery />}
           title="Recovery Instructions"
           subTitle="A document for the heir only"
-          onPress={() =>
-            DownloadFile('Restoring Inheritance Vault').then(() => {
+          downloadPDF={() =>
+            // DownloadFile('Restoring Inheritance Vault').then(() => {
+            //   showToast('Document has been downloaded.', <TickIcon />);
+            // })
+            GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then(() => {
               showToast('Document has been downloaded.', <TickIcon />);
             })
           }
