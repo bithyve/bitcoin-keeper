@@ -68,23 +68,14 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
             <p>We have attached the Output Descriptor file as an Annexure to this document. To recover the Vault, please input the Output Descriptor file in a wallet (such as Electrum or Sparrow) that supports a multi-sig setup. You could, of course, use Keeper to recover the Vault, but it’s not necessary that you do. Look for the “Recovery” button/section when setting up a wallet. Follow the steps from there.</p>
             <p>Please note that the funds associated with these keys may be in any combination of single-key or multi-signature (multisig) wallets. </p>
             <p>A) Key: Type Details </p>
-            ${signers
-        .map(
-          (keys, index) => `
-                    <p>Key ${index + 1}: ${keys.signerId}</p>
-                    <p>Type: ${keys.type}</p><br>
-                `,
-        )}
-        ${signers
-        .map(
-          (keys, index) => `
-            <p>Key ${index + 1}: ${keys.signerId}</p>
-            <p>Location details: </p>
-            <p>Access details: </p><br>
-                  `,
-        )}
+            ${signers.map((keys, index) =>
+      `<p>Key ${index + 1}: ${keys.signerId}</p>
+               <p>Type: ${keys.type}</p><br>`)}
+            ${signers.map((keys, index) =>
+        `<p>Key ${index + 1}: ${keys.signerId}</p>
+              <p>Location details: </p>
+              <p>Access details: </p><br>`)}
             <p>Any other information:</p> <br><br><br><br><br>
-            
             <p>--------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
             <p>With the Output Descriptor file and the keys with you, you now have complete access to the Vault.</p>
             <p>--------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
@@ -103,12 +94,12 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
       base64: true,
     };
     const file = await RNHTMLtoPDF.convert(options);
-    return file.filePath
+    return file.filePath;
     // Alert.alert('Success', `PDF saved to ${file.filePath}`);
   } catch (error: any) {
-    return error
+    return error;
     // Alert.alert('Error', error.message);
   }
 };
 
-export default GenerateRecoveryInstrPDF
+export default GenerateRecoveryInstrPDF;

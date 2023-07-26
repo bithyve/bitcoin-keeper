@@ -37,6 +37,8 @@ function InheritanceStatus() {
   const dispatch = useAppDispatch();
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
+  const [fileRecoveryPath, setFileRecoveryPath] = useState('');
+
 
   const { activeVault } = useVault();
   const { useQuery } = useContext(RealmWrapperContext);
@@ -117,11 +119,19 @@ function InheritanceStatus() {
           icon={<Recovery />}
           title="Recovery Instructions"
           subTitle="A document for the heir only"
+          previewPDF={() => {
+            if (fileRecoveryPath) {
+              navigtaion.navigate('PreviewPDF', { source: fileRecoveryPath })
+            } else {
+              showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
+            }
+
+          }}
           downloadPDF={() =>
-            // DownloadFile('Restoring Inheritance Vault').then(() => {
-            //   showToast('Document has been downloaded.', <TickIcon />);
-            // })
-            GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then(() => {
+            GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
+              if (res) {
+                setFileRecoveryPath(res)
+              }
               showToast('Document has been downloaded.', <TickIcon />);
             })
           }
