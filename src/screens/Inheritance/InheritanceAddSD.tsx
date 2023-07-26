@@ -241,24 +241,26 @@ function InheritanceAddSD() {
                     marginTop: hp(52),
                 }}
             />
-            <Option
-                title="Inheritance Key Request Sent"
-                subTitle="3 weeks remaning"
-                icon={<InheritanceIcon />}
-                onPress={() => {
-                    console.log('inheritance');
-                }}
-                arrowIcon={<TimeIcon />}
-            />
-            <Option
-                title="Add Another"
-                subTitle="Select signing device"
-                icon={<Add />}
-                onPress={() => {
-                    console.log('inheritance');
-                }}
-                arrowIcon={<Arrow />}
-            />
+            <Box style={{ marginBottom: hp(20) }}>
+                <Option
+                    title="Inheritance Key Request Sent"
+                    subTitle="3 weeks remaning"
+                    icon={<InheritanceIcon />}
+                    onPress={() => {
+                        console.log('inheritance');
+                    }}
+                    arrowIcon={<TimeIcon />}
+                />
+                <Option
+                    title="Add Another"
+                    subTitle="Select signing device"
+                    icon={<Add />}
+                    onPress={() => {
+                        console.log('inheritance');
+                    }}
+                    arrowIcon={<Arrow />}
+                />
+            </Box>
             <Box style={styles.noteContainer}>
                 <Note
                     title="Note"
