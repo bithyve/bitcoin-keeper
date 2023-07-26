@@ -17,7 +17,6 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import DownloadFile from 'src/utils/DownloadPDF';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
@@ -28,6 +27,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import GenerateSecurityTipsPDF from 'src/utils/GenerateSecurityTipsPDF';
+import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
@@ -37,9 +37,6 @@ function InheritanceStatus() {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings.iKPDFPaths);
-  console.log('keySecurityTips', keySecurityTips)
-  console.log('letterToAttorny', letterToAttorny)
-  console.log('recoveryInstruction', recoveryInstruction)
 
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
@@ -100,8 +97,7 @@ function InheritanceStatus() {
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
-          }
-          }
+          }}
           isDownload
         />
         <InheritanceDownloadView
@@ -127,6 +123,26 @@ function InheritanceStatus() {
           icon={<Letter />}
           title="Letter to the attorney"
           subTitle="A partly filled pdf template"
+          previewPDF={() => {
+            if (letterToAttorny) {
+              navigtaion.navigate('PreviewPDF', { source: letterToAttorny })
+            } else {
+              showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
+            }
+
+          }}
+          downloadPDF={() => {
+            GenerateLetterToAtternyPDF().then((res) => {
+              if (res) {
+                dispatch(setIKPDFPaths({
+                  keySecurityTips,
+                  letterToAttorny: res,
+                  recoveryInstruction
+                }))
+              }
+              showToast('Document has been downloaded.', <TickIcon />);
+            })
+          }}
           isDownload
         />
         <InheritanceDownloadView
