@@ -53,13 +53,13 @@ function AddSigningDevice(props) {
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
       }
     >
-      <Box flexDir="row" alignItems="center" marginBottom="12" marginTop={5}>
+      <Box flexDir="row" alignItems="center" marginBottom="5" mx="3" marginTop={5}>
         <HStack style={styles.signerItem}>
           <HStack alignItems="center">
-            <Box style={{ width: '15%', alignItems: 'center' }}>
+            <Box style={{ width: '10%', alignItems: 'center' }}>
               {props.icon}
             </Box>
-            <VStack style={{ width: '65%', marginLeft: wp(10) }} >
+            <VStack style={{ width: '75%', marginLeft: wp(10) }} >
               <Text
                 color="light.primaryText"
                 fontSize={15}
@@ -74,7 +74,7 @@ function AddSigningDevice(props) {
               </Text>
             </VStack>
           </HStack>
-          <Box width="15%" alignItems="center">
+          <Box width="10%" alignItems="center">
             {props.arrowIcon}
           </Box>
         </HStack>
@@ -275,7 +275,7 @@ function VaultRecovery({ navigation }) {
                 marginTop: hp(32),
               }}
             />
-            {IKRequest && <AddSigningDevice icon={<InheritanceIcon />} arrowIcon={<TimeIcon />} error={error} title='Inheritance Key Request Sent' subTitle='3 weeks remaning' />}
+            {!IKRequest && <AddSigningDevice icon={<InheritanceIcon />} arrowIcon={<TimeIcon />} error={error} title='Inheritance Key Request Sent' subTitle='3 weeks remaning' />}
             <AddSigningDevice icon={<AddIcon />} arrowIcon={<IconArrowBlack />} error={error} title='Add Another' subTitle='Select signing device' />
           </Box>
         ) : (
