@@ -5,8 +5,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { setInheritance } from 'src/store/reducers/settings';
-import { useAppDispatch } from 'src/store/hooks';
+import { setIKPDFPaths, setInheritance } from 'src/store/reducers/settings';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg';
 import Letter from 'src/assets/images/LETTER.svg';
@@ -36,10 +36,13 @@ function InheritanceStatus() {
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
+  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings.iKPDFPaths);
+  console.log('keySecurityTips', keySecurityTips)
+  console.log('letterToAttorny', letterToAttorny)
+  console.log('recoveryInstruction', recoveryInstruction)
+
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
-  const [fileRecoveryPath, setFileRecoveryPath] = useState('');
-  const [securityTipsPath, setSecurityTipsPath] = useState('');
 
   const { activeVault } = useVault();
   const { useQuery } = useContext(RealmWrapperContext);
@@ -79,8 +82,8 @@ function InheritanceStatus() {
           title="Key Security Tips"
           subTitle="How to store your keys securely"
           previewPDF={() => {
-            if (securityTipsPath) {
-              navigtaion.navigate('PreviewPDF', { source: securityTipsPath })
+            if (keySecurityTips) {
+              navigtaion.navigate('PreviewPDF', { source: keySecurityTips })
             } else {
               showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
             }
@@ -89,7 +92,11 @@ function InheritanceStatus() {
           downloadPDF={() => {
             GenerateSecurityTipsPDF().then((res) => {
               if (res) {
-                setSecurityTipsPath(res)
+                dispatch(setIKPDFPaths({
+                  keySecurityTips: res,
+                  letterToAttorny,
+                  recoveryInstruction
+                }))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
@@ -120,11 +127,6 @@ function InheritanceStatus() {
           icon={<Letter />}
           title="Letter to the attorney"
           subTitle="A partly filled pdf template"
-          downloadPDF={() =>
-            DownloadFile('Letter to the attorney').then(() => {
-              showToast('Document has been downloaded.', <TickIcon />);
-            })
-          }
           isDownload
         />
         <InheritanceDownloadView
@@ -132,8 +134,8 @@ function InheritanceStatus() {
           title="Recovery Instructions"
           subTitle="A document for the heir only"
           previewPDF={() => {
-            if (fileRecoveryPath) {
-              navigtaion.navigate('PreviewPDF', { source: fileRecoveryPath })
+            if (recoveryInstruction) {
+              navigtaion.navigate('PreviewPDF', { source: recoveryInstruction })
             } else {
               showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
             }
@@ -142,7 +144,11 @@ function InheritanceStatus() {
           downloadPDF={() =>
             GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
               if (res) {
-                setFileRecoveryPath(res)
+                dispatch(setIKPDFPaths({
+                  keySecurityTips,
+                  letterToAttorny,
+                  recoveryInstruction: res
+                }))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
