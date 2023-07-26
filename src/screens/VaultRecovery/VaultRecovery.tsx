@@ -32,18 +32,20 @@ import KeeperModal from 'src/components/KeeperModal';
 import { setTempShellId } from 'src/store/reducers/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import InheritanceIcon from 'src/assets/images/inheritanceBrown.svg'
+import TimeIcon from 'src/assets/images/time.svg'
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 
 const allowedSignerLength = [1, 3, 5];
 
-function AddSigningDevice({ error }) {
+function AddSigningDevice(props) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   return (
     <Pressable
       onPress={
-        error
+        props.error
           ? () =>
             showToast(
               'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
@@ -51,11 +53,13 @@ function AddSigningDevice({ error }) {
           : () => navigation.navigate('LoginStack', { screen: 'SignersList' })
       }
     >
-      <Box flexDir="row" alignItems="center" marginX="3" marginBottom="12" marginTop={5}>
+      <Box flexDir="row" alignItems="center" marginBottom="12" marginTop={5}>
         <HStack style={styles.signerItem}>
           <HStack alignItems="center">
-            <AddIcon />
-            <VStack marginX="4" maxWidth="64">
+            <Box style={{ width: '15%', alignItems: 'center' }}>
+              {props.icon}
+            </Box>
+            <VStack style={{ width: '65%', marginLeft: wp(10) }} >
               <Text
                 color="light.primaryText"
                 fontSize={15}
@@ -63,15 +67,15 @@ function AddSigningDevice({ error }) {
                 alignItems="center"
                 letterSpacing={1.12}
               >
-                Add Another
+                {props.title}
               </Text>
               <Text color="light.GreyText" fontSize={13} letterSpacing={0.6}>
-                Select signing device
+                {props.subTitle}
               </Text>
             </VStack>
           </HStack>
           <Box width="15%" alignItems="center">
-            <IconArrowBlack />
+            {props.arrowIcon}
           </Box>
         </HStack>
       </Box>
@@ -144,6 +148,7 @@ function VaultRecovery({ navigation }) {
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState(signingDevices);
   const [error, setError] = useState(false);
+  const [IKRequest, setIKRequest] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
 
@@ -270,7 +275,8 @@ function VaultRecovery({ navigation }) {
                 marginTop: hp(32),
               }}
             />
-            <AddSigningDevice error={error} />
+            {IKRequest && <AddSigningDevice icon={<InheritanceIcon />} arrowIcon={<TimeIcon />} error={error} title='Inheritance Key Request Sent' subTitle='3 weeks remaning' />}
+            <AddSigningDevice icon={<AddIcon />} arrowIcon={<IconArrowBlack />} error={error} title='Add Another' subTitle='Select signing device' />
           </Box>
         ) : (
           <Box flex={1} alignItems="center" justifyContent="center">
