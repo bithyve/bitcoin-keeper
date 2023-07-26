@@ -1,8 +1,8 @@
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
 const GenerateLetterToAtternyPDF = async () => {
-    try {
-        const html = `
+  try {
+    const html = `
         <html>
           <head>
             <style>
@@ -43,22 +43,22 @@ const GenerateLetterToAtternyPDF = async () => {
             <p>These master fingerprints and the accompanying explanation of their usage can be recorded in my will if it is of any help. Further details regarding the designated beneficiary, executor, and supplementary instructions will be provided separately during our estate planning discussions. I have complete faith in your expertise to handle this confidential information securely. Please do not hesitate to contact me if you require additional documentation or information. Your support and meticulous attention to detail in facilitating the transfer of the legal title to my bitcoin holdings are greatly appreciated.</p>
             <p>Thank you for your professional assistance in preparing my estate plan and ensuring the proper transfer of the legal title to my bitcoin assets according to my wishes.</p>
             <p>Sincerely,</p><br>
-            <p>--------------------------------------------------------------------------------------------------------</p>
+            <p>------------------------------------------------------------------------------------</p>
             <p>This dummy document is one of three Inheritance Planning documents provided by Keeper. The other 2 being Key Security Tips and Restoring Inheritance Vault. This dummy document is auto-produced by the Bitcoin Keeper app. The data shared in this document is sensitive. Please be cautious about revealing part or all of its contents to anyone. To learn more, please visit bitcoinkeeper.app</p>
             </body>
         </html>
       `;
-        const options = {
-            html,
-            fileName: `RecoveryInstruction`,
-            directory: 'Documents',
-            base64: true,
-        };
-        const file = await RNHTMLtoPDF.convert(options);
-        return file.filePath;
-    } catch (error: any) {
-        return error;
-    }
+    const options = {
+      html,
+      fileName: `RecoveryInstruction`,
+      directory: 'Documents',
+      base64: true,
+    };
+    const file = await RNHTMLtoPDF.convert(options);
+    return file.filePath;
+  } catch (error: any) {
+    return error;
+  }
 };
 
 export default GenerateLetterToAtternyPDF;

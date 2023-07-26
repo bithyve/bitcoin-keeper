@@ -130,7 +130,7 @@ const GenerateSecurityTipsPDF = async () => {
             <li>Access your setup multiple times during your lifetime. Once a year at least.</li>
             <li>If you change something somewhere, like a device or a pin, please update the change in relevant places. </li>
             </ul> 
-            <p>--------------------------------------------------------------------------------------------------------</p>
+            <p>-----------------------------------------------------------------------------------</p>
             <p>This document is one of three Inheritance Planning documents provided by Keeper. The other 2 being: Letter to the Attorney and Recovery Instructions for your heir. This document is auto-produced by the Bitcoin Keeper app. To learn more visit bitcoinkeeper.app.</p>
             </body>
         </html>

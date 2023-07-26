@@ -70,17 +70,17 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
             <p>A) Key: Type Details </p>
             ${signers.map((keys, index) =>
       `<p>Key ${index + 1}: ${keys.signerId}</p>
-               <p>Type: ${keys.type}</p><br>`)}
+               <p>Type: ${keys.type}</p>`)}
             ${signers.map((keys, index) =>
         `<p>Key ${index + 1}: ${keys.signerId}</p>
               <p>Location details: </p>
               <p>Access details: </p><br>`)}
             <p>Any other information:</p> <br><br><br><br><br>
-            <p>--------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
+            <p>--------------------------------------------------------------------------------------------------------------------------------------------</p>
             <p>With the Output Descriptor file and the keys with you, you now have complete access to the Vault.</p>
-            <p>--------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
+            <p>--------------------------------------------------------------------------------------------------------------------------------------------</p>
             <p>This document is one of three Inheritance Planning documents provided by Keeper. The other 2 are Letter to the Attorney and Key Security Tips. This document is auto-produced by the Bitcoin Keeper app. The data shared in this document is sensitive. Please be cautious about revealing part or all of its contents to anyone. To learn more, please visit bitcoinkeeper.app.</p>
-            <p>--------------------------------------------------------------------------------------------------------------------------------------------------------------</p>
+            <p>-------------------------------------------------------------------------------------------------------------------------------------------</p>
             <p>Annexure 1</p>
             <p>Output Descriptor</p>
             <p>${descriptorString}</p>
