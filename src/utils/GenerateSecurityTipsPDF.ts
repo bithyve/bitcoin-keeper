@@ -19,7 +19,7 @@ const GenerateSecurityTipsPDF = async () => {
                 padding: 0 20px;
               }
               p{
-                font-size:25px;
+                font-size: 25px;
               }
               h4{
                 align-items: center;

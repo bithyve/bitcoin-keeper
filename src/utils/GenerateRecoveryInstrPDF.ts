@@ -19,12 +19,12 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
                 padding: 0 20px;
               }
               p{
-                font-size:25px;
+                font-size:35px;
               }
             </style>
           </head>
           <body>
-            <h4>Vault Recovery Instructions with or without the Keeper App:</h4>
+            <h2>Vault Recovery Instructions with or without the Keeper App:</h2>
             <p>This document is one of three Inheritance Planning documents provided by Keeper. The other 2 are Letter to the Attorney and Key Security Tips. This document is auto-produced by the Bitcoin Keeper app. The data shared in this document is sensitive. Please be cautious about revealing part or all of its contents to anyone. To learn more, please visit bitcoinkeeper.app.</p>
             <p>Getting Started: </p>
             <p>An m-of-n multisig setup enhances security by distributing control and access, thus reducing the risk of unauthorized access or fraudulent activities. The bitcoin you inherited is within such a setup, i.e. the Vault. This document provides the method to recover the Vault and gain custody of your Inheritance. </p>
@@ -76,11 +76,11 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
               <p>Location details: </p>
               <p>Access details: </p><br>`)}
             <p>Any other information:</p> <br><br><br><br><br>
-            <p>--------------------------------------------------------------------------------------------------------------------------------------------</p>
+            <p>----------------------------------------------------------------------------------------------------</p>
             <p>With the Output Descriptor file and the keys with you, you now have complete access to the Vault.</p>
-            <p>--------------------------------------------------------------------------------------------------------------------------------------------</p>
+            <p>----------------------------------------------------------------------------------------------------</p>
             <p>This document is one of three Inheritance Planning documents provided by Keeper. The other 2 are Letter to the Attorney and Key Security Tips. This document is auto-produced by the Bitcoin Keeper app. The data shared in this document is sensitive. Please be cautious about revealing part or all of its contents to anyone. To learn more, please visit bitcoinkeeper.app.</p>
-            <p>-------------------------------------------------------------------------------------------------------------------------------------------</p>
+            <p>----------------------------------------------------------------------------------------------------</p>
             <p>Annexure 1</p>
             <p>Output Descriptor</p>
             <p>${descriptorString}</p>
