@@ -95,10 +95,8 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
     };
     const file = await RNHTMLtoPDF.convert(options);
     return file.filePath;
-    // Alert.alert('Success', `PDF saved to ${file.filePath}`);
   } catch (error: any) {
     return error;
-    // Alert.alert('Error', error.message);
   }
 };
 

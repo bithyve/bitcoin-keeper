@@ -1,8 +1,8 @@
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
 const GenerateSecurityTipsPDF = async () => {
-    try {
-        const html = `
+  try {
+    const html = `
         <html>
           <head>
             <style>
@@ -132,19 +132,17 @@ const GenerateSecurityTipsPDF = async () => {
             </body>
         </html>
       `;
-        const options = {
-            html,
-            fileName: `KeySecurityTips`,
-            directory: 'Documents',
-            base64: true,
-        };
-        const file = await RNHTMLtoPDF.convert(options);
-        return file.filePath;
-        // Alert.alert('Success', `PDF saved to ${file.filePath}`);
-    } catch (error: any) {
-        return error;
-        // Alert.alert('Error', error.message);
-    }
+    const options = {
+      html,
+      fileName: `KeySecurityTips`,
+      directory: 'Documents',
+      base64: true,
+    };
+    const file = await RNHTMLtoPDF.convert(options);
+    return file.filePath;
+  } catch (error: any) {
+    return error;
+  }
 };
 
 export default GenerateSecurityTipsPDF;
