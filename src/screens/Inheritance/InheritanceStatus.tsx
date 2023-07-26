@@ -27,6 +27,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import GenerateSecurityTipsPDF from 'src/utils/GenerateSecurityTipsPDF';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
@@ -38,7 +39,7 @@ function InheritanceStatus() {
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
   const [fileRecoveryPath, setFileRecoveryPath] = useState('');
-
+  const [securityTipsPath, setSecurityTipsPath] = useState('');
 
   const { activeVault } = useVault();
   const { useQuery } = useContext(RealmWrapperContext);
@@ -77,8 +78,19 @@ function InheritanceStatus() {
           icon={<SafeguardingTips />}
           title="Key Security Tips"
           subTitle="How to store your keys securely"
+          previewPDF={() => {
+            if (securityTipsPath) {
+              navigtaion.navigate('PreviewPDF', { source: securityTipsPath })
+            } else {
+              showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
+            }
+
+          }}
           downloadPDF={() => {
-            DownloadFile('Key Security Tips').then(() => {
+            GenerateSecurityTipsPDF().then((res) => {
+              if (res) {
+                setSecurityTipsPath(res)
+              }
               showToast('Document has been downloaded.', <TickIcon />);
             })
           }
