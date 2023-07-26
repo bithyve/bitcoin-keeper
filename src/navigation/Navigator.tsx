@@ -35,7 +35,6 @@ import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
 import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
-import InheritanceAddSD from 'src/screens/Inheritance/InheritanceAddSD';
 import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
 import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
 import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConfirmation';
@@ -168,7 +167,6 @@ function AppStack() {
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="PreviewPDF" component={PreviewPDF} />
         <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
-        <Stack.Screen name="InheritanceAddSD" component={InheritanceAddSD} />
         <Stack.Screen name="InheritanceSetupInfo" component={InheritanceSetupInfo} />
         <Stack.Screen name="IKSAddEmailPhone" component={IKSAddEmailPhone} />
         <Stack.Screen name="EnterOTPEmailConfirmation" component={EnterOTPEmailConfirmation} />
