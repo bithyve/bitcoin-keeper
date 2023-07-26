@@ -36,7 +36,7 @@ function InheritanceStatus() {
   const [isSetupDone, setIsSetupDone] = useState(false);
 
   useEffect(() => {
-    if (activeVault.signers) {
+    if (activeVault && activeVault.signers) {
       const [ikSigner] = activeVault.signers.filter(
         (signer) => signer.type === SignerType.INHERITANCEKEY
       );
