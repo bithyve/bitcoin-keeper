@@ -252,7 +252,7 @@ function UTXOManagement({ route, navigation }) {
 
   return (
     <ScreenWrapper>
-      <ActivityIndicatorView visible={syncing} showLoader={false} />
+      <ActivityIndicatorView visible={syncing} showLoader={true} />
       <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab
