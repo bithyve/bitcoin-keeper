@@ -1,6 +1,6 @@
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 
-const GenerateLetterToAtternyPDF = async () => {
+const GenerateLetterToAtternyPDF = async (fingerPrints) => {
   try {
     const html = `
         <html>
@@ -31,12 +31,7 @@ const GenerateLetterToAtternyPDF = async () => {
             <p>I hope this letter finds you well. I am writing to provide you with the necessary information to include my bitcoin holdings in my estate plan. As a significant proportion of my wealth is held in bitcoin, it is crucial to address the legal transfer of these assets appropriately.</p>
             <p>Below, I have outlined the specific details regarding my current bitcoin holdings:</p>
             <p>1. Bitcoin Key Information:</p>
-            <p>   a) Key 1 Master Fingerprint: 3a1b9f68<p/>
-            <p>   b) Key 2 Master Fingerprint: 9c5e2d7f</p>
-            <p>   c) Key 3 Master Fingerprint: baf821de</p>
-            <p>   d) Key 4 Master Fingerprint: f2cd84a9</p>
-            <p>   e) Key 5 Master Fingerprint: 6e8b7d93</p>
-            <p>   f) Key 6 Master Fingerprint: d6fe5c82</p>
+            <p>${fingerPrints.map((keys, index) => `<p>Key ${index + 1} Master Fingerprint: ${keys}</p>`).join("")}</p>
             <p>These master fingerprints act as unique identifiers for the respective keys without revealing sensitive details. Following the BIP32 (Bitcoin Improvement Proposal 32) standard, each fingerprint helps identify the associated extended public key (xPub). The xPub serves as a distinct identifier that can be utilized by a digital asset expert or software, adhering to standard BIP32 derivation paths, to locate and validate the keys during the transfer process.</p>
             <p>Please note that the funds associated with these keys may be held in any combination of single-key or multi-signature (multisig) wallets. Regardless of the specific configuration, I intend that any wealth controlled by these keys be legally transferred to the designated heir or intended beneficiary.</p>
             <p>My explicit intention is to transfer the legal title to my bitcoin holdings to the designated heir or intended beneficiary. However, it is important to note that access to the actual keys and the bitcoin will be provided separately to the intended beneficiary. This letter solely addresses the transfer of legal title and the inclusion of my bitcoin assets in my estate plan.</p>
