@@ -520,8 +520,8 @@ function VaultDetails({ route, navigation }) {
       <View>
         <Success />
         <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
-          For sending out of the vault you will need the signing devices. This means no one can
-          steal your bitcoin in the vault unless they also have the signing devices
+          For sending out of the Vault you will need the signing devices. This means no one can
+          steal your bitcoin in the Vault unless they also have the signing devices
         </Text>
       </View>
     ),

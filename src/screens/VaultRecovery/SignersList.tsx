@@ -154,7 +154,7 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault)`}
+          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault)`}
         </Text>
       </Box>
     </View>

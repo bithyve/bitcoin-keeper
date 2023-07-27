@@ -147,7 +147,7 @@ function* uaiChecksWorker({ payload }) {
           } else {
             yield put(
               addToUaiStack({
-                title: `Transfer fund to vault for ${wallet.presentationData.name}`,
+                title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
                 isDisplay: false,
                 uaiType: uaiType.VAULT_TRANSFER,
                 prirority: 80,

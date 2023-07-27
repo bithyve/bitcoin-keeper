@@ -45,7 +45,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
   return (
     <Box style={styles.transactionsListContainer}>
-      <ActivityIndicatorView visible={syncing} showLoader={false} />
+      <ActivityIndicatorView visible={syncing} showLoader={true} />
       <Transactions
         transactions={transactions}
         setPullRefresh={setPullRefresh}

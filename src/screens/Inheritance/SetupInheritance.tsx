@@ -157,7 +157,7 @@ function SetupInheritance() {
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
+                {shouldActivateInheritance() ? 'Setup Inheritance Key' : `Upgrade Now`}
               </Text>
             </Box>
           </TouchableOpacity>
