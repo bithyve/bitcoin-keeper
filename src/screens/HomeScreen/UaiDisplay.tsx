@@ -6,24 +6,27 @@ import { useDispatch } from 'react-redux';
 import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
 import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState<UAI | {}>({});
   const [uaiConfig, setUaiConfig] = useState({});
   const [showModal, setShowModal] = useState(false);
+  const [modalActionLoader, setmodalActionLoader] = useState(false);
   const { activeVault } = useVault();
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
   const navigtaion = useNavigation();
 
-  const getUaiTypeDefinations = (type) => {
+  const getUaiTypeDefinations = (type: string, entityId?: string) => {
     switch (type) {
       case uaiType.RELEASE_MESSAGE:
         return {
@@ -74,6 +77,36 @@ function UaiDisplay({ uaiStack }) {
             navigtaion.navigate('AddSigningDevice');
           },
         };
+      case uaiType.IKS_REQUEST:
+        return {
+          modalDetails: {
+            heading: 'Inheritance Key request',
+            subTitle: `Request:${entityId}`,
+            displayText:
+              'There is a request by someone for accessing the Inheritance Key you have set up using this app',
+            btnText: 'Decline',
+          },
+          cta: async (entityId) => {
+            try {
+              setmodalActionLoader(true);
+              if (entityId) {
+                const res = await InheritanceKeyServer.declineInheritanceKeyRequest(entityId);
+                if (res?.declined) {
+                  showToast('IKS declined');
+                  uaiSetActionFalse();
+                  setShowModal(false);
+                } else {
+                  Alert.alert('Something went Wrong!');
+                }
+              }
+            } catch (err) {
+              Alert.alert('Something went Wrong!');
+              console.log('Error in declining request');
+            }
+            setShowModal(false);
+            setmodalActionLoader(false);
+          },
+        };
       case uaiType.DEFAULT:
         return {
           cta: () => {
@@ -94,7 +127,8 @@ function UaiDisplay({ uaiStack }) {
   };
 
   useEffect(() => {
-    setUaiConfig(getUaiTypeDefinations(uai?.uaiType));
+    console.log({ uai });
+    setUaiConfig(getUaiTypeDefinations(uai?.uaiType, uai?.entityId));
   }, [uai]);
 
   useEffect(() => {
@@ -113,6 +147,8 @@ function UaiDisplay({ uaiStack }) {
     }
   };
 
+  console.log({ uaiConfig });
+
   if (uaiStack.length > 0) {
     return (
       <>
@@ -130,9 +166,10 @@ function UaiDisplay({ uaiStack }) {
           subTitle={uaiConfig?.modalDetails?.subTitle}
           buttonText={uaiConfig?.modalDetails?.btnText}
           buttonTextColor="light.white"
-          buttonCallback={uaiConfig?.cta}
+          buttonCallback={() => uaiConfig?.cta(uai?.entityId)}
           Content={() => <Text color="light.greenText">{uai?.displayText}</Text>}
         />
+        <ActivityIndicatorView visible={modalActionLoader} showLoader={true} />
       </>
     );
   }

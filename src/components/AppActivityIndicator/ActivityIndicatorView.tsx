@@ -6,7 +6,7 @@ function ActivityIndicatorView({
   showLoader = true,
 }: {
   visible: boolean;
-  showLoade?: boolean;
+  showLoader?: boolean;
 }) {
   if (visible) {
     return (
