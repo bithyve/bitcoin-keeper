@@ -146,7 +146,7 @@ function SetupInheritance() {
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
           {shouldActivateInheritance()
-            ? `Setup Inheritance Key or view documents`
+            ? `Manage Inheritance key or view documents`
             : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a vault`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
@@ -157,7 +157,7 @@ function SetupInheritance() {
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {shouldActivateInheritance() ? 'Setup Inheritance Key' : `Upgrade Now`}
+                {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
               </Text>
             </Box>
           </TouchableOpacity>
