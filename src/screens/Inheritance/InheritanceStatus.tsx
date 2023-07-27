@@ -46,6 +46,7 @@ function InheritanceStatus() {
   const vault: Vault = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => !vault.archived)[0];
+  const fingerPrints = vault.signers.map(signer => signer.masterFingerprint)
 
   const descriptorString = genrateOutputDescriptors(vault);
   const [isSetupDone, setIsSetupDone] = useState(false);
@@ -59,8 +60,7 @@ function InheritanceStatus() {
       else setIsSetupDone(false);
     }
   }, [activeVault]);
-  const fingerPrints = vault.signers.map(signer => signer.masterFingerprint)
-  console.log('fingerPrints', fingerPrints)
+
   return (
     <ScreenWrapper>
       <HeaderTitle
