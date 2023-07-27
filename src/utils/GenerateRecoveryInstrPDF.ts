@@ -70,11 +70,11 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
             <p>A) Key: Type Details </p>
             ${signers.map((keys, index) =>
       `<p>Key ${index + 1}: ${keys.signerId}</p>
-               <p>Type: ${keys.type}</p>`)}
+               <p>Type: ${keys.type}</p>`).join("")}<br>
             ${signers.map((keys, index) =>
         `<p>Key ${index + 1}: ${keys.signerId}</p>
               <p>Location details: </p>
-              <p>Access details: </p><br>`)}
+              <p>Access details: </p><br>`).join("")}
             <p>Any other information:</p> <br><br><br><br><br>
             <p>----------------------------------------------------------------------------------------------------</p>
             <p>With the Output Descriptor file and the keys with you, you now have complete access to the Vault.</p>
