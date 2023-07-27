@@ -107,7 +107,10 @@ function InheritanceStatus() {
           subTitle="Add an assisted key to create a 3 of 6 Vault"
           isSetupDone={isSetupDone}
           onPress={() => {
-            if (isSetupDone) return;
+            if (isSetupDone) {
+              showToast('You have successfully added the Inheritance Key.', <TickIcon />)
+              return
+            }
             navigtaion.dispatch(
               CommonActions.navigate('AddSigningDevice', { isInheritance: true })
             );
@@ -122,7 +125,7 @@ function InheritanceStatus() {
         )}
         <InheritanceDownloadView
           icon={<Letter />}
-          title="Letter to the attorney"
+          title="Letter to the Attorney"
           subTitle="A partly filled pdf template"
           previewPDF={() => {
             if (letterToAttorny) {

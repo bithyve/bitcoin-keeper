@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, Pressable } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import DownloadIcon from 'src/assets/images/download.svg';
@@ -34,9 +34,9 @@ function InheritanceDownloadView(props) {
         ) : (
           <Box>
             {props.isSetupDone ? (
-              <Box alignItems="center">
+              <Pressable style={styles.successTickBtn} onPress={props.onPress}>
                 <TickIcon />
-              </Box>
+              </Pressable>
 
             ) : (
               <TouchableOpacity style={styles.setupBtn} onPress={props.onPress}>
@@ -73,6 +73,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
+  },
+  successTickBtn: {
+    width: '45%',
+    padding: 5,
+    paddingVertical: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center'
   },
   setupBtn: {
     flexDirection: 'row',
