@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View } from 'native-base';
+import { Box, HStack, VStack, View, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
@@ -46,6 +46,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import AddPhoneEmailIcon from 'src/assets/images/AddPhoneEmail.svg';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
@@ -517,13 +519,31 @@ function VaultDetails({ route, navigation }) {
 
   const NewVaultContent = useCallback(
     () => (
-      <View>
-        <Success />
+      <Box>
         <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
           For sending out of the vault you will need the signing devices. This means no one can
           steal your bitcoin in the vault unless they also have the signing devices
         </Text>
-      </View>
+        <Box alignItems="center">
+          <Success />
+        </Box>
+        <Pressable style={styles.addPhoneEmailWrapper} backgroundColor='light.primaryBackground' onPress={() => {
+          navigation.navigate('IKSAddEmailPhone')
+          setVaultCreated(false);
+        }
+        }>
+          <Box style={styles.iconWrapper}>
+            <AddPhoneEmailIcon />
+          </Box>
+          <Box style={styles.titleWrapper}>
+            <Text style={styles.addPhoneEmailTitle} color="light.primaryText">Add Phone or Email</Text>
+            <Text style={styles.addPhoneEmailSubTitle} color="light.secondaryText">Lorem ipsum dolor sit amet, consectetur adipiscing eli</Text>
+          </Box>
+          <Box style={styles.rightIconWrapper}>
+            <RightArrowIcon />
+          </Box>
+        </Pressable>
+      </Box>
     ),
     []
   );
@@ -738,5 +758,28 @@ const getStyles = (top) =>
       color: '#041513',
       width: wp(200),
     },
+    addPhoneEmailWrapper: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: hp(20),
+      paddingVertical: hp(10),
+      borderRadius: 10
+    },
+    iconWrapper: {
+      width: '15%'
+    },
+    titleWrapper: {
+      width: '75%'
+    },
+    addPhoneEmailTitle: {
+      fontSize: 14
+    },
+    addPhoneEmailSubTitle: {
+      fontSize: 12
+    },
+    rightIconWrapper: {
+      width: '10%'
+    }
   });
 export default VaultDetails;
