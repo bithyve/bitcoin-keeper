@@ -628,15 +628,47 @@ export const finaliseVaultMigrationWatcher = createWatcher(
 
 function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
   // finalise the IK setup
-  const { scheme, signers, shellId, id: vaultId } = payload.vault;
-  const [ikSigner] = signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
+  const { vault } = payload;
+  const [ikSigner] = vault.signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
 
-  if (ikSigner) {
+  if (!ikSigner) return;
+  let updatedIkSigner: VaultSigner = null;
+
+  if (ikSigner.inheritanceKeyInfo) {
+    // case: updating config for this new vault which already had IKS as one of its signers
+    const existingConfiguration = ikSigner.inheritanceKeyInfo.configuration;
+    const existingThresholdDescriptors = existingConfiguration.descriptors.slice(0, 2);
+
+    const newIKSConfiguration: InheritanceConfiguration = {
+      m: vault.scheme.m,
+      n: vault.scheme.n,
+      descriptors: vault.signers.map((signer) => signer.signerId),
+      // bsms: ,
+    };
+
+    const { updated } = yield call(
+      InheritanceKeyServer.updateInheritanceConfig,
+      vault.shellId,
+      existingThresholdDescriptors,
+      newIKSConfiguration
+    );
+
+    if (updated) {
+      updatedIkSigner = {
+        ...ikSigner,
+        inheritanceKeyInfo: {
+          ...ikSigner.inheritanceKeyInfo,
+          configuration: newIKSConfiguration,
+        },
+      };
+    } else Alert.alert('Failed to update the inheritance key configuration');
+  } else {
+    // case: setting up a vault w/ IKS for the first time
     const config: InheritanceConfiguration = {
-      m: scheme.m,
-      n: scheme.n,
-      descriptors: signers.map((signer) => signer.signerId),
-      // bsms
+      m: vault.scheme.m,
+      n: vault.scheme.n,
+      descriptors: vault.signers.map((signer) => signer.signerId),
+      // bsms: ,
     };
 
     const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
@@ -646,30 +678,32 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
 
     const { setupSuccessful } = yield call(
       InheritanceKeyServer.finalizeIKSetup,
-      shellId,
+      vault.shellId,
       config,
       policy
     );
 
     if (setupSuccessful) {
-      // send updates to realm
-      const updatedIkSigner: VaultSigner = {
+      updatedIkSigner = {
         ...ikSigner,
         inheritanceKeyInfo: {
           configuration: config,
           policy,
         },
       };
-
-      const updatedSigners = signers.map((signer) => {
-        if (signer.type === SignerType.INHERITANCEKEY) return updatedIkSigner;
-        return signer;
-      });
-
-      yield call(dbManager.updateObjectById, RealmSchema.Vault, vaultId, {
-        signers: updatedSigners,
-      });
     } else Alert.alert('Failed to finalise the inheritance key setup');
+  }
+
+  if (updatedIkSigner) {
+    // send updates to realm
+    const updatedSigners = vault.signers.map((signer) => {
+      if (signer.type === SignerType.INHERITANCEKEY) return updatedIkSigner;
+      return signer;
+    });
+
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, {
+      signers: updatedSigners,
+    });
   }
 }
 
