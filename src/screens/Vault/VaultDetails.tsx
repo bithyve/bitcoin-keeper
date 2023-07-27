@@ -31,7 +31,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
@@ -455,6 +455,9 @@ function VaultDetails({ route, navigation }) {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const inheritanceSigner = vault.signers.filter(
+    (signer) => signer.type === SignerType.INHERITANCEKEY
+  )[0];
   const [tireChangeModal, setTireChangeModal] = useState(false);
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
@@ -484,10 +487,6 @@ function VaultDetails({ route, navigation }) {
     setPullRefresh(true);
     dispatch(refreshWallets([vault], { hardRefresh: true }));
     setPullRefresh(false);
-  };
-
-  const closeVaultCreatedDialog = () => {
-    setVaultCreated(false);
   };
 
   useEffect(() => {
@@ -540,8 +539,8 @@ function VaultDetails({ route, navigation }) {
 
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`
-      : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
+      ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`
+      : `Vault with ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
   return (
     <LinearGradient
@@ -591,10 +590,13 @@ function VaultDetails({ route, navigation }) {
         visible={vaultCreated}
         title="New Vault Created"
         subTitle={subtitle}
-        buttonText="View Vault"
+        buttonText={inheritanceSigner ? 'Add Email' : 'View Vault'}
         subTitleColor="light.secondaryText"
-        buttonCallback={closeVaultCreatedDialog}
-        close={closeVaultCreatedDialog}
+        buttonCallback={() => {
+          if (inheritanceSigner) navigation.navigate('IKSAddEmailPhone');
+          setVaultCreated(false);
+        }}
+        close={() => setVaultCreated(false)}
         Content={NewVaultContent}
       />
       <KeeperModal
