@@ -59,7 +59,8 @@ function InheritanceStatus() {
       else setIsSetupDone(false);
     }
   }, [activeVault]);
-
+  const fingerPrints = vault.signers.map(signer => signer.masterFingerprint)
+  console.log('fingerPrints', fingerPrints)
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -132,7 +133,7 @@ function InheritanceStatus() {
 
           }}
           downloadPDF={() => {
-            GenerateLetterToAtternyPDF().then((res) => {
+            GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
               if (res) {
                 dispatch(setIKPDFPaths({
                   keySecurityTips,
