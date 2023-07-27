@@ -527,22 +527,31 @@ function VaultDetails({ route, navigation }) {
         <Box alignItems="center">
           <Success />
         </Box>
-        <Pressable style={styles.addPhoneEmailWrapper} backgroundColor='light.primaryBackground' onPress={() => {
-          navigation.navigate('IKSAddEmailPhone')
-          setVaultCreated(false);
-        }
-        }>
-          <Box style={styles.iconWrapper}>
-            <AddPhoneEmailIcon />
-          </Box>
-          <Box style={styles.titleWrapper}>
-            <Text style={styles.addPhoneEmailTitle} color="light.primaryText">Add Phone or Email</Text>
-            <Text style={styles.addPhoneEmailSubTitle} color="light.secondaryText">Lorem ipsum dolor sit amet, consectetur adipiscing eli</Text>
-          </Box>
-          <Box style={styles.rightIconWrapper}>
-            <RightArrowIcon />
-          </Box>
-        </Pressable>
+        {inheritanceSigner && (
+          <Pressable
+            style={styles.addPhoneEmailWrapper}
+            backgroundColor="light.primaryBackground"
+            onPress={() => {
+              navigation.navigate('IKSAddEmailPhone');
+              setVaultCreated(false);
+            }}
+          >
+            <Box style={styles.iconWrapper}>
+              <AddPhoneEmailIcon />
+            </Box>
+            <Box style={styles.titleWrapper}>
+              <Text style={styles.addPhoneEmailTitle} color="light.primaryText">
+                Add Email
+              </Text>
+              <Text style={styles.addPhoneEmailSubTitle} color="light.secondaryText">
+                Lorem ipsum dolor sit amet, consectetur adipiscing eli
+              </Text>
+            </Box>
+            <Box style={styles.rightIconWrapper}>
+              <RightArrowIcon />
+            </Box>
+          </Pressable>
+        )}
       </Box>
     ),
     []
@@ -610,10 +619,9 @@ function VaultDetails({ route, navigation }) {
         visible={vaultCreated}
         title="New Vault Created"
         subTitle={subtitle}
-        buttonText={inheritanceSigner ? 'Add Email' : 'View Vault'}
+        buttonText="View Vault"
         subTitleColor="light.secondaryText"
         buttonCallback={() => {
-          if (inheritanceSigner) navigation.navigate('IKSAddEmailPhone');
           setVaultCreated(false);
         }}
         close={() => setVaultCreated(false)}
@@ -764,22 +772,22 @@ const getStyles = (top) =>
       alignItems: 'center',
       marginVertical: hp(20),
       paddingVertical: hp(10),
-      borderRadius: 10
+      borderRadius: 10,
     },
     iconWrapper: {
-      width: '15%'
+      width: '15%',
     },
     titleWrapper: {
-      width: '75%'
+      width: '75%',
     },
     addPhoneEmailTitle: {
-      fontSize: 14
+      fontSize: 14,
     },
     addPhoneEmailSubTitle: {
-      fontSize: 12
+      fontSize: 12,
     },
     rightIconWrapper: {
-      width: '10%'
-    }
+      width: '10%',
+    },
   });
 export default VaultDetails;
