@@ -32,16 +32,21 @@ function InheritanceDownloadView(props) {
             </TouchableOpacity>
           </Box>
         ) : (
-          <TouchableOpacity style={styles.setupBtn} onPress={props.onPress}>
+          <Box>
             {props.isSetupDone ? (
-              <TickIcon />
+              <Box alignItems="center">
+                <TickIcon />
+              </Box>
+
             ) : (
-              <Text style={styles.setupBtnText}>&nbsp;&nbsp;Setup</Text>
+              <TouchableOpacity style={styles.setupBtn} onPress={props.onPress}>
+                <Text style={styles.setupBtnText}>&nbsp;&nbsp;Setup</Text>
+              </TouchableOpacity>
             )}
-          </TouchableOpacity>
+          </Box>
         )}
       </Box>
-    </Box>
+    </Box >
   );
 }
 const styles = StyleSheet.create({
