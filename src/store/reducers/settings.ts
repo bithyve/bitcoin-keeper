@@ -13,6 +13,11 @@ const initialState: {
   inheritanceModal: boolean;
   satsEnabled: boolean;
   whirlpoolSwiperModal: boolean;
+  iKPDFPaths: {
+    keySecurityTips: string,
+    letterToAttorny: string,
+    recoveryInstruction: string
+  };
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -23,6 +28,11 @@ const initialState: {
   inheritanceModal: true,
   satsEnabled: false,
   whirlpoolSwiperModal: true,
+  iKPDFPaths: {
+    keySecurityTips: '',
+    letterToAttorny: '',
+    recoveryInstruction: ''
+  }
 };
 
 const settingsSlice = createSlice({
@@ -56,6 +66,11 @@ const settingsSlice = createSlice({
     setWhirlpoolSwiperModal: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolSwiperModal = action.payload;
     },
+    setIKPDFPaths: (state, action: PayloadAction<{ keySecurityTips: string, letterToAttorny: string, recoveryInstruction: string }>) => {
+      state.iKPDFPaths.keySecurityTips = action.payload.keySecurityTips;
+      state.iKPDFPaths.letterToAttorny = action.payload.letterToAttorny;
+      state.iKPDFPaths.recoveryInstruction = action.payload.recoveryInstruction;
+    },
   },
 });
 
@@ -69,6 +84,7 @@ export const {
   setInheritance,
   setSatsEnabled,
   setWhirlpoolSwiperModal,
+  setIKPDFPaths
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
