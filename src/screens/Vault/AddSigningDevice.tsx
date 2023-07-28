@@ -200,10 +200,9 @@ function AddSigningDevice() {
   const [inheritanceInit, setInheritanceInit] = useState(false);
 
   const signers = activeVault?.signers || [];
-  const inheritanceSigner: VaultSigner = signers.filter(
-    (signer) => signer.type === SignerType.INHERITANCEKEY
-  )[0];
-  const isInheritance = route?.params?.isInheritance || Boolean(inheritanceSigner);
+  const isInheritance =
+    route?.params?.isInheritance ||
+    signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
 
   const {
     planStatus,
@@ -213,6 +212,10 @@ function AddSigningDevice() {
     misMatchedSigners,
     invalidSigners,
   } = useSignerIntel({ isInheritance });
+
+  const inheritanceSigner: VaultSigner = signersState.filter(
+    (signer) => signer?.type === SignerType.INHERITANCEKEY
+  )[0];
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {

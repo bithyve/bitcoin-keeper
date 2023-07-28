@@ -11,9 +11,9 @@ import { TransferType } from 'src/common/data/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
-import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
 import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState<UAI | {}>({});
@@ -127,7 +127,6 @@ function UaiDisplay({ uaiStack }) {
   };
 
   useEffect(() => {
-    console.log({ uai });
     setUaiConfig(getUaiTypeDefinations(uai?.uaiType, uai?.entityId));
   }, [uai]);
 
@@ -146,8 +145,6 @@ function UaiDisplay({ uaiStack }) {
       uaiConfig?.cta();
     }
   };
-
-  console.log({ uaiConfig });
 
   if (uaiStack.length > 0) {
     return (
@@ -169,7 +166,7 @@ function UaiDisplay({ uaiStack }) {
           buttonCallback={() => uaiConfig?.cta(uai?.entityId)}
           Content={() => <Text color="light.greenText">{uai?.displayText}</Text>}
         />
-        <ActivityIndicatorView visible={modalActionLoader} showLoader={true} />
+        <ActivityIndicatorView visible={modalActionLoader} showLoader />
       </>
     );
   }
