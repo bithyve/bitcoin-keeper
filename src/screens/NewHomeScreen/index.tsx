@@ -11,7 +11,6 @@ import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Fonts from 'src/common/Fonts';
-import { useRoute } from '@react-navigation/native';
 import { Box } from 'native-base';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
@@ -164,16 +163,6 @@ function NewHomeScreen({ navigation }) {
     <Tab.Navigator
       sceneContainerStyle={{ backgroundColor: '#F2EDE6' }}
       screenOptions={{ headerShown: false }}
-      // screenOptions={({ route, navigation }) => ({
-      //   tabBarButton: ({ onPress }) => (
-      //     <TabBarButton onPress={onPress} route={route} navigation={navigation} />
-      //   ),
-      //   tabBarIcon: ({ focused }) => (
-      //     <TabBarButton onPress={() => console.log('focused', focused)} route={route} navigation={navigation} focused />
-      //   ),
-      //   tabBarStyle: styles.tabBarStyle,
-      //   headerShown: false,
-      // })}
       tabBar={props => <TabBarButton focused={undefined} {...props} />}
     >
       <Tab.Screen name="Wallet" component={WalletsScreen} />
@@ -191,7 +180,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 30,
     paddingHorizontal: 27,
-    paddingVertical: 10,
+    paddingVertical: 15,
     marginHorizontal: 10,
   },
   label: {
