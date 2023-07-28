@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
-import { Box, View } from 'native-base';
+import { Box, View, Pressable } from 'native-base';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -11,6 +11,8 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { useDispatch } from 'react-redux';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import { setBackupBSMSForIKS } from 'src/store/reducers/vaults';
+import Text from 'src/components/KeeperText';
 import { BulletPoint } from './HardwareModalMap';
 
 const config = {
@@ -23,14 +25,41 @@ const config = {
   subTitle: 'Keep your signing device ready before proceeding',
 };
 function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; close: () => void }) {
-  const [inProgress, setInProgress] = useState(false);
-
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
+
+  const [inProgress, setInProgress] = useState(false);
+  const [backupBSMS, setBackupBSMS] = useState(false);
+
+  useEffect(() => {
+    dispatch(setBackupBSMSForIKS(backupBSMS));
+  }, [backupBSMS]);
+
   const Content = useCallback(
     () => (
       <View>
         <Box style={{ alignSelf: 'center', marginRight: 35 }}>{config.Illustration}</Box>
+        <Pressable
+          onPress={() => {
+            setBackupBSMS(!backupBSMS);
+          }}
+          style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}
+        >
+          {backupBSMS ? (
+            <TickIcon />
+          ) : (
+            <Box
+              style={{
+                height: 18,
+                width: 18,
+                borderRadius: 18,
+                borderColor: '#000',
+                borderWidth: 1,
+              }}
+            />
+          )}
+          <Text style={{ fontSize: 14, marginLeft: 15 }}>Backup Vault Config (BSMS)</Text>
+        </Pressable>
         <Box marginTop="4">
           {config.Instructions.map((instruction) => (
             <BulletPoint text={instruction} />
@@ -38,7 +67,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         </Box>
       </View>
     ),
-    []
+    [backupBSMS]
   );
 
   const setupInheritanceKey = async () => {

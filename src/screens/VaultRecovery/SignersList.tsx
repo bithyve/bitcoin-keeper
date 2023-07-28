@@ -59,7 +59,12 @@ const getnavigationState = (type) => ({
   ],
 });
 
-export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
+export const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  signingDevices,
+  inheritanceRequestId
+) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
@@ -79,7 +84,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
         disabled: false,
       };
     case SignerType.INHERITANCEKEY:
-      if (signingDevices.length < 2) {
+      if (signingDevices.length < 2 || inheritanceRequestId) {
         return {
           message: 'Add two other devices first to recover',
           disabled: true,
@@ -543,14 +548,9 @@ function SignersList({ navigation }) {
     }
   };
 
-  const requestInheritanceKey = async (signers: VaultSigner[], requestId?: string) => {
+  const requestInheritanceKey = async (signers: VaultSigner[]) => {
     try {
-      let isNewRequest = false;
-      if (!requestId) {
-        requestId = `request-${generateKey(10)}`;
-        isNewRequest = true;
-      }
-
+      const requestId = `request-${generateKey(10)}`;
       const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
 
@@ -564,7 +564,7 @@ function SignersList({ navigation }) {
         `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
         <TickIcon />
       );
-      if (isNewRequest) dispatch(setInheritanceRequestId(requestId));
+      dispatch(setInheritanceRequestId(requestId));
       navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
     } catch (err) {
       showToast(`${err}`, <ToastErrorIcon />);
@@ -574,7 +574,6 @@ function SignersList({ navigation }) {
 
   function HardWareWallet({ disabled, message, type, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
-    const { inheritanceRequestId } = useAppSelector((state) => state.storage);
     const { signingDevices } = useAppSelector((state) => state.bhr);
 
     const onPress = () => {
@@ -808,7 +807,7 @@ function SignersList({ navigation }) {
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={() => {
-            requestInheritanceKey(signingDevices, inheritanceRequestId);
+            requestInheritanceKey(signingDevices);
           }}
           textColor="light.primaryText"
         />
@@ -837,6 +836,8 @@ function SignersList({ navigation }) {
       </>
     );
   }
+
+  const { inheritanceRequestId } = useAppSelector((state) => state.storage);
 
   return (
     <ScreenWrapper>
@@ -868,7 +869,12 @@ function SignersList({ navigation }) {
             SignerType.POLICY_SERVER,
             SignerType.INHERITANCEKEY,
           ].map((type: SignerType, index: number) => {
-            const { disabled, message } = getDeviceStatus(type, isNfcSupported, signingDevices);
+            const { disabled, message } = getDeviceStatus(
+              type,
+              isNfcSupported,
+              signingDevices,
+              inheritanceRequestId
+            );
             return (
               <HardWareWallet
                 type={type}

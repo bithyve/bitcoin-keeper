@@ -7,8 +7,8 @@ import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 import { isSignerAMF } from 'src/hardware';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 import { EntityKind } from 'src/core/wallets/enums';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -150,6 +150,31 @@ export const signTransactionWithSigningServer = async ({
       outgoing
     );
     if (!signedPSBT) throw new Error('signing server: failed to sign');
+    return { signedSerializedPSBT: signedPSBT };
+  } catch (error) {
+    captureError(error);
+    Alert.alert(error.message);
+  }
+};
+
+export const signTransactionWithInheritanceKey = async ({
+  signingPayload,
+  serializedPSBT,
+  shellId,
+  thresholdDescriptors,
+}) => {
+  try {
+    const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
+    if (!childIndexArray) throw new Error('Invalid signing payload');
+
+    const vaultId = shellId;
+    const { signedPSBT } = await InheritanceKeyServer.signPSBT(
+      vaultId,
+      serializedPSBT,
+      childIndexArray,
+      thresholdDescriptors
+    );
+    if (!signedPSBT) throw new Error('inheritance key server: failed to sign');
     return { signedSerializedPSBT: signedPSBT };
   } catch (error) {
     captureError(error);
