@@ -7,7 +7,6 @@ import config, { APP_STAGE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import Alert from 'src/assets/images/alert_illustration.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 
 import KeeperModal from 'src/components/KeeperModal';
@@ -73,9 +72,15 @@ const getDeviceStatus = (
         message: getDisabled(type, isOnL1, vaultSigners).message,
         disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
       };
+    case SignerType.TREZOR:
+      return !isOnL1
+        ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
+        : {
+            message: '',
+            disabled: false,
+          };
     case SignerType.SEED_WORDS:
     case SignerType.KEEPER:
-    case SignerType.TREZOR:
     case SignerType.JADE:
     case SignerType.BITBOX02:
     case SignerType.PASSPORT:
