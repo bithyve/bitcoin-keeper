@@ -324,10 +324,11 @@ function SignTransactionScreen() {
         setOtherSDModal(true);
         break;
       case SignerType.INHERITANCEKEY:
-        if (inheritanceKeyInfo) {
-          const thresholdDescriptors = inheritanceKeyInfo.configuration.descriptors.slice(0, 2);
-          signTransaction({ signerId, thresholdDescriptors });
-        } else showToast('Inheritance config missing');
+        // if (inheritanceKeyInfo) {
+        //   const thresholdDescriptors = inheritanceKeyInfo.configuration.descriptors.slice(0, 2);
+        //   signTransaction({ signerId, thresholdDescriptors });
+        // } else showToast('Inheritance config missing');
+        showToast('Signing via Inheritance Key is not available', <ToastErrorIcon />);
         break;
       default:
         showToast(`action not set for ${type}`);
