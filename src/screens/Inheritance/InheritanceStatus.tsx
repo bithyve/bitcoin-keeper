@@ -5,7 +5,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { setIKPDFPaths, setInheritance } from 'src/store/reducers/settings';
+import { setIKPDFPaths, setInheritance, setKeySecurityTipsPath, setLetterToAttornyPath, setRecoveryInstructionPath } from 'src/store/reducers/settings';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg';
@@ -36,8 +36,9 @@ function InheritanceStatus() {
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
-  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings.iKPDFPaths);
-
+  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings);
+  const iKPDFPaths = useAppSelector((state) => state.settings);
+  console.log('iKPDFPaths', iKPDFPaths)
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
@@ -90,11 +91,7 @@ function InheritanceStatus() {
           downloadPDF={() => {
             GenerateSecurityTipsPDF().then((res) => {
               if (res) {
-                dispatch(setIKPDFPaths({
-                  keySecurityTips: res,
-                  letterToAttorny,
-                  recoveryInstruction
-                }))
+                dispatch(setKeySecurityTipsPath(res))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
@@ -138,11 +135,7 @@ function InheritanceStatus() {
           downloadPDF={() => {
             GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
               if (res) {
-                dispatch(setIKPDFPaths({
-                  keySecurityTips,
-                  letterToAttorny: res,
-                  recoveryInstruction
-                }))
+                dispatch(setLetterToAttornyPath(res))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
@@ -164,11 +157,7 @@ function InheritanceStatus() {
           downloadPDF={() =>
             GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
               if (res) {
-                dispatch(setIKPDFPaths({
-                  keySecurityTips,
-                  letterToAttorny,
-                  recoveryInstruction: res
-                }))
+                dispatch(setRecoveryInstructionPath(res))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
