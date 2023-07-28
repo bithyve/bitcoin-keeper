@@ -13,11 +13,9 @@ const initialState: {
   inheritanceModal: boolean;
   satsEnabled: boolean;
   whirlpoolSwiperModal: boolean;
-  iKPDFPaths: {
-    keySecurityTips: string,
-    letterToAttorny: string,
-    recoveryInstruction: string
-  };
+  keySecurityTips: string,
+  letterToAttorny: string,
+  recoveryInstruction: string
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -28,11 +26,9 @@ const initialState: {
   inheritanceModal: true,
   satsEnabled: false,
   whirlpoolSwiperModal: true,
-  iKPDFPaths: {
-    keySecurityTips: '',
-    letterToAttorny: '',
-    recoveryInstruction: ''
-  }
+  keySecurityTips: '',
+  letterToAttorny: '',
+  recoveryInstruction: ''
 };
 
 const settingsSlice = createSlice({
@@ -66,10 +62,14 @@ const settingsSlice = createSlice({
     setWhirlpoolSwiperModal: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolSwiperModal = action.payload;
     },
-    setIKPDFPaths: (state, action: PayloadAction<{ keySecurityTips: string, letterToAttorny: string, recoveryInstruction: string }>) => {
-      state.iKPDFPaths.keySecurityTips = action.payload.keySecurityTips;
-      state.iKPDFPaths.letterToAttorny = action.payload.letterToAttorny;
-      state.iKPDFPaths.recoveryInstruction = action.payload.recoveryInstruction;
+    setKeySecurityTipsPath: (state, action: PayloadAction<string>) => {
+      state.keySecurityTips = action.payload
+    },
+    setLetterToAttornyPath: (state, action: PayloadAction<string>) => {
+      state.letterToAttorny = action.payload
+    },
+    setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
+      state.recoveryInstruction = action.payload
     },
   },
 });
@@ -84,7 +84,9 @@ export const {
   setInheritance,
   setSatsEnabled,
   setWhirlpoolSwiperModal,
-  setIKPDFPaths
+  setKeySecurityTipsPath,
+  setLetterToAttornyPath,
+  setRecoveryInstructionPath
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;
