@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { Linking, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
@@ -11,6 +11,8 @@ import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Fonts from 'src/common/Fonts';
+import { useRoute } from '@react-navigation/native';
+import { Box } from 'native-base';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
 
@@ -25,6 +27,7 @@ function TabButton({
   textColorActive,
   textColor,
 }) {
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -110,49 +113,68 @@ function NewHomeScreen({ navigation }) {
       //
     }
   }
-  const TabBarButton = useCallback(({ onPress, navigation, route }) => {
-    if (route.name === 'Vault') {
-      const active = navigation.isFocused('Vault');
-      return (
-        <TabButton
-          label="Vault"
-          Icon={VaultIcon}
-          IconActive={VaultActiveIcon}
-          onPress={onPress}
-          active={active}
-          backgroundColorActive="#704E2E"
-          backgroundColor="transparent"
-          textColorActive="#F7F2EC"
-          textColor="#704E2E"
-        />
-      );
-    }
-    const active = navigation.isFocused('Wallet');
+
+  function TabBarButton({ focused, state, descriptors }) {
     return (
-      <TabButton
-        label="Wallets"
-        Icon={WalletIcon}
-        IconActive={WalletActiveIcon}
-        onPress={onPress}
-        active={active}
-        backgroundColorActive="#2D6759"
-        backgroundColor="transparent"
-        textColorActive="#FDF8F2"
-        textColor="#2D6759"
-      />
-    );
-  }, []);
+      <Box style={styles.container}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const label =
+            options.tabBarLabel !== undefined
+              ? options.tabBarLabel
+              : options.title !== undefined
+                ? options.title
+                : route.name;
+
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            if (!isFocused) {
+              navigation.navigate({ name: route.name, merge: true });
+            }
+          };
+
+          return (
+            <TabButton
+              label={label === 'Wallet' ? 'Wallets' : label}
+              Icon={route.name === 'Vault' ? VaultIcon : WalletIcon}
+              IconActive={route.name === 'Vault' ? VaultActiveIcon : WalletActiveIcon}
+              onPress={onPress}
+              active={isFocused}
+              backgroundColorActive={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
+              backgroundColor="transparent"
+              textColorActive="#F7F2EC"
+              textColor={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
+            />
+          );
+        })}
+
+
+      </Box>
+    )
+
+
+
+  }
+
+
+
 
   return (
     <Tab.Navigator
       sceneContainerStyle={{ backgroundColor: '#F2EDE6' }}
-      screenOptions={({ route, navigation }) => ({
-        tabBarButton: ({ onPress }) => (
-          <TabBarButton onPress={onPress} route={route} navigation={navigation} />
-        ),
-        tabBarStyle: styles.tabBarStyle,
-        headerShown: false,
-      })}
+      screenOptions={{ headerShown: false }}
+      // screenOptions={({ route, navigation }) => ({
+      //   tabBarButton: ({ onPress }) => (
+      //     <TabBarButton onPress={onPress} route={route} navigation={navigation} />
+      //   ),
+      //   tabBarIcon: ({ focused }) => (
+      //     <TabBarButton onPress={() => console.log('focused', focused)} route={route} navigation={navigation} focused />
+      //   ),
+      //   tabBarStyle: styles.tabBarStyle,
+      //   headerShown: false,
+      // })}
+      tabBar={props => <TabBarButton focused={undefined} {...props} />}
     >
       <Tab.Screen name="Wallet" component={WalletsScreen} />
       <Tab.Screen name="Vault" component={VaultScreen} />
@@ -187,4 +209,4 @@ const styles = StyleSheet.create({
     height: Platform.OS === 'android' ? hp(55) : hp(80),
     paddingVertical: Platform.OS === 'android' ? hp(10) : hp(15),
   },
-});
+})

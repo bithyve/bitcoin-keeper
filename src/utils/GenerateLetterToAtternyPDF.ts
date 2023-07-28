@@ -39,7 +39,7 @@ const GenerateLetterToAtternyPDF = async (fingerPrints) => {
             <p>Thank you for your professional assistance in preparing my estate plan and ensuring the proper transfer of the legal title to my bitcoin assets according to my wishes.</p>
             <p>Sincerely,</p><br>
             <p>------------------------------------------------------------------------------------</p>
-            <p>This dummy document is one of three Inheritance Planning documents provided by Keeper. The other 2 being Key Security Tips and Restoring Inheritance Vault. This dummy document is auto-produced by the Bitcoin Keeper app. The data shared in this document is sensitive. Please be cautious about revealing part or all of its contents to anyone. To learn more, please visit bitcoinkeeper.app</p>
+            <p>This document is one of three Inheritance Planning documents provided by Keeper. The other 2 being Key Security Tips and Restoring Inheritance Vault. This document is auto-produced by the Bitcoin Keeper app. The data shared in this document is sensitive. Please be cautious about revealing part or all of its contents to anyone. To learn more, please visit bitcoinkeeper.app</p>
             </body>
         </html>
       `;

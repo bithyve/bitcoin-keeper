@@ -189,7 +189,7 @@ const getStyles = (subTitleWidth) =>
     container: {
       borderRadius: 10,
       alignItems: 'center',
-      padding: '4%',
+      padding: '3%',
     },
     title: {
       fontSize: 19,
