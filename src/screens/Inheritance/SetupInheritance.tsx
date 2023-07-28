@@ -11,7 +11,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
-import Assert from 'src/assets/images/illustration.svg';
+import Assert from 'src/assets/images/InheritanceSupportIllustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
 import LetterIKS from 'src/assets/images/LETTER_IKS.svg';
