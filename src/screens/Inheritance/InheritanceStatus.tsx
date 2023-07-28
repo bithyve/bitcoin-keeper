@@ -37,8 +37,6 @@ function InheritanceStatus() {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings);
-  const iKPDFPaths = useAppSelector((state) => state.settings);
-  console.log('iKPDFPaths', iKPDFPaths)
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
