@@ -57,6 +57,7 @@ import {
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/core/services/electrum/client';
 import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import { genrateOutputDescriptors } from 'src/core/utils';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -630,6 +631,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
   // finalise the IK setup
   const { vault } = payload;
   const [ikSigner] = vault.signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
+  const backupBSMSForIKS = yield select((state: RootState) => state.vault.backupBSMSForIKS);
 
   if (!ikSigner) return;
   let updatedIkSigner: VaultSigner = null;
@@ -643,7 +645,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
       m: vault.scheme.m,
       n: vault.scheme.n,
       descriptors: vault.signers.map((signer) => signer.signerId),
-      // bsms: ,
+      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
     };
 
     const { updated } = yield call(
@@ -668,7 +670,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
       m: vault.scheme.m,
       n: vault.scheme.n,
       descriptors: vault.signers.map((signer) => signer.signerId),
-      // bsms: ,
+      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
     };
 
     const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
