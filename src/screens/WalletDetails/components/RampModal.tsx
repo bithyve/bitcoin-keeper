@@ -29,8 +29,8 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
       <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
         <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
         <Box style={styles.buyBtcCard}>
-          <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
-          <Text style={styles.presentationName}>{name}</Text>
+          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>Bitcoin will be transferred to</Text>
+          <Text style={styles.presentationName} color={`${colorMode}.black`}>{name}</Text>
           <Text
             style={styles.confirmBalanceText}
           >{`Balance: ${balance} sats`}</Text>
@@ -42,8 +42,8 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
           <Text style={styles.atText}>@</Text>
         </Box>
         <Box style={styles.buyBtcCard}>
-          <Text style={styles.buyBtcTitle}>Address for ramp transactions</Text>
-          <Text style={styles.addressTextView} ellipsizeMode="middle" numberOfLines={1}>
+          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>Address for ramp transactions</Text>
+          <Text style={styles.addressTextView} color={`${colorMode}.black`} ellipsizeMode="middle" numberOfLines={1}>
             {receivingAddress}
           </Text>
         </Box>
@@ -112,12 +112,10 @@ const styles = StyleSheet.create({
   },
   buyBtcTitle: {
     fontSize: 12,
-    color: '#5F6965',
   },
   presentationName: {
     fontSize: 19,
     letterSpacing: 1.28,
-    color: '#041513',
   },
   confirmBalanceText: {
     fontStyle: 'italic',
@@ -147,7 +145,6 @@ const styles = StyleSheet.create({
   addressTextView: {
     width: wp(200),
     fontSize: 19,
-    color: '#041513',
   },
   ctcWrapper: {
     paddingRight: 5
