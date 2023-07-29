@@ -1,4 +1,4 @@
-import { Box, Modal, Pressable, useColorMode } from 'native-base';
+import { Box, Modal, Pressable } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -91,7 +91,6 @@ function KeeperModal(props: ModalProps) {
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
-  const { colorMode } = useColorMode();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   if (!visible) {
     return null;
