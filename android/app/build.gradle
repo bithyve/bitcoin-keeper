@@ -149,12 +149,8 @@ android {
         applicationId "io.hexawallet.keeper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-<<<<<<< HEAD
-        versionCode 210
-=======
-        versionCode 213
->>>>>>> eec5709234706f229528b0f9059dcd09577acf67
-        versionName "1.0.9"
+        versionCode 214
+        versionName "1.1.0"
         missingDimensionStrategy 'react-native-camera', 'general'
         missingDimensionStrategy 'store', 'play'
         multiDexEnabled true
