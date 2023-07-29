@@ -4,7 +4,7 @@ import { Box, FlatList, HStack, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -52,10 +52,12 @@ function SignerItem({
   signer,
   index,
   setInheritanceInit,
+  inheritanceSigner,
 }: {
   signer: VaultSigner | undefined;
   index: number;
   setInheritanceInit: any;
+  inheritanceSigner: VaultSigner;
 }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -67,7 +69,7 @@ function SignerItem({
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
 
   const callback = () => {
-    if (index === 5) {
+    if (index === 5 && !inheritanceSigner) {
       setInheritanceInit(true);
     } else {
       navigateToSignerList();
@@ -189,7 +191,6 @@ function AddSigningDevice() {
   const { activeVault } = useVault();
   const navigation = useNavigation();
   const route = useRoute() as { params: { isInheritance: boolean } };
-  const isInheritance = route?.params?.isInheritance || false;
   const dispatch = useDispatch();
   const { subscriptionScheme, plan } = usePlan();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
@@ -197,6 +198,11 @@ function AddSigningDevice() {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [inheritanceInit, setInheritanceInit] = useState(false);
+
+  const signers = activeVault?.signers || [];
+  const isInheritance =
+    route?.params?.isInheritance ||
+    signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
 
   const {
     planStatus,
@@ -206,6 +212,10 @@ function AddSigningDevice() {
     misMatchedSigners,
     invalidSigners,
   } = useSignerIntel({ isInheritance });
+
+  const inheritanceSigner: VaultSigner = signersState.filter(
+    (signer) => signer?.type === SignerType.INHERITANCEKEY
+  )[0];
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {
@@ -218,7 +228,12 @@ function AddSigningDevice() {
   };
 
   const renderSigner = ({ item, index }) => (
-    <SignerItem signer={item} index={index} setInheritanceInit={setInheritanceInit} />
+    <SignerItem
+      signer={item}
+      index={index}
+      setInheritanceInit={setInheritanceInit}
+      inheritanceSigner={inheritanceSigner}
+    />
   );
 
   let preTitle: string;

@@ -96,7 +96,7 @@ function VaultScreen() {
         <ListItemView
           icon={<InheritanceIcon />}
           title="Inheritance Tools"
-          subTitle="Add Inheritance key or view documents"
+          subTitle="Manage Inheritance key or view documents"
           iconBackColor="light.learnMoreBorder"
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));

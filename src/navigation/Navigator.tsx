@@ -55,6 +55,7 @@ import SplashScreen from 'src/screens/Splash/SplashScreen';
 import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
+import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
 import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
@@ -157,6 +158,7 @@ function AppStack() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="NewHomeScreen" component={NewHomeScreen} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
@@ -164,6 +166,7 @@ function AppStack() {
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
+        <Stack.Screen name="ManageWallets" component={ManageWallets} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="PreviewPDF" component={PreviewPDF} />
         <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />

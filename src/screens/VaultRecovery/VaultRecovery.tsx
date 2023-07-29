@@ -43,6 +43,8 @@ import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 const allowedSignerLength = [1, 3, 5];
 
@@ -139,6 +141,7 @@ function SuccessModalContent() {
 
 function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
+  const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
   const dispatch = useDispatch();
   const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultReoveryShellId } =
     useAppSelector((state) => state.bhr);
@@ -163,7 +166,6 @@ function VaultRecovery({ navigation }) {
     try {
       const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
-
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
         vaultId,
@@ -196,6 +198,11 @@ function VaultRecovery({ navigation }) {
             policy: setupInfo.policy,
           },
         });
+        if (setupInfo.configuration.bsms) {
+          initateRecovery(setupInfo.configuration.bsms);
+        } else {
+          showToast(`Cannot recreate Vault as BSMS was not present`, <ToastErrorIcon />);
+        }
         dispatch(setSigningDevices(inheritanceKey));
         dispatch(setInheritanceRequestId('')); // clear approved request
         showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
@@ -366,8 +373,12 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText="Recover Vault"
-              primaryCallback={startRecovery}
+              primaryText={inheritanceRequestId ? 'Restore via IKS' : 'Recover Vault'}
+              primaryCallback={
+                inheritanceRequestId
+                  ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
+                  : startRecovery
+              }
               primaryLoading={recoveryLoading}
             />
           </Box>
@@ -390,6 +401,7 @@ function VaultRecovery({ navigation }) {
           navigation.replace('App');
         }}
       />
+      <ActivityIndicatorView visible={configRecoveryLoading} showLoader={true} />
     </ScreenWrapper>
   );
 }

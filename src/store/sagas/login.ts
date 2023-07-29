@@ -131,81 +131,77 @@ function* credentialsAuthWorker({ payload }) {
     }
     key = yield call(decrypt, hash, encryptedKey);
     yield put(setKey(key));
-    if (!key) throw new Error('Encryption key is missing');
-    const uint8array = yield call(stringToArrayBuffer, key);
-    yield call(dbManager.initializeRealm, uint8array);
     yield put(setPinHash(hash));
 
-    const previousVersion = yield select((state) => state.storage.appVersion);
-    const newVersion = DeviceInfo.getVersion();
-    const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
-    const lastElement = versionCollection[versionCollection.length - 1];
-    const lastVersionCode = lastElement.version.split(/[()]/);
-    const currentVersionCode = DeviceInfo.getBuildNumber();
-    console.log({ previousVersion, newVersion });
-    if (semver.lt(previousVersion, newVersion)) {
-      yield call(applyUpgradeSequence, { previousVersion, newVersion });
-    } else if (currentVersionCode !== lastVersionCode[1]) {
-      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-        version: `${newVersion}(${currentVersionCode})`,
-        releaseNote: '',
-        date: new Date().toString(),
-        title: `Upgraded from  ${lastVersionCode[1]} to ${currentVersionCode}`,
-      });
-    }
+    if (!key) throw new Error('Encryption key is missing');
+    // case: login
+    if (!payload.reLogin) {
+      const uint8array = yield call(stringToArrayBuffer, key);
+      yield call(dbManager.initializeRealm, uint8array);
+
+      const previousVersion = yield select((state) => state.storage.appVersion);
+      const newVersion = DeviceInfo.getVersion();
+      const versionCollection = yield call(dbManager.getCollection, RealmSchema.VersionHistory);
+      const lastElement = versionCollection[versionCollection.length - 1];
+      const lastVersionCode = lastElement.version.split(/[()]/);
+      const currentVersionCode = DeviceInfo.getBuildNumber();
+      if (semver.lt(previousVersion, newVersion)) {
+        yield call(applyUpgradeSequence, { previousVersion, newVersion });
+      } else if (currentVersionCode !== lastVersionCode[1]) {
+        yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+          version: `${newVersion}(${currentVersionCode})`,
+          releaseNote: '',
+          date: new Date().toString(),
+          title: `Upgraded from  ${lastVersionCode[1]} to ${currentVersionCode}`,
+        });
+      }
+      if (appId) {
+        try {
+          const { id, publicId, subscription }: KeeperApp = yield call(
+            dbManager.getObjectByIndex,
+            RealmSchema.KeeperApp
+          );
+          const response = yield call(Relay.verifyReceipt, id, publicId);
+          yield put(credsAuthenticated(true));
+          yield put(setKey(key));
+
+          const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
+          yield put(setWarning(history));
+
+          yield put(fetchExchangeRates());
+          yield put(getMessages());
+          yield put(
+            uaiChecks([
+              uaiType.SIGNING_DEVICES_HEALTH_CHECK,
+              uaiType.SECURE_VAULT,
+              uaiType.VAULT_MIGRATION,
+              uaiType.DEFAULT,
+            ])
+          );
+          yield put(resetSyncing());
+          yield call(generateSeedHash);
+          yield put(setRecepitVerificationFailed(!response.isValid));
+          if (subscription.level === 1 && subscription.name === 'Hodler') {
+            yield put(setRecepitVerificationFailed(true));
+          } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
+            yield put(setRecepitVerificationFailed(true));
+          } else if (subscription.level !== response.level) {
+            yield put(setRecepitVerificationFailed(true));
+          }
+          yield put(connectToNode());
+        } catch (error) {
+          yield put(setRecepitVerificationError(true));
+          // yield put(credsAuthenticated(false));
+          console.log(error);
+        }
+      } else yield put(credsAuthenticated(true));
+    } else yield put(credsAuthenticated(true));
   } catch (err) {
     if (payload.reLogin) {
+      yield put(credsAuthenticated(false));
       // yield put(switchReLogin(false));
     } else yield put(credsAuthenticated(false));
-    return;
   }
-
-  yield put(setKey(key));
-
-  if (!payload.reLogin) {
-    // case: login
-    if (appId) {
-      try {
-        const { id, publicId, subscription }: KeeperApp = yield call(
-          dbManager.getObjectByIndex,
-          RealmSchema.KeeperApp
-        );
-        const response = yield call(Relay.verifyReceipt, id, publicId);
-        yield put(credsAuthenticated(true));
-        yield put(setKey(key));
-
-        const history = yield call(dbManager.getCollection, RealmSchema.BackupHistory);
-        yield put(setWarning(history));
-
-        yield put(fetchExchangeRates());
-        yield put(getMessages());
-        yield put(
-          uaiChecks([
-            uaiType.SIGNING_DEVICES_HEALTH_CHECK,
-            uaiType.SECURE_VAULT,
-            uaiType.VAULT_MIGRATION,
-            uaiType.DEFAULT,
-          ])
-        );
-        yield put(resetSyncing());
-        yield call(generateSeedHash);
-        yield put(setRecepitVerificationFailed(!response.isValid));
-        if (subscription.level === 1 && subscription.name === 'Hodler') {
-          yield put(setRecepitVerificationFailed(true));
-        } else if (subscription.level === 2 && subscription.name === 'Diamond Hands') {
-          yield put(setRecepitVerificationFailed(true));
-        } else if (subscription.level !== response.level) {
-          yield put(setRecepitVerificationFailed(true));
-        }
-      } catch (error) {
-        yield put(setRecepitVerificationError(true));
-        // yield put(credsAuthenticated(false));
-        console.log(error);
-      }
-    } else yield put(credsAuthenticated(true));
-  } else yield put(credsAuthenticated(true));
-
-  yield put(connectToNode());
 }
 
 export const credentialsAuthWatcher = createWatcher(credentialsAuthWorker, CREDS_AUTH);

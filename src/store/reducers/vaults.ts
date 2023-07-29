@@ -35,6 +35,7 @@ export type VaultState = {
   sdIntroModal: boolean;
   whirlpoolIntro: boolean;
   tempShellId: string;
+  backupBSMSForIKS: boolean;
 };
 
 export type SignerUpdatePayload = {
@@ -57,6 +58,7 @@ const initialState: VaultState = {
   sdIntroModal: true,
   whirlpoolIntro: true,
   tempShellId: null,
+  backupBSMSForIKS: false,
 };
 
 const vaultSlice = createSlice({
@@ -158,6 +160,9 @@ const vaultSlice = createSlice({
     setTempShellId: (state, action: PayloadAction<string>) => {
       state.tempShellId = action.payload;
     },
+    setBackupBSMSForIKS: (state, action: PayloadAction<boolean>) => {
+      state.backupBSMSForIKS = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(ADD_SIGINING_DEVICE, (state) => {
@@ -182,6 +187,7 @@ export const {
   clearSigningDevice,
   resetVaultMigration,
   setTempShellId,
+  setBackupBSMSForIKS,
 } = vaultSlice.actions;
 
 export default vaultSlice.reducer;

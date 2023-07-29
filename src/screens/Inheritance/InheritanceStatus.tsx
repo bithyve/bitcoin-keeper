@@ -5,7 +5,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { setIKPDFPaths, setInheritance } from 'src/store/reducers/settings';
+import { setIKPDFPaths, setInheritance, setKeySecurityTipsPath, setLetterToAttornyPath, setRecoveryInstructionPath } from 'src/store/reducers/settings';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg';
@@ -36,8 +36,7 @@ function InheritanceStatus() {
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
-  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings.iKPDFPaths);
-
+  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings);
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
@@ -90,11 +89,7 @@ function InheritanceStatus() {
           downloadPDF={() => {
             GenerateSecurityTipsPDF().then((res) => {
               if (res) {
-                dispatch(setIKPDFPaths({
-                  keySecurityTips: res,
-                  letterToAttorny,
-                  recoveryInstruction
-                }))
+                dispatch(setKeySecurityTipsPath(res))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
@@ -107,7 +102,10 @@ function InheritanceStatus() {
           subTitle="Add an assisted key to create a 3 of 6 Vault"
           isSetupDone={isSetupDone}
           onPress={() => {
-            if (isSetupDone) return;
+            if (isSetupDone) {
+              showToast('You have successfully added the Inheritance Key.', <TickIcon />)
+              return
+            }
             navigtaion.dispatch(
               CommonActions.navigate('AddSigningDevice', { isInheritance: true })
             );
@@ -122,7 +120,7 @@ function InheritanceStatus() {
         )}
         <InheritanceDownloadView
           icon={<Letter />}
-          title="Letter to the attorney"
+          title="Letter to the Attorney"
           subTitle="A partly filled pdf template"
           previewPDF={() => {
             if (letterToAttorny) {
@@ -135,11 +133,7 @@ function InheritanceStatus() {
           downloadPDF={() => {
             GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
               if (res) {
-                dispatch(setIKPDFPaths({
-                  keySecurityTips,
-                  letterToAttorny: res,
-                  recoveryInstruction
-                }))
+                dispatch(setLetterToAttornyPath(res))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })
@@ -161,11 +155,7 @@ function InheritanceStatus() {
           downloadPDF={() =>
             GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
               if (res) {
-                dispatch(setIKPDFPaths({
-                  keySecurityTips,
-                  letterToAttorny,
-                  recoveryInstruction: res
-                }))
+                dispatch(setRecoveryInstructionPath(res))
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })

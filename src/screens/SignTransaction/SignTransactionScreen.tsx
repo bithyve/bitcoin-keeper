@@ -35,6 +35,7 @@ import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
   signTransactionWithColdCard,
+  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
@@ -159,10 +160,12 @@ function SignTransactionScreen() {
       signerId,
       signingServerOTP,
       seedBasedSingerMnemonic,
+      thresholdDescriptors,
     }: {
       signerId?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
+      thresholdDescriptors?: string[];
     } = {}) => {
       const activeId = signerId || activeSignerId;
       const currentSigner = signers.filter((signer) => signer.signerId === activeId)[0];
@@ -217,6 +220,14 @@ function SignTransactionScreen() {
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
+        } else if (SignerType.INHERITANCEKEY === signerType) {
+          const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
+            signingPayload,
+            serializedPSBT,
+            shellId,
+            thresholdDescriptors,
+          });
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -234,7 +245,12 @@ function SignTransactionScreen() {
     [activeSignerId, serializedPSBTEnvelops]
   );
 
-  const callbackForSigners = ({ type, signerId, signerPolicy }: VaultSigner) => {
+  const callbackForSigners = ({
+    type,
+    signerId,
+    signerPolicy,
+    inheritanceKeyInfo,
+  }: VaultSigner) => {
     setActiveSignerId(signerId);
     if (areSignaturesSufficient()) {
       showToast('We already have enough signatures, you can now broadcast.');
@@ -306,6 +322,13 @@ function SignTransactionScreen() {
         break;
       case SignerType.OTHER_SD:
         setOtherSDModal(true);
+        break;
+      case SignerType.INHERITANCEKEY:
+        // if (inheritanceKeyInfo) {
+        //   const thresholdDescriptors = inheritanceKeyInfo.configuration.descriptors.slice(0, 2);
+        //   signTransaction({ signerId, thresholdDescriptors });
+        // } else showToast('Inheritance config missing');
+        showToast('Signing via Inheritance Key is not available', <ToastErrorIcon />);
         break;
       default:
         showToast(`action not set for ${type}`);
