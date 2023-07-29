@@ -166,7 +166,6 @@ function VaultRecovery({ navigation }) {
     try {
       const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
-
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
         vaultId,
@@ -374,8 +373,12 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText="Recover Vault"
-              primaryCallback={startRecovery}
+              primaryText={inheritanceRequestId ? 'Restore via IKS' : 'Recover Vault'}
+              primaryCallback={
+                inheritanceRequestId
+                  ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
+                  : startRecovery
+              }
               primaryLoading={recoveryLoading}
             />
           </Box>
