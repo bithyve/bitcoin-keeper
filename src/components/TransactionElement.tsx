@@ -61,7 +61,7 @@ function TransactionElement({
             amount={transaction?.amount}
             fontSize={17}
             color={`${colorMode}.dateText`}
-            variation='dark'
+            variation={colorMode === 'light' ? "dark" : "light"}
           />
           <IconArrow />
         </Box>

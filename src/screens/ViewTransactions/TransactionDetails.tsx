@@ -49,7 +49,7 @@ function TransactionDetails({ route }) {
   }) {
     return (
       <Box
-        backgroundColor={`${colorMode}.mainBackground`}
+        backgroundColor={`${colorMode}.seashellWhite`}
         width={wp(width)}
         style={styles.infoCardContainer}
       >
@@ -64,7 +64,7 @@ function TransactionDetails({ route }) {
               <Text
                 style={styles.descText}
                 letterSpacing={letterSpacing}
-                color="light.GreyText"
+                color={`${colorMode}.GreyText`}
                 width={showIcon ? '60%' : '90%'}
                 numberOfLines={numberOfLines}
               >
@@ -84,7 +84,7 @@ function TransactionDetails({ route }) {
     );
   };
   return (
-    <Box style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
+    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box width={wp(250)}>
         <HeaderTitle

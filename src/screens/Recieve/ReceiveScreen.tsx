@@ -7,13 +7,13 @@ import Clipboard from '@react-native-community/clipboard';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/btc_input.svg';
+import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/common/Fonts';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
-import TagsGreen from 'src/assets/images/tags.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -64,9 +64,9 @@ function ReceiveScreen({ route }: { route }) {
       <View>
         <View style={styles.Container}>
           <View style={styles.inputParentView}>
-            <Box style={styles.inputWrapper01} backgroundColor="light.primaryBackground">
+            <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
               <View style={styles.btcIconWrapper}>
-                <BtcInput />
+                {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
               </View>
               <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
               <Input
@@ -180,7 +180,8 @@ function ReceiveScreen({ route }: { route }) {
         close={() => setModalVisible(false)}
         title={home.AddAmount}
         subTitle={home.amountdesc}
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
       />
     </ScreenWrapper>

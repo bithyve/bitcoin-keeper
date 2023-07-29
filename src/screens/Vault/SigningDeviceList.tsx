@@ -123,7 +123,7 @@ function SigningDeviceList() {
         <Box alignSelf="center">
           <SigningDevicesIllustration />
         </Box>
-        <Text color={`${colorMode}.white`} style={styles.modalText}>
+        <Text color={`${colorMode}.primaryText`} style={styles.modalText}>
           {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
@@ -253,7 +253,8 @@ function SigningDeviceList() {
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
-          textColor={`${colorMode}.white`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
