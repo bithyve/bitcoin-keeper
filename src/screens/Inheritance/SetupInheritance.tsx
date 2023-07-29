@@ -179,7 +179,7 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
+        modalBackground={[`${colorMode}.modalBackground`, `${colorMode}.modalBackground`]}
         textColor={`${colorMode}.white`}
         buttonText="Proceed"
         buttonTextColor={`${colorMode}.greenText`}

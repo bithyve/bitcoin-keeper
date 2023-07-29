@@ -53,6 +53,7 @@ export const customTheme = extendTheme({
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
       mainBackground: Colors.LightWhite,
+      modalBackground: Colors.GenericViridian,
       white: Colors.White,
       primaryText: Colors.RichBlack,
       secondaryText: Colors.GraniteGray,
@@ -86,7 +87,7 @@ export const customTheme = extendTheme({
       vaultCardText: Colors.Bisque,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
-      gradientEnd: Colors.RichGreen, // linearGradient
+      gradientEnd: Colors.DeepAquamarine, // linearGradient
       error: Colors.CongoPink,
       black: Colors.Black,
       fadedGray: Colors.FadedGray,
@@ -100,6 +101,7 @@ export const customTheme = extendTheme({
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellowDark,
       mainBackground: Colors.LightWhite,
+      modalBackground: Colors.LightYellowDark,
       white: Colors.Black,
       primaryText: Colors.RichBlackDark,
       secondaryText: Colors.GraniteGrayDark,
@@ -133,7 +135,7 @@ export const customTheme = extendTheme({
       vaultCardText: Colors.Bisque,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
-      gradientEnd: Colors.RichGreen, // linearGradient
+      gradientEnd: Colors.DeepAquamarine, // linearGradient
       error: Colors.CongoPink,
       black: Colors.White,
       fadedGray: Colors.FadedGray,

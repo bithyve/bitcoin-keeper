@@ -100,7 +100,7 @@ function KeeperModal(props: ModalProps) {
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
   const linearGradient = {
-    colors: [`${colorMode}.primaryBackground`, `${colorMode}.primaryBackground`],
+    colors: [`${colorMode}.modalBackground`, `${colorMode}.modalBackground`],
     start: [0, 0],
     end: [1, 1],
   };
