@@ -144,7 +144,7 @@ function NewHomeScreen({ navigation }) {
               backgroundColorActive={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
               backgroundColor="transparent"
               textColorActive="#F7F2EC"
-              textColor={route.name === 'Vault' ? "#96826F" : "#89AEA7"}
+              textColor={route.name === 'Vault' ? "#e3be96" : "#89AEA7"}
             />
           );
         })}
