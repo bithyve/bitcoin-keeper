@@ -1,17 +1,16 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { Linking, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Linking, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import VaultIcon from 'src/assets/images/vaultTab.svg';
 import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { useColorMode, Box } from 'native-base';
 import Fonts from 'src/common/Fonts';
+import { Box, useColorMode } from 'native-base';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
 
@@ -27,18 +26,19 @@ function TabButton({
   textColor,
 }) {
   const { colorMode } = useColorMode();
+  const styles = getStyles(colorMode);
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
-        getStyles(colorMode).container,
-        { backgroundColor: active ? backgroundColorActive : backgroundColor },
+        styles.container,
+        { backgroundColor: active ? backgroundColorActive : backgroundColor, borderRadius: 20 },
       ]}
     >
       {active ? <IconActive /> : <Icon />}
       <Text
         style={[
-          getStyles(colorMode).label,
+          styles.label,
           {
             color: active ? textColorActive : textColor,
             fontWeight: active ? '600' : '300',
@@ -54,7 +54,6 @@ function TabButton({
 const Tab = createBottomTabNavigator();
 
 function NewHomeScreen({ navigation }) {
-  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   useEffect(() => {
     Linking.addEventListener('url', handleDeepLinkEvent);
@@ -115,6 +114,8 @@ function NewHomeScreen({ navigation }) {
   }
 
   function TabBarButton({ focused, state, descriptors }) {
+    const { colorMode } = useColorMode();
+    const styles = getStyles(colorMode);
     return (
       <Box style={styles.container}>
         {state.routes.map((route, index) => {
@@ -133,7 +134,6 @@ function NewHomeScreen({ navigation }) {
               navigation.navigate({ name: route.name, merge: true });
             }
           };
-
           return (
             <TabButton
               label={label === 'Wallet' ? 'Wallets' : label}
@@ -144,7 +144,7 @@ function NewHomeScreen({ navigation }) {
               backgroundColorActive={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
               backgroundColor="transparent"
               textColorActive="#F7F2EC"
-              textColor={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
+              textColor={route.name === 'Vault' ? "#96826F" : "#89AEA7"}
             />
           );
         })}
@@ -152,23 +152,20 @@ function NewHomeScreen({ navigation }) {
 
       </Box>
     )
-
-
-
   }
-
-
-
-
+  const { colorMode } = useColorMode();
+  const styles = getStyles(colorMode);
   return (
     <Tab.Navigator
-      sceneContainerStyle={{ backgroundColor: '#F2EDE6' }}
-      screenOptions={{ headerShown: false }}
+      sceneContainerStyle={styles.tabContainer}
+      screenOptions={{
+        headerShown: false
+      }}
       tabBar={props => <TabBarButton focused={undefined} {...props} />}
     >
       <Tab.Screen name="Wallet" component={WalletsScreen} />
       <Tab.Screen name="Vault" component={VaultScreen} />
-    </Tab.Navigator >
+    </Tab.Navigator>
   );
 }
 
@@ -176,27 +173,22 @@ export default NewHomeScreen;
 
 const getStyles = (colorMode) => StyleSheet.create({
   container: {
+    backgroundColor: colorMode === 'light' ? '#FDF7F0' : '#48514F',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
+    // borderRadius: 30,
     paddingHorizontal: 27,
     paddingVertical: 15,
-    marginHorizontal: 10,
+    // marginHorizontal: 10,
+  },
+  tabContainer: {
+    backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A'
   },
   label: {
     marginLeft: 10,
     fontSize: 14,
     fontWeight: '500',
     fontFamily: Fonts.RobotoCondensedRegular,
-  },
-  tabBarStyle: {
-    backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A',
-    // borderTopLeftRadius: 10,
-    // borderTopRightRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: Platform.OS === 'android' ? hp(55) : hp(80),
-    paddingVertical: Platform.OS === 'android' ? hp(10) : hp(15),
   },
 })
