@@ -389,7 +389,7 @@ function ChoosePlan(props) {
             backgroundColor={`${colorMode}.lightAccent`}
             style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color={`${colorMode}.learnMoreBorder`}>
+            <Text fontSize={12} color="light.learnMoreBorder">
               Restore Purchases
             </Text>
           </Box>
