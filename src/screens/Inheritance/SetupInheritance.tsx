@@ -158,7 +158,7 @@ function SetupInheritance() {
               backgroundColor={`${colorMode}.lightAccent`}
               style={styles.upgradeNowContainer}
             >
-              <Text color={`${colorMode}.learnMoreBorder`} style={styles.upgradeNowText}>
+              <Text color='light.learnMoreBorder' style={styles.upgradeNowText}>
                 {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
               </Text>
             </Box>
