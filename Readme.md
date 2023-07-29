@@ -86,6 +86,10 @@ yarn ios --scheme=hexa_keeper
 ```
 These commands will build and launch the app on the respective platforms.
 
+## PGP
+```bash
+389F 4CAD A078 5AC0 E28A 0C18 1BEB DE26 1DC3 CF62
+```
 
 ## Testing
 This project uses **Jest** as the testing framework. To run the tests, use the following command:
