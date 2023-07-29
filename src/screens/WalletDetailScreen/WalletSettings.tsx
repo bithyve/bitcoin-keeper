@@ -244,7 +244,9 @@ function WalletSettings({ route }) {
             title="Show Cosigner Details"
             subTitle="Use this wallet as a signing device"
             onPress={() => {
-              setCosignerVisible(true);
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'CosignerDetails', params: { wallet } })
+              );
             }}
           />
           <Option
@@ -352,7 +354,7 @@ function WalletSettings({ route }) {
           buttonText="Done"
           buttonCallback={() => {
             setCosignerVisible(false);
-            // setAddWalletCosignerVisible(true) 
+            // setAddWalletCosignerVisible(true)
           }}
           Content={() => (
             <ShowXPub

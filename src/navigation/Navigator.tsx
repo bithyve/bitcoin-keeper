@@ -90,6 +90,7 @@ import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDeta
 import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
+import CosignerDetails from 'src/screens/WalletDetailScreen/CosignerDetails';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -220,6 +221,7 @@ function AppStack() {
         <Stack.Screen name="PoolSelection" component={PoolSelection} />
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
+        <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}
@@ -248,7 +250,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />

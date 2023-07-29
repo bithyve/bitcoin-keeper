@@ -17,6 +17,14 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
+import OptionCTA from 'src/components/OptionCTA';
+import NFCIcon from 'src/assets/images/nfc.svg';
+import NfcPrompt from 'src/components/NfcPromptAndroid';
+import NFC from 'src/core/services/nfc';
+import nfcManager, { NfcTech } from 'react-native-nfc-manager';
+import useNfcModal from 'src/hooks/useNfcModal';
+import { captureError } from 'src/core/services/sentry';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MockWrapper from '../Vault/MockWrapper';
 
 let decoder = new URRegistryDecoder();
@@ -29,7 +37,7 @@ function ScanQR() {
   const {
     title = '',
     subtitle = '',
-    onQrScan = () => { },
+    onQrScan = () => {},
     setup = false,
     type,
     isHealthcheck = false,
@@ -104,27 +112,62 @@ function ScanQR() {
     });
   };
 
+  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
+
+  const readFromNFC = async () => {
+    try {
+      await withNfcModal(async () => {
+        const records = await NFC.read([NfcTech.Ndef]);
+        try {
+          const cosigner = records[0].data;
+          setData(cosigner);
+        } catch (err) {
+          captureError(err);
+          showToast('Please scan a valid cosigner tag', <ToastErrorIcon />);
+        }
+      });
+    } catch (err) {
+      captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
+    } finally {
+      await nfcManager.cancelTechnologyRequest();
+    }
+  };
+
   return (
     <ScreenWrapper>
       <MockWrapper signerType={type} enable={setup && type}>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
-          <Box style={styles.qrcontainer}>
-            <RNCamera
-              autoFocus="on"
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={onBarCodeRead}
-              useNativeZoom
-              notAuthorizedView={<CameraUnauthorized />}
-            />
-          </Box>
-          <UploadImage onPress={handleChooseImage} />
-          <HStack>
-            {qrPercent !== 100 && <ActivityIndicator />}
-            <Text>{`Scanned ${qrPercent}%`}</Text>
-          </HStack>
+          {!nfcVisible ? (
+            <>
+              <Box style={styles.qrcontainer}>
+                <RNCamera
+                  autoFocus="on"
+                  style={styles.cameraView}
+                  captureAudio={false}
+                  onBarCodeRead={onBarCodeRead}
+                  useNativeZoom
+                  notAuthorizedView={<CameraUnauthorized />}
+                />
+              </Box>
+              <UploadImage onPress={handleChooseImage} />
+              <HStack>
+                {qrPercent !== 100 && <ActivityIndicator />}
+                <Text>{`Scanned ${qrPercent}%`}</Text>
+              </HStack>
+            </>
+          ) : (
+            <Box style={styles.cameraView} />
+          )}
+
           <Box style={styles.noteWrapper}>
+            <OptionCTA
+              icon={<NFCIcon />}
+              title="or Setup via NFC"
+              subtitle="Bring device close to use NFC"
+              callback={readFromNFC}
+            />
             <Note
               title={common.note}
               subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
@@ -133,6 +176,7 @@ function ScanQR() {
           </Box>
         </Box>
       </MockWrapper>
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
 }
