@@ -139,7 +139,7 @@ function AddSendAmount({ route }) {
         transferType,
         note,
         label: labelsToAdd.filter(
-          (item) => !(item.name === recipient.presentationData.name && item.isSystem) // remove wallet labels are they are internal refrerences
+          (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
       })
     );
@@ -251,7 +251,7 @@ function AddSendAmount({ route }) {
         <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
           <Box
             style={{
-              paddingHorizontal: 10,
+              paddingHorizontal: 5,
             }}
           >
             {errorMessage && (

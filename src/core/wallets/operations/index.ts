@@ -52,6 +52,14 @@ import WalletUtilities from './utils';
 
 const ECPair = ECPairFactory(ecc);
 
+const feeSurcharge = (wallet: Wallet | Vault) =>
+  /* !! TESTNET ONLY !!
+     as the redeem script for vault is heavy(esp. 3-of-5/3-of-6), 
+     the nodes reject the tx if the overall fee for the tx is low(which is the case w/ electrum)
+     therefore we up the feeRatesPerByte by 1 to handle this case until we find a better sol
+    */
+  config.NETWORK_TYPE === NetworkType.TESTNET && wallet.entityKind === EntityKind.VAULT ? 1 : 0;
+
 export default class WalletOperations {
   public static getNextFreeExternalAddress = ({
     entity,
@@ -504,7 +512,7 @@ export default class WalletOperations {
         }).address,
       });
     }
-    const { fee } = coinselectSplit(inputUTXOs, outputUTXOs, feePerByte);
+    const { fee } = coinselectSplit(inputUTXOs, outputUTXOs, feePerByte + feeSurcharge(wallet));
 
     return {
       fee,
@@ -549,7 +557,7 @@ export default class WalletOperations {
     const defaultFeePerByte = averageTxFees[defaultTxPriority].feePerByte;
     const defaultEstimatedBlocks = averageTxFees[defaultTxPriority].estimatedBlocks;
 
-    const assets = coinselect(inputUTXOs, outputUTXOs, defaultFeePerByte);
+    const assets = coinselect(inputUTXOs, outputUTXOs, defaultFeePerByte + feeSurcharge(wallet));
     const defaultPriorityInputs = assets.inputs;
     const defaultPriorityOutputs = assets.outputs;
     const defaultPriorityFee = assets.fee;
@@ -582,7 +590,7 @@ export default class WalletOperations {
         const { inputs, outputs, fee } = coinselect(
           inputUTXOs,
           outputUTXOs,
-          averageTxFees[priority].feePerByte
+          averageTxFees[priority].feePerByte + feeSurcharge(wallet)
         );
         const debitedAmount = netAmount + fee;
         if (!inputs || debitedAmount > confirmedBalance) {
@@ -616,7 +624,11 @@ export default class WalletOperations {
     customTxFeePerByte: number
   ): TransactionPrerequisiteElements => {
     const inputUTXOs = wallet.specs.confirmedUTXOs;
-    const { inputs, outputs, fee } = coinselect(inputUTXOs, outputUTXOs, customTxFeePerByte);
+    const { inputs, outputs, fee } = coinselect(
+      inputUTXOs,
+      outputUTXOs,
+      customTxFeePerByte + feeSurcharge(wallet)
+    );
 
     if (!inputs) return { fee };
 
@@ -1021,7 +1033,10 @@ export default class WalletOperations {
       });
     } else if (signer.type === SignerType.MOBILE_KEY || signer.type === SignerType.SEED_WORDS) {
       signingPayload.push({ payloadTarget, inputs });
-    } else if (signer.type === SignerType.POLICY_SERVER) {
+    } else if (
+      signer.type === SignerType.POLICY_SERVER ||
+      signer.type === SignerType.INHERITANCEKEY
+    ) {
       const childIndexArray = [];
       for (const input of inputs) {
         let subPath;

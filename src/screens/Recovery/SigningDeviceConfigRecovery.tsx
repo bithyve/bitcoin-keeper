@@ -59,7 +59,7 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the vault config by going to Setting > Multisig > Then select the wallet > Export `}
+          {`Export the Vault config by going to Setting > Multisig > Then select the wallet > Export `}
         </Text>
       </Box>
     </View>

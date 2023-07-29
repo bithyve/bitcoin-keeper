@@ -22,6 +22,11 @@ import {
   VaultSignerSchema,
   SignerPolicy,
   XpubDetailsSchema,
+  InheritanceKeyInfoSchema,
+  InheritanceConfigurationSchema,
+  InheritancePolicySchema,
+  InheritancePolicyNotificationSchema,
+  InheritancePolicyAlertSchema,
 } from './vault';
 import { KeeperAppSchema } from './app';
 import { UAISchema } from './uai';
@@ -51,6 +56,11 @@ export default [
   XpubDetailsSchema,
   VaultPresentationDataSchema,
   SignerPolicy,
+  InheritanceConfigurationSchema,
+  InheritancePolicyNotificationSchema,
+  InheritancePolicyAlertSchema,
+  InheritancePolicySchema,
+  InheritanceKeyInfoSchema,
   VaultSpecsSchema,
   BackupSchema,
   UAISchema,

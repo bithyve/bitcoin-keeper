@@ -13,6 +13,9 @@ const initialState: {
   inheritanceModal: boolean;
   satsEnabled: boolean;
   whirlpoolSwiperModal: boolean;
+  keySecurityTips: string,
+  letterToAttorny: string,
+  recoveryInstruction: string
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -23,6 +26,9 @@ const initialState: {
   inheritanceModal: true,
   satsEnabled: false,
   whirlpoolSwiperModal: true,
+  keySecurityTips: '',
+  letterToAttorny: '',
+  recoveryInstruction: ''
 };
 
 const settingsSlice = createSlice({
@@ -56,6 +62,15 @@ const settingsSlice = createSlice({
     setWhirlpoolSwiperModal: (state, action: PayloadAction<boolean>) => {
       state.whirlpoolSwiperModal = action.payload;
     },
+    setKeySecurityTipsPath: (state, action: PayloadAction<string>) => {
+      state.keySecurityTips = action.payload
+    },
+    setLetterToAttornyPath: (state, action: PayloadAction<string>) => {
+      state.letterToAttorny = action.payload
+    },
+    setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
+      state.recoveryInstruction = action.payload
+    },
   },
 });
 
@@ -69,6 +84,9 @@ export const {
   setInheritance,
   setSatsEnabled,
   setWhirlpoolSwiperModal,
+  setKeySecurityTipsPath,
+  setLetterToAttornyPath,
+  setRecoveryInstructionPath
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

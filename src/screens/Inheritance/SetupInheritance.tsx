@@ -11,7 +11,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
-import Assert from 'src/assets/images/illustration.svg';
+import Assert from 'src/assets/images/InheritanceSupportIllustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
 import LetterIKS from 'src/assets/images/LETTER_IKS.svg';
@@ -23,12 +23,16 @@ import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import { TouchableOpacity } from 'react-native';
+import useVault from 'src/hooks/useVault';
 
 function SetupInheritance() {
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { plan } = usePlan();
+  const { activeVault } = useVault();
+
+  const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
 
   const inheritanceData = [
     {
@@ -103,17 +107,15 @@ function SetupInheritance() {
 
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    if (plan === SubscriptionTier.L3.toUpperCase()) {
-      navigtaion.navigate('InheritanceStatus')
-    }
+    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
   };
+
   const toSetupInheritance = () => {
-    if (plan !== SubscriptionTier.L3.toUpperCase()) {
-      navigtaion.navigate('ChoosePlan');
-    } else {
-      dispatch(setInheritance(true))
-    }
-  }
+    if (shouldActivateInheritance()) dispatch(setInheritance(true));
+    else if (plan !== SubscriptionTier.L3.toUpperCase()) navigtaion.navigate('ChoosePlan');
+    else if (!activeVault) navigtaion.navigate('AddSigningDevice');
+  };
+
   return (
     <ScreenWrapper>
       <Box style={styles.header}>
@@ -121,7 +123,7 @@ function SetupInheritance() {
           onPressHandler={() => navigtaion.goBack()}
           learnMore
           learnMorePressed={() => {
-            // dispatch(setInheritance(true));
+            dispatch(setInheritance(true));
           }}
         />
       </Box>
@@ -143,24 +145,19 @@ function SetupInheritance() {
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message}>
-          {plan !== SubscriptionTier.L3.toUpperCase()
-            ? `This can be activated once you are at the ${SubscriptionTier.L3} level`
-            : `Setup Inheritance Key or view documents`}
+          {shouldActivateInheritance()
+            ? `Manage Inheritance key or view documents`
+            : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a vault`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
-          <TouchableOpacity
-            testID="btn_inheritanceBtn"
-            onPress={() => toSetupInheritance()}
-          >
+          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
             <Box
               borderColor="light.learnMoreBorder"
               backgroundColor="light.lightAccent"
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {plan !== SubscriptionTier.L3.toUpperCase()
-                  ? `Upgrade Now`
-                  : `Proceed`}
+                {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
               </Text>
             </Box>
           </TouchableOpacity>

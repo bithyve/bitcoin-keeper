@@ -42,7 +42,7 @@ const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
-  const { relogin } = route.params;
+  const { relogin, title, screen } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -168,7 +168,11 @@ function LoginScreen({ navigation, route }) {
     if (isAuthenticated) {
       setLoginModal(false);
       if (relogin) {
-        navigation.goBack();
+        navigation.navigate({
+          name: screen,
+          params: { isAuthenticated: true },
+          merge: true,
+        });
       } else if (appId !== '') {
         updateFCM();
         navigation.replace('App');
@@ -382,7 +386,7 @@ function LoginScreen({ navigation, route }) {
                 marginTop: hp(65),
               }}
             >
-              {login.welcomeback}
+              {relogin ? title : login.welcomeback}
             </Text>
             <Box>
               <Text fontSize={13} ml={5} letterSpacing={0.65} color="light.primaryBackground">

@@ -189,7 +189,7 @@ const getStyles = (subTitleWidth) =>
     container: {
       borderRadius: 10,
       alignItems: 'center',
-      padding: '4%',
+      padding: '3%',
     },
     title: {
       fontSize: 19,
@@ -222,7 +222,7 @@ const getStyles = (subTitleWidth) =>
     close: {
       position: 'absolute',
       right: 20,
-      top: 20,
+      top: 16,
     },
     seeFAQs: {
       fontSize: 13,
@@ -241,7 +241,8 @@ const getStyles = (subTitleWidth) =>
       alignSelf: 'flex-start',
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
-      width: '95%',
+      width: '90%',
+      marginTop: wp(5)
     },
     bodyContainer: {
       width: '80%',

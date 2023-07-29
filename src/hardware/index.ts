@@ -35,6 +35,7 @@ export const generateSignerFromMetaData = ({
   isMock = false,
   xpubDetails = {} as XpubDetailsType,
   signerPolicy = null,
+  inheritanceKeyInfo = null,
 }): VaultSigner => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
@@ -66,6 +67,7 @@ export const generateSignerFromMetaData = ({
     registered: UNVERIFYING_SIGNERS.includes(signerType) || isMock,
     xpubDetails,
     signerPolicy,
+    inheritanceKeyInfo,
   };
   return signer;
 };
