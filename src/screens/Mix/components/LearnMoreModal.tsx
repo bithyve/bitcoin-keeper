@@ -1,7 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
@@ -35,6 +35,7 @@ function mixContent() {
   );
 }
 function LearnMoreModal({ visible, closeModal }: modalParams) {
+  const { colorMode } = useColorMode();
   return (
     <KeeperModal
       visible={visible}
@@ -43,7 +44,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       }}
       title="Some Definitions:"
       subTitle=""
-      modalBackground={['light.gradientStart', 'light.gradientEnd']}
+      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
       textColor="light.white"
       Content={mixContent}
       DarkCloseIcon

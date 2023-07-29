@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import KeeperModal from 'src/components/KeeperModal';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
@@ -25,6 +25,7 @@ function SCodeContent() {
 }
 
 function SCodeLearnMore({ visible, closeModal }: modalParams) {
+    const { colorMode } = useColorMode();
     return (
         <KeeperModal
             visible={visible}
@@ -34,7 +35,7 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
             title="Some Definitions:"
             subTitle=""
             DarkCloseIcon
-            modalBackground={['light.gradientStart', 'light.gradientEnd']}
+            modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
             textColor="light.white"
             Content={SCodeContent}
             learnMore

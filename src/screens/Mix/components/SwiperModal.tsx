@@ -1,4 +1,4 @@
-import { Box, Pressable } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import React, { MutableRefObject, useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 // hooks, components, data
@@ -128,6 +128,7 @@ function List(props) {
 }
 
 function SwiperModal({ enable }) {
+  const { colorMode } = useColorMode();
   const { whirlpoolSwiperModal } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
   return (
@@ -137,7 +138,7 @@ function SwiperModal({ enable }) {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
       title=""
-      modalBackground={['light.gradientStart', 'light.gradientEnd']}
+      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
       textColor="light.white"
       Content={() => <List />}
       showCloseIcon={false}
