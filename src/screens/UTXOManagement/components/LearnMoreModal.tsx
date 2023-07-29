@@ -1,7 +1,7 @@
 import { View, StyleSheet } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Illustration7 from 'src/assets/images/illustration_7.svg'
 import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
@@ -49,6 +49,7 @@ function premixContent() {
   );
 }
 function LearnMoreModal({ visible, closeModal }: modalParams) {
+  const { colorMode } = useColorMode();
   return (
     <KeeperModal
       visible={visible}
@@ -57,7 +58,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       }}
       title="Setting up Premix"
       subTitle="You are about to start your first mix. In the next few steps, you’ll be guided to create your Tx0. Tx0 gets created based on the pool you select ahead."
-      modalBackground={['light.gradientStart', 'light.gradientEnd']}
+      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
       textColor="light.white"
       Content={premixContent}
       DarkCloseIcon
