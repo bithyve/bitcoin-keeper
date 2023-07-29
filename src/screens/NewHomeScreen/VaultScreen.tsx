@@ -8,7 +8,6 @@ import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
@@ -72,7 +71,7 @@ function VaultScreen() {
                     <Box style={styles.signingDeviceList}>
                       {signers.map((signer: any) => (
                         <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
-                          {SDIcons(signer.type, true).Icon}
+                          {SDIcons(signer.type, colorMode !== 'dark').Icon}
                         </Box>
                       ))}
                     </Box>
