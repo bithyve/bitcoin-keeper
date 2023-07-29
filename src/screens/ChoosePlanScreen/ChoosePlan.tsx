@@ -323,7 +323,8 @@ function ChoosePlan(props) {
         close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
         buttonText={null}
         buttonCallback={() => { }}

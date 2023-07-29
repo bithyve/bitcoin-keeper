@@ -279,10 +279,10 @@ function LoginScreen({ navigation, route }) {
         <Box style={styles.modalAssetsWrapper}>
           {modelAsset}
         </Box>
-        <Text color="light.greenText" style={styles.modalMessageText}>
+        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
           {modelMessage}
         </Text>
-        {modelButtonText === null ? <Text color="light.greenText" style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
+        {modelButtonText === null ? <Text color={`${colorMode}.greenText`} style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
           This step will take a few seconds. You would be able to proceed soon
         </Text> : null}
       </Box>
@@ -500,7 +500,8 @@ function LoginScreen({ navigation, route }) {
         close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
