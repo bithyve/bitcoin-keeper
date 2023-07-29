@@ -27,7 +27,7 @@ function UTXOFooter({
   const { activeVault } = useVault();
   const { showToast } = useToastMessage();
   return (
-    <Box style={[styles.footerContainer, { marginBottom: bottom }]} borderColor={`${colorMode}.GreyText`} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Box style={styles.footerContainer} borderColor={`${colorMode}.GreyText`} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
       <Box style={styles.footerItemContainer}>
         {allowedMixTypes.includes(wallet?.type) && (
@@ -87,9 +87,9 @@ export default UTXOFooter;
 
 const styles = StyleSheet.create({
   footerContainer: {
-    height: 70,
+    height: 75,
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 2 : 15,
+    bottom: Platform.OS === 'ios' ? 10 : 15,
     width: windowWidth,
     // paddingHorizontal: '10%',
   },
