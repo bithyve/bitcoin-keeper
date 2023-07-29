@@ -244,6 +244,14 @@ function AppSettings({ navigation }) {
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
+          <SettingsCard
+            title={settings.ManageWallets}
+            description={settings.ManageWalletsSub}
+            my={1}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('ManageWallets')}
+          />
         </ScrollView>
 
         <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
