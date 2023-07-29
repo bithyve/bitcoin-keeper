@@ -75,8 +75,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -229,6 +229,14 @@ function AppSettings({ navigation }) {
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
+          />
+          <SettingsCard
+            title={settings.ManageWallets}
+            description={settings.ManageWalletsSub}
+            my={1}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('ManageWallets')}
           />
         </ScrollView>
 

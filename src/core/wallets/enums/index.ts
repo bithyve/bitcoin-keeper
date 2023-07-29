@@ -59,9 +59,9 @@ export enum NodeType {
 
 export enum VisibilityType {
   DEFAULT = 'DEFAULT',
-  DURESS = 'DURESS',
+  // DURESS = 'DURESS',
   HIDDEN = 'HIDDEN',
-  ARCHIVED = 'ARCHIVED',
+  // ARCHIVED = 'ARCHIVED',
 }
 
 export enum EntityKind {
