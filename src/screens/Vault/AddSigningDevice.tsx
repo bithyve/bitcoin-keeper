@@ -1,10 +1,10 @@
 import { Dimensions, Pressable } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -34,6 +34,7 @@ import { globalStyles } from 'src/common/globalStyles';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
+import AddIKS from './AddIKS';
 
 const { width } = Dimensions.get('screen');
 
@@ -47,7 +48,17 @@ export const checkSigningDevice = async (id) => {
   }
 };
 
-function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index: number }) {
+function SignerItem({
+  signer,
+  index,
+  setInheritanceInit,
+  inheritanceSigner,
+}: {
+  signer: VaultSigner | undefined;
+  index: number;
+  setInheritanceInit: any;
+  inheritanceSigner: VaultSigner;
+}) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -57,12 +68,20 @@ function SignerItem({ signer, index }: { signer: VaultSigner | undefined; index:
   const removeSigner = () => dispatch(removeSigningDevice(signer));
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
+
+  const callback = () => {
+    if (index === 5 && !inheritanceSigner) {
+      setInheritanceInit(true);
+    } else {
+      navigateToSignerList();
+    }
+  };
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
   if (!signer) {
     return (
-      <Pressable onPress={navigateToSignerList}>
+      <Pressable onPress={callback}>
         <Box style={styles.signerItemContainer}>
           <HStack style={styles.signerItem}>
             <HStack alignItems="center">
@@ -173,12 +192,20 @@ function AddSigningDevice() {
   const [vaultCreating, setCreating] = useState(false);
   const { activeVault } = useVault();
   const navigation = useNavigation();
+  const route = useRoute() as { params: { isInheritance: boolean } };
   const dispatch = useDispatch();
   const { subscriptionScheme, plan } = usePlan();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const [inheritanceInit, setInheritanceInit] = useState(false);
+
+  const signers = activeVault?.signers || [];
+  const isInheritance =
+    route?.params?.isInheritance ||
+    signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
+
   const {
     planStatus,
     signersState,
@@ -186,7 +213,11 @@ function AddSigningDevice() {
     amfSigners,
     misMatchedSigners,
     invalidSigners,
-  } = useSignerIntel();
+  } = useSignerIntel({ isInheritance });
+
+  const inheritanceSigner: VaultSigner = signersState.filter(
+    (signer) => signer?.type === SignerType.INHERITANCEKEY
+  )[0];
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {
@@ -198,7 +229,14 @@ function AddSigningDevice() {
     setCreating(true);
   };
 
-  const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
+  const renderSigner = ({ item, index }) => (
+    <SignerItem
+      signer={item}
+      index={index}
+      setInheritanceInit={setInheritanceInit}
+      inheritanceSigner={inheritanceSigner}
+    />
+  );
 
   let preTitle: string;
   if (planStatus === VaultMigrationType.DOWNGRADE) {
@@ -210,7 +248,8 @@ function AddSigningDevice() {
   }
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`
+      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
+      } setup will be created${isInheritance ? ' for inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -226,6 +265,7 @@ function AddSigningDevice() {
         setCreating={setCreating}
         signersState={signersState}
         planStatus={planStatus}
+        isInheritance={isInheritance}
       />
       <FlatList
         keyboardShouldPersistTaps="always"
@@ -284,6 +324,11 @@ function AddSigningDevice() {
           paddingHorizontal={wp(30)}
         />
       </Box>
+      <AddIKS
+        vault={activeVault}
+        visible={inheritanceInit}
+        close={() => setInheritanceInit(false)}
+      />
     </ScreenWrapper>
   );
 }

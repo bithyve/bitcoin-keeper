@@ -5,12 +5,18 @@
 import {
   DerivationPurpose,
   EntityKind,
+  SignerType,
   VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
 } from 'src/core/wallets/enums';
-import { SignerException, SignerRestriction } from 'src/core/services/interfaces';
+import {
+  InheritanceConfiguration,
+  InheritancePolicy,
+  SignerException,
+  SignerRestriction,
+} from 'src/core/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
@@ -50,6 +56,8 @@ import {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/core/services/electrum/client';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import { genrateOutputDescriptors } from 'src/core/utils';
 import { RootState } from '../store';
 import {
   addSigningDevice,
@@ -80,7 +88,9 @@ import {
   ADD_NEW_VAULT,
   ADD_SIGINING_DEVICE,
   FINALISE_VAULT_MIGRATION,
+  FINALIZE_IK_SETUP,
   MIGRATE_VAULT,
+  finaliseIKSetup,
 } from '../sagaActions/vaults';
 import { uaiChecks } from '../sagaActions/uai';
 import { updateAppImageWorker, updateVaultImageWorker } from './bhr';
@@ -519,6 +529,7 @@ function* addNewVaultWorker({
 
       yield put(vaultCreated({ hasNewVaultGenerationSucceeded: true }));
       yield put(relayVaultUpdateSuccess());
+      yield put(finaliseIKSetup(vault)); // update IKS, if inheritance key has been added
       return true;
     }
     throw new Error('Relay updation failed');
@@ -615,6 +626,90 @@ export const finaliseVaultMigrationWatcher = createWatcher(
   finaliseVaultMigrationWorker,
   FINALISE_VAULT_MIGRATION
 );
+
+function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
+  // finalise the IK setup
+  const { vault } = payload;
+  const [ikSigner] = vault.signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
+  const backupBSMSForIKS = yield select((state: RootState) => state.vault.backupBSMSForIKS);
+
+  if (!ikSigner) return;
+  let updatedIkSigner: VaultSigner = null;
+
+  if (ikSigner.inheritanceKeyInfo) {
+    // case: updating config for this new vault which already had IKS as one of its signers
+    const existingConfiguration = ikSigner.inheritanceKeyInfo.configuration;
+    const existingThresholdDescriptors = existingConfiguration.descriptors.slice(0, 2);
+
+    const newIKSConfiguration: InheritanceConfiguration = {
+      m: vault.scheme.m,
+      n: vault.scheme.n,
+      descriptors: vault.signers.map((signer) => signer.signerId),
+      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
+    };
+
+    const { updated } = yield call(
+      InheritanceKeyServer.updateInheritanceConfig,
+      vault.shellId,
+      existingThresholdDescriptors,
+      newIKSConfiguration
+    );
+
+    if (updated) {
+      updatedIkSigner = {
+        ...ikSigner,
+        inheritanceKeyInfo: {
+          ...ikSigner.inheritanceKeyInfo,
+          configuration: newIKSConfiguration,
+        },
+      };
+    } else Alert.alert('Failed to update the inheritance key configuration');
+  } else {
+    // case: setting up a vault w/ IKS for the first time
+    const config: InheritanceConfiguration = {
+      m: vault.scheme.m,
+      n: vault.scheme.n,
+      descriptors: vault.signers.map((signer) => signer.signerId),
+      bsms: backupBSMSForIKS ? genrateOutputDescriptors(vault) : null,
+    };
+
+    const fcmToken = yield select((state: RootState) => state.notifications.fcmToken);
+    const policy: InheritancePolicy = {
+      notification: { targets: [fcmToken] },
+    };
+
+    const { setupSuccessful } = yield call(
+      InheritanceKeyServer.finalizeIKSetup,
+      vault.shellId,
+      config,
+      policy
+    );
+
+    if (setupSuccessful) {
+      updatedIkSigner = {
+        ...ikSigner,
+        inheritanceKeyInfo: {
+          configuration: config,
+          policy,
+        },
+      };
+    } else Alert.alert('Failed to finalise the inheritance key setup');
+  }
+
+  if (updatedIkSigner) {
+    // send updates to realm
+    const updatedSigners = vault.signers.map((signer) => {
+      if (signer.type === SignerType.INHERITANCEKEY) return updatedIkSigner;
+      return signer;
+    });
+
+    yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, {
+      signers: updatedSigners,
+    });
+  }
+}
+
+export const finaliseIKSetupWatcher = createWatcher(finaliseIKSetupWorker, FINALIZE_IK_SETUP);
 
 function* syncWalletsWorker({
   payload,

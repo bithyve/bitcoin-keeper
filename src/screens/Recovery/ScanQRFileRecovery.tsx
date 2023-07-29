@@ -76,11 +76,11 @@ function ScanQRFileRecovery({ route }) {
             onBarCodeRead={onBarCodeRead}
             useNativeZoom
           />
-          <HStack>
-            {qrPercent !== 100 && <ActivityIndicator />}
-            <Text>{`Scanned ${qrPercent}%`}</Text>
-          </HStack>
         </Box>
+        <HStack justifyContent="center" my={2}>
+          {qrPercent !== 100 && <ActivityIndicator />}
+          <Text>{`Scanned ${qrPercent}%`}</Text>
+        </HStack>
         {allowFileUploads && <UploadFile fileHandler={initateRecovery} />}
         <Box style={styles.noteWrapper}>
           <Note
@@ -90,14 +90,14 @@ function ScanQRFileRecovery({ route }) {
           />
         </Box>
       </Box>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 const styles = StyleSheet.create({
   qrcontainer: {
     borderRadius: 10,
     overflow: 'hidden',
-    marginVertical: 25,
+    marginVertical: 15,
     alignItems: 'center',
   },
   cameraView: {

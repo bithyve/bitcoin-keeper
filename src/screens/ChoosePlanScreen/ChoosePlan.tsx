@@ -1,7 +1,7 @@
 /* eslint-disable prefer-destructuring */
-import { ActivityIndicator, Platform, ScrollView, Alert, Linking, TouchableOpacity, Image } from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, Alert, Linking, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, useColorMode, Pressable } from 'native-base';
 import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
@@ -375,34 +375,45 @@ function ChoosePlan(props) {
       )}
 
       <Box
-        bottom={1}
-        margin={1}
-        alignItems="center"
-        flexDirection="row"
-        justifyContent="space-between"
+        style={styles.noteWrapper}
       >
-        <Note
-          title="Note"
-          subtitle={formatString(choosePlan.noteSubTitle)}
-          subtitleColor="GreyText"
-          width="98%" />
-
-        <TouchableOpacity activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
+        <Box width="65%">
+          <Note
+            title="Note"
+            subtitle={formatString(choosePlan.noteSubTitle)}
+            subtitleColor="GreyText" />
+        </Box>
+        <Pressable width="35%" activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
           <Box
-            borderColor="light.learnMoreBorder"
-            backgroundColor="light.lightAccent"
-            p={1}
-            m={1}
-            borderRadius={5}
-            borderWidth={0.7}
+            borderColor={`${colorMode}.learnMoreBorder`}
+            backgroundColor={`${colorMode}.lightAccent`}
+            style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color="light.learnMoreBorder">
+            <Text fontSize={12} color={`${colorMode}.learnMoreBorder`}>
               Restore Purchases
             </Text>
           </Box>
-        </TouchableOpacity>
+        </Pressable>
       </Box>
     </ScreenWrapper >
   );
 }
+const styles = StyleSheet.create({
+  noteWrapper: {
+    bottom: 1,
+    margin: 1,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    width: '100%'
+  },
+  restorePurchaseWrapper: {
+    padding: 1,
+    margin: 1,
+    borderRadius: 5,
+    borderWidth: 0.7,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
+})
 export default ChoosePlan;

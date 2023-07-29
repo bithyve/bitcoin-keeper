@@ -1,7 +1,13 @@
 import React from 'react';
 import { StyleSheet, ActivityIndicator, Modal, View } from 'react-native';
 
-function ActivityIndicatorView({ visible, showLoader = true }: { visible: boolean; showLoader }) {
+function ActivityIndicatorView({
+  visible,
+  showLoader = true,
+}: {
+  visible: boolean;
+  showLoader?: boolean;
+}) {
   if (visible) {
     return (
       <Modal transparent visible={visible} statusBarTranslucent>

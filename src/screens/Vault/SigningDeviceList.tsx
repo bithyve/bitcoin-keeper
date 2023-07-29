@@ -7,7 +7,6 @@ import config, { APP_STAGE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import Alert from 'src/assets/images/alert_illustration.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 
 import KeeperModal from 'src/components/KeeperModal';
@@ -73,9 +72,15 @@ const getDeviceStatus = (
         message: getDisabled(type, isOnL1, vaultSigners).message,
         disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
       };
+    case SignerType.TREZOR:
+      return !isOnL1
+        ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
+        : {
+          message: '',
+          disabled: false,
+        };
     case SignerType.SEED_WORDS:
     case SignerType.KEEPER:
-    case SignerType.TREZOR:
     case SignerType.JADE:
     case SignerType.BITBOX02:
     case SignerType.PASSPORT:
@@ -101,7 +106,6 @@ function SigningDeviceList() {
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
 
-  const [nfcAlert, setNfcAlert] = useState(false);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
@@ -190,17 +194,6 @@ function SigningDeviceList() {
     );
   }
 
-  const nfcAlertConternt = () => (
-    <Box>
-      <Box justifyContent="center" alignItems="center">
-        <Alert />
-      </Box>
-      <Text fontSize={13} letterSpacing={0.65} width={wp(260)} color={`${colorMode}.greenText`} marginY={4}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-      </Text>
-    </Box>
-  );
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
@@ -242,23 +235,10 @@ function SigningDeviceList() {
                   />
                 );
               })}
-
             </Box>
           )}
         </ScrollView>
 
-        <KeeperModal
-          visible={nfcAlert}
-          close={() => {
-            setNfcAlert(false);
-          }}
-          title="NFC Not supported"
-          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
-          buttonText="  CTA  "
-          buttonTextColor={`${colorMode}.white`}
-          textColor={`${colorMode}.primaryText`}
-          Content={nfcAlertConternt}
-        />
         <KeeperModal
           visible={sdModal}
           close={() => {

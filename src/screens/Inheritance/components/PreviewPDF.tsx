@@ -5,12 +5,11 @@ import { Box } from 'native-base';
 
 function PreviewPDF({ route }: any) {
     const { source } = route.params;
-    const sourceUrl = { uri: source && source, cache: true }
     return (
         <Box style={styles.container}>
             <Pdf
                 trustAllCerts={false}
-                source={sourceUrl}
+                source={{ uri: source }}
                 style={styles.pdf} />
         </Box>
     )

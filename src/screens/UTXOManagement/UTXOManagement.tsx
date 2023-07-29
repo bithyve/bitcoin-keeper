@@ -253,7 +253,7 @@ function UTXOManagement({ route, navigation }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <ActivityIndicatorView visible={syncing} showLoader={false} />
+      <ActivityIndicatorView visible={syncing} showLoader />
       <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab

@@ -1,11 +1,10 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, Pressable } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import {
   FlatList,
   Linking,
-  Platform,
   RefreshControl,
   StatusBar,
   StyleSheet,
@@ -31,7 +30,7 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
@@ -46,6 +45,8 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import AddPhoneEmailIcon from 'src/assets/images/AddPhoneEmail.svg';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
@@ -458,6 +459,9 @@ function VaultDetails({ route, navigation }) {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const inheritanceSigner = vault.signers.filter(
+    (signer) => signer.type === SignerType.INHERITANCEKEY
+  )[0];
   const [tireChangeModal, setTireChangeModal] = useState(false);
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
@@ -489,10 +493,6 @@ function VaultDetails({ route, navigation }) {
     setPullRefresh(false);
   };
 
-  const closeVaultCreatedDialog = () => {
-    setVaultCreated(false);
-  };
-
   useEffect(() => {
     if (hasPlanChanged() !== VaultMigrationType.CHANGE) {
       setTireChangeModal(true);
@@ -521,13 +521,40 @@ function VaultDetails({ route, navigation }) {
 
   const NewVaultContent = useCallback(
     () => (
-      <View>
-        <Success />
+      <Box>
         <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
-          For sending out of the vault you will need the signing devices. This means no one can
-          steal your bitcoin in the vault unless they also have the signing devices
+          For sending out of the Vault you will need the signing devices. This means no one can
+          steal your bitcoin in the Vault unless they also have the signing devices
         </Text>
-      </View>
+        <Box alignItems="center">
+          <Success />
+        </Box>
+        {inheritanceSigner && (
+          <Pressable
+            style={styles.addPhoneEmailWrapper}
+            backgroundColor={`${colorMode}.primaryBackground`}
+            onPress={() => {
+              navigation.navigate('IKSAddEmailPhone');
+              setVaultCreated(false);
+            }}
+          >
+            <Box style={styles.iconWrapper}>
+              <AddPhoneEmailIcon />
+            </Box>
+            <Box style={styles.titleWrapper}>
+              <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.primaryText`}>
+                Add Email
+              </Text>
+              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.secondaryText`}>
+                Lorem ipsum dolor sit amet, consectetur adipiscing eli
+              </Text>
+            </Box>
+            <Box style={styles.rightIconWrapper}>
+              <RightArrowIcon />
+            </Box>
+          </Pressable>
+        )}
+      </Box>
     ),
     []
   );
@@ -543,8 +570,8 @@ function VaultDetails({ route, navigation }) {
 
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`
-      : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
+      ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`
+      : `Vault with ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
   return (
     // <LinearGradient
@@ -598,8 +625,10 @@ function VaultDetails({ route, navigation }) {
         buttonText="View Vault"
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
-        buttonCallback={closeVaultCreatedDialog}
-        close={closeVaultCreatedDialog}
+        buttonCallback={() => {
+          setVaultCreated(false);
+        }}
+        close={() => setVaultCreated(false)}
         Content={NewVaultContent}
       />
       <KeeperModal
@@ -739,6 +768,29 @@ const getStyles = (top) =>
       letterSpacing: 1.28,
       color: '#041513',
       width: wp(200),
+    },
+    addPhoneEmailWrapper: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: hp(20),
+      paddingVertical: hp(10),
+      borderRadius: 10,
+    },
+    iconWrapper: {
+      width: '15%',
+    },
+    titleWrapper: {
+      width: '75%',
+    },
+    addPhoneEmailTitle: {
+      fontSize: 14,
+    },
+    addPhoneEmailSubTitle: {
+      fontSize: 12,
+    },
+    rightIconWrapper: {
+      width: '10%',
     },
   });
 export default VaultDetails;

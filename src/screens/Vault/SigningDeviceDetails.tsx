@@ -269,7 +269,7 @@ function SigningDeviceDetails({ route }) {
             </Text>
             <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(signer?.addedOn)
               .format('DD MMM YYYY, hh:mmA')
-              .toLowerCase()}`}</Text>
+              }`}</Text>
           </Box>
         </Box>
       </Box>

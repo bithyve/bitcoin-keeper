@@ -38,8 +38,14 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import { generateKey } from 'src/core/services/operations/encryption';
+import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import { close } from '@sentry/react-native';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
+import { formatDuration } from './VaultRecovery';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -53,7 +59,12 @@ const getnavigationState = (type) => ({
   ],
 });
 
-export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
+export const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  signingDevices,
+  inheritanceRequestId
+) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
@@ -65,6 +76,17 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
       if (signingDevices.length < 1) {
         return {
           message: 'Add another device first to recover',
+          disabled: true,
+        };
+      }
+      return {
+        message: '',
+        disabled: false,
+      };
+    case SignerType.INHERITANCEKEY:
+      if (signingDevices.length < 2 || inheritanceRequestId) {
+        return {
+          message: 'Add two other devices first to recover',
           disabled: true,
         };
       }
@@ -137,7 +159,7 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault)`}
+          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault)`}
         </Text>
       </Box>
     </View>
@@ -510,7 +532,7 @@ function SignersList({ navigation }) {
       if (response.xpub) {
         const signingServerKey = generateSignerFromMetaData({
           xpub: response.xpub,
-          derivationPath: response.xpub,
+          derivationPath: response.derivationPath,
           xfp: response.masterFingerprint,
           signerType: SignerType.POLICY_SERVER,
           storageType: SignerStorage.WARM,
@@ -526,8 +548,34 @@ function SignersList({ navigation }) {
     }
   };
 
+  const requestInheritanceKey = async (signers: VaultSigner[]) => {
+    try {
+      const requestId = `request-${generateKey(10)}`;
+      const vaultId = relayVaultReoveryShellId;
+      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+
+      const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
+        requestId,
+        vaultId,
+        thresholdDescriptors
+      );
+
+      showToast(
+        `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
+        <TickIcon />
+      );
+      dispatch(setInheritanceRequestId(requestId));
+      navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
+    } catch (err) {
+      showToast(`${err}`, <ToastErrorIcon />);
+    }
+    close();
+  };
+
   function HardWareWallet({ disabled, message, type, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
+    const { signingDevices } = useAppSelector((state) => state.bhr);
+
     const onPress = () => {
       open();
     };
@@ -750,6 +798,20 @@ function SignersList({ navigation }) {
           Content={otpContent}
         />
         <KeeperModal
+          visible={visible && type === SignerType.INHERITANCEKEY}
+          close={close}
+          title="Recover using Inheritance Key"
+          subTitle="Requesting for the inheritance key"
+          subTitleColor="light.secondaryText"
+          Content={() => <SeedWordsIllustration />}
+          buttonText="Continue"
+          buttonTextColor="light.white"
+          buttonCallback={() => {
+            requestInheritanceKey(signingDevices);
+          }}
+          textColor="light.primaryText"
+        />
+        <KeeperModal
           visible={visible && type === SignerType.BITBOX02}
           close={close}
           title="Keep BitBox02 Ready"
@@ -774,6 +836,8 @@ function SignersList({ navigation }) {
       </>
     );
   }
+
+  const { inheritanceRequestId } = useAppSelector((state) => state.storage);
 
   return (
     <ScreenWrapper>
@@ -803,8 +867,14 @@ function SignersList({ navigation }) {
             SignerType.SEED_WORDS,
             SignerType.MOBILE_KEY,
             SignerType.POLICY_SERVER,
+            SignerType.INHERITANCEKEY,
           ].map((type: SignerType, index: number) => {
-            const { disabled, message } = getDeviceStatus(type, isNfcSupported, signingDevices);
+            const { disabled, message } = getDeviceStatus(
+              type,
+              isNfcSupported,
+              signingDevices,
+              inheritanceRequestId
+            );
             return (
               <HardWareWallet
                 type={type}

@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     width: '100%',
     fontFamily: Fonts.RobotoCondensedSemiBold,
-    letterSpacing: 0.6
+    letterSpacing: 0,
   },
   skipWrapper: {
     width: '16%',

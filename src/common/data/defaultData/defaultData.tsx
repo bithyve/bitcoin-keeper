@@ -1,6 +1,7 @@
 import SecutityTip from 'src/assets/images/securityTip.svg';
 import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import SigningDeviceSafe from 'src/assets/images/signingDeviceSafe.svg'
+import InheritanceToolsIllustration from 'src/assets/images/InheritanceToolsIllustration.svg'
 import React from 'react';
 import LoadingAnimation from 'src/components/Loader';
 
@@ -45,7 +46,7 @@ export const securityTips = [
     title: 'Introducing Inheritance Tools',
     subTitle:
       'Use Inheritance documents for your inheritance planning. Inheritance Key is an assisted key that can be availed by your heir',
-    assert: <LoadingAnimation />,
+    assert: <InheritanceToolsIllustration />,
     message: 'Consult your estate planner for incorporating documents from this app in your will',
   },
   {
