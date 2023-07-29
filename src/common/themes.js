@@ -53,7 +53,7 @@ export const customTheme = extendTheme({
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
       mainBackground: Colors.LightWhite,
-      modalBackground: Colors.GenericViridian,
+      modalBackground: Colors.CastletonGreen,
       white: Colors.White,
       primaryText: Colors.RichBlack,
       secondaryText: Colors.GraniteGray,
