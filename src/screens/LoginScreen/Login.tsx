@@ -500,6 +500,7 @@ function LoginScreen({ navigation, route }) {
         close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
