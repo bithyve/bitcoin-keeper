@@ -365,7 +365,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.linearGradient} backgroundColor='light.pantoneGreen'>
+    <Box style={styles.linearGradient} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>

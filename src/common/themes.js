@@ -52,6 +52,7 @@ export const customTheme = extendTheme({
     light: {
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
+      primaryGreenBackground: Colors.pantoneGreen,
       mainBackground: Colors.LightWhite,
       modalGreenBackground: Colors.CastletonGreen,
       modalGreenContent: Colors.White,
@@ -102,6 +103,7 @@ export const customTheme = extendTheme({
     dark: {
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellowDark,
+      primaryGreenBackground: Colors.LightYellowDark,
       mainBackground: Colors.LightWhite,
       modalGreenBackground: Colors.LightYellowDark,
       modalGreenContent: Colors.White,
