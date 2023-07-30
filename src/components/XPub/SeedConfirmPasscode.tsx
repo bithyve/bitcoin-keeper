@@ -96,7 +96,7 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     <Box borderRadius={10}>
       <Box>
         {/* pin input view */}
-        <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor textColor />
+        <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor={colorMode === 'light'} textColor />
         {loginError &&
           <Text
             color={`${colorMode}.indicator`}
