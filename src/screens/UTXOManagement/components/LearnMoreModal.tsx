@@ -38,7 +38,7 @@ function premixContent() {
       </Box>
       <Box style={styles.paraViewWrapper}>
         <Box style={styles.dotWrapper}>
-          <DotView height={1.5} width={1.5} {`${colorMode}.modalGreenContent`} />
+          <DotView height={1.5} width={1.5} color={`${colorMode}.modalGreenContent`} />
         </Box>
         <Box style={styles.textWrapper}>
           <Text style={styles.paraText}>
