@@ -4,8 +4,10 @@ import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
+import walletDark from 'src/assets/images/walletDark.svg'
 import VaultIcon from 'src/assets/images/vaultTab.svg';
 import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
+import VaultDark from 'src/assets/images/vaultDark.svg';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -134,17 +136,23 @@ function NewHomeScreen({ navigation }) {
               navigation.navigate({ name: route.name, merge: true });
             }
           };
+          const themeWalletActive = colorMode === 'light' ? "#2D6759" : "#89AEA7"
+          const themeVaultActive = colorMode === 'light' ? "#704E2E" : "#e3be96"
+          const textWalletColor = colorMode === 'light' ? "#2D6759" : "#89AEA7"
+          const textVaultColor = colorMode === 'light' ? "#704E2E" : "#e3be96"
+          const vaultActiveIcon = colorMode === 'light' ? VaultActiveIcon : VaultDark
+          const walletActiveIcon = colorMode === 'light' ? WalletActiveIcon : walletDark
           return (
             <TabButton
               label={label === 'Wallet' ? 'Wallets' : label}
               Icon={route.name === 'Vault' ? VaultIcon : WalletIcon}
-              IconActive={route.name === 'Vault' ? VaultActiveIcon : WalletActiveIcon}
+              IconActive={route.name === 'Vault' ? vaultActiveIcon : walletActiveIcon}
               onPress={onPress}
               active={isFocused}
-              backgroundColorActive={route.name === 'Vault' ? "#e3be96" : "#89AEA7"}
+              backgroundColorActive={route.name === 'Vault' ? themeVaultActive : themeWalletActive}
               backgroundColor="transparent"
-              textColorActive="#F7F2EC"
-              textColor={route.name === 'Vault' ? "#e3be96" : "#89AEA7"}
+              textColorActive={colorMode === 'light' ? "#F7F2EC" : "#24312E"}
+              textColor={route.name === 'Vault' ? textVaultColor : textWalletColor}
             />
           );
         })}
