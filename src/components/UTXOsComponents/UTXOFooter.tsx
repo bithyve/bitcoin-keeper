@@ -89,12 +89,12 @@ const styles = StyleSheet.create({
   footerContainer: {
     height: 75,
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 10 : 15,
+    bottom: Platform.OS === 'ios' ? 5 : 15,
     width: windowWidth,
     // paddingHorizontal: '10%',
   },
   footerItemContainer: {
-    marginTop: 10,
+    marginVertical: 10,
     flexDirection: 'row',
     justifyContent: 'space-evenly',
   },
