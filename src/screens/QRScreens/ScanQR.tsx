@@ -17,15 +17,10 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
-import OptionCTA from 'src/components/OptionCTA';
-import NFCIcon from 'src/assets/images/nfc.svg';
-import NfcPrompt from 'src/components/NfcPromptAndroid';
-import NFC from 'src/core/services/nfc';
-import nfcManager, { NfcTech } from 'react-native-nfc-manager';
+
 import useNfcModal from 'src/hooks/useNfcModal';
-import { captureError } from 'src/core/services/sentry';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import MockWrapper from '../Vault/MockWrapper';
+import NFCOption from '../NFCChannel/NFCOption';
 
 let decoder = new URRegistryDecoder();
 
@@ -47,6 +42,7 @@ function ScanQR() {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
 
+  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   // eslint-disable-next-line no-promise-executor-return
   const sleep = async (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const resetQR = async () => {
@@ -112,28 +108,6 @@ function ScanQR() {
     });
   };
 
-  const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
-
-  const readFromNFC = async () => {
-    try {
-      await withNfcModal(async () => {
-        const records = await NFC.read([NfcTech.Ndef]);
-        try {
-          const cosigner = records[0].data;
-          setData(cosigner);
-        } catch (err) {
-          captureError(err);
-          showToast('Please scan a valid cosigner tag', <ToastErrorIcon />);
-        }
-      });
-    } catch (err) {
-      captureError(err);
-      showToast('Something went wrong.', <ToastErrorIcon />);
-    } finally {
-      await nfcManager.cancelTechnologyRequest();
-    }
-  };
-
   return (
     <ScreenWrapper>
       <MockWrapper signerType={type} enable={setup && type}>
@@ -160,14 +134,16 @@ function ScanQR() {
           ) : (
             <Box style={styles.cameraView} />
           )}
-
           <Box style={styles.noteWrapper}>
-            <OptionCTA
-              icon={<NFCIcon />}
-              title="or Setup via NFC"
-              subtitle="Bring device close to use NFC"
-              callback={readFromNFC}
-            />
+            <Box style={{ paddingBottom: '10%' }}>
+              <NFCOption
+                signerType={type}
+                nfcVisible={nfcVisible}
+                closeNfc={closeNfc}
+                withNfcModal={withNfcModal}
+                setData={setData}
+              />
+            </Box>
             <Note
               title={common.note}
               subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
@@ -176,7 +152,6 @@ function ScanQR() {
           </Box>
         </Box>
       </MockWrapper>
-      <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
 }
