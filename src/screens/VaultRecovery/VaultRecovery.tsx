@@ -12,7 +12,7 @@ import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import {
   removeSigningDeviceBhr,
   setRelayVaultRecoveryShellId,
@@ -327,20 +327,20 @@ function VaultRecovery({ navigation }) {
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),
-                height: '66%'
+                height: windowHeight > 680 ? '66%' : '51%'
               }}
             />
-            {inheritanceRequestId && (
-              <AddSigningDevice
-                icon={<InheritanceIcon />}
-                arrowIcon={<TimeIcon />}
-                onPress={() => {
-                  checkInheritanceKeyRequest(signingDevices, inheritanceRequestId);
-                }}
-                title="Inheritance Key Request Sent"
-                subTitle="3 weeks remaning"
-              />
-            )}
+            {/* {inheritanceRequestId && ( */}
+            <AddSigningDevice
+              icon={<InheritanceIcon />}
+              arrowIcon={<TimeIcon />}
+              onPress={() => {
+                checkInheritanceKeyRequest(signingDevices, inheritanceRequestId);
+              }}
+              title="Inheritance Key Request Sent"
+              subTitle="3 weeks remaning"
+            />
+            {/* )} */}
             <AddSigningDevice
               icon={<AddIcon />}
               arrowIcon={<IconArrowBlack />}
