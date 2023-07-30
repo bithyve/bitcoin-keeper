@@ -4,9 +4,15 @@ import ElectrumClient from 'electrum-client';
 
 jest.setTimeout(150 * 1000);
 
-const hardcodedPeers = [{ host: 'electrum1.bluewallet.io', ssl: '443' }];
+const hardcodedPeers = [{
+  host: 'electrumx-core.1209k.com',
+  ssl: '50002'
+}];
 
-const hardcodedTestnetPeers = [{ host: '35.177.46.45', ssl: '50002' }];
+const hardcodedTestnetPeers = [{
+  host: '35.177.46.45',
+  ssl: '50002'
+}];
 
 describe('Client', () => {
   it('can connect and query to mainnet', async () => {
