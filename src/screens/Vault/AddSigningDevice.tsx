@@ -249,7 +249,7 @@ function AddSigningDevice() {
   const subtitle =
     subscriptionScheme.n > 1
       ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
-      } setup will be created${isInheritance ? ' for inheritance' : ''}`
+      } setup will be created${isInheritance ? ' for Inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
