@@ -20,6 +20,8 @@ import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import NFC from 'src/core/services/nfc';
 import { HCESessionContext, HCESession } from 'react-native-hce';
+import { NfcTech } from 'react-native-nfc-manager';
+import { captureError } from 'src/core/services/sentry';
 
 function CosignerDetails() {
   const { params } = useRoute();
@@ -29,11 +31,15 @@ function CosignerDetails() {
   const [visible, setVisible] = React.useState(false);
   const { session } = useContext(HCESessionContext);
   const navgation = useNavigation();
+  const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
 
   const cleanUp = () => {
     setVisible(false);
     Vibration.cancel();
-    NFC.stopTagSession(session);
+    if (isAndroid) {
+      NFC.stopTagSession(session);
+    }
   };
 
   useEffect(() => {
@@ -56,10 +62,22 @@ function CosignerDetails() {
 
   const shareWithNFC = async () => {
     try {
-      await NFC.startTagSession({ session, content: details });
-      Vibration.vibrate([700, 50, 100, 50], true);
+      if (isIos) {
+        Vibration.vibrate([700, 50, 100, 50], true);
+        const enc = NFC.encodeTextRecord(details);
+        await NFC.send([NfcTech.Ndef], enc);
+        Vibration.cancel();
+      } else {
+        await NFC.startTagSession({ session, content: details });
+        Vibration.vibrate([700, 50, 100, 50], true);
+      }
     } catch (err) {
-      console.log(err);
+      Vibration.cancel();
+      if (err.toString() === 'Error: Not even registered') {
+        console.log('NFC interaction cancelled.');
+        return;
+      }
+      captureError(err);
     }
   };
 
@@ -89,11 +107,11 @@ function CosignerDetails() {
         />
       </Box>
       <Box style={styles.bottom}>
-        {Platform.OS === 'android' && details ? (
+        {details ? (
           <Box style={{ paddingBottom: '10%' }}>
             <OptionCTA
               icon={<NFCIcon />}
-              title="or Share on Tap"
+              title={`or share on Tap${isIos ? ' to Anroid' : ''}`}
               subtitle="Bring device close to use NFC"
               callback={shareWithNFC}
             />

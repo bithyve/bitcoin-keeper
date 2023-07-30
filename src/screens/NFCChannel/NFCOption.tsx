@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import OptionCTA from 'src/components/OptionCTA';
 import NFCIcon from 'src/assets/images/nfc.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -8,6 +8,9 @@ import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import NFC from 'src/core/services/nfc';
 import { SignerType } from 'src/core/wallets/enums';
+import { HCESession, HCESessionContext } from 'react-native-hce';
+import { Platform } from 'react-native';
+import idx from 'idx';
 
 function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) {
   const { showToast } = useToastMessage();
@@ -34,6 +37,46 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
       await nfcManager.cancelTechnologyRequest();
     }
   };
+
+  const { session } = useContext(HCESessionContext);
+  const isAndroid = Platform.OS === 'android';
+
+  useEffect(() => {
+    if (isAndroid) {
+      if (nfcVisible) {
+        NFC.startTagSession({ session, content: '', writable: true });
+      } else {
+        NFC.stopTagSession(session);
+      }
+    }
+  }, [nfcVisible]);
+
+  useEffect(() => {
+    const unsubConnect = session.on(HCESession.Events.HCE_STATE_WRITE_FULL, () => {
+      try {
+        // content written from iOS to android
+        const data = idx(session, (_) => _.application.content.content);
+        if (!data) {
+          showToast('Please scan a valid cosigner', <ToastErrorIcon />);
+          return;
+        }
+        setData(data.content);
+      } catch (err) {
+        captureError(err);
+        showToast('Something went wrong.', <ToastErrorIcon />);
+      } finally {
+        closeNfc();
+      }
+    });
+    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
+      closeNfc();
+    });
+    return () => {
+      unsubConnect();
+      unsubDisconnect();
+    };
+  }, [session]);
+
   if (signerType !== SignerType.KEEPER) {
     return null;
   }

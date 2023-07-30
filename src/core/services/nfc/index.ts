@@ -110,7 +110,7 @@ export default class NFC {
     }
   };
 
-  public static encodeForColdCard = (message) => Ndef.encodeMessage([Ndef.textRecord(message)]);
+  public static encodeTextRecord = (message) => Ndef.encodeMessage([Ndef.textRecord(message)]);
 
   public static isNFCSupported = async () => NfcManager.isSupported();
 
