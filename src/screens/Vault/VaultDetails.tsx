@@ -544,7 +544,7 @@ function VaultDetails({ route, navigation }) {
                 Add Email
               </Text>
               <Text style={styles.addPhoneEmailSubTitle} color="light.secondaryText">
-                Lorem ipsum dolor sit amet, consectetur adipiscing eli
+                Additionally you can provide an email which will be used to notify you when someone tries to access the Inheritance Key
               </Text>
             </Box>
             <Box style={styles.rightIconWrapper}>
