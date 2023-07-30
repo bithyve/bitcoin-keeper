@@ -97,7 +97,7 @@ function VaultScreen() {
           icon={<InheritanceIcon />}
           title="Inheritance Tools"
           subTitle="Manage Inheritance key or view documents"
-          iconBackColor="light.learnMoreBorder"
+          iconBackColor={`${colorMode}.learnMoreBorder`}
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
           }}
