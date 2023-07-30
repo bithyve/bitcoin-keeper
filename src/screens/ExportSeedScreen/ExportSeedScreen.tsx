@@ -113,7 +113,7 @@ function ExportSeedScreen({ route, navigation }) {
                 <QR />
                 <VStack marginX="4" maxWidth="64">
                   <Text
-                    color="light.primaryText"
+                    color={`${colorMode}.primaryText`}
                     numberOfLines={2}
                     style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
                   >
