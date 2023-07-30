@@ -327,6 +327,7 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
+          modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
@@ -350,6 +351,7 @@ function WalletSettings({ route }) {
           title="Cosigner Details"
           subTitleWidth={wp(260)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
+          modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           buttonText="Done"
