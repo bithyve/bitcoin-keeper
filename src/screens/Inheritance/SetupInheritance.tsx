@@ -111,7 +111,7 @@ function SetupInheritance() {
   };
 
   const toSetupInheritance = () => {
-    if (shouldActivateInheritance()) dispatch(setInheritance(true));
+    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
     else if (plan !== SubscriptionTier.L3.toUpperCase()) navigtaion.navigate('ChoosePlan');
     else if (!activeVault) navigtaion.navigate('AddSigningDevice');
   };
