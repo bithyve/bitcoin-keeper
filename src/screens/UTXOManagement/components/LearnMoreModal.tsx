@@ -10,6 +10,7 @@ import DotView from 'src/components/DotView';
 import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
 
 function premixContent() {
+  const { colorMode } = useColorMode();
   return (
     <View style={styles.container}>
       <Box style={styles.iconWrapper}>
@@ -17,7 +18,7 @@ function premixContent() {
       </Box>
       <Box style={styles.paraViewWrapper}>
         <Box style={styles.dotWrapper}>
-          <DotView height={1.5} width={1.5} color='white' />
+          <DotView height={1.5} width={1.5} color={`${colorMode}.modalGreenContent`} />
         </Box>
         <Box style={styles.textWrapper}>
           <Text style={styles.paraText}>
@@ -27,7 +28,7 @@ function premixContent() {
       </Box>
       <Box style={styles.paraViewWrapper}>
         <Box style={styles.dotWrapper}>
-          <DotView height={1.5} width={1.5} color='white' />
+          <DotView height={1.5} width={1.5} color={`${colorMode}.modalGreenContent`} />
         </Box>
         <Box style={styles.textWrapper}>
           <Text style={styles.paraText}>
@@ -37,7 +38,7 @@ function premixContent() {
       </Box>
       <Box style={styles.paraViewWrapper}>
         <Box style={styles.dotWrapper}>
-          <DotView height={1.5} width={1.5} color='white' />
+          <DotView height={1.5} width={1.5} {`${colorMode}.modalGreenContent`} />
         </Box>
         <Box style={styles.textWrapper}>
           <Text style={styles.paraText}>
@@ -59,7 +60,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       title="Setting up Premix"
       subTitle="You are about to start your first mix. In the next few steps, you’ll be guided to create your Tx0. Tx0 gets created based on the pool you select ahead."
       modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
-      textColor="light.white"
+      textColor={`${colorMode}.modalGreenContent`}
       Content={premixContent}
       DarkCloseIcon
       learnMore

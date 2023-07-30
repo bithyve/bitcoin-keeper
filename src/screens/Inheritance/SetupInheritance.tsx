@@ -73,15 +73,15 @@ function SetupInheritance() {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text color={`${colorMode}.white`} numberOfLines={2} style={styles.modalTitle}>
+            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
-            <Text color={`${colorMode}.white`} numberOfLines={2} style={styles.modalSubtitle}>
+            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalSubtitle}>
               {subTitle}
             </Text>
           </Box>
         </Box>
-        <Text color={`${colorMode}.white`} style={styles.modalDesc}>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
           {description}
         </Text>
       </Box>
@@ -180,7 +180,7 @@ function SetupInheritance() {
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
         modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
-        textColor={`${colorMode}.white`}
+        textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
         buttonTextColor={`${colorMode}.greenText`}
         buttonBackground={['#FFF', '#80A8A1']}

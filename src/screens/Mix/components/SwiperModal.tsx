@@ -15,13 +15,14 @@ import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
+  const { colorMode } = useColorMode();
   return (
     <Box>
       <Box>
-        <Text bold italic style={styles.modalTitle}>
+        <Text bold italic style={styles.modalTitle} color={`${colorMode}.modalGreenContent`}>
           {contentTitle}
         </Text>
-        <Text style={styles.modalSubTitle}>{contentSubTitle}</Text>
+        <Text style={styles.modalSubTitle} color={`${colorMode}.modalGreenContent`}>{contentSubTitle}</Text>
       </Box>
     </Box>
   );
@@ -55,7 +56,8 @@ const linearGradientBtn = {
   start: [0, 0],
   end: [1, 1],
 };
-function List(props) {
+function List() {
+  const { colorMode } = useColorMode();
   const listRef = useRef(null);
   const dispatch = useAppDispatch();
   const [currentPosition, setCurrentPosition] = useState(0);
@@ -81,7 +83,7 @@ function List(props) {
         </TouchableOpacity>
       ) : null}
       <Box style={styles.headerContainer}>
-        <Text style={styles.title} color="light.white">
+        <Text style={styles.title} color={`${colorMode}.modalGreenContent`}>
           Some Definitions:
         </Text>
       </Box>
@@ -139,7 +141,7 @@ function SwiperModal({ enable }) {
       }}
       title=""
       modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
-      textColor="light.white"
+      textColor={`${colorMode}.modalGreenContent`}
       Content={() => <List />}
       showCloseIcon={false}
     />
@@ -160,14 +162,12 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     textAlign: 'left',
     letterSpacing: 0.65,
-    color: Colors.White,
   },
   modalSubTitle: {
     fontSize: 13,
     lineHeight: 18,
     textAlign: 'left',
     letterSpacing: 0.65,
-    color: Colors.White,
     marginBottom: hp(15),
     maxWidth: wp(270),
   },
