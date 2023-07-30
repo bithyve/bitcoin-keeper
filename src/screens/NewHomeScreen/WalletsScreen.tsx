@@ -413,7 +413,7 @@ const WalletsScreen = ({ navigation }) => {
               icon={<WhirlpoolWhiteIcon />}
               title="Whirlpool & UTXOs"
               subTitle="Manage wallet UTXOs and use Whirlpool"
-              iconBackColor="light.greenText2"
+              iconBackColor={`${colorMode}.pantoneGreen`}
               onPress={() => {
                 if (currentWallet)
                   navigation.navigate('UTXOManagement', {
