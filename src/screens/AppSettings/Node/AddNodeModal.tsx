@@ -1,15 +1,15 @@
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { View, StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { NodeDetail } from 'src/core/wallets/interfaces';
-import CheckBox from 'src/components/Checkbox';
 import Buttons from 'src/components/Buttons';
 import Switch from 'src/components/Switch/Switch';
 import Text from 'src/components/KeeperText';
 
 function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) => void) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const { settings } = translations;
@@ -42,7 +42,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: 'light.mainBackground' }]}>
+    <View style={[styles.container, { backgroundColor: `${colorMode}.mainBackground` }]}>
       <Box style={styles.box}>
         <Box style={styles.useSSL}>
           <Text style={styles.useSSLText}>{settings.useSSL}</Text>
@@ -55,7 +55,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           >
             <Input
               placeholderTextColor="grey"
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.primaryBackground`}
               placeholder={settings.host}
               borderRadius={10}
               borderWidth={0}
@@ -77,7 +77,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           >
             <Input
               placeholderTextColor="grey"
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.primaryBackground`}
               placeholder={settings.portNumberPlaceholder}
               keyboardType="number-pad"
               borderRadius={10}

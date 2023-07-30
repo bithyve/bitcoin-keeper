@@ -1,4 +1,4 @@
-import { Input } from 'native-base';
+import { Input, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import AppNumPad from 'src/components/AppNumPad';
@@ -15,6 +15,7 @@ import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 
 function AddAmountScreen({ route }: { route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const [amount, setAmount] = useState('');
   const wallet: Wallet = route?.params?.wallet;
@@ -24,7 +25,7 @@ function AddAmountScreen({ route }: { route }) {
 
   return (
     <View style={styles.wrapper}>
-      <View style={[styles.Container, { backgroundColor: 'light.secondaryBackground' }]}>
+      <View style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
         <StatusBarComponent padding={50} />
         <HeaderTitle
           title={home.AddAmount}
@@ -32,14 +33,14 @@ function AddAmountScreen({ route }: { route }) {
           onPressHandler={() => navigtaion.goBack()}
         />
         <View style={styles.inputParentView}>
-          <View style={[styles.inputWrapper, { backgroundColor: 'light.primaryBackground' }]}>
+          <View style={[styles.inputWrapper, { backgroundColor: `${colorMode}.primaryBackground` }]}>
             <View style={styles.btcIconWrapper}>
               <BtcInput />
             </View>
             <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
             <Input
               placeholder={home.ConvertedAmount}
-              placeholderTextColor="light.greenText"
+              placeholderTextColor={`${colorMode}.greenText`}
               style={styles.inputField}
               borderWidth="0"
               value={amount}
@@ -66,7 +67,7 @@ function AddAmountScreen({ route }: { route }) {
         <AppNumPad
           setValue={setAmount}
           clear={() => setAmount('')}
-          color="light.greenText"
+          color={`${colorMode}.greenText`}
           darkDeleteIcon
         />
       </View>

@@ -1,6 +1,6 @@
 import { Dimensions, Pressable } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, FlatList, HStack, VStack } from 'native-base';
+import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -59,6 +59,7 @@ function SignerItem({
   setInheritanceInit: any;
   inheritanceSigner: VaultSigner;
 }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { plan } = usePlan();
@@ -87,13 +88,13 @@ function SignerItem({
               <AddIcon />
               <VStack marginX="4" maxWidth="64">
                 <Text
-                  color="light.primaryText"
+                  color={`${colorMode}.primaryText`}
                   numberOfLines={2}
                   style={[globalStyles.font15, { letterSpacing: 1.12, alignItems: 'center' }]}
                 >
                   {`Add ${getPlaceholder(index)} Signing Device`}
                 </Text>
-                <Text color="light.GreyText" style={[globalStyles.font13, { letterSpacing: 0.06 }]}>
+                <Text color={`${colorMode}.GreyText`} style={[globalStyles.font13, { letterSpacing: 0.06 }]}>
                   Select signing device
                 </Text>
               </VStack>
@@ -138,7 +139,7 @@ function SignerItem({
           </Box>
           <VStack marginLeft="4" maxWidth="80%">
             <Text
-              color="light.primaryText"
+              color={`${colorMode}.primaryText`}
               numberOfLines={1}
               style={[
                 globalStyles.font15,
@@ -148,7 +149,7 @@ function SignerItem({
               {`${signer.signerName}`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
-            <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+            <Text color={`${colorMode}.GreyText`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
               {`Added ${moment(signer.lastHealthCheck).calendar()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
@@ -169,7 +170,7 @@ function SignerItem({
           </VStack>
         </HStack>
         <Pressable style={styles.remove} onPress={() => removeSigner()}>
-          <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+          <Text color={`${colorMode}.black`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
             {shouldReconfigure ? 'Re-configure' : 'Remove'}
           </Text>
         </Pressable>
@@ -187,6 +188,7 @@ function SignerItem({
 }
 
 function AddSigningDevice() {
+  const { colorMode } = useColorMode();
   const [vaultCreating, setCreating] = useState(false);
   const { activeVault } = useVault();
   const navigation = useNavigation();
@@ -246,16 +248,15 @@ function AddSigningDevice() {
   }
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${
-          subscriptionScheme.n + (isInheritance ? 1 : 0)
-        } setup will be created${isInheritance ? ' for inheritance' : ''}`
+      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
+      } setup will be created${isInheritance ? ' for Inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title={`${preTitle}`}
         subtitle={subtitle}
-        headerTitleColor="light.textBlack"
+        headerTitleColor={`${colorMode}.black`}
         enableBack={planStatus !== VaultMigrationType.DOWNGRADE}
         paddingLeft={25}
       />
@@ -277,7 +278,7 @@ function AddSigningDevice() {
           marginTop: hp(52),
         }}
       />
-      <Box style={styles.bottomContainer}>
+      <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
         {amfSigners.length ? (
           <Box style={styles.noteContainer}>
             <Note
@@ -294,9 +295,8 @@ function AddSigningDevice() {
               title="WARNING"
               subtitle={`A few signers (${invalidSigners
                 .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
-                SubscriptionTier.L3
-              }. Please remove them or upgrade your plan.`}
+                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${SubscriptionTier.L3
+                }. Please remove them or upgrade your plan.`}
               subtitleColor="error"
             />
           </Box>
@@ -304,9 +304,8 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${
-                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
@@ -358,7 +357,6 @@ const styles = ScaledSheet.create({
     bottom: 5,
     right: 20,
     padding: 20,
-    backgroundColor: '#F7F2EC',
   },
   noteContainer: {
     width: wp(330),

@@ -16,7 +16,7 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'lightBlack', width = 
   return (
     <Box style={styles.container}>
       <Box opacity={1}>
-        <Text color={`${colorMode}.lightBlack`} style={styles.title}>
+        <Text color={`${colorMode}.primaryText`} style={styles.title}>
           {title}
         </Text>
       </Box>

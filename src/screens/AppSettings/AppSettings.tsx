@@ -11,6 +11,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/images/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
+import ThemeMode from 'src/common/data/enums/ThemeMode';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
@@ -24,19 +25,22 @@ import moment from 'moment';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getBackupDuration } from 'src/common/utilities';
 import useToastMessage from 'src/hooks/useToastMessage';
+import { setThemeMode } from 'src/store/reducers/settings';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 function AppSettings({ navigation }) {
-  const { colorMode } = useColorMode();
-  const [darkMode, setDarkMode] = useState(false);
+  const { colorMode, toggleColorMode } = useColorMode();
+  // const [darkMode, setDarkMode] = useState(false);
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  // const state = useAppSelector((state) => state.settings)
+
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
 
@@ -62,6 +66,15 @@ function AppSettings({ navigation }) {
     }
     return backupWalletStrings[backupHistory[0].title];
   }, [backupHistory, backupMethod]);
+
+  useEffect(() => {
+    if (colorMode === 'dark') {
+      dispatch(setThemeMode(ThemeMode.DARK))
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT))
+    }
+
+  }, [colorMode])
 
   useEffect(() => {
     init();
@@ -115,7 +128,8 @@ function AppSettings({ navigation }) {
   };
 
   const changeThemeMode = () => {
-    setDarkMode(!darkMode);
+    // setDarkMode(!darkMode);
+    toggleColorMode()
   };
 
   function Option({ title, subTitle, onPress, Icon }) {
@@ -124,7 +138,7 @@ function AppSettings({ navigation }) {
         flexDirection="row"
         alignItems="center"
         onPress={onPress}
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.seashellWhite`}
         style={styles.appBackupWrapper}
         testID={`btn_${title.replace(/ /g, '_')}}`}
       >
@@ -133,8 +147,8 @@ function AppSettings({ navigation }) {
             {/* { Notification indicator } */}
             {backupMethod === null && (
               <Box
-                backgroundColor="light.indicator"
-                borderColor="light.white"
+                backgroundColor={`${colorMode}.indicator`}
+                borderColor={`${colorMode}.white`}
                 style={styles.notificationIndicator}
               />
             )}
@@ -142,10 +156,10 @@ function AppSettings({ navigation }) {
           </Box>
         )}
         <Box style={{ marginLeft: wp(20) }}>
-          <Text color="light.primaryText" style={styles.appBackupTitle}>
+          <Text color={`${colorMode}.primaryText`} style={styles.appBackupTitle}>
             {title}
           </Text>
-          <Text color="light.GreyText" style={styles.appBackupSubTitle}>
+          <Text color={`${colorMode}.GreyText`} style={styles.appBackupSubTitle}>
             {subTitle}
           </Text>
         </Box>
@@ -154,7 +168,7 @@ function AppSettings({ navigation }) {
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content">
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
       <Box style={styles.appSettingTitleWrapper}>
         <Box width="70%">
@@ -189,14 +203,14 @@ function AppSettings({ navigation }) {
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
 
-          {/* <SettingsSwitchCard
+          <SettingsSwitchCard
             title={settings.DarkMode}
             description={settings.DarkModeSubTitle}
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
-            value={darkMode}
-          /> */}
+            value={colorMode === 'dark'}
+          />
           <SettingsCard
             title={settings.nodeSettings}
             description={settings.nodeSettingsSubtitle}
@@ -240,19 +254,19 @@ function AppSettings({ navigation }) {
           />
         </ScrollView>
 
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
+        <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
               <Box
                 style={styles.telTweetLinkWrapper}
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
                 testID="view_ KeeperTelegram"
               >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
-                      color="light.textColor2"
+                      color={`${colorMode}.textColor2`}
                       style={styles.telTweetLinkTitle}
                       testID="text_ KeeperTelegram"
                     >
@@ -271,14 +285,14 @@ function AppSettings({ navigation }) {
             >
               <Box
                 style={styles.telTweetLinkWrapper}
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
                 testID="view_keeperTwitter"
               >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
                     <Text
-                      color="light.textColor2"
+                      color={`${colorMode}.textColor2`}
                       style={styles.telTweetLinkTitle}
                       testID="text_keeperTwitter"
                     >
@@ -294,13 +308,13 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
+            <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
               <Pressable
                 onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
                 testID="btn_termsCondition"
@@ -313,7 +327,7 @@ function AppSettings({ navigation }) {
                   {common.TermsConditions}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
               <Pressable
                 onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}
                 testID="btn_privacyPolicy"

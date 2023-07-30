@@ -24,7 +24,7 @@ import Buttons from 'src/components/Buttons';
 import NoTransactionIcon from 'src/assets/images/no_transaction_icon.svg';
 import BatteryIllustration from 'src/assets/images/CautionIllustration.svg';
 import useWallets from 'src/hooks/useWallets';
-import { Box, HStack, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import useWhirlpoolWallets, {
   whirlpoolWalletAccountMapInterface,
 } from 'src/hooks/useWhirlpoolWallets';
@@ -133,6 +133,7 @@ function Footer({
 }
 
 function UTXOManagement({ route, navigation }) {
+  const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const styles = getStyles();
   const {
@@ -215,16 +216,16 @@ function UTXOManagement({ route, navigation }) {
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
-        ?.map((utxo) => {
-          utxo.confirmed = true;
+      ?.map((utxo) => {
+        utxo.confirmed = true;
+        return utxo;
+      })
+      .concat(
+        selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
+          utxo.confirmed = false;
           return utxo;
         })
-        .concat(
-          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-            utxo.confirmed = false;
-            return utxo;
-          })
-        )
+      )
     : [];
 
   useEffect(() => {
@@ -251,8 +252,8 @@ function UTXOManagement({ route, navigation }) {
   );
 
   return (
-    <ScreenWrapper>
-      <ActivityIndicatorView visible={syncing} showLoader={true} />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <ActivityIndicatorView visible={syncing} showLoader />
       <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab
@@ -265,10 +266,10 @@ function UTXOManagement({ route, navigation }) {
         <HStack marginBottom={10}>
           <Box paddingX={3}>{routeName === 'Vault' ? <VaultIcon /> : <LinkedWallet />}</Box>
           <VStack>
-            <Text color="light.greenText" style={[styles.vaultInfoText, { fontSize: 16 }]}>
+            <Text color={`${colorMode}.greenText`} style={[styles.vaultInfoText, { fontSize: 16 }]}>
               {wallet?.presentationData?.name}
             </Text>
-            <Text color="light.grayText" style={[styles.vaultInfoText, { fontSize: 12 }]}>
+            <Text color={`${colorMode}.black`} style={[styles.vaultInfoText, { fontSize: 12 }]}>
               {wallet?.presentationData?.description}
             </Text>
           </VStack>

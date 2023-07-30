@@ -66,7 +66,7 @@ function ScanQRFileRecovery({ route }) {
       <Box flex={1}>
         <HeaderTitle
           title="Recover Using Vault Configuration File"
-          subtitle="Recover Using Vault Configuration File"
+          subtitle="Recover the Vault from output descriptor or configuration"
           paddingLeft={wp(20)}
         />
         <Box style={styles.qrcontainer}>
