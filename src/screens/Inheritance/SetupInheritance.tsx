@@ -1,6 +1,7 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 // components and functions
@@ -26,6 +27,7 @@ import { TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
 
 function SetupInheritance() {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
@@ -71,15 +73,15 @@ function SetupInheritance() {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text color="light.white" numberOfLines={2} style={styles.modalTitle}>
+            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
-            <Text color="light.white" numberOfLines={2} style={styles.modalSubtitle}>
+            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalSubtitle}>
               {subTitle}
             </Text>
           </Box>
         </Box>
-        <Text color="light.white" style={styles.modalDesc}>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
           {description}
         </Text>
       </Box>
@@ -117,7 +119,7 @@ function SetupInheritance() {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.header}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
@@ -129,11 +131,11 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color="light.textWallet" style={styles.title} testID="text_InheritanceSupport">
+        <Text color={`${colorMode}.primaryText`} style={styles.title} testID="text_InheritanceSupport">
           Inheritance Support
         </Text>
         <Text
-          color="light.secondaryText"
+          color={`${colorMode}.textColor2`}
           style={styles.subtitle}
           testID="text_InheritanceSupportSubtitle"
         >
@@ -144,7 +146,7 @@ function SetupInheritance() {
 
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
-        <Text numberOfLines={2} light style={styles.message}>
+        <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
           {shouldActivateInheritance()
             ? `Manage Inheritance key or view documents`
             : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a Vault`}
@@ -152,11 +154,11 @@ function SetupInheritance() {
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
             <Box
-              borderColor="light.learnMoreBorder"
-              backgroundColor="light.lightAccent"
+              borderColor={`${colorMode}.learnMoreBorder`}
+              backgroundColor={`${colorMode}.lightAccent`}
               style={styles.upgradeNowContainer}
             >
-              <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
+              <Text color='light.learnMoreBorder' style={styles.upgradeNowText}>
                 {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
               </Text>
             </Box>
@@ -177,10 +179,10 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
+        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
-        buttonTextColor="light.greenText"
+        buttonTextColor={`${colorMode}.greenText`}
         buttonBackground={['#FFF', '#80A8A1']}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}

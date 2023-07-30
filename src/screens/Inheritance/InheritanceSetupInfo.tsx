@@ -2,7 +2,7 @@
 import React from 'react'
 import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Box, FlatList } from 'native-base';
+import { Box, FlatList, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -25,8 +25,9 @@ const renderItem = ({ item }) => (
 function InheritanceSetupInfo({ route }) {
     const { title, subTitle, infoData, icon } = route.params;
     const navigtaion = useNavigation();
+    const { colorMode } = useColorMode();
     return (
-        <ScreenWrapper>
+        <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
             <HeaderTitle
                 onPressHandler={() => navigtaion.goBack()}
             />

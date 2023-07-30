@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Pressable } from 'native-base';
+import { Box, useColorMode, Pressable } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import DownloadIcon from 'src/assets/images/download.svg';
@@ -8,14 +8,15 @@ import { hp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function InheritanceDownloadView(props) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.wrapper}>
       <Box style={styles.iconWrapper}>{props.icon}</Box>
       <Box style={styles.titleWrapper}>
-        <Text color="light.textWallet" style={styles.titleText}>
+        <Text color={`${colorMode}.textWallet`} style={styles.titleText}>
           {props.title}
         </Text>
-        <Text color="light.secondaryText" style={styles.subTitleText}>
+        <Text color={`${colorMode}.secondaryText`} style={styles.subTitleText}>
           {props.subTitle}
         </Text>
       </Box>

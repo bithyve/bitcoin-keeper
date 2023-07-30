@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
@@ -42,6 +42,7 @@ const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
+  const { colorMode } = useColorMode();
   const { relogin, title, screen } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
@@ -282,10 +283,10 @@ function LoginScreen({ navigation, route }) {
         <Box style={styles.modalAssetsWrapper}>
           {modelAsset}
         </Box>
-        <Text color="light.greenText" style={styles.modalMessageText}>
+        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
           {modelMessage}
         </Text>
-        {modelButtonText === null ? <Text color="light.greenText" style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
+        {modelButtonText === null ? <Text color={`${colorMode}.greenText`} style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
           This step will take a few seconds. You would be able to proceed soon
         </Text> : null}
       </Box>
@@ -364,7 +365,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.linearGradient} backgroundColor='light.pantoneGreen'>
+    <Box style={styles.linearGradient} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -405,7 +406,7 @@ function LoginScreen({ navigation, route }) {
             </Box>
             <Box>
               {loginError && (
-                <Text style={styles.errorMessage} color="light.error">
+                <Text style={styles.errorMessage} color={`${colorMode}.error`}>
                   {errMessage}
                 </Text>
               )}
@@ -503,7 +504,9 @@ function LoginScreen({ navigation, route }) {
         close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
-        subTitleColor="light.secondaryText"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}

@@ -1,26 +1,27 @@
 import { StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import Text from 'src/components/KeeperText';
 import { hp } from 'src/common/data/responsiveness/responsive';
 
 function MenuItemButton(props) {
+    const { colorMode } = useColorMode();
     return (
         <TouchableOpacity
             activeOpacity={0.5}
             style={styles.addAmountContainer}
             onPress={props.onPress}
         >
-            <Box style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]} backgroundColor="light.primaryBackground">
+            <Box style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Box style={styles.iconWrapper}>
                     {props.icon}
                 </Box>
                 <Box style={styles.titleWrapper}>
-                    <Text color="light.primaryText" style={styles.addAmountText}>
+                    <Text color={`${colorMode}.primaryText`} style={styles.addAmountText}>
                         {props.title}
                     </Text>
-                    <Text color="light.GreyText" style={styles.addAmountSubTitleText}>
+                    <Text color={`${colorMode}.GreyText`} style={styles.addAmountSubTitleText}>
                         {props.subTitle}
                     </Text>
                 </Box>

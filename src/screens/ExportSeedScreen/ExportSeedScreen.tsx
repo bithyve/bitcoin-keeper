@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Pressable, VStack } from 'native-base';
+import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -22,6 +22,7 @@ import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function ExportSeedScreen({ route, navigation }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -60,15 +61,15 @@ function ExportSeedScreen({ route, navigation }) {
         }}
       >
         <Box
-          backgroundColor="light.primaryBackground"
+          backgroundColor={`${colorMode}.seashellWhite`}
           opacity={showWordIndex === index ? 1 : 0.5}
           style={styles.seedCardWrapper}
         >
-          <Text style={styles.seedTextStyle} color="light.greenText2">
+          <Text style={styles.seedTextStyle} color={`${colorMode}.greenText2`}>
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text style={styles.seedTextStyle01} backgroundColor="green.700" color="light.GreyText">
+          <Text style={styles.seedTextStyle01} color={`${colorMode}.GreyText`}>
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -81,7 +82,7 @@ function ExportSeedScreen({ route, navigation }) {
   );
 
   return (
-    <Box style={styles.container} background="light.mainBackground">
+    <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
       <HeaderTitle
         title={seedText.recoveryPhrase}
@@ -112,7 +113,7 @@ function ExportSeedScreen({ route, navigation }) {
                 <QR />
                 <VStack marginX="4" maxWidth="64">
                   <Text
-                    color="light.primaryText"
+                    color={`${colorMode}.primaryText`}
                     numberOfLines={2}
                     style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
                   >
