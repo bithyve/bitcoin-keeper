@@ -141,7 +141,7 @@ function NewHomeScreen({ navigation }) {
               IconActive={route.name === 'Vault' ? VaultActiveIcon : WalletActiveIcon}
               onPress={onPress}
               active={isFocused}
-              backgroundColorActive={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
+              backgroundColorActive={route.name === 'Vault' ? "#e3be96" : "#89AEA7"}
               backgroundColor="transparent"
               textColorActive="#F7F2EC"
               textColor={route.name === 'Vault' ? "#e3be96" : "#89AEA7"}
