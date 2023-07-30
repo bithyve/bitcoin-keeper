@@ -42,9 +42,9 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const allowedSignerLength = [1, 3, 5];
 
@@ -327,19 +327,20 @@ function VaultRecovery({ navigation }) {
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),
+                height: '66%'
               }}
             />
-            {inheritanceRequestId && (
-              <AddSigningDevice
-                icon={<InheritanceIcon />}
-                arrowIcon={<TimeIcon />}
-                onPress={() => {
-                  checkInheritanceKeyRequest(signingDevices, inheritanceRequestId);
-                }}
-                title="Inheritance Key Request Sent"
-                subTitle="3 weeks remaning"
-              />
-            )}
+            {/* {inheritanceRequestId && ( */}
+            <AddSigningDevice
+              icon={<InheritanceIcon />}
+              arrowIcon={<TimeIcon />}
+              onPress={() => {
+                checkInheritanceKeyRequest(signingDevices, inheritanceRequestId);
+              }}
+              title="Inheritance Key Request Sent"
+              subTitle="3 weeks remaning"
+            />
+            {/* )} */}
             <AddSigningDevice
               icon={<AddIcon />}
               arrowIcon={<IconArrowBlack />}
@@ -394,14 +395,14 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => {}}
+        close={() => { }}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
           navigation.replace('App');
         }}
       />
-      <ActivityIndicatorView visible={configRecoveryLoading} showLoader={true} />
+      <ActivityIndicatorView visible={configRecoveryLoading} showLoader />
     </ScreenWrapper>
   );
 }
