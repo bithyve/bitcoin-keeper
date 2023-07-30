@@ -73,7 +73,7 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
     }
   };
   return (
-    <Box backgroundColor={`${colorMode}.primaryBackground`} width={wp(275)} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(275)} borderRadius={10}>
       <Box justifyContent="center" alignItems="center">
         <Box
           marginX="5%"
