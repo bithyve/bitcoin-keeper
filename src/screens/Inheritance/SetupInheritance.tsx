@@ -46,21 +46,21 @@ function SetupInheritance() {
       title: 'Setup Inheritance Key',
       subTitle: 'Keeper will have one of your Keys',
       description:
-        'This would transform your 3-of-5 vault to a 3-of-6 with Keeper custodying one key.',
+        'This would transform your 3-of-5 Vault to a 3-of-6 with Keeper custodying one key.',
       Icon: LetterIKS,
     },
     {
       title: 'Letter to the Attorney',
       subTitle: 'For the estate management company',
       description:
-        'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
+        'A partly pre-filled pdf template uniquely identifying the Vault and ability to add the beneficiary details',
       Icon: Letter,
     },
     {
       title: 'Recovery Instructions',
       subTitle: 'For the heir or beneficiary',
       description:
-        'A document that will help the beneficiary recover the vault with or without the Keeper app',
+        'A document that will help the beneficiary recover the Vault with or without the Keeper app',
       Icon: Recovery,
     },
   ];
@@ -147,7 +147,7 @@ function SetupInheritance() {
         <Text numberOfLines={2} light style={styles.message}>
           {shouldActivateInheritance()
             ? `Manage Inheritance key or view documents`
-            : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a vault`}
+            : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a Vault`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
