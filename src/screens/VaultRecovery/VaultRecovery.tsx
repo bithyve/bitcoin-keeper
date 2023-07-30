@@ -330,17 +330,17 @@ function VaultRecovery({ navigation }) {
                 height: '66%'
               }}
             />
-            {/* {inheritanceRequestId && ( */}
-            <AddSigningDevice
-              icon={<InheritanceIcon />}
-              arrowIcon={<TimeIcon />}
-              onPress={() => {
-                checkInheritanceKeyRequest(signingDevices, inheritanceRequestId);
-              }}
-              title="Inheritance Key Request Sent"
-              subTitle="3 weeks remaning"
-            />
-            {/* )} */}
+            {inheritanceRequestId && (
+              <AddSigningDevice
+                icon={<InheritanceIcon />}
+                arrowIcon={<TimeIcon />}
+                onPress={() => {
+                  checkInheritanceKeyRequest(signingDevices, inheritanceRequestId);
+                }}
+                title="Inheritance Key Request Sent"
+                subTitle="3 weeks remaning"
+              />
+            )}
             <AddSigningDevice
               icon={<AddIcon />}
               arrowIcon={<IconArrowBlack />}
