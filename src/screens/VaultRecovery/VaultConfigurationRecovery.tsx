@@ -24,7 +24,7 @@ function VaultConfigurationRecovery() {
       >
         <View style={styles.wrapper}>
           <HeaderTitle
-            title="Reocvery through Vault configuration"
+            title="Recovery through Vault configuration"
             subtitle="Recover the Vault from output descriptor or configuration"
             headerTitleColor="light.textBlack"
             paddingTop={hp(5)}
