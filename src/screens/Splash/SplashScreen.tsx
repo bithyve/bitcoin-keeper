@@ -1,18 +1,25 @@
 import { ImageBackground, StatusBar } from 'react-native';
 import React, { useEffect } from 'react';
+import Video from 'react-native-video';
+import { useColorMode } from 'native-base';
+
 import SplashBackground from 'src/assets/images/SplashBackground.png';
 import RestClient from 'src/core/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
-import Video from 'react-native-video';
-import config from 'src/core/config';
 import * as SecureStore from '../../storage/secure-store';
 
 function SplashScreen({ navigation }) {
-  const { torEnbled } = useAppSelector((state) => state.settings);
+  const { torEnbled, themeMode } = useAppSelector((state) => state.settings);
+  const { toggleColorMode, colorMode } = useColorMode()
 
   useEffect(() => {
+    if (colorMode !== themeMode.toLocaleLowerCase()) {
+      toggleColorMode()
+    }
+
     RestClient.setUseTor(torEnbled);
   }, []);
+
 
   const navigateToApp = async () => {
     const hasCreds = await SecureStore.hasPin();

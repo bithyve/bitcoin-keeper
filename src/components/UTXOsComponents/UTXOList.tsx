@@ -18,6 +18,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
+import CurrencyInfo from 'src/screens/NewHomeScreen/components/CurrencyInfo';
 
 function Label({
   name,
@@ -185,13 +186,13 @@ function UTXOElement({
               <UnconfirmedIcon />
             </Box>
           )}
-          <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
-          <Text style={styles.amountText} numberOfLines={1}>
-            {getBalance(item.value)}
-            <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getSatUnit()}
-            </Text>
-          </Text>
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={item.value}
+            fontSize={17}
+            color={`${colorMode}.GreyText`}
+            variation={colorMode === 'light' ? "dark" : "light"}
+          />
         </Box>
       </Box>
     </TouchableOpacity>

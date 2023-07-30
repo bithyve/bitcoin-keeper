@@ -1,7 +1,7 @@
 /* eslint-disable prefer-destructuring */
 import { ActivityIndicator, Platform, ScrollView, Alert, Linking, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, Pressable } from 'native-base';
+import { Box, useColorMode, Pressable } from 'native-base';
 import RNIap, {
   getSubscriptions,
   purchaseErrorListener,
@@ -32,11 +32,11 @@ import { uaiChecks } from 'src/store/sagaActions/uai';
 import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
-import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 
 function ChoosePlan(props) {
+  const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
   const { choosePlan } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
@@ -292,10 +292,11 @@ function ChoosePlan(props) {
   }
 
   function LoginModalContent() {
+    const { colorMode } = useColorMode();
     return (
       <Box>
         <LoadingAnimation />
-        <Text color="light.greenText" fontSize={13}>
+        <Text color={`${colorMode}.greenText`} fontSize={13}>
           {choosePlan.youCanChange}
         </Text>
       </Box>
@@ -303,7 +304,7 @@ function ChoosePlan(props) {
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content">
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box justifyContent='space-between' flexDirection="row">
         <HeaderTitle
           title={choosePlan.choosePlantitle}
@@ -312,7 +313,7 @@ function ChoosePlan(props) {
               ? `You are currently a ${subscription.name}`
               : `You are currently a ${subscription.name}`
           }
-          headerTitleColor="light.primaryText"
+          headerTitleColor={`${colorMode}.primaryText`}
         />
         <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
       </Box>
@@ -322,7 +323,8 @@ function ChoosePlan(props) {
         close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
-        subTitleColor="light.secondaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         showCloseIcon={false}
         buttonText={null}
         buttonCallback={() => { }}
@@ -352,18 +354,18 @@ function ChoosePlan(props) {
             requesting={requesting}
           />
 
-          <Box opacity={0.1} backgroundColor="light.Border" width="100%" height={0.5} my={5} />
+          <Box opacity={0.1} backgroundColor={`${colorMode}.Border`} width="100%" height={0.5} my={5} />
 
           <Box ml={5}>
             <Box>
-              <Text fontSize={14} color="light.primaryText" letterSpacing={1.12}>
+              <Text fontSize={14} color={`${colorMode}.primaryText`} letterSpacing={1.12}>
                 {getBenifitsTitle(items[currentPosition].name)}:
               </Text>
             </Box>
             <Box mt={1}>
               {items[currentPosition].benifits.map((i) => (
                 <Box flexDirection="row" alignItems="center" key={i}>
-                  <Text fontSize={13} color="light.GreyText" mb={2} ml={3} letterSpacing={0.65}>
+                  <Text fontSize={13} color={`${colorMode}.GreyText`} mb={2} ml={3} letterSpacing={0.65}>
                     {`• ${i}`}
                   </Text>
                 </Box>
@@ -384,8 +386,8 @@ function ChoosePlan(props) {
         </Box>
         <Pressable width="35%" activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
           <Box
-            borderColor="light.learnMoreBorder"
-            backgroundColor="light.lightAccent"
+            borderColor={`${colorMode}.learnMoreBorder`}
+            backgroundColor={`${colorMode}.lightAccent`}
             style={styles.restorePurchaseWrapper}
           >
             <Text fontSize={12} color="light.learnMoreBorder">

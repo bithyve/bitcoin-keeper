@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
@@ -40,6 +40,7 @@ function HeaderTitle({
   learnBackgroundColor = 'light.lightAccent',
   learnTextColor = 'light.learnMoreBorder'
 }: Props) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
@@ -51,7 +52,7 @@ function HeaderTitle({
           ]}
         >
           <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.backButton}>
-            {backBtnBlackColor ? <BackBlackButton /> : <BackWhiteButton />}
+            {colorMode === 'light' && backBtnBlackColor ? <BackBlackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
@@ -90,7 +91,7 @@ function HeaderTitle({
           {subtitle && (
             <Text
               style={[styles.addWalletDescription, { paddingHorizontal: textPadding }]}
-              color="light.primaryText"
+              color={`${colorMode}.black`}
             >
               {subtitle}
             </Text>

@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, View, ScrollView } from 'native-base';
+import { Box, View, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import {
   Platform,
@@ -26,6 +26,7 @@ import Illustration from 'src/assets/images/illustration.svg';
 import { getPlaceholder } from 'src/common/utilities';
 
 function InputSeedWordSigner({ route }: { route: any }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
@@ -125,7 +126,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
     return (
       <View>
         <Illustration />
-        <Text color="light.greenText" fontSize={13}>
+        <Text color={`${colorMode}.greenText`} fontSize={13}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -138,7 +139,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
         <Box alignSelf="center">
           <InvalidSeeds />
         </Box>
-        <Text color="light.greenText" fontSize={13} padding={2}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
           ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
           ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
@@ -206,8 +207,8 @@ function InputSeedWordSigner({ route }: { route: any }) {
                       styles.input,
                       item.invalid
                         ? {
-                            borderColor: '#F58E6F',
-                          }
+                          borderColor: '#F58E6F',
+                        }
                         : { borderColor: '#FDF7F0' },
                     ]}
                     placeholder={`enter ${getPlaceholder(index)} word`}
@@ -234,7 +235,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
               )}
             />
           </View>
-          <Text color="light.GreyText" marginX={10} marginY={10} fontSize={12}>
+          <Text color={`${colorMode}.GreyText`} marginX={10} marginY={10} fontSize={12}>
             {seed.seedDescription}
           </Text>
           <View
@@ -264,7 +265,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
                 <LinearGradient
                   start={[0, 0]}
                   end={[1, 1]}
-                  colors={['light.gradientStart', 'light.gradientEnd']}
+                  colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
                   style={styles.cta}
                 >
                   <Text fontSize={13} bold letterSpacing={1} color="white">
@@ -279,9 +280,9 @@ function InputSeedWordSigner({ route }: { route: any }) {
               title={seed.InvalidSeeds}
               subTitle={seed.seedDescription}
               buttonText="Retry"
-              buttonTextColor="light.white"
+              buttonTextColor={`${colorMode}.white`}
               buttonCallback={closeInvalidSeedsModal}
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={InValidSeedsScreen}
             />
             <KeeperModal
@@ -290,9 +291,9 @@ function InputSeedWordSigner({ route }: { route: any }) {
               title={seed.walletRecoverySuccessful}
               subTitle={seed.seedDescription}
               buttonText="View Wallet"
-              buttonTextColor="light.white"
+              buttonTextColor={`${colorMode}.white`}
               buttonCallback={closeWalletSuccessModal}
-              textColor="light.primaryText"
+              textColor={`${colorMode}.primaryText`}
               Content={RecoverWalletScreen}
             />
           </View>

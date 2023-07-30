@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable no-unused-vars */
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -18,6 +18,7 @@ function InheritanceSupportView({
     title = '',
     subtitle = '',
 }: Props) {
+    const { colorMode } = useColorMode();
     function GradientIcon({ height, Icon }) {
         return (
             <LinearGradient
@@ -38,10 +39,10 @@ function InheritanceSupportView({
     return (
         <Box style={styles.topContainer}>
             <GradientIcon Icon={Inheritance} height={50} />
-            <Text color="light.textWallet" style={styles.title}>
+            <Text color={`${colorMode}.primaryText`} style={styles.title}>
                 {title}
             </Text>
-            <Text color="light.secondaryText" style={styles.subtitle}>
+            <Text color={`${colorMode}.textColor2`} style={styles.subtitle}>
                 {subtitle}
             </Text>
         </Box>

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { FlatList, Box } from 'native-base';
+import { FlatList, Box, useColorMode } from 'native-base';
 import moment from 'moment';
 
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
@@ -9,6 +9,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import DotView from '../DotView';
 
 function VersionHistoryList() {
+  const { colorMode } = useColorMode();
   const { useQuery } = useContext(RealmWrapperContext);
   const VersionHistoryData = useQuery(RealmSchema.VersionHistory).map(getJSONFromRealmObject);
 
@@ -23,7 +24,7 @@ function VersionHistoryList() {
             position="absolute"
             left={-3}
             top={0}
-            backgroundColor="light.secondaryBackground"
+            backgroundColor={`${colorMode}.secondaryBackground`}
             padding={1}
             borderRadius={15}
           >
@@ -31,7 +32,7 @@ function VersionHistoryList() {
           </Box>
           <Box borderLeftColor="light.lightAccent" borderLeftWidth={1} width="100%">
             <Text
-              color="light.GreyText"
+              color={`${colorMode}.GreyText`}
               fontSize={10}
               bold
               ml={5}
@@ -42,19 +43,19 @@ function VersionHistoryList() {
               {moment(item.date).format('ddd DD MMM YYYY hh:mma')}
             </Text>
             <Box
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.seashellWhite`}
               padding={5}
               borderRadius={10}
               my={2}
               ml={5}
             >
-              <Text color="light.headerText" letterSpacing={1} fontSize={14}>
+              <Text color={`${colorMode}.headerText`} letterSpacing={1} fontSize={14}>
                 {item.title}
               </Text>
-              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
+              <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>
                 {item.version}
               </Text>
-              <Text color="light.GreyText" letterSpacing={1} fontSize={12}>
+              <Text color={`${colorMode}.GreyText`} letterSpacing={1} fontSize={12}>
                 {item.releaseNote}
               </Text>
             </Box>

@@ -1,5 +1,5 @@
 import { Platform, StyleSheet, TextInput } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
@@ -36,6 +36,7 @@ import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
 function SetupTapsigner({ route }) {
+  const { colorMode } = useColorMode();
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
@@ -157,7 +158,7 @@ function SetupTapsigner({ route }) {
   }, [cvc]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1}>
         <HeaderTitle
           title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
@@ -167,14 +168,15 @@ function SetupTapsigner({ route }) {
         />
         <MockWrapper signerType={SignerType.TAPSIGNER}>
           <ScrollView>
-            <TextInput
-              style={styles.input}
-              value={cvc}
-              onChangeText={setCvc}
-              secureTextEntry
-              showSoftInputOnFocus={false}
-            />
-            <Text style={styles.heading} color="light.greenText">
+            <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+              <TextInput
+                value={cvc}
+                onChangeText={setCvc}
+                secureTextEntry
+                showSoftInputOnFocus={false}
+              />
+            </Box>
+            <Text style={styles.heading} color={`${colorMode}.greenText`}>
               You will be scanning the TAPSIGNER after this step
             </Text>
             <Box style={styles.btnContainer}>
@@ -212,8 +214,8 @@ const styles = StyleSheet.create({
     width: wp(305),
     height: 50,
     borderRadius: 10,
-    backgroundColor: '#f0e7dd',
     letterSpacing: 5,
+    justifyContent: 'center'
   },
   inputContainer: {
     alignItems: 'flex-end',

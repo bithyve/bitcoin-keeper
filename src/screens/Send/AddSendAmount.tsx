@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Input, KeyboardAvoidingView, Pressable, VStack } from 'native-base';
+import { Box, HStack, Input, KeyboardAvoidingView, Pressable, useColorMode, VStack } from 'native-base';
 import { Platform, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
@@ -37,6 +37,7 @@ import WalletSendInfo from './WalletSendInfo';
 import LabelItem from '../UTXOManagement/components/LabelItem';
 
 function AddSendAmount({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {

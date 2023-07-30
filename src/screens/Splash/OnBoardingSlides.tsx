@@ -9,9 +9,7 @@ import {
   BackHandler,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
-
-import LinearGradient from 'src/components/KeeperGradient';
+import { Box, useColorMode } from 'native-base';
 
 import openLink from 'src/utils/OpenLink';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -27,6 +25,7 @@ import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideC
 const { width } = Dimensions.get('window');
 
 function OnBoardingSlides({ navigation }) {
+  const { colorMode } = useColorMode();
   const onboardingSlideRef = useRef(null);
   const { translations } = useContext(LocalizationContext);
   const { onboarding } = translations;
@@ -92,7 +91,7 @@ function OnBoardingSlides({ navigation }) {
                 onPress={() => navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })}
                 style={styles.skipTextWrapper}
               >
-                <Text color="light.white" bold style={styles.skipText}>
+                <Text color={`${colorMode}.white`} bold style={styles.skipText}>
                   Skip&nbsp;&nbsp;
                 </Text>
                 <Skip />

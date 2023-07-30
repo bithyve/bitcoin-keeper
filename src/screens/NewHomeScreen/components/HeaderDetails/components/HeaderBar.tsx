@@ -1,12 +1,16 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
-import IconSettings from 'src/assets/images/new_icon_settings.svg';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
+
+import IconSettings from 'src/assets/images/new_icon_settings.svg';
+import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import TorStatusTag from 'src/components/TorStatus';
 
 function HeaderBar() {
+  const { colorMode } = useColorMode();
+
   const navigation = useNavigation();
   return (
     <Box style={styles.wrapper}>
@@ -16,7 +20,7 @@ function HeaderBar() {
         onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
         testID="btn_AppSettingsIcon"
       >
-        <IconSettings />
+        {colorMode === 'light' ? <IconSettings /> : <IconDarkSettings />}
       </TouchableOpacity>
     </Box>
   );

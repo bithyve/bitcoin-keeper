@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect } from 'react';
 
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -42,6 +42,7 @@ import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
 function ConnectChannel() {
+  const { colorMode } = useColorMode();
   const route = useRoute();
   const { title = '', subtitle = '', type: signerType, signer } = route.params as any;
   const channel = io(config.CHANNEL_URL);
@@ -213,7 +214,7 @@ function ConnectChannel() {
   }, [channel]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={signerType}>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(25)} />

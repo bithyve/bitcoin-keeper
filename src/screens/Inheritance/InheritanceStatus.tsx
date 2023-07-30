@@ -5,7 +5,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { setIKPDFPaths, setInheritance, setKeySecurityTipsPath, setLetterToAttornyPath, setRecoveryInstructionPath } from 'src/store/reducers/settings';
+import { setInheritance, setKeySecurityTipsPath, setLetterToAttornyPath, setRecoveryInstructionPath } from 'src/store/reducers/settings';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg';

@@ -13,7 +13,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { Box, Pressable } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
 import { isTestnet } from 'src/common/constants/Bitcoin';
@@ -25,10 +25,11 @@ import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       onPress={onPress}
-      backgroundColor="light.primaryBackground"
+      backgroundColor={`${colorMode}.seashellWhite`}
       flexDirection="row"
       alignItems="center"
       width="100%"
@@ -38,7 +39,6 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
       <Box
-        backgroundColor="light.primaryBackground"
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
@@ -67,6 +67,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 }
 
 function NewKeeperApp({ navigation }: { navigation }) {
+  const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
@@ -157,7 +158,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content">
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
           <HeaderTitle

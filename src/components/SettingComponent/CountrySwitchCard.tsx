@@ -14,10 +14,10 @@ function CountrySwitchCard(props) {
       {...props}
     >
       <Box flex={1.5}>
-        <Text color="light.greenText2" letterSpacing={1.12} fontSize={14}>
+        <Text color={`${colorMode}.greenText2`} letterSpacing={1.12} fontSize={14}>
           {props.title}
         </Text>
-        <Text color="light.GreyText" letterSpacing={0.6} fontSize={12}>
+        <Text color={`${colorMode}.GreyText`} letterSpacing={0.6} fontSize={12}>
           {props.description}
         </Text>
       </Box>

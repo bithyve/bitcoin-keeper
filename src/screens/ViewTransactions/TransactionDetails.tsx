@@ -2,7 +2,7 @@
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
 import { TouchableOpacity, View } from 'react-native';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -28,6 +28,7 @@ import useTransactionLabels from 'src/hooks/useTransactionLabels';
 import LabelItem from '../UTXOManagement/components/LabelItem';
 
 function TransactionDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { getSatUnit, getBalance } = useBalance();
   const { translations } = useContext(LocalizationContext);
@@ -48,13 +49,13 @@ function TransactionDetails({ route }) {
   }) {
     return (
       <Box
-        backgroundColor="light.mainBackground"
+        backgroundColor={`${colorMode}.seashellWhite`}
         width={wp(width)}
         style={styles.infoCardContainer}
       >
         <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
           <Box width={showIcon ? '90%' : '100%'}>
-            <Text color="light.headerText" style={styles.titleText}>
+            <Text color={`${colorMode}.headerText`} style={styles.titleText}>
               {title}
             </Text>
             {Content ? (
@@ -63,7 +64,7 @@ function TransactionDetails({ route }) {
               <Text
                 style={styles.descText}
                 letterSpacing={letterSpacing}
-                color="light.GreyText"
+                color={`${colorMode}.GreyText`}
                 width={showIcon ? '60%' : '90%'}
                 numberOfLines={numberOfLines}
               >
@@ -83,7 +84,7 @@ function TransactionDetails({ route }) {
     );
   };
   return (
-    <Box style={styles.Container}>
+    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box width={wp(250)}>
         <HeaderTitle
@@ -97,10 +98,10 @@ function TransactionDetails({ route }) {
           <Box flexDirection="row">
             {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
             <Box style={styles.transView}>
-              <Text color="light.headerText" numberOfLines={1} style={styles.transIDText}>
+              <Text color={`${colorMode}.headerText`} numberOfLines={1} style={styles.transIDText}>
                 {transaction.txid}
               </Text>
-              <Text style={styles.transDateText} color="light.dateText">
+              <Text style={styles.transDateText} color={`${colorMode}.dateText`}>
                 {moment(transaction?.date).format('DD MMM YY  •  hh:mm A')}
               </Text>
             </Box>
@@ -112,9 +113,9 @@ function TransactionDetails({ route }) {
                 {getSatUnit()}
               </Text>
             </Text>
-          </Box>
-        </Box>
-      </Box>
+          </Box >
+        </Box >
+      </Box >
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
           {txnLabels.length ? (
@@ -180,7 +181,7 @@ function TransactionDetails({ route }) {
           ) : null}
         </Box>
       </ScrollView>
-    </Box>
+    </Box >
   );
 }
 
@@ -188,7 +189,6 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.secondaryBackground',
   },
   transViewWrapper: {
     flexDirection: 'row',
