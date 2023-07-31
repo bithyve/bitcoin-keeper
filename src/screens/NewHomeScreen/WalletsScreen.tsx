@@ -485,6 +485,7 @@ const WalletsScreen = ({ navigation }) => {
         close={() => setAddImportVisible(false)}
         title="Add or Import Wallet"
         subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => <AddImportWallet />}
