@@ -107,7 +107,7 @@ export const customTheme = extendTheme({
       mainBackground: Colors.LightWhite,
       modalGreenBackground: Colors.LightYellowDark,
       modalGreenContent: Colors.White,
-      modalWhiteBackground: Colors.SeashellDark,
+      modalWhiteBackground: Colors.LightYellowDark,
       white: Colors.Black,
       primaryText: Colors.RichBlackDark,
       secondaryText: Colors.GraniteGrayDark,
