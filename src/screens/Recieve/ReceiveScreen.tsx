@@ -99,8 +99,8 @@ function ReceiveScreen({ route }: { route }) {
           <AppNumPad
             setValue={setAmount}
             clear={() => setAmount('')}
-            color="light.greenText"
-            darkDeleteIcon
+            color={colorMode === 'light' ? "#041513" : "#FFF"}
+            darkDeleteIcon={colorMode === 'light'}
           />
         </View>
       </View>
