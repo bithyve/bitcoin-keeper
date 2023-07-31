@@ -32,6 +32,7 @@ type Props = {
 };
 
 function DescritporsModalContent({ descriptorString }) {
+  const { colorMode } = useColorMode();
   const onShare = async () => {
     try {
       await Share.share({
@@ -49,12 +50,12 @@ function DescritporsModalContent({ descriptorString }) {
           await onShare();
         }}
       >
-        <Box style={styles.inputWrapper} backgroundColor="light.primaryBackground">
+        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text noOfLines={4}>{descriptorString}</Text>
         </Box>
       </TouchableOpacity>
       <Box style={styles.modalNoteWrapper}>
-        <Note subtitle="Save the file with .bsms extension to import it in other cordinating apps" />
+        <Note subtitle="Save the file with .bsms extension to import it in other cordinating apps" subtitleColor="GreyText" />
       </Box>
       <TouchableOpacity
         onPress={async () => {
@@ -65,7 +66,7 @@ function DescritporsModalContent({ descriptorString }) {
         <Box>
           <IconShare />
         </Box>
-        <Text color="light.primaryText" style={styles.shareText}>
+        <Text color={`${colorMode}.primaryText`} style={styles.shareText}>
           Share
         </Text>
       </TouchableOpacity>
@@ -210,6 +211,9 @@ function VaultSettings({ route }) {
       <KeeperModal
         close={() => setGenratorModalVisible(false)}
         visible={genratorModalVisible}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         title="Generate Vault Descriptor"
         Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
         subTitle="A descriptor contains sensitive information. Please use with caution"
