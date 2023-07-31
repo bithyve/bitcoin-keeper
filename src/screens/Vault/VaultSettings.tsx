@@ -6,7 +6,6 @@ import { Share } from 'react-native';
 // components and functions
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import InfoBox from 'src/components/InfoBox';
 import { wp, hp, windowWidth } from 'src/common/data/responsiveness/responsive';
 // icons
 import IconShare from 'src/assets/images/icon_share.svg';
@@ -214,6 +213,7 @@ function VaultSettings({ route }) {
         modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         title="Generate Vault Descriptor"
         Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
         subTitle="A descriptor contains sensitive information. Please use with caution"
