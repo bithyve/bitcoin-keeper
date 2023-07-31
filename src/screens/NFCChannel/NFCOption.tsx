@@ -86,7 +86,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
     <>
       <OptionCTA
         icon={<NFCIcon />}
-        title="or Setup via NFC"
+        title="or scan via NFC"
         subtitle="Bring device close to use NFC"
         callback={readFromNFC}
       />

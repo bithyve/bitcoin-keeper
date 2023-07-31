@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, Vibration } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useContext, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -14,72 +14,15 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Note from 'src/components/Note/Note';
-import OptionCTA from 'src/components/OptionCTA';
-import NFCIcon from 'src/assets/images/nfc.svg';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
-import NfcPrompt from 'src/components/NfcPromptAndroid';
-import NFC from 'src/core/services/nfc';
-import { HCESessionContext, HCESession } from 'react-native-hce';
-import { NfcTech } from 'react-native-nfc-manager';
-import { captureError } from 'src/core/services/sentry';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 function CosignerDetails() {
   const { params } = useRoute();
   const { wallet } = params as { wallet: Wallet };
   const { showToast } = useToastMessage();
   const [details, setDetails] = React.useState('');
-  const [visible, setVisible] = React.useState(false);
-  const { session } = useContext(HCESessionContext);
   const navgation = useNavigation();
-  const isAndroid = Platform.OS === 'android';
-  const isIos = Platform.OS === 'ios';
-
-  const cleanUp = () => {
-    setVisible(false);
-    Vibration.cancel();
-    if (isAndroid) {
-      NFC.stopTagSession(session);
-    }
-  };
-
-  useEffect(() => {
-    const unsubConnect = session.on(HCESession.Events.HCE_STATE_ENABLED, () => {
-      setVisible(true);
-    });
-    const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
-      cleanUp();
-    });
-    const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {
-      showToast('Cosiigner details shared successfully', <TickIcon />);
-    });
-    return () => {
-      cleanUp();
-      unsubRead();
-      unsubConnect();
-      unsubDisconnect();
-    };
-  }, [session]);
-
-  const shareWithNFC = async () => {
-    try {
-      if (isIos) {
-        Vibration.vibrate([700, 50, 100, 50], true);
-        const enc = NFC.encodeTextRecord(details);
-        await NFC.send([NfcTech.Ndef], enc);
-        Vibration.cancel();
-      } else {
-        await NFC.startTagSession({ session, content: details });
-        Vibration.vibrate([700, 50, 100, 50], true);
-      }
-    } catch (err) {
-      Vibration.cancel();
-      if (err.toString() === 'Error: Not even registered') {
-        console.log('NFC interaction cancelled.');
-        return;
-      }
-      captureError(err);
-    }
-  };
 
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -109,18 +52,12 @@ function CosignerDetails() {
       <Box style={styles.bottom}>
         {details ? (
           <Box style={{ paddingBottom: '10%' }}>
-            <OptionCTA
-              icon={<NFCIcon />}
-              title={`or share on Tap${isIos ? ' to Anroid' : ''}`}
-              subtitle="Bring device close to use NFC"
-              callback={shareWithNFC}
-            />
+            <ShareWithNfc data={details} />
           </Box>
         ) : null}
         <Note title="Note" subtitle="The cosigner details are for the selected wallet only" />
         <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
       </Box>
-      <NfcPrompt visible={visible} close={cleanUp} />
     </ScreenWrapper>
   );
 }
