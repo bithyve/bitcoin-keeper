@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
-import { Box, FlatList } from 'native-base';
+import { Box, FlatList, useColorMode } from 'native-base';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -82,6 +82,7 @@ function WalletItem({
   hideAmounts: boolean;
   setAddImportVisible: any;
 }) {
+  const { colorMode } = useColorMode();
   if (!item) {
     return null;
   }
@@ -90,7 +91,8 @@ function WalletItem({
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
   return (
-    <View
+    <Box
+      backgroundColor={`${colorMode}.pantoneGreen`}
       style={[styles.walletContainer, { width: !(item?.presentationData && item?.specs) ? 120 : TILE_WIDTH, opacity, justifyContent: 'flex-end' }]}
     >
       <TouchableOpacity
@@ -114,7 +116,7 @@ function WalletItem({
           />
         )}
       </TouchableOpacity>
-    </View>
+    </Box>
   );
 }
 
@@ -159,6 +161,7 @@ function WalletList({
 }
 
 function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts }) {
+  const { colorMode } = useColorMode();
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   return (
@@ -180,7 +183,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           )}
 
           <Box style={styles.walletDetailsWrapper}>
-            <Text color="light.white" style={styles.walletName}>
+            <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
           </Box>
@@ -191,8 +194,8 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           hideAmounts={hideAmounts}
           amount={balances?.confirmed + balances?.unconfirmed}
           fontSize={satsEnabled ? 17 : 20}
-          color={Colors.White}
-          variation="light"
+          color={`${colorMode}.white`}
+          variation={colorMode === 'light' ? "light" : "dark"}
         />
       </Box>
     </Box>
@@ -201,6 +204,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
 
 const WalletsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
+  const { colorMode } = useColorMode();
   const { wallets } = useWallets();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
@@ -301,7 +305,7 @@ const WalletsScreen = ({ navigation }) => {
           height={80}
         />
         <Box>
-          <Text color="light.greenText" style={styles.addImportParaContent}>
+          <Text color={`${colorMode}.greenText`} style={styles.addImportParaContent}>
             Please ensure that Keeper is properly backed up to ensure your bitcoin's security
           </Text>
         </Box>
@@ -376,7 +380,7 @@ const WalletsScreen = ({ navigation }) => {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
-          <Text style={styles.titleText} color="light.primaryText" testID='text_HotWallet'>
+          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID='text_HotWallet'>
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
@@ -388,8 +392,8 @@ const WalletsScreen = ({ navigation }) => {
             hideAmounts={hideAmounts}
             amount={netBalance}
             fontSize={20}
-            color={Colors.black}
-            variation="dark"
+            color={`${colorMode}.primaryText`}
+            variation={colorMode === 'light' ? "dark" : "light"}
           />
         </Box>
       </Box>
@@ -409,7 +413,7 @@ const WalletsScreen = ({ navigation }) => {
               icon={<WhirlpoolWhiteIcon />}
               title="Whirlpool & UTXOs"
               subTitle="Manage wallet UTXOs and use Whirlpool"
-              iconBackColor="light.greenText2"
+              iconBackColor={`${colorMode}.pantoneGreen`}
               onPress={() => {
                 if (currentWallet)
                   navigation.navigate('UTXOManagement', {
@@ -440,8 +444,8 @@ const WalletsScreen = ({ navigation }) => {
         }}
         title="Edit Transfer Policy"
         subTitle="Threshold amount at which transfer is triggered"
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={() => (
           <TransferPolicy
             wallet={currentWallet}
@@ -481,8 +485,8 @@ const WalletsScreen = ({ navigation }) => {
         close={() => setAddImportVisible(false)}
         title="Add or Import Wallet"
         subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
-        subTitleColor="light.secondaryText"
-        textColor="light.primaryText"
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={() => <AddImportWallet />}
       />
       <KeeperModal
@@ -547,7 +551,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   walletContainer: {
-    backgroundColor: '#2D6759',
     borderRadius: hp(10),
     width: wp(TILE_WIDTH),
     marginHorizontal: TILE_MARGIN / 2,

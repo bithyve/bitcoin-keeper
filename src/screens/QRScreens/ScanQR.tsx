@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack } from 'native-base';
+import { Box, HStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
@@ -25,6 +25,7 @@ import NFCOption from '../NFCChannel/NFCOption';
 let decoder = new URRegistryDecoder();
 
 function ScanQR() {
+  const { colorMode } = useColorMode();
   const [qrPercent, setQrPercent] = useState(0);
   const [qrData, setData] = useState(0);
   const route = useRoute();
@@ -109,7 +110,7 @@ function ScanQR() {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={type} enable={setup && type}>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />

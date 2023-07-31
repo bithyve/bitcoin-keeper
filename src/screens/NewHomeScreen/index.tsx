@@ -1,17 +1,18 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { Linking, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Linking, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
+import walletDark from 'src/assets/images/walletDark.svg'
 import VaultIcon from 'src/assets/images/vaultTab.svg';
 import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import VaultDark from 'src/assets/images/vaultDark.svg';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Fonts from 'src/common/Fonts';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
 
@@ -26,13 +27,14 @@ function TabButton({
   textColorActive,
   textColor,
 }) {
-
+  const { colorMode } = useColorMode();
+  const styles = getStyles(colorMode);
   return (
     <TouchableOpacity
       onPress={onPress}
       style={[
         styles.container,
-        { backgroundColor: active ? backgroundColorActive : backgroundColor },
+        { backgroundColor: active ? backgroundColorActive : backgroundColor, borderRadius: 20 },
       ]}
     >
       {active ? <IconActive /> : <Icon />}
@@ -114,6 +116,8 @@ function NewHomeScreen({ navigation }) {
   }
 
   function TabBarButton({ focused, state, descriptors }) {
+    const { colorMode } = useColorMode();
+    const styles = getStyles(colorMode);
     return (
       <Box style={styles.container}>
         {state.routes.map((route, index) => {
@@ -132,18 +136,23 @@ function NewHomeScreen({ navigation }) {
               navigation.navigate({ name: route.name, merge: true });
             }
           };
-
+          const themeWalletActive = colorMode === 'light' ? "#2D6759" : "#89AEA7"
+          const themeVaultActive = colorMode === 'light' ? "#704E2E" : "#e3be96"
+          const textWalletColor = colorMode === 'light' ? "#2D6759" : "#89AEA7"
+          const textVaultColor = colorMode === 'light' ? "#704E2E" : "#e3be96"
+          const vaultActiveIcon = colorMode === 'light' ? VaultActiveIcon : VaultDark
+          const walletActiveIcon = colorMode === 'light' ? WalletActiveIcon : walletDark
           return (
             <TabButton
               label={label === 'Wallet' ? 'Wallets' : label}
               Icon={route.name === 'Vault' ? VaultIcon : WalletIcon}
-              IconActive={route.name === 'Vault' ? VaultActiveIcon : WalletActiveIcon}
+              IconActive={route.name === 'Vault' ? vaultActiveIcon : walletActiveIcon}
               onPress={onPress}
               active={isFocused}
-              backgroundColorActive={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
+              backgroundColorActive={route.name === 'Vault' ? themeVaultActive : themeWalletActive}
               backgroundColor="transparent"
-              textColorActive="#F7F2EC"
-              textColor={route.name === 'Vault' ? "#704E2E" : "#2D6759"}
+              textColorActive={colorMode === 'light' ? "#F7F2EC" : "#24312E"}
+              textColor={route.name === 'Vault' ? textVaultColor : textWalletColor}
             />
           );
         })}
@@ -151,18 +160,15 @@ function NewHomeScreen({ navigation }) {
 
       </Box>
     )
-
-
-
   }
-
-
-
-
+  const { colorMode } = useColorMode();
+  const styles = getStyles(colorMode);
   return (
     <Tab.Navigator
-      sceneContainerStyle={{ backgroundColor: '#F2EDE6' }}
-      screenOptions={{ headerShown: false }}
+      sceneContainerStyle={styles.tabContainer}
+      screenOptions={{
+        headerShown: false
+      }}
       tabBar={props => <TabBarButton focused={undefined} {...props} />}
     >
       <Tab.Screen name="Wallet" component={WalletsScreen} />
@@ -173,29 +179,24 @@ function NewHomeScreen({ navigation }) {
 
 export default NewHomeScreen;
 
-const styles = StyleSheet.create({
+const getStyles = (colorMode) => StyleSheet.create({
   container: {
+    backgroundColor: colorMode === 'light' ? '#FDF7F0' : '#48514F',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 30,
+    // borderRadius: 30,
     paddingHorizontal: 27,
     paddingVertical: 15,
-    marginHorizontal: 10,
+    // marginHorizontal: 10,
+  },
+  tabContainer: {
+    backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A'
   },
   label: {
     marginLeft: 10,
     fontSize: 14,
     fontWeight: '500',
     fontFamily: Fonts.RobotoCondensedRegular,
-  },
-  tabBarStyle: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    backgroundColor: '#FDF7F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: Platform.OS === 'android' ? hp(55) : hp(80),
-    paddingVertical: Platform.OS === 'android' ? hp(10) : hp(15),
   },
 })

@@ -1,4 +1,4 @@
-import { Box, Input, ScrollView } from 'native-base';
+import { Box, Input, ScrollView, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -38,6 +38,7 @@ import LearnMoreModal from '../UTXOManagement/components/LearnMoreModal';
 // }
 
 export default function WhirlpoolConfiguration({ route }) {
+  const { colorMode } = useColorMode();
   const { utxos, wallet } = route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -175,7 +176,7 @@ export default function WhirlpoolConfiguration({ route }) {
       keyboardVerticalOffset={Platform.select({ ios: 8, android: 0 })}
       style={styles.keyBoardAvoidViewWrapper}
     >
-      <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
         <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
         <ScrollView style={styles.scrollViewWrapper} keyboardShouldPersistTaps='always'>
           <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
@@ -183,7 +184,7 @@ export default function WhirlpoolConfiguration({ route }) {
           <Box style={styles.scode}>
             <Input
               placeholderTextColor="grey"
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.seashellWhite`}
               placeholder="Enter SCODE"
               borderRadius={10}
               borderWidth={0}
@@ -216,7 +217,7 @@ export default function WhirlpoolConfiguration({ route }) {
               </Box>
             </Box>
           </Box>
-          <Box backgroundColor="light.primaryBackground" style={styles.changePriority}>
+          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.changePriority}>
             <TouchableOpacity onPress={() => setShowFee(true)}>
               <Box style={styles.changePriorityDirection}>
                 <Text style={styles.changePriorityText}>Change Priority</Text>

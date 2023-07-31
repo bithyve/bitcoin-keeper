@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { Input, View, Box } from 'native-base';
+import { Input, View, Box, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -20,6 +20,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
 function EditWalletSettings({ route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -55,7 +56,7 @@ function EditWalletSettings({ route }) {
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
 
   return (
-    <View style={styles.Container} background="light.mainBackground">
+    <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <HeaderTitle
         title={walletText.WalletDetails}
@@ -65,10 +66,10 @@ function EditWalletSettings({ route }) {
         paddingLeft={25}
       />
       <View style={styles.inputWrapper}>
-        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input
             //   placeholder={walletText.WalletName}
-            placeholderTextColor="light.greenText"
+            placeholderTextColor={`${colorMode}.greenText`}
             value={walletName}
             onChangeText={(value) => setWalletName(value)}
             style={styles.inputField}
@@ -78,14 +79,14 @@ function EditWalletSettings({ route }) {
             maxLength={20}
             testID='input_walletName'
           />
-          <KeeperText color="light.GreyText" style={styles.limitText}>
+          <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletName && walletName.length}/20
           </KeeperText>
         </Box>
-        <Box backgroundColor="light.primaryBackground" style={styles.inputFieldWrapper}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input
             //   placeholder={walletText.SinglesigWallet}
-            placeholderTextColor="light.greenText"
+            placeholderTextColor={`${colorMode}.greenText`}
             value={walletDescription}
             onChangeText={(value) => setWalletDescription(value)}
             style={styles.inputField}
@@ -95,7 +96,7 @@ function EditWalletSettings({ route }) {
             maxLength={40}
             testID='input_walletDescription'
           />
-          <KeeperText color="light.GreyText" style={styles.limitText}>
+          <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
           </KeeperText>
         </Box>
@@ -112,7 +113,7 @@ function EditWalletSettings({ route }) {
           />
         </View>
       </View>
-    </View>
+    </Box>
   );
 }
 

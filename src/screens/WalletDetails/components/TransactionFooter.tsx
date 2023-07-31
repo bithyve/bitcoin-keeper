@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,6 +18,7 @@ import { allowedRecieveTypes, allowedSendTypes } from '..';
 
 
 function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const featureMap = useFeatureMap({ walletIndex });
   const navigation = useNavigation();
@@ -25,9 +26,9 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
   return (
     <Box
       style={[styles.footerContainer, { marginBottom: bottom }]}
-      borderColor="light.primaryBackground"
+      borderColor={`${colorMode}.primaryBackground`}
     >
-      <Box style={styles.border} borderColor="light.GreyText" />
+      <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
       <Box style={styles.footerItemContainer}>
         {allowedSendTypes.includes(currentWallet.type) && (
           <BottomMenuItem

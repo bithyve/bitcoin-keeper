@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import UaiDisplay from 'src/screens/HomeScreen/UaiDisplay';
@@ -11,12 +11,13 @@ import HeaderBar from './components/HeaderBar';
 import CurrentPlanView from './components/CurrentPlanView';
 
 function HeaderDetails() {
+  const { colorMode } = useColorMode();
   const { top } = useSafeAreaInsets();
   const { uaiStack } = useUaiStack();
   const { plan } = usePlan();
 
   return (
-    <Box backgroundColor="#FDF7F0" style={[styles.wrapper, { paddingTop: top }]}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={[styles.wrapper, { paddingTop: top }]}>
       <HeaderBar />
       <CurrentPlanView plan={plan} />
       <UaiDisplay uaiStack={uaiStack} />

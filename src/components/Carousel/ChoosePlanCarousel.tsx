@@ -1,6 +1,6 @@
 import { Box } from 'native-base';
 import { FlatList, StyleSheet, Dimensions } from 'react-native';
-import React, { useContext, useState, useMemo } from 'react';
+import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';

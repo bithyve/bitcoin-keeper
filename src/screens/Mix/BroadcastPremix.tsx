@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { ScrollView } from 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
@@ -55,6 +55,7 @@ export default function BroadcastPremix({ route, navigation }) {
     selectedPool: PoolData;
     wallet: Wallet;
   } = route.params as any;
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const { satsEnabled } = useAppSelector((state) => state.settings);
@@ -244,7 +245,7 @@ export default function BroadcastPremix({ route, navigation }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <HeaderTitle
         paddingLeft={25}
         title="Preview Premix"
@@ -261,8 +262,8 @@ export default function BroadcastPremix({ route, navigation }) {
             Fee
           </Text>
           <Box style={styles.textDirection}>
-            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
-            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
+            <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
           </Box>
@@ -289,8 +290,8 @@ export default function BroadcastPremix({ route, navigation }) {
             Badbank Change
           </Text>
           <Box style={styles.textDirection}>
-            <Text color="light.secondaryText">{valueByPreferredUnit(tx0Preview.change)}</Text>
-            <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+            <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(tx0Preview.change)}</Text>
+            <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
           </Box>
@@ -308,8 +309,8 @@ export default function BroadcastPremix({ route, navigation }) {
                 Premix value
               </Text>
               <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{valueByPreferredUnit(premixOutputs[0])}</Text>
-                <Text color="light.secondaryText" style={{ paddingLeft: 5 }}>
+                <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(premixOutputs[0])}</Text>
+                <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
                   {getSatUnit()}
                 </Text>
               </Box>
@@ -319,7 +320,7 @@ export default function BroadcastPremix({ route, navigation }) {
                 No. of Premixes
               </Text>
               <Box style={styles.textDirection}>
-                <Text color="light.secondaryText">{premixOutputs.length}</Text>
+                <Text color={`${colorMode}.secondaryText`}>{premixOutputs.length}</Text>
               </Box>
             </Box>
           </>
@@ -358,7 +359,7 @@ export default function BroadcastPremix({ route, navigation }) {
             <Box style={styles.BroadcastIllustrationWrapper}>
               <BroadcastTX0Illustration />
             </Box>
-            <Text color="light.greenText" style={styles.BroadcastContentText}>
+            <Text color={`${colorMode}.greenText`} style={styles.BroadcastContentText}>
               The sats from Tx0 land in a Premix Wallet. You would be able to spend those sats, but
               are encouraged to mix the sats before hodling or spending them.
             </Text>

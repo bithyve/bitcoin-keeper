@@ -21,7 +21,7 @@ const config = {
     'Manually provide the signing device details',
     `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
   ],
-  title: 'Setting up a Inheritance Key',
+  title: 'Setting up the Inheritance Key',
   subTitle: 'Keep your signing device ready before proceeding',
 };
 function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; close: () => void }) {

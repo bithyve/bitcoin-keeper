@@ -1,6 +1,7 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useContext, useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
@@ -41,6 +42,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import HardwareModalMap, { ModalTypes } from './HardwareModalMap';
 
 function SigningDeviceDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { signerId = null } = route.params;
@@ -220,7 +222,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            backgroundColor="light.accent"
+            backgroundColor={`${colorMode}.accent`}
             justifyContent="center"
             alignItems="center"
           >
@@ -235,7 +237,7 @@ function SigningDeviceDetails({ route }) {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         learnMore
         learnMorePressed={() => setDetailModal(getSignerContent(signer?.type).title)}
@@ -265,7 +267,7 @@ function SigningDeviceDetails({ route }) {
             <Text fontSize={14} letterSpacing={1.15}>
               {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
             </Text>
-            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer?.addedOn)
+            <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(signer?.addedOn)
               .format('DD MMM YYYY, hh:mmA')
               }`}</Text>
           </Box>
@@ -285,13 +287,13 @@ function SigningDeviceDetails({ route }) {
         justifyContent="center"
         width={windowWidth}
         height={hp(188)}
-        backgroundColor="light.secondaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
       >
-        <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
+        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
           You will be reminded in 90 days for the health check
         </Text>
         <Box
-          borderColor="light.GreyText"
+          borderColor={`${colorMode}.GreyText`}
           style={{
             borderWidth: 0.5,
             width: '90%',

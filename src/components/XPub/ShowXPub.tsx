@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
@@ -17,7 +17,7 @@ import Note from '../Note/Note';
 function ShowXPub({
   wallet,
   data,
-  copy = () => {},
+  copy = () => { },
   subText,
   noteSubText,
   copyable = true,
@@ -33,6 +33,7 @@ function ShowXPub({
   cosignerDetails?: boolean;
   keeper?: KeeperApp;
 }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [details, setDetails] = useState('');
@@ -57,30 +58,30 @@ function ShowXPub({
             <ActivityIndicator />
           )}
           <Box
-            backgroundColor="light.QrCode"
+            backgroundColor={`${colorMode}.QrCode`}
             alignItems="center"
             justifyContent="center"
             padding={1}
             width={hp(200)}
           >
-            <Text fontSize={12} color="light.recieverAddress">
+            <Text fontSize={12} color={`${colorMode}.recieverAddress`}>
               {subText}
             </Text>
           </Box>
         </Box>
         <Box padding={2}>
           {copyable ? (
-            <TouchableOpacity
+            <Pressable
+              backgroundColor={`${colorMode}.seashellWhite`}
               onPress={() => {
                 Clipboard.setString(details);
                 copy();
               }}
               style={{
                 flexDirection: 'row',
-                backgroundColor: 'light.textInputBackground',
                 borderTopLeftRadius: 10,
                 borderBottomLeftRadius: 10,
-                width: wp(220),
+                width: '90%',
                 marginTop: hp(30),
                 marginBottom: hp(30),
               }}
@@ -106,7 +107,7 @@ function ShowXPub({
                   <CopyIcon />
                 </Box>
               </Box>
-            </TouchableOpacity>
+            </Pressable>
           ) : null}
         </Box>
       </Box>

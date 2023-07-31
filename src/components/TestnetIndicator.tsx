@@ -1,17 +1,18 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 
 function TestnetIndicator() {
+  const { colorMode } = useColorMode();
   return (
     <Box
-      backgroundColor={'light.white'}
+      backgroundColor={`${colorMode}.white`}
       style={styles.container}
     >
       <Text
-        color="light.primaryGreen"
+        color={`${colorMode}.primaryGreen`}
         bold
         style={styles.text}>
         TESTNET

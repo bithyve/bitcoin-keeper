@@ -1,6 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 // libraries
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
@@ -29,6 +29,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 function ImportWalletScreen({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
@@ -84,7 +85,7 @@ function ImportWalletScreen({ route }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
@@ -115,7 +116,7 @@ function ImportWalletScreen({ route }) {
             <UploadImage onPress={handleChooseImage} />
 
             {/* Note */}
-            <Box style={styles.noteWrapper} backgroundColor="light.secondaryBackground">
+            <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
               <Note
                 title={common.note}
                 subtitle="Make sure that the QR is well aligned, focused and visible as a whole"

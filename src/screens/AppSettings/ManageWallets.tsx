@@ -189,12 +189,13 @@ function ManageWallets() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled
-        contentContainerStyle={{ flexGrow: 1, marginTop: 10 }}
+        contentContainerStyle={{ flexGrow: 1, marginTop: 10, marginHorizontal: 15 }}
       >
 
         <FlatList
           data={visibleWallets}
           extraData={[visibleWallets, hiddenWallets]}
+          style={{ height: '50%' }}
           renderItem={({ item }) =>
             <ListItem
               title={item.presentationData.name}
@@ -211,7 +212,8 @@ function ManageWallets() {
         <FlatList
           data={hiddenWallets}
           extraData={[visibleWallets, hiddenWallets]}
-          contentContainerStyle={{ marginBottom: 50 }}
+          style={{ height: '50%' }}
+          // contentContainerStyle={{ marginBottom: 50 }}
           renderItem={({ item }) =>
             <ListItem
               title={item.presentationData.name}
