@@ -33,8 +33,6 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
       }
       captureError(err);
       showToast('Something went wrong.', <ToastErrorIcon />);
-    } finally {
-      await nfcManager.cancelTechnologyRequest();
     }
   };
 
@@ -49,6 +47,9 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         NFC.stopTagSession(session);
       }
     }
+    return () => {
+      nfcManager.cancelTechnologyRequest();
+    };
   }, [nfcVisible]);
 
   useEffect(() => {
@@ -60,7 +61,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
           showToast('Please scan a valid cosigner', <ToastErrorIcon />);
           return;
         }
-        setData(data.content);
+        setData(data);
       } catch (err) {
         captureError(err);
         showToast('Something went wrong.', <ToastErrorIcon />);
@@ -74,6 +75,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
     return () => {
       unsubConnect();
       unsubDisconnect();
+      NFC.stopTagSession(session);
     };
   }, [session]);
 

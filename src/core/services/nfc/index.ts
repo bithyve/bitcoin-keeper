@@ -137,6 +137,8 @@ export default class NFC {
   };
 
   public static stopTagSession = async (session) => {
-    await session.setEnabled(false);
+    try {
+      await session.setEnabled(false);
+    } catch (e) {}
   };
 }
