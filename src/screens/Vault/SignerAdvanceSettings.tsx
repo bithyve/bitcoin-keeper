@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack } from 'native-base';
+import { Box, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
@@ -33,6 +33,7 @@ const gradientStyles = {
 };
 
 function SignerAdvanceSettings({ route }: any) {
+  const { colorMode } = useColorMode();
   const { signer }: { signer: VaultSigner } = route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
@@ -111,8 +112,8 @@ function SignerAdvanceSettings({ route }: any) {
 
   const { font12, font10, font14 } = globalStyles;
   return (
-    <ScreenWrapper>
-      <HeaderTitle title="Advanced Settings" headerTitleColor="light.textBlack" paddingLeft={25} />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <HeaderTitle title="Advanced Settings" headerTitleColor={`${colorMode}.primaryText`} paddingLeft={25} />
       <Box backgroundColor={gradientStyles} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
@@ -120,11 +121,11 @@ function SignerAdvanceSettings({ route }: any) {
             <Text color="white" style={[font14]}>
               {signerName}
             </Text>
-            <Text color="white" style={[font10]} light>
+            <Text color={`${colorMode}.primaryText`} style={[font10]} light>
               {moment(signer.addedOn).calendar().toLowerCase()}
             </Text>
             {signer.signerDescription ? (
-              <Text color="white" style={[font12]} light>
+              <Text color={`${colorMode}.primaryText`} style={[font12]} light>
                 {signer.signerDescription}
               </Text>
             ) : null}
@@ -134,10 +135,10 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={openDescriptionModal}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.primaryText" style={[font14]}>
+            <Text color={`${colorMode}.primaryText`} style={[font14]}>
               Edit Description
             </Text>
-            <Text color="light.primaryText" style={[font12]} light>
+            <Text color={`${colorMode}.primaryText`} style={[font12]} light>
               Short description to help you remember
             </Text>
           </VStack>
@@ -147,10 +148,10 @@ function SignerAdvanceSettings({ route }: any) {
       <TouchableOpacity onPress={registerSigner}>
         <HStack style={styles.item}>
           <VStack px={4} width="90%">
-            <Text color="light.primaryText" style={[font14]}>
+            <Text color={`${colorMode}.primaryText`} style={[font14]}>
               Manual Registration
             </Text>
-            <Text color="light.primaryText" style={[font12]} light>
+            <Text color={`${colorMode}.primaryText`} style={[font12]} light>
               {`Register your active vault with the ${signerName}.`}
             </Text>
           </VStack>
@@ -161,10 +162,10 @@ function SignerAdvanceSettings({ route }: any) {
         <TouchableOpacity onPress={changePolicy}>
           <HStack style={styles.item}>
             <VStack px={4} width="90%">
-              <Text color="light.primaryText" style={[font14]}>
+              <Text color={`${colorMode}.primaryText`} style={[font14]}>
                 Change Verification & Policy
               </Text>
-              <Text color="light.primaryText" style={[font12]} light>
+              <Text color={`${colorMode}.primaryText`} style={[font12]} light>
                 Restriction and threshold
               </Text>
             </VStack>
@@ -176,10 +177,10 @@ function SignerAdvanceSettings({ route }: any) {
         <TouchableOpacity onPress={navigateToAssignSigner}>
           <HStack style={styles.item}>
             <VStack px={4} width="90%">
-              <Text color="light.primaryText" style={[font14]}>
+              <Text color={`${colorMode}.primaryText`} style={[font14]}>
                 Assign Type
               </Text>
-              <Text color="light.primaryText" style={[font12]} light>
+              <Text color={`${colorMode}.primaryText`} style={[font12]} light>
                 Identify your signer type for enhanced connectivity and communication
               </Text>
             </VStack>
