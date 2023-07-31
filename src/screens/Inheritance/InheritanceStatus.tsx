@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
@@ -33,6 +33,7 @@ import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
 
 function InheritanceStatus() {
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
@@ -61,7 +62,7 @@ function InheritanceStatus() {
   }, [activeVault]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         onPressHandler={() => navigtaion.goBack()}
         learnMore
