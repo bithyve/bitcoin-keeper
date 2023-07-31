@@ -24,9 +24,6 @@ function ShareWithNfc({ data }: { data: string }) {
     }
   };
   useEffect(() => {
-    const unsubConnect = session.on(HCESession.Events.HCE_STATE_ENABLED, () => {
-      setVisible(true);
-    });
     const unsubDisconnect = session.on(HCESession.Events.HCE_STATE_DISCONNECTED, () => {
       cleanUp();
     });
@@ -36,7 +33,6 @@ function ShareWithNfc({ data }: { data: string }) {
     return () => {
       cleanUp();
       unsubRead();
-      unsubConnect();
       unsubDisconnect();
     };
   }, [session]);
@@ -52,6 +48,7 @@ function ShareWithNfc({ data }: { data: string }) {
         await NFC.send([NfcTech.Ndef], enc);
         Vibration.cancel();
       } else {
+        setVisible(true);
         await NFC.startTagSession({ session, content: data });
         Vibration.vibrate([700, 50, 100, 50], true);
       }

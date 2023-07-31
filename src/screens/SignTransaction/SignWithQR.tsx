@@ -89,9 +89,11 @@ function SignWithQR() {
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
       </Box>
       <Box style={styles.bottom}>
-        <Box style={{ paddingBottom: '5%' }}>
-          <ShareWithNfc data={serializedPSBT} />
-        </Box>
+        {signer.type === SignerType.KEEPER ? (
+          <Box style={{ paddingBottom: '5%' }}>
+            <ShareWithNfc data={serializedPSBT} />
+          </Box>
+        ) : null}
         <Buttons
           primaryText="Scan PSBT"
           primaryCallback={navigateToQrScan}
