@@ -94,7 +94,10 @@ function SignerItem({
                 >
                   {`Add ${getPlaceholder(index)} Signing Device`}
                 </Text>
-                <Text color={`${colorMode}.GreyText`} style={[globalStyles.font13, { letterSpacing: 0.06 }]}>
+                <Text
+                  color={`${colorMode}.GreyText`}
+                  style={[globalStyles.font13, { letterSpacing: 0.06 }]}
+                >
                   Select signing device
                 </Text>
               </VStack>
@@ -149,7 +152,10 @@ function SignerItem({
               {`${signer.signerName}`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
-            <Text color={`${colorMode}.GreyText`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
+            <Text
+              color={`${colorMode}.GreyText`}
+              style={[globalStyles.font12, { letterSpacing: 0.6 }]}
+            >
               {`Added ${moment(signer.lastHealthCheck).calendar()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
@@ -248,9 +254,15 @@ function AddSigningDevice() {
   }
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
-      } setup will be created${isInheritance ? ' for Inheritance' : ''}`
+      ? `Vault with a ${subscriptionScheme.m} of ${
+          subscriptionScheme.n + (isInheritance ? 1 : 0)
+        } setup will be created${isInheritance ? ' for Inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
+
+  const trezorNotInPleb =
+    plan !== SubscriptionTier.L1.toUpperCase() &&
+    signersState.find((signer) => signer && signer.type === SignerType.TREZOR);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
@@ -295,8 +307,9 @@ function AddSigningDevice() {
               title="WARNING"
               subtitle={`A few signers (${invalidSigners
                 .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${SubscriptionTier.L3
-                }. Please remove them or upgrade your plan.`}
+                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
+                SubscriptionTier.L3
+              }. Please remove them or upgrade your plan.`}
               subtitleColor="error"
             />
           </Box>
@@ -304,14 +317,23 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitleColor="error"
+            />
+          </Box>
+        ) : trezorNotInPleb ? (
+          <Box style={styles.noteContainer}>
+            <Note
+              title="WARNING"
+              subtitle="Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault"
               subtitleColor="error"
             />
           </Box>
         ) : null}
         <Buttons
-          primaryDisable={areSignersValid}
+          primaryDisable={areSignersValid || trezorNotInPleb}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
