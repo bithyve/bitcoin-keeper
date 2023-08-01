@@ -81,6 +81,8 @@ function WalletSettings({ route }) {
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const [collaborativeModalVisible, setCollaborativeModalVisible] = useState(true);
+
   const [addWalletCosigner, setAddWalletCosignerVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -153,20 +155,6 @@ function WalletSettings({ route }) {
     }
   }, [testCoinsReceived, testCoinsFailed]);
 
-  const signPSBT = (serializedPSBT) => {
-    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ShowQR',
-        params: {
-          data: signedSerialisedPSBT,
-          encodeToBytes: false,
-          title: 'Signed PSBT',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-        },
-      })
-    );
-  };
   function AddWalletCosignerContent() {
     return (
       <Box>
@@ -176,6 +164,30 @@ function WalletSettings({ route }) {
         <Text color="light.greenText" fontSize={13}>
           {walletTranslation?.AddWalletCosignerParagraph}
         </Text>
+      </Box>
+    );
+  }
+
+  function CollabrativeModalContent() {
+    return (
+      <Box>
+        <Box>
+          <Option
+            title="View CoSigner Details"
+            subTitle="To create a collaborative wallet"
+            onPress={() => {}}
+          />
+          <Option
+            title="Import Output Descriptor"
+            subTitle="To view collaborative wallet"
+            onPress={() => {}}
+          />
+          <Option
+            title="Sign a PSBT"
+            subTitle="Sign a collaborative transaction"
+            onPress={() => {}}
+          />
+        </Box>
       </Box>
     );
   }
@@ -223,28 +235,7 @@ function WalletSettings({ route }) {
             title="Wallet Details"
             subTitle="Change wallet name & description"
             onPress={() => {
-              navigation.navigate('EditWalletDetails', { wallet });
-            }}
-          />
-          <Option
-            title="Update Path"
-            subTitle="Change Derivation path"
-            onPress={() => {
-              navigation.navigate('UpdateWalletDetails', { wallet });
-            }}
-          />
-          <Option
-            title="Show xPub"
-            subTitle="Use to create an external, watch-only wallet"
-            onPress={() => {
-              setXPubVisible(true);
-            }}
-          />
-          <Option
-            title="Show Cosigner Details"
-            subTitle="Use this wallet as a signing device"
-            onPress={() => {
-              setCosignerVisible(true);
+              navigation.navigate('WalletDetailsSettings', { wallet });
             }}
           />
           <Option
@@ -255,10 +246,10 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Transfer Policy"
-            subTitle={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+            title="Collaborative Wallet"
+            subTitle="Create, sign and view multisig"
             onPress={() => {
-              setTransferPolicyVisible(true);
+              navigation.navigate('CollabrativeWalletDetails');
             }}
           />
           {config.NETWORK_TYPE === NetworkType.TESTNET && (
@@ -271,23 +262,6 @@ function WalletSettings({ route }) {
               }}
             />
           )}
-
-          <Option
-            title="Sign PSBT"
-            subTitle="Sign a transaction if this wallet has been used as a co-signer"
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ScanQR',
-                  params: {
-                    title: `Scan PSBT to Sign`,
-                    subtitle: 'Please scan until all the QR data has been retrieved',
-                    onQrScan: signPSBT,
-                  },
-                })
-              );
-            }}
-          />
         </ScrollView>
       </Box>
       {/* {Bottom note} */}
@@ -352,7 +326,7 @@ function WalletSettings({ route }) {
           buttonText="Done"
           buttonCallback={() => {
             setCosignerVisible(false);
-            // setAddWalletCosignerVisible(true) 
+            // setAddWalletCosignerVisible(true)
           }}
           Content={() => (
             <ShowXPub
@@ -404,6 +378,16 @@ function WalletSettings({ route }) {
           Content={AddWalletCosignerContent}
         />
       </Box>
+
+      <KeeperModal
+        visible={collaborativeModalVisible}
+        close={() => {
+          setCollaborativeModalVisible(false);
+        }}
+        title="No Collaborative Wallet Created"
+        subTitle="Import a product descriptor or BSMS file to view a collaborative wallet"
+        Content={CollabrativeModalContent}
+      />
       {/* end */}
     </Box>
   );
