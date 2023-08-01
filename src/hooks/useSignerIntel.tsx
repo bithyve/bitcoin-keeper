@@ -10,7 +10,6 @@ import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
-import useToastMessage from './useToastMessage';
 
 const hasPlanChanged = (vault: Vault, subscriptionScheme): VaultMigrationType => {
   if (vault) {

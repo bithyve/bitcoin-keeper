@@ -6,7 +6,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
 import config from 'src/core/config';
@@ -23,6 +23,7 @@ import { captureError } from 'src/core/services/sentry';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import useVault from 'src/hooks/useVault';
 
 function RegisterWithChannel() {
   const { params } = useRoute();
@@ -34,9 +35,7 @@ function RegisterWithChannel() {
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault: vault } = useVault();
 
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {

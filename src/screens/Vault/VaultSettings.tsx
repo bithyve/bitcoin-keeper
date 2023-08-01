@@ -23,6 +23,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import Colors from 'src/theme/Colors';
+import useVault from 'src/hooks/useVault';
 
 type Props = {
   title: string;
@@ -103,16 +104,13 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
   );
 }
 
-function VaultSettings({ route }) {
+function VaultSettings() {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const [genratorModalVisible, setGenratorModalVisible] = useState(false);
   const { getSatUnit, getBalance } = useBalance();
 
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault: vault } = useVault();
 
   const descriptorString = genrateOutputDescriptors(vault);
 

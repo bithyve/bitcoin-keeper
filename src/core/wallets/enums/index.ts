@@ -79,6 +79,7 @@ export enum WalletType {
 
 export enum VaultType {
   DEFAULT = 'DEFAULT',
+  COLLABORATIVE = 'COLLABORATIVE',
 }
 
 export enum VaultMigrationType {
