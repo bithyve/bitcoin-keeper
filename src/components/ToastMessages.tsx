@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     },
   },
   toastMsgText: {
-    marginLeft: 2,
+    marginLeft: 5,
     fontSize: 14,
   }
 });
