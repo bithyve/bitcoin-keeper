@@ -6,14 +6,13 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { VaultType } from 'src/core/wallets/enums';
 
-const useVault = () => {
+const useCollaborativeWallet = ({ walletId }: { walletId: string }) => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const activeVault: Vault =
+  const collaborativeWallet: Vault =
     useQuery(RealmSchema.Vault)
-      .map(getJSONFromRealmObject)
-      .filter((vault: Vault) => !vault.archived && vault.type !== VaultType.COLLABORATIVE)[0] ||
-    null;
-  return { activeVault };
+      .filtered(`type == "${VaultType.COLLABORATIVE}" && collaborativeWalletId == "${walletId}"`)
+      .map(getJSONFromRealmObject) || null;
+  return { collaborativeWallet };
 };
 
-export default useVault;
+export default useCollaborativeWallet;

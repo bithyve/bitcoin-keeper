@@ -81,6 +81,7 @@ function RampModal({ showBuyRampModal, setShowBuyRampModal, balance, receivingAd
       }}
       title="Buy bitcoin with Ramp"
       subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+      modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
       Content={Content}

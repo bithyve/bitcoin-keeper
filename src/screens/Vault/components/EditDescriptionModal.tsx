@@ -86,7 +86,10 @@ function DescriptionModal({
   return (
     <KeeperModal
       visible={visible}
-      modalBackground={[`${colorMode}.mainBackground`, `${colorMode}.mainBackground`]}
+      modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+      textColor={`${colorMode}.primaryText`}
+      subTitleColor={`${colorMode}.secondaryText`}
+      DarkCloseIcon={colorMode === 'dark'}
       close={close}
       title="Add Description"
       subTitle="Optionally you can add a short description to the signing device"

@@ -28,7 +28,7 @@ function ShowXPub({
   wallet?: Wallet;
   copy?: Function;
   subText: string;
-  noteSubText: string;
+  noteSubText?: string;
   copyable: boolean;
   cosignerDetails?: boolean;
   keeper?: KeeperApp;
@@ -46,7 +46,7 @@ function ShowXPub({
     } else {
       setDetails(data);
     }
-  }, [cosignerDetails]);
+  }, [cosignerDetails, data]);
 
   return (
     <>
@@ -111,9 +111,11 @@ function ShowXPub({
           ) : null}
         </Box>
       </Box>
-      <Box width={wp(280)}>
-        <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
-      </Box>
+      {noteSubText ? (
+        <Box width={wp(280)}>
+          <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
+        </Box>
+      ) : null}
     </>
   );
 }

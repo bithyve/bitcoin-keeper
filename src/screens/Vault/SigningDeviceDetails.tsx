@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -31,12 +31,10 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useVault from 'src/hooks/useVault';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import { SDIcons } from './SigningDeviceIcons';
 import HardwareModalMap, { ModalTypes } from './HardwareModalMap';
@@ -49,11 +47,8 @@ function SigningDeviceDetails({ route }) {
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { showToast } = useToastMessage();
-  const activeVault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault } = useVault();
   const signer: VaultSigner = activeVault.signers.filter(
     (signer) => signer?.signerId === signerId
   )[0];
@@ -267,9 +262,9 @@ function SigningDeviceDetails({ route }) {
             <Text fontSize={14} letterSpacing={1.15}>
               {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
             </Text>
-            <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(signer?.addedOn)
-              .format('DD MMM YYYY, hh:mmA')
-              }`}</Text>
+            <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(
+              signer?.addedOn
+            ).format('DD MMM YYYY, hh:mmA')}`}</Text>
           </Box>
         </Box>
       </Box>
@@ -370,8 +365,8 @@ const styles = StyleSheet.create({
     left: -7,
   },
   skipHealthIllustration: {
-    marginLeft: wp(25)
-  }
+    marginLeft: wp(25),
+  },
 });
 
 export default SigningDeviceDetails;

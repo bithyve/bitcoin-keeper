@@ -48,6 +48,7 @@ import { urlParamsToObj } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
 import useWallets from 'src/hooks/useWallets';
+import useVault from 'src/hooks/useVault';
 import UaiDisplay from './UaiDisplay';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
@@ -207,10 +208,7 @@ function VaultStatus(props) {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
-  const Vault: Vault =
-    useQuery(RealmSchema.Vault)
-      .map(getJSONFromRealmObject)
-      .filter((vault) => !vault.archived)[0] || [];
+  const { activeVault: Vault } = useVault();
 
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -537,7 +535,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
