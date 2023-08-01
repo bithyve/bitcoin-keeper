@@ -31,7 +31,7 @@ import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
-import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
+import { SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
@@ -72,7 +72,7 @@ function Footer({
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const featureMap = useFeatureMap({ scheme: vault.scheme });
+  const featureMap = useFeatureMap({ scheme: vault.scheme, isCollaborativeWallet });
 
   const styles = getStyles(0);
   return (
@@ -194,7 +194,7 @@ function VaultInfo({
           </Text>
         </VStack>
       </HStack>
-      <HStack justifyContent="space-between" top={isCollaborativeWallet ? '10' : '0'}>
+      <HStack justifyContent="space-between" top={isCollaborativeWallet ? '16' : '0'}>
         <VStack paddingTop="6">
           <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
             Unconfirmed
@@ -670,7 +670,7 @@ function VaultDetails({ navigation }) {
         />
       </VStack>
       <TierUpgradeModal
-        visible={tireChangeModal}
+        visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
             setTireChangeModal(false);
