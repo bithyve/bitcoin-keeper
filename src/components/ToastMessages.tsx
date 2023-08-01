@@ -23,7 +23,7 @@ function HexaToastMessages({
   return (
     <Box backgroundColor={error ? 'error.500' : `${colorMode}.accent`} style={styles.toast}>
       {Image && <Box>{Image}</Box>}
-      <Text color={`${colorMode}.white`} style={styles.toastMsgText}>{ToastBody}</Text>
+      <Text color='light.black' style={styles.toastMsgText}>{ToastBody}</Text>
     </Box>
   );
 }
