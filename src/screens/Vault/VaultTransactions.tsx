@@ -12,7 +12,6 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 // asserts
 import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
 import LinkedWallet from 'src/assets/images/walletUtxos.svg';
@@ -21,6 +20,7 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import useVault from 'src/hooks/useVault';
 
 function VaultTransactions({ route }) {
   const { colorMode } = useColorMode();
@@ -29,10 +29,9 @@ function VaultTransactions({ route }) {
   const { useQuery } = useContext(RealmWrapperContext);
   const [pullRefresh, setPullRefresh] = useState(false);
 
-  const vault: Vault = useQuery(RealmSchema.Vault)
+  const { activeVault: vault } = useVault();
+  const wallet: Wallet = useQuery(RealmSchema.Wallet)
     .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-  const wallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)
     .filter((wallet) => !wallet.archived)[0];
 
   const vaultTrans = vault?.specs?.transactions || [];
