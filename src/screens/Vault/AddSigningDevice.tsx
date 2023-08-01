@@ -159,7 +159,7 @@ function SignerItem({
               {`Added ${moment(signer.lastHealthCheck).calendar()}`}
             </Text>
             <Pressable onPress={openDescriptionModal}>
-              <Box style={styles.descriptionBox}>
+              <Box style={styles.descriptionBox} backgroundColor={`${colorMode}.seashellWhite`}>
                 <Text
                   numberOfLines={1}
                   color={signer.signerDescription ? '#6A7772' : '#387F6A'}
@@ -385,7 +385,6 @@ const styles = ScaledSheet.create({
   },
   descriptionBox: {
     height: 24,
-    backgroundColor: '#FDF7F0',
     borderRadius: 8,
     paddingHorizontal: 10,
     justifyContent: 'center',

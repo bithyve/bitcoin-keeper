@@ -29,7 +29,7 @@ const Colors = {
   DeepSpaceGreen: 'rgba(72,101,96,1)',
   Menthol: 'rgba(198,236,174,1)',
   Bisque: 'rgba(255,229,198,1)',
-  GoldCrayola: 'rgba(227,190,150,1)',
+  GoldCrayola: 'rgba(150,130,111,1)',
   MacaroniAndCheese: 'rgba(250,196,139,1)',
   Coffee: 'rgba(114,84,54,1)',
   JackoBean: 'rgba(69,50,40,1)',

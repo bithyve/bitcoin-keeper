@@ -10,10 +10,10 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 function InheritanceDownloadView(props) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={styles.wrapper}>
+    <Box style={styles.wrapper} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box style={styles.iconWrapper}>{props.icon}</Box>
       <Box style={styles.titleWrapper}>
-        <Text color={`${colorMode}.textWallet`} style={styles.titleText}>
+        <Text color={`${colorMode}.primaryText`} style={styles.titleText}>
           {props.title}
         </Text>
         <Text color={`${colorMode}.secondaryText`} style={styles.subTitleText}>
@@ -54,7 +54,6 @@ const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
     flexDirection: 'row',
-    backgroundColor: '#FDF7F0',
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 20,

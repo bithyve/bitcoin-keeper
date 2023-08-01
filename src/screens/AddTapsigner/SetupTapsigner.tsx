@@ -1,15 +1,17 @@
 import { Platform, StyleSheet, TextInput } from 'react-native';
 import { Box, useColorMode } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { CKTapCard } from 'cktap-protocol-react-native';
+
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { ScrollView } from 'react-native-gesture-handler';
 import { getTapsignerDetails, getTapsignerErrorMessage } from 'src/hardware/tapsigner';
-
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
-import { CKTapCard } from 'cktap-protocol-react-native';
+
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
@@ -191,8 +193,9 @@ function SetupTapsigner({ route }) {
         </MockWrapper>
         <KeyPadView
           onPressNumber={onPressHandler}
-          keyColor="#041513"
           onDeletePressed={onDeletePressed}
+          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </Box>
