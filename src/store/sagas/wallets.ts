@@ -492,11 +492,11 @@ function* addNewVaultWorker({
   try {
     const { newVaultInfo, isMigrated, oldVaultId } = payload;
     let { vault } = payload;
+    const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
+      newVaultInfo;
 
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
-      const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
-        newVaultInfo;
       if (vaultScheme.n !== vaultSigners.length)
         throw new Error('Vault schema(n) and signers mismatch');
 
@@ -518,6 +518,8 @@ function* addNewVaultWorker({
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
       ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
+      : collaborativeWalletId
+      ? { updated: true }
       : yield call(updateVaultImageWorker, { payload: { vault } });
 
     if (response.updated) {
