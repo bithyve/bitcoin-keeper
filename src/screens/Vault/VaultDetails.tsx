@@ -111,7 +111,7 @@ function Footer({
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            featureMap.vaultBuy ? onPressBuy : showToast('Please Upgrade');
+            featureMap.vaultBuy ? onPressBuy() : showToast('Please Upgrade');
           }}
         >
           <Buy />
