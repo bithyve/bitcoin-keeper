@@ -11,6 +11,8 @@ import { SignerType } from 'src/core/wallets/enums';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { Platform } from 'react-native';
 import idx from 'idx';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs'
 
 function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) {
   const { showToast } = useToastMessage();
@@ -31,6 +33,22 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         console.log('NFC interaction cancelled');
         return;
       }
+      captureError(err);
+      showToast('Something went wrong.', <ToastErrorIcon />);
+    }
+  };
+
+  const selectFile = async () => {
+    try {
+      const result = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
+      const content = await RNFS.readFile(result[0].uri)
+      if (isValid) { // todo validate if proper data
+        setData(content);
+      }
+    } catch (err) {
+
       captureError(err);
       showToast('Something went wrong.', <ToastErrorIcon />);
     }
@@ -89,6 +107,12 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         title="or scan via NFC"
         subtitle="Bring device close to use NFC"
         callback={readFromNFC}
+      />
+      <OptionCTA
+        icon={<NFCIcon />}
+        title="Select a file"
+        subtitle="Select cosigner file"
+        callback={selectFile}
       />
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </>

@@ -9,6 +9,8 @@ import { captureError } from 'src/core/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
+import Share from 'react-native-share';
+import RNFS from 'react-native-fs'
 
 function ShareWithNfc({ data }: { data: string }) {
   const { session } = useContext(HCESessionContext);
@@ -61,6 +63,39 @@ function ShareWithNfc({ data }: { data: string }) {
       captureError(err);
     }
   };
+
+  const shareWithAirdrop = async () => {
+    try {
+      const path = `${RNFS.CachesDirectoryPath}/cosigner.text`;
+      RNFS.writeFile(path, data, 'utf8')
+        .then(() => {
+          Share.open({
+            message: '',
+            title: '',
+            url: path,
+            excludedActivityTypes: [
+              'copyToPasteBoard',
+              'markupAsPDF',
+              'addToReadingList',
+              'assignToContact',
+              'mail',
+              'default',
+              'message',
+              'postToFacebook',
+              'print',
+              'saveToCameraRoll',
+            ],
+          });
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+
+    } catch (err) {
+      console.log(err)
+      captureError(err);
+    }
+  };
   return (
     <>
       {/* {isIos ? (
@@ -76,6 +111,13 @@ function ShareWithNfc({ data }: { data: string }) {
         title={`or share on Tap${isIos ? ' to Anroid' : ''}`}
         subtitle="Bring device close to use NFC"
         callback={shareWithNFC}
+      />
+
+      <OptionCTA
+        icon={<NFCIcon />}
+        title="Airdrop"
+        subtitle="Airdrop"
+        callback={shareWithAirdrop}
       />
       <NfcPrompt visible={visible} close={cleanUp} />
     </>
