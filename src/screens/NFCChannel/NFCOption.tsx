@@ -56,6 +56,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
 
   const { session } = useContext(HCESessionContext);
   const isAndroid = Platform.OS === 'android';
+  const isIos = Platform.OS === 'ios';
 
   useEffect(() => {
     if (isAndroid) {
@@ -108,12 +109,16 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         subtitle="Bring device close to use NFC"
         callback={readFromNFC}
       />
-      <OptionCTA
-        icon={<NFCIcon />}
-        title="Select a file"
-        subtitle="Select cosigner file"
-        callback={selectFile}
-      />
+      {
+        isIos && (
+          <OptionCTA
+            icon={<NFCIcon />}
+            title="Select a file"
+            subtitle="Select cosigner file"
+            callback={selectFile}
+          />
+        )
+      }
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </>
   );

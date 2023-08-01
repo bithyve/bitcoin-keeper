@@ -98,14 +98,13 @@ function ShareWithNfc({ data }: { data: string }) {
   };
   return (
     <>
-      {/* {isIos ? (
+      {isIos && (
         <OptionCTA
-          icon={<AirDropIcon />}
-          title="or share with Airdrop to iOS"
-          subtitle="Enable airdrop visibility to everyone"
+          icon={<NFCIcon />}
+          title="Airdrop"
+          subtitle="Airdrop"
           callback={shareWithAirdrop}
-        />
-      ) : null} */}
+        />)}
       <OptionCTA
         icon={<NFCIcon />}
         title={`or share on Tap${isIos ? ' to Anroid' : ''}`}
@@ -113,12 +112,7 @@ function ShareWithNfc({ data }: { data: string }) {
         callback={shareWithNFC}
       />
 
-      <OptionCTA
-        icon={<NFCIcon />}
-        title="Airdrop"
-        subtitle="Airdrop"
-        callback={shareWithAirdrop}
-      />
+
       <NfcPrompt visible={visible} close={cleanUp} />
     </>
   );
