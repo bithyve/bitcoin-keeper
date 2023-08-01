@@ -366,6 +366,8 @@ PODS:
     - React-Core
   - react-native-get-random-values (1.8.0):
     - React-Core
+  - react-native-hce (0.2.0):
+    - React
   - react-native-html-to-pdf (0.12.0):
     - React-Core
   - react-native-image-picker (4.10.3):
@@ -580,6 +582,7 @@ DEPENDENCIES:
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-flipper (from `../node_modules/react-native-flipper`)
   - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
+  - react-native-hce (from `../node_modules/react-native-hce`)
   - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
@@ -704,6 +707,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-flipper"
   react-native-get-random-values:
     :path: "../node_modules/react-native-get-random-values"
+  react-native-hce:
+    :path: "../node_modules/react-native-hce"
   react-native-html-to-pdf:
     :path: "../node_modules/react-native-html-to-pdf"
   react-native-image-picker:
@@ -833,6 +838,7 @@ SPEC CHECKSUMS:
   react-native-document-picker: 958e2bc82e128be69055be261aeac8d872c8d34c
   react-native-flipper: 1b78844db5b0de19bd64847c3b88cafc6cc119ba
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
+  react-native-hce: d416a1fcb8fd85e1d46260f72c29589a77869879
   react-native-html-to-pdf: 4c5c6e26819fe202971061594058877aa9b25265
   react-native-image-picker: 60f4246eb5bb7187fc15638a8c1f13abd3820695
   react-native-mmkv: 1265a348a4711097ba29c8bcefd5971f48220f2b

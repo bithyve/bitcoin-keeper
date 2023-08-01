@@ -6,7 +6,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -37,7 +36,7 @@ function VaultModals({
   const navigation = useNavigation();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
-  const vault: Vault = useVault().activeVault;
+  const { activeVault: vault } = useVault();
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
   const [tireChangeModal, setTireChangeModal] = useState(false);

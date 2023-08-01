@@ -29,7 +29,13 @@ function NfcPrompt({ visible, close }: { visible: boolean; close }) {
   }
 
   const onCancel = async () => {
-    close();
+    Animated.timing(animation, {
+      duration: 400,
+      toValue: 0,
+      useNativeDriver: true,
+    }).start(() => {
+      close();
+    });
     await NFC.cancelRequest();
   };
 

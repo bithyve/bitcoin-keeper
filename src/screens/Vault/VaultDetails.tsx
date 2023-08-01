@@ -67,7 +67,12 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const styles = getStyles(0);
   return (
     <Box>
-      <Box borderWidth={0.5} borderColor={`${colorMode}.GreyText`} borderRadius={20} opacity={0.2} />
+      <Box
+        borderWidth={0.5}
+        borderColor={`${colorMode}.GreyText`}
+        borderRadius={20}
+        opacity={0.2}
+      />
       <Box flexDirection="row" justifyContent="space-between" marginX={10} marginTop={3}>
         <TouchableOpacity
           style={styles.IconText}
@@ -121,7 +126,6 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
 }
 
 function Header() {
-
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const styles = getStyles(0);
@@ -179,7 +183,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
             amount={unconfirmed}
             fontSize={14}
             color={`${colorMode}.white`}
-            variation={colorMode === 'light' ? "light" : "dark"}
+            variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
@@ -191,7 +195,7 @@ function VaultInfo({ vault }: { vault: Vault }) {
             amount={confirmed}
             fontSize={20}
             color={`${colorMode}.white`}
-            variation={colorMode === 'light' ? "light" : "dark"}
+            variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </VStack>
       </HStack>
@@ -301,7 +305,13 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <AddIcon />
             </Box>
             <VStack pb={2}>
-              <Text color={`${colorMode}.white`} fontSize={10} bold letterSpacing={0.6} textAlign="center">
+              <Text
+                color={`${colorMode}.white`}
+                fontSize={10}
+                bold
+                letterSpacing={0.6}
+                textAlign="center"
+              >
                 Add signing device to upgrade
               </Text>
             </VStack>
@@ -324,7 +334,12 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
           !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
 
         return (
-          <Box style={styles.signerCard} marginRight="3" key={signer.signerId} backgroundColor={`${colorMode}.seashellWhite`}>
+          <Box
+            style={styles.signerCard}
+            marginRight="3"
+            key={signer.signerId}
+            backgroundColor={`${colorMode}.seashellWhite`}
+          >
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
@@ -455,7 +470,7 @@ function VaultDetails({ route, navigation }) {
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useVault().activeVault;
+  const { activeVault: vault } = useVault();
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
@@ -546,7 +561,8 @@ function VaultDetails({ route, navigation }) {
                 Add Email
               </Text>
               <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.secondaryText`}>
-                Additionally you can provide an email which will be used to notify you when someone tries to access the Inheritance Key
+                Additionally you can provide an email which will be used to notify you when someone
+                tries to access the Inheritance Key
               </Text>
             </Box>
             <Box style={styles.rightIconWrapper}>

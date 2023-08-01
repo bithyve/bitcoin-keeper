@@ -10,7 +10,6 @@ import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
-import useToastMessage from './useToastMessage';
 
 const hasPlanChanged = (vault: Vault, subscriptionScheme): VaultMigrationType => {
   if (vault) {
@@ -91,22 +90,11 @@ const useSignerIntel = ({ isInheritance }) => {
   const planStatus = hasPlanChanged(activeVault, subscriptionScheme);
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
-  const { showToast } = useToastMessage();
 
   useEffect(() => {
-    const doesTrezorExist = vaultSigners.some((signer) => signer.type === SignerType.TREZOR);
-    let sanitisedSigners = vaultSigners;
-    if (doesTrezorExist && plan !== SubscriptionTier.L1.toUpperCase()) {
-      sanitisedSigners = vaultSigners.filter((item) => item.type !== SignerType.TREZOR);
-      showToast(
-        'Trezor has been disabled for multisig temporarily. But you can still use the single-sig vault or migrate to a multisig vault without Trezor.',
-        null,
-        7000
-      );
-    }
-    const fills = getPrefillForSignerList(planStatus, sanitisedSigners, currentSignerLimit);
+    const fills = getPrefillForSignerList(planStatus, vaultSigners, currentSignerLimit);
     setSignersState(
-      sanitisedSigners
+      vaultSigners
         .map((signer) => updateSignerForScheme(signer, subscriptionScheme.n))
         .concat(fills)
     );

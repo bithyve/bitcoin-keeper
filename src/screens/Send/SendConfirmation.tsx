@@ -47,6 +47,7 @@ import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
+import useVault from 'src/hooks/useVault';
 import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
@@ -96,12 +97,9 @@ function SendConfirmation({ route }) {
   );
 
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item.id === walletId);
-  const defaultVault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault: defaultVault } = useVault();
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
@@ -640,7 +638,8 @@ function SendConfirmation({ route }) {
           letterSpacing={1.12}
           marginTop={windowHeight * 0.011}
         >
-          <BTC />&nbsp;
+          <BTC />
+          &nbsp;
           {transferType === TransferType.WALLET_TO_VAULT
             ? sendMaxFee
             : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
@@ -745,7 +744,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-end',
     marginBottom: hp(40),
-    marginTop: hp(20)
+    marginTop: hp(20),
   },
   customPriority: {
     fontStyle: 'italic',

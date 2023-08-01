@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 
 import { Box } from 'native-base';
@@ -31,6 +31,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useVault from 'src/hooks/useVault';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
@@ -44,9 +45,7 @@ import {
 
 function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
-  const defaultVault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault: defaultVault } = useVault();
   const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const route = useRoute();
   const { note, label } = (route.params || { note: '', label: [] }) as {
