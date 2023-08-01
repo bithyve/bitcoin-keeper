@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
@@ -26,11 +26,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
 import GenerateRecoveryInstrPDF from 'src/utils/GenerateRecoveryInstrPDF';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { genrateOutputDescriptors } from 'src/core/utils';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import GenerateSecurityTipsPDF from 'src/utils/GenerateSecurityTipsPDF';
 import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
@@ -38,6 +34,7 @@ import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
 
 function InheritanceStatus() {
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
@@ -64,7 +61,7 @@ function InheritanceStatus() {
   }, [activeVault]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         onPressHandler={() => navigtaion.goBack()}
         learnMore

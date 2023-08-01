@@ -90,7 +90,7 @@ export const customTheme = extendTheme({
       vaultCardText: Colors.Bisque,
       satsDark: Colors.DeepSpaceGreen,
       gradientStart: Colors.GenericViridian, // linearGradient
-      gradientEnd: Colors.DeepAquamarine, // linearGradient
+      gradientEnd: Colors.RichGreen, // linearGradient
       error: Colors.CongoPink,
       black: Colors.Black,
       fadedGray: Colors.FadedGray,
@@ -107,7 +107,7 @@ export const customTheme = extendTheme({
       mainBackground: Colors.LightWhite,
       modalGreenBackground: Colors.LightYellowDark,
       modalGreenContent: Colors.White,
-      modalWhiteBackground: Colors.SeashellDark,
+      modalWhiteBackground: Colors.LightYellowDark,
       white: Colors.Black,
       primaryText: Colors.RichBlackDark,
       secondaryText: Colors.GraniteGrayDark,

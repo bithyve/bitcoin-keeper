@@ -137,7 +137,7 @@ function NewHomeScreen({ navigation }) {
             }
           };
           const themeWalletActive = colorMode === 'light' ? "#2D6759" : "#89AEA7"
-          const themeVaultActive = colorMode === 'light' ? "#704E2E" : "#e3be96"
+          const themeVaultActive = colorMode === 'light' ? "#704E2E" : "#96826F"
           const textWalletColor = colorMode === 'light' ? "#2D6759" : "#89AEA7"
           const textVaultColor = colorMode === 'light' ? "#704E2E" : "#e3be96"
           const vaultActiveIcon = colorMode === 'light' ? VaultActiveIcon : VaultDark

@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -29,6 +29,7 @@ function VaultModals({
   setShowBuyRampModal: any;
   hasPlanChanged: any;
 }) {
+  const { colorMode } = useColorMode();
   const route = useRoute();
   const { vaultTransferSuccessful } = (route.params as any) || { vaultTransferSuccessful: false };
   const dispatch = useDispatch();
@@ -97,8 +98,8 @@ function VaultModals({
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
+        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         buttonText="Continue"

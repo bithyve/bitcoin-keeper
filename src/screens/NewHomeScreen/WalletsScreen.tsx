@@ -25,9 +25,9 @@ import KeeperModal from 'src/components/KeeperModal';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import useToastMessage from 'src/hooks/useToastMessage';
 import idx from 'idx';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Shadow } from 'react-native-shadow-2';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import dbManager from 'src/storage/realm/dbManager';
 import { SubscriptionTier, AppSubscriptionLevel } from 'src/common/data/enums/SubscriptionTier';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -317,10 +317,10 @@ const WalletsScreen = ({ navigation }) => {
     return (
       <Box width={wp(320)}>
         <Box margin={hp(5)}>
-          <DowngradeToPleb />
+          {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
         </Box>
         <Box>
-          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
             Please change the network and try again later
           </Text>
         </Box>
@@ -485,6 +485,7 @@ const WalletsScreen = ({ navigation }) => {
         close={() => setAddImportVisible(false)}
         title="Add or Import Wallet"
         subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => <AddImportWallet />}
@@ -494,11 +495,13 @@ const WalletsScreen = ({ navigation }) => {
         close={() => setElectrumErrorVisible(false)}
         title="Connection error"
         subTitle="Unable to connect to public electrum servers"
-        subTitleColor="light.secondaryText"
         buttonText="Continue"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonTextColor="light.white"
+        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={() => setElectrumErrorVisible(false)}
-        textColor="light.primaryText"
         Content={ElectrumErrorContent}
       />
     </HomeScreenWrapper>

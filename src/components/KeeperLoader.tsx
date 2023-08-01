@@ -14,7 +14,7 @@ function KeeperLoader(props) {
   const {
     visible,
     close,
-    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    modalBackground = [`${colorMode}.primaryBackground`, `${colorMode}.primaryBackground`],
     textColor = '#000',
     subTitleColor = `${colorMode}.secondaryText`,
     loadingContent,

@@ -398,6 +398,7 @@ function WalletSettings({ route }) {
           ]}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           Content={() => (
             <TransferPolicy
               wallet={wallet}

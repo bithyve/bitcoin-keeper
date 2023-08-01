@@ -123,7 +123,7 @@ function SigningDeviceList() {
         <Box alignSelf="center">
           <SigningDevicesIllustration />
         </Box>
-        <Text color={`${colorMode}.primaryText`} style={styles.modalText}>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
           {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
@@ -177,7 +177,7 @@ function SigningDeviceList() {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
+              <Box style={styles.walletMapWrapper}>{SDIcons(type, colorMode === 'dark').Icon}</Box>
               <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
                 {SDIcons(type).Logo}
@@ -246,15 +246,14 @@ function SigningDeviceList() {
           }}
           title="Signing Devices"
           subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
-          modalBackground={['light.gradientStart', 'light.gradientEnd']}
+          modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"
           buttonTextColor={`${colorMode}.greenText`}
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
+          textColor={`${colorMode}.modalGreenContent`}
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
