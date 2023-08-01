@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderRadius: 10,
     alignItems: 'center',
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.9,
     paddingLeft: 15,
     bottom: hp(40),
     height: 70,
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     },
   },
   toastMsgText: {
-    marginLeft: 5,
+    marginLeft: 2,
     fontSize: 14,
   }
 });
