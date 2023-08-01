@@ -21,9 +21,8 @@ import { useNavigation } from '@react-navigation/native';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
-import WalletUtilities from 'src/core/wallets/operations/utils';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 import { WalletType } from 'src/core/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -55,13 +54,13 @@ function ImportWalletScreen({ route }) {
 
     launchImageLibrary(options, async (response) => {
       if (response.didCancel) {
-        showToast('Camera device has been cancled');
+        showToast('Camera device has been cancled', <ToastErrorIcon />);
       } else if (response.errorCode === 'camera_unavailable') {
-        showToast('Camera not available on device');
+        showToast('Camera not available on device', <ToastErrorIcon />);
       } else if (response.errorCode === 'permission') {
-        showToast('Permission not satisfied');
+        showToast('Permission not satisfied', <ToastErrorIcon />);
       } else if (response.errorCode === 'others') {
-        showToast(response.errorMessage);
+        showToast(response.errorMessage, <ToastErrorIcon />);
       } else {
         QRreader(response.assets[0].uri)
           .then((data) => {

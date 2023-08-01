@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 
 import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 
 import { AppContextProvider } from 'src/common/content/AppContext';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -11,11 +11,12 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { sentryConfig } from 'src/core/services/sentry';
 import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
+import { TorContextProvider } from 'src/store/contexts/TorContext';
+import { HCESessionProvider } from 'react-native-hce';
 import { customTheme } from './src/common/themes';
 import Navigator from './src/navigation/Navigator';
 import { LocalizationProvider } from './src/common/content/LocContext';
 import { persistor, store } from './src/store/store';
-import { TorContextProvider } from 'src/store/contexts/TorContext';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",
@@ -28,6 +29,10 @@ if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
     UIManager.setLayoutAnimationEnabledExperimental(true);
   }
+}
+
+function AndroidProvider({ children }: { children: ReactElement }) {
+  return Platform.OS === 'android' ? <HCESessionProvider>{children}</HCESessionProvider> : children;
 }
 
 function App() {
@@ -53,7 +58,9 @@ function App() {
         <LocalizationProvider>
           <AppContextProvider>
             <TorContextProvider>
-              <Navigator />
+              <AndroidProvider>
+                <Navigator />
+              </AndroidProvider>
             </TorContextProvider>
           </AppContextProvider>
         </LocalizationProvider>

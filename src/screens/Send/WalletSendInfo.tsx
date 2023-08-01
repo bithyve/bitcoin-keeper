@@ -1,6 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
 import { ScaledSheet } from 'react-native-size-matters';
@@ -9,6 +9,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
+import BTCWhite from 'src/assets/images/btc_white.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
@@ -21,8 +22,9 @@ function WalletSendInfo({
   currencyIcon = BTCIcon,
   selectedUTXOs = [],
 }) {
+  const { colorMode } = useColorMode();
   return (
-    <Box style={styles.container} backgroundColor="light.primaryBackground">
+    <Box style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box flexDirection="row">
         <TouchableOpacity style={styles.buttonBackground}>
           <IconWallet />
@@ -32,13 +34,13 @@ function WalletSendInfo({
             marginLeft: wp(10),
           }}
         >
-          <Text color="light.sendCardHeading" numberOfLines={1} style={styles.walletNameText}>
+          <Text color={`${colorMode}.primaryText`} numberOfLines={1} style={styles.walletNameText}>
             {walletName}
           </Text>
           {selectedUTXOs.length ? (
-            <Text fontSize={12} numberOfLines={1}>
+            <Text fontSize={12} numberOfLines={1} color={`${colorMode}.primaryText`}>
               Sending from selected UTXOs of &nbsp;
-              <BTCIcon />
+              {colorMode === 'light' ? <BTCIcon /> : <BTCWhite />}
               &nbsp;
               <Text bold fontSize={14}>
                 {SatsToBtc(selectedUTXOs.reduce((a, c) => a + c.value, 0))} {isSats && 'sats'}
@@ -53,8 +55,8 @@ function WalletSendInfo({
                 hideAmounts={false}
                 amount={availableAmt}
                 fontSize={14}
-                color="light.sendCardHeading"
-                variation='dark'
+                color={`${colorMode}.primaryText`}
+                variation={colorMode === 'light' ? 'dark' : 'light'}
               />
             </Box>
           )}

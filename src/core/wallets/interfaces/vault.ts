@@ -72,4 +72,5 @@ export interface Vault {
   specs: VaultSpecs;
   archived: boolean;
   scriptType: ScriptTypes;
+  collaborativeWalletId?: string; // collaborative wallet id (wallet cosigners (KSDs))
 }

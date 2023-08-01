@@ -213,7 +213,7 @@ function AddSendAmount({ route }) {
     setLabelsToAdd([...labelsToAdd]);
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
@@ -271,27 +271,27 @@ function AddSendAmount({ route }) {
               </Text>
             )}
             <Box
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
               style={styles.inputWrapper}
             >
               <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
-                <Box marginRight={2}>{getCurrencyIcon(BitcoinInput, 'dark')}</Box>
+                <Box marginRight={2}>{getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}</Box>
                 <Box
                   marginLeft={2}
                   width={0.5}
-                  backgroundColor="light.divider"
+                  backgroundColor={`${colorMode}.divider`}
                   opacity={0.3}
                   height={7}
                 />
                 <Input
                   placeholder="Enter Amount"
-                  placeholderTextColor="light.greenText"
+                  placeholderTextColor={`${colorMode}.greenText`}
                   width="90%"
                   fontSize={14}
                   fontWeight={300}
                   opacity={amount ? 1 : 0.5}
-                  color="light.greenText"
+                  color={`${colorMode}.greenText`}
                   letterSpacing={1.04}
                   borderWidth="0"
                   value={amount}
@@ -320,25 +320,25 @@ function AddSendAmount({ route }) {
                       })
                     );
                 }}
-                backgroundColor="light.accent"
+                backgroundColor={`${colorMode}.accent`}
                 style={styles.sendMaxWrapper}
               >
-                <Text color="light.sendMax" style={styles.sendMaxText}>
+                <Text color={`${colorMode}.sendMax`} style={styles.sendMaxText}>
                   Send Max
                 </Text>
               </Pressable>
             </Box>
 
             <Box
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
               style={styles.inputWrapper}
             >
               <Input
                 placeholder="Add a note"
                 autoCapitalize="sentences"
-                placeholderTextColor="light.greenText"
-                color="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
+                color={`${colorMode}.greenText`}
                 opacity={note ? 1 : 0.5}
                 width="90%"
                 fontSize={14}
@@ -360,7 +360,7 @@ function AddSendAmount({ route }) {
               subTitle="Tags help you remember and identify UTXOs"
             /> */}
             <VStack
-              backgroundColor="light.primaryBackground"
+              backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
               style={[
                 styles.inputWrapper,
@@ -382,7 +382,7 @@ function AddSendAmount({ route }) {
               <Input
                 autoCapitalize="sentences"
                 placeholder="Add a label"
-                placeholderTextColor="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
                 opacity={label ? 1 : 0.5}
                 width="90%"
                 fontSize={14}

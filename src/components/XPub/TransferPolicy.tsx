@@ -6,7 +6,8 @@ import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
@@ -118,8 +119,8 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="#041513"
-        ClearIcon={<DeleteIcon />}
+        keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
       />
       {relayWalletUpdateLoading && <ActivityIndicatorView visible={relayWalletUpdateLoading} />}
     </Box>

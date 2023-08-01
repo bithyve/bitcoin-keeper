@@ -1,4 +1,5 @@
 import NfcManager, { Ndef, NfcTech } from 'react-native-nfc-manager';
+import { HCESession, NFCTagType4NDEFContentType, NFCTagType4 } from 'react-native-hce';
 
 import { Platform } from 'react-native';
 import { captureError } from '../sentry';
@@ -109,11 +110,35 @@ export default class NFC {
     }
   };
 
-  public static encodeForColdCard = (message) => Ndef.encodeMessage([Ndef.textRecord(message)]);
+  public static encodeTextRecord = (message) => Ndef.encodeMessage([Ndef.textRecord(message)]);
 
   public static isNFCSupported = async () => NfcManager.isSupported();
 
   public static showiOSMessage = async (message: string) => NfcManager.setAlertMessageIOS(message);
 
   public static cancelRequest = async () => NfcManager.cancelTechnologyRequest();
+
+  public static startTagSession = async ({
+    session,
+    content,
+    writable = false,
+  }: {
+    session: HCESession;
+    content: string;
+    writable?: boolean;
+  }) => {
+    const tag = new NFCTagType4({
+      type: NFCTagType4NDEFContentType.Text,
+      content,
+      writable,
+    });
+    await session.setApplication(tag);
+    await session.setEnabled(true);
+  };
+
+  public static stopTagSession = async (session) => {
+    try {
+      await session.setEnabled(false);
+    } catch (e) {}
+  };
 }

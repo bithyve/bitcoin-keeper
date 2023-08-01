@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -12,6 +12,7 @@ import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
+import BtcWhite from 'src/assets/images/btc_white.svg';
 import { SatsToBtc } from 'src/common/constants/Bitcoin';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -47,15 +48,16 @@ const styles = StyleSheet.create({
 })
 
 function ListItem({ title, subtitle, balance, btnTitle, onBtnPress }) {
+  const { colorMode } = useColorMode();
   return (
     <Box flexDirection="row" my={2} alignItems="center">
       <WalletInsideGreen />
       <Box mx={4} flex={1}>
-        <Text fontSize={13} color='#041513'>{title}</Text>
-        <Text fontSize={12} color='#4F5955'>{subtitle}</Text>
+        <Text fontSize={13} color={`${colorMode}.primaryText`}>{title}</Text>
+        <Text fontSize={12} color={`${colorMode}.secondaryText`}>{subtitle}</Text>
         <Box flexDirection="row" alignItems="center">
-          <BtcBlack />
-          <Text mx={1} fontSize={14} color='#041513'>{SatsToBtc(balance)}</Text>
+          {colorMode === 'light' ? <BtcBlack /> : <BtcWhite />}
+          <Text mx={1} fontSize={14} color={`${colorMode}.primaryText`}>{SatsToBtc(balance)}</Text>
         </Box>
       </Box>
 
@@ -75,6 +77,7 @@ function ListItem({ title, subtitle, balance, btnTitle, onBtnPress }) {
 }
 
 function ManageWallets() {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
   const { useQuery } = useContext(RealmWrapperContext);
@@ -180,7 +183,7 @@ function ManageWallets() {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title={settings.ManageWallets}
         subtitle={settings.ManageWalletsSub}

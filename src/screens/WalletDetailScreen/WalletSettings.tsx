@@ -23,7 +23,7 @@ import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
@@ -165,6 +165,7 @@ function WalletSettings({ route }) {
           encodeToBytes: false,
           title: 'Signed PSBT',
           subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
         },
       })
     );
@@ -246,7 +247,9 @@ function WalletSettings({ route }) {
             title="Show Cosigner Details"
             subTitle="Use this wallet as a signing device"
             onPress={() => {
-              setCosignerVisible(true);
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'CosignerDetails', params: { wallet } })
+              );
             }}
           />
           <Option
@@ -285,6 +288,7 @@ function WalletSettings({ route }) {
                     title: `Scan PSBT to Sign`,
                     subtitle: 'Please scan until all the QR data has been retrieved',
                     onQrScan: signPSBT,
+                    type: SignerType.KEEPER,
                   },
                 })
               );
@@ -307,7 +311,10 @@ function WalletSettings({ route }) {
           title={walletTranslation?.confirmPassTitle}
           subTitleWidth={wp(240)}
           subTitle={walletTranslation?.confirmPassSubTitle}
-          modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
@@ -327,7 +334,10 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
@@ -351,13 +361,16 @@ function WalletSettings({ route }) {
           title="Cosigner Details"
           subTitleWidth={wp(260)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
-          modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           buttonText="Done"
           buttonCallback={() => {
             setCosignerVisible(false);
-            // setAddWalletCosignerVisible(true) 
+            // setAddWalletCosignerVisible(true)
           }}
           Content={() => (
             <ShowXPub
@@ -379,9 +392,13 @@ function WalletSettings({ route }) {
           }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
-          modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           Content={() => (
             <TransferPolicy
               wallet={wallet}
