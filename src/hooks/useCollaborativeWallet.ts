@@ -14,7 +14,7 @@ const useCollaborativeWallet = ({ walletId }: { walletId: string }) => {
   if (!collaborativeWallets || !collaborativeWallets.length) {
     return { collaborativeWallet: null };
   }
-  return { collaborativeWallet: collaborativeWallets.map(getJSONFromRealmObject)[0] };
+  return { collaborativeWallet: collaborativeWallets.map(getJSONFromRealmObject)[0] as Vault };
 };
 
 export default useCollaborativeWallet;

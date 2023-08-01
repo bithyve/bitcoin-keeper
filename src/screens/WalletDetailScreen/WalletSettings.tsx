@@ -202,7 +202,7 @@ function WalletSettings({ route }) {
   const collaborativeWalletCheck = () => {
     if (collaborativeWallet) {
       navigation.dispatch(
-        CommonActions.navigate('CollabrativeWalletDetails', { collaborativeWallet })
+        CommonActions.navigate('VaultDetails', { walletId: wallet.id, isCollaborativeWallet: true })
       );
     } else {
       setCollaborativeModalVisible(true);
