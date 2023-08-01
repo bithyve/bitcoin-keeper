@@ -1,14 +1,12 @@
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useDisclose } from 'native-base';
+import { Box } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Fonts from 'src/common/Fonts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
-import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
@@ -23,12 +21,10 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 function ImportDescriptorScreen() {
-  const [inputText, setInputText] =
-    useState(`wsh(sortedmulti(2,[746DEBE3/48h/1h/0h/2h]tpubDF52SDWPbpULqiuE7Ehq7zuDXAEn5gbQd26mdzfBnm93bA6BrKL5CZtbKWCZKhqGHzQPrfNN3DaDXeUCbHujF4AKAQed8wJdXUbm7uPu4GJ/*,[D42505BD/48h/1h/0h/2h]tpubDFWxsBTt8REJG392uzgm23qywEYRvHJ8YTbYGQJWtLC2TNv2qyvxqh5Vi68YeSJozkS2wWDL3h5D6w5oQozDNy1AfqMz9knmS2dxNnGTAhh/,[529D0B46/48h/1h/0h/2h]tpubDEJj6enT4GbaRdYhyiz78BXVCNCar4VhzLY2ZgTM4yTYsAthMV5dpTaTGhGANvGg9mcfykrezibe7utf8MtS3LWM5DbCD2dJihXzbhMPS4u/*)
-  No path restrictions
-  tb1q8cnkak0ljc2krfqepdt7vtenq9ljj85hhgrfnyqtdqewspuxhzssjag5rc`);
+  const [inputText, setInputText] = useState(``);
   //   const { recoveryLoading, initateRecovery } = useConfigRecovery();
   const [walletCreationLoading, setWalletCreationLoading] = useState(false);
   const navigation = useNavigation();
@@ -43,17 +39,18 @@ function ImportDescriptorScreen() {
 
   useEffect(() => {
     if (collaborativeWallet) {
+      setWalletCreationLoading(false);
       navigation.dispatch(
         CommonActions.navigate('VaultDetails', { walletId: wallet.id, isCollaborativeWallet: true })
       );
     }
-  }, []);
-  const initateWalletRecreation = (text) => {
+  }, [collaborativeWallet]);
+  const initateWalletRecreation = () => {
     try {
       setWalletCreationLoading(true);
-      const parsedText: ParsedVauleText = parseTextforVaultConfig(text);
+      const parsedText: ParsedVauleText = parseTextforVaultConfig(inputText);
       if (parsedText) {
-        const signers = [];
+        const signers: VaultSigner[] = [];
         parsedText.signersDetails.forEach((config) => {
           const signer = generateSignerFromMetaData({
             xpub: config.xpub,
@@ -67,8 +64,7 @@ function ImportDescriptorScreen() {
         });
 
         const { xpub: myXpub } = getCosignerDetails(wallet, keeper.id);
-        const isValidDescriptor = signers.find((signer) => signer.xPub === myXpub);
-
+        const isValidDescriptor = signers.find((signer) => signer.xpub === myXpub);
         if (!isValidDescriptor) {
           throw new Error('Descriptor does not contain your key');
         }
@@ -121,7 +117,7 @@ function ImportDescriptorScreen() {
           </Box>
           <Box style={styles.tileContainer}>
             <Buttons
-              primaryCallback={() => initateWalletRecreation(inputText)}
+              primaryCallback={() => initateWalletRecreation()}
               primaryText="Create"
               primaryLoading={walletCreationLoading}
             />

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useToast } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
@@ -16,6 +16,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SignerType } from 'src/core/wallets/enums';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import useWallets from 'src/hooks/useWallets';
+import { Vault } from 'src/core/wallets/interfaces/vault';
 
 type Props = {
   title: string;
@@ -54,16 +56,18 @@ function Option({ title, subTitle, onPress }: Props) {
   );
 }
 
-function CollabrativeWalletSettings({ route }) {
-  const { wallet: collaborativeWallet } = route.params;
+function CollabrativeWalletSettings() {
+  const route = useRoute();
+  const { wallet: collaborativeWallet } = route.params as { wallet: Vault };
   const navigation = useNavigation();
   const showToast = useToast();
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const wallet = useWallets({ walletIds: [collaborativeWallet.collaborativeWalletId] }).wallets[0];
 
   const signPSBT = (serializedPSBT) => {
-    const signedSerialisedPSBT = signCosignerPSBT(collaborativeWallet, serializedPSBT);
+    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
     navigation.dispatch(
       CommonActions.navigate({
         name: 'ShowQR',

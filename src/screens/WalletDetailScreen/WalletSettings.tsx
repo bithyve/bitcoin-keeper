@@ -73,7 +73,12 @@ function Option({ title, subTitle, onPress }: Props) {
   );
 }
 
-function CollabrativeModalContent({ navigation, wallet }: any) {
+function CollabrativeModalContent({
+  navigation,
+  wallet,
+  setCollaborativeModalVisible,
+  signPSBT,
+}: any) {
   return (
     <Box>
       <Box>
@@ -81,6 +86,7 @@ function CollabrativeModalContent({ navigation, wallet }: any) {
           title="View CoSigner Details"
           subTitle="To create a collaborative wallet"
           onPress={() => {
+            setCollaborativeModalVisible(false);
             navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
           }}
         />
@@ -88,6 +94,7 @@ function CollabrativeModalContent({ navigation, wallet }: any) {
           title="Import Output Descriptor"
           subTitle="To view collaborative wallet"
           onPress={() => {
+            setCollaborativeModalVisible(false);
             navigation.dispatch(
               CommonActions.navigate('ImportDescriptorScreen', { walletId: wallet.id })
             );
@@ -96,7 +103,19 @@ function CollabrativeModalContent({ navigation, wallet }: any) {
         <Option
           title="Sign a PSBT"
           subTitle="Sign a collaborative transaction"
-          onPress={() => {}}
+          onPress={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ScanQR',
+                params: {
+                  title: `Scan PSBT to Sign`,
+                  subtitle: 'Please scan until all the QR data has been retrieved',
+                  onQrScan: signPSBT,
+                  type: SignerType.KEEPER,
+                },
+              })
+            );
+          }}
         />
       </Box>
     </Box>
@@ -211,6 +230,22 @@ function WalletSettings({ route }) {
     } else {
       setCollaborativeModalVisible(true);
     }
+  };
+
+  const signPSBT = (serializedPSBT) => {
+    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowQR',
+        params: {
+          data: signedSerialisedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
+        },
+      })
+    );
   };
 
   return (
@@ -422,7 +457,14 @@ function WalletSettings({ route }) {
         }}
         title="No Collaborative Wallet Created"
         subTitle="Import a product descriptor or BSMS file to view a collaborative wallet"
-        Content={() => <CollabrativeModalContent navigation={navigation} wallet={wallet} />}
+        Content={() => (
+          <CollabrativeModalContent
+            navigation={navigation}
+            wallet={wallet}
+            setCollaborativeModalVisible={setCollaborativeModalVisible}
+            signPSBT={signPSBT}
+          />
+        )}
       />
       {/* end */}
     </Box>

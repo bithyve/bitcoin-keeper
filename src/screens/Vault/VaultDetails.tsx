@@ -124,7 +124,8 @@ function Footer({
           onPress={() => {
             navigation.dispatch(
               CommonActions.navigate(
-                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings'
+                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+                { wallet: isCollaborativeWallet ? vault : vault }
               )
             );
           }}
@@ -662,7 +663,11 @@ function VaultDetails({ navigation }) {
           vault={vault}
           isCollaborativeWallet={isCollaborativeWallet}
         />
-        <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
+        <Footer
+          onPressBuy={() => setShowBuyRampModal(true)}
+          vault={vault}
+          isCollaborativeWallet={isCollaborativeWallet}
+        />
       </VStack>
       <TierUpgradeModal
         visible={tireChangeModal}
