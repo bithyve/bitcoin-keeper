@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import {
   FlatList,
   Linking,
@@ -41,8 +41,8 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
 import useFeatureMap from 'src/hooks/useFeatureMap';
-import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
 import useWallets from 'src/hooks/useWallets';
+import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
 
 function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
   const navigation = useNavigation();
@@ -316,15 +316,16 @@ function RampBuyContent({
   );
 }
 
-function CollaborativeWalletDetails({ route, navigation }) {
-  const { vaultTransferSuccessful = false, autoRefresh } = route.params || {};
+function CollaborativeWalletDetails() {
+  const route = useRoute();
+  const { params } = route as { params: { collaborativeWallet: Vault; autoRefresh: boolean } };
+  const { collaborativeWallet, autoRefresh } = params;
 
   const dispatch = useDispatch();
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useVault().activeVault;
   const [pullRefresh, setPullRefresh] = useState(false);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  const transactions = vault?.specs?.transactions || [];
+  const transactions = collaborativeWallet?.specs?.transactions || [];
 
   useEffect(() => {
     if (autoRefresh) syncVault();
@@ -332,7 +333,7 @@ function CollaborativeWalletDetails({ route, navigation }) {
 
   const syncVault = () => {
     setPullRefresh(true);
-    dispatch(refreshWallets([vault], { hardRefresh: true }));
+    dispatch(refreshWallets([collaborativeWallet], { hardRefresh: true }));
     setPullRefresh(false);
   };
   const styles = getStyles(top);
@@ -347,11 +348,11 @@ function CollaborativeWalletDetails({ route, navigation }) {
   };
 
   return (
-    <Box style={styles.container} backgroundColor={'#2D6759'}>
+    <Box style={styles.container} backgroundColor="#2D6759">
       <VStack zIndex={1}>
         <VStack mx="8%" mt={5}>
           <Header />
-          <VaultInfo vault={vault} />
+          <VaultInfo vault={collaborativeWallet} />
         </VStack>
       </VStack>
       <VStack
@@ -366,9 +367,9 @@ function CollaborativeWalletDetails({ route, navigation }) {
           transactions={transactions}
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
-          vault={vault}
+          vault={collaborativeWallet}
         />
-        <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
+        <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={collaborativeWallet} />
       </VStack>
       <KeeperModal
         visible={showBuyRampModal}
@@ -383,7 +384,7 @@ function CollaborativeWalletDetails({ route, navigation }) {
           <RampBuyContent
             buyWithRamp={buyWithRamp}
             setShowBuyRampModal={setShowBuyRampModal}
-            vault={vault}
+            vault={collaborativeWallet}
           />
         )}
       />

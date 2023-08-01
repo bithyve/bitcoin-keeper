@@ -33,6 +33,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
+import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 
 type Props = {
   title: string;
@@ -69,6 +70,32 @@ function Option({ title, subTitle, onPress }: Props) {
         <Arrow />
       </Box>
     </Pressable>
+  );
+}
+
+function CollabrativeModalContent({ navigation, wallet }: any) {
+  return (
+    <Box>
+      <Box>
+        <Option
+          title="View CoSigner Details"
+          subTitle="To create a collaborative wallet"
+          onPress={() => {
+            navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
+          }}
+        />
+        <Option
+          title="Import Output Descriptor"
+          subTitle="To view collaborative wallet"
+          onPress={() => {}}
+        />
+        <Option
+          title="Sign a PSBT"
+          subTitle="Sign a collaborative transaction"
+          onPress={() => {}}
+        />
+      </Box>
+    </Box>
   );
 }
 
@@ -170,29 +197,18 @@ function WalletSettings({ route }) {
     );
   }
 
-  function CollabrativeModalContent() {
-    return (
-      <Box>
-        <Box>
-          <Option
-            title="View CoSigner Details"
-            subTitle="To create a collaborative wallet"
-            onPress={() => {}}
-          />
-          <Option
-            title="Import Output Descriptor"
-            subTitle="To view collaborative wallet"
-            onPress={() => {}}
-          />
-          <Option
-            title="Sign a PSBT"
-            subTitle="Sign a collaborative transaction"
-            onPress={() => {}}
-          />
-        </Box>
-      </Box>
-    );
-  }
+  const { collaborativeWallet } = useCollaborativeWallet({ walletId: wallet.id });
+
+  const collaborativeWalletCheck = () => {
+    if (collaborativeWallet) {
+      navigation.dispatch(
+        CommonActions.navigate('CollabrativeWalletDetails', { collaborativeWallet })
+      );
+    } else {
+      setCollaborativeModalVisible(true);
+    }
+  };
+
   return (
     <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
@@ -250,9 +266,7 @@ function WalletSettings({ route }) {
           <Option
             title="Collaborative Wallet"
             subTitle="Create, sign and view multisig"
-            onPress={() => {
-              navigation.navigate('CollabrativeWalletDetails', {});
-            }}
+            onPress={collaborativeWalletCheck}
           />
           {config.NETWORK_TYPE === NetworkType.TESTNET && (
             <Option
@@ -404,7 +418,7 @@ function WalletSettings({ route }) {
         }}
         title="No Collaborative Wallet Created"
         subTitle="Import a product descriptor or BSMS file to view a collaborative wallet"
-        Content={CollabrativeModalContent}
+        Content={() => <CollabrativeModalContent navigation={navigation} wallet={wallet} />}
       />
       {/* end */}
     </Box>

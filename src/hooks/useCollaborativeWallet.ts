@@ -8,11 +8,13 @@ import { VaultType } from 'src/core/wallets/enums';
 
 const useCollaborativeWallet = ({ walletId }: { walletId: string }) => {
   const { useQuery } = useContext(RealmWrapperContext);
-  const collaborativeWallet: Vault =
-    useQuery(RealmSchema.Vault)
-      .filtered(`type == "${VaultType.COLLABORATIVE}" && collaborativeWalletId == "${walletId}"`)
-      .map(getJSONFromRealmObject) || null;
-  return { collaborativeWallet };
+  const collaborativeWallets: Vault[] = useQuery(RealmSchema.Vault).filtered(
+    `type == "${VaultType.COLLABORATIVE}" && collaborativeWalletId == "${walletId}"`
+  );
+  if (!collaborativeWallets || !collaborativeWallets.length) {
+    return { collaborativeWallet: null };
+  }
+  return { collaborativeWallet: collaborativeWallets.map(getJSONFromRealmObject)[0] };
 };
 
 export default useCollaborativeWallet;

@@ -476,6 +476,7 @@ export interface NewVaultInfo {
   vaultScheme: VaultScheme;
   vaultSigners: VaultSigner[];
   vaultDetails?: NewVaultDetails;
+  collaborativeWalletId?: string;
 }
 
 function* addNewVaultWorker({
@@ -494,7 +495,8 @@ function* addNewVaultWorker({
 
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
-      const { vaultType, vaultScheme, vaultSigners, vaultDetails } = newVaultInfo;
+      const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
+        newVaultInfo;
       if (vaultScheme.n !== vaultSigners.length)
         throw new Error('Vault schema(n) and signers mismatch');
 
@@ -503,13 +505,14 @@ function* addNewVaultWorker({
 
       const networkType = config.NETWORK_TYPE;
       vault = yield call(generateVault, {
-        type: vaultType,
+        type: collaborativeWalletId ? VaultType.COLLABORATIVE : vaultType,
         vaultName: vaultDetails.name,
         vaultDescription: vaultDetails.description,
         scheme: vaultScheme,
         signers: vaultSigners,
         networkType,
         vaultShellId,
+        collaborativeWalletId,
       });
     }
     yield put(setRelayVaultUpdateLoading(true));
