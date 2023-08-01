@@ -92,6 +92,10 @@ import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelReco
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import CosignerDetails from 'src/screens/WalletDetailScreen/CosignerDetails';
+import WalletDetailsSettings from 'src/screens/WalletDetailScreen/WalletDetailsSettings';
+import CollabrativeWalletSettings from 'src/screens/WalletDetailScreen/CollabrativeWalletSettings';
+import ImportDescriptorScreen from 'src/screens/WalletDetailScreen/ImportDescriptor';
+import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -182,6 +186,9 @@ function AppStack() {
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
+        <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
+        <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
+        <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
@@ -225,6 +232,7 @@ function AppStack() {
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
+        <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

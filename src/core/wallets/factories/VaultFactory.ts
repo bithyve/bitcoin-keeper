@@ -48,6 +48,7 @@ export const generateVault = ({
   signers,
   networkType,
   vaultShellId,
+  collaborativeWalletId,
 }: {
   type: VaultType;
   vaultName: string;
@@ -56,6 +57,7 @@ export const generateVault = ({
   signers: VaultSigner[];
   networkType: NetworkType;
   vaultShellId?: string;
+  collaborativeWalletId?: string;
 }): Vault => {
   const id = generateVaultId(signers, networkType);
   const xpubs = signers.map((signer) => signer.xpub);
@@ -103,6 +105,7 @@ export const generateVault = ({
     specs,
     archived: false,
     scriptType,
+    collaborativeWalletId,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
   return vault;
