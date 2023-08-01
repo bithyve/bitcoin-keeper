@@ -2,7 +2,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import * as bip39 from 'bip39';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
@@ -71,10 +71,11 @@ export const enum ModalTypes {
 }
 
 export function BulletPoint({ text }: { text: string }) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.bulletContainer}>
-      <Box backgroundColor="light.greenText" style={styles.bulletPoint} />
-      <Text color="light.greenText" style={styles.infoText}>
+      <Box backgroundColor={`${colorMode}.greenText`} style={styles.bulletPoint} />
+      <Text color={`${colorMode}.greenText`} style={styles.infoText}>
         {text}
       </Text>
     </Box>
@@ -604,6 +605,7 @@ function HardwareModalMap({
   signer?: VaultSigner;
   skipHealthCheckCallBack?: any;
 }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -919,7 +921,7 @@ function HardwareModalMap({
         buttonText="Proceed"
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
-        textColor="light.primaryText"
+        textColor={`${colorMode}.primaryText`}
         Content={Content}
         secondaryButtonText={isHealthcheck ? 'Skip' : null}
         secondaryCallback={isHealthcheck ? skipHealthCheckCallBack : null}

@@ -1,20 +1,18 @@
 # Bitcoin Keeper - Your Private Bitcoin Vault
 
-Bitcoin Keeper is a React Native app written in TypeScript. It uses Yarn as a package manager to handle dependencies.
+Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own Node, Whirlpool, and Hardware Wallet support. Built with React Native
 
-<img width="1728" alt="Screenshot 2023-05-26 at 6 41 23 PM" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/fe3a8cdb-260f-44a0-913a-8f94d5791b6b">
+<img width="1727" alt="Screens" src="https://github.com/bithyve/bitcoin-keeper/assets/50690016/da358b64-7e4a-4454-afa7-30210233fef2">
+
+
+[![Playstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/gpbtn.png)](https://play.google.com/store/apps/details?id=io.hexawallet.bitcoinkeeper)
+[![Appstore](https://bitcoinkeeper.app/wp-content/uploads/2023/05/applebtn.png)](https://apps.apple.com/us/app/bitcoin-keeper/id1545535925)
 
 
 ## Prerequisites
 
-Before getting started, make sure you have the following software installed on your machine:
+Before getting started, make sure you have proper [React Native development environment](https://reactnative.dev/docs/environment-setup) on your machine
 
-- [Node.js > 12](https://nodejs.org) and npm (Recommended: Use [nvm](https://github.com/nvm-sh/nvm))
-- [Watchman](https://facebook.github.io/watchman)
-- [Xcode 12](https://developer.apple.com/xcode)
-- [Cocoapods 1.10.1](https://cocoapods.org)
-- [JDK > 11](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
-- [Android Studio and Android SDK](https://developer.android.com/studio)
 
 ## Getting Started
 
@@ -33,40 +31,65 @@ Before getting started, make sure you have the following software installed on y
      ```shell
    yarn install
     ```
-    
-## Development
-To start the development server and run the app on a connected device or emulator, use the following commands:
-
-#### Android
-```bash
-yarn androidDevelopmentDebug
-```
-    
-#### iOS
-```bash
-yarn ios --scheme=hexa_keeper_dev
-```
-These commands will build and launch the app on the respective platforms.
-
+   
+## Build and Run
 
 ### Whirlpool prerequisites
-To use the Whirlpool feature, you'll need to have the following platform-specific binaries and place them in the specified directories:
+To use the Whirlpool, you'll need to have the following platform-specific binaries and place them in the specified directories:
 
 #### Android
 
-* Copy the libwhirlpool.so file from the release notes' asset section to the following directory:
+* Extract [jniLibs](https://github.com/bithyve/bitcoin-keeper/releases/download/v1.0.8/jniLibs.zip) to the following directory if not present already:
 ```bash
-android/app/src/main/jniLibs/{arch_dir}/libwhirlpool.so
+android/app/src/main/
 ```
-Replace {arch_dir} with the appropriate architecture directory (e.g., arm64-v8a, armeabi-v7a, x86).
 
 #### iOS
 
-* Copy the libwhirlpool.a file from the release notes' asset section to the following directory:
+* Copy the [libwhirlpool.a](https://github.com/bithyve/bitcoin-keeper/releases/download/v1.0.8/libwhirlpool.a) to the following directory:
 ```bash
 ios/libwhirlpool.a
 ```
 
+### Varients
+The project has testnet and mainnet varients. The development varient is configured to use testnet and production varient to use mainnet.
+
+Start metro metro
+```bash
+yarn start
+```
+
+#### Development
+To run the development app on a connected device or emulator:
+
+**Android**
+```bash
+yarn androidDevelopmentDebug
+```
+    
+**iOS**
+```bash
+yarn ios --scheme=hexa_keeper_dev
+```
+
+#### Production
+To run the production app on a connected device or emulator:
+
+**Android**
+```bash
+yarn androidProductionDebug
+```
+    
+**iOS**
+```bash
+yarn ios --scheme=hexa_keeper
+```
+These commands will build and launch the app on the respective platforms.
+
+## PGP
+```bash
+389F 4CAD A078 5AC0 E28A 0C18 1BEB DE26 1DC3 CF62
+```
 
 ## Testing
 This project uses **Jest** as the testing framework. To run the tests, use the following command:
@@ -75,5 +98,9 @@ yarn test
 ```
 ## License
 This project is licensed under the **MIT License.**
+
+## Community
+* Follow us on [Twitter](https://twitter.com/bitcoinKeeper_)
+* Join our [Telegram](https://t.me/bitcoinkeeper) 
     
 

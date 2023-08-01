@@ -1,11 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, ScrollView } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { setIKPDFPaths, setInheritance, setKeySecurityTipsPath, setLetterToAttornyPath, setRecoveryInstructionPath } from 'src/store/reducers/settings';
+import {
+  setInheritance,
+  setKeySecurityTipsPath,
+  setLetterToAttornyPath,
+  setRecoveryInstructionPath,
+} from 'src/store/reducers/settings';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
 import SetupIK from 'src/assets/images/SetupIK.svg';
@@ -36,18 +41,16 @@ function InheritanceStatus() {
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
-  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector((state) => state.settings);
+  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector(
+    (state) => state.settings
+  );
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
   const { activeVault } = useVault();
-  const { useQuery } = useContext(RealmWrapperContext);
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-  const fingerPrints = vault.signers.map(signer => signer.masterFingerprint)
+  const fingerPrints = activeVault.signers.map((signer) => signer.masterFingerprint);
 
-  const descriptorString = genrateOutputDescriptors(vault);
+  const descriptorString = genrateOutputDescriptors(activeVault);
   const [isSetupDone, setIsSetupDone] = useState(false);
 
   useEffect(() => {
@@ -80,19 +83,18 @@ function InheritanceStatus() {
           subTitle="How to store your keys securely"
           previewPDF={() => {
             if (keySecurityTips) {
-              navigtaion.navigate('PreviewPDF', { source: keySecurityTips })
+              navigtaion.navigate('PreviewPDF', { source: keySecurityTips });
             } else {
-              showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
+              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
             }
-
           }}
           downloadPDF={() => {
             GenerateSecurityTipsPDF().then((res) => {
               if (res) {
-                dispatch(setKeySecurityTipsPath(res))
+                dispatch(setKeySecurityTipsPath(res));
               }
               showToast('Document has been downloaded.', <TickIcon />);
-            })
+            });
           }}
           isDownload
         />
@@ -103,8 +105,8 @@ function InheritanceStatus() {
           isSetupDone={isSetupDone}
           onPress={() => {
             if (isSetupDone) {
-              showToast('You have successfully added the Inheritance Key.', <TickIcon />)
-              return
+              showToast('You have successfully added the Inheritance Key.', <TickIcon />);
+              return;
             }
             navigtaion.dispatch(
               CommonActions.navigate('AddSigningDevice', { isInheritance: true })
@@ -124,19 +126,18 @@ function InheritanceStatus() {
           subTitle="A partly filled pdf template"
           previewPDF={() => {
             if (letterToAttorny) {
-              navigtaion.navigate('PreviewPDF', { source: letterToAttorny })
+              navigtaion.navigate('PreviewPDF', { source: letterToAttorny });
             } else {
-              showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
+              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
             }
-
           }}
           downloadPDF={() => {
             GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
               if (res) {
-                dispatch(setLetterToAttornyPath(res))
+                dispatch(setLetterToAttornyPath(res));
               }
               showToast('Document has been downloaded.', <TickIcon />);
-            })
+            });
           }}
           isDownload
         />
@@ -146,16 +147,15 @@ function InheritanceStatus() {
           subTitle="A document for the heir only"
           previewPDF={() => {
             if (recoveryInstruction) {
-              navigtaion.navigate('PreviewPDF', { source: recoveryInstruction })
+              navigtaion.navigate('PreviewPDF', { source: recoveryInstruction });
             } else {
-              showToast('Document hasn\'t downloaded yet.', <ToastErrorIcon />);
+              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
             }
-
           }}
           downloadPDF={() =>
             GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
               if (res) {
-                dispatch(setRecoveryInstructionPath(res))
+                dispatch(setRecoveryInstructionPath(res));
               }
               showToast('Document has been downloaded.', <TickIcon />);
             })

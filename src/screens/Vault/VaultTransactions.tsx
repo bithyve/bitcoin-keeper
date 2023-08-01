@@ -1,6 +1,6 @@
 // libraries
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useContext, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -12,7 +12,6 @@ import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 // asserts
 import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
 import LinkedWallet from 'src/assets/images/walletUtxos.svg';
@@ -21,17 +20,18 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import useVault from 'src/hooks/useVault';
 
 function VaultTransactions({ route }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const [pullRefresh, setPullRefresh] = useState(false);
 
-  const vault: Vault = useQuery(RealmSchema.Vault)
+  const { activeVault: vault } = useVault();
+  const wallet: Wallet = useQuery(RealmSchema.Wallet)
     .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-  const wallet: Wallet = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject)
     .filter((wallet) => !wallet.archived)[0];
 
   const vaultTrans = vault?.specs?.transactions || [];
@@ -52,7 +52,7 @@ function VaultTransactions({ route }) {
   };
 
   return (
-    <Box style={styles.Container}>
+    <Box style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
       <StatusBarComponent padding={50} />
       <Box marginX={3}>
         <Box width={wp(200)}>
@@ -65,7 +65,7 @@ function VaultTransactions({ route }) {
             <Text fontSize={16} letterSpacing={0.8} color="light.headerText">
               {title}
             </Text>
-            <Text fontSize={12} letterSpacing={0.6} color="light.greenText">
+            <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.greenText`}>
               {subtitle}
             </Text>
           </Box>
@@ -88,7 +88,6 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.secondaryBackground',
   },
 });
 export default VaultTransactions;

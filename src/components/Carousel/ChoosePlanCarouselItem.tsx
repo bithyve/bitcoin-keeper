@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { Pressable, StyleSheet, } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { SvgUri } from 'react-native-svg';
@@ -31,7 +31,7 @@ interface Props {
 }
 
 function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, item, subscription, onSelect, itemWidth, requesting }: Props) {
-
+  const { colorMode } = useColorMode();
   const getFreeTrail = useMemo(() => {
     if (item.monthlyPlanDetails || item.yearlyPlanDetails) {
       if (isMonthly) return item.monthlyPlanDetails.trailPeriod
@@ -84,7 +84,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
           linearGradient: {
             colors:
               currentPosition === index
-                ? ['light.gradientStart', 'light.gradientEnd']
+                ? [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]
                 : ['#848484', '#848484'],
             start: [0, 0],
             end: [1, 1],
@@ -100,7 +100,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
         <Box py={2} alignItems="center" justifyContent="center">
           {item.productIds.includes(subscription.productId.toLowerCase()) ? (
             <Box alignSelf="flex-start" backgroundColor="light.white" borderRadius={10} mx={2} py={0.5} px={2}>
-              <Text fontSize={8} letterSpacing={0.64} bold>
+              <Text fontSize={8} letterSpacing={0.64} bold color='black'>
                 Current
               </Text>
             </Box>

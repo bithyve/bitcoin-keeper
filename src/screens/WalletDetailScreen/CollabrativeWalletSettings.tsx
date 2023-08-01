@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useToast } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
@@ -14,6 +14,8 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { SignerType } from 'src/core/wallets/enums';
+import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 
 type Props = {
   title: string;
@@ -53,12 +55,28 @@ function Option({ title, subTitle, onPress }: Props) {
 }
 
 function CollabrativeWalletSettings({ route }) {
-  const { wallet } = route.params;
+  const { wallet: collaborativeWallet } = route.params;
   const navigation = useNavigation();
   const showToast = useToast();
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
+  const signPSBT = (serializedPSBT) => {
+    const signedSerialisedPSBT = signCosignerPSBT(collaborativeWallet, serializedPSBT);
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowQR',
+        params: {
+          data: signedSerialisedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
+        },
+      })
+    );
+  };
 
   return (
     <Box style={styles.Container} background="light.secondaryBackground">
@@ -79,7 +97,7 @@ function CollabrativeWalletSettings({ route }) {
           marginTop: hp(35),
           marginLeft: wp(25),
         }}
-      ></Box>
+      />
       <Box style={styles.optionsListContainer}>
         <ScrollView
           style={{
@@ -94,7 +112,23 @@ function CollabrativeWalletSettings({ route }) {
               setCosignerVisible(true);
             }}
           />
-          <Option title="Sign a PSBT" subTitle="Sign a transaction" onPress={() => {}} />
+          <Option
+            title="Sign a PSBT"
+            subTitle="Sign a transaction"
+            onPress={() => {
+              navigation.dispatch(
+                CommonActions.navigate({
+                  name: 'ScanQR',
+                  params: {
+                    title: `Scan PSBT to Sign`,
+                    subtitle: 'Please scan until all the QR data has been retrieved',
+                    onQrScan: signPSBT,
+                    type: SignerType.KEEPER,
+                  },
+                })
+              );
+            }}
+          />
           <Option
             title="Import Output Descriptor"
             subTitle="Import Output Descriptor"
@@ -127,7 +161,7 @@ function CollabrativeWalletSettings({ route }) {
           Content={() => (
             <ShowXPub
               data=""
-              wallet={wallet}
+              wallet={collaborativeWallet}
               cosignerDetails
               copy={() => showToast('Cosigner Details Copied Successfully')}
               subText="Cosigner Details"

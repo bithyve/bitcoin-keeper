@@ -42,5 +42,19 @@
         tools:targetApi="28"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false" />
+        <service
+        android:name="com.reactnativehce.services.CardService"
+        android:exported="true"
+        android:enabled="false"
+        android:permission="android.permission.BIND_NFC_SERVICE" >
+        <intent-filter>
+          <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
+          <category android:name="android.intent.category.DEFAULT"/>
+        </intent-filter>
+
+        <meta-data
+          android:name="android.nfc.cardemulation.host_apdu_service"
+          android:resource="@xml/aid_list" />
+    </service>
     </application>
 </manifest>

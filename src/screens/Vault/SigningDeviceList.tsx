@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import config, { APP_STAGE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
@@ -76,9 +76,9 @@ const getDeviceStatus = (
       return !isOnL1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
-            message: '',
-            disabled: false,
-          };
+          message: '',
+          disabled: false,
+        };
     case SignerType.SEED_WORDS:
     case SignerType.KEEPER:
     case SignerType.JADE:
@@ -96,6 +96,7 @@ const getDeviceStatus = (
 };
 
 function SigningDeviceList() {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
@@ -122,7 +123,7 @@ function SigningDeviceList() {
         <Box alignSelf="center">
           <SigningDevicesIllustration />
         </Box>
-        <Text color="light.white" style={styles.modalText}>
+        <Text color={`${colorMode}.primaryText`} style={styles.modalText}>
           {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
         </Text>
       </View>
@@ -171,7 +172,7 @@ function SigningDeviceList() {
           }}
         >
           <Box
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             borderTopRadius={first ? 15 : 0}
             borderBottomRadius={last ? 15 : 0}
           >
@@ -185,7 +186,7 @@ function SigningDeviceList() {
                 </Text>
               </Box>
             </Box>
-            <Box backgroundColor="light.divider" style={styles.dividerStyle} />
+            <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
         <HardwareModalMap visible={visible} close={close} type={type} />
@@ -194,11 +195,11 @@ function SigningDeviceList() {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
-        headerTitleColor="light.textBlack"
+        headerTitleColor={`${colorMode}.black`}
         learnMore
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
@@ -248,11 +249,12 @@ function SigningDeviceList() {
           modalBackground={['light.gradientStart', 'light.gradientEnd']}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"
-          buttonTextColor="light.greenText"
+          buttonTextColor={`${colorMode}.greenText`}
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
-          textColor="light.white"
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore

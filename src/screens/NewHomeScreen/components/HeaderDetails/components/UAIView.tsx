@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -12,24 +12,21 @@ function UAIView({
   secondaryCallbackText,
   secondaryCallback,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.wrapper}>
-      <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
-        <Text style={styles.uaiMessageText}>{title}</Text>
+      <Box style={styles.uaiMessageWrapper} testID='btn_uaiTitleText'>
+        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>{title}</Text>
       </Box>
-      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID="btn_uaiSkip">
-        <Text style={styles.skipText} color="light.learnMoreBorder">
+      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID='btn_uaiSkip'>
+        <Text style={styles.skipText} color={`${colorMode}.learnMoreBorder`}>
           {secondaryCallbackText}
         </Text>
       </TouchableOpacity>
       {primaryCallbackText && primaryCallback && (
-        <TouchableOpacity
-          style={styles.addNowWrapper}
-          onPress={primaryCallback}
-          testID="btn_uaiPrimary"
-        >
-          <Box style={styles.addNowCTAWrapper} backgroundColor="light.greenText">
-            <Text style={styles.addNowCTAText} color="light.white">
+        <TouchableOpacity style={styles.addNowWrapper} onPress={primaryCallback} testID='btn_uaiPrimary'>
+          <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.greenText`}>
+            <Text style={styles.addNowCTAText} color={`${colorMode}.white`}>
               {primaryCallbackText}
             </Text>
           </Box>
@@ -49,7 +46,6 @@ const styles = StyleSheet.create({
     width: '60%',
   },
   uaiMessageText: {
-    color: '#24312E',
     fontSize: 12,
     width: '100%',
     fontFamily: Fonts.RobotoCondensedSemiBold,

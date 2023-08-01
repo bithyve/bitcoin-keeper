@@ -1,4 +1,4 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
@@ -45,6 +45,7 @@ const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
 );
 
 export default function PoolSelection({ route, navigation }) {
+  const { colorMode } = useColorMode();
   const { scode, premixFee, minerFee, utxos, utxoCount, utxoTotal, wallet } = route.params as any;
   const [showPools, setShowPools] = useState(false);
   const [availablePools, setAvailablePools] = useState([]);
@@ -180,7 +181,7 @@ export default function PoolSelection({ route, navigation }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <HeaderTitle
         paddingLeft={25}
         title="Selecting Pool"
@@ -192,14 +193,14 @@ export default function PoolSelection({ route, navigation }) {
       <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
       {poolLoading ? (
         <Box
-          backgroundColor="light.primaryBackground"
+          backgroundColor={`${colorMode}.seashellWhite`}
           style={[styles.poolSelection, styles.poolErrorContainer]}
         >
           <ActivityIndicator size="small" />
           <Text style={styles.poolErrorText}>Fetching pools...</Text>
         </Box>
       ) : availablePools && availablePools.length > 0 && utxoTotal > minMixAmount ? (
-        <Box backgroundColor="light.primaryBackground" style={styles.poolSelection}>
+        <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.poolSelection}>
           <Text color="#017963">Pool</Text>
           <TouchableOpacity onPress={() => setShowPools(true)}>
             <Box style={{ flexDirection: 'row' }}>
@@ -219,7 +220,7 @@ export default function PoolSelection({ route, navigation }) {
         </Box>
       ) : (
         <Box
-          backgroundColor="light.primaryBackground"
+          backgroundColor={`${colorMode}.seashellWhite`}
           style={[styles.poolSelection, styles.poolErrorContainer]}
         >
           <Text style={styles.poolErrorText}>
@@ -233,7 +234,7 @@ export default function PoolSelection({ route, navigation }) {
       )}
       <Box style={styles.textArea}>
         <Text color="#017963">Anonset</Text>
-        <Text color="light.secondaryText">
+        <Text color={`${colorMode}.secondaryText`}>
           {selectedPool ? `${selectedPool?.minAnonymitySet} UTXOs` : '--'}
         </Text>
       </Box>
@@ -241,10 +242,10 @@ export default function PoolSelection({ route, navigation }) {
       <Box style={styles.textArea}>
         <Text color="#017963">Pool Fee</Text>
         <Box style={styles.poolTextDirection}>
-          <Text color="light.secondaryText">
+          <Text color={`${colorMode}.secondaryText`}>
             {selectedPool ? valueByPreferredUnit(selectedPool?.feeValue) : ''}
           </Text>
-          <Text color="light.secondaryText" style={{ paddingLeft: selectedPool ? 5 : 0 }}>
+          <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: selectedPool ? 5 : 0 }}>
             {selectedPool ? getSatUnit() : '--'}
           </Text>
         </Box>
@@ -266,7 +267,7 @@ export default function PoolSelection({ route, navigation }) {
 
       <Box style={styles.footerContainer}>
         <Box style={styles.noteWrapper}>
-          <Note title="Note" subtitle="Pool may take sometime to load" />
+          <Note title="Note" subtitle="Pool may take sometime to load" subtitleColor="GreyText" />
         </Box>
         <Box style={styles.footerWrapper}>
           <Box style={styles.pageIndicatorWrapper}>

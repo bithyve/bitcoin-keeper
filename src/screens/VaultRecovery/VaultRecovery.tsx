@@ -12,7 +12,7 @@ import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import {
   removeSigningDeviceBhr,
   setRelayVaultRecoveryShellId,
@@ -42,6 +42,8 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import useConfigRecovery from 'src/hooks/useConfigReocvery';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const allowedSignerLength = [1, 3, 5];
@@ -139,6 +141,7 @@ function SuccessModalContent() {
 
 function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
+  const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
   const dispatch = useDispatch();
   const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultReoveryShellId } =
     useAppSelector((state) => state.bhr);
@@ -163,7 +166,6 @@ function VaultRecovery({ navigation }) {
     try {
       const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
-
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
         vaultId,
@@ -196,6 +198,11 @@ function VaultRecovery({ navigation }) {
             policy: setupInfo.policy,
           },
         });
+        if (setupInfo.configuration.bsms) {
+          initateRecovery(setupInfo.configuration.bsms);
+        } else {
+          showToast(`Cannot recreate Vault as BSMS was not present`, <ToastErrorIcon />);
+        }
         dispatch(setSigningDevices(inheritanceKey));
         dispatch(setInheritanceRequestId('')); // clear approved request
         showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
@@ -320,6 +327,7 @@ function VaultRecovery({ navigation }) {
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),
+                height: windowHeight > 680 ? '66%' : '51%'
               }}
             />
             {inheritanceRequestId && (
@@ -366,8 +374,12 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText="Recover Vault"
-              primaryCallback={startRecovery}
+              primaryText={inheritanceRequestId ? 'Restore via IKS' : 'Recover Vault'}
+              primaryCallback={
+                inheritanceRequestId
+                  ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
+                  : startRecovery
+              }
               primaryLoading={recoveryLoading}
             />
           </Box>
@@ -383,13 +395,14 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => {}}
+        close={() => { }}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
           navigation.replace('App');
         }}
       />
+      <ActivityIndicatorView visible={configRecoveryLoading} showLoader />
     </ScreenWrapper>
   );
 }

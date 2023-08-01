@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Text, Pressable } from 'native-base';
+import { Box, Text, Pressable, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import { Share } from 'react-native';
@@ -23,6 +23,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import Colors from 'src/theme/Colors';
+import useVault from 'src/hooks/useVault';
 
 type Props = {
   title: string;
@@ -74,6 +75,7 @@ function DescritporsModalContent({ descriptorString }) {
 }
 
 function Option({ title, subTitle, onPress, Icon }: Props) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       flexDirection="row"
@@ -88,10 +90,10 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
         </Box>
       )}
       <Box width={Icon ? '80%' : '96%'}>
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
+        <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
           {subTitle}
         </Text>
       </Box>
@@ -102,15 +104,13 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
   );
 }
 
-function VaultSettings({ route }) {
+function VaultSettings() {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const [genratorModalVisible, setGenratorModalVisible] = useState(false);
   const { getSatUnit, getBalance } = useBalance();
 
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault: vault } = useVault();
 
   const descriptorString = genrateOutputDescriptors(vault);
 
@@ -161,20 +161,20 @@ function VaultSettings({ route }) {
     );
   }
   return (
-    <Box style={styles.Container} background="light.secondaryBackground">
+    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
           title="Vault Settings"
           subtitle="Settings specific to the Vault"
           onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor="light.textBlack"
+          headerTitleColor={`${colorMode}.black`}
           titleFontSize={20}
           paddingTop={hp(5)}
           paddingLeft={hp(25)}
         />
       </Box>
-      <Box borderBottomColor="light.divider" style={styles.vaultCardWrapper}>
+      <Box borderBottomColor={`${colorMode}.divider`} style={styles.vaultCardWrapper}>
         <VaultCard
           vaultName={name}
           vaultDescription={description}
@@ -198,10 +198,11 @@ function VaultSettings({ route }) {
 
       {/* {Bottom note} */}
       <Box style={styles.bottomNoteWrapper}>
-        <InfoBox
+        <Note
           title="Security Tip"
-          desciption="Recreate the Vault on another coordinator software and check if the multisig has the same details"
+          subtitle="Recreate the Vault on another coordinator software and check if the multisig has the same details"
           width={windowWidth * 0.8}
+          subtitleColor="GreyText"
         />
       </Box>
       <KeeperModal
@@ -264,7 +265,7 @@ const styles = ScaledSheet.create({
   bottomNoteWrapper: {
     position: 'absolute',
     bottom: hp(45),
-    marginHorizontal: 5,
+    marginHorizontal: 15,
   },
   modalNoteWrapper: {
     width: '90%',

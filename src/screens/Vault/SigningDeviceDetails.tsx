@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+/* eslint-disable react/no-unstable-nested-components */
+import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
@@ -30,28 +31,24 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useVault from 'src/hooks/useVault';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import { SDIcons } from './SigningDeviceIcons';
 import HardwareModalMap, { ModalTypes } from './HardwareModalMap';
 
 function SigningDeviceDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { signerId = null } = route.params;
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { showToast } = useToastMessage();
-  const activeVault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault } = useVault();
   const signer: VaultSigner = activeVault.signers.filter(
     (signer) => signer?.signerId === signerId
   )[0];
@@ -220,7 +217,7 @@ function SigningDeviceDetails({ route }) {
             width="12"
             height="12"
             borderRadius={30}
-            backgroundColor="light.accent"
+            backgroundColor={`${colorMode}.accent`}
             justifyContent="center"
             alignItems="center"
           >
@@ -235,7 +232,7 @@ function SigningDeviceDetails({ route }) {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         learnMore
         learnMorePressed={() => setDetailModal(getSignerContent(signer?.type).title)}
@@ -265,9 +262,9 @@ function SigningDeviceDetails({ route }) {
             <Text fontSize={14} letterSpacing={1.15}>
               {getSignerNameFromType(signer?.type, signer?.isMock, isSignerAMF(signer))}
             </Text>
-            <Text fontSize={13} color="light.greenText">{`Added on ${moment(signer?.addedOn)
-              .format('DD MMM YYYY, hh:mmA')
-              }`}</Text>
+            <Text fontSize={13} color={`${colorMode}.greenText`}>{`Added on ${moment(
+              signer?.addedOn
+            ).format('DD MMM YYYY, hh:mmA')}`}</Text>
           </Box>
         </Box>
       </Box>
@@ -285,13 +282,13 @@ function SigningDeviceDetails({ route }) {
         justifyContent="center"
         width={windowWidth}
         height={hp(188)}
-        backgroundColor="light.secondaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
       >
-        <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
+        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
           You will be reminded in 90 days for the health check
         </Text>
         <Box
-          borderColor="light.GreyText"
+          borderColor={`${colorMode}.GreyText`}
           style={{
             borderWidth: 0.5,
             width: '90%',
@@ -368,8 +365,8 @@ const styles = StyleSheet.create({
     left: -7,
   },
   skipHealthIllustration: {
-    marginLeft: wp(25)
-  }
+    marginLeft: wp(25),
+  },
 });
 
 export default SigningDeviceDetails;

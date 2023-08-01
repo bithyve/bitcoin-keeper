@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
@@ -19,6 +19,7 @@ import TorStatusTag from 'src/components/TorStatus';
 import TorModalMap from './TorModalMap';
 
 function TorSettings() {
+  const { colorMode } = useColorMode();
   const { torStatus, setTorStatus, orbotTorStatus, inAppTor, openOrbotApp, checkTorConnection } =
     useContext(TorContext);
   const dispatch = useDispatch();
@@ -61,7 +62,7 @@ function TorSettings() {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title="Tor Settings"
         subtitle="Tor improves your network privacy. To learn more visit: https://www.torproject.org/"
@@ -99,6 +100,7 @@ function TorSettings() {
         <Note
           title="Note"
           subtitle="Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings"
+          subtitleColor="GreyText"
         />
       </Box>
       <TorModalMap

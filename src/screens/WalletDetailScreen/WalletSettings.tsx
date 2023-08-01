@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -23,7 +23,7 @@ import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
@@ -41,6 +41,7 @@ type Props = {
 };
 
 function Option({ title, subTitle, onPress }: Props) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       style={styles.optionContainer}
@@ -49,14 +50,14 @@ function Option({ title, subTitle, onPress }: Props) {
     >
       <Box style={{ width: '96%' }}>
         <Text
-          color="light.primaryText"
+          color={`${colorMode}.primaryText`}
           style={styles.optionTitle}
           testID={`text_${title.replace(/ /g, '_')}`}
         >
           {title}
         </Text>
         <Text
-          color="light.GreyText"
+          color={`${colorMode}.GreyText`}
           style={styles.optionSubtitle}
           numberOfLines={2}
           testID={`text_${subTitle.replace(/ /g, '_')}`}
@@ -72,6 +73,7 @@ function Option({ title, subTitle, onPress }: Props) {
 }
 
 function WalletSettings({ route }) {
+  const { colorMode } = useColorMode();
   const { wallet: walletRoute, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -192,14 +194,14 @@ function WalletSettings({ route }) {
     );
   }
   return (
-    <Box style={styles.Container} background="light.secondaryBackground">
+    <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
           title="Wallet Settings"
           subtitle="Setting for the wallet only"
           onPressHandler={() => navigation.goBack()}
-          headerTitleColor="light.textBlack"
+          headerTitleColor={`${colorMode}.black`}
           titleFontSize={20}
           paddingTop={hp(5)}
           paddingLeft={20}
@@ -249,7 +251,7 @@ function WalletSettings({ route }) {
             title="Collaborative Wallet"
             subTitle="Create, sign and view multisig"
             onPress={() => {
-              navigation.navigate('CollabrativeWalletDetails');
+              navigation.navigate('CollabrativeWalletDetails', {});
             }}
           />
           {config.NETWORK_TYPE === NetworkType.TESTNET && (
@@ -265,7 +267,7 @@ function WalletSettings({ route }) {
         </ScrollView>
       </Box>
       {/* {Bottom note} */}
-      <Box style={styles.note} backgroundColor="light.secondaryBackground">
+      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -279,8 +281,12 @@ function WalletSettings({ route }) {
           title={walletTranslation?.confirmPassTitle}
           subTitleWidth={wp(240)}
           subTitle={walletTranslation?.confirmPassSubTitle}
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <SeedConfirmPasscode
@@ -298,8 +304,12 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <ShowXPub
@@ -321,8 +331,12 @@ function WalletSettings({ route }) {
           title="Cosigner Details"
           subTitleWidth={wp(260)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           buttonText="Done"
           buttonCallback={() => {
             setCosignerVisible(false);
@@ -348,8 +362,12 @@ function WalletSettings({ route }) {
           }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           Content={() => (
             <TransferPolicy
               wallet={wallet}

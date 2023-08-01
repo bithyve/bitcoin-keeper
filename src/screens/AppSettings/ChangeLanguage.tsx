@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
   menuWrapper: {
     height: wp('13%'),
     width: wp('15%'),
-    backgroundColor: '#FAF4ED',
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     justifyContent: 'center',
@@ -185,16 +184,16 @@ function ChangeLanguage() {
   function Menu({ label, value, onPress, arrow }) {
     return (
       <TouchableOpacity onPress={onPress} style={styles.btn}>
-        <View style={styles.menuWrapper}>
+        <Box style={styles.menuWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text style={styles.textCurrency}>{label}</Text>
-        </View>
-        <View style={styles.emptyView} />
-        <View style={styles.textValueWrapper}>
-          <Text style={styles.textValue} color="light.GreyText">
+        </Box>
+        <Box style={styles.emptyView} />
+        <Box style={styles.textValueWrapper}>
+          <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
             {value}
           </Text>
-        </View>
-        <View
+        </Box>
+        <Box
           style={{
             marginLeft: 'auto',
             height: wp('13%'),
@@ -211,20 +210,20 @@ function ChangeLanguage() {
           >
             <RightArrowIcon />
           </Box>
-        </View>
+        </Box>
       </TouchableOpacity>
     );
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
       <Box flex={1}>
         <Box marginLeft="5%">
           <Text fontSize={16} letterSpacing={0.8} style={styles.mainText} testID={`text_${settings.LanguageCountry}`}>
             {settings.LanguageCountry}
           </Text>
-          <Text fontSize={12} letterSpacing={0.6} color="light.GreyText">
+          <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.GreyText`}>
             {settings.biometricsDesc}
           </Text>
         </Box>
@@ -272,7 +271,7 @@ function ChangeLanguage() {
                   <Text style={styles.symbolText}>{item.symbol}</Text>
                 </View>
                 <View style={styles.codeTextWrapper}>
-                  <Text style={styles.codeText} color="light.GreyText">
+                  <Text style={styles.codeText} color={`${colorMode}.GreyText`}>
                     {item.code}
                   </Text>
                 </View>

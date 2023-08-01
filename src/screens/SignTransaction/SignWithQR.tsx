@@ -19,6 +19,7 @@ import { getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import DisplayQR from '../QRScreens/DisplayQR';
+import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(
@@ -73,6 +74,7 @@ function SignWithQR() {
           title: `Scan Signed Transaction`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: signTransaction,
+          type: signer.type,
         },
       })
     );
@@ -87,6 +89,11 @@ function SignWithQR() {
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
       </Box>
       <Box style={styles.bottom}>
+        {signer.type === SignerType.KEEPER ? (
+          <Box style={{ paddingBottom: '5%' }}>
+            <ShareWithNfc data={serializedPSBT} />
+          </Box>
+        ) : null}
         <Buttons
           primaryText="Scan PSBT"
           primaryCallback={navigateToQrScan}

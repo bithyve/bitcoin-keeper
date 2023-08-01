@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 // libraries
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Colors from 'src/theme/Colors';
@@ -37,8 +37,10 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
 import BackButton from 'src/assets/images/back.svg';
+import BackWhiteButton from 'src/assets/images/back_white.svg';
 
 function UpdateWalletDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { wallet, isFromSeed, words } = route.params;
@@ -129,7 +131,7 @@ function UpdateWalletDetails({ route }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
@@ -154,13 +156,13 @@ function UpdateWalletDetails({ route }) {
             }}
             style={styles.backButton}
           >
-            <BackButton />
+            {colorMode === 'light' ? <BackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
 
-          <KeeperText type="regular" style={styles.titleText}>
+          <KeeperText type="regular" style={styles.titleText} color={`${colorMode}.headerText`}>
             {isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
           </KeeperText>
-          <KeeperText type="regular" style={styles.descriptionText}>
+          <KeeperText type="regular" style={styles.descriptionText} color={`${colorMode}.black`}>
             {isFromSeed
               ? 'The QR below comprises of your 12 word Recovery Phrase'
               : 'Update Wallet Path'}
@@ -211,15 +213,16 @@ function UpdateWalletDetails({ route }) {
             )}
             <KeeperText
               type="regular"
-              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(25) }]}
+              style={[styles.autoTransferText, { marginTop: hp(25) }]}
+              color={`${colorMode}.GreyText`}
             >
               Path
             </KeeperText>
-            <Box style={[styles.textInputWrapper]}>
+            <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
                 placeholder="Derivation Path"
                 style={styles.textInput}
-                placeholderTextColor="light.GreyText"
+                placeholderTextColor={`${colorMode}.GreyText`}
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 // width={wp(260)}
@@ -277,7 +280,6 @@ const styles = ScaledSheet.create({
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
     // paddingHorizontal: '20@s',
-    color: Colors.TropicalRainForest,
     paddingLeft: 25
   },
   descriptionText: {
@@ -285,7 +287,6 @@ const styles = ScaledSheet.create({
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
     fontWeight: '200',
-    color: 'light.GreyText',
     paddingLeft: 25
   },
   backButton: {
@@ -325,9 +326,6 @@ const styles = ScaledSheet.create({
   },
   textInput: {
     width: '100%',
-    backgroundColor: Colors.Isabelline,
-    borderRadius: 10,
-    // borderBottomLeftRadius: 10,
     padding: 20,
     fontFamily: Fonts.RobotoCondensedRegular,
   },
@@ -403,6 +401,7 @@ const styles = ScaledSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 10
   },
   transferText: {
     width: '100%',

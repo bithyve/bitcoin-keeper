@@ -1,4 +1,4 @@
-import { Box, Modal, Input } from 'native-base';
+import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Close from 'src/assets/images/modal_close.svg';
 import LinearGradient from 'src/components/KeeperGradient';
@@ -13,14 +13,15 @@ import Text from 'src/components/KeeperText';
 import KeeperModal from './KeeperModal';
 
 function PasswordModal(props) {
+  const { colorMode } = useColorMode();
   const {
     visible,
     closePasswordModal,
     title = 'Title',
     subTitle = null,
     dscription = 'Description',
-    modalBackground = ['light.secondaryBackground', 'light.secondaryBackground'],
-    buttonBackground = ['light.gradientStart', 'light.gradientEnd'],
+    modalBackground = [`${colorMode}.secondaryBackground`, `${colorMode}.secondaryBackground`],
+    buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
     buttonText = 'Button text',
     buttonTextColor = 'white',
     buttonCallback = props.closePasswordModal || null,
@@ -80,7 +81,7 @@ function PasswordModal(props) {
             </View>
           </View>
         </LinearGradient>
-        <Text color="light.greenText" fontSize={13} padding={2}>
+        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
       </View>
@@ -95,7 +96,7 @@ function PasswordModal(props) {
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       marginTop="20%"
-      //   justifyContent={'flex-end'}
+    //   justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient
@@ -122,7 +123,7 @@ function PasswordModal(props) {
           </Modal.Header>
           <Input
             placeholderTextColor="grey"
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             placeholder="Enter Password"
             width="90%"
             marginY={2}
@@ -167,9 +168,9 @@ function PasswordModal(props) {
           title={seed.walletRecoverySuccessful}
           subTitle={seed.seedDescription}
           buttonText="View Wallet"
-          buttonTextColor="light.white"
+          buttonTextColor={`${colorMode}.white`}
           buttonCallback={passwordScreen}
-          textColor="light.primaryText"
+          textColor={`${colorMode}.primaryText`}
           Content={RecoverWalletScreen}
         />
       </Modal.Content>
