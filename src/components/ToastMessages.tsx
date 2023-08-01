@@ -3,6 +3,8 @@ import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { windowWidth, hp } from 'src/common/data/responsiveness/responsive';
+import Fonts from 'src/common/Fonts';
+import Text from './KeeperText';
 
 HexaToastMessages.defaultProps = {
   Image: null,
@@ -21,7 +23,7 @@ function HexaToastMessages({
   return (
     <Box backgroundColor={error ? 'error.500' : `${colorMode}.accent`} style={styles.toast}>
       {Image && <Box>{Image}</Box>}
-      {ToastBody}
+      <Text color={`${colorMode}.white`} style={styles.toastMsgText}>{ToastBody}</Text>
     </Box>
   );
 }
@@ -44,6 +46,10 @@ const styles = StyleSheet.create({
       height: 3,
     },
   },
+  toastMsgText: {
+    marginLeft: 5,
+    fontSize: 14,
+  }
 });
 
 export default HexaToastMessages;
