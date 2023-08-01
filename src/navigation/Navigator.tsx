@@ -91,6 +91,9 @@ import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelReco
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import Login from '../screens/LoginScreen/Login';
+import WalletDetailsSettings from 'src/screens/WalletDetailScreen/WalletDetailsSettings';
+import CollaborativeWalletDetails from 'src/screens/WalletDetailScreen/CollabrativeWalletDetails';
+import CollabrativeWalletSettings from 'src/screens/WalletDetailScreen/CollabrativeWalletSettings';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -178,6 +181,9 @@ function AppStack() {
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
+        <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
+        <Stack.Screen name="CollabrativeWalletDetails" component={CollaborativeWalletDetails} />
+        <Stack.Screen name="CollabrativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
@@ -248,7 +254,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />
