@@ -623,6 +623,8 @@ function VaultDetails({ route, navigation }) {
         title="New Vault Created"
         subTitle={subtitle}
         buttonText="View Vault"
+        DarkCloseIcon={colorMode === 'dark'}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         buttonCallback={() => {
@@ -638,8 +640,8 @@ function VaultDetails({ route, navigation }) {
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`}
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
+        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         buttonText="Continue"

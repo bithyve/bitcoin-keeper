@@ -99,8 +99,8 @@ function ReceiveScreen({ route }: { route }) {
           <AppNumPad
             setValue={setAmount}
             clear={() => setAmount('')}
-            color="light.greenText"
-            darkDeleteIcon
+            color={colorMode === 'light' ? "#041513" : "#FFF"}
+            darkDeleteIcon={colorMode === 'light'}
           />
         </View>
       </View>
@@ -180,6 +180,7 @@ function ReceiveScreen({ route }: { route }) {
         close={() => setModalVisible(false)}
         title={home.AddAmount}
         subTitle={home.amountdesc}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}

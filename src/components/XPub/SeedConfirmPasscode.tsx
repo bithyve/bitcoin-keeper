@@ -8,7 +8,8 @@ import { increasePinFailAttempts } from 'src/store/reducers/storage';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { credsAuth } from 'src/store/sagaActions/login';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from '../Buttons';
@@ -127,8 +128,8 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor={`${colorMode}.black`}
-          ClearIcon={<DeleteIcon />}
+          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
       </Box>
     </Box>
