@@ -12,7 +12,8 @@ import { HCESession, HCESessionContext } from 'react-native-hce';
 import { Platform } from 'react-native';
 import idx from 'idx';
 import DocumentPicker from 'react-native-document-picker';
-import RNFS from 'react-native-fs'
+import RNFS from 'react-native-fs';
+import AirDropIcon from 'src/assets/images/airdrop.svg';
 
 function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) {
   const { showToast } = useToastMessage();
@@ -43,12 +44,18 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
       const result = await DocumentPicker.pick({
         type: [DocumentPicker.types.allFiles],
       });
-      const content = await RNFS.readFile(result[0].uri)
-      if (isValid) { // todo validate if proper data
-        setData(content);
+      try {
+        const cosigner = await RNFS.readFile(result[0].uri);
+        setData(cosigner);
+      } catch (err) {
+        captureError(err);
+        showToast('Please pick a valid cosigner file', <ToastErrorIcon />);
       }
     } catch (err) {
-
+      if (err.toString().includes('user canceled')) {
+        // user cancelled
+        return;
+      }
       captureError(err);
       showToast('Something went wrong.', <ToastErrorIcon />);
     }
@@ -109,16 +116,14 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         subtitle="Bring device close to use NFC"
         callback={readFromNFC}
       />
-      {
-        isIos && (
-          <OptionCTA
-            icon={<NFCIcon />}
-            title="Select a file"
-            subtitle="Select cosigner file"
-            callback={selectFile}
-          />
-        )
-      }
+      {isIos && (
+        <OptionCTA
+          icon={<AirDropIcon />}
+          title="or receive via Airdrop"
+          subtitle="If the other device is on iOS"
+          callback={selectFile}
+        />
+      )}
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </>
   );
