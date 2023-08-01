@@ -18,8 +18,8 @@ import { SignerType } from 'src/core/wallets/enums';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { DescritporsModalContent } from '../Vault/VaultSettings';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import { DescritporsModalContent } from '../Vault/VaultSettings';
 
 type Props = {
   title: string;
@@ -92,7 +92,7 @@ function CollabrativeWalletSettings() {
       <Box>
         <HeaderTitle
           title="Collaborative Wallet Settings"
-          subtitle="2 of 3 multisig"
+          subtitle={collaborativeWallet.presentationData.description}
           onPressHandler={() => navigation.goBack()}
           headerTitleColor="light.textBlack"
           titleFontSize={20}
@@ -138,10 +138,12 @@ function CollabrativeWalletSettings() {
             }}
           />
           <Option
-            title="Import Output Descriptor"
-            subTitle="Import Output Descriptor"
+            title="Exporting Output Descriptor/ BSMS"
+            subTitle="To recreate collaborative wallet"
             onPress={() => {
-              setGenratorModalVisible(false);
+              navigation.dispatch(
+                CommonActions.navigate('GenerateVaultDescriptor', { descriptorString })
+              );
             }}
           />
         </ScrollView>
@@ -180,14 +182,6 @@ function CollabrativeWalletSettings() {
               keeper={keeper}
             />
           )}
-        />
-        <KeeperModal
-          close={() => setGenratorModalVisible(false)}
-          visible={genratorModalVisible}
-          title="Generate Vault Descriptor"
-          Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
-          subTitle="A descriptor contains sensitive information. Please use with caution"
-          showButtons={false}
         />
       </Box>
       {/* end */}

@@ -94,8 +94,9 @@ import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import CosignerDetails from 'src/screens/WalletDetailScreen/CosignerDetails';
 import WalletDetailsSettings from 'src/screens/WalletDetailScreen/WalletDetailsSettings';
 import CollabrativeWalletSettings from 'src/screens/WalletDetailScreen/CollabrativeWalletSettings';
-import Login from '../screens/LoginScreen/Login';
 import ImportDescriptorScreen from 'src/screens/WalletDetailScreen/ImportDescriptor';
+import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
+import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -231,6 +232,7 @@ function AppStack() {
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
+        <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

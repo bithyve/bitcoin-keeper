@@ -1,24 +1,14 @@
-import React, { useContext, useState } from 'react';
+import React from 'react';
 import { Box, Text, Pressable, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
-import { useNavigation } from '@react-navigation/native';
-import { Share } from 'react-native';
-// components and functions
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp, windowWidth } from 'src/common/data/responsiveness/responsive';
-// icons
-import IconShare from 'src/assets/images/icon_share.svg';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/images/backup.svg';
 import LinearGradient from 'react-native-linear-gradient';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import useBalance from 'src/hooks/useBalance';
-import KeeperModal from 'src/components/KeeperModal';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import Colors from 'src/theme/Colors';
@@ -30,52 +20,6 @@ type Props = {
   onPress: () => void;
   Icon: boolean;
 };
-
-function DescritporsModalContent({ descriptorString }) {
-  const { colorMode } = useColorMode();
-  const onShare = async () => {
-    try {
-      await Share.share({
-        message: descriptorString,
-      });
-    } catch (error: any) {
-      console.log(error.message);
-    }
-  };
-
-  return (
-    <Box style={styles.moadalContainer}>
-      <TouchableOpacity
-        onPress={async () => {
-          await onShare();
-        }}
-      >
-        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-          <Text noOfLines={4}>{descriptorString}</Text>
-        </Box>
-      </TouchableOpacity>
-      <Box style={styles.modalNoteWrapper}>
-        <Note
-          subtitle="Save the file with .bsms extension to import it in other cordinating apps"
-          subtitleColor="GreyText"
-        />
-      </Box>
-      <TouchableOpacity
-        onPress={async () => {
-          await onShare();
-        }}
-        style={styles.buttonContainer}
-      >
-        <Box>
-          <IconShare />
-        </Box>
-        <Text color={`${colorMode}.primaryText`} style={styles.shareText}>
-          Share
-        </Text>
-      </TouchableOpacity>
-    </Box>
-  );
-}
 
 function Option({ title, subTitle, onPress, Icon }: Props) {
   const { colorMode } = useColorMode();
@@ -109,8 +53,7 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
 
 function VaultSettings() {
   const { colorMode } = useColorMode();
-  const navigtaion = useNavigation();
-  const [genratorModalVisible, setGenratorModalVisible] = useState(false);
+  const navigation = useNavigation();
   const { getSatUnit, getBalance } = useBalance();
 
   const { activeVault: vault } = useVault();
@@ -188,7 +131,11 @@ function VaultSettings() {
         <Option
           title="Generate Descriptors"
           subTitle="Vault configuration that needs to be stored privately"
-          onPress={() => setGenratorModalVisible(true)}
+          onPress={() => {
+            navigation.dispatch(
+              CommonActions.navigate('GenerateVaultDescriptor', { descriptorString })
+            );
+          }}
           Icon={false}
         />
         <Option
@@ -208,18 +155,6 @@ function VaultSettings() {
           subtitleColor="GreyText"
         />
       </Box>
-      <KeeperModal
-        close={() => setGenratorModalVisible(false)}
-        visible={genratorModalVisible}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
-        title="Generate Vault Descriptor"
-        Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
-        subTitle="A descriptor contains sensitive information. Please use with caution"
-        showButtons={false}
-      />
     </Box>
   );
 }

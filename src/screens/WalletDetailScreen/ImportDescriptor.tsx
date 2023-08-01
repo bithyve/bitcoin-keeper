@@ -22,6 +22,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import useNfcModal from 'src/hooks/useNfcModal';
+import NFCOption from '../NFCChannel/NFCOption';
 
 function ImportDescriptorScreen() {
   const [inputText, setInputText] = useState(``);
@@ -86,6 +88,7 @@ function ImportDescriptorScreen() {
       showToast(`${error.toString()}`);
     }
   };
+  const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
 
   return (
     <ScreenWrapper>
@@ -96,13 +99,12 @@ function ImportDescriptorScreen() {
       >
         <View style={styles.wrapper}>
           <HeaderTitle
-            title="Create Wallet through descriptor"
+            title="Create Wallet through descriptors"
             subtitle="Create Collabrative Wallet through descriptor"
             headerTitleColor="light.textBlack"
             paddingTop={hp(5)}
             paddingLeft={wp(20)}
           />
-
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
             <TextInput
               placeholder="Enter the output descriptor"
@@ -116,7 +118,17 @@ function ImportDescriptorScreen() {
             />
           </Box>
           <Box style={styles.tileContainer}>
+            <Box paddingBottom="10">
+              <NFCOption
+                setData={setInputText}
+                nfcVisible={nfcVisible}
+                closeNfc={closeNfc}
+                withNfcModal={withNfcModal}
+                signerType={SignerType.KEEPER}
+              />
+            </Box>
             <Buttons
+              primaryDisable={!inputText.length}
               primaryCallback={() => initateWalletRecreation()}
               primaryText="Create"
               primaryLoading={walletCreationLoading}
