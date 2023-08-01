@@ -126,14 +126,13 @@ function UTXOLabeling() {
 
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        utxo.txId
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${utxo.txId
       }`
     );
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title="UTXO Details"
         subtitle="Easily identify specific aspects of various UTXOs"
@@ -171,7 +170,7 @@ function UTXOLabeling() {
             </View>
           </View>
         </View>
-        <View style={styles.listContainer}>
+        <Box style={styles.listContainer} backgroundColor={`${colorMode}.seashellWhite`}>
           <View style={{ flexDirection: 'row' }}>
             <Text style={styles.listHeader}>Labels</Text>
           </View>
@@ -187,7 +186,7 @@ function UTXOLabeling() {
               />
             ))}
           </View>
-          <Box style={styles.inputLabeWrapper}>
+          <Box style={styles.inputLabeWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
             <Box style={styles.inputLabelBox}>
               <Input
                 testID="input_utxoLabel"
@@ -212,7 +211,7 @@ function UTXOLabeling() {
               <Done />
             </TouchableOpacity>
           </Box>
-        </View>
+        </Box>
         <View style={{ flex: 1 }} />
       </ScrollView>
       <Box style={styles.ctaBtnWrapper}>
@@ -271,7 +270,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: '#F7F2EC',
   },
   inputLabelBox: {
     width: '90%',
@@ -314,7 +312,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     paddingHorizontal: 15,
     paddingVertical: 12,
-    backgroundColor: '#FDF7F0',
     borderRadius: 10,
   },
   listSubContainer: {
