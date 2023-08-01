@@ -87,7 +87,11 @@ function CollabrativeModalContent({ navigation, wallet }: any) {
         <Option
           title="Import Output Descriptor"
           subTitle="To view collaborative wallet"
-          onPress={() => {}}
+          onPress={() => {
+            navigation.dispatch(
+              CommonActions.navigate('ImportDescriptorScreen', { walletId: wallet.id })
+            );
+          }}
         />
         <Option
           title="Sign a PSBT"

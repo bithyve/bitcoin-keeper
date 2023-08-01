@@ -95,6 +95,7 @@ import CosignerDetails from 'src/screens/WalletDetailScreen/CosignerDetails';
 import WalletDetailsSettings from 'src/screens/WalletDetailScreen/WalletDetailsSettings';
 import CollabrativeWalletSettings from 'src/screens/WalletDetailScreen/CollabrativeWalletSettings';
 import Login from '../screens/LoginScreen/Login';
+import ImportDescriptorScreen from 'src/screens/WalletDetailScreen/ImportDescriptor';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -185,6 +186,7 @@ function AppStack() {
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
+        <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
         <Stack.Screen name="CollabrativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
