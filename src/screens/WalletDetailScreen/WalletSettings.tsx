@@ -83,7 +83,7 @@ function WalletSettings({ route }) {
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
-  const [collaborativeModalVisible, setCollaborativeModalVisible] = useState(true);
+  const [collaborativeModalVisible, setCollaborativeModalVisible] = useState(false);
 
   const [addWalletCosigner, setAddWalletCosignerVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
