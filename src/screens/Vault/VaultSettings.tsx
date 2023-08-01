@@ -32,7 +32,7 @@ type Props = {
   Icon: boolean;
 };
 
-function DescritporsModalContent({ descriptorString }) {
+export function DescritporsModalContent({ descriptorString }) {
   const onShare = async () => {
     try {
       await Share.share({

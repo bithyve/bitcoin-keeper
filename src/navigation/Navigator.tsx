@@ -187,7 +187,7 @@ function AppStack() {
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
         <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
         <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
-        <Stack.Screen name="CollabrativeWalletSettings" component={CollabrativeWalletSettings} />
+        <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />

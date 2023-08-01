@@ -18,6 +18,8 @@ import { SignerType } from 'src/core/wallets/enums';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
 import { Vault } from 'src/core/wallets/interfaces/vault';
+import { DescritporsModalContent } from '../Vault/VaultSettings';
+import { genrateOutputDescriptors } from 'src/core/utils';
 
 type Props = {
   title: string;
@@ -65,6 +67,8 @@ function CollabrativeWalletSettings() {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const wallet = useWallets({ walletIds: [collaborativeWallet.collaborativeWalletId] }).wallets[0];
+  const descriptorString = genrateOutputDescriptors(collaborativeWallet);
+  const [genratorModalVisible, setGenratorModalVisible] = useState(false);
 
   const signPSBT = (serializedPSBT) => {
     const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
@@ -136,7 +140,9 @@ function CollabrativeWalletSettings() {
           <Option
             title="Import Output Descriptor"
             subTitle="Import Output Descriptor"
-            onPress={() => {}}
+            onPress={() => {
+              setGenratorModalVisible(false);
+            }}
           />
         </ScrollView>
       </Box>
@@ -174,6 +180,14 @@ function CollabrativeWalletSettings() {
               keeper={keeper}
             />
           )}
+        />
+        <KeeperModal
+          close={() => setGenratorModalVisible(false)}
+          visible={genratorModalVisible}
+          title="Generate Vault Descriptor"
+          Content={() => <DescritporsModalContent descriptorString={descriptorString} />}
+          subTitle="A descriptor contains sensitive information. Please use with caution"
+          showButtons={false}
         />
       </Box>
       {/* end */}
