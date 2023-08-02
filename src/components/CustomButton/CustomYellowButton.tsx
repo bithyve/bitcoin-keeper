@@ -28,7 +28,7 @@ function CustomYellowButton(props: Props) {
         colors={colorMode === 'light' ? ['#E3BE96', '#E3BE96'] : ['#212726', '#212726']}
         style={styles.linearGradient}
       >
-        <Text color={props.titleColor}>
+        <Text color={props.titleColor} style={styles.btnText}>
           {props.value}
         </Text>
       </LinearGradient>
@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     letterSpacing: 1,
-    fontSize: 12
+    fontSize: 14
   }
 });
 
