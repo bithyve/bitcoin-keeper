@@ -348,8 +348,10 @@ function ChoosePlan(props) {
         close={() => {}}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
         buttonCallback={() => {}}
@@ -431,7 +433,7 @@ function ChoosePlan(props) {
             backgroundColor={`${colorMode}.lightAccent`}
             style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color="light.learnMoreBorder">
+            <Text fontSize={12} color={colorMode === 'light' ? "light.learnMoreBorder" : '#24312E'}>
               Restore Purchases
             </Text>
           </Box>

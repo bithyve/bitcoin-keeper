@@ -3,6 +3,7 @@ import { TouchableHighlight, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 
 import LinearGradient from 'src/components/KeeperGradient';
+import { useColorMode } from 'native-base';
 
 export interface Props {
   value: string;
@@ -11,6 +12,7 @@ export interface Props {
   titleColor?: string;
 }
 function CustomYellowButton(props: Props) {
+  const { colorMode } = useColorMode();
   return (
     <TouchableHighlight
       disabled={props.disabled}
@@ -23,7 +25,7 @@ function CustomYellowButton(props: Props) {
       <LinearGradient
         start={[1, 0]}
         end={[0, 0]}
-        colors={['#E3BE96', '#E3BE96']}
+        colors={colorMode === 'light' ? ['#E3BE96', '#E3BE96'] : ['#212726', '#212726']}
         style={styles.linearGradient}
       >
         <Text color={props.titleColor}>
