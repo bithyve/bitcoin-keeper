@@ -313,7 +313,7 @@ function ChoosePlan(props) {
               ? `You are currently a ${subscription.name}`
               : `You are currently a ${subscription.name}`
           }
-          headerTitleColor={`${colorMode}.primaryText`}
+          headerTitleColor={`${colorMode}.modalGreenTitle`}
         />
         <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
       </Box>
@@ -360,7 +360,7 @@ function ChoosePlan(props) {
 
           <Box ml={5}>
             <Box>
-              <Text fontSize={14} color={`${colorMode}.primaryText`} letterSpacing={1.12}>
+              <Text fontSize={14} color={`${colorMode}.modalGreenTitle`} letterSpacing={1.12}>
                 {getBenifitsTitle(items[currentPosition].name)}:
               </Text>
             </Box>
