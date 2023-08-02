@@ -332,7 +332,7 @@ const WalletsScreen = ({ navigation }) => {
   function DowngradeModalContent() {
     return (
       <Box>
-        <DowngradeToPleb />
+        {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
         {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
         <Box alignItems="center" flexDirection="row">
           <TouchableOpacity
@@ -343,7 +343,7 @@ const WalletsScreen = ({ navigation }) => {
             }}
             activeOpacity={0.5}
           >
-            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
               View Subscription
             </Text>
           </TouchableOpacity>
@@ -474,7 +474,9 @@ const WalletsScreen = ({ navigation }) => {
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
-        subTitleColor="light.secondaryText"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
         closeOnOverlayClick={() => { }}
         showButtons
