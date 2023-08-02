@@ -172,6 +172,7 @@ export const VaultSchema: ObjectSchema = {
     specs: RealmSchema.VaultSpecs,
     archived: 'bool',
     scriptType: 'string',
+    collaborativeWalletId: 'string?',
   },
   primaryKey: 'id',
 };

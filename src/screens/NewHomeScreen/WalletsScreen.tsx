@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/function-component-definition */
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -93,7 +93,14 @@ function WalletItem({
   return (
     <Box
       backgroundColor={`${colorMode}.pantoneGreen`}
-      style={[styles.walletContainer, { width: !(item?.presentationData && item?.specs) ? 120 : TILE_WIDTH, opacity, justifyContent: 'flex-end' }]}
+      style={[
+        styles.walletContainer,
+        {
+          width: !(item?.presentationData && item?.specs) ? 120 : TILE_WIDTH,
+          opacity,
+          justifyContent: 'flex-end',
+        },
+      ]}
     >
       <TouchableOpacity
         onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
@@ -195,7 +202,7 @@ function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts
           amount={balances?.confirmed + balances?.unconfirmed}
           fontSize={satsEnabled ? 17 : 20}
           color={`${colorMode}.white`}
-          variation={colorMode === 'light' ? "light" : "dark"}
+          variation={colorMode === 'light' ? 'light' : 'dark'}
         />
       </Box>
     </Box>
@@ -219,7 +226,9 @@ const WalletsScreen = ({ navigation }) => {
 
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
-    const index = viewableItems.changed.find((item) => item.isViewable === true);
+    const index =
+      viewableItems.changed.find((item) => item.isViewable === true) ||
+      viewableItems.viewableItems.find((item) => item.isViewable === true);
     if (index?.index !== undefined) {
       setWalletIndex(index?.index);
     }
@@ -254,7 +263,7 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
-  useEffect(() => { }, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
@@ -380,20 +389,20 @@ const WalletsScreen = ({ navigation }) => {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
-          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID='text_HotWallet'>
+          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_HotWallet">
             {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on this app
           </Text> */}
         </Box>
-        <Box style={styles.netBalanceView} testID='view_netBalance'>
+        <Box style={styles.netBalanceView} testID="view_netBalance">
           <CurrencyInfo
             hideAmounts={hideAmounts}
             amount={netBalance}
             fontSize={20}
             color={`${colorMode}.primaryText`}
-            variation={colorMode === 'light' ? "dark" : "light"}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
           />
         </Box>
       </Box>
@@ -407,7 +416,7 @@ const WalletsScreen = ({ navigation }) => {
         setAddImportVisible={() => setAddImportVisible(true)}
       />
       <Box style={styles.listItemsWrapper}>
-        <Box style={styles.whirlpoolListItemWrapper} testID='view_WhirlpoolUTXOs'>
+        <Box style={styles.whirlpoolListItemWrapper} testID="view_WhirlpoolUTXOs">
           {presentationName.length > 0 ? (
             <ListItemView
               icon={<WhirlpoolWhiteIcon />}
@@ -469,14 +478,14 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        closeOnOverlayClick={() => {}}
         showButtons
         showCloseIcon={false}
       />
