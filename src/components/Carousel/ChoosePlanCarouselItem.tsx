@@ -134,6 +134,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
                 onPress={() => onSelect(item, index)}
                 value={getBtnTitle}
                 disabled={!item.isActive || requesting}
+                titleColor={`${colorMode}.modalAccentTitle`}
               />
             </Box>
           ) : null}
