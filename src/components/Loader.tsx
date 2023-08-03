@@ -1,14 +1,17 @@
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 
 import Background from 'src/assets/images/background elements.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
+import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
+import Gear2Dark from 'src/assets/images/smallGearDark.svg'
 import Gear3 from 'src/assets/images/gear 3.svg';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
 
 function LoadingAnimation() {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -32,13 +35,13 @@ function LoadingAnimation() {
       <Box style={{ width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65, alignItems: 'flex-start', }}>
         <Background />
         <Animated.View style={styles.gear2}>
-          <Gear2 />
+          {colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>
         <Animated.View style={styles.gear1}>
-          <Gear1 />
+          {colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
         </Animated.View>
         <Animated.View style={styles.gear3}>
-          <Gear3 />
+          {colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
         </Animated.View>
       </Box>
     </Box>
