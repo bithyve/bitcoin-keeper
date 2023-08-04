@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable no-await-in-loop */
 import React, { useContext, useEffect, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet, FlatList, Platform, Animated, Easing, BackHandler } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -71,6 +71,7 @@ function MixProgress({
   };
   navigation: any;
 }) {
+  const { colorMode } = useColorMode();
   const spinValue = new Animated.Value(0);
   Animated.loop(
     Animated.timing(spinValue, {
@@ -462,11 +463,11 @@ function MixProgress({
   }
   return (
     <Box style={styles.container}>
-      <ScreenWrapper>
+      <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
         <HeaderTitle
           enableBack={false}
           paddingTop={hp(30)}
-          headerTitleColor=""
+          headerTitleColor={`${colorMode}.black`}
           titleFontSize={20}
           title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
@@ -495,8 +496,8 @@ function MixProgress({
           />
         </Box>
       </ScreenWrapper>
-      <Box backgroundColor="light.mainBackground" style={styles.note}>
-        <Note title="Note:" subtitle="Make sure your phone is sufficiently charged" />
+      <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.note}>
+        <Note title="Note:" subtitle="Make sure your phone is sufficiently charged" subtitleColor="GreyText" />
       </Box>
     </Box>
   );

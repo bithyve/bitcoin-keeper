@@ -320,10 +320,12 @@ function UTXOManagement({ route, navigation }) {
         }}
         title="Caution during the mix"
         subTitle="The mix may take some time to complete. Please do not close the app or navigate away."
-        subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonTextColor="#FAFAFA"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
+        buttonTextColor="light.greenText02"
+        DarkCloseIcon={colorMode === 'dark'}
         closeOnOverlayClick={false}
         Content={() => (
           <Box>
