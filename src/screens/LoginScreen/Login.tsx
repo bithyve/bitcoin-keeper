@@ -510,6 +510,8 @@ function LoginScreen({ navigation, route }) {
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
+        buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
+        buttonTextColor={`${colorMode}.white`}
         showButtons
         Content={LoginModalContent}
         subTitleWidth={wp(250)}
