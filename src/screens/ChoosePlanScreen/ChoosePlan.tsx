@@ -389,7 +389,7 @@ function ChoosePlan(props) {
         <Pressable width="35%" activeOpacity={0.6} onPress={restorePurchases} testID='btn_restorePurchases'>
           <Box
             borderColor={`${colorMode}.learnMoreBorder`}
-            backgroundColor={`${colorMode}.lightAccent`}
+            backgroundColor="light.lightAccent"
             style={styles.restorePurchaseWrapper}
           >
             <Text fontSize={12} color={colorMode === 'light' ? "light.learnMoreBorder" : '#24312E'}>
