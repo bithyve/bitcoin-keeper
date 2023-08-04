@@ -1,11 +1,11 @@
-import { ImageBackground, StatusBar } from 'react-native';
+import { Image, StatusBar, StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
-import Video from 'react-native-video';
-import { useColorMode } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
-import SplashBackground from 'src/assets/images/SplashBackground.png';
+import BithyveTeam from 'src/assets/images/BithyveTeam.svg'
 import RestClient from 'src/core/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 import * as SecureStore from '../../storage/secure-store';
 
 function SplashScreen({ navigation }) {
@@ -20,6 +20,11 @@ function SplashScreen({ navigation }) {
     RestClient.setUseTor(torEnbled);
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      navigateToApp()
+    }, 2000)
+  }, []);
 
   const navigateToApp = async () => {
     const hasCreds = await SecureStore.hasPin();
@@ -31,21 +36,49 @@ function SplashScreen({ navigation }) {
   };
 
   return (
-    <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={SplashBackground}>
+    // <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={SplashBackground}>
+    //   <StatusBar barStyle="light-content" />
+    //   <Video
+    //     source={require('src/assets/video/Splash_animation.mp4')}
+    //     style={{
+    //       flex: 1,
+    //     }}
+    //     muted
+    //     repeat={false}
+    //     resizeMode="cover"
+    //     ignoreSilentSwitch="obey"
+    //     onEnd={navigateToApp}
+    //   />
+    // </ImageBackground>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryGreenBackground`}>
       <StatusBar barStyle="light-content" />
-      <Video
-        source={require('src/assets/video/Splash_animation.mp4')}
-        style={{
-          flex: 1,
-        }}
-        muted
-        repeat={false}
-        resizeMode="cover"
-        ignoreSilentSwitch="obey"
-        onEnd={navigateToApp}
-      />
-    </ImageBackground>
+      <Box style={styles.keeperImageWrapper} >
+        <Image
+          style={styles.keeperImageStyle}
+          source={require('src/assets/images/SplashKeeperImage.png')}
+        />
+      </Box>
+      <Box style={styles.bottomViewWrapper}>
+        <BithyveTeam />
+      </Box>
+
+    </ScreenWrapper>
   );
 }
-
+const styles = StyleSheet.create({
+  keeperImageWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  keeperImageStyle: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain'
+  },
+  bottomViewWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  }
+})
 export default SplashScreen;
