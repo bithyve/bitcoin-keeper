@@ -155,7 +155,7 @@ function SetupInheritance() {
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
             <Box
               borderColor={`${colorMode}.learnMoreBorder`}
-              backgroundColor={`${colorMode}.lightAccent`}
+              backgroundColor="light.lightAccent"
               style={styles.upgradeNowContainer}
             >
               <Text color='light.learnMoreBorder' style={styles.upgradeNowText}>
