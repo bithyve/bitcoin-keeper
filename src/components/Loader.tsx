@@ -3,6 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 
 import Background from 'src/assets/images/background elements.svg';
+import BackgroundDark from 'src/assets/images/backgroundElementsDark.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
 import Gear1Dark from 'src/assets/images/mediumGearDark.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
@@ -33,14 +34,14 @@ function LoadingAnimation() {
   return (
     <Box style={{ position: 'relative', alignItems: 'center' }}>
       <Box style={{ width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65, alignItems: 'flex-start', }}>
-        <Background />
+        {colorMode === 'light' ? <Background /> : <BackgroundDark />}
         <Animated.View style={styles.gear2}>
           {colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>
-        <Animated.View style={styles.gear1}>
+        <Animated.View style={colorMode === 'light' ? styles.gear1 : styles.gear1Dark}>
           {colorMode === 'light' ? <Gear1 /> : <Gear1Dark />}
         </Animated.View>
-        <Animated.View style={styles.gear3}>
+        <Animated.View style={colorMode === 'light' ? styles.gear3 : styles.gear3Dark}>
           {colorMode === 'light' ? <Gear3 /> : <Gear2Dark />}
         </Animated.View>
       </Box>
@@ -58,6 +59,12 @@ const getStyles = (clock, antiClock) =>
       left: '72%',
       transform: [{ rotate: clock }],
     },
+    gear3Dark: {
+      position: 'absolute',
+      bottom: '20%',
+      left: '80%',
+      transform: [{ rotate: clock }],
+    },
     gear2: {
       position: 'absolute',
       top: '14%',
@@ -68,6 +75,12 @@ const getStyles = (clock, antiClock) =>
       position: 'absolute',
       right: '36%',
       top: '10%',
+      transform: [{ rotate: clock }],
+    },
+    gear1Dark: {
+      position: 'absolute',
+      right: '30%',
+      top: '7%',
       transform: [{ rotate: clock }],
     },
   });
