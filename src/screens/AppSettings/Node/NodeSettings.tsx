@@ -193,7 +193,7 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`}
+                    backgroundColor={isConnected ? `${colorMode}.fadedGray` : `${colorMode}.seashellWhite`}
                     style={[styles.nodeList]}
                   >
                     <Box
@@ -262,7 +262,7 @@ function NodeSettings() {
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
           <AddIcon />
-          <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
+          <Text style={styles.addNewNodeText} color='light.black'>{settings.addNewNode}</Text>
         </Box>
       </TouchableOpacity>
 
@@ -277,11 +277,12 @@ function NodeSettings() {
         title={settings.nodeDetailsTitle}
         subTitle={settings.nodeDetailsSubtitle}
         modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
-        buttonBackground={['#00836A', '#073E39']}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText=""
-        buttonTextColor="#FAFAFA"
+        buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
+        buttonTextColor={`${colorMode}.white`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}

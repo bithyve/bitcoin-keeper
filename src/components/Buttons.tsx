@@ -38,13 +38,13 @@ function Buttons({
           style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
           backgroundColor={{
             linearGradient: {
-              colors: [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
+              colors: [`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`],
               start: [0, 0],
               end: [1, 1],
             },
           }}
         >
-          <Text numberOfLines={1} style={styles.btnText} color='white' bold>
+          <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.white`} bold>
             {primaryText}
           </Text>
         </Box>
