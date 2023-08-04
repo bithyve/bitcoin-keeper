@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { Animated, Easing, StyleSheet } from 'react-native';
 import Background from 'src/assets/images/whirlpool_background.svg';
+import BackgroundDark from 'src/assets/images/backgroundElementsDark.svg';
 import Gear0 from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
 import WhirlpoolLoaderDark from 'src/assets/images/WhirlpoolLoaderDark.svg'
 import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
@@ -34,7 +35,7 @@ function WhirlpoolLoader() {
   return (
     <Box style={{ alignItems: 'center' }}>
       <Box style={{ width: windowWidth * 0.8, alignItems: 'center', justifyContent: 'center' }}>
-        <Background />
+        {colorMode === 'light' ? <Background /> : <BackgroundDark />}
         <Animated.View style={styles.leftGear}>
           {colorMode === 'light' ? <Gear2 /> : <Gear2Dark />}
         </Animated.View>
