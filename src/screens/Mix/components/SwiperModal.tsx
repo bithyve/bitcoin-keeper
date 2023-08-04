@@ -1,5 +1,5 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import React, { MutableRefObject, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 // hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 // colors, aserts
-import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';
@@ -51,11 +50,7 @@ const renderItem = ({ item }) => (
     />
   </Box>
 );
-const linearGradientBtn = {
-  colors: ['#FFFFFF', '#80A8A1'],
-  start: [0, 0],
-  end: [1, 1],
-};
+
 function List() {
   const { colorMode } = useColorMode();
   const listRef = useRef(null);
@@ -100,7 +95,7 @@ function List() {
         viewabilityConfig={viewConfigRef.current}
       />
       <Box style={styles.ctaWrapper}>
-        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer} backgroundColor={colorMode === 'light' ? '#00433A' : '#212726'}>
           <Pressable
             onPress={() => {
               openLink('https://www.bitcoinkeeper.app/');
@@ -117,7 +112,7 @@ function List() {
               currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))
             }
           >
-            <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+            <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
               <Text style={styles.ctaText} color="light.greenText02" bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
@@ -147,10 +142,9 @@ function SwiperModal({ enable }) {
     />
   );
 }
-
 const styles = StyleSheet.create({
   contentContaner: {
-    width: wp(286),
+    width: windowWidth > 400 ? wp(286) : wp(293),
   },
   swiperModalIcon: {
     alignSelf: 'center',
@@ -179,7 +173,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#00433A',
     height: hp(34),
     width: wp(110),
   },

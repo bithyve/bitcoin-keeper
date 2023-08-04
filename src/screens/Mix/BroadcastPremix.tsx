@@ -349,10 +349,12 @@ export default function BroadcastPremix({ route, navigation }) {
         close={() => navigateToWalletDetails()}
         title="Broadcasting Tx0"
         subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
-        subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
-        buttonTextColor="#FAFAFA"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonBackground={[`${colorMode}.modalGreenButton`, `${colorMode}.modalGreenButton`]}
+        buttonTextColor="light.greenText02"
+        DarkCloseIcon={colorMode === 'dark'}
         closeOnOverlayClick={false}
         Content={() => (
           <Box>
