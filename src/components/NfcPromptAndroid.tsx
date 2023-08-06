@@ -7,7 +7,7 @@ import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
 import NFC from 'src/core/services/nfc';
 
-function NfcPrompt({ visible, close }: { visible: boolean; close }) {
+function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaText?: string }) {
   const animation = React.useRef(new Animated.Value(0)).current;
 
   if (Platform.OS === 'ios') {
@@ -66,7 +66,7 @@ function NfcPrompt({ visible, close }: { visible: boolean; close }) {
             </Text>
             <Pressable style={styles.cancel} onPress={onCancel}>
               <Text color="light.greenText" style={{ textAlign: 'center' }}>
-                Cancel
+                {ctaText || 'Cancel'}
               </Text>
             </Pressable>
           </View>
