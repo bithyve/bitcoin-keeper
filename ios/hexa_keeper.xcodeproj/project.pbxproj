@@ -921,7 +921,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
 				);
-				collaborativeWalletId = 1.1.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -933,6 +932,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				collaborativeWalletId = 1.1.1;
 			};
 			name = Debug;
 		};

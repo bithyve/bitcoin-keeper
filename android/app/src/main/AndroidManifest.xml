@@ -12,7 +12,7 @@
             <action android:name="org.torproject.android.intent.action.STOP" />
         </intent>
     </queries>
-
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.BIND_VPN_SERVICE" />
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
@@ -76,6 +76,20 @@
           android:name="android.nfc.cardemulation.host_apdu_service"
           android:resource="@xml/aid_list" />
     </service>
+
+        <service android:name="com.hexa_keeper.NFCHostService"
+            android:exported="true"
+            android:enabled="true"
+            android:permission="android.permission.BIND_NFC_SERVICE">
+            <!-- Intent filter indicating that we support card emulation. -->
+            <intent-filter>
+                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <!-- Required XML configuration file, listing the AIDs that we are emulating cards for. This defines what protocols our card emulation service supports. -->
+            <meta-data android:name="android.nfc.cardemulation.host_apdu_service"
+                android:resource="@xml/apduservice"/>
+        </service>
     
     </application>
 </manifest>
