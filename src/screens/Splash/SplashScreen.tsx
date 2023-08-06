@@ -1,4 +1,4 @@
-import { Image, StatusBar, StyleSheet } from 'react-native';
+import { Image, ImageBackground, StatusBar, StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import { Box, useColorMode } from 'native-base';
 
@@ -6,7 +6,10 @@ import BithyveTeam from 'src/assets/images/BithyveTeam.svg'
 import RestClient from 'src/core/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import SplashBackground from 'src/assets/images/SplashBackground.png'
+import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import * as SecureStore from '../../storage/secure-store';
+
 
 function SplashScreen({ navigation }) {
   const { torEnbled, themeMode } = useAppSelector((state) => state.settings);
@@ -36,39 +39,26 @@ function SplashScreen({ navigation }) {
   };
 
   return (
-    // <ImageBackground resizeMode="contain" style={{ flex: 1 }} source={SplashBackground}>
-    //   <StatusBar barStyle="light-content" />
-    //   <Video
-    //     source={require('src/assets/video/Splash_animation.mp4')}
-    //     style={{
-    //       flex: 1,
-    //     }}
-    //     muted
-    //     repeat={false}
-    //     resizeMode="cover"
-    //     ignoreSilentSwitch="obey"
-    //     onEnd={navigateToApp}
-    //   />
-    // </ImageBackground>
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryGreenBackground`}>
       <StatusBar barStyle="light-content" />
-      <Box style={styles.keeperImageWrapper} >
+      <ImageBackground resizeMode="contain" source={SplashBackground} style={styles.container}>
         <Image
           style={styles.keeperImageStyle}
           source={require('src/assets/images/SplashKeeperImage.png')}
         />
-      </Box>
+      </ImageBackground>
       <Box style={styles.bottomViewWrapper}>
         <BithyveTeam />
       </Box>
-
     </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
-  keeperImageWrapper: {
+  container: {
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    margin: wp(20)
   },
   keeperImageStyle: {
     width: '100%',
@@ -76,9 +66,11 @@ const styles = StyleSheet.create({
     resizeMode: 'contain'
   },
   bottomViewWrapper: {
-    flex: 1,
+    position: 'absolute',
+    bottom: hp(12),
+    width: '100%',
+    marginLeft: wp(10),
     alignItems: 'center',
-    justifyContent: 'flex-end'
   }
 })
 export default SplashScreen;
