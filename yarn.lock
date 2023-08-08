@@ -11052,10 +11052,9 @@ react-native-gradle-plugin@^0.0.7:
   resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.7.tgz#96602f909745239deab7b589443f14fce5da2056"
   integrity sha512-+4JpbIx42zGTONhBTIXSyfyHICHC29VTvhkkoUOJAh/XHPEixpuBduYgf6Y4y9wsN1ARlQhBBoptTvXvAFQf5g==
 
-react-native-hce@^0.2.0:
+"react-native-hce@git+https://github.com/bithyve/react-native-hce.git":
   version "0.2.0"
-  resolved "https://registry.yarnpkg.com/react-native-hce/-/react-native-hce-0.2.0.tgz#3d72ced85ccddd3edd5ccdda2ca67f3139a76d10"
-  integrity sha512-WSxK+C9KiKJwzmsb63VeN+Ppcg91w2SoUebQjJif1+OKEm99OgJd9yZeEuIisPU1LQTmch+gcN0069N8hsaWcA==
+  resolved "git+https://github.com/bithyve/react-native-hce.git#2825036431f1d0a30c6d10b5d969ef3b65a14d58"
   dependencies:
     "@babel/core" "^7.18.13"
     "@babel/preset-env" "^7.1.6"
