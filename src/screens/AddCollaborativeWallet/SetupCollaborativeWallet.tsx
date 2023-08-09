@@ -27,7 +27,6 @@ import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import OptionCTA from 'src/components/OptionCTA';
-import NFCIcon from 'src/assets/images/nfc.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
@@ -186,7 +185,7 @@ function ListFooter(wallet: Wallet) {
     <Box>
       <Spacer />
       <OptionCTA
-        icon={<NFCIcon />}
+        icon={null}
         title="Show CoSigner Details"
         subtitle="This is a read-only wallet"
         callback={() => {
