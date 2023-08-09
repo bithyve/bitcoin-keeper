@@ -313,6 +313,16 @@ const WalletsScreen = ({ navigation }) => {
           subTitle="Manage wallets in other apps"
           height={80}
         />
+        <MenuItemButton
+          onPress={() => {
+            setAddImportVisible(false);
+            navigation.navigate('SetupCollaborativeWallet', { coSigner: wallets[0] });
+          }}
+          icon={<ImportWallet />}
+          title="Add Collaborative Wallet"
+          subTitle="Create, sign and view collaborative wallet"
+          height={80}
+        />
         <Box>
           <Text color={`${colorMode}.greenText`} style={styles.addImportParaContent}>
             Please ensure that Keeper is properly backed up to ensure your bitcoin's security
