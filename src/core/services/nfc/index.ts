@@ -116,7 +116,10 @@ export default class NFC {
 
   public static showiOSMessage = async (message: string) => NfcManager.setAlertMessageIOS(message);
 
-  public static cancelRequest = async () => NfcManager.cancelTechnologyRequest();
+  public static cancelRequest = async () => {
+    const isEnabled = await NfcManager.isEnabled();
+    if (isEnabled) NfcManager.cancelTechnologyRequest();
+  };
 
   public static startTagSession = async ({
     session,
