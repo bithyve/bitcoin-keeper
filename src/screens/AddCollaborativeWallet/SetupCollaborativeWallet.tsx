@@ -1,4 +1,4 @@
-import { Dimensions, Pressable } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
@@ -98,7 +98,7 @@ function SignerItem({
               </VStack>
             </HStack>
             <Box style={styles.backArrow}>
-              <IconArrowBlack />
+              {index === 0 ? <ActivityIndicator /> : <IconArrowBlack />}
             </Box>
           </HStack>
         </Box>
@@ -182,7 +182,7 @@ function ListFooter(wallet: Wallet) {
   const navigation = useNavigation();
   const { id } = wallet;
   return (
-    <Box>
+    <Box style={globalStyles.centerColumn}>
       <Spacer />
       <OptionCTA
         icon={null}

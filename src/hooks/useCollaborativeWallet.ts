@@ -15,7 +15,6 @@ const useCollaborativeWallet = (walletId?: string) => {
 
   const collaborativeWallets: Vault[] = useQuery(RealmSchema.Vault).filtered(queryFilter);
 
-  console.log({ collaborativeWallets });
   if (!collaborativeWallets || !collaborativeWallets.length) {
     if (!walletId) {
       return { collaborativeWallets: [] };
