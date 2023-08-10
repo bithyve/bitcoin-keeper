@@ -32,6 +32,9 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
+import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import useWallets from 'src/hooks/useWallets';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
@@ -57,6 +60,11 @@ function SignTransactionScreen() {
   };
   const { activeVault: defaultVault } = useVault(collaborativeWalletId);
   const { signers, id: vaultId, scheme, shellId } = defaultVault;
+  const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
+  let parentCollaborativeWallet: Wallet;
+  if (collaborativeWalletId) {
+    parentCollaborativeWallet = wallets.find((wallet) => wallet.id === collaborativeWalletId);
+  }
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -128,12 +136,16 @@ function SignTransactionScreen() {
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
-  useEffect(
-    () => () => {
-      dispatch(sendPhaseThreeReset());
-    },
-    []
-  );
+  useEffect(() => {
+    defaultVault.signers.forEach((signer) => {
+      const isCoSignerMyself = signer.masterFingerprint === collaborativeWalletId;
+      if (isCoSignerMyself) {
+        // self sign PSBT
+        signTransaction({ signerId: signer.signerId });
+      }
+    });
+    return () => dispatch(sendPhaseThreeReset());
+  }, []);
 
   useEffect(() => {
     if (sendFailedMessage && broadcasting) {
@@ -243,6 +255,10 @@ function SignTransactionScreen() {
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
+        } else if (SignerType.KEEPER === signerType) {
+          const signedSerializedPSBT = signCosignerPSBT(parentCollaborativeWallet, serializedPSBT);
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         }
       }
     },
@@ -254,6 +270,7 @@ function SignTransactionScreen() {
     signerId,
     signerPolicy,
     inheritanceKeyInfo,
+    masterFingerprint,
   }: VaultSigner) => {
     setActiveSignerId(signerId);
     if (areSignaturesSufficient()) {
@@ -312,6 +329,10 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
+        if (masterFingerprint === collaborativeWalletId) {
+          signTransaction({ signerId });
+          return;
+        }
         setKeeperModal(true);
         break;
       case SignerType.TREZOR:
