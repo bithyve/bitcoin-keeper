@@ -104,6 +104,7 @@ function WalletItem({
     return null;
   }
   const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const isCollaborativeWallet = item.entityKind === EntityKind.VAULT;
   const isActive = index === walletIndex;
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
@@ -121,7 +122,12 @@ function WalletItem({
       ]}
     >
       <TouchableOpacity
-        onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
+        onPress={
+          isCollaborativeWallet
+            ? () =>
+                navigation.navigate('VaultDetails', { walletId: item.id, isCollaborativeWallet })
+            : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
+        }
       >
         {!(item?.presentationData && item?.specs) ? (
           <AddNewWalletTile
@@ -134,6 +140,7 @@ function WalletItem({
         ) : (
           <WalletTile
             isWhirlpoolWallet={isWhirlpoolWallet}
+            isCollaborativeWallet={isCollaborativeWallet}
             isActive={isActive}
             wallet={item}
             balances={item?.specs?.balances}
@@ -186,7 +193,14 @@ function WalletList({
   );
 }
 
-function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts }) {
+function WalletTile({
+  isActive,
+  wallet,
+  balances,
+  isWhirlpoolWallet,
+  hideAmounts,
+  isCollaborativeWallet,
+}) {
   const { colorMode } = useColorMode();
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
   const { satsEnabled } = useAppSelector((state) => state.settings);
