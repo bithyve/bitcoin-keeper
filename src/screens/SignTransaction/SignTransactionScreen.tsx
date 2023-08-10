@@ -45,13 +45,18 @@ import {
 
 function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
-  const { activeVault: defaultVault } = useVault();
-  const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const route = useRoute();
-  const { note, label } = (route.params || { note: '', label: [] }) as {
+  const { note, label, collaborativeWalletId } = (route.params || {
+    note: '',
+    label: [],
+    collaborativeWalletId: '',
+  }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
+    collaborativeWalletId: string;
   };
+  const { activeVault: defaultVault } = useVault(collaborativeWalletId);
+  const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -413,6 +418,8 @@ function SignTransactionScreen() {
         showOTPModal={showOTPModal}
         signTransaction={signTransaction}
         textRef={textRef}
+        isMultisig={defaultVault.isMultiSig}
+        collaborativeWalletId={collaborativeWalletId}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
     </ScreenWrapper>

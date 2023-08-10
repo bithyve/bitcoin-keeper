@@ -35,9 +35,12 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SignWithChannel() {
   const { params } = useRoute();
-  const { signer } = params as { signer: VaultSigner };
+  const { signer, collaborativeWalletId = '' } = params as {
+    signer: VaultSigner;
+    collaborativeWalletId: string;
+  };
   const { useQuery } = useContext(RealmWrapperContext);
-  const { activeVault } = useVault();
+  const { activeVault } = useVault(collaborativeWalletId);
   const { isMultiSig: isMultisig } = activeVault;
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
