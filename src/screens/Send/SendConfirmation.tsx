@@ -23,7 +23,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
-import { TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
@@ -226,7 +226,16 @@ function SendConfirmation({ route }) {
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
       setProgress(false);
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen', { note, label }));
+      navigation.dispatch(
+        CommonActions.navigate('SignTransactionScreen', {
+          note,
+          label,
+          collaborativeWalletId:
+            sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
+              ? sender.collaborativeWalletId
+              : null,
+        })
+      );
     }
   }, [serializedPSBTEnvelops]);
 
