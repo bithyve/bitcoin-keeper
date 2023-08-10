@@ -37,7 +37,7 @@ function ImportDescriptorScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const wallet = useWallets({ walletIds: [walletId] }).wallets[0];
-  const { collaborativeWallet } = useCollaborativeWallet({ walletId });
+  const { collaborativeWallet } = useCollaborativeWallet(walletId);
 
   useEffect(() => {
     if (collaborativeWallet) {

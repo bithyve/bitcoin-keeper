@@ -10,7 +10,7 @@ import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive'
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { EntityKind, WalletType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
@@ -42,13 +42,12 @@ import {
 } from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Fonts from 'src/common/Fonts';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
-import useVault from 'src/hooks/useVault';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(180);
@@ -104,11 +103,11 @@ function WalletItem({
     return null;
   }
   const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
-  const isCollaborativeWallet = item.entityKind === EntityKind.VAULT;
+  const isCollaborativeWallet =
+    item.entityKind === EntityKind.VAULT && item.type === VaultType.COLLABORATIVE;
   const isActive = index === walletIndex;
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
-
   return (
     <Box
       backgroundColor={`${colorMode}.pantoneGreen`}
@@ -125,7 +124,10 @@ function WalletItem({
         onPress={
           isCollaborativeWallet
             ? () =>
-                navigation.navigate('VaultDetails', { walletId: item.id, isCollaborativeWallet })
+                navigation.navigate('VaultDetails', {
+                  walletId: item.collaborativeWalletId,
+                  isCollaborativeWallet,
+                })
             : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
         }
       >
@@ -329,6 +331,8 @@ const WalletsScreen = ({ navigation }) => {
       if (collaborativeWalletsCount < walletsCount) {
         navigation.navigate('SetupCollaborativeWallet', {
           coSigner: wallets[collaborativeWalletsCount],
+          walletId: wallets[collaborativeWalletsCount].id,
+          collaborativeWalletsCount,
         });
       } else {
         showToast(

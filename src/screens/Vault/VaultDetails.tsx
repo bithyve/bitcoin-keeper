@@ -512,7 +512,7 @@ function VaultDetails({ navigation }) {
   const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const currentVault = isCollaborativeWallet ? useCollaborativeWallet({ walletId }) : useVault();
+  const currentVault = isCollaborativeWallet ? useCollaborativeWallet(walletId) : useVault();
   const vault = isCollaborativeWallet ? currentVault.collaborativeWallet : currentVault.activeVault;
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
