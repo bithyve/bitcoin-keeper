@@ -220,17 +220,17 @@ function WalletSettings({ route }) {
     );
   }
 
-  const { collaborativeWallet } = useCollaborativeWallet({ walletId: wallet.id });
+  // const { collaborativeWallet } = useCollaborativeWallet({ walletId: wallet.id });
 
-  const collaborativeWalletCheck = () => {
-    if (collaborativeWallet) {
-      navigation.dispatch(
-        CommonActions.navigate('VaultDetails', { walletId: wallet.id, isCollaborativeWallet: true })
-      );
-    } else {
-      setCollaborativeModalVisible(true);
-    }
-  };
+  // const collaborativeWalletCheck = () => {
+  //   if (collaborativeWallet) {
+  //     navigation.dispatch(
+  //       CommonActions.navigate('VaultDetails', { walletId: wallet.id, isCollaborativeWallet: true })
+  //     );
+  //   } else {
+  //     setCollaborativeModalVisible(true);
+  //   }
+  // };
 
   const signPSBT = (serializedPSBT) => {
     const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
@@ -302,11 +302,11 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(true);
             }}
           />
-          <Option
+          {/* <Option
             title="Collaborative Wallet"
             subTitle="Create, sign and view multisig"
             onPress={collaborativeWalletCheck}
-          />
+          /> */}
           {config.NETWORK_TYPE === NetworkType.TESTNET && (
             <Option
               title="Receive Test Sats"
@@ -451,7 +451,7 @@ function WalletSettings({ route }) {
         />
       </Box>
 
-      <KeeperModal
+      {/* <KeeperModal
         visible={collaborativeModalVisible}
         close={() => {
           setCollaborativeModalVisible(false);
@@ -466,7 +466,7 @@ function WalletSettings({ route }) {
             signPSBT={signPSBT}
           />
         )}
-      />
+      /> */}
       {/* end */}
     </Box>
   );
