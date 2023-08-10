@@ -88,7 +88,7 @@
           </intent-filter>
           <!-- Required XML configuration file, listing the AIDs that we are emulating cards for. This defines what protocols our card emulation service supports. -->
           <meta-data android:name="android.nfc.cardemulation.host_apdu_service"
-              android:resource="@xml/aid_list"/>
+              android:resource="@xml/apduservice"/>
       </service>
     
     </application>
