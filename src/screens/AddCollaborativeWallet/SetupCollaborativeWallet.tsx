@@ -93,7 +93,7 @@ function SignerItem({
                   color={`${colorMode}.GreyText`}
                   style={[globalStyles.font13, { letterSpacing: 0.06 }]}
                 >
-                  Select signing device
+                  {index === 0 ? 'Adding your key...' : 'Add a coSigner'}
                 </Text>
               </VStack>
             </HStack>
