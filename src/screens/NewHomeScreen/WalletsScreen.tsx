@@ -54,6 +54,20 @@ const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(180);
 const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
 
+const calculateBalancesForVaults = (vaults) => {
+  let totalUnconfirmedBalance = 0;
+  let totalConfirmedBalance = 0;
+
+  vaults.forEach((vault) => {
+    const unconfirmedBalance = idx(vault, (_) => _.specs.balances.unconfirmed) || 0;
+    const confirmedBalance = idx(vault, (_) => _.specs.balances.confirmed) || 0;
+
+    totalUnconfirmedBalance += unconfirmedBalance;
+    totalConfirmedBalance += confirmedBalance;
+  });
+  return totalUnconfirmedBalance + totalConfirmedBalance;
+};
+
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
     // <View style={styles.addWalletContent}>
@@ -219,7 +233,8 @@ const WalletsScreen = ({ navigation }) => {
   const { colorMode } = useColorMode();
   const { wallets } = useWallets();
   const { collaborativeWallets } = useCollaborativeWallet();
-  const netBalance = useAppSelector((state) => state.wallet.netBalance);
+  const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
+  const netBalanceCollaborativeWallets = calculateBalancesForVaults(collaborativeWallets);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
@@ -419,7 +434,8 @@ const WalletsScreen = ({ navigation }) => {
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
           <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_HotWallet">
-            {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
+            {wallets?.length + collaborativeWallets?.length} Wallet
+            {wallets?.length + collaborativeWallets?.length > 1 && 's'}
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on this app
@@ -428,7 +444,7 @@ const WalletsScreen = ({ navigation }) => {
         <Box style={styles.netBalanceView} testID="view_netBalance">
           <CurrencyInfo
             hideAmounts={hideAmounts}
-            amount={netBalance}
+            amount={netBalanceWallets + netBalanceCollaborativeWallets}
             fontSize={20}
             color={`${colorMode}.primaryText`}
             variation={colorMode === 'light' ? 'dark' : 'light'}
