@@ -16,6 +16,7 @@ import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import AddWallet from 'src/assets/images/addWallet.svg';
 import ImportWallet from 'src/assets/images/importWallet.svg';
+import AddCollaborativeWalletIcon from 'src/assets/images/icon_collab.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -366,7 +367,7 @@ const WalletsScreen = ({ navigation }) => {
         />
         <MenuItemButton
           onPress={addCollaborativeWallet}
-          icon={<ImportWallet />}
+          icon={<AddCollaborativeWalletIcon />}
           title="Add Collaborative Wallet"
           subTitle="Create, sign and view collaborative wallet"
           height={80}
