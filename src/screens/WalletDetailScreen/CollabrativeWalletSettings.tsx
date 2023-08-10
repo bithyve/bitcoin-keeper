@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView } from 'native-base';
+import { Box, Pressable, ScrollView, useToast } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -8,12 +8,18 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Note from 'src/components/Note/Note';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
-
+import KeeperModal from 'src/components/KeeperModal';
+import ShowXPub from 'src/components/XPub/ShowXPub';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { SignerType } from 'src/core/wallets/enums';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import { DescritporsModalContent } from '../Vault/VaultSettings';
 
 type Props = {
   title: string;
@@ -56,8 +62,13 @@ function CollabrativeWalletSettings() {
   const route = useRoute();
   const { wallet: collaborativeWallet } = route.params as { wallet: Vault };
   const navigation = useNavigation();
+  const showToast = useToast();
+  const [cosignerVisible, setCosignerVisible] = useState(false);
+  const { useQuery } = useContext(RealmWrapperContext);
+  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const wallet = useWallets({ walletIds: [collaborativeWallet.collaborativeWalletId] }).wallets[0];
   const descriptorString = genrateOutputDescriptors(collaborativeWallet);
+  const [genratorModalVisible, setGenratorModalVisible] = useState(false);
 
   const signPSBT = (serializedPSBT) => {
     const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
@@ -106,7 +117,7 @@ function CollabrativeWalletSettings() {
             title="View CoSigner Details"
             subTitle="View CoSigner Details"
             onPress={() => {
-              navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
+              setCosignerVisible(true);
             }}
           />
           <Option
@@ -145,6 +156,35 @@ function CollabrativeWalletSettings() {
           subtitleColor="GreyText"
         />
       </Box>
+      <Box>
+        <KeeperModal
+          visible={cosignerVisible}
+          close={() => setCosignerVisible(false)}
+          title="Cosigner Details"
+          subTitleWidth={wp(260)}
+          subTitle="Scan the cosigner details from another app in order to add this as a signer"
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
+          buttonText="Done"
+          buttonCallback={() => {
+            setCosignerVisible(false);
+            // setAddWalletCosignerVisible(true)
+          }}
+          Content={() => (
+            <ShowXPub
+              data=""
+              wallet={collaborativeWallet}
+              cosignerDetails
+              copy={() => showToast('Cosigner Details Copied Successfully')}
+              subText="Cosigner Details"
+              noteSubText="The cosigner details are for the selected wallet only"
+              copyable={false}
+              keeper={keeper}
+            />
+          )}
+        />
+      </Box>
+      {/* end */}
     </Box>
   );
 }
@@ -161,6 +201,37 @@ const styles = ScaledSheet.create({
     marginLeft: 26,
     width: '90%',
     paddingTop: hp(10),
+  },
+  walletCardContainer: {
+    borderRadius: hp(20),
+    width: wp(320),
+    paddingHorizontal: 5,
+    paddingVertical: 20,
+    position: 'relative',
+    marginLeft: -wp(20),
+  },
+  walletCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: wp(10),
+  },
+  walletDetailsWrapper: {
+    width: wp(155),
+  },
+  walletName: {
+    letterSpacing: 0.28,
+    fontSize: 15,
+  },
+  walletDescription: {
+    letterSpacing: 0.24,
+    fontSize: 13,
+    fontWeight: '300',
+  },
+  walletBalance: {
+    letterSpacing: 1.2,
+    fontSize: 23,
+    padding: 5,
   },
   optionsListContainer: {
     alignItems: 'center',
