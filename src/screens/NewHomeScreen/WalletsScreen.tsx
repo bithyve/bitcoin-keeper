@@ -10,7 +10,7 @@ import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive'
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
@@ -46,6 +46,9 @@ import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
+import useVault from 'src/hooks/useVault';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(180);
@@ -74,7 +77,7 @@ function WalletItem({
   setAddImportVisible,
 }: {
   currentIndex: number;
-  item: Wallet;
+  item: Wallet | Vault;
   index: number;
   walletIndex: number;
   navigation;
@@ -90,6 +93,7 @@ function WalletItem({
   const isActive = index === walletIndex;
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
+
   return (
     <Box
       backgroundColor={`${colorMode}.pantoneGreen`}
@@ -132,18 +136,19 @@ function WalletList({
   onViewRef,
   viewConfigRef,
   wallets,
+  collaborativeWallets,
   hideAmounts,
   setAddImportVisible,
 }: any) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-
+  const items = [...wallets, ...collaborativeWallets];
   return (
     <Box style={styles.walletsContainer}>
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={wallets.concat({ isEnd: true })}
+        data={items.concat({ isEnd: true })}
         disableIntervalMomentum
         decelerationRate="fast"
         contentContainerStyle={{ paddingHorizontal: VIEW_WIDTH / 2 }}
@@ -213,6 +218,7 @@ const WalletsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
   const { wallets } = useWallets();
+  const { collaborativeWallets } = useCollaborativeWallet();
   const netBalance = useAppSelector((state) => state.wallet.netBalance);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const [walletIndex, setWalletIndex] = useState<number>(0);
@@ -286,7 +292,23 @@ const WalletsScreen = ({ navigation }) => {
       //
     }
   }
-  function AddImportWallet() {
+  function AddImportWallet({ wallets, collaborativeWallets }) {
+    const addCollaborativeWallet = () => {
+      setAddImportVisible(false);
+      const collaborativeWalletsCount = collaborativeWallets.length;
+      const walletsCount = wallets.length;
+      if (collaborativeWalletsCount < walletsCount) {
+        navigation.navigate('SetupCollaborativeWallet', {
+          coSigner: wallets[collaborativeWalletsCount],
+        });
+      } else {
+        showToast(
+          'Please create a wallet before creating a colloraive walllet ',
+          <ToastErrorIcon />
+        );
+      }
+    };
+
     return (
       <Box>
         <MenuItemButton
@@ -314,10 +336,7 @@ const WalletsScreen = ({ navigation }) => {
           height={80}
         />
         <MenuItemButton
-          onPress={() => {
-            setAddImportVisible(false);
-            navigation.navigate('SetupCollaborativeWallet', { coSigner: wallets[0] });
-          }}
+          onPress={addCollaborativeWallet}
           icon={<ImportWallet />}
           title="Add Collaborative Wallet"
           subTitle="Create, sign and view collaborative wallet"
@@ -423,6 +442,7 @@ const WalletsScreen = ({ navigation }) => {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
+        collaborativeWallets={collaborativeWallets}
         setAddImportVisible={() => setAddImportVisible(true)}
       />
       <Box style={styles.listItemsWrapper}>
@@ -509,7 +529,9 @@ const WalletsScreen = ({ navigation }) => {
         modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        Content={() => <AddImportWallet />}
+        Content={() => (
+          <AddImportWallet wallets={wallets} collaborativeWallets={collaborativeWallets} />
+        )}
       />
       <KeeperModal
         visible={electrumErrorVisible}
