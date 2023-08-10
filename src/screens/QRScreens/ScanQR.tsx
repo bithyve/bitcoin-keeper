@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
@@ -114,28 +114,28 @@ function ScanQR() {
       <MockWrapper signerType={type} enable={setup && type}>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
-          {!nfcVisible ? (
-            <>
-              <Box style={styles.qrcontainer}>
-                <RNCamera
-                  autoFocus="on"
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={onBarCodeRead}
-                  useNativeZoom
-                  notAuthorizedView={<CameraUnauthorized />}
-                />
-              </Box>
-              <UploadImage onPress={handleChooseImage} />
-              <HStack>
-                {qrPercent !== 100 && <ActivityIndicator />}
-                <Text>{`Scanned ${qrPercent}%`}</Text>
-              </HStack>
-            </>
-          ) : (
-            <Box style={styles.cameraView} />
-          )}
-          <Box style={styles.noteWrapper}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            {!nfcVisible ? (
+              <>
+                <Box style={styles.qrcontainer}>
+                  <RNCamera
+                    autoFocus="on"
+                    style={styles.cameraView}
+                    captureAudio={false}
+                    onBarCodeRead={onBarCodeRead}
+                    useNativeZoom
+                    notAuthorizedView={<CameraUnauthorized />}
+                  />
+                </Box>
+                <UploadImage onPress={handleChooseImage} />
+                <HStack>
+                  {qrPercent !== 100 && <ActivityIndicator />}
+                  <Text>{`Scanned ${qrPercent}%`}</Text>
+                </HStack>
+              </>
+            ) : (
+              <Box style={styles.cameraView} />
+            )}
             <Box style={{ paddingBottom: '10%' }}>
               <NFCOption
                 signerType={type}
@@ -145,12 +145,14 @@ function ScanQR() {
                 setData={setData}
               />
             </Box>
-            <Note
-              title={common.note}
-              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-              subtitleColor="GreyText"
-            />
-          </Box>
+            <Box style={styles.noteWrapper}>
+              <Note
+                title={common.note}
+                subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+                subtitleColor="GreyText"
+              />
+            </Box>
+          </ScrollView>
         </Box>
       </MockWrapper>
     </ScreenWrapper>
@@ -173,7 +175,6 @@ const styles = StyleSheet.create({
   noteWrapper: {
     width: '100%',
     bottom: 0,
-    position: 'absolute',
     paddingHorizontal: 10,
   },
 });

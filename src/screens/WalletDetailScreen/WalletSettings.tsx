@@ -220,7 +220,7 @@ function WalletSettings({ route }) {
     );
   }
 
-  // const { collaborativeWallet } = useCollaborativeWallet({ walletId: wallet.id });
+  // const { collaborativeWallet } = useCollaborativeWallet(wallet.id);
 
   // const collaborativeWalletCheck = () => {
   //   if (collaborativeWallet) {

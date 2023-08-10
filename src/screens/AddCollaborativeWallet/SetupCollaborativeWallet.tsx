@@ -4,7 +4,6 @@ import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { removeSigningDevice, updateSigningDevice } from 'src/store/reducers/vaults';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
@@ -31,6 +30,7 @@ import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { useAppSelector } from 'src/store/hooks';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
 
@@ -40,17 +40,19 @@ function SignerItem({
   signer,
   index,
   onQRScan,
+  removeSigner,
+  updateSigner,
 }: {
   signer: VaultSigner | undefined;
   index: number;
   onQRScan: any;
+  removeSigner: any;
+  updateSigner: any;
 }) {
   const { colorMode } = useColorMode();
-  const dispatch = useDispatch();
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
 
-  const removeSigner = () => dispatch(removeSigningDevice(signer));
   const navigateToAddQrBasedSigner = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -93,7 +95,7 @@ function SignerItem({
                   color={`${colorMode}.GreyText`}
                   style={[globalStyles.font13, { letterSpacing: 0.06 }]}
                 >
-                  Select signing device
+                  {index === 0 ? 'Adding your key...' : 'Add a coSigner'}
                 </Text>
               </VStack>
             </HStack>
@@ -156,7 +158,7 @@ function SignerItem({
             </Pressable>
           </VStack>
         </HStack>
-        <Pressable style={styles.remove} onPress={() => removeSigner()}>
+        <Pressable style={styles.remove} onPress={() => removeSigner(index)} disabled={index === 0}>
           <Text color={`${colorMode}.black`} style={[globalStyles.font12, { letterSpacing: 0.6 }]}>
             Remove
           </Text>
@@ -166,9 +168,7 @@ function SignerItem({
         visible={visible}
         close={closeDescriptionModal}
         signer={signer}
-        callback={(value: any) =>
-          dispatch(updateSigningDevice({ signer, key: 'signerDescription', value }))
-        }
+        callback={(value: any) => updateSigner({ signer, key: 'signerDescription', value })}
       />
     </Box>
   );
@@ -209,17 +209,36 @@ function SetupCollaborativeWallet() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { params } = useRoute() as { params: { coSigner } };
-  const { coSigner } = params;
+  const { params } = useRoute() as { params: { coSigner; collaborativeWalletsCount; walletId } };
+  const { coSigner, walletId, collaborativeWalletsCount } = params;
+  const { hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, error } = useAppSelector(
+    (state) => state.vault
+  );
   const COLLABORATIVE_SCHEME = { m: 2, n: 3 };
   const [coSigners, setCoSigners] = useState<VaultSigner[]>(
     new Array(COLLABORATIVE_SCHEME.n).fill(null)
   );
+  const [isCreating, setIsCreating] = useState(false);
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { showToast } = useToastMessage();
 
-  const pushSigner = (coSigner) => {
+  const removeSigner = (index: number) => {
+    const newSigners = coSigners.filter((_, i) => i !== index || index === 0);
+    setCoSigners(newSigners);
+  };
+
+  const updateSigner = ({ signer, key, value }) => {
+    const newSigners = coSigners.map((item) => {
+      if (item && item.signerId === signer.signerId) {
+        return { ...item, [key]: value };
+      }
+      return item;
+    });
+    setCoSigners(newSigners);
+  };
+
+  const pushSigner = (coSigner, goBack = true) => {
     try {
       if (!coSigner.xpub) {
         coSigner = JSON.parse(coSigner);
@@ -246,6 +265,7 @@ function SetupCollaborativeWallet() {
         return item;
       });
       setCoSigners(newSigners);
+      if (goBack) navigation.goBack();
     } catch (err) {
       console.log(err);
       const message = crossInteractionHandler(err);
@@ -256,26 +276,53 @@ function SetupCollaborativeWallet() {
   useEffect(() => {
     setTimeout(() => {
       const details = getCosignerDetails(coSigner, keeper.id);
-      pushSigner(details);
+      pushSigner(details, false);
     }, 200);
   }, []);
 
+  useEffect(() => {
+    if (hasNewVaultGenerationSucceeded) {
+      setIsCreating(false);
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { walletId, isCollaborativeWallet: true } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
+    }
+    if (hasNewVaultGenerationFailed) {
+      setIsCreating(false);
+      showToast('Error creating collaborative wallet', <ToastErrorIcon />, 4000);
+      captureError(error);
+    }
+  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed]);
+
   const renderSigner = ({ item, index }) => (
-    <SignerItem signer={item} index={index} onQRScan={pushSigner} />
+    <SignerItem
+      signer={item}
+      index={index}
+      onQRScan={pushSigner}
+      updateSigner={updateSigner}
+      removeSigner={removeSigner}
+    />
   );
 
   const ListFooterComponent = useCallback(() => ListFooter(coSigner), [coSigner]);
 
   const createVault = useCallback(() => {
     try {
+      setIsCreating(true);
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.COLLABORATIVE,
         vaultScheme: COLLABORATIVE_SCHEME,
         vaultSigners: coSigners,
         vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
+          name: `Collaborative Wallet ${collaborativeWalletsCount + 1}`,
+          description: '2 of 3 multisig',
         },
+        collaborativeWalletId: walletId,
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
       return vaultInfo;
@@ -312,6 +359,7 @@ function SetupCollaborativeWallet() {
           secondaryText="Cancel"
           secondaryCallback={navigation.goBack}
           paddingHorizontal={wp(30)}
+          primaryLoading={isCreating}
         />
       </Box>
     </ScreenWrapper>
