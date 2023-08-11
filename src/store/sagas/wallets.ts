@@ -479,7 +479,7 @@ export interface NewVaultInfo {
   collaborativeWalletId?: string;
 }
 
-function* addNewVaultWorker({
+export function* addNewVaultWorker({
   payload,
 }: {
   payload: {
@@ -487,10 +487,11 @@ function* addNewVaultWorker({
     vault?: Vault;
     isMigrated?: boolean;
     oldVaultId?: string;
+    isRecreation?: boolean;
   };
 }) {
   try {
-    const { newVaultInfo, isMigrated, oldVaultId } = payload;
+    const { newVaultInfo, isMigrated, oldVaultId, isRecreation } = payload;
     let { vault } = payload;
     const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
       newVaultInfo;
@@ -521,6 +522,21 @@ function* addNewVaultWorker({
       : collaborativeWalletId
       ? { updated: true }
       : yield call(updateVaultImageWorker, { payload: { vault } });
+
+    if (collaborativeWalletId && !isRecreation) {
+      const hotWallet = yield call(
+        dbManager.getObjectById,
+        RealmSchema.Wallet,
+        collaborativeWalletId
+      );
+      yield call(updateWalletsPropertyWorker, {
+        payload: {
+          wallet: hotWallet,
+          key: 'collaborativeWalletDetails',
+          value: { descriptor: genrateOutputDescriptors(vault) },
+        },
+      });
+    }
 
     if (response.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
