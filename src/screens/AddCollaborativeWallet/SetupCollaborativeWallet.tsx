@@ -287,6 +287,11 @@ function SetupCollaborativeWallet() {
         }
       }
       const { mfp, xpub, derivationPath } = coSigner;
+      // duplicate check
+      if (coSigners.find((item) => item && item.xpub === xpub)) {
+        showToast('This CoSigner has already been added', <ToastErrorIcon />);
+        return;
+      }
       const ksd = generateSignerFromMetaData({
         xpub,
         derivationPath,
