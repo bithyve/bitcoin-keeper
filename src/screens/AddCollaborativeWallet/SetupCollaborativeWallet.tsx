@@ -33,6 +33,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
 
 const { width } = Dimensions.get('screen');
 
@@ -322,6 +323,9 @@ function SetupCollaborativeWallet() {
       const details = getCosignerDetails(coSigner, keeper.id);
       pushSigner(details, false);
     }, 200);
+    return () => {
+      dispatch(resetRealyVaultState());
+    };
   }, []);
 
   useEffect(() => {
