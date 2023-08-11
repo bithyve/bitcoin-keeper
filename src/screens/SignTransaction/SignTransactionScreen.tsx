@@ -108,7 +108,10 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'NewHome' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true, autoRefresh: true } },
+          {
+            name: 'VaultDetails',
+            params: { vaultTransferSuccessful: true, autoRefresh: true, collaborativeWalletId },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -130,7 +133,10 @@ function SignTransactionScreen() {
       navigation.dispatch(
         CommonActions.reset({
           index: 1,
-          routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
+          routes: [
+            { name: 'NewHome' },
+            { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+          ],
         })
       );
     }

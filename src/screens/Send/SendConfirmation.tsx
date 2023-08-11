@@ -222,6 +222,10 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
+  const collaborativeWalletId =
+    sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
+      ? sender.collaborativeWalletId
+      : '';
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -230,10 +234,7 @@ function SendConfirmation({ route }) {
         CommonActions.navigate('SignTransactionScreen', {
           note,
           label,
-          collaborativeWalletId:
-            sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
-              ? sender.collaborativeWalletId
-              : null,
+          collaborativeWalletId,
         })
       );
     }
@@ -244,7 +245,10 @@ function SendConfirmation({ route }) {
     if (vaultTransfers.includes(transferType)) {
       const navigationState = {
         index: 1,
-        routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+        ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     } else if (whirlPoolWalletTypes.includes(sender.type)) {
@@ -339,7 +343,7 @@ function SendConfirmation({ route }) {
         case TransferType.VAULT_TO_WALLET:
           return isSend ? (
             <Card
-              title="Vault"
+              title={sender.presentationData.name}
               subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
                 sender.specs.balances.confirmed
               )} ${getSatUnit()}`}
