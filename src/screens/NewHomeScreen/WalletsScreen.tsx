@@ -126,8 +126,7 @@ function WalletItem({
           isCollaborativeWallet
             ? () =>
                 navigation.navigate('VaultDetails', {
-                  walletId: item.collaborativeWalletId,
-                  isCollaborativeWallet,
+                  collaborativeWalletId: item.collaborativeWalletId,
                 })
             : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
         }

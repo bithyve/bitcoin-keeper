@@ -61,11 +61,11 @@ function SignWithQR() {
         dispatch(updateSignerDetails(signer, 'registered', true));
       }
       dispatch(healthCheckSigner([signer]));
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+      navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
       captureError(err);
       Alert.alert('Invalid QR, please scan the signed PSBT!');
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+      navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     }
   };
 

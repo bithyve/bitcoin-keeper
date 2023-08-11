@@ -287,7 +287,7 @@ function SetupCollaborativeWallet() {
         index: 1,
         routes: [
           { name: 'NewHome' },
-          { name: 'VaultDetails', params: { walletId, isCollaborativeWallet: true } },
+          { name: 'VaultDetails', params: { collaborativeWalletId: walletId } },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));

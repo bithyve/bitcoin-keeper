@@ -94,7 +94,9 @@ function SignWithChannel() {
           const { serializedTx: txHex } = data;
           dispatch(updatePSBTEnvelops({ txHex, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));
-          navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
         } else if (signer.type === SignerType.BITBOX02) {
           const { signedSerializedPSBT } = getSignedSerializedPSBTForBitbox02(
             serializedPSBT,
@@ -103,7 +105,9 @@ function SignWithChannel() {
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));
-          navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
         } else if (signer.type === SignerType.LEDGER) {
           const { signedSerializedPSBT } = signWithLedgerChannel(
             serializedPSBT,
@@ -112,7 +116,9 @@ function SignWithChannel() {
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));
-          navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
         }
       } catch (error) {
         captureError(error);
