@@ -17,7 +17,7 @@ import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/common/utilities';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { globalStyles } from 'src/common/globalStyles';
-import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -42,12 +42,14 @@ function SignerItem({
   onQRScan,
   removeSigner,
   updateSigner,
+  coSignerFingerprint,
 }: {
   signer: VaultSigner | undefined;
   index: number;
   onQRScan: any;
   removeSigner: any;
   updateSigner: any;
+  coSignerFingerprint: string;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -132,7 +134,9 @@ function SignerItem({
                 { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
               ]}
             >
-              {`${signer.signerName}`}
+              {`${
+                coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
+              }`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text
@@ -178,7 +182,7 @@ function Spacer() {
   return <Box style={styles.space} />;
 }
 
-function ListFooter(wallet: Wallet) {
+function ListFooter(wallet: Wallet, signPSBT: any) {
   const navigation = useNavigation();
   const { id } = wallet;
   return (
@@ -199,6 +203,25 @@ function ListFooter(wallet: Wallet) {
         subtitle="This is a read-only wallet"
         callback={() => {
           navigation.dispatch(CommonActions.navigate('ImportDescriptorScreen', { walletId: id }));
+        }}
+      />
+      <Spacer />
+      <OptionCTA
+        icon={null}
+        title={`Act as CoSigner - ${id}`}
+        subtitle="Sign transactions as a CoSigner"
+        callback={() => {
+          navigation.dispatch(
+            CommonActions.navigate({
+              name: 'ScanQR',
+              params: {
+                title: `Scan PSBT to Sign`,
+                subtitle: 'Please scan until all the QR data has been retrieved',
+                onQrScan: signPSBT,
+                type: SignerType.KEEPER,
+              },
+            })
+          );
         }}
       />
     </Box>
@@ -236,6 +259,22 @@ function SetupCollaborativeWallet() {
       return item;
     });
     setCoSigners(newSigners);
+  };
+
+  const signPSBT = (serializedPSBT) => {
+    const signedSerialisedPSBT = signCosignerPSBT(coSigner, serializedPSBT);
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowQR',
+        params: {
+          data: signedSerialisedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
+        },
+      })
+    );
   };
 
   const pushSigner = (coSigner, goBack = true) => {
@@ -306,10 +345,11 @@ function SetupCollaborativeWallet() {
       onQRScan={pushSigner}
       updateSigner={updateSigner}
       removeSigner={removeSigner}
+      coSignerFingerprint={coSigner.id}
     />
   );
 
-  const ListFooterComponent = useCallback(() => ListFooter(coSigner), [coSigner]);
+  const ListFooterComponent = useCallback(() => ListFooter(coSigner, signPSBT), [coSigner]);
 
   const createVault = useCallback(() => {
     try {
