@@ -491,7 +491,7 @@ export function* addNewVaultWorker({
   };
 }) {
   try {
-    const { newVaultInfo, isMigrated, oldVaultId, isRecreation } = payload;
+    const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
     const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
       newVaultInfo;
@@ -516,12 +516,6 @@ export function* addNewVaultWorker({
         collaborativeWalletId,
       });
     }
-    yield put(setRelayVaultUpdateLoading(true));
-    const response = isMigrated
-      ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : collaborativeWalletId
-      ? { updated: true }
-      : yield call(updateVaultImageWorker, { payload: { vault } });
 
     if (collaborativeWalletId && !isRecreation) {
       const hotWallet = yield call(
@@ -529,14 +523,21 @@ export function* addNewVaultWorker({
         RealmSchema.Wallet,
         collaborativeWalletId
       );
+      const descriptor = genrateOutputDescriptors(vault);
       yield call(updateWalletsPropertyWorker, {
         payload: {
           wallet: hotWallet,
           key: 'collaborativeWalletDetails',
-          value: { descriptor: genrateOutputDescriptors(vault) },
+          value: { descriptor },
         },
       });
     }
+    yield put(setRelayVaultUpdateLoading(true));
+    const response = isMigrated
+      ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
+      : collaborativeWalletId
+      ? { updated: true }
+      : yield call(updateVaultImageWorker, { payload: { vault } });
 
     if (response.updated) {
       yield call(dbManager.createObject, RealmSchema.Vault, vault);
@@ -1131,9 +1132,10 @@ function* updateWalletsPropertyWorker({
     value: any;
   } = payload;
   try {
-    wallet[key] = value;
+    const updatedWallet = getJSONFromRealmObject(wallet);
+    updatedWallet[key] = value;
     yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
+    const response = yield call(updateAppImageWorker, { payload: { wallets: [updatedWallet] } });
     if (response.updated) {
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, { [key]: value });
       yield put(relayWalletUpdateSuccess());
@@ -1141,6 +1143,7 @@ function* updateWalletsPropertyWorker({
       yield put(relayWalletUpdateFail(response.error));
     }
   } catch (err) {
+    console.log(err);
     yield put(relayWalletUpdateFail('Something went wrong!'));
   }
 }
