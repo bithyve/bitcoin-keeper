@@ -55,7 +55,6 @@ import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
 import useFeatureMap from 'src/hooks/useFeatureMap';
 import openLink from 'src/utils/OpenLink';
-import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
@@ -495,16 +494,14 @@ function VaultDetails({ navigation }) {
     params: {
       vaultTransferSuccessful: boolean;
       autoRefresh: boolean;
-      isCollaborativeWallet: boolean;
-      walletId: string;
+      collaborativeWalletId: string;
     };
   };
 
   const {
     vaultTransferSuccessful = false,
     autoRefresh = false,
-    isCollaborativeWallet = false,
-    walletId = '',
+    collaborativeWalletId = '',
   } = route.params || {};
 
   const dispatch = useDispatch();
@@ -512,8 +509,7 @@ function VaultDetails({ navigation }) {
   const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const currentVault = isCollaborativeWallet ? useCollaborativeWallet({ walletId }) : useVault();
-  const vault = isCollaborativeWallet ? currentVault.collaborativeWallet : currentVault.activeVault;
+  const { activeVault: vault } = useVault(collaborativeWalletId);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
@@ -636,15 +632,15 @@ function VaultDetails({ navigation }) {
     <Box
       style={styles.container}
       backgroundColor={
-        isCollaborativeWallet ? `${colorMode}.greenText2` : `${colorMode}.learnMoreBorder`
+        collaborativeWalletId ? `${colorMode}.greenText2` : `${colorMode}.learnMoreBorder`
       }
     >
       <VStack zIndex={1}>
         <VStack mx="8%" mt={5}>
           <Header />
-          <VaultInfo vault={vault} isCollaborativeWallet={isCollaborativeWallet} />
+          <VaultInfo vault={vault} isCollaborativeWallet={!!collaborativeWalletId} />
         </VStack>
-        {isCollaborativeWallet ? null : (
+        {collaborativeWalletId ? null : (
           <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
         )}
       </VStack>
@@ -661,12 +657,12 @@ function VaultDetails({ navigation }) {
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
           vault={vault}
-          isCollaborativeWallet={isCollaborativeWallet}
+          isCollaborativeWallet={!!collaborativeWalletId}
         />
         <Footer
           onPressBuy={() => setShowBuyRampModal(true)}
           vault={vault}
-          isCollaborativeWallet={isCollaborativeWallet}
+          isCollaborativeWallet={!!collaborativeWalletId}
         />
       </VStack>
       <TierUpgradeModal
@@ -740,7 +736,7 @@ function VaultDetails({ navigation }) {
   );
 }
 
-const getStyles = (top, isCollaborativeWallet = false) =>
+const getStyles = (top) =>
   StyleSheet.create({
     container: {
       paddingTop: Math.max(top, 35),

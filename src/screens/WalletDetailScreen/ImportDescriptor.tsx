@@ -25,11 +25,10 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useNfcModal from 'src/hooks/useNfcModal';
 import NFCOption from '../NFCChannel/NFCOption';
 
-function ImportDescriptorScreen() {
+function ImportDescriptorScreen({ navigation }) {
   const [inputText, setInputText] = useState(``);
   //   const { recoveryLoading, initateRecovery } = useConfigRecovery();
   const [walletCreationLoading, setWalletCreationLoading] = useState(false);
-  const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const route = useRoute();
   const dispatch = useDispatch();
@@ -37,14 +36,12 @@ function ImportDescriptorScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const wallet = useWallets({ walletIds: [walletId] }).wallets[0];
-  const { collaborativeWallet } = useCollaborativeWallet({ walletId });
+  const { collaborativeWallet } = useCollaborativeWallet(walletId);
 
   useEffect(() => {
     if (collaborativeWallet) {
       setWalletCreationLoading(false);
-      navigation.dispatch(
-        CommonActions.navigate('VaultDetails', { walletId: wallet.id, isCollaborativeWallet: true })
-      );
+      navigation.replace('VaultDetails', { walletId: wallet.id, isCollaborativeWallet: true });
     }
   }, [collaborativeWallet]);
   const initateWalletRecreation = () => {

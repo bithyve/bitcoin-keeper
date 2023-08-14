@@ -60,6 +60,10 @@ export interface WalletSpecs {
   lastSynched: number; // wallet's last sync timestamp
 }
 
+export interface CollaborativeWalletDetails {
+  descriptor: string; // descriptor for the collaborative wallet
+}
+
 export interface Wallet {
   id: string; // wallet identifier(derived from xpub)
   entityKind: EntityKind; // Wallet vs Vault identifier
@@ -73,6 +77,7 @@ export interface Wallet {
   transferPolicy?: TransferPolicy;
   whirlpoolConfig?: WhirlpoolConfig;
   depositWalletId?: string; // this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
+  collaborativeWalletDetails: CollaborativeWalletDetails;
 }
 
 export interface TriggerPolicy {

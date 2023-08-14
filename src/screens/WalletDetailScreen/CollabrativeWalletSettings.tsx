@@ -8,7 +8,6 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Note from 'src/components/Note/Note';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
-
 import { SignerType } from 'src/core/wallets/enums';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
@@ -161,6 +160,37 @@ const styles = ScaledSheet.create({
     marginLeft: 26,
     width: '90%',
     paddingTop: hp(10),
+  },
+  walletCardContainer: {
+    borderRadius: hp(20),
+    width: wp(320),
+    paddingHorizontal: 5,
+    paddingVertical: 20,
+    position: 'relative',
+    marginLeft: -wp(20),
+  },
+  walletCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: wp(10),
+  },
+  walletDetailsWrapper: {
+    width: wp(155),
+  },
+  walletName: {
+    letterSpacing: 0.28,
+    fontSize: 15,
+  },
+  walletDescription: {
+    letterSpacing: 0.24,
+    fontSize: 13,
+    fontWeight: '300',
+  },
+  walletBalance: {
+    letterSpacing: 1.2,
+    fontSize: 23,
+    padding: 5,
   },
   optionsListContainer: {
     alignItems: 'center',
