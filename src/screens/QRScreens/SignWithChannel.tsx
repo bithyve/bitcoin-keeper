@@ -35,9 +35,12 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SignWithChannel() {
   const { params } = useRoute();
-  const { signer } = params as { signer: VaultSigner };
+  const { signer, collaborativeWalletId = '' } = params as {
+    signer: VaultSigner;
+    collaborativeWalletId: string;
+  };
   const { useQuery } = useContext(RealmWrapperContext);
-  const { activeVault } = useVault();
+  const { activeVault } = useVault(collaborativeWalletId);
   const { isMultiSig: isMultisig } = activeVault;
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
@@ -91,7 +94,9 @@ function SignWithChannel() {
           const { serializedTx: txHex } = data;
           dispatch(updatePSBTEnvelops({ txHex, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));
-          navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
         } else if (signer.type === SignerType.BITBOX02) {
           const { signedSerializedPSBT } = getSignedSerializedPSBTForBitbox02(
             serializedPSBT,
@@ -100,7 +105,9 @@ function SignWithChannel() {
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));
-          navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
         } else if (signer.type === SignerType.LEDGER) {
           const { signedSerializedPSBT } = signWithLedgerChannel(
             serializedPSBT,
@@ -109,7 +116,9 @@ function SignWithChannel() {
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));
-          navgation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+          navgation.dispatch(
+            CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
+          );
         }
       } catch (error) {
         captureError(error);

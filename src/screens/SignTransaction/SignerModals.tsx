@@ -445,11 +445,10 @@ function SignerModals({
   signTransaction,
   textRef,
   signers,
+  isMultisig,
+  collaborativeWalletId,
 }) {
   const navigation = useNavigation();
-  const {
-    activeVault: { isMultiSig: isMultisig },
-  } = useVault();
 
   const navigateToQrSigning = (signer) => {
     setPassportModal(false);
@@ -457,14 +456,18 @@ function SignerModals({
     setKeeperModal(false);
     setOtherSDModal(false);
     setJadeModal(false);
-    navigation.dispatch(CommonActions.navigate('SignWithQR', { signTransaction, signer }));
+    navigation.dispatch(
+      CommonActions.navigate('SignWithQR', { signTransaction, signer, collaborativeWalletId })
+    );
   };
 
   const navigateToChannelSigning = (signer) => {
     setTrezorModal(false);
     setBitbox02Modal(false);
     setLedgerModal(false);
-    navigation.dispatch(CommonActions.navigate('SignWithChannel', { signTransaction, signer }));
+    navigation.dispatch(
+      CommonActions.navigate('SignWithChannel', { signTransaction, signer, collaborativeWalletId })
+    );
   };
   return (
     <>

@@ -2,10 +2,8 @@ import React, { useMemo } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { Pressable, StyleSheet, } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { SvgUri } from 'react-native-svg';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
-import config from 'src/core/config';
 import SubScription, { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
 import CustomYellowButton from '../CustomButton/CustomYellowButton';
 
@@ -84,7 +82,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
           linearGradient: {
             colors:
               currentPosition === index
-                ? [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]
+                ? [`${colorMode}.pantoneGreen`, `${colorMode}.pantoneGreen`]
                 : ['#848484', '#848484'],
             start: [0, 0],
             end: [1, 1],
@@ -99,7 +97,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
       >
         <Box py={2} alignItems="center" justifyContent="center">
           {item.productIds.includes(subscription.productId.toLowerCase()) ? (
-            <Box alignSelf="flex-start" backgroundColor="light.white" borderRadius={10} mx={2} py={0.5} px={2}>
+            <Box alignSelf="flex-start" backgroundColor={colorMode === 'light' ? "light.white" : '#E3BE96'} borderRadius={10} mx={2} py={0.5} px={2}>
               <Text fontSize={8} letterSpacing={0.64} bold color='black'>
                 Current
               </Text>
@@ -108,19 +106,19 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
             <Text fontSize={8} letterSpacing={0.64} bold />
           </Box>}
           {/* <Box my={15}>{currentPosition === index ? <SvgUri uri={`${config.RELAY}${item.iconFocused}`} /> : <SvgUri uri={`${config.RELAY}${item.icon}`} />}</Box> */}
-          <Text fontSize={13} bold color="light.white" mt={2}>
+          <Text fontSize={13} bold color={`${colorMode}.white`} mt={2}>
             {item.name}
           </Text>
-          <Text fontSize={10} color="light.white" mb={2}>
+          <Text fontSize={10} color={`${colorMode}.white`} mb={2}>
             {item.subTitle}
           </Text>
-          <Text bold fontSize={10} color="light.white" my={2}>
+          <Text bold fontSize={10} color={`${colorMode}.white`} my={2}>
             {getFreeTrail}
           </Text>
-          <Text textAlign="center" fontSize={15} color="light.white">
+          <Text textAlign="center" fontSize={15} color={`${colorMode}.white`}>
             {getAmt}
           </Text>
-          <Text fontSize={10} color="light.white">
+          <Text fontSize={10} color={`${colorMode}.white`}>
             {(item.productType !== 'free' && item.isActive) ? isMonthly ? '/month' : '/year' : ''}
           </Text>
           {/* <Text bold fontSize={10} color="light.white" my={item.productIds.includes(subscription.productId.toLowerCase()) ? 0.5 : 2}>
@@ -136,6 +134,7 @@ function ChoosePlanCarouselItem({ index, onPress, isMonthly, currentPosition, it
                 onPress={() => onSelect(item, index)}
                 value={getBtnTitle}
                 disabled={!item.isActive || requesting}
+                titleColor={`${colorMode}.modalAccentTitle`}
               />
             </Box>
           ) : null}

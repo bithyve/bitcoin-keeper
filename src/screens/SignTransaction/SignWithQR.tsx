@@ -28,11 +28,14 @@ function SignWithQR() {
   const route = useRoute();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signer }: { signer: VaultSigner } = route.params as any;
+  const {
+    signer,
+    collaborativeWalletId = '',
+  }: { signer: VaultSigner; collaborativeWalletId: string } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
     (envelop) => signer.signerId === envelop.signerId
   )[0];
-  const { activeVault } = useVault();
+  const { activeVault } = useVault(collaborativeWalletId);
   const isSingleSig = activeVault.scheme.n === 1;
 
   const signTransaction = (signedSerializedPSBT) => {
@@ -58,11 +61,11 @@ function SignWithQR() {
         dispatch(updateSignerDetails(signer, 'registered', true));
       }
       dispatch(healthCheckSigner([signer]));
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+      navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
       captureError(err);
       Alert.alert('Invalid QR, please scan the signed PSBT!');
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen'));
+      navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     }
   };
 
