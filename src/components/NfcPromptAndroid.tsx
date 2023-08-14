@@ -33,10 +33,10 @@ function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaTe
       duration: 400,
       toValue: 0,
       useNativeDriver: true,
-    }).start(() => {
+    }).start(async () => {
       close();
+      await NFC.cancelRequest();
     });
-    await NFC.cancelRequest();
   };
 
   const bgAnimStyle = {

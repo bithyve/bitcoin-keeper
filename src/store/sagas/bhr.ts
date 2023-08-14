@@ -55,7 +55,11 @@ import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
-import { UAI } from 'src/common/data/models/interfaces/Uai';
+import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
+import { generateSignerFromMetaData } from 'src/hardware';
+import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { NewVaultInfo, addNewVaultWorker } from './wallets';
 
 export function* updateAppImageWorker({ payload }) {
   const { wallets } = payload;
@@ -350,6 +354,48 @@ function* recoverApp(
       yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
       if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
         yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+      }
+      //Collobrative Wallet Recreation
+      if (
+        decrytpedWallet?.collaborativeWalletDetails &&
+        decrytpedWallet?.collaborativeWalletDetails?.descriptor
+      ) {
+        const descriptor = decrytpedWallet?.collaborativeWalletDetails?.descriptor;
+        const parsedText: ParsedVauleText = parseTextforVaultConfig(descriptor);
+        if (parsedText) {
+          const signers: VaultSigner[] = [];
+          parsedText.signersDetails.forEach((config) => {
+            const signer = generateSignerFromMetaData({
+              xpub: config.xpub,
+              derivationPath: config.path,
+              xfp: config.masterFingerprint,
+              signerType: SignerType.KEEPER,
+              storageType: SignerStorage.WARM,
+              isMultisig: config.isMultisig,
+            });
+            signers.push(signer);
+          });
+
+          const { xpub: myXpub } = getCosignerDetails(decrytpedWallet, app.id);
+          const isValidDescriptor = signers.find((signer) => signer.xpub === myXpub);
+          if (!isValidDescriptor) {
+            throw new Error('Descriptor does not contain your key');
+          }
+
+          const vaultInfo: NewVaultInfo = {
+            vaultType: VaultType.COLLABORATIVE,
+            vaultScheme: parsedText.scheme,
+            vaultSigners: signers,
+            vaultDetails: {
+              name: 'Collborative Wallet',
+              description: `${parsedText.scheme.m} of ${parsedText.scheme.n} Multisig`,
+            },
+            collaborativeWalletId: decrytpedWallet.id,
+          };
+          yield call(addNewVaultWorker, {
+            payload: { newVaultInfo: vaultInfo, isRecreation: true },
+          });
+        }
       }
       yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
     }

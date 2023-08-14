@@ -96,6 +96,7 @@ import WalletDetailsSettings from 'src/screens/WalletDetailScreen/WalletDetailsS
 import CollabrativeWalletSettings from 'src/screens/WalletDetailScreen/CollabrativeWalletSettings';
 import ImportDescriptorScreen from 'src/screens/WalletDetailScreen/ImportDescriptor';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
+import SetupCollaborativeWallet from 'src/screens/AddCollaborativeWallet/SetupCollaborativeWallet';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -233,6 +234,7 @@ function AppStack() {
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
+        <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

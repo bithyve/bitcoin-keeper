@@ -76,9 +76,9 @@ const getDeviceStatus = (
       return !isOnL1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
-          message: '',
-          disabled: false,
-        };
+            message: '',
+            disabled: false,
+          };
     case SignerType.SEED_WORDS:
     case SignerType.KEEPER:
     case SignerType.JADE:
@@ -149,7 +149,6 @@ function SigningDeviceList() {
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
     SignerType.SEED_WORDS,
-    // SignerType.INHERITANCEKEY,
   ];
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
@@ -246,7 +245,10 @@ function SigningDeviceList() {
           }}
           title="Signing Devices"
           subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
-          modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+          modalBackground={[
+            `${colorMode}.modalGreenBackground`,
+            `${colorMode}.modalGreenBackground`,
+          ]}
           buttonBackground={['#FFFFFF', '#80A8A1']}
           buttonText="Add Now"
           buttonTextColor={`${colorMode}.greenText`}

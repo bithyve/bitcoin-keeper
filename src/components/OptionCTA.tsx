@@ -11,7 +11,7 @@ function OptionCTA({ icon, title, subtitle, callback }) {
       <Box style={styles.container}>
         <HStack style={styles.main}>
           <HStack style={styles.main}>
-            <Box style={styles.icon}>{icon}</Box>
+            <Box>{icon}</Box>
             <VStack style={styles.textContainer}>
               <Text style={styles.title} bold>
                 {title}
@@ -35,18 +35,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#FDF7F0',
     padding: 15,
-    width: windowWidth * 0.8,
+    width: windowWidth * 0.85,
     marginTop: 5,
+    minHeight: 60,
   },
   main: {
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  icon: {
-    marginRight: 15,
-  },
   textContainer: {
-    marginRight: '15%',
+    marginRight: '10%',
+    paddingVertical: '2%',
+    justifyContent: 'center',
   },
   title: {
     fontSize: 14,
