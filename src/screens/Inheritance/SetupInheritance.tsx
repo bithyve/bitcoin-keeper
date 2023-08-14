@@ -1,33 +1,40 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-import LinearGradient from 'src/components/KeeperGradient';
 // components and functions
 import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
-import Buttons from 'src/components/Buttons';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { setInheritance } from 'src/store/reducers/settings';
 // icons and asserts
-import Assert from 'src/assets/images/illustration.svg';
+import Assert from 'src/assets/images/InheritanceSupportIllustration.svg';
 import Vault from 'src/assets/images/vault.svg';
-import SettingUp from 'src/assets/images/settingup.svg';
+import Letter from 'src/assets/images/LETTER.svg';
+import LetterIKS from 'src/assets/images/LETTER_IKS.svg';
 import Recovery from 'src/assets/images/recovery.svg';
-import Inheritance from 'src/assets/images/inheritance_Inner.svg';
+import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import usePlan from 'src/hooks/usePlan';
+import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
+import { TouchableOpacity } from 'react-native';
+import useVault from 'src/hooks/useVault';
 
 function SetupInheritance() {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
-  const { showToast } = useToastMessage();
+  const { plan } = usePlan();
+  const { activeVault } = useVault();
+
+  const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
 
   const inheritanceData = [
     {
@@ -38,17 +45,24 @@ function SetupInheritance() {
       Icon: Vault,
     },
     {
+      title: 'Setup Inheritance Key',
+      subTitle: 'Keeper will have one of your Keys',
+      description:
+        'This would transform your 3-of-5 Vault to a 3-of-6 with Keeper custodying one key.',
+      Icon: LetterIKS,
+    },
+    {
       title: 'Letter to the Attorney',
       subTitle: 'For the estate management company',
       description:
-        'A partly pre-filled pdf template uniquely identifying the vault and ability to add the beneficiary details',
-      Icon: SettingUp,
+        'A partly pre-filled pdf template uniquely identifying the Vault and ability to add the beneficiary details',
+      Icon: Letter,
     },
     {
       title: 'Recovery Instructions',
       subTitle: 'For the heir or beneficiary',
       description:
-        'A document that will help the beneficiary recover the vault with or without the Keeper app',
+        'A document that will help the beneficiary recover the Vault with or without the Keeper app',
       Icon: Recovery,
     },
   ];
@@ -59,15 +73,15 @@ function SetupInheritance() {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text color="light.white" numberOfLines={2} style={styles.modalTitle}>
+            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalTitle}>
               {title}
             </Text>
-            <Text color="light.white" numberOfLines={2} style={styles.modalSubtitle}>
+            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalSubtitle}>
               {subTitle}
             </Text>
           </Box>
         </Box>
-        <Text color="light.white" style={styles.modalDesc}>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalDesc}>
           {description}
         </Text>
       </Box>
@@ -76,7 +90,11 @@ function SetupInheritance() {
 
   function InheritanceContent() {
     return (
-      <Box>
+      <Box
+        style={{
+          width: wp(280),
+        }}
+      >
         {inheritanceData.map((item) => (
           <InheritancePoint
             title={item.title}
@@ -89,29 +107,19 @@ function SetupInheritance() {
     );
   }
 
-  function GradientIcon({ height, Icon }) {
-    return (
-      <LinearGradient
-        colors={['light.gradientStart', 'light.gradientEnd']}
-        start={[0, 0]}
-        end={[1, 1]}
-        style={{
-          ...styles.gradientIcon,
-          height: hp(height),
-          width: hp(height),
-          borderRadius: height,
-        }}
-      >
-        <Icon />
-      </LinearGradient>
-    );
-  }
   const proceedCallback = () => {
     dispatch(setInheritance(false));
-    showToast('Inheritance flow coming soon', null, 1000);
+    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
   };
+
+  const toSetupInheritance = () => {
+    if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
+    else if (plan !== SubscriptionTier.L3.toUpperCase()) navigtaion.navigate('ChoosePlan');
+    else if (!activeVault) navigtaion.navigate('AddSigningDevice');
+  };
+
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={styles.header}>
         <HeaderTitle
           onPressHandler={() => navigtaion.goBack()}
@@ -123,31 +131,41 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color="light.textWallet" style={styles.title}>
+        <Text color={`${colorMode}.primaryText`} style={styles.title} testID="text_InheritanceSupport">
           Inheritance Support
         </Text>
-        <Text color="light.secondaryText" style={styles.subtitle}>
-          Keeper provides you with the tips and tools you need to include the vault in your estate
+        <Text
+          color={`${colorMode}.textColor2`}
+          style={styles.subtitle}
+          testID="text_InheritanceSupportSubtitle"
+        >
+          Keeper provides you with the tips and tools you need to include the Vault in your estate
           planning
         </Text>
       </Box>
 
-      <Box style={styles.bottomContainer}>
+      <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
-        <Text numberOfLines={2} light style={styles.message}>
-          {`This can be activated once you are at the ${SubscriptionTier.L3} level`}
+        <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
+          {shouldActivateInheritance()
+            ? `Manage Inheritance key or view documents`
+            : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a Vault`}
         </Text>
-        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }}>
-          <Buttons
-            primaryText="Select Country"
-            primaryCallback={() => {
-              showToast('Inheritance flow coming soon', null, 1000);
-            }}
-            paddingHorizontal={wp(20)}
-          />
+        <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
+          <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
+            <Box
+              borderColor={`${colorMode}.learnMoreBorder`}
+              backgroundColor={`${colorMode}.lightAccent`}
+              style={styles.upgradeNowContainer}
+            >
+              <Text color='light.learnMoreBorder' style={styles.upgradeNowText}>
+                {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
+              </Text>
+            </Box>
+          </TouchableOpacity>
         </Box>
       </Box>
-      <Box style={styles.note}>
+      <Box style={styles.note} testID="view_ISNote">
         <Note
           title="Note"
           subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
@@ -161,10 +179,10 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
+        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
-        buttonTextColor="light.greenText"
+        buttonTextColor={`${colorMode}.greenText`}
         buttonBackground={['#FFF', '#80A8A1']}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
@@ -184,13 +202,12 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
     width: wp(340),
   },
-
   message: {
     opacity: 0.85,
     fontSize: 12,
     letterSpacing: 0.6,
     marginTop: hp(36),
-    width: wp(220),
+    width: '95%',
     textAlign: 'center',
   },
   bottomContainer: {
@@ -199,6 +216,7 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   topContainer: {
+    marginTop: hp(25),
     alignItems: 'center',
     paddingHorizontal: 1,
   },
@@ -206,19 +224,20 @@ const styles = ScaledSheet.create({
     fontSize: 16,
     letterSpacing: 0.96,
     marginTop: hp(10),
+    fontWeight: 'bold',
   },
   subtitle: {
     textAlign: 'center',
-    width: wp(250),
+    width: wp(270),
     marginTop: hp(4),
-    fontSize: 13,
-    letterSpacing: 1.3,
+    fontSize: 12,
+    letterSpacing: 0.8,
   },
   header: {
-    marginBottom: -50,
+    // marginBottom: -50,
   },
   modalContainer: {
-    marginBottom: hp(25),
+    // marginBottom: hp(25),
   },
   modalTitle: {
     fontSize: 15,
@@ -228,7 +247,7 @@ const styles = ScaledSheet.create({
     opacity: 0.7,
   },
   modalDesc: {
-    marginTop: hp(16),
+    marginVertical: hp(8),
     letterSpacing: 0.65,
     width: wp(280),
     alignItems: 'center',
@@ -242,6 +261,18 @@ const styles = ScaledSheet.create({
   gradientIcon: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  upgradeNowContainer: {
+    borderWidth: 0.5,
+    borderRadius: 5,
+    paddingHorizontal: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  upgradeNowText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+    alignSelf: 'center',
   },
 });
 export default SetupInheritance;

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { SignerPolicy } from 'src/core/services/interfaces';
+import { InheritanceKeyInfo, SignerPolicy } from 'src/core/services/interfaces';
 import { BIP85Config, Balances, Transaction, UTXO } from '.';
 import {
   EntityKind,
@@ -11,7 +11,7 @@ import {
   XpubTypes,
 } from '../enums';
 
-import { WalletPresentationData } from './wallet';
+import { AddressCache, WalletPresentationData } from './wallet';
 
 export interface VaultPresentationData extends WalletPresentationData {}
 
@@ -19,6 +19,8 @@ export interface VaultSpecs {
   xpubs: string[]; // signers' xpubs
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  receivingAddress?: string; // current receiving address(external chain)
+  addresses?: AddressCache; // cached addresses
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
@@ -49,14 +51,16 @@ export interface VaultSigner {
   lastHealthCheck: Date;
   addedOn: Date;
   registered: boolean;
-  signerPolicy?: SignerPolicy;
   masterFingerprint: string;
   derivationPath: string;
   xpubDetails: XpubDetailsType;
+  signerPolicy?: SignerPolicy;
+  inheritanceKeyInfo?: InheritanceKeyInfo;
 }
 
 export interface Vault {
   id: string; // vault identifier(derived from xpub)
+  shellId: string;
   entityKind: EntityKind; // Vault vs Wallet identifier
   type: VaultType; // type of vault
   networkType: NetworkType; // testnet/mainnet
@@ -68,4 +72,5 @@ export interface Vault {
   specs: VaultSpecs;
   archived: boolean;
   scriptType: ScriptTypes;
+  collaborativeWalletId?: string; // collaborative wallet id (wallet cosigners (KSDs))
 }

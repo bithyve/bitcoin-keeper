@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/react-native';
 
 import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
-import React, { useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 
 import { AppContextProvider } from 'src/common/content/AppContext';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -10,7 +10,9 @@ import { NativeBaseProvider } from 'native-base';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { sentryConfig } from 'src/core/services/sentry';
-import { withIAPContext } from 'react-native-iap';
+import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
+import { TorContextProvider } from 'src/store/contexts/TorContext';
+import { HCESessionProvider } from 'react-native-hce';
 import { customTheme } from './src/common/themes';
 import Navigator from './src/navigation/Navigator';
 import { LocalizationProvider } from './src/common/content/LocContext';
@@ -29,9 +31,17 @@ if (Platform.OS === 'android') {
   }
 }
 
+function AndroidProvider({ children }: { children: ReactElement }) {
+  return Platform.OS === 'android' ? <HCESessionProvider>{children}</HCESessionProvider> : children;
+}
+
 function App() {
   useEffect(() => {
+    initConnection();
     Sentry.init(sentryConfig);
+    return () => {
+      endConnection();
+    };
   }, []);
 
   // linear-gradient configs for NativeBase
@@ -47,7 +57,11 @@ function App() {
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
         <LocalizationProvider>
           <AppContextProvider>
-            <Navigator />
+            <TorContextProvider>
+              <AndroidProvider>
+                <Navigator />
+              </AndroidProvider>
+            </TorContextProvider>
           </AppContextProvider>
         </LocalizationProvider>
       </NativeBaseProvider>

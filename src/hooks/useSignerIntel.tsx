@@ -58,14 +58,7 @@ const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
     return true;
   }
   return signersState.every(
-    (signer) =>
-      signer &&
-      ![
-        SignerType.MOBILE_KEY,
-        SignerType.POLICY_SERVER,
-        SignerType.KEEPER,
-        SignerType.SEED_WORDS,
-      ].includes(signer.type)
+    (signer) => signer && ![SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
   );
 };
 
@@ -90,10 +83,10 @@ export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
   return signer;
 };
 
-const useSignerIntel = () => {
+const useSignerIntel = ({ isInheritance }) => {
   const { activeVault } = useVault();
   const { subscriptionScheme, plan } = usePlan();
-  const currentSignerLimit = subscriptionScheme.n;
+  const currentSignerLimit = subscriptionScheme.n + (isInheritance ? 1 : 0);
   const planStatus = hasPlanChanged(activeVault, subscriptionScheme);
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
@@ -121,6 +114,16 @@ const useSignerIntel = () => {
       }
     }
   });
+  const getInvalidSignerForTire = () => {
+    if (plan === SubscriptionTier.L1.toUpperCase() && signersState) {
+      return signersState.filter(
+        (signer) =>
+          signer && [SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
+      );
+    }
+    return [];
+  };
+  const invalidSigners = getInvalidSignerForTire();
 
   const areSignersValid =
     signersState.every((signer) => !signer) ||
@@ -129,7 +132,14 @@ const useSignerIntel = () => {
     !areSignersValidInCurrentScheme({ plan, signersState }) ||
     misMatchedSigners.length;
 
-  return { planStatus, signersState, areSignersValid, amfSigners, misMatchedSigners };
+  return {
+    planStatus,
+    signersState,
+    areSignersValid,
+    amfSigners,
+    misMatchedSigners,
+    invalidSigners,
+  };
 };
 
 export default useSignerIntel;

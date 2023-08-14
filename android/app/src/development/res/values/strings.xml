@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Keeper</string>
+    <string name="backup_with_keeper_scheme">keeperdev</string>
 </resources>

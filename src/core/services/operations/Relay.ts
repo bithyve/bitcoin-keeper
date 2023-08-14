@@ -1,13 +1,16 @@
 /* eslint-disable consistent-return */
 import { NetworkType } from 'src/core/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
-import { AverageTxFeesByNetwork } from '../../wallets/interfaces';
+import { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
+import { AxiosResponse } from 'axios';
+import { AverageTxFeesByNetwork, UTXOInfo } from '../../wallets/interfaces';
 import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
 import config from '../../config';
 
-const { AUTH_ID, HEXA_ID, RELAY } = config;
+const { HEXA_ID, RELAY } = config;
+const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';
 export default class Relay {
   public static checkCompatibility = async (
     method: string,
@@ -22,7 +25,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}checkCompatibility`, {
-        AUTH_ID,
         method,
         version,
       });
@@ -41,11 +43,12 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.get(`${RELAY}releasesNotes?version=${version}`);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       if (err.response) console.log(err.response.data.err);
       if (err.code) console.log(err.code);
     }
-    return res.data || res.json;
   };
 
   public static updateFCMTokens = async (
@@ -81,7 +84,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}fetchNotifications`, {
-        AUTH_ID,
         appID,
       });
     } catch (err) {
@@ -112,7 +114,6 @@ export default class Relay {
 
       try {
         res = await RestClient.post(`${RELAY}sendNotifications`, {
-          AUTH_ID,
           receivers,
           notification,
         });
@@ -162,14 +163,8 @@ export default class Relay {
   ) => {
     try {
       let res;
-      // const obj = {
-      //   AUTH_ID,
-      //   receivers,
-      //   notification,
-      // };
       try {
         res = await RestClient.post(`${RELAY}sendKeeperNotifications`, {
-          AUTH_ID,
           receivers,
           notification,
         });
@@ -196,7 +191,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}getMessages`, {
-        AUTH_ID,
         appID,
         timeStamp,
       });
@@ -213,6 +207,67 @@ export default class Relay {
     };
   };
 
+  public static updateSubscription = async (
+    id: string,
+    appID: string,
+    data: object
+  ): Promise<{
+    updated: boolean;
+    level: number;
+    error?: string;
+    productId?: string;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}updateSubscription`, {
+        appID,
+        id,
+        data,
+      });
+    } catch (err) {
+      return err.response.data;
+    }
+    return res.data || res.json;
+  };
+
+  public static verifyReceipt = async (
+    id: string,
+    appID: string
+  ): Promise<{
+    created: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}verifyReceipt`, {
+        appID,
+        id,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res.data || res.json;
+  };
+
+  public static getSubscriptionDetails = async (
+    id: string,
+    appID: string
+  ): Promise<{ plans: SubScriptionPlan[] }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}getSubscriptionDetails`, {
+        appID,
+        id,
+      });
+    } catch (err) {
+      console.log('err', err);
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+    return res.data || res.json;
+  };
+
   public static updateMessageStatus = async (
     appId: string,
     data: []
@@ -223,7 +278,6 @@ export default class Relay {
       let res;
       try {
         res = await RestClient.post(`${RELAY}updateMessages`, {
-          AUTH_ID,
           appId,
           data,
         });
@@ -249,7 +303,6 @@ export default class Relay {
       let res;
       try {
         res = await RestClient.post(`${RELAY}v2/fetchappImage`, {
-          AUTH_ID,
           appId,
         });
       } catch (err) {
@@ -268,16 +321,15 @@ export default class Relay {
   public static updateAppImage = async (
     appImage
   ): Promise<{
-    status?: number;
-    data?: {
-      updated: boolean;
-    };
+    status: string;
+    updated: boolean;
     err?: string;
     message?: string;
   }> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}updateAppImage`, appImage);
-      return response;
+      const res = await RestClient.post(`${RELAY}updateAppImage`, appImage);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
@@ -295,8 +347,9 @@ export default class Relay {
     message?: string;
   }> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
-      return response;
+      const res = await RestClient.post(`${RELAY}updateVaultImage`, vaultData);
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('Failed to update App Image');
@@ -308,7 +361,7 @@ export default class Relay {
       const res = await RestClient.post(`${RELAY}getAppImage`, {
         appId,
       });
-      const { data } = res;
+      const data = res.data || res.json;
       return data;
     } catch (err) {
       captureError(err);
@@ -318,10 +371,11 @@ export default class Relay {
 
   public static vaultCheck = async (vaultId): Promise<any> => {
     try {
-      const { data: response } = await RestClient.post(`${RELAY}vaultCheck`, {
+      const res = await RestClient.post(`${RELAY}vaultCheck`, {
         vaultId,
       });
-      return response;
+      const data = res.data || res.json;
+      return data;
     } catch (err) {
       captureError(err);
       throw new Error('VaultCheckAPI Failed');
@@ -364,7 +418,7 @@ export default class Relay {
     if (network === NetworkType.MAINNET) {
       throw new Error('Invalid network: failed to fund via testnet');
     }
-    const amount = 5000 / SATOSHIS_IN_BTC;
+    const amount = 130000 / SATOSHIS_IN_BTC;
     try {
       const res = await RestClient.post(`${config.RELAY}testnetFaucet`, {
         recipientAddress,
@@ -391,7 +445,6 @@ export default class Relay {
     let res;
     try {
       res = await RestClient.post(`${RELAY}createNewApp`, {
-        AUTH_ID,
         appID,
         publicId,
         fcmToken,
@@ -405,5 +458,84 @@ export default class Relay {
     return {
       created,
     };
+  };
+
+  public static addUTXOinfos = async (
+    appId: string,
+    UTXOinfos: UTXOInfo[]
+  ): Promise<{
+    added: boolean;
+  }> => {
+    let res;
+    try {
+      res = await RestClient.post(`${RELAY}addUTXOinfos`, {
+        appId,
+        UTXOinfos,
+      });
+      const { added } = res.data || res.json;
+      return {
+        added,
+      };
+    } catch (err) {
+      console.log('err', err);
+      if (err.code) throw new Error(err.code);
+    }
+  };
+
+  public static modifyUTXOinfo = async (
+    appId: string,
+    updatedUTXOobject: object,
+    UTXOid: string
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    try {
+      const res = (await RestClient.post(`${RELAY}modifyUTXOinfo`, {
+        appId,
+        updatedUTXOobject,
+        UTXOid,
+      })) as AxiosResponse;
+      const { updated } = res.data || res.json;
+      return {
+        updated,
+      };
+    } catch (err) {
+      console.log('err', err);
+      if (err.code) throw new Error(err.code);
+    }
+  };
+
+  public static modifyLabels = async (
+    appId: string,
+    addLabels: any[],
+    deleteLabels: any[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    try {
+      const res = (await RestClient.post(`${RELAY}modifyLabels`, {
+        appId,
+        addLabels,
+        deleteLabels,
+      })) as AxiosResponse;
+      const { updated } = res.data || res.json;
+      return {
+        updated,
+      };
+    } catch (err) {
+      console.log('err', err);
+      if (err.code) throw new Error(err.code);
+    }
+  };
+
+  public static checkTorStatus = async () => {
+    try {
+      const response = await RestClient.get(TOR_ENDPOINT, { timeout: 20000 });
+      const data = (response as AxiosResponse).data || (response as any).json;
+      return data.IsTor;
+    } catch (error) {
+      captureError(error);
+      throw error;
+    }
   };
 }

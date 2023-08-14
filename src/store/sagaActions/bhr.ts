@@ -1,5 +1,5 @@
 import { BackupHistory } from 'src/common/data/enums/BHR';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';
 export const GET_APP_IMAGE = 'GET_APP_IMAGE';
@@ -19,8 +19,8 @@ export const updateAppImage = (walletId?) => ({
 
 export const updateVaultImage = (payload: {
   vault: Vault;
-  archiveVaultId?: String;
-  isUpdate?: Boolean;
+  archiveVaultId?: string;
+  isUpdate?: boolean;
 }) => ({
   type: UPDATE_VAULT_IMAGE,
   payload,
@@ -61,10 +61,9 @@ export const recoverBackup = (password: string, encData: string) => ({
 
 // HealthChecks
 
-export const healthCheckSigner = (vaultId: string, signerId: string) => ({
+export const healthCheckSigner = (signers: VaultSigner[]) => ({
   type: UPADTE_HEALTH_CHECK_SIGNER,
   payload: {
-    vaultId,
-    signerId,
+    signers,
   },
 });

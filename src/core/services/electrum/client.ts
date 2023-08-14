@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable consistent-return */
 /* eslint-disable camelcase */
 /* eslint-disable no-restricted-syntax */
@@ -8,123 +9,195 @@ import ElectrumCli from 'electrum-client';
 import reverse from 'buffer-reverse';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { NodeDetail } from 'src/core/wallets/interfaces';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { NetworkType } from 'src/core/wallets/enums';
 import { ElectrumTransaction, ElectrumUTXO } from './interface';
-import RestClient, { TorStatus } from '../rest/RestClient';
 import torrific from './torrific';
+import RestClient, { TorStatus } from '../rest/RestClient';
 
-const ELECTRUM_CLIENT_CONFIG = {
-  predefinedTestnetPeers: [{ host: '13.42.121.212', ssl: '50002' }],
-  predefinedPeers: [{ host: '52.56.32.52', ssl: '50002' }],
-  maxConnectionAttempt: 5,
-  reconnectDelay: 1000, // 1 second
+function shufflePeers(peers) {
+  for (let i = peers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [peers[i], peers[j]] = [peers[j], peers[i]];
+  }
+  return peers;
+}
+
+const ELECTRUM_CLIENT_CONFIG: {
+  predefinedTestnetPeers: NodeDetail[];
+  predefinedPeers: NodeDetail[];
+  maxConnectionAttempt: number;
+  reconnectDelay: number;
+} = {
+  predefinedTestnetPeers: null,
+  predefinedPeers: null,
+  maxConnectionAttempt: 2,
+  reconnectDelay: 500, // retry after half a second
 };
 
-const ELECTRUM_CLIENT = {
+const ELECTRUM_CLIENT_DEFAULTS = {
   electrumClient: null,
   isClientConnected: false,
-  currentPeerIndex: Math.floor(Math.random() * ELECTRUM_CLIENT_CONFIG.predefinedPeers.length),
+  currentPeerIndex: -1,
   connectionAttempt: 0,
   activePeer: null,
 };
 
+let ELECTRUM_CLIENT: {
+  electrumClient: any;
+  isClientConnected: boolean;
+  currentPeerIndex: number;
+  connectionAttempt: number;
+  activePeer: NodeDetail;
+} = ELECTRUM_CLIENT_DEFAULTS;
+
+export const ELECTRUM_NOT_CONNECTED_ERR =
+  'Network Error: The current electrum node is not reachable, please try again with a different node';
+
+export const ELECTRUM_NOT_CONNECTED_ERR_TOR =
+  'Network Error: Connection currently failing over Tor, please disable Tor or try again using a different node';
+
 export default class ElectrumClient {
+  public static connectOverTor = false;
+
   public static async connect() {
+    let timeoutId = null;
+
     try {
       if (!ELECTRUM_CLIENT.activePeer) {
-        console.log('No active peer is available');
-        return;
+        console.log(
+          'Unable to connect to any electrum server. Please switch network and try again!'
+        );
+        return {
+          connected: ELECTRUM_CLIENT.isClientConnected,
+          error: 'Unable to connect to any electrum server. Please switch network and try again!',
+        };
       }
 
-      ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
+      ElectrumClient.connectOverTor =
         ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') &&
-        RestClient?.getTorStatus() === TorStatus.CONNECTED
-          ? torrific
-          : global.net,
+        RestClient?.getTorStatus() === TorStatus.CONNECTED;
+
+      ELECTRUM_CLIENT.electrumClient = new ElectrumCli(
+        ElectrumClient.connectOverTor ? torrific : global.net,
         global.tls,
-        ELECTRUM_CLIENT.activePeer?.ssl || ELECTRUM_CLIENT.activePeer?.tcp,
-        ELECTRUM_CLIENT.activePeer?.host,
-        ELECTRUM_CLIENT.activePeer?.ssl ? 'tls' : 'tcp'
+        ELECTRUM_CLIENT.activePeer.port,
+        ELECTRUM_CLIENT.activePeer.host,
+        ELECTRUM_CLIENT.activePeer.useSSL ? 'tls' : 'tcp'
       ); // tcp or tls
 
       ELECTRUM_CLIENT.electrumClient.onError = (error) => {
         if (ELECTRUM_CLIENT.isClientConnected) {
-          console.log('Electrum mainClient.onError():', error?.message);
+          console.log('Electrum mainClient.onError():', error?.message || error);
 
           if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
           ELECTRUM_CLIENT.isClientConnected = false;
+          ELECTRUM_CLIENT.activePeer.isConnected = false;
           console.log('Error: Close the connection');
 
-          setTimeout(
-            ElectrumClient.connect,
-            ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500
-          );
+          // setTimeout(
+          //   ElectrumClient.connect,
+          //   ELECTRUM_CLIENT.activePeer?.host?.endsWith('.onion') ? 4000 : 500
+          // );
         }
       };
 
-      console.log('Initiate electrum server');
-      const ver = await ELECTRUM_CLIENT.electrumClient.initElectrum({
-        client: 'bitcoin-keeper',
-        version: '1.4',
-      });
-      console.log('Connection to electrum server is established', { ver });
+      console.log('Initiate electrum server...');
+
+      const ver = await Promise.race([
+        new Promise((resolve) => {
+          timeoutId = setTimeout(() => resolve('timeout'), 4000);
+        }),
+        ELECTRUM_CLIENT.electrumClient.initElectrum({
+          client: 'btc-k',
+          version: '1.4',
+        }), // should resolve within 4 seconds(prior to timeout)
+      ]);
+      if (ver === 'timeout') throw new Error('Connection time-out');
+
       if (ver && ver[0]) {
+        console.log('Connection to electrum server is established', {
+          ver,
+          node: ELECTRUM_CLIENT.activePeer.host,
+        });
+
         ELECTRUM_CLIENT.isClientConnected = true;
+        ELECTRUM_CLIENT.activePeer.isConnected = true;
       }
     } catch (error) {
       ELECTRUM_CLIENT.isClientConnected = false;
+      ELECTRUM_CLIENT.activePeer.isConnected = false;
+
       console.log('Bad connection:', JSON.stringify(ELECTRUM_CLIENT.activePeer), error);
+    } finally {
+      if (timeoutId) clearTimeout(timeoutId);
     }
 
-    if (ELECTRUM_CLIENT.isClientConnected) return ELECTRUM_CLIENT.isClientConnected;
+    if (ELECTRUM_CLIENT.isClientConnected)
+      return {
+        connected: ELECTRUM_CLIENT.isClientConnected,
+        connectedTo: ELECTRUM_CLIENT.activePeer.host,
+      };
     return ElectrumClient.reconnect();
   }
 
   public static async reconnect() {
-    console.log('Trying to reconnect');
     ELECTRUM_CLIENT.connectionAttempt += 1;
 
     // close the connection before attempting again
     if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
 
     if (ELECTRUM_CLIENT.connectionAttempt >= ELECTRUM_CLIENT_CONFIG.maxConnectionAttempt) {
-      console.log('Could not find the working electrum server. Please try again later.');
-      return ELECTRUM_CLIENT.isClientConnected; // false
+      const nextPeer = ElectrumClient.getNextDefaultPeer();
+      if (!nextPeer) {
+        console.log(
+          'Unable to connect to any electrum server. Please switch network and try again!'
+        );
+        return {
+          connected: ELECTRUM_CLIENT.isClientConnected,
+          error: 'Unable to connect to any electrum server. Please switch network and try again!',
+        };
+      }
+
+      ELECTRUM_CLIENT.activePeer = nextPeer;
+      ELECTRUM_CLIENT.connectionAttempt = 1;
+      console.log(`Attempting a connection with next peer: ${nextPeer?.host}`);
+      return ElectrumClient.connect();
     }
     console.log(`Reconnection attempt #${ELECTRUM_CLIENT.connectionAttempt}`);
     await new Promise((resolve) => {
       setTimeout(resolve, ELECTRUM_CLIENT_CONFIG.reconnectDelay); // attempts reconnection after 1 second
     });
-    return await ElectrumClient.connect();
+    return ElectrumClient.connect();
   }
 
   public static forceDisconnect() {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client not available');
     if (ELECTRUM_CLIENT.electrumClient.close) ELECTRUM_CLIENT.electrumClient.close();
     ELECTRUM_CLIENT.isClientConnected = false;
+    ELECTRUM_CLIENT.activePeer.isConnected = false;
   }
 
   public static async serverFeatures() {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
-    return await ELECTRUM_CLIENT.electrumClient.server_features();
+    ElectrumClient.checkConnection();
+
+    return ELECTRUM_CLIENT.electrumClient.server_features();
   }
 
-  public static getActivePrivateNodeToUse(peers: NodeDetail[]) {
-    const node = peers?.filter((node) => node.isConnected)[0];
-    let peer = null;
-    let useKeeperNode = false;
+  public static getBlockchainHeaders = async (): Promise<{ height: number; hex: string }> =>
+    ELECTRUM_CLIENT.electrumClient.blockchainHeaders_subscribe();
 
-    if (node) {
-      useKeeperNode = node?.useKeeperNode || false;
-      if (node.useSSL) peer = { host: node.host, ssl: node.port, tcp: null };
-      else peer = { host: node.host, tcp: node.port, ssl: null };
+  public static checkConnection() {
+    if (!ELECTRUM_CLIENT.isClientConnected) {
+      const connectionError = ElectrumClient.connectOverTor
+        ? ELECTRUM_NOT_CONNECTED_ERR_TOR
+        : ELECTRUM_NOT_CONNECTED_ERR;
+      throw new Error(connectionError);
     }
-    return { peer, useKeeperNode };
   }
 
   public static async ping() {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client not available');
 
     try {
       await ELECTRUM_CLIENT.electrumClient.server_ping();
@@ -138,52 +211,38 @@ export default class ElectrumClient {
     return ELECTRUM_CLIENT.activePeer;
   }
 
-  // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
-  // if saved private node is not available, and use keeper node is true, it will use the keeper node
-  // if current peer to use is provided, it will use that peer
-  public static setActivePeer(savedPrivateNodes: NodeDetail[], currentPeerToUse = null) {
-    const { peer: privatePeer, useKeeperNode } = ElectrumClient.getActivePrivateNodeToUse(
-      currentPeerToUse != null ? [currentPeerToUse] : savedPrivateNodes
-    );
-    let peer = null;
-    if (privatePeer != null) {
-      peer = privatePeer;
-      if (ElectrumClient.testConnection(peer?.host, peer?.tcp, peer?.ssl)) {
-        ELECTRUM_CLIENT.activePeer = peer;
-        return;
-      }
-
-      if (useKeeperNode) {
-        peer = ElectrumClient.getNextPeer();
-        ELECTRUM_CLIENT.activePeer = peer;
-        return;
-      }
-
-      ELECTRUM_CLIENT.activePeer = null;
-      return;
-    }
-    peer = ElectrumClient.getNextPeer();
-    ELECTRUM_CLIENT.activePeer = peer;
-  }
-
-  public static getPredefinedCurrentPeer() {
-    return isTestnet()
-      ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers[ELECTRUM_CLIENT.currentPeerIndex]
-      : ELECTRUM_CLIENT_CONFIG.predefinedPeers[ELECTRUM_CLIENT.currentPeerIndex];
-  }
-
-  public static getNextPeer() {
+  public static getNextDefaultPeer() {
     ELECTRUM_CLIENT.currentPeerIndex += 1;
-    if (
-      ELECTRUM_CLIENT.currentPeerIndex >
-      (isTestnet()
-        ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers.length - 1
-        : ELECTRUM_CLIENT_CONFIG.predefinedPeers.length - 1)
-    )
-      ELECTRUM_CLIENT.currentPeerIndex = 0; // reset(out of bounds)
+    const peers =
+      config.NETWORK_TYPE === NetworkType.TESTNET
+        ? ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers
+        : ELECTRUM_CLIENT_CONFIG.predefinedPeers;
 
-    const peer = ElectrumClient.getPredefinedCurrentPeer();
-    return peer;
+    if (!peers || ELECTRUM_CLIENT.currentPeerIndex > peers.length - 1) return null; // exhuasted all available peers
+    return peers[ELECTRUM_CLIENT.currentPeerIndex];
+  }
+
+  // if current peer to use is not provided, it will try to get the active peer from the saved list of private nodes
+  // if current peer to use is provided, it will use that peer
+  public static setActivePeer(
+    defaultNodes: NodeDetail[],
+    privateNodes: NodeDetail[],
+    currentPeerToUse?: NodeDetail
+  ) {
+    // close previous connection
+    if (ELECTRUM_CLIENT.isClientConnected && ELECTRUM_CLIENT.electrumClient?.close)
+      ELECTRUM_CLIENT.electrumClient.close();
+
+    // set defaults
+    ELECTRUM_CLIENT = ELECTRUM_CLIENT_DEFAULTS;
+    if (config.NETWORK_TYPE === NetworkType.TESTNET)
+      ELECTRUM_CLIENT_CONFIG.predefinedTestnetPeers = shufflePeers(defaultNodes);
+    else ELECTRUM_CLIENT_CONFIG.predefinedPeers = shufflePeers(defaultNodes);
+
+    // set active node
+    let activeNode = currentPeerToUse || privateNodes.filter((node) => node.isConnected)[0];
+    if (!activeNode && defaultNodes.length) activeNode = ElectrumClient.getNextDefaultPeer(); // pick one of the default nodes
+    ELECTRUM_CLIENT.activePeer = activeNode;
   }
 
   public static splitIntoChunks(arr, chunkSize) {
@@ -198,9 +257,8 @@ export default class ElectrumClient {
     network: bitcoinJS.Network = config.NETWORK,
     batchsize: number = 150
   ): Promise<{ [address: string]: ElectrumUTXO[] }> {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    ElectrumClient.checkConnection();
     const res = {};
-
     const chunks = ElectrumClient.splitIntoChunks(addresses, batchsize);
     for (let itr = 0; itr < chunks.length; itr += 1) {
       const chunk = chunks[itr];
@@ -250,7 +308,8 @@ export default class ElectrumClient {
     txids: any[];
     txidToAddress: { [tx_hash: string]: string };
   }> {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    ElectrumClient.checkConnection();
+
     const historyByAddress = {};
     const txids = [];
     const txidToAddress = {};
@@ -299,11 +358,12 @@ export default class ElectrumClient {
     verbose: boolean = true,
     batchsize: number = 40
   ): Promise<{ [txid: string]: ElectrumTransaction }> {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    ElectrumClient.checkConnection();
+
     const res = {};
     txids = [...new Set(txids)]; // remove duplicates, if any
 
-    // TODO: lets try cache first
+    // lets try cache first
     const chunks = ElectrumClient.splitIntoChunks(txids, batchsize);
     for (const chunk of chunks) {
       let results = [];
@@ -313,14 +373,14 @@ export default class ElectrumClient {
 
       for (const txdata of results) {
         if (txdata.error && txdata.error.code === -32600) {
-          // TODO: large response error, would need to handle it over a single call
+          // large response error, would need to handle it over a single call
         }
 
         res[txdata.param] = txdata.result;
         if (res[txdata.param]) delete res[txdata.param].hex;
 
         // bitcoin core 22.0.0+ .addresses in vout has been replaced by `.address`
-        for (const vout of res[txdata.param].vout || []) {
+        for (const vout of res[txdata.param]?.vout || []) {
           if (vout?.scriptPubKey?.address)
             vout.scriptPubKey.addresses = [vout.scriptPubKey.address];
         }
@@ -331,28 +391,28 @@ export default class ElectrumClient {
   }
 
   public static async estimateFee(numberOfBlocks: number = 1) {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    ElectrumClient.checkConnection();
+
     const feePerKB = await ELECTRUM_CLIENT.electrumClient.blockchainEstimatefee(numberOfBlocks); // in bitcoin
     if (feePerKB === -1) return 1;
     return Math.round((feePerKB / 1024) * 1e8); // feePerByte(sats)
   }
 
   public static async broadcast(txHex: string) {
-    if (!ELECTRUM_CLIENT.electrumClient) throw new Error('Electrum client is not connected');
+    ElectrumClient.checkConnection();
+
     return ELECTRUM_CLIENT.electrumClient.blockchainTransaction_broadcast(txHex);
   }
 
-  public static async testConnection(host, tcpPort, sslPort) {
-    console.log('testConnection', host, tcpPort, sslPort);
-    console.log('RestClient.getTorStatus()', RestClient?.getTorStatus());
+  public static async testConnection(node: NodeDetail) {
+    const connectOverTor =
+      node.host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED;
     const client = new ElectrumCli(
-      host?.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED
-        ? torrific
-        : global.net,
+      connectOverTor ? torrific : global.net,
       global.tls,
-      sslPort || tcpPort,
-      host,
-      sslPort ? 'tls' : 'tcp'
+      node.port,
+      node.host,
+      node.useSSL ? 'tls' : 'tcp'
     );
 
     client.onError = (ex) => {
@@ -362,12 +422,7 @@ export default class ElectrumClient {
     try {
       const rez = await Promise.race([
         new Promise((resolve) => {
-          timeoutId = setTimeout(
-            () => resolve('timeout'),
-            host.endsWith('.onion') && RestClient?.getTorStatus() === TorStatus.CONNECTED
-              ? 21000
-              : 5000
-          );
+          timeoutId = setTimeout(() => resolve('timeout'), connectOverTor ? 21000 : 5000);
         }),
         client.connect(),
       ]);

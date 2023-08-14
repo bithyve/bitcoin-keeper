@@ -1,0 +1,18 @@
+diff --git a/node_modules/react-native-video/android/build.gradle b/node_modules/react-native-video/android/build.gradle
+index 2fb8dfd..eb7ecdf 100644
+--- a/node_modules/react-native-video/android/build.gradle
++++ b/node_modules/react-native-video/android/build.gradle
+@@ -19,8 +19,12 @@ android {
+     }
+ }
+ 
++repositories {
++    maven { url 'https://www.jitpack.io' }
++}
++
+ dependencies {
+     //noinspection GradleDynamicVersion
+     implementation "com.facebook.react:react-native:${safeExtGet('reactNativeVersion', '+')}"
+-    implementation 'com.yqritc:android-scalablevideoview:1.0.4'
++    implementation 'com.github.MatrixFrog:android-scalablevideoview:v1.0.4-jitpack'
+ }

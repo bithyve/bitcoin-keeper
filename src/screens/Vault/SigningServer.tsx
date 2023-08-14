@@ -1,5 +1,6 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -18,6 +19,7 @@ import Settings from 'src/assets/images/settings_brown.svg';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 
 function SigningServer({ navigation }) {
+  const { colorMode } = useColorMode();
   function GradientIcon({ height, Icon }) {
     return (
       <LinearGradient
@@ -45,7 +47,7 @@ function SigningServer({ navigation }) {
           borderRadius: height,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: 'light.lightAccent',
+          backgroundColor: `${colorMode}.lightAccent`,
         }}
       >
         <Icon />
@@ -55,7 +57,7 @@ function SigningServer({ navigation }) {
 
   function Description({ text }) {
     return (
-      <Text color="light.inActiveMsg" fontSize={12} letterSpacing={0.6}>
+      <Text color={`${colorMode}.inActiveMsg`} fontSize={12} letterSpacing={0.6}>
         {text}
       </Text>
     );
@@ -67,29 +69,29 @@ function SigningServer({ navigation }) {
           zIndex={99}
           position="absolute"
           left={-8}
-          backgroundColor="light.secondaryBackground"
+          backgroundColor={`${colorMode}.secondaryBackground`}
           padding={2}
           borderRadius={15}
         >
-          <DotView height={2} width={2} color="light.lightAccent" />
+          <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
         </Box>
-        <Text color="light.GreyText" fontSize={10} bold ml={5} opacity={0.7}>
+        <Text color={`${colorMode}.GreyText`} fontSize={10} bold ml={5} opacity={0.7}>
           15 March ’21
         </Text>
         <Box
-          borderLeftColor="light.lightAccent"
+          borderLeftColor={`${colorMode}.lightAccent`}
           borderLeftWidth={1}
           ml={wp(3.5)}
           position="relative"
         >
           <Box
-            backgroundColor="light.primaryBackground"
+            backgroundColor={`${colorMode}.primaryBackground`}
             my={2}
             padding={5}
             marginLeft={wp(15)}
             borderRadius={10}
           >
-            <Text color="light.recieverAddress" fontSize={14} letterSpacing={0.96}>
+            <Text color={`${colorMode}.recieverAddress`} fontSize={14} letterSpacing={0.96}>
               Health Check Skipped
             </Text>
             <Description text="Lorem ipsum dolor sit amet, cons ectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et" />
@@ -123,14 +125,14 @@ function SigningServer({ navigation }) {
         <Box
           height={hp(20)}
           width={wp(70)}
-          borderColor="light.learnMoreBorder"
+          borderColor={`${colorMode}.learnMoreBorder`}
           borderWidth={0.5}
           borderRadius={5}
-          backgroundColor="light.lightAccent"
+          backgroundColor={`${colorMode}.lightAccent`}
           justifyContent="center"
           alignItems="center"
         >
-          <Text color="light.learnMoreBorder" letterSpacing={0.6} fontSize={12}>
+          <Text color={`${colorMode}.learnMoreBorder`} letterSpacing={0.6} fontSize={12}>
             Learn More
           </Text>
         </Box>
@@ -141,13 +143,13 @@ function SigningServer({ navigation }) {
           <GradientIcon Icon={Server} height={hp(50)} />
         </Box>
         <Box>
-          <Text fontSize={14} letterSpacing={1.12} color="light.primaryText">
+          <Text fontSize={14} letterSpacing={1.12} color={`${colorMode}.primaryText`}>
             Signing Server
           </Text>
-          <Text fontSize={10} letterSpacing={1} color="light.greenText">
+          <Text fontSize={10} letterSpacing={1} color={`${colorMode}.greenText`}>
             Added on 12 January 2022
           </Text>
-          <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+          <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
             Lorem ipsum dolor sit amet
           </Text>
         </Box>
@@ -177,14 +179,14 @@ function SigningServer({ navigation }) {
             marginVertical: hp(20),
           }}
         >
-          <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          <Text color={`${colorMode}.greenText`} fontSize={13} letterSpacing={0.65}>
             You will be reminded in 90 days for the health check
           </Text>
         </Box>
         <Box
           marginLeft={2}
           width={wp(318)}
-          backgroundColor="light.Border"
+          backgroundColor={`${colorMode}.Border`}
           opacity={0.1}
           height={0.5}
         />
@@ -198,7 +200,7 @@ function SigningServer({ navigation }) {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Change} height={hp(38)} />
             <Text
-              color="light.primaryText"
+              color={`${colorMode}.primaryText`}
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}
@@ -212,7 +214,7 @@ function SigningServer({ navigation }) {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Heathcheck} height={hp(38)} />
             <Text
-              color="light.primaryText"
+              color={`${colorMode}.primaryText`}
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}
@@ -226,7 +228,7 @@ function SigningServer({ navigation }) {
           <TouchableOpacity style={styles.IconText}>
             <SimpleIcon Icon={Settings} height={hp(38)} />
             <Text
-              color="light.primaryText"
+              color={`${colorMode}.primaryText`}
               fontSize={12}
               letterSpacing={0.84}
               marginY={1}

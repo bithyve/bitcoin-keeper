@@ -1,23 +1,27 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 import { Box } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { getWalletConfig } from 'src/hardware';
+import { useDispatch } from 'react-redux';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import Buttons from 'src/components/Buttons';
+import useVault from 'src/hooks/useVault';
 import DisplayQR from './DisplayQR';
 
-function RegisterWithQR() {
-  const { useQuery } = useContext(RealmWrapperContext);
-  const vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-  const walletConfig = getWalletConfig({ vault });
+function RegisterWithQR({ route, navigation }: any) {
+  const { signer }: { signer: VaultSigner } = route.params;
+  const dispatch = useDispatch();
+  const { activeVault } = useVault();
+  const walletConfig = getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
+  const markAsregistered = () => {
+    dispatch(updateSignerDetails(signer, 'registered', true));
+    navigation.goBack();
+  };
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -27,6 +31,7 @@ function RegisterWithQR() {
       <Box style={styles.center}>
         <DisplayQR qrContents={qrContents} toBytes type="hex" />
       </Box>
+      <Buttons primaryText="Done" primaryCallback={markAsregistered} />
     </ScreenWrapper>
   );
 }

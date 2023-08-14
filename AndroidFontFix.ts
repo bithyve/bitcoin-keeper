@@ -12,16 +12,12 @@ export function enableAndroidFontFix() {
 
   let styles;
 
-  switch (manufacturer) {
-    case "OnePlus":
-      styles = StyleSheet.create({
-        androidFontFixFontFamily: {
-          fontFamily: "Roboto",
-        },
-      });
-      break;
-    default:
-      return;
+  if (manufacturer === "OnePlus") {
+    styles = StyleSheet.create({
+      androidFontFixFontFamily: {
+        fontFamily: "Roboto",
+      },
+    });
   }
 
   const __render = Text.render;

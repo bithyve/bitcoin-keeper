@@ -91,7 +91,7 @@
     "ReEnter": "Re Enter",
     "MismatchPasscode": "Passcodes do NOT match",
     "enter_your": "Enter your ",
-    "ForgotPasscode": "Forgot your passcode?",
+    "ForgotPasscode": "Forgot Passcode?",
     "forgotPasscodeDesc": "Key in the word exactly like it was displayed",
     "Invalidword": "Invalid word",
     "ResetPasscode": "Reset Passcode",
@@ -227,13 +227,13 @@
     "Transferbitcoincustody": "Transfer bitcoin custody",
     "ActivateTransfer": "Activate Transfer",
     "Thebestinheritance": "The best inheritance in history",
-    "UpgradetoElitetier": "Upgrade to Elite tier and setup the vault with 5 signing devices",
+    "UpgradetoElitetier": "Upgrade to Elite tier and setup the Vault with 5 signing devices",
     "ActivateInheritance": "Activate Inheritance",
     "Downloadandsafelykeepinheritencedocuments": "Download and safely keep inheritence documents. Safekeeping best practices. Will template for digital assets. Inheritance recovery instructions",
     "Setupfalserecoveryalert": "Setup false recovery alert (optional)",
     "tryingtorecoveryourwallet": "If someone is trying to recover your wallet, make sure you get notified to approve or deny the recovery",
     "IndependentRecovery": "Independent Recovery",
-    "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your vault even without the Keeper app or any service from the company",
+    "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your Vault even without the Keeper app or any service from the company",
     "Practicehealthcheck": "Practice health check",
     "Makessureyousignersareaccessible": "Make sure you signing devices are accessible. Change them if that is not the case"
   },
@@ -254,7 +254,7 @@
     "BlueWallet": "Blue Wallet",
     "MunnWallet": "Munn Wallet",
     "Blockchain": "Blockchain.com",
-    "AddVault": "Add a vault",
+    "AddVault": "Add a Vault",
     "AddWallet": "Add a Wallet",
     "Setupawalletforyoubitcoin": "Set up a wallet for you bitcoin",
     "Creatingyourwallet": "Creating your wallet",
@@ -272,6 +272,8 @@
     "WalletName": "Wallet Name",
     "rememberwalletspurpose": "To easily remember wallets purpose",
     "AddNewWallet": "Add New Wallet",
+    "AddImportNewWallet": "Add\n Wallet",
+    "ImportAWallet": "Import a Wallet",
     "AddNewWalletDescription": "Name and description for the wallet",
     "WalletNamePlaceHolder": "Maldives Funds",
     "WalletDescriptionPlaceholder": "Single-sig",
@@ -291,10 +293,13 @@
     "ViewDetails": "View Details",
     "approveTransVault": "Approve Transfer to Vault",
     "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction attransaction, at 100,000 sats that needs your approval",
-    "TransNow": "Transfer Now"
+    "TransNow": "Transfer Now",
+    "AddWalletCosigner": "Add Wallet as Cosigner",
+    "AddWalletCosignerSubTitle": "You are about to add this wallet as a cosigner for a Keeper app Vault.",
+    "AddWalletCosignerParagraph": "Please back up this wallet. If you want to delete the app from this phone, please change your signing device on the other Keeper app before deleting this one."
   },
   "vault": {
-    "SetupyourVault": "Setup your vault",
+    "SetupyourVault": "Setup your Vault",
     "VaultDesc": "A signing device is an air gapped device which helps you keep your Vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signing device",
@@ -306,11 +311,11 @@
     "Setupinheritancetoyoursats": "Set up inheritance to your sats",
     "Setup": "Setup",
     "VaultCreated": "Vault Created",
-    "VaultCreationDesc": "Your Basic vault has been successfully setup You can start receiving bitcoin in it",
-    "ViewVault": "View vault",
+    "VaultCreationDesc": "Your Basic Vault has been successfully setup You can start receiving bitcoin in it",
+    "ViewVault": "View Vault",
     "AddNow": "Add Now",
     "SelectSigner": "Select Signing Device",
-    "ForVault": "For your vault",
+    "ForVault": "For your Vault",
     "VaultInfo": "A signing device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
@@ -330,7 +335,7 @@
     "recoveryPhrase": "Recovery Phrase",
     "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase",
     "recoverYourKeeperApp": "Recovering your Keeper app",
-    "recoverYourKeeperAppSubTitle": "Recovering your wallets and vault for the Keeper app"
+    "recoverYourKeeperAppSubTitle": "Recovering your wallets and Vault for the Keeper app"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signing device",
@@ -362,6 +367,14 @@
     "ScanningBT": "Scanning for bluetooth",
     "KeepLedgerReady": "Make sure your device is turned on and nearby"
   },
+  "bitbox": {
+    "SetupTitle": "Setting up BitBox02",
+    "SetupDescription": "Keep your BitBox02 connected to the computer before proceeding"
+  },
+  "trezor": {
+    "SetupTitle": "Setting up Trezor",
+    "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
@@ -369,7 +382,7 @@
     "DarkMode": "Dark Mode",
     "DarkModeSubTitle": "Turn on dark mode for the app",
     "VersionHistory": "Version History",
-    "VersionHistorySubTitle": "View the apps version history",
+    "VersionHistorySubTitle": "View the app's version history",
     "LanguageCountry": "Language & Currency",
     "LanguageCountrySubTitle": "Select language and currency",
     "KeeperCommunityTelegramGroup": "Keeper Community Telegram Group",
@@ -436,6 +449,7 @@
     "connectToMyNode": "Connect to my node",
     "connectToMyNodeSubtitle": "Disable to use Keeper's node",
     "nodesUsedPreviously": "Nodes connected previously",
+    "currentlyConnected": "Currently connected to",
     "ipAddress": "IP Address",
     "portNumber": "Port Number",
     "addNewNode": "Add a new node",
@@ -447,7 +461,9 @@
     "host": "Host",
     "useSSL": "Use SSL for this node",
     "nodeConnectionSuccess": "Node connected successfully",
-    "nodeConnectionFailure": "Unable to connect to Electrum Server. Invalid node details or, not known"
+    "nodeConnectionFailure": "Unable to connect to Electrum Server. Invalid node details or, not known",
+    "ManageWallets": "Manage Wallets",
+    "ManageWalletsSub": "Hide wallets and unhide them."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -460,16 +476,22 @@
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
     "slide03Paragraph": "Use all the Keeper features, including inheritance, no matter which country you are located in as long as the app is available in your country.",
     "slide04Title": "All that you will need for\nsecuring your bitcoin",
-    "slide04Paragraph": "BIP 85 hot wallets, auto-transfer to vault, buy bitcoin directly in to your cold storage, and much more",
+    "slide04Paragraph": "BIP 85 hot wallets, auto-transfer to Vault, buy bitcoin directly in to your cold storage, and much more",
     "slide05Title": "Works just with the mobile app,\nno computer needed",
     "slide05Paragraph": "More security with NFC and QR code compatibility. Connect directly to the hardware signing devices, without any intermediate step",
     "slide06Title": "Upgrade Keeper, with your bitcoin journey",
-    "slide06Paragraph": "Pleb - Hodler - Diamond Hands. Three levels for the vault with increased multi-sig security. The last tier enables inheritance."
+    "slide06Paragraph": "Pleb - Hodler - Diamond Hands. Three levels for the Vault with increased multi-sig security. The last tier enables inheritance.",
+    "slide07Title": "Ensure forward looking privacy \nwith",
+    "whirlpool": "Whirlpool",
+    "slide07Paragraph": "You can remix your sats for free for enhanced privacy before storing them in your Vault"
   },
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "The subscription should be confirmed on the Play/App Store. After trial period the subscription auto renews monthly"
+    "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise",
+    "confirming": "Confirming your subscription",
+    "pleaseStay": "Please stay on this screen as it may take a little while...",
+    "youCanChange": "You can change your subscription at anytime from within the app or from your subscription details in your profile"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup phrase",
@@ -483,6 +505,7 @@
     "backupWallet": "Backup Wallet",
     "backupWalletSubTitle": "Setup backup for Keeper",
     "exportAppSeed": "Export app individual phrase",
+    "importWallet": "Import wallet",
     "healthCheck": "Health Check",
     "enterStrongPass": "Enter App Generated Strong Password",
     "healthCheckNote": "This step ensures that you have access to the recovery of your wallet ",

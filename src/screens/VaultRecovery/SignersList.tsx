@@ -1,6 +1,6 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
@@ -12,7 +12,6 @@ import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
-import WalletUtilities from 'src/core/wallets/operations/utils';
 import { captureError } from 'src/core/services/sentry';
 import config, { APP_STAGE } from 'src/core/config';
 import { getPassportDetails } from 'src/hardware/passport';
@@ -25,11 +24,10 @@ import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getJadeDetails } from 'src/hardware/jade';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { generateSignerFromMetaData } from 'src/hardware';
+import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { crossInteractionHandler } from 'src/common/utilities';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import NFC from 'src/core/services/nfc';
-import { BleManager } from 'react-native-ble-plx';
 import { useAppSelector } from 'src/store/hooks';
 import Clipboard from '@react-native-community/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -37,9 +35,17 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
-import { WalletMap } from '../Vault/WalletMap';
-import { KeeperContent } from '../SignTransaction/SignerModals';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import BitoxImage from 'src/assets/images/bitboxSetup.svg';
+import TrezorSetup from 'src/assets/images/trezor_setup.svg';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import { generateKey } from 'src/core/services/operations/encryption';
+import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import { close } from '@sentry/react-native';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { KeeperContent } from '../SignTransaction/SignerModals';
+import { formatDuration } from './VaultRecovery';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -56,8 +62,8 @@ const getnavigationState = (type) => ({
 export const getDeviceStatus = (
   type: SignerType,
   isNfcSupported,
-  isBLESupported,
-  signingDevices
+  signingDevices,
+  inheritanceRequestId
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
@@ -66,15 +72,21 @@ export const getDeviceStatus = (
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
-    case SignerType.LEDGER:
-      return {
-        message: !isBLESupported ? 'Start/Enable Bluetooth to use' : '',
-        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isBLESupported,
-      };
     case SignerType.POLICY_SERVER:
       if (signingDevices.length < 1) {
         return {
           message: 'Add another device first to recover',
+          disabled: true,
+        };
+      }
+      return {
+        message: '',
+        disabled: false,
+      };
+    case SignerType.INHERITANCEKEY:
+      if (signingDevices.length < 2 || inheritanceRequestId) {
+        return {
+          message: 'Add two other devices first to recover',
           disabled: true,
         };
       }
@@ -89,6 +101,7 @@ export const getDeviceStatus = (
     case SignerType.PASSPORT:
     case SignerType.SEEDSIGNER:
     case SignerType.KEYSTONE:
+    case SignerType.LEDGER:
     default:
       return {
         message: '',
@@ -115,18 +128,27 @@ function TapsignerSetupContent() {
 
 function LedgerSetupContent() {
   return (
-    <View justifyContent="flex-start" width={wp(300)}>
-      <Box ml={wp(21)}>
-        <LedgerImage />
-      </Box>
-      <Box marginTop="4" alignItems="flex-start">
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          Please make sure you have the BTC or BTC Testnet app downloaded on the Ledger based on the
-          your current BTC network. Proceed once you are on the app on the Nano X. Keeper will scan
-          for your hardware and fetch the xPub.
+    <Box alignItems="center">
+      <LedgerImage />
+      <Box marginTop={2}>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 Please visit ${config.KEEPER_HWI} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with Ledger.`}
+        </Text>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
         </Text>
       </Box>
-    </View>
+    </Box>
   );
 }
 function ColdCardSetupContent() {
@@ -137,7 +159,7 @@ function ColdCardSetupContent() {
       </Box>
       <Box marginTop="4" alignItems="flex-start">
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault)`}
+          {`Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your Vault)`}
         </Text>
       </Box>
     </View>
@@ -262,6 +284,58 @@ function JadeSetupContent() {
   );
 }
 
+function BitBox02Content() {
+  return (
+    <Box alignItems="center">
+      <BitoxImage />
+      <Box marginTop={2}>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 Please visit ${config.KEEPER_HWI} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with BitBox02.`}
+        </Text>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function TrezorContent() {
+  return (
+    <Box alignItems="center">
+      <TrezorSetup />
+      <Box marginTop={2}>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 Please visit ${config.KEEPER_HWI} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with Trezor.`}
+        </Text>
+        <Text
+          color="light.greenText"
+          fontSize={13}
+          letterSpacing={0.65}
+          style={{ paddingVertical: 5 }}
+        >
+          {`\u2022 The Keeper Harware Interface will exchange the device details from/to the Keeper app and the signing device.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
 function SignersList({ navigation }) {
   type HWProps = {
     disabled: boolean;
@@ -270,26 +344,15 @@ function SignersList({ navigation }) {
     first?: boolean;
     last?: boolean;
   };
-  const { signingDevices, relayVaultReoveryAppId } = useAppSelector((state) => state.bhr);
+  const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
   const [isNfcSupported, setNfcSupport] = useState(true);
-  const [isBLESupported, setBLESupport] = useState(false);
 
   const getNfcSupport = async () => {
     const isSupported = await NFC.isNFCSupported();
     setNfcSupport(isSupported);
   };
-  const getBluetoothSupport = () => {
-    new BleManager().onStateChange((state) => {
-      if (state === 'PoweredOn') {
-        setBLESupport(true);
-      } else {
-        setBLESupport(false);
-      }
-    }, true);
-  };
 
   useEffect(() => {
-    getBluetoothSupport();
     getNfcSupport();
   }, []);
 
@@ -405,7 +468,6 @@ function SignersList({ navigation }) {
   const verifyKeystone = async (qrData) => {
     try {
       const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
-      const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
       const keystone: VaultSigner = generateSignerFromMetaData({
         xpub,
         derivationPath,
@@ -464,11 +526,13 @@ function SignersList({ navigation }) {
 
   const verifySigningServer = async (otp) => {
     try {
-      const response = await SigningServer.fetchSignerSetup(relayVaultReoveryAppId, otp);
+      const vaultId = relayVaultReoveryShellId;
+      const appId = relayVaultReoveryShellId;
+      const response = await SigningServer.fetchSignerSetup(vaultId, appId, otp);
       if (response.xpub) {
         const signingServerKey = generateSignerFromMetaData({
           xpub: response.xpub,
-          derivationPath: response.xpub,
+          derivationPath: response.derivationPath,
           xfp: response.masterFingerprint,
           signerType: SignerType.POLICY_SERVER,
           storageType: SignerStorage.WARM,
@@ -484,8 +548,34 @@ function SignersList({ navigation }) {
     }
   };
 
+  const requestInheritanceKey = async (signers: VaultSigner[]) => {
+    try {
+      const requestId = `request-${generateKey(10)}`;
+      const vaultId = relayVaultReoveryShellId;
+      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+
+      const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
+        requestId,
+        vaultId,
+        thresholdDescriptors
+      );
+
+      showToast(
+        `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
+        <TickIcon />
+      );
+      dispatch(setInheritanceRequestId(requestId));
+      navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
+    } catch (err) {
+      showToast(`${err}`, <ToastErrorIcon />);
+    }
+    close();
+  };
+
   function HardWareWallet({ disabled, message, type, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
+    const { signingDevices } = useAppSelector((state) => state.bhr);
+
     const onPress = () => {
       open();
     };
@@ -524,6 +614,20 @@ function SignersList({ navigation }) {
       );
     };
 
+    const navigateToVerifyWithChannel = () => {
+      setVisible(false);
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ConnectChannelRecovery',
+          params: {
+            title: `Setting up ${getSignerNameFromType(type)}`,
+            subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
+            type,
+          },
+        })
+      );
+    };
+
     return (
       <>
         <TouchableOpacity
@@ -540,10 +644,10 @@ function SignersList({ navigation }) {
             borderBottomRadius={last ? 15 : 0}
           >
             <Box style={styles.walletMapContainer}>
-              <Box style={styles.walletMapWrapper}>{WalletMap(type).Icon}</Box>
+              <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
               <Box backgroundColor="light.divider" style={styles.divider} />
               <Box style={styles.walletMapLogoWrapper}>
-                {WalletMap(type).Logo}
+                {SDIcons(type).Logo}
                 <Text color="light.inActiveMsg" style={styles.messageText}>
                   {message}
                 </Text>
@@ -587,10 +691,7 @@ function SignersList({ navigation }) {
           subTitle="Keep your Ledger ready"
           buttonText="Proceed"
           buttonTextColor="light.white"
-          buttonCallback={() => {
-            navigate('LedgerRecovery');
-            close();
-          }}
+          buttonCallback={navigateToVerifyWithChannel}
           textColor="light.primaryText"
           Content={LedgerSetupContent}
         />
@@ -696,20 +797,59 @@ function SignersList({ navigation }) {
           textColor="light.primaryText"
           Content={otpContent}
         />
+        <KeeperModal
+          visible={visible && type === SignerType.INHERITANCEKEY}
+          close={close}
+          title="Recover using Inheritance Key"
+          subTitle="Requesting for the inheritance key"
+          subTitleColor="light.secondaryText"
+          Content={() => <SeedWordsIllustration />}
+          buttonText="Continue"
+          buttonTextColor="light.white"
+          buttonCallback={() => {
+            requestInheritanceKey(signingDevices);
+          }}
+          textColor="light.primaryText"
+        />
+        <KeeperModal
+          visible={visible && type === SignerType.BITBOX02}
+          close={close}
+          title="Keep BitBox02 Ready"
+          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
+          Content={() => <BitBox02Content />}
+          buttonText="Continue"
+          buttonCallback={navigateToVerifyWithChannel}
+        />
+        <KeeperModal
+          visible={visible && type === SignerType.TREZOR}
+          close={close}
+          title="Keep Trezor Ready"
+          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+          subTitleColor="light.secondaryText"
+          textColor="light.primaryText"
+          Content={() => <TrezorContent />}
+          buttonText="Continue"
+          buttonCallback={navigateToVerifyWithChannel}
+        />
       </>
     );
   }
+
+  const { inheritanceRequestId } = useAppSelector((state) => state.storage);
 
   return (
     <ScreenWrapper>
       <HeaderTitle
         title="Select Signing Device"
-        subtitle="To recover your vault"
+        subtitle="To recover your Vault"
         headerTitleColor="light.textBlack"
         onPressHandler={() =>
           navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         }
         paddingTop={hp(5)}
+        paddingLeft={wp(25)}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">
@@ -719,18 +859,21 @@ function SignersList({ navigation }) {
             SignerType.SEEDSIGNER,
             SignerType.PASSPORT,
             SignerType.JADE,
+            SignerType.BITBOX02,
+            SignerType.TREZOR,
             SignerType.KEYSTONE,
             SignerType.LEDGER,
             SignerType.KEEPER,
             SignerType.SEED_WORDS,
             SignerType.MOBILE_KEY,
             SignerType.POLICY_SERVER,
+            SignerType.INHERITANCEKEY,
           ].map((type: SignerType, index: number) => {
             const { disabled, message } = getDeviceStatus(
               type,
               isNfcSupported,
-              isBLESupported,
-              signingDevices
+              signingDevices,
+              inheritanceRequestId
             );
             return (
               <HardWareWallet

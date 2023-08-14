@@ -17,6 +17,7 @@ import HWError from './HWErrorState';
 
 export const UNVERIFYING_SIGNERS = [
   SignerType.JADE,
+  SignerType.TREZOR,
   SignerType.KEEPER,
   SignerType.MOBILE_KEY,
   SignerType.POLICY_SERVER,
@@ -34,10 +35,16 @@ export const generateSignerFromMetaData = ({
   isMock = false,
   xpubDetails = {} as XpubDetailsType,
   signerPolicy = null,
+  inheritanceKeyInfo = null,
 }): VaultSigner => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
-  if (networkType !== config.NETWORK_TYPE) {
+  if (
+    networkType !== config.NETWORK_TYPE &&
+    config.NETWORK_TYPE === NetworkType.TESTNET &&
+    signerType !== SignerType.KEYSTONE &&
+    signerType !== SignerType.JADE
+  ) {
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
@@ -60,6 +67,7 @@ export const generateSignerFromMetaData = ({
     registered: UNVERIFYING_SIGNERS.includes(signerType) || isMock,
     xpubDetails,
     signerPolicy,
+    inheritanceKeyInfo,
   };
   return signer;
 };
@@ -98,10 +106,19 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'TAPSIGNER';
       break;
     case SignerType.TREZOR:
-      name = type;
+      name = 'Trezor';
       break;
     case SignerType.SEEDSIGNER:
       name = 'SeedSigner';
+      break;
+    case SignerType.BITBOX02:
+      name = 'BitBox02';
+      break;
+    case SignerType.OTHER_SD:
+      name = 'Other Signing Device';
+      break;
+    case SignerType.INHERITANCEKEY:
+      name = 'Inheritance Key';
       break;
     default:
       name = type;
@@ -168,3 +185,18 @@ export const getMockSigner = (signerType: SignerType) => {
 
 export const isSignerAMF = (signer: VaultSigner) =>
   !!idx(signer, (_) => _.xpubDetails[XpubTypes.AMF].xpub);
+
+const HARDENED = 0x80000000;
+export const getKeypathFromString = (keypathString: string): number[] => {
+  let levels = keypathString.toLowerCase().split('/');
+  if (levels[0] !== 'm') throw new Error('Invalid keypath');
+  levels = levels.slice(1);
+  return levels.map((level: any) => {
+    let hardened = false;
+    if (level.substring(level.length - 1) === "'") hardened = true;
+    level = parseInt(level, 10);
+    if (Number.isNaN(level) || level < 0 || level >= HARDENED) throw new Error('Invalid keypath');
+    if (hardened) level += HARDENED;
+    return level;
+  });
+};

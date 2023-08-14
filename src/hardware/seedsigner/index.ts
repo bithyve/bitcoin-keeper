@@ -9,8 +9,8 @@ export const getSeedSignerDetails = (qrData) => {
     .slice(qrData.indexOf('[') + 1, qrData.indexOf(']'))
     .replace(xfp, 'm');
   const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
-  let forMultiSig = false;
-  let forSingleSig = false;
+  let forMultiSig: boolean;
+  let forSingleSig: boolean;
   if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
     forMultiSig = true;
     forSingleSig = false;

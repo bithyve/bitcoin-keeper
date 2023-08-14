@@ -22,6 +22,19 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>keeper</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>keeper</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -39,18 +52,10 @@
 			</dict>
 		</dict>
 	</dict>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Allow Keeper to uses BLE communicate with Ledger. You can deny now if you are not using ledger as one of your signing devices and enable it later in settings</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Please allow camera access for QR scanner</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Allow Keeper requires FaceID access to allows you quick and secure access.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Please allow microphone access to record your screen and send app feedback</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Please allow photo library access to campture screenshots and send app feedback</string>
 	<key>UIAppFonts</key>
@@ -61,10 +66,18 @@
 		<string>RobotoCondensed-Light.ttf</string>
 		<string>RobotoCondensed-LightItalic.ttf</string>
 		<string>RobotoCondensed-Regular.ttf</string>
+		<string>FiraSansCondensed-Bold.ttf</string>
+		<string>FiraSansCondensed-MediumItalic.ttf</string>
+		<string>FiraSansCondensed-Italic.ttf</string>
+		<string>FiraSansCondensed-Light.ttf</string>
+		<string>FiraSansCondensed-LightItalic.ttf</string>
+		<string>FiraSansCondensed-Regular.ttf</string>
+		<string>FiraSansCondensed-BoldItalic.ttf</string>
+		<string>FiraSansCondensed-Medium.ttf</string>
+		<string>FiraSansCondensed-SemiBold.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
-		<string>bluetooth-central</string>
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
@@ -84,6 +97,11 @@
 	<array>
 		<string>D2760000850100</string>
 		<string>D2760000850101</string>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>itms-apps</string>
+		<string>orbot</string>
 	</array>
 </dict>
 </plist>

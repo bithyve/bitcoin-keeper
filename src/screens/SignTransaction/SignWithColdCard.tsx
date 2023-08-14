@@ -1,18 +1,15 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
-import React, { useContext, useState } from 'react';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import React, { useState } from 'react';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 import Arrow from 'src/assets/images/rightarrow.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeeperModal from 'src/components/KeeperModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import {
   receivePSBTFromColdCard,
   receiveTxHexFromColdCard,
@@ -22,6 +19,8 @@ import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useNfcModal from 'src/hooks/useNfcModal';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useVault from 'src/hooks/useVault';
 
 function Card({ message, buttonText, buttonCallBack }) {
   return (
@@ -64,10 +63,7 @@ function Card({ message, buttonText, buttonCallBack }) {
 function SignWithColdCard({ route }: { route }) {
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
-  const { useQuery } = useContext(RealmWrapperContext);
-  const Vault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault: Vault } = useVault();
   const { signer, signTransaction, isMultisig } = route.params as {
     signer: VaultSigner;
     signTransaction;
@@ -82,9 +78,12 @@ function SignWithColdCard({ route }: { route }) {
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
         dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: txn }));
+        dispatch(healthCheckSigner([signer]));
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(healthCheckSigner([signer]));
       }
     });
 

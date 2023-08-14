@@ -1,4 +1,4 @@
-const { tor } = require("../rest/RestClient");
+const { tor } = require('../rest/RestClient');
 
 /**
  * Wrapper for react-native-tor mimicking Socket class from NET package
@@ -9,13 +9,13 @@ class TorSocket {
     this._listeners = {};
   }
 
-  setTimeout() { }
+  setTimeout() {}
 
-  setEncoding() { }
+  setEncoding() {}
 
-  setKeepAlive() { }
+  setKeepAlive() {}
 
-  setNoDelay() { }
+  setNoDelay() {}
 
   on(event, listener) {
     this._listeners[event] = this._listeners[event] || [];
@@ -29,7 +29,7 @@ class TorSocket {
     let found = false;
     for (const savedListener of this._listeners[event]) {
       // eslint-disable-next-line eqeqeq
-      if (savedListener == listener) {
+      if (savedListener === listener) {
         // found our listener
         found = true;
         // we just skip it
@@ -60,18 +60,24 @@ class TorSocket {
         return false;
       }
       console.log('started tor');
-      const iWillConnectISwear = tor.createTcpConnection({ target: host + ':' + port, connectionTimeout: 15000 }, (data, err) => {
-        if (err) {
-          console.log('TOR socket onData error: ', err);
-          // this._passOnEvent('error', err);
-          return;
+      const iWillConnectISwear = tor.createTcpConnection(
+        { target: host + ':' + port, connectionTimeout: 15000 },
+        (data, err) => {
+          if (err) {
+            console.log('TOR socket onData error: ', err);
+            // this._passOnEvent('error', err);
+            return;
+          }
+          this._passOnEvent('data', data);
         }
-        this._passOnEvent('data', data);
-      });
+      );
 
       try {
-        this._socket = await Promise.race([iWillConnectISwear, new Promise(resolve => setTimeout(resolve, 21000))]);
-      } catch (e) { }
+        this._socket = await Promise.race([
+          iWillConnectISwear,
+          new Promise((resolve) => setTimeout(resolve, 21000)),
+        ]);
+      } catch (e) {}
 
       if (!this._socket) {
         console.log('connecting TOR socket failed'); // either sleep expired or connect threw an exception
@@ -95,7 +101,7 @@ class TorSocket {
     }
   }
 
-  emit(event, data) { }
+  emit(event, data) {}
 
   end() {
     console.log('trying to close TOR socket');
@@ -105,7 +111,7 @@ class TorSocket {
     }
   }
 
-  destroy() { }
+  destroy() {}
 
   write(data) {
     if (this._socket && this._socket.write) {

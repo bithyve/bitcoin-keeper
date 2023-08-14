@@ -7,6 +7,8 @@ import idx from 'idx';
 import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 import { isSignerAMF } from 'src/hardware';
+import { EntityKind } from 'src/core/wallets/enums';
+import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
@@ -129,14 +131,19 @@ export const signTransactionWithSigningServer = async ({
   signingServerOTP,
   serializedPSBT,
   SigningServer,
+  shellId,
 }) => {
   try {
     showOTPModal(false);
     const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     const outgoing = idx(signingPayload, (_) => _[0].outgoing);
     if (!childIndexArray) throw new Error('Invalid signing payload');
+
+    const vaultId = shellId;
+    const appId = keeper.id;
     const { signedPSBT } = await SigningServer.signPSBT(
-      keeper.id,
+      vaultId,
+      appId,
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
       childIndexArray,
@@ -150,19 +157,50 @@ export const signTransactionWithSigningServer = async ({
   }
 };
 
+export const signTransactionWithInheritanceKey = async ({
+  signingPayload,
+  serializedPSBT,
+  shellId,
+  thresholdDescriptors,
+}) => {
+  try {
+    const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
+    if (!childIndexArray) throw new Error('Invalid signing payload');
+
+    const vaultId = shellId;
+    const { signedPSBT } = await InheritanceKeyServer.signPSBT(
+      vaultId,
+      serializedPSBT,
+      childIndexArray,
+      thresholdDescriptors
+    );
+    if (!signedPSBT) throw new Error('inheritance key server: failed to sign');
+    return { signedSerializedPSBT: signedPSBT };
+  } catch (error) {
+    captureError(error);
+    Alert.alert(error.message);
+  }
+};
+
 export const signTransactionWithSeedWords = async ({
   signingPayload,
   defaultVault,
   seedBasedSingerMnemonic,
   serializedPSBT,
   signerId,
+  isMultisig,
 }) => {
   try {
     const inputs = idx(signingPayload, (_) => _[0].inputs);
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
     const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
     const networkType = config.NETWORK_TYPE;
-    const { xpub, xpriv } = generateSeedWordsKey(seedBasedSingerMnemonic, networkType);
+    // we need this to generate xpriv that's not stored
+    const { xpub, xpriv } = generateSeedWordsKey(
+      seedBasedSingerMnemonic,
+      networkType,
+      isMultisig ? EntityKind.VAULT : EntityKind.WALLET
+    );
     if (signer.xpub !== xpub) throw new Error('Invalid mnemonic; xpub mismatch');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
       defaultVault,

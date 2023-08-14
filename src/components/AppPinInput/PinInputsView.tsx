@@ -1,9 +1,8 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-
 import DotView from 'src/components/DotView';
 
 export interface Props {
@@ -20,6 +19,7 @@ function PinInputsView({
   textColor,
   borderColor = 'transparent',
 }: Props) {
+  const { colorMode } = useColorMode();
   const [hide, setHide] = useState(false);
 
   useEffect(() => {
@@ -35,9 +35,9 @@ function PinInputsView({
   const getBackgroundColor = () =>
     backgroundColor ? 'rgba(253,247,240, 1)' : 'rgba(253,247,240, 0.2)';
 
-  const getTextColor = () => (textColor ? 'light.textBlack' : 'light.white');
+  const getTextColor = () => (textColor ? 'light.textBlack' : 'light.primaryBackground');
 
-  const getDotColor = () => (textColor ? 'black' : 'white');
+  const getDotColor = () => (textColor ? 'black' : 'light.primaryBackground');
 
   const getPin = (num: number) => {
     if (passCode.length === num && !hide) {

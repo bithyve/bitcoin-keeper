@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState, useCallback, useMemo } from 'react';
-import { Alert, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -11,41 +11,44 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/images/link.svg';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
+import ThemeMode from 'src/common/data/enums/ThemeMode';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import openLink from 'src/utils/OpenLink';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { setTorEnabled } from 'src/store/reducers/settings';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
 import moment from 'moment';
+
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getBackupDuration } from 'src/common/utilities';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { setThemeMode } from 'src/store/reducers/settings';
 import { changeLoginMethod } from '../../store/sagaActions/login';
-import TorModalMap from './TorModalMap';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 function AppSettings({ navigation }) {
-  const { colorMode } = useColorMode();
-  const [darkMode, setDarkMode] = useState(false);
+  const { colorMode, toggleColorMode } = useColorMode();
+  // const [darkMode, setDarkMode] = useState(false);
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  // const state = useAppSelector((state) => state.settings)
+
   const dispatch = useAppDispatch();
+  const { showToast } = useToastMessage();
+
   const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
   const { common } = translations;
   const { settings } = translations;
   const backupWalletStrings = translations.BackupWallet;
-
-  const [showTorModal, setShowTorModal] = useState(false);
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const backupHistory = useMemo(() => data.sorted('date', true), [data]);
   const backupSubTitle = useMemo(() => {
@@ -64,29 +67,18 @@ function AppSettings({ navigation }) {
     return backupWalletStrings[backupHistory[0].title];
   }, [backupHistory, backupMethod]);
 
-  const onChangeTorStatus = (status: TorStatus, message) => {
-    settorStatus(status);
-  };
-
   useEffect(() => {
-    RestClient.subToTorStatus(onChangeTorStatus);
-    return () => {
-      RestClient.unsubscribe(onChangeTorStatus);
-    };
-  }, []);
+    if (colorMode === 'dark') {
+      dispatch(setThemeMode(ThemeMode.DARK))
+    } else {
+      dispatch(setThemeMode(ThemeMode.LIGHT))
+    }
+
+  }, [colorMode])
 
   useEffect(() => {
     init();
   }, []);
-
-  const RenderTorStatus = useCallback(
-    () => (
-      <Box backgroundColor="light.lightAccent" py={0.5} px={1.5} borderRadius={10}>
-        <Text fontSize={11}>{torStatus}</Text>
-      </Box>
-    ),
-    [torStatus]
-  );
 
   const init = async () => {
     try {
@@ -96,8 +88,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -125,7 +117,10 @@ function AppSettings({ navigation }) {
           dispatch(changeLoginMethod(LoginMethod.PIN));
         }
       } else {
-        Alert.alert('Biometrics not enabled', 'Plese go to setting and enable it');
+        showToast(
+          'Biometrics not enabled.\nPlease go to setting and enable it',
+          <ToastErrorIcon />
+        );
       }
     } catch (error) {
       console.log(error);
@@ -133,7 +128,8 @@ function AppSettings({ navigation }) {
   };
 
   const changeThemeMode = () => {
-    setDarkMode(!darkMode);
+    // setDarkMode(!darkMode);
+    toggleColorMode()
   };
 
   function Option({ title, subTitle, onPress, Icon }) {
@@ -142,16 +138,17 @@ function AppSettings({ navigation }) {
         flexDirection="row"
         alignItems="center"
         onPress={onPress}
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.seashellWhite`}
         style={styles.appBackupWrapper}
+        testID={`btn_${title.replace(/ /g, '_')}}`}
       >
         {Icon && (
           <Box style={styles.appBackupIconWrapper}>
             {/* { Notification indicator } */}
             {backupMethod === null && (
               <Box
-                backgroundColor="light.indicator"
-                borderColor="light.white"
+                backgroundColor={`${colorMode}.indicator`}
+                borderColor={`${colorMode}.white`}
                 style={styles.notificationIndicator}
               />
             )}
@@ -159,10 +156,10 @@ function AppSettings({ navigation }) {
           </Box>
         )}
         <Box style={{ marginLeft: wp(20) }}>
-          <Text color="light.primaryText" style={styles.appBackupTitle}>
+          <Text color={`${colorMode}.primaryText`} style={styles.appBackupTitle}>
             {title}
           </Text>
-          <Text color="light.GreyText" style={styles.appBackupSubTitle}>
+          <Text color={`${colorMode}.GreyText`} style={styles.appBackupSubTitle}>
             {subTitle}
           </Text>
         </Box>
@@ -170,25 +167,13 @@ function AppSettings({ navigation }) {
     );
   }
 
-  const onPressTor = () => {
-    if (torStatus === TorStatus.OFF || torStatus === TorStatus.ERROR) {
-      setShowTorModal(true);
-      RestClient.setUseTor(true);
-      dispatch(setTorEnabled(true));
-    } else {
-      RestClient.setUseTor(false);
-      dispatch(setTorEnabled(false));
-      setShowTorModal(false);
-    }
-  };
-
   return (
-    <ScreenWrapper barStyle="dark-content">
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
       <Box style={styles.appSettingTitleWrapper}>
         <Box width="70%">
           <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
-          <Text style={styles.appSettingSubTitle}>For the vault and wallets</Text>
+          <Text style={styles.appSettingSubTitle}>For the Vault and wallets</Text>
         </Box>
         <Box style={styles.currentTypeSwitchWrapper}>
           <CurrencyTypeSwitch />
@@ -218,14 +203,14 @@ function AppSettings({ navigation }) {
             value={loginMethod === LoginMethod.BIOMETRIC}
           />
 
-          {/* <SettingsSwitchCard
+          <SettingsSwitchCard
             title={settings.DarkMode}
             description={settings.DarkModeSubTitle}
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             onSwitchToggle={() => changeThemeMode()}
-            value={darkMode}
-          /> */}
+            value={colorMode === 'dark'}
+          />
           <SettingsCard
             title={settings.nodeSettings}
             description={settings.nodeSettingsSubtitle}
@@ -242,19 +227,14 @@ function AppSettings({ navigation }) {
             icon={false}
             onPress={() => navigation.navigate('AppVersionHistory')}
           />
-          <SettingsSwitchCard
-            title="Tor"
-            description="Tor daemon settings"
+
+          <SettingsCard
+            title="Tor Settings"
+            description="Configure in-app Tor and Orbot"
             my={1}
             bgColor={`${colorMode}.backgroundColor2`}
             icon={false}
-            onSwitchToggle={onPressTor}
-            renderStatus={
-              torStatus === TorStatus.OFF || torStatus === TorStatus.CONNECTED
-                ? null
-                : RenderTorStatus
-            }
-            value={torStatus === TorStatus.CONNECTED}
+            onPress={() => navigation.navigate('TorSettings')}
           />
           <SettingsCard
             title={settings.LanguageCountry}
@@ -264,16 +244,32 @@ function AppSettings({ navigation }) {
             icon={false}
             onPress={() => navigation.navigate('ChangeLanguage')}
           />
+          <SettingsCard
+            title={settings.ManageWallets}
+            description={settings.ManageWalletsSub}
+            my={1}
+            bgColor={`${colorMode}.backgroundColor2`}
+            icon={false}
+            onPress={() => navigation.navigate('ManageWallets')}
+          />
         </ScrollView>
 
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor="light.secondaryBackground">
+        <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Box style={styles.socialMediaLinkWrapper2}>
-            <Pressable onPress={() => openLink('https://t.me/bitcoinkeeper')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
+            <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
+              <Box
+                style={styles.telTweetLinkWrapper}
+                backgroundColor={`${colorMode}.primaryBackground`}
+                testID="view_ KeeperTelegram"
+              >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Telegram />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
+                    <Text
+                      color={`${colorMode}.textColor2`}
+                      style={styles.telTweetLinkTitle}
+                      testID="text_ KeeperTelegram"
+                    >
                       Keeper Telegram
                     </Text>
                   </Box>
@@ -283,12 +279,23 @@ function AppSettings({ navigation }) {
                 </Box>
               </Box>
             </Pressable>
-            <Pressable onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}>
-              <Box style={styles.telTweetLinkWrapper} backgroundColor="light.primaryBackground">
+            <Pressable
+              onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}
+              testID="btn_keeperTwitter"
+            >
+              <Box
+                style={styles.telTweetLinkWrapper}
+                backgroundColor={`${colorMode}.primaryBackground`}
+                testID="view_keeperTwitter"
+              >
                 <Box style={styles.telTweetLinkWrapper2}>
                   <Twitter />
                   <Box style={{ marginLeft: wp(10) }}>
-                    <Text color="light.textColor2" style={styles.telTweetLinkTitle}>
+                    <Text
+                      color={`${colorMode}.textColor2`}
+                      style={styles.telTweetLinkTitle}
+                      testID="text_keeperTwitter"
+                    >
                       Keeper Twitter
                     </Text>
                   </Box>
@@ -301,21 +308,35 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} backgroundColor="light.primaryBackground">
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
+            <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
-                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
+              <Pressable
+                onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
+                testID="btn_termsCondition"
+              >
+                <Text
+                  style={styles.bottomLinkText}
+                  color={`${colorMode}.textColor2`}
+                  testID="text_termsCondition"
+                >
                   {common.TermsConditions}
                 </Text>
               </Pressable>
-              <Text color="light.textColor2">|</Text>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')}>
-                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
+              <Text color={`${colorMode}.textColor2`}>|</Text>
+              <Pressable
+                onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}
+                testID="btn_privacyPolicy"
+              >
+                <Text
+                  style={styles.bottomLinkText}
+                  color={`${colorMode}.textColor2`}
+                  testID="text_privacyPolicy"
+                >
                   {common.PrivacyPolicy}
                 </Text>
               </Pressable>
@@ -323,11 +344,6 @@ function AppSettings({ navigation }) {
           </Box>
         </Box>
       </Box>
-      <TorModalMap
-        onPressTryAgain={onPressTor}
-        visible={showTorModal}
-        close={() => setShowTorModal(false)}
-      />
     </ScreenWrapper>
   );
 }

@@ -35,3 +35,38 @@ export interface SignerPolicy {
   restrictions: SignerRestriction;
   exceptions: SignerException;
 }
+
+export interface InheritanceNotification {
+  targets: string[];
+}
+
+export interface InheritanceAlert {
+  emails: string[];
+}
+
+export interface InheritanceConfiguration {
+  m: number;
+  n: number;
+  descriptors: string[];
+  bsms?: string;
+}
+
+export interface InheritancePolicy {
+  notification: InheritanceNotification;
+  alert?: InheritanceAlert;
+}
+
+export interface InheritanceKeyInfo {
+  configuration: InheritanceConfiguration;
+  policy?: InheritancePolicy;
+}
+
+export interface InheritanceKeyRequest {
+  requestId: string;
+  vaultId: string;
+  arrivedAt: number;
+  status: {
+    isDeclined: boolean;
+    isApproved: boolean;
+  };
+}

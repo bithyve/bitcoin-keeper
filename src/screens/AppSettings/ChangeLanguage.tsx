@@ -5,7 +5,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
-import { setCurrencyCode, setLanguage } from 'src/store/reducers/settings';
+import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
@@ -13,10 +13,10 @@ import FiatCurrencies from 'src/common/FiatCurrencies';
 import CountryCode from 'src/common/CountryCode';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import availableLanguages from '../../common/content/availableLanguages';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
+import availableLanguages from '../../common/content/availableLanguages';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 
 const styles = StyleSheet.create({
   btn: {
@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
   menuWrapper: {
     height: wp('13%'),
     width: wp('15%'),
-    backgroundColor: '#FAF4ED',
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     justifyContent: 'center',
@@ -158,24 +157,25 @@ const styles = StyleSheet.create({
 });
 
 function ChangeLanguage() {
+
+  const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
+  const { currencyCode, language, satsEnabled } = useAppSelector((state) => state.settings);
+  const dispatch = useAppDispatch();
+
   const [currencyList] = useState(FiatCurrencies);
   const [countryList] = useState(CountryCode);
   const { colorMode } = useColorMode();
-  const [satsMode, setSatsMode] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [Visible, setVisible] = useState(false);
   const [showLanguages, setShowLanguages] = useState(false);
-  const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
-  const { currencyCode, language } = useAppSelector((state) => state.settings);
   const [currency, setCurrency] = useState(FiatCurrencies.find((cur) => cur.code === currencyCode));
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages.find((lang) => lang.iso === language)
   );
   const [isDisabled, setIsDisabled] = useState(true);
-  const dispatch = useAppDispatch();
 
   const changeThemeMode = () => {
-    setSatsMode(!satsMode);
+    dispatch(setSatsEnabled(!satsEnabled));
   };
 
   const { translations } = useContext(LocalizationContext);
@@ -184,16 +184,16 @@ function ChangeLanguage() {
   function Menu({ label, value, onPress, arrow }) {
     return (
       <TouchableOpacity onPress={onPress} style={styles.btn}>
-        <View style={styles.menuWrapper}>
+        <Box style={styles.menuWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text style={styles.textCurrency}>{label}</Text>
-        </View>
-        <View style={styles.emptyView} />
-        <View style={styles.textValueWrapper}>
-          <Text style={styles.textValue} color="light.GreyText">
+        </Box>
+        <Box style={styles.emptyView} />
+        <Box style={styles.textValueWrapper}>
+          <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
             {value}
           </Text>
-        </View>
-        <View
+        </Box>
+        <Box
           style={{
             marginLeft: 'auto',
             height: wp('13%'),
@@ -210,20 +210,20 @@ function ChangeLanguage() {
           >
             <RightArrowIcon />
           </Box>
-        </View>
+        </Box>
       </TouchableOpacity>
     );
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
       <Box flex={1}>
         <Box marginLeft="5%">
-          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText}>
+          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText} testID={`text_${settings.LanguageCountry}`}>
             {settings.LanguageCountry}
           </Text>
-          <Text fontSize={12} letterSpacing={0.6} color="light.GreyText">
+          <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.GreyText`}>
             {settings.biometricsDesc}
           </Text>
         </Box>
@@ -233,7 +233,7 @@ function ChangeLanguage() {
           my={2}
           bgColor={`${colorMode}.backgroundColor2`}
           onSwitchToggle={() => changeThemeMode()}
-          value={satsMode}
+          value={satsEnabled}
         />
         <CountrySwitchCard
           title={settings.AlternateCurrency}
@@ -271,7 +271,7 @@ function ChangeLanguage() {
                   <Text style={styles.symbolText}>{item.symbol}</Text>
                 </View>
                 <View style={styles.codeTextWrapper}>
-                  <Text style={styles.codeText} color="light.GreyText">
+                  <Text style={styles.codeText} color={`${colorMode}.GreyText`}>
                     {item.code}
                   </Text>
                 </View>

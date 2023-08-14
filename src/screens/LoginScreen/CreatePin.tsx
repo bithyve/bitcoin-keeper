@@ -1,5 +1,6 @@
+/* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { Dimensions, StatusBar, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -10,17 +11,16 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-import { addToUaiStack } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
+import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
 
 export default function CreatePin(props) {
+  const { colorMode } = useColorMode();
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
@@ -29,7 +29,6 @@ export default function CreatePin(props) {
   const dispatch = useAppDispatch();
   const { credsChanged, hasCreds } = useAppSelector((state) => state.login);
   const [isDisabled, setIsDisabled] = useState(true);
-
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
   const { common } = translations;
@@ -130,23 +129,38 @@ export default function CreatePin(props) {
     }
   }, [passcode, confirmPasscode]);
 
+  function ElectrumErrorContent() {
+    return (
+      <Box width={wp(320)}>
+        <Box margin={hp(5)}>
+          <DowngradeToPleb />
+        </Box>
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            Please try again later
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
-    <LinearGradient
+    <Box
       testID="main"
-      colors={['light.gradientStart', 'light.gradientEnd']}
       style={styles.linearGradient}
+      backgroundColor='light.pantoneGreen'
     >
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
         </Box>
         <Box style={styles.wrapper}>
-          <Box mt={windowHeight > 670 ? hp('5%') : 0}>
+          <Box style={styles.titleWrapper}>
             <Box>
-              <Text style={styles.welcomeText} color="light.white">
+              <Text style={styles.welcomeText} color="light.primaryBackground">
                 {login.welcome}
               </Text>
-              <Text color="light.textColor" style={styles.labelText}>
+              <Text color="light.primaryBackground" style={styles.labelText}>
                 {login.Createpasscode}
               </Text>
 
@@ -157,7 +171,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                      `light.error`
+                    `light.error`
                     : 'transparent'
                 }
               />
@@ -165,7 +179,7 @@ export default function CreatePin(props) {
             </Box>
             {passcode.length === 4 ? (
               <Box>
-                <Text color="light.textColor" style={styles.labelText}>
+                <Text color="light.primaryBackground" style={styles.labelText}>
                   {login.Confirmyourpasscode}
                 </Text>
                 <Box>
@@ -179,14 +193,14 @@ export default function CreatePin(props) {
                         : 'transparent'
                     }
                     borderColor={
-                      passcode != confirmPasscode && confirmPasscode.length == 4
-                        ? 'light.error'
+                      passcode != confirmPasscode && confirmPasscode.length === 4
+                        ? `${colorMode}.error`
                         : 'transparent'
                     }
                   />
                   {/*  */}
                   {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                    <Text color="light.error" style={styles.errorText}>
+                    <Text color={`${colorMode}.error`} style={styles.errorText}>
                       {login.MismatchPasscode}
                     </Text>
                   )}
@@ -211,7 +225,7 @@ export default function CreatePin(props) {
           />
         </Box>
       </Box>
-    </LinearGradient>
+    </Box>
   );
 }
 
@@ -222,6 +236,10 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     flex: 1,
+  },
+  titleWrapper: {
+    marginTop: windowHeight > 670 ? hp('5%') : 0,
+    flex: 0.7,
   },
   welcomeText: {
     marginLeft: 18,

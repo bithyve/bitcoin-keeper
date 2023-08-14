@@ -2,14 +2,16 @@
 /* eslint-disable react/jsx-no-bind */
 import * as bip39 from 'bip39';
 
-import { Box, View } from 'native-base';
+import { Box, ScrollView, View } from 'native-base';
 import {
   Alert,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
@@ -32,7 +34,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/common/utilities';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/core/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -115,13 +117,22 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [suggestedWords, setSuggestedWords] = useState([]);
+  const [onChangeIndex, setOnChangeIndex] = useState(-1);
+  const inputRef = useRef([]);
 
-  const openInvalidSeedsModal = () => setInvalidSeedsModal(true);
+  const openInvalidSeedsModal = () => {
+    setRecoveryLoading(false);
+    setInvalidSeedsModal(true);
+  };
   const closeInvalidSeedsModal = () => {
     setRecoveryLoading(false);
     setInvalidSeedsModal(false);
   };
-
+  const getFocusIndex = (index, seedIndex) => {
+    const newIndex = index + 2 + seedIndex * 6;
+    return newIndex;
+  };
   const { showToast } = useToastMessage();
 
   const dispatch = useDispatch();
@@ -155,12 +166,13 @@ function EnterSeedScreen({ route }) {
     return seedWord.trim();
   };
 
-  const setupSeedWordsBasedKey = (mnemonic) => {
+  const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
     try {
       const networkType = config.NETWORK_TYPE;
       const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
         mnemonic,
-        networkType
+        networkType,
+        entity
       );
       const softSigner = generateSignerFromMetaData({
         xpub,
@@ -168,7 +180,7 @@ function EnterSeedScreen({ route }) {
         xfp: masterFingerprint,
         signerType: SignerType.SEED_WORDS,
         storageType: SignerStorage.WARM,
-        isMultisig: true,
+        isMultisig: entity !== EntityKind.WALLET,
       });
       dispatch(setSigningDevices(softSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -208,6 +220,7 @@ function EnterSeedScreen({ route }) {
       if (isSeedFilled(12)) {
         const seedWord = getSeedWord();
         setRecoveryLoading(true);
+
         dispatch(getAppImage(seedWord));
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });
@@ -257,6 +270,28 @@ function EnterSeedScreen({ route }) {
     }
   };
 
+  const getSuggestedWords = (text) => {
+    const filteredData = bip39.wordlists.english.filter((data) =>
+      data.toLowerCase().startsWith(text)
+    );
+    setSuggestedWords(filteredData);
+  };
+
+  const getPosition = (index: number) => {
+    switch (index) {
+      case 0:
+      case 1:
+        return 1;
+      case 2:
+      case 3:
+        return 2;
+      case 4:
+      case 5:
+        return 3;
+      default:
+        return 1;
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
@@ -306,26 +341,34 @@ function EnterSeedScreen({ route }) {
                   {getFormattedNumber(index)}
                 </Text>
                 <TextInput
+                  ref={(el) => (inputRef.current[index] = el)}
                   style={[
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
                   placeholderTextColor="rgba(7,62,57,0.6)"
                   value={item?.name}
                   textContentType="none"
-                  returnKeyType="next"
+                  returnKeyType={isSeedFilled(12) ? 'done' : 'next'}
                   autoCorrect={false}
                   autoCapitalize="none"
+                  blurOnSubmit={false}
                   keyboardType={Platform.OS === 'android' ? 'visible-password' : 'name-phone-pad'}
                   onChangeText={(text) => {
                     const data = [...seedData];
                     data[index].name = text.trim();
                     setSeedData(data);
+                    if (text.length > 1) {
+                      setOnChangeIndex(index);
+                      getSuggestedWords(text.toLowerCase());
+                    } else {
+                      setSuggestedWords([]);
+                    }
                   }}
                   onBlur={() => {
                     if (!bip39.wordlists.english.includes(seedData[index].name)) {
@@ -338,11 +381,51 @@ function EnterSeedScreen({ route }) {
                     const data = [...seedData];
                     data[index].invalid = false;
                     setSeedData(data);
+                    setSuggestedWords([]);
+                    setOnChangeIndex(index);
+                  }}
+                  onSubmitEditing={() => {
+                    setSuggestedWords([]);
+                    Keyboard.dismiss();
                   }}
                 />
               </View>
             )}
           />
+          {suggestedWords?.length > 0 ? (
+            <ScrollView
+              style={[
+                styles.suggestionScrollView,
+                {
+                  marginTop: getPosition(onChangeIndex) * hp(70),
+                  height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
+                },
+              ]}
+              keyboardShouldPersistTaps='handled'
+              nestedScrollEnabled
+            >
+              <View style={styles.suggestionWrapper}>
+                {suggestedWords.map((word, wordIndex) => (
+                  <TouchableOpacity
+                    key={wordIndex}
+                    style={styles.suggestionTouchView}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      const data = [...seedData];
+                      data[onChangeIndex].name = word.trim();
+                      setSeedData(data);
+                      setSuggestedWords([]);
+                      // const focusIndex = getFocusIndex( onChangeIndex, index )
+                      // if( focusIndex != 7 && focusIndex != 13&& focusIndex != 19&& focusIndex != 25 )
+                      if (onChangeIndex !== 11) inputRef.current[onChangeIndex + 1].focus();
+                    }}
+                  >
+                    <Text style={styles.suggestionWord}>{word}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+          ) : null}
         </View>
         <View style={styles.bottomContainerView}>
           <Text style={styles.seedDescText} color="light.GreyText">
@@ -390,7 +473,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -447,6 +530,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: 5,
     fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 1.32,
+    zIndex: 1,
   },
   inputListWrapper: {
     flexDirection: 'row',
@@ -454,11 +538,11 @@ const styles = ScaledSheet.create({
     marginVertical: 10,
   },
   indexText: {
-    width: 22,
+    width: 25,
     fontSize: 16,
     color: '#00836A',
     marginTop: 8,
-    letterSpacing: 1.23,
+    letterSpacing: 0.8,
   },
   seedDescText: {
     fontWeight: '400',
@@ -492,6 +576,31 @@ const styles = ScaledSheet.create({
   },
   checkText: {
     fontSize: 16,
+  },
+  suggestionScrollView: {
+    zIndex: 999,
+    position: 'absolute',
+    // top: 50,
+    height: hp(150),
+    width: wp(330),
+    alignSelf: 'center',
+  },
+  suggestionWrapper: {
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    padding: 10,
+    borderRadius: 10,
+    flexWrap: 'wrap',
+    overflow: 'hidden',
+  },
+  suggestionTouchView: {
+    backgroundColor: '#f2c693',
+    padding: 5,
+    borderRadius: 5,
+    margin: 5,
+  },
+  suggestionWord: {
+    color: 'black',
   },
 });
 

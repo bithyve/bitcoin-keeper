@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
-import { Box } from 'native-base';
+import React, { useContext, useEffect, useState } from 'react';
+import { Box, Pressable, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { TouchableOpacity } from 'react-native';
+import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -9,61 +9,86 @@ import { wp, hp } from 'src/common/data/responsiveness/responsive';
 
 import QRCode from 'react-native-qrcode-svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
+import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Note from '../Note/Note';
 
 function ShowXPub({
+  wallet,
   data,
   copy = () => { },
   subText,
   noteSubText,
   copyable = true,
+  cosignerDetails = false,
+  keeper,
 }: {
   data: string;
-  copy: Function;
+  wallet?: Wallet;
+  copy?: Function;
   subText: string;
-  noteSubText: string;
+  noteSubText?: string;
   copyable: boolean;
+  cosignerDetails?: boolean;
+  keeper?: KeeperApp;
 }) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const [details, setDetails] = useState('');
+
+  useEffect(() => {
+    if (cosignerDetails) {
+      setTimeout(() => {
+        setDetails(JSON.stringify(getCosignerDetails(wallet, keeper.id)));
+      }, 200);
+    } else {
+      setDetails(data);
+    }
+  }, [cosignerDetails, data]);
 
   return (
     <>
-      <Box justifyContent="center" alignItems="center" width={wp(275)}>
+      <Box justifyContent="center" alignItems="center">
         <Box>
-          <QRCode value={data} logoBackgroundColor="transparent" size={hp(200)} />
+          {details ? (
+            <QRCode value={details} logoBackgroundColor="transparent" size={hp(200)} />
+          ) : (
+            <ActivityIndicator />
+          )}
           <Box
-            backgroundColor="light.QrCode"
+            backgroundColor={`${colorMode}.QrCode`}
             alignItems="center"
             justifyContent="center"
             padding={1}
             width={hp(200)}
           >
-            <Text fontSize={12} color="light.recieverAddress">
+            <Text fontSize={12} color={`${colorMode}.recieverAddress`}>
               {subText}
             </Text>
           </Box>
         </Box>
         <Box padding={2}>
           {copyable ? (
-            <TouchableOpacity
+            <Pressable
+              backgroundColor={`${colorMode}.seashellWhite`}
               onPress={() => {
-                Clipboard.setString(data);
+                Clipboard.setString(details);
                 copy();
               }}
               style={{
                 flexDirection: 'row',
-                backgroundColor: 'light.textInputBackground',
                 borderTopLeftRadius: 10,
                 borderBottomLeftRadius: 10,
-                width: wp(220),
+                width: '90%',
                 marginTop: hp(30),
                 marginBottom: hp(30),
               }}
             >
               <Box py={2} alignItems="center">
                 <Text fontSize={12} numberOfLines={1} px={3}>
-                  {data}
+                  {details}
                 </Text>
               </Box>
 
@@ -82,13 +107,15 @@ function ShowXPub({
                   <CopyIcon />
                 </Box>
               </Box>
-            </TouchableOpacity>
+            </Pressable>
           ) : null}
         </Box>
       </Box>
-      <Box width={wp(280)}>
-        <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
-      </Box>
+      {noteSubText ? (
+        <Box width={wp(280)}>
+          <Note title={common.note} subtitle={noteSubText} subtitleColor="GreyText" />
+        </Box>
+      ) : null}
     </>
   );
 }

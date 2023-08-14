@@ -4,6 +4,7 @@ export enum DerivationPurpose {
   BIP48 = 48, // P2WSH & P2SH-P2WSH: native and wrapped segwit, multi-sig
   BIP49 = 49, // P2SH-P2WPKH: wrapped segwit, single-sg
   BIP84 = 84, // P2WPKH: native segwit, single-sig
+  BIP86 = 86, // P2TR: taproot
 }
 
 export enum BIP48ScriptTypes {
@@ -58,9 +59,9 @@ export enum NodeType {
 
 export enum VisibilityType {
   DEFAULT = 'DEFAULT',
-  DURESS = 'DURESS',
+  // DURESS = 'DURESS',
   HIDDEN = 'HIDDEN',
-  ARCHIVED = 'ARCHIVED',
+  // ARCHIVED = 'ARCHIVED',
 }
 
 export enum EntityKind {
@@ -71,11 +72,14 @@ export enum EntityKind {
 export enum WalletType {
   DEFAULT = 'DEFAULT',
   IMPORTED = 'IMPORTED',
-  READ_ONLY = 'READ_ONLY',
+  PRE_MIX = 'PRE_MIX',
+  POST_MIX = 'POST_MIX',
+  BAD_BANK = 'BAD_BANK',
 }
 
 export enum VaultType {
   DEFAULT = 'DEFAULT',
+  COLLABORATIVE = 'COLLABORATIVE',
 }
 
 export enum VaultMigrationType {
@@ -97,6 +101,9 @@ export enum SignerType {
   MOBILE_KEY = 'MOBILE_KEY',
   SEED_WORDS = 'SEED_WORDS',
   SEEDSIGNER = 'SEEDSIGNER',
+  BITBOX02 = 'BITBOX02',
+  OTHER_SD = 'OTHER_SD',
+  INHERITANCEKEY = 'INHERITANCEKEY',
 }
 
 export enum PaymentInfoKind {
@@ -127,4 +134,18 @@ export enum XpubTypes {
   'P2WPKH' = 'P2WPKH',
   'P2TR' = 'P2TR',
   'AMF' = 'AMF',
+}
+
+export enum LabelType {
+  SYSTEM = 'SYSTEM',
+  USER = 'USER',
+}
+
+export enum LabelRefType {
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT',
+  TXN = 'TXN',
+  ADDR = 'ADDR',
+  PUBKEY = 'PUBKEY',
+  XPUB = 'XPUB',
 }

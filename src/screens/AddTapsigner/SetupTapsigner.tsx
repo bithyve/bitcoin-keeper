@@ -1,15 +1,17 @@
 import { Platform, StyleSheet, TextInput } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { CKTapCard } from 'cktap-protocol-react-native';
+
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { ScrollView } from 'react-native-gesture-handler';
 import { getTapsignerDetails, getTapsignerErrorMessage } from 'src/hardware/tapsigner';
-
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
-import { CKTapCard } from 'cktap-protocol-react-native';
+
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
@@ -29,15 +31,19 @@ import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/Vau
 import config from 'src/core/config';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
+import NfcManager from 'react-native-nfc-manager';
+import DeviceInfo from 'react-native-device-info';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
-function SetupTapsigner() {
+function SetupTapsigner({ route }) {
+  const { colorMode } = useColorMode();
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
-
+  const { isHealthcheck = false, signer } = route.params;
   const onPressHandler = (digit) => {
     let temp = cvc;
     if (digit !== 'x') {
@@ -61,7 +67,14 @@ function SetupTapsigner() {
   const { inProgress, start } = useAsync();
 
   const addTapsignerWithProgress = async () => {
-    await start(addTapsigner);
+    NfcManager.isSupported().then(async (supported) => {
+      if (supported) {
+        if (isHealthcheck) verifyTapsginer();
+        await start(addTapsigner);
+      } else if (!DeviceInfo.isEmulator()) {
+        showToast('NFC not supported on this device', <ToastErrorIcon />, 3000);
+      }
+    });
   };
 
   const addTapsigner = React.useCallback(async () => {
@@ -121,30 +134,57 @@ function SetupTapsigner() {
     }
   }, [cvc]);
 
+  const verifyTapsginer = React.useCallback(async () => {
+    try {
+      const { xpub } = await withModal(async () => getTapsignerDetails(card, cvc, isMultisig))();
+      if (xpub === signer.xpub) {
+        dispatch(healthCheckSigner([signer]));
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`Tapsigner verified successfully`, <TickIcon />);
+      } else {
+        showToast('Something went wrong, please try again!', null, 2000, true);
+      }
+    } catch (error) {
+      const errorMessage = getTapsignerErrorMessage(error);
+      if (errorMessage) {
+        if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
+        showToast(errorMessage, null, 2000, true);
+      } else if (error.toString() === 'Error') {
+        // do nothing when nfc is dismissed by the user
+      } else {
+        showToast('Something went wrong, please try again!', null, 2000, true);
+      }
+      closeNfc();
+      card.endNfcSession();
+    }
+  }, [cvc]);
+
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1}>
         <HeaderTitle
-          title="Setting up TAPSIGNER"
+          title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
           subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
           onPressHandler={() => navigation.goBack()}
+          paddingLeft={wp(25)}
         />
         <MockWrapper signerType={SignerType.TAPSIGNER}>
           <ScrollView>
-            <TextInput
-              style={styles.input}
-              value={cvc}
-              onChangeText={setCvc}
-              secureTextEntry
-              showSoftInputOnFocus={false}
-            />
-            <Text style={styles.heading} color="light.greenText">
+            <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+              <TextInput
+                value={cvc}
+                onChangeText={setCvc}
+                secureTextEntry
+                showSoftInputOnFocus={false}
+              />
+            </Box>
+            <Text style={styles.heading} color={`${colorMode}.greenText`}>
               You will be scanning the TAPSIGNER after this step
             </Text>
             <Box style={styles.btnContainer}>
               <Buttons
                 primaryText="Proceed"
-                primaryCallback={addTapsignerWithProgress}
+                primaryCallback={isHealthcheck ? verifyTapsginer : addTapsignerWithProgress}
                 primaryDisable={cvc.length < 6}
                 primaryLoading={inProgress}
               />
@@ -153,8 +193,9 @@ function SetupTapsigner() {
         </MockWrapper>
         <KeyPadView
           onPressNumber={onPressHandler}
-          keyColor="#041513"
           onDeletePressed={onDeletePressed}
+          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </Box>
@@ -176,8 +217,8 @@ const styles = StyleSheet.create({
     width: wp(305),
     height: 50,
     borderRadius: 10,
-    backgroundColor: '#f0e7dd',
     letterSpacing: 5,
+    justifyContent: 'center'
   },
   inputContainer: {
     alignItems: 'flex-end',

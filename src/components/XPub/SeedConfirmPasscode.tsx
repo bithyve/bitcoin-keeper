@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
@@ -8,24 +8,26 @@ import { increasePinFailAttempts } from 'src/store/reducers/storage';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { credsAuth } from 'src/store/sagaActions/login';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from '../Buttons';
+import Text from '../KeeperText';
 
 function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
+  const { colorMode } = useColorMode();
   const relogin = false;
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const dispatch = useAppDispatch();
 
   const [passcode, setPasscode] = useState('');
-  const [passcodeFlag] = useState(true);
 
   const [loginError, setLoginError] = useState(false);
   const [btnDisable, setBtnDisable] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [errMessage, setErrMessage] = useState('');
+  const [errMessage, setErrMessage] = useState('Incorrect Passcode! Try Again');
   const { isAuthenticated, authenticationFailed } = useAppSelector((state) => state.login);
   const onPressNumber = (text) => {
     let tmpPasscode = passcode;
@@ -45,6 +47,12 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     setPasscode(passcode.slice(0, passcode.length - 1));
   };
 
+  const disableCTA = () => {
+    setTimeout(() => {
+      setBtnDisable(false);
+    }, 7000)
+  }
+
   useEffect(() => {
     if (attempts >= 3) {
       setAttempts(1);
@@ -55,13 +63,13 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
   useEffect(() => {
     if (authenticationFailed && passcode) {
       setLoginError(true);
-      setErrMessage('Incorrect password');
+      setErrMessage('Incorrect Passcode! Try Again');
       setPasscode('');
       setAttempts(attempts + 1);
-      setBtnDisable(false);
+      disableCTA()
     } else {
-      setBtnDisable(false);
       setLoginError(false);
+      disableCTA()
     }
   }, [authenticationFailed]);
 
@@ -73,10 +81,10 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         navigation.navigate('ExportSeed', {
           seed: wallet?.derivationDetails?.mnemonic,
           next: false,
+          wallet
         });
         closeBottomSheet();
       }
-      setBtnDisable(false);
       dispatch(credsAuthenticated(false));
     }
   }, [isAuthenticated]);
@@ -89,7 +97,18 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     <Box borderRadius={10}>
       <Box>
         {/* pin input view */}
-        <PinInputsView passCode={passcode} passcodeFlag={passcodeFlag} backgroundColor textColor />
+        <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor={colorMode === 'light'} textColor />
+        {loginError &&
+          <Text
+            color={`${colorMode}.indicator`}
+            style={{
+              textAlign: 'right',
+              fontStyle: 'italic'
+            }}
+          >
+            {errMessage}
+          </Text>
+        }
         {/*  */}
         {passcode.length === 4 && (
           <Buttons
@@ -109,8 +128,8 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor="light.primaryText"
-          ClearIcon={<DeleteIcon />}
+          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
       </Box>
     </Box>

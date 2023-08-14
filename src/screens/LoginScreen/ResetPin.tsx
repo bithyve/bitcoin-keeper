@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, StatusBar } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -17,6 +17,7 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import { resetPin } from '../../store/sagaActions/login';
 
 export default function ResetPin(props) {
+  const { colorMode } = useColorMode();
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
@@ -110,11 +111,10 @@ export default function ResetPin(props) {
     }
   }, [credsChanged]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (isPinChangedFailed) {
-      // todo
     }
-  }, [isPinChangedFailed]);
+  }, [isPinChangedFailed]); */
 
   useEffect(() => {
     if (passcode === confirmPasscode) {
@@ -126,7 +126,7 @@ export default function ResetPin(props) {
 
   return (
     <LinearGradient
-      colors={['light.gradientStart', 'light.gradientEnd']}
+      colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
       style={styles.linearGradient}
     >
       <Box style={styles.wrapper}>
@@ -136,10 +136,10 @@ export default function ResetPin(props) {
         <Box style={styles.wrapper}>
           <Box>
             <Box>
-              <Text style={styles.titleText} color="light.white">
+              <Text style={styles.titleText} color={`${colorMode}.white`}>
                 {login.ResetPasscode}
               </Text>
-              <Text style={styles.labelText} color="light.white">
+              <Text style={styles.labelText} color={`${colorMode}.white`}>
                 {login.Createpasscode}
               </Text>
 
@@ -148,7 +148,7 @@ export default function ResetPin(props) {
               {/*  */}
             </Box>
             <Box>
-              <Text style={styles.labelText} color="light.white">
+              <Text style={styles.labelText} color={`${colorMode}.white`}>
                 {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>
@@ -168,7 +168,7 @@ export default function ResetPin(props) {
                 />
                 {/*  */}
                 {passcode !== confirmPasscode && confirmPasscode.length === 4 && (
-                  <Text color="light.error" style={styles.errorText}>
+                  <Text color={`${colorMode}.error`} style={styles.errorText}>
                     {login.MismatchPasscode}
                   </Text>
                 )}

@@ -1,5 +1,16 @@
+import { DerivationConfig } from 'src/store/sagas/wallets';
 import { Balances, BIP85Config, UTXO, Transaction } from '.';
 import { NetworkType, WalletType, VisibilityType, EntityKind, ScriptTypes } from '../enums';
+
+export interface WalletImportDetails {
+  // importing via mnemonic
+  mnemonic?: string;
+
+  // importing via xpriv/xpub
+  // extendedKey?: string;
+
+  derivationConfig: DerivationConfig;
+}
 
 export interface WalletDerivationDetails {
   instanceNum: number; // instance number of this particular walletType
@@ -20,11 +31,26 @@ export interface TransferPolicy {
   threshold: number;
 }
 
+export interface WhirlpoolWalletDetails {
+  walletId: string; // wallet id for the premix|postmix|badbank
+  walletType: WalletType;
+}
+export interface WhirlpoolConfig {
+  whirlpoolWalletDetails: WhirlpoolWalletDetails[]; // deatils for whirlpool wallets
+}
+
+export interface AddressCache {
+  external: {};
+  internal: {};
+}
+
 export interface WalletSpecs {
   xpub: string | null; // wallet's xpub
   xpriv?: string | null; // wallet's xpriv(not available for read-only wallets)
   nextFreeAddressIndex: number; // external-chain free address marker
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
+  receivingAddress?: string; // current receiving address(external chain)
+  addresses?: AddressCache; // cached addresses
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
@@ -32,6 +58,10 @@ export interface WalletSpecs {
   txNote: { [txId: string]: string }; // transaction note
   hasNewUpdates: boolean; // spec vars have a new update?
   lastSynched: number; // wallet's last sync timestamp
+}
+
+export interface CollaborativeWalletDetails {
+  descriptor: string; // descriptor for the collaborative wallet
 }
 
 export interface Wallet {
@@ -44,7 +74,10 @@ export interface Wallet {
   presentationData: WalletPresentationData;
   specs: WalletSpecs;
   scriptType: ScriptTypes;
-  transferPolicy: TransferPolicy;
+  transferPolicy?: TransferPolicy;
+  whirlpoolConfig?: WhirlpoolConfig;
+  depositWalletId?: string; // this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
+  collaborativeWalletDetails: CollaborativeWalletDetails;
 }
 
 export interface TriggerPolicy {

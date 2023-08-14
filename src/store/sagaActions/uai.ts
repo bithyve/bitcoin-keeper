@@ -1,4 +1,4 @@
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { uaiType } from 'src/common/data/models/interfaces/Uai';
 
 export const ADD_TO_UAI_STACK = 'ADD_TO_UAI_STACK';
 export const UAI_ACTIONED = 'UAI_ACTIONED';

@@ -5,8 +5,8 @@ import * as bitcoin from 'bitcoinjs-lib';
 const getKeystoneDetails = (qrData) => {
   const { derivationPath, xPub: xpub, mfp } = qrData;
   const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
-  let forMultiSig = false;
-  let forSingleSig = false;
+  let forMultiSig: boolean;
+  let forSingleSig: boolean;
   if (purpose && DerivationPurpose.BIP48.toString() === purpose) {
     forMultiSig = true;
     forSingleSig = false;

@@ -3,6 +3,8 @@ import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import _ from 'lodash';
 import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
+import { reduxStorage } from 'src/storage';
+import persistReducer from 'redux-persist/es/persistReducer';
 
 export interface VaultCreationPayload {
   hasNewVaultGenerationSucceeded: boolean;
@@ -33,6 +35,9 @@ export type VaultState = {
   error: string;
   introModal: boolean;
   sdIntroModal: boolean;
+  whirlpoolIntro: boolean;
+  tempShellId: string;
+  backupBSMSForIKS: boolean;
 };
 
 export type SignerUpdatePayload = {
@@ -53,6 +58,9 @@ const initialState: VaultState = {
   error: null,
   introModal: true,
   sdIntroModal: true,
+  whirlpoolIntro: true,
+  tempShellId: null,
+  backupBSMSForIKS: false,
 };
 
 const vaultSlice = createSlice({
@@ -60,8 +68,34 @@ const vaultSlice = createSlice({
   initialState,
   reducers: {
     addSigningDevice: (state, action: PayloadAction<VaultSigner[]>) => {
-      const newSigners = action.payload.filter((signer) => !!signer && !!signer.signerId);
-      state.signers = _.uniqBy([...state.signers, ...newSigners], 'signerId');
+      const newSigners = action.payload.filter((signer) => signer && signer.signerId);
+      if (newSigners.length === 0) {
+        return state;
+      }
+      let updatedSigners = [...state.signers];
+      if (newSigners.length === 1) {
+        const newSigner = newSigners[0];
+        const existingSignerIndex = updatedSigners.findIndex(
+          (signer) => signer.masterFingerprint === newSigner.masterFingerprint
+        );
+        if (existingSignerIndex !== -1) {
+          const existingSigner = updatedSigners[existingSignerIndex];
+          const combinedSigner: VaultSigner = {
+            ...newSigner,
+            lastHealthCheck: existingSigner.lastHealthCheck,
+            signerDescription: existingSigner.signerDescription,
+            xpubDetails: { ...existingSigner.xpubDetails, ...newSigner.xpubDetails },
+          };
+
+          updatedSigners[existingSignerIndex] = combinedSigner;
+        } else {
+          updatedSigners.push(newSigner);
+        }
+      } else {
+        updatedSigners.push(...newSigners);
+      }
+      updatedSigners = _.uniqBy(updatedSigners, 'signerId');
+      return { ...state, signers: updatedSigners };
     },
     removeSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
       const signerToRemove =
@@ -100,14 +134,21 @@ const vaultSlice = createSlice({
       state.isMigratingNewVault = isMigratingNewVault;
       state.intrimVault = intrimVault;
     },
-    updateIntrimVault: (state, action: PayloadAction<Vault>) => {
-      state.intrimVault = action.payload;
+    resetVaultMigration: (state) => {
+      state.isMigratingNewVault = false;
+      state.intrimVault = null;
+      state.hasMigrationSucceeded = false;
+      state.hasMigrationFailed = false;
+      state.error = null;
     },
     setIntroModal: (state, action: PayloadAction<boolean>) => {
       state.introModal = action.payload;
     },
     setSdIntroModal: (state, action: PayloadAction<boolean>) => {
       state.sdIntroModal = action.payload;
+    },
+    setWhirlpoolIntro: (state, action: PayloadAction<boolean>) => {
+      state.whirlpoolIntro = action.payload;
     },
     vaultMigrationCompleted: (state, action: PayloadAction<VaultMigrationCompletionPayload>) => {
       const { isMigratingNewVault, hasMigrationSucceeded, hasMigrationFailed, error } =
@@ -117,6 +158,18 @@ const vaultSlice = createSlice({
       state.hasMigrationFailed = hasMigrationFailed;
       state.error = error;
       state.intrimVault = null;
+    },
+    resetVaultFlags: (state) => {
+      (state.isGeneratingNewVault = false),
+        (state.hasNewVaultGenerationSucceeded = false),
+        (state.hasNewVaultGenerationFailed = false),
+        (state.error = null);
+    },
+    setTempShellId: (state, action: PayloadAction<string>) => {
+      state.tempShellId = action.payload;
+    },
+    setBackupBSMSForIKS: (state, action: PayloadAction<boolean>) => {
+      state.backupBSMSForIKS = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -135,11 +188,29 @@ export const {
   initiateVaultMigration,
   vaultMigrationCompleted,
   removeSigningDevice,
-  updateIntrimVault,
   setIntroModal,
   setSdIntroModal,
+  setWhirlpoolIntro,
   updateSigningDevice,
   clearSigningDevice,
+  resetVaultMigration,
+  setTempShellId,
+  setBackupBSMSForIKS,
+  resetVaultFlags,
 } = vaultSlice.actions;
 
-export default vaultSlice.reducer;
+const vaultPersistConfig = {
+  key: 'vault',
+  storage: reduxStorage,
+  blacklist: [
+    'isMigratingNewVault',
+    'intrimVault',
+    'introModal',
+    'sdIntroModal',
+    'whirlpoolIntro',
+    'tempShellId',
+    'backupBSMSForIKS',
+  ],
+};
+
+export default persistReducer(vaultPersistConfig, vaultSlice.reducer);

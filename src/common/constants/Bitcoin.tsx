@@ -6,31 +6,52 @@ import { HStack } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
 // asserts
-import DolarWhite from 'src/assets/images/icon_dollar_white.svg';
-import DolarGreen from 'src/assets/images/icon_dollar_green.svg';
-import Dolar from 'src/assets/images/icon_dollar.svg';
+import Colors from 'src/theme/Colors';
 import CurrencyKind from '../data/enums/CurrencyKind';
+import FiatCurrencies from '../FiatCurrencies';
 
 export const SATOSHIS_IN_BTC = 1e8;
 
-export const getAmount = (amountInSats: number) => {
-  //config.NETWORK_TYPE === NetworkType.MAINNET    disable sats mode
+export const BtcToSats = (amountInBtc: number) => {
+  if (amountInBtc !== 0) {
+    return (amountInBtc * SATOSHIS_IN_BTC).toFixed(0);
+  }
+  return amountInBtc;
+};
 
+export const SatsToBtc = (amountInSats: number) => {
   if (amountInSats !== 0) {
     if (amountInSats > 99) {
-      return (amountInSats / SATOSHIS_IN_BTC);
-    } else {
-      return (amountInSats / SATOSHIS_IN_BTC).toFixed(6);
+      return amountInSats / SATOSHIS_IN_BTC;
     }
+    return (amountInSats / SATOSHIS_IN_BTC).toFixed(6);
+  }
+  return amountInSats;
+};
+
+export const getAmount = (amountInSats: number, satsEnabled = false) => {
+  // config.NETWORK_TYPE === NetworkType.MAINNET    disable sats mode
+
+  if (satsEnabled === false && amountInSats !== 0) {
+    if (amountInSats > 99) {
+      return amountInSats / SATOSHIS_IN_BTC;
+    }
+    return (amountInSats / SATOSHIS_IN_BTC).toFixed(6);
   }
   return numberWithCommas(amountInSats);
 };
 
 const numberWithCommas = (x) => (x ? x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 0);
 
-export const getAmt = (amountInSats: number, exchangeRates, currencyCode, currentCurrency) => {
+export const getAmt = (
+  amountInSats: number,
+  exchangeRates,
+  currencyCode,
+  currentCurrency,
+  satsEnabled = false
+) => {
   if (currentCurrency === CurrencyKind.BITCOIN) {
-    return getAmount(amountInSats);
+    return getAmount(amountInSats, satsEnabled);
   }
   if (exchangeRates && exchangeRates[currencyCode]) {
     return ((exchangeRates[currencyCode].last / SATOSHIS_IN_BTC) * amountInSats).toFixed(2);
@@ -40,11 +61,11 @@ export const getAmt = (amountInSats: number, exchangeRates, currencyCode, curren
 
 export const getNetworkAmount = (
   amountInSats: number,
-  textStyles = [{}],
-  scale = 1,
   exchangeRates,
   currencyCode,
-  currentCurrency
+  currentCurrency,
+  textStyles = [{}],
+  scale = 1
 ) => {
   let text: string;
   if (isTestnet()) {
@@ -68,10 +89,10 @@ export const getNetworkAmount = (
   );
 };
 
-export const getUnit = (currentCurrency) => {
+export const getUnit = (currentCurrency, satsEnabled = false) => {
   const isBitcoin = currentCurrency === CurrencyKind.BITCOIN;
   // disable sats mode
-  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET && false) {
+  if (isBitcoin && config.NETWORK_TYPE === NetworkType.TESTNET && satsEnabled) {
     return 'sats';
   }
   return '';
@@ -83,129 +104,79 @@ export const isTestnet = () => {
   }
   return false;
 };
+export function CurrencyIcon({ symbol, styles = {} }) {
+  return (
+    <Text
+      style={{
+        ...styles,
+        fontSize: 14,
+        letterSpacing: 0.5,
+        fontWeight: '900',
+        lineHeight: 18,
+      }}
+      bold
+    >
+      {symbol}
+    </Text>
+  );
+}
 
 export const getCurrencyImageByRegion = (
   currencyCode: string,
-  type: 'light' | 'green' | 'dark',
+  type: 'light' | 'green' | 'dark' | 'grey',
   currentCurrency: CurrencyKind,
   BTCIcon: any
 ) => {
-  const dollarCurrency = [
-    'USD',
-    'AUD',
-    'BBD',
-    'BSD',
-    'BZD',
-    'BMD',
-    'BND',
-    'KHR',
-    'CAD',
-    'KYD',
-    'XCD',
-    'FJD',
-    'GYD',
-    'HKD',
-    'JMD',
-    'LRD',
-    'NAD',
-    'NZD',
-    'SGD',
-    'SBD',
-    'SRD',
-    'TWD',
-    'USH',
-    'TTD',
-    'TVD',
-    'ZWD',
-    'MXN',
-    'COP',
-    'CLP',
-    'UYU',
-    'DOP',
-    'ARS',
-  ];
-  // These currencies also use the $ symbol although the currency is Peso 'MXN', 'COP', 'CLP', 'UYU', 'DOP', 'ARS'
-
-  const poundCurrency = ['EGP', 'FKP', 'GIP', 'GGP', 'IMP', 'JEP', 'SHP', 'SYP', 'GBP'];
-
-  if (currentCurrency !== CurrencyKind.BITCOIN && dollarCurrency.includes(currencyCode)) {
-    if (type == 'light') {
-      return <DolarWhite />;
-    }
-    if (type == 'green') {
-      return <DolarGreen />;
-    }
-    if (type == 'dark') {
-      return <Dolar />;
-    }
-  } else {
-    return <BTCIcon />;
+  const styles = {} as any;
+  switch (type) {
+    case 'light':
+      styles.color = Colors.White;
+      break;
+    case 'green':
+      styles.color = Colors.GenericViridian;
+      break;
+    case 'dark':
+      styles.color = Colors.RichGreen;
+      break;
+    case 'grey':
+      styles.color = Colors.PearlGrey;
+      styles.opacity = 0.7;
+      break;
+    default:
+      styles.color = Colors.White;
   }
+  if (currentCurrency !== CurrencyKind.BITCOIN) {
+    const currency = FiatCurrencies.find((c) => c.code === currencyCode);
+    if (currency) {
+      return <CurrencyIcon styles={styles} symbol={currency.symbol} />;
+    }
+    return null;
+  }
+  return <BTCIcon style={{ color: styles.color }} />;
+};
 
-  // using Dolar for now
-
-  // if (poundCurrency.includes(currencyCode)) {
-  //   if (type == 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_white.png')
-  //   } else if (type == 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_dark.png')
-  //   } else if (type == 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_gray.png')
-  //   } else if (type == 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_pound_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_pound_white.png')
-  // }
-
-  // if (currencyCode == 'DKK' || currencyCode == 'ISK' || currencyCode == 'SEK') {
-  //   if (type == 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_white.png')
-  //   } else if (type == 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_dark.png')
-  //   } else if (type == 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_gray.png')
-  //   } else if (type == 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_kr_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_kr_gray.png')
-  // }
-
-  // if (currencyCode == 'PLN') {
-  //   if (type == 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_white.png')
-  //   } else if (type == 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_dark.png')
-  //   } else if (type == 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_gray.png')
-  //   } else if (type == 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_pln_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_pln_gray.png')
-  // }
-
-  // if (currencyCode == 'THB') {
-  //   if (type == 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_white.png')
-  //   } else if (type == 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_dark.png')
-  //   } else if (type == 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_gray.png')
-  //   } else if (type == 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_thb_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_thb_gray.png')
-  // }
-
-  // if (currencyCode == 'CHF') {
-  //   if (type == 'light') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_white.png')
-  //   } else if (type == 'dark') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_dark.png')
-  //   } else if (type == 'gray') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_gray.png')
-  //   } else if (type == 'light_blue') {
-  //     return require('../../assets/images/currencySymbols/icon_chf_lightblue.png')
-  //   }
-  //   return require('../../assets/images/currencySymbols/icon_chf_gray.png')
-  // }
+export const getFiatIcon = (currencyCode: string, type: 'light' | 'green' | 'dark' | 'grey') => {
+  const currency = FiatCurrencies.find((c) => c.code === currencyCode);
+  const styles = {} as any;
+  switch (type) {
+    case 'light':
+      styles.color = Colors.White;
+      break;
+    case 'green':
+      styles.color = Colors.GenericViridian;
+      break;
+    case 'dark':
+      styles.color = Colors.RichGreen;
+      break;
+    case 'grey':
+      styles.color = Colors.PearlGrey;
+      styles.opacity = 0.7;
+      break;
+    default:
+      styles.color = Colors.White;
+  }
+  if (currency) {
+    return <CurrencyIcon styles={styles} symbol={currency.symbol} />;
+  }
+  return null;
 };

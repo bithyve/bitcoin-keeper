@@ -3,7 +3,7 @@ import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';
 
 const initialState: {
-  refreshUai: Boolean;
+  refreshUai: boolean;
 } = {
   refreshUai: true,
 };

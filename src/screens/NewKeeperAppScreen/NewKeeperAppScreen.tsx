@@ -1,9 +1,9 @@
 /* eslint-disable react/jsx-no-bind */
 /* eslint-disable react/no-unstable-nested-components */
-import { ActivityIndicator, StyleSheet, BackHandler } from 'react-native';
+import { ActivityIndicator, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import App from 'src/assets/images/app.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -13,27 +13,32 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { isTestnet } from 'src/common/constants/Bitcoin';
-import { Box, Image, Pressable } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
+import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
+import { isTestnet } from 'src/common/constants/Bitcoin';
+import openLink from 'src/utils/OpenLink';
+import Fonts from 'src/common/Fonts';
+import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
+import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from '../../store/sagaActions/notifications';
 
+
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       onPress={onPress}
-      backgroundColor="light.primaryBackground"
+      backgroundColor={`${colorMode}.seashellWhite`}
       flexDirection="row"
       alignItems="center"
-      width="90%"
+      width="100%"
       testID="btn_startNew"
       style={{ marginTop: hp(20), height: hp(110) }}
-      marginLeft="5%"
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
       <Box
-        backgroundColor="light.primaryBackground"
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
@@ -62,6 +67,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
 }
 
 function NewKeeperApp({ navigation }: { navigation }) {
+  const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { appImageRecoverd, appRecreated, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
@@ -128,52 +134,31 @@ function NewKeeperApp({ navigation }: { navigation }) {
     }
   }
 
-  const getSignUpModalContent = () => {
-    if (!isTestnet() && false) {
-      return {
-        title: 'Multisig security for your sats',
-        subTitle:
-          'The Vault, BIP85 wallets and Inheritance tools provide you with all you need to secure your sats',
-        assert: {
-          loader: require('src/assets/video/Loader.gif'),
-          height: 180,
-        },
-        message:
-          'The app is currently in trial and may not support all the features. Please reach out to the team for any questions or feedback.',
-      };
-    }
-    return {
-      title: 'Shake to send feedback',
-      subTitle: 'Shake your device to send us a bug report or a feature request',
-      assert: {
-        loader: require('src/assets/video/test-net.gif'),
-        height: 200,
-      },
-      message:
-        'This feature is *only* for the beta app. The developers will get your message along with other information from the app.',
-    };
-  };
+  const getSignUpModalContent = () => ({
+    title: 'Setting up your app',
+    subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
+    message:
+      'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
+  });
 
   function SignUpModalContent() {
     return (
-      <Box>
-        <Image
-          source={getSignUpModalContent().assert.loader}
-          style={{
-            width: wp(270),
-            height: hp(getSignUpModalContent().assert.height),
-            alignSelf: 'center',
-          }}
-        />
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65} width={wp(240)}>
+      <Box style={{ width: windowWidth * 0.7 }}>
+        <Box style={{ width: windowWidth * 0.7, marginBottom: hp(20) }}>
+          <LoadingAnimation />
+        </Box>
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
+        {!appCreated ? <Text color="light.greenText" fontSize={13} letterSpacing={0.65} pt={5}>
+          This step will take a few seconds. You would be able to proceed soon
+        </Text> : null}
       </Box>
     );
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content">
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
           <HeaderTitle
@@ -187,7 +172,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Box style={styles.tileContainer}>
           <Tile
             title="Start New"
-            subTitle="New wallets and vault"
+            subTitle="New wallets and Vault"
             Icon={<App />}
             onPress={() => {
               setInitiating(true);
@@ -205,6 +190,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             paddingTop={3}
             enableBack={false}
             headerTitleColor="black"
+            textPadding={0}
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -217,18 +203,25 @@ function NewKeeperApp({ navigation }: { navigation }) {
             }}
           />
         </Box>
-        {/* <Tile
-          title="Inheritance Keeper vault"
-          subTitle="Using signing devices"
-          onPress={() => {
-            navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-          }}
-          Icon={<Inheritance />} 
-        /> */}
+      </Box>
+      <Box style={styles.footerContainer}>
+        <Box style={styles.noteContainer}>
+          <Box opacity={1}>
+            <Text color="light.black" style={styles.title}>
+              Terms of Service
+            </Text>
+          </Box>
+          <Box style={styles.subTitleWrapper}>
+            <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
+            <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+          </Box>
+        </Box>
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -238,12 +231,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
           setInitiating(true);
         }}
         subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
+        subTitleWidth={wp(250)}
         showCloseIcon={false}
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -257,9 +250,25 @@ function NewKeeperApp({ navigation }: { navigation }) {
         subTitleWidth={wp(210)}
         showCloseIcon={false}
       />
+      <KeeperModal
+        dismissible={false}
+        close={() => { }}
+        visible={appCreationError}
+        title="Something went wrong"
+        subTitle="Please check your internet connection and try again."
+        Content={Box}
+        buttonText="Retry"
+        buttonCallback={() => {
+          setInitiating(true)
+        }}
+        subTitleColor="light.secondaryText"
+        subTitleWidth={wp(210)}
+        showCloseIcon={false}
+      />
     </ScreenWrapper>
   );
 }
+
 const styles = StyleSheet.create({
   titleWrapper02: {
     marginTop: hp(70),
@@ -273,8 +282,35 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   headerContainer: {
-    width: wp(280),
+    // width: wp(280),
   },
+  footerContainer: {
+    position: 'absolute',
+    bottom: 10,
+    width: wp(375),
+    margin: 20,
+  },
+  noteContainer: {
+    padding: 4,
+    width: wp(290)
+  },
+  title: {
+    fontSize: 15,
+    letterSpacing: 1.12,
+  },
+  subTitle: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+  },
+  termOfServiceText: {
+    fontSize: 12,
+    fontWeight: '400',
+    fontFamily: Fonts.FiraSansCondensedMediumItalic,
+  },
+  subTitleWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap'
+  }
 });
 
 export default NewKeeperApp;

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Pressable } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -25,6 +25,7 @@ type Props = {
 };
 
 function BackupWallet() {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { backupMethod } = useAppSelector((state) => state.bhr);
@@ -48,11 +49,11 @@ function BackupWallet() {
         onPress={onPress}
       >
         <Box width="100%">
-          <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
+          <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
             {title}
           </Text>
           {subTitle ? (
-            <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+            <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
               {subTitle}
             </Text>
           ) : null}
@@ -66,7 +67,7 @@ function BackupWallet() {
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <Box style={styles.wrapper} background="light.secondaryBackground">
+    <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
       <Box
         style={{
@@ -78,6 +79,7 @@ function BackupWallet() {
           subtitle={BackupWallet.backupWalletSubTitle}
           onPressHandler={() => navigation.goBack()}
           paddingTop={hp(5)}
+          paddingLeft={25}
         />
       </Box>
       <Box style={styles.optionWrapper}>
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
   optionWrapper: {
     alignItems: 'center',
     marginTop: hp(40),
-    padding: 25,
+    paddingHorizontal: 25,
   },
 });
 export default BackupWallet;

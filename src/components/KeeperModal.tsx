@@ -20,6 +20,9 @@ type ModalProps = {
   buttonBackground?: string[];
   buttonText?: string;
   buttonTextColor?: string;
+  secButtonTextColor?: string;
+  secondaryButtonText?: string;
+  secondaryCallback?: any;
   buttonCallback?: any;
   textColor?: string;
   subTitleColor?: string;
@@ -35,14 +38,17 @@ type ModalProps = {
 };
 
 KeeperModal.defaultProps = {
-  title: 'Title',
+  title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
   modalBackground: ['light.mainBackground', 'light.mainBackground'],
   buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
   buttonText: null,
   buttonTextColor: 'white',
-  buttonCallback: () => {},
+  secButtonTextColor: '#073E39',
+  buttonCallback: () => { },
+  secondaryButtonText: null,
+  secondaryCallback: () => { },
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -50,7 +56,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => {},
+  learnMoreCallback: () => { },
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
@@ -70,19 +76,21 @@ function KeeperModal(props: ModalProps) {
     buttonCallback,
     textColor,
     subTitleColor: ignored,
+    secondaryButtonText,
+    secondaryCallback,
     DarkCloseIcon,
     Content,
     dismissible,
     showButtons,
     learnMore,
     learnMoreCallback,
+    secButtonTextColor,
     closeOnOverlayClick,
     showCloseIcon,
     justifyContent,
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
-
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   if (!visible) {
     return null;
@@ -113,17 +121,23 @@ function KeeperModal(props: ModalProps) {
       <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
         <GestureHandlerRootView>
           <Box backgroundColor={{ linearGradient }} style={styles.container}>
-            <TouchableOpacity style={styles.close} onPress={close}>
-              {showCloseIcon ? getCloseIcon() : null}
-            </TouchableOpacity>
-            <Modal.Header style={styles.headerContainer}>
-              <Text style={styles.title} color={textColor}>
-                {title}
-              </Text>
-              <Text style={styles.subTitle} color={subTitleColor}>
-                {`${subTitle}`}
-              </Text>
-            </Modal.Header>
+            {showCloseIcon ? (
+              <TouchableOpacity style={styles.close} onPress={close}>
+                {getCloseIcon()}
+              </TouchableOpacity>
+            ) : null}
+            {title || subTitle ? (
+              <Modal.Header style={styles.headerContainer}>
+                <Text style={styles.title} color={textColor}>
+                  {title}
+                </Text>
+                {subTitle ? (
+                  <Text style={styles.subTitle} color={subTitleColor}>
+                    {`${subTitle}`}
+                  </Text>
+                ) : null}
+              </Modal.Header>
+            ) : null}
             <Modal.Body>
               <Content />
             </Modal.Body>
@@ -139,6 +153,15 @@ function KeeperModal(props: ModalProps) {
                   </Box>
                 ) : (
                   <Box />
+                )}
+                {!!secondaryButtonText && (
+                  <TouchableOpacity onPress={secondaryCallback}>
+                    <Box style={styles.secCta}>
+                      <Text style={styles.ctaText} color={secButtonTextColor} bold>
+                        {showButtons ? secondaryButtonText : null}
+                      </Text>
+                    </Box>
+                  </TouchableOpacity>
                 )}
                 {!!buttonText && (
                   <TouchableOpacity onPress={buttonCallback}>
@@ -165,7 +188,7 @@ const getStyles = (subTitleWidth) =>
     container: {
       borderRadius: 10,
       alignItems: 'center',
-      padding: '4%',
+      padding: '3%',
     },
     title: {
       fontSize: 19,
@@ -176,9 +199,17 @@ const getStyles = (subTitleWidth) =>
       letterSpacing: 1,
       width: subTitleWidth,
     },
-    cta: {
+    secCta: {
+      color: '#073E39',
       borderRadius: 10,
       width: wp(110),
+      height: hp(45),
+      justifyContent: 'center',
+      alignItems: 'flex-end',
+    },
+    cta: {
+      borderRadius: 10,
+      width: wp(120),
       height: hp(45),
       justifyContent: 'center',
       alignItems: 'center',
@@ -190,7 +221,7 @@ const getStyles = (subTitleWidth) =>
     close: {
       position: 'absolute',
       right: 20,
-      top: 20,
+      top: 16,
     },
     seeFAQs: {
       fontSize: 13,
@@ -210,6 +241,7 @@ const getStyles = (subTitleWidth) =>
       borderBottomWidth: 0,
       backgroundColor: 'transparent',
       width: '90%',
+      marginTop: wp(5)
     },
     bodyContainer: {
       width: '80%',

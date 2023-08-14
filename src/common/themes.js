@@ -1,7 +1,5 @@
 import Colors from 'src/theme/Colors';
-import {
-  extendTheme
-} from 'native-base';
+import { extendTheme } from 'native-base';
 import Fonts from './Fonts';
 
 export const customTheme = extendTheme({
@@ -54,7 +52,13 @@ export const customTheme = extendTheme({
     light: {
       primaryGreen: Colors.GenericViridian,
       primaryBackground: Colors.LightYellow,
+      primaryGreenBackground: Colors.pantoneGreen,
       mainBackground: Colors.LightWhite,
+      modalGreenBackground: Colors.CastletonGreen,
+      modalGreenContent: Colors.White,
+      modalWhiteBackground: Colors.LightWhite,
+      modalGreenTitle: Colors.Black,
+      modalAccentTitle: Colors.Black,
       white: Colors.White,
       primaryText: Colors.RichBlack,
       secondaryText: Colors.GraniteGray,
@@ -63,7 +67,7 @@ export const customTheme = extendTheme({
       greenText: Colors.RichGreen,
       greenText2: Colors.TropicalRainForest,
       accent: Colors.MacaroniAndCheese,
-      lightAccent: Colors.GoldCrayola,
+      lightAccent: Colors.MacaroniAndCheese,
       QrCode: Colors.WhiteCoffee,
       recieverAddress: Colors.DimGray,
       textInputBackground: Colors.Isabelline,
@@ -92,37 +96,88 @@ export const customTheme = extendTheme({
       error: Colors.CongoPink,
       black: Colors.Black,
       fadedGray: Colors.FadedGray,
+      fadedblue: Colors.FadeBlue,
+      dustySageGreen: Colors.DustySageGreen,
+      forestGreen: Colors.ForestGreen,
+      pantoneGreen: Colors.pantoneGreen,
+      seashellWhite: Colors.Seashell,
     },
     dark: {
-      black: Colors.Black,
+      primaryGreen: Colors.GenericViridian,
+      primaryBackground: Colors.LightYellowDark,
+      primaryGreenBackground: Colors.LightYellowDark,
+      mainBackground: Colors.LightWhite,
+      modalGreenBackground: Colors.LightYellowDark,
+      modalGreenContent: Colors.White,
+      modalWhiteBackground: Colors.LightYellowDark,
+      modalGreenTitle: Colors.TropicalRainForestDark,
+      modalAccentTitle: Colors.GoldCrayola,
+      white: Colors.Black,
+      primaryText: Colors.RichBlackDark,
+      secondaryText: Colors.GraniteGrayDark,
+      learnMoreBorder: Colors.GoldCrayola,
+      textBlack: Colors.DarkGreen,
+      greenText: Colors.RichGreenDark,
+      greenText2: Colors.TropicalRainForestDark,
+      accent: Colors.MacaroniAndCheese,
+      lightAccent: Colors.GoldCrayola,
+      QrCode: Colors.WhiteCoffee,
+      recieverAddress: Colors.DimGray,
+      textInputBackground: Colors.Isabelline,
+      secondaryBackground: Colors.Isabelline,
+      GreyText: Colors.RichBlackDark,
+      dateText: Colors.HookerGreen,
+      Border: Colors.CastletonGreen,
+      textColor: Colors.LightGray,
+      textColor2: Colors.DeepSpaceSparkleDark,
+      headerText: Colors.TropicalRainForest,
+      copyBackground: Colors.LightGray,
+      sendCardHeading: Colors.BlueGreen,
+      Glass: Colors.Glass,
+      TorLable: Colors.Menthol,
+      divider: Colors.GrayX11,
+      errorRed: Colors.CarmineRed,
+      textWallet: Colors.MediumJungleGreen,
+      indicator: Colors.OutrageousOrange,
+      addTransactionText: Colors.PineTree,
+      sendMax: Colors.JackoBean,
+      inActiveMsg: Colors.SpanishGray,
+      vaultCardText: Colors.Bisque,
+      satsDark: Colors.DeepSpaceGreen,
+      gradientStart: Colors.GenericViridian, // linearGradient
+      gradientEnd: Colors.DeepAquamarine, // linearGradient
+      error: Colors.CongoPink,
+      black: Colors.White,
+      fadedGray: Colors.FadedGray,
+      fadedblue: Colors.FadeBlue,
+      dustySageGreen: Colors.DustySageGreen,
+      forestGreen: Colors.ForestGreen,
+      pantoneGreen: Colors.pantoneGreenDark,
+      seashellWhite: Colors.SeashellDark,
     },
   },
   components: {
     Box: {
       variants: {
-        linearGradient: () => {
-          return {
-            backgroundColor: {
-              linearGradient: {
-                colors: ['light.gradientStart', 'light.gradientEnd'],
-                start: [0, 0],
-                end: [1, 1],
-              },
+        linearGradient: () => ({
+          backgroundColor: {
+            linearGradient: {
+              colors: ['light.gradientStart', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
             },
-          };
-        },
-        InactiveGradient: () => {
-          return {
-            backgroundColor: {
-              linearGradient: {
-                colors: ['light.gradientEnd', 'light.gradientEnd'],
-                start: [0, 0],
-                end: [1, 1],
-              },
+          },
+        }),
+        InactiveGradient: () => ({
+          backgroundColor: {
+            linearGradient: {
+              colors: ['light.gradientEnd', 'light.gradientEnd'],
+              start: [0, 0],
+              end: [1, 1],
             },
-          };
-        }
-      }
+          },
+        }),
+      },
     },
   },
   config: {

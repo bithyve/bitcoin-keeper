@@ -15,20 +15,26 @@ import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { captureError } from 'src/core/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { refreshWallets, updateSignerDetails } from '../sagaActions/wallets';
+import semver from 'semver';
+import { NodeDetail } from 'src/core/wallets/interfaces';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import {
+  refreshWallets,
+  updateSignerDetails,
+  addNewWhirlpoolWallets,
+} from '../sagaActions/wallets';
 import { createWatcher } from '../utilities';
 import {
   appImagerecoveryRetry,
   setAppImageError,
   setAppImageRecoverd,
   setAppRecoveryLoading,
-  setBackupLoading,
   setBackupType,
   setBackupWarning,
   setInvalidPassword,
@@ -48,24 +54,43 @@ import {
 import { BackupAction, BackupHistory, BackupType } from '../../common/data/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
+import { applyRestoreSequence } from './restoreUpgrade';
+import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
+import { generateSignerFromMetaData } from 'src/hardware';
+import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
+import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
+import { NewVaultInfo, addNewVaultWorker } from './wallets';
 
 export function* updateAppImageWorker({ payload }) {
-  const { wallet } = payload;
+  const { wallets } = payload;
   const { primarySeed, id, publicId, subscription, networkType, version }: KeeperApp = yield call(
     dbManager.getObjectByIndex,
     RealmSchema.KeeperApp
   );
   const walletObject = {};
   const encryptionKey = generateEncryptionKey(primarySeed);
-  if (wallet) {
-    const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
-    walletObject[wallet.id] = encrytedWallet;
+  if (wallets) {
+    for (const wallet of wallets) {
+      const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
+      walletObject[wallet.id] = encrytedWallet;
+    }
   } else {
     const wallets: Wallet[] = yield call(dbManager.getCollection, RealmSchema.Wallet);
     for (const index in wallets) {
       const wallet = wallets[index];
       const encrytedWallet = encrypt(encryptionKey, JSON.stringify(wallet));
       walletObject[wallet.id] = encrytedWallet;
+    }
+  }
+
+  const nodes: NodeDetail[] = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
+  const nodesToUpdate = [];
+  if (nodes && nodes.length > 0) {
+    for (const index in nodes) {
+      const node = nodes[index];
+      node.isConnected = false;
+      const encrytedNode = encrypt(encryptionKey, JSON.stringify(node));
+      nodesToUpdate.push(encrytedNode);
     }
   }
   try {
@@ -76,6 +101,7 @@ export function* updateAppImageWorker({ payload }) {
       networkType,
       subscription: JSON.stringify(subscription),
       version,
+      nodes: nodesToUpdate,
     });
     return response;
   } catch (err) {
@@ -89,8 +115,8 @@ export function* updateVaultImageWorker({
 }: {
   payload: {
     vault: Vault;
-    archiveVaultId?: String;
-    isUpdate?: Boolean;
+    archiveVaultId?: string;
+    isUpdate?: boolean;
   };
 }) {
   const { vault, archiveVaultId, isUpdate } = payload;
@@ -111,8 +137,8 @@ export function* updateVaultImageWorker({
   }
 
   const signersData: Array<{
-    signerId: String;
-    xfpHash: String;
+    signerId: string;
+    xfpHash: string;
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
@@ -143,6 +169,7 @@ export function* updateVaultImageWorker({
     if (archiveVaultId) {
       const response = yield call(Relay.updateVaultImage, {
         appID: id,
+        vaultShellId: vault.shellId,
         vaultId: vault.id,
         scheme: vault.scheme,
         signersData,
@@ -154,6 +181,7 @@ export function* updateVaultImageWorker({
     }
     const response = yield call(Relay.updateVaultImage, {
       appID: id,
+      vaultShellId: vault.shellId,
       vaultId: vault.id,
       scheme: vault.scheme,
       signersData,
@@ -184,7 +212,9 @@ function* seedBackeupConfirmedWorked({
       subtitle: '',
     });
     yield put(setSeedConfirmed(confirmed));
-  } catch (error) {}
+  } catch (error) {
+    //
+  }
 }
 
 function* seedBackedUpWorker() {
@@ -215,63 +245,59 @@ function* getAppImageWorker({ payload }) {
     const primarySeed = bip39.mnemonicToSeedSync(primaryMnemonic);
     const appID = crypto.createHash('sha256').update(primarySeed).digest('hex');
     const encryptionKey = generateEncryptionKey(primarySeed.toString('hex'));
-    const { appImage, vaultImage } = yield call(Relay.getAppImage, appID);
-    if (appImage) {
-      yield put(setAppImageRecoverd(true));
-      const entropy = yield call(
-        BIP85.bip39MnemonicToEntropy,
-        config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
-        primaryMnemonic
-      );
-      const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
-      const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
-      const app: KeeperApp = {
-        id: appID,
-        publicId,
-        primarySeed: primarySeed.toString('hex'),
-        primaryMnemonic,
-        imageEncryptionKey,
-        subscription: JSON.parse(appImage.subscription),
-        backup: {
-          method: BackupType.SEED,
-        },
-        version: DeviceInfo.getVersion(),
-        networkType: config.NETWORK_TYPE,
-      };
+    const { appImage, vaultImage, subscription, UTXOinfos, labels } = yield call(
+      Relay.getAppImage,
+      appID
+    );
 
-      yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
-
-      // Wallet recreation
-      if (appImage.wallets) {
-        for (const [key, value] of Object.entries(appImage.wallets)) {
-          const decrytpedWallet = JSON.parse(decrypt(encryptionKey, value));
-          yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
-          yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
-        }
-      }
-
-      // Vault recreation
-      if (vaultImage) {
-        const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
-        yield call(dbManager.createObject, RealmSchema.Vault, vault);
-      }
-      yield put(setAppId(appID));
-      // seed confirm for recovery
-      yield call(dbManager.createObject, RealmSchema.BackupHistory, {
-        title: BackupAction.SEED_BACKUP_CONFIRMED,
-        date: moment().unix(),
-        confirmed: true,
-        subtitle: 'Recovered using backup phrase',
+    // applying the restore upgrade sequence if required
+    const previousVersion = appImage.version;
+    const newVersion = DeviceInfo.getVersion();
+    if (semver.lt(previousVersion, newVersion)) {
+      yield call(applyRestoreSequence, {
+        previousVersion,
+        newVersion,
+        appImage,
+        vaultImage,
+        encryptionKey,
       });
-      yield put(setSeedConfirmed(true));
-      yield put(setBackupType(BackupType.SEED));
-      // create/add restored object for version
-      yield call(dbManager.createObject, RealmSchema.VersionHistory, {
-        version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
-        releaseNote: '',
-        date: new Date().toString(),
-        title: 'Restored version',
-      });
+    }
+    if (appImage && subscription) {
+      if (subscription.isValid) {
+        yield put(setAppImageRecoverd(true));
+        yield call(
+          recoverApp,
+          primaryMnemonic,
+          primarySeed,
+          encryptionKey,
+          appID,
+          subscription,
+          appImage,
+          vaultImage,
+          UTXOinfos,
+          labels
+        );
+      } else {
+        const plebSubscription = {
+          productId: SubscriptionTier.L1,
+          name: SubscriptionTier.L1,
+          level: AppSubscriptionLevel.L1,
+          icon: 'assets/ic_pleb.svg',
+          receipt: '',
+        };
+        yield call(
+          recoverApp,
+          primaryMnemonic,
+          primarySeed,
+          encryptionKey,
+          appID,
+          plebSubscription,
+          appImage,
+          vaultImage,
+          UTXOinfos,
+          labels
+        );
+      }
     }
   } catch (err) {
     console.log(err);
@@ -279,6 +305,142 @@ function* getAppImageWorker({ payload }) {
   } finally {
     yield put(setAppRecoveryLoading(false));
     yield put(appImagerecoveryRetry());
+  }
+}
+
+function* recoverApp(
+  primaryMnemonic,
+  primarySeed,
+  encryptionKey,
+  appID,
+  subscription,
+  appImage,
+  vaultImage,
+  UTXOinfos,
+  labels
+) {
+  const entropy = yield call(
+    BIP85.bip39MnemonicToEntropy,
+    config.BIP85_IMAGE_ENCRYPTIONKEY_DERIVATION_PATH,
+    primaryMnemonic
+  );
+  const imageEncryptionKey = generateEncryptionKey(entropy.toString('hex'));
+  const publicId = WalletUtilities.getFingerprintFromSeed(primarySeed);
+  const app: KeeperApp = {
+    id: appID,
+    publicId,
+    primarySeed: primarySeed.toString('hex'),
+    primaryMnemonic,
+    imageEncryptionKey,
+    subscription: {
+      level: subscription.level,
+      name: subscription.name,
+      productId: subscription.productId,
+      receipt: subscription.receipt,
+      icon: subscription.icon,
+    },
+    backup: {
+      method: BackupType.SEED,
+    },
+    version: DeviceInfo.getVersion(),
+    networkType: config.NETWORK_TYPE,
+  };
+
+  yield call(dbManager.createObject, RealmSchema.KeeperApp, app);
+  // Wallet recreation
+  if (appImage.wallets) {
+    for (const [key, value] of Object.entries(appImage.wallets)) {
+      const decrytpedWallet: Wallet = JSON.parse(decrypt(encryptionKey, value));
+      yield call(dbManager.createObject, RealmSchema.Wallet, decrytpedWallet);
+      if (decrytpedWallet?.whirlpoolConfig?.whirlpoolWalletDetails) {
+        yield put(addNewWhirlpoolWallets({ depositWallet: decrytpedWallet }));
+      }
+      //Collobrative Wallet Recreation
+      if (
+        decrytpedWallet?.collaborativeWalletDetails &&
+        decrytpedWallet?.collaborativeWalletDetails?.descriptor
+      ) {
+        const descriptor = decrytpedWallet?.collaborativeWalletDetails?.descriptor;
+        const parsedText: ParsedVauleText = parseTextforVaultConfig(descriptor);
+        if (parsedText) {
+          const signers: VaultSigner[] = [];
+          parsedText.signersDetails.forEach((config) => {
+            const signer = generateSignerFromMetaData({
+              xpub: config.xpub,
+              derivationPath: config.path,
+              xfp: config.masterFingerprint,
+              signerType: SignerType.KEEPER,
+              storageType: SignerStorage.WARM,
+              isMultisig: config.isMultisig,
+            });
+            signers.push(signer);
+          });
+
+          const { xpub: myXpub } = getCosignerDetails(decrytpedWallet, app.id);
+          const isValidDescriptor = signers.find((signer) => signer.xpub === myXpub);
+          if (!isValidDescriptor) {
+            throw new Error('Descriptor does not contain your key');
+          }
+
+          const vaultInfo: NewVaultInfo = {
+            vaultType: VaultType.COLLABORATIVE,
+            vaultScheme: parsedText.scheme,
+            vaultSigners: signers,
+            vaultDetails: {
+              name: 'Collborative Wallet',
+              description: `${parsedText.scheme.m} of ${parsedText.scheme.n} Multisig`,
+            },
+            collaborativeWalletId: decrytpedWallet.id,
+          };
+          yield call(addNewVaultWorker, {
+            payload: { newVaultInfo: vaultInfo, isRecreation: true },
+          });
+        }
+      }
+      yield put(refreshWallets([decrytpedWallet], { hardRefresh: true }));
+    }
+  }
+
+  // Vault recreation
+  if (vaultImage) {
+    const vault = JSON.parse(decrypt(encryptionKey, vaultImage.vault));
+
+    yield call(dbManager.createObject, RealmSchema.Vault, vault);
+  }
+
+  // UTXOinfo restore
+  if (UTXOinfos) {
+    yield call(dbManager.createObjectBulk, RealmSchema.UTXOInfo, UTXOinfos);
+  }
+  yield put(setAppId(appID));
+
+  //Labels Restore
+  if (labels) {
+    yield call(dbManager.createObjectBulk, RealmSchema.Tags, labels);
+  }
+
+  // seed confirm for recovery
+  yield call(dbManager.createObject, RealmSchema.BackupHistory, {
+    title: BackupAction.SEED_BACKUP_CONFIRMED,
+    date: moment().unix(),
+    confirmed: true,
+    subtitle: 'Recovered using backup phrase',
+  });
+  yield put(setSeedConfirmed(true));
+  yield put(setBackupType(BackupType.SEED));
+  // create/add restored object for version
+  yield call(dbManager.createObject, RealmSchema.VersionHistory, {
+    version: `${DeviceInfo.getVersion()}(${DeviceInfo.getBuildNumber()})`,
+    releaseNote: '',
+    date: new Date().toString(),
+    title: 'Restored version',
+  });
+
+  if (appImage.nodes) {
+    for (const node of appImage.nodes) {
+      const decrptedNode = JSON.parse(decrypt(encryptionKey, node));
+      yield call(dbManager.createObject, RealmSchema.NodeConnect, decrptedNode);
+    }
   }
 }
 
@@ -311,19 +473,15 @@ function* healthCheckSignerWorker({
   payload,
 }: {
   payload: {
-    vaultId: string;
-    signerId: string;
+    signers: VaultSigner[];
   };
 }) {
   try {
-    const { vaultId, signerId } = payload;
-    const vault: Vault = yield call(dbManager.getObjectById, RealmSchema.Vault, vaultId);
-    for (const signer of vault.signers) {
-      if (signer.signerId === signerId) {
-        const date = new Date();
-        yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
-        yield put(uaiActionedEntity(signer.signerId));
-      }
+    const { signers } = payload;
+    for (const signer of signers) {
+      const date = new Date();
+      yield put(updateSignerDetails(signer, 'lastHealthCheck', date));
+      yield put(uaiActionedEntity(signer.signerId, true));
     }
   } catch (err) {
     console.log(err);

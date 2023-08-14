@@ -2,15 +2,15 @@ import React, { useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import IconBitcoin from 'src/assets/images/icon_bitcoin.svg';
 import IconBitcoinWhite from 'src/assets/images/icon_bitcoin_white.svg';
 import IconDoller from 'src/assets/images/icon_dollar.svg';
-import IconDollerWhite from 'src/assets/images/icon_dollar_white.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import useBalance from 'src/hooks/useBalance';
 
 const styles = StyleSheet.create({
   container: {
@@ -23,8 +23,10 @@ const styles = StyleSheet.create({
 });
 
 function CurrencyTypeSwitch() {
+  const { colorMode } = useColorMode();
   const { currencyKind } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
+  const { getCurrencyIcon, getFiatCurrencyIcon } = useBalance();
 
   const changeType = () => {
     if (currencyKind === CurrencyKind.BITCOIN) {
@@ -41,12 +43,12 @@ function CurrencyTypeSwitch() {
   }, [currencyKind]);
 
   return (
-    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()}>
+    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID='btn_currencyToggle'>
       <LinearGradient
         start={[0, 0]}
         end={[1, 0]}
         style={styles.container}
-        colors={['light.gradientStart', 'light.gradientEnd']}
+        colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
       >
         <Box
           borderRadius={10}
@@ -65,12 +67,7 @@ function CurrencyTypeSwitch() {
             justifyContent="center"
             alignItems="center"
           >
-            {/* <FontAwesome
-              name={'dollar'}
-              size={16}
-              color={prefersBitcoin ? 'lightgray' : '#00836A'}
-            /> */}
-            {prefersBitcoin ? <IconDollerWhite /> : <IconDoller />}
+            {prefersBitcoin ? getFiatCurrencyIcon('light') : getCurrencyIcon(IconDoller, 'dark')}
           </Box>
           <Box
             height={7}
@@ -83,11 +80,6 @@ function CurrencyTypeSwitch() {
             justifyContent="center"
             alignItems="center"
           >
-            {/* <FontAwesome
-              name={'bitcoin'}
-              size={16}
-              color={prefersBitcoin ? '#00836A' : 'lightgray'}
-            /> */}
             {prefersBitcoin ? <IconBitcoin /> : <IconBitcoinWhite />}
           </Box>
         </Box>

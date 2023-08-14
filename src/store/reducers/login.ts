@@ -1,5 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface ElectrumClientConnectionStatusPayload {
+  successful: boolean;
+  connectedTo?: string;
+  error?: string;
+}
+
 export const initialState: {
   hasCreds: boolean;
   isAuthenticated: boolean;
@@ -17,6 +23,16 @@ export const initialState: {
   initializeRecoveryCompleted: boolean;
   key: string | null;
   appCreationError: boolean;
+  recepitVerificationError: boolean;
+  recepitVerificationFailed: boolean;
+  electrumClientConnectionStatus: {
+    inProgress: boolean;
+    success: boolean;
+    connectedTo: string;
+    failed: boolean;
+    error: string;
+    setElectrumNotConnectedErr: string;
+  };
 } = {
   hasCreds: false,
   isAuthenticated: false,
@@ -34,6 +50,16 @@ export const initialState: {
   initializeRecoveryCompleted: false,
   key: null,
   appCreationError: false,
+  recepitVerificationError: false,
+  recepitVerificationFailed: false,
+  electrumClientConnectionStatus: {
+    inProgress: false,
+    success: false,
+    connectedTo: null,
+    failed: false,
+    error: null,
+    setElectrumNotConnectedErr: '',
+  },
 };
 
 const loginSlice = createSlice({
@@ -76,6 +102,39 @@ const loginSlice = createSlice({
     setAppCreationError: (state, action: PayloadAction<boolean>) => {
       state.appCreationError = action.payload;
     },
+    setRecepitVerificationError: (state, action: PayloadAction<boolean>) => {
+      state.recepitVerificationError = action.payload;
+    },
+    setRecepitVerificationFailed: (state, action: PayloadAction<boolean>) => {
+      state.recepitVerificationFailed = action.payload;
+    },
+
+    electrumClientConnectionInitiated: (state) => {
+      state.electrumClientConnectionStatus = {
+        ...initialState.electrumClientConnectionStatus,
+        inProgress: true,
+      };
+    },
+    electrumClientConnectionExecuted: (
+      state,
+      action: PayloadAction<ElectrumClientConnectionStatusPayload>
+    ) => {
+      state.electrumClientConnectionStatus = {
+        inProgress: false,
+        success: action.payload.successful,
+        connectedTo: action.payload.connectedTo,
+        failed: !action.payload.successful,
+        error: action.payload.error,
+        setElectrumNotConnectedErr: '',
+      };
+    },
+    setElectrumNotConnectedErr: (state, action: PayloadAction<string>) => {
+      state.electrumClientConnectionStatus.setElectrumNotConnectedErr = action.payload;
+    },
+    resetElectrumNotConnectedErr: (state) => {
+      state.electrumClientConnectionStatus.setElectrumNotConnectedErr =
+        initialState.electrumClientConnectionStatus.setElectrumNotConnectedErr;
+    },
   },
 });
 
@@ -87,5 +146,11 @@ export const {
   setupLoading,
   setKey,
   setAppCreationError,
+  setRecepitVerificationError,
+  setRecepitVerificationFailed,
+  electrumClientConnectionInitiated,
+  electrumClientConnectionExecuted,
+  setElectrumNotConnectedErr,
+  resetElectrumNotConnectedErr,
 } = loginSlice.actions;
 export default loginSlice.reducer;

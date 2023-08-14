@@ -24,9 +24,8 @@ beforeAll(async () => {
 
 describe('Client', () => {
   it('Client can test connection', async () => {
-    assert.ok(!(await ElectrumClient.testConnection('35.177.46.45', false, 444)));
-    assert.ok(await ElectrumClient.testConnection('35.177.46.45', false, 50002));
-    assert.ok(await ElectrumClient.testConnection('electrum1.bluewallet.io', false, 443));
+    assert.ok(!(await ElectrumClient.testConnection('testnet.qtornado.com', false, 51002)));
+    assert.ok(await ElectrumClient.testConnection('electrumx-core.1209k.com', false, 50002));
   });
 
   it('Client can ping', async () => {

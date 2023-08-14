@@ -3,34 +3,30 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import moment from 'moment';
 
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { Transaction } from 'src/core/wallets/interfaces';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 
 import IconRecieve from 'src/assets/images/icon_received.svg';
 import UnconfirmedIcon from 'src/assets/images/pending.svg';
 import IconSent from 'src/assets/images/icon_sent.svg';
-import BtcBlack from 'src/assets/images/btc_black.svg';
+import IconArrow from 'src/assets/images/icon_arrow_grey.svg'
 import Text from 'src/components/KeeperText';
+import CurrencyInfo from 'src/screens/NewHomeScreen/components/CurrencyInfo';
 
 function TransactionElement({
   transaction,
-  onPress = () => {},
+  onPress = () => { },
 }: {
   transaction: Transaction;
   onPress?: () => void;
 }) {
   const { colorMode } = useColorMode();
-  const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mma');
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mmA');
+  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} testID="btn_transaction">
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
           {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
@@ -49,17 +45,25 @@ function TransactionElement({
         </Box>
         <Box style={styles.rowCenter}>
           {transaction.confirmations > 0 ? null : (
-            <Box paddingX={3}>
+            <Box style={styles.unconfirmIconWrapper}>
               <UnconfirmedIcon />
             </Box>
           )}
-          <Box>{getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BtcBlack)}</Box>
+          {/* <Box>{getCurrencyIcon(BtcBlack, 'dark')}</Box>
           <Text style={styles.amountText}>
-            {getAmt(transaction?.amount, exchangeRates, currencyCode, currentCurrency)}
+            {getBalance(transaction?.amount)}
             <Text color={`${colorMode}.dateText`} style={styles.unitText}>
-              {getUnit(currentCurrency)}
+              {getSatUnit()}
             </Text>
-          </Text>
+          </Text> */}
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={transaction?.amount}
+            fontSize={17}
+            color={`${colorMode}.dateText`}
+            variation={colorMode === 'light' ? "dark" : "light"}
+          />
+          <IconArrow />
         </Box>
       </Box>
     </TouchableOpacity>
@@ -72,7 +76,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: hp(25),
+    marginTop: hp(20),
     paddingVertical: 1,
   },
   rowCenter: {
@@ -108,5 +112,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     fontSize: hp(12),
   },
+  unconfirmIconWrapper: {
+    paddingHorizontal: 5
+  }
 });
 export default TransactionElement;

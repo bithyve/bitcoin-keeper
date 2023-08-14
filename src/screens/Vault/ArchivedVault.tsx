@@ -8,14 +8,10 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 // components and asserts
 import HeaderTitle from 'src/components/HeaderTitle';
 import BTC from 'src/assets/images/btc_black.svg';
-import Arrow from 'src/assets/images/icon_arrow.svg';
-import { getAmt } from 'src/common/constants/Bitcoin';
+import useBalance from 'src/hooks/useBalance';
 import { StyleSheet } from 'react-native';
 
 function ArchivedVault() {
@@ -23,9 +19,7 @@ function ArchivedVault() {
   const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => vault.archived);
-  const exchangeRates = useExchangeRates();
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind)
+  const { getBalance } = useBalance();
 
   function VaultItem({ vaultItem, index }: { vaultItem: Vault; index: number }) {
     return (
@@ -74,10 +68,7 @@ function ArchivedVault() {
                 marginLeft: wp(4),
               }}
             >
-              {getAmt(
-                vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed,
-                exchangeRates, currencyCode, currentCurrency
-              )}
+              {getBalance(vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed)}
             </Text>
           </Box>
           <Box flexDirection="row">
@@ -95,9 +86,7 @@ function ArchivedVault() {
             </Text>
           </Box>
         </Box>
-        <Box>
-          <Arrow />
-        </Box>
+        <Box>{/* <Arrow /> */}</Box>
       </Pressable>
     );
   }
@@ -110,7 +99,7 @@ function ArchivedVault() {
         title="Archived Vaults"
         subtitle="Previously used vaults"
         headerTitleColor="light.headerText"
-        paddingLeft={4}
+        paddingLeft={20}
         paddingTop={5}
       />
 

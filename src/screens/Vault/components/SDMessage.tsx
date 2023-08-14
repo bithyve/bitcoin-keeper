@@ -5,6 +5,7 @@ function getSDMessage({ type }: { type: SignerType }) {
     case SignerType.COLDCARD:
     case SignerType.LEDGER:
     case SignerType.PASSPORT:
+    case SignerType.BITBOX02:
     case SignerType.KEYSTONE: {
       return 'Register for full verification';
     }
@@ -31,6 +32,12 @@ function getSDMessage({ type }: { type: SignerType }) {
     }
     case SignerType.TREZOR: {
       return 'Manually verify addresses';
+    }
+    case SignerType.OTHER_SD: {
+      return 'Varies with different signer';
+    }
+    case SignerType.INHERITANCEKEY: {
+      return '';
     }
     default:
       return null;

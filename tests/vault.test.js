@@ -28,8 +28,7 @@ import {
   getWalletConfig,
 } from 'src/hardware';
 import {
-  COLDCARD_MS_EXPORT,
-  COLDCARD_SS_EXPORT,
+  COLDCARD_EXPORT,
   JADE_MS_EXPORT,
   JADE_SS_EXPORT,
   KEYSTONE_MS_EXPORT,
@@ -77,25 +76,20 @@ describe('Vault: Single-sig(1-of-1)', () => {
 
     const networkType = NetworkType.TESTNET;
     const network = WalletUtilities.getNetworkByType(networkType);
+
     const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
       primaryMnemonic,
       networkType
     );
-
-    mobileKey = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.MOBILE_KEY,
-      signerName: 'Mobile Key',
-      storageType: SignerStorage.WARM,
+    mobileKey = generateSignerFromMetaData({
       xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.MOBILE_KEY,
+      storageType: SignerStorage.WARM,
+      isMultisig: true,
       xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
+    });
   });
 
   test('vault factory: creating a 1-of-1 vault(mobile-key)', () => {
@@ -120,8 +114,7 @@ describe('Vault: Single-sig(1-of-1)', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qvndgkznthw8zghkwg5ayjjer473pxf8gu492j4');
   });
 
@@ -228,20 +221,15 @@ describe('Vault: Multi-sig(2-of-3)', () => {
       networkType
     );
 
-    mobileKey = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
-      type: SignerType.MOBILE_KEY,
-      signerName: 'Mobile Key',
-      storageType: SignerStorage.WARM,
+    mobileKey = generateSignerFromMetaData({
       xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.MOBILE_KEY,
+      storageType: SignerStorage.WARM,
+      isMultisig: true,
       xpriv,
-      xpubInfo: {
-        derivationPath,
-        xfp: masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
+    });
 
     // configure 2nd singer: signing server
     const signingServerXpub =
@@ -263,37 +251,27 @@ describe('Vault: Multi-sig(2-of-3)', () => {
         transactionAmount: 1000000,
       },
     };
-    signingServer = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(signingServerXpub, network),
-      type: SignerType.POLICY_SERVER,
-      signerName: 'Signing Server',
-      xpub: signingServerXpub,
-      xpubInfo: {
-        derivationPath: "m/48'/1'/99852'/1'",
-        xfp: 'EC9B478C',
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
+    signingServer = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
+      isMultisig: true,
       signerPolicy: policy,
-    };
+    });
 
     // configure 3rd singer: signing server
     seedwords = 'crisp sausage hunt resource green meat rude volume what bamboo flash extra';
     const seedwordSignerConfig = generateSeedWordsKey(seedwords, networkType);
-    softSigner = {
-      signerId: WalletUtilities.getFingerprintFromExtendedKey(seedwordSignerConfig.xpub, network),
-      type: SignerType.SEED_WORDS,
+    softSigner = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp: masterFingerprint,
+      signerType: SignerType.SEED_WORDS,
       storageType: SignerStorage.WARM,
-      signerName: 'Seed Words',
-      xpub: seedwordSignerConfig.xpub,
-      xpubInfo: {
-        derivationPath: seedwordSignerConfig.derivationPath,
-        xfp: seedwordSignerConfig.masterFingerprint,
-      },
-      lastHealthCheck: new Date(),
-      addedOn: new Date(),
-    };
+      isMultisig: true,
+    });
   });
 
   test('vault factory: creating a 2-of-3 vault', () => {
@@ -319,10 +297,9 @@ describe('Vault: Multi-sig(2-of-3)', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual(
-      'tb1qwge5tf2s48z7kqfeg6lck8yphrskvxds45jlev07dlqrjfa953zs44hgzu'
+      'tb1qfpv736j0fdxklevwsr5lhjdstl0xww82zxtnlzd0ew54qkajsn6qd8rwqd'
     );
   });
 
@@ -423,7 +400,9 @@ describe('Vault: Multi-sig(2-of-3)', () => {
     expect(token).toBeDefined();
 
     jest.setTimeout(10000);
+    const vaultId = '';
     const { signedPSBT } = await SigningServer.signPSBT(
+      vaultId,
       appId,
       token,
       serializedPSBT,
@@ -456,7 +435,7 @@ describe('Vault: AirGapping with Coldcard', () => {
   let coldcard; // Signer
 
   test('coldcard: extract xpub, derivation and master fingerprint from coldcard export format', () => {
-    extract = extractColdCardExport(COLDCARD_SS_EXPORT.data, COLDCARD_SS_EXPORT.rtdName);
+    extract = extractColdCardExport(COLDCARD_EXPORT.data, false);
     expect(extract).toHaveProperty('xpub');
     expect(extract).toHaveProperty('derivationPath');
     expect(extract).toHaveProperty('xfp');
@@ -471,9 +450,9 @@ describe('Vault: AirGapping with Coldcard', () => {
       signerType: SignerType.COLDCARD,
       storageType: SignerStorage.COLD,
     });
-    expect(coldcard).toHaveProperty('xpub', xpub);
-    expect(coldcard).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(coldcard).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(coldcard).toHaveProperty('xpub');
+    expect(coldcard).toHaveProperty('derivationPath', derivationPath);
+    expect(coldcard).toHaveProperty('masterFingerprint', xfp);
     expect(coldcard).toHaveProperty('type', SignerType.COLDCARD);
     expect(coldcard).toHaveProperty('storageType', SignerStorage.COLD);
     expect(coldcard).toHaveProperty('signerName', getSignerNameFromType(SignerType.COLDCARD));
@@ -505,8 +484,7 @@ describe('Vault: AirGapping with Coldcard', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qclvfyg5v9gahygk5la56afevcnpdxt203609gp');
   });
 });
@@ -532,9 +510,9 @@ describe('Vault: AirGapping with SeedSigner', () => {
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
     });
-    expect(seedsigner).toHaveProperty('xpub', xpub);
-    expect(seedsigner).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(seedsigner).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(seedsigner).toHaveProperty('xpub');
+    expect(seedsigner).toHaveProperty('derivationPath', derivationPath);
+    expect(seedsigner).toHaveProperty('masterFingerprint', xfp);
     expect(seedsigner).toHaveProperty('type', SignerType.SEEDSIGNER);
     expect(seedsigner).toHaveProperty('storageType', SignerStorage.COLD);
     expect(seedsigner).toHaveProperty('signerName', getSignerNameFromType(SignerType.SEEDSIGNER));
@@ -566,8 +544,7 @@ describe('Vault: AirGapping with SeedSigner', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qae8ea8unjccsum9z75qvzhq6vauw88t503yrsf');
   });
 
@@ -609,9 +586,9 @@ describe('Vault: AirGapping with Keystone', () => {
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
     });
-    expect(keystone).toHaveProperty('xpub', xpub);
-    expect(keystone).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(keystone).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(keystone).toHaveProperty('xpub');
+    expect(keystone).toHaveProperty('derivationPath', derivationPath);
+    expect(keystone).toHaveProperty('masterFingerprint', xfp);
     expect(keystone).toHaveProperty('type', SignerType.KEYSTONE);
     expect(keystone).toHaveProperty('storageType', SignerStorage.COLD);
     expect(keystone).toHaveProperty('signerName', getSignerNameFromType(SignerType.KEYSTONE));
@@ -643,8 +620,7 @@ describe('Vault: AirGapping with Keystone', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qpzgrhkjdkkwwc2gs4zvsw0y02z9jm5v5gvp55c');
   });
 
@@ -689,9 +665,9 @@ describe('Vault: AirGapping with Passport', () => {
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
     });
-    expect(passport).toHaveProperty('xpub', xpub);
-    expect(passport).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(passport).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(passport).toHaveProperty('xpub');
+    expect(passport).toHaveProperty('derivationPath', derivationPath);
+    expect(passport).toHaveProperty('masterFingerprint', xfp);
     expect(passport).toHaveProperty('type', SignerType.PASSPORT);
     expect(passport).toHaveProperty('storageType', SignerStorage.COLD);
     expect(passport).toHaveProperty('signerName', getSignerNameFromType(SignerType.PASSPORT));
@@ -723,8 +699,7 @@ describe('Vault: AirGapping with Passport', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1qk2k65grkkct3pql0hfzjkl0app8eaxuhf5l206');
   });
 });
@@ -758,9 +733,9 @@ describe('Vault: AirGapping with Jade', () => {
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
     });
-    expect(jade).toHaveProperty('xpub', xpub);
-    expect(jade).toHaveProperty('xpubInfo.derivationPath', derivationPath);
-    expect(jade).toHaveProperty('xpubInfo.xfp', xfp);
+    expect(jade).toHaveProperty('xpub');
+    expect(jade).toHaveProperty('derivationPath', derivationPath);
+    expect(jade).toHaveProperty('masterFingerprint', xfp);
     expect(jade).toHaveProperty('type', SignerType.JADE);
     expect(jade).toHaveProperty('storageType', SignerStorage.COLD);
     expect(jade).toHaveProperty('signerName', getSignerNameFromType(SignerType.JADE));
@@ -792,8 +767,7 @@ describe('Vault: AirGapping with Jade', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual('tb1ql7vr9yn9u7qdsgfukyh5mt2ppv7njm93upu43c');
   });
 });
@@ -808,7 +782,7 @@ describe('Vault: Multi-sig(3-of-5)', () => {
   let jdExtract;
 
   test('signers: extract xpub, derivation and master fingerprint from thier export format', () => {
-    ccExtract = extractColdCardExport(COLDCARD_MS_EXPORT.data, COLDCARD_MS_EXPORT.rtdName);
+    ccExtract = extractColdCardExport(COLDCARD_EXPORT.data, true);
     ssExtract = getSeedSignerDetails(SEEDSIGNER_MS_EXPORT.data);
     let decoder = new URRegistryDecoder();
     let bytes = decodeURBytes(decoder, KEYSTONE_MS_EXPORT.data);
@@ -858,8 +832,8 @@ describe('Vault: Multi-sig(3-of-5)', () => {
 
     signers.map((signer, index) => {
       expect(signer).toHaveProperty('xpub', signer.xpub);
-      expect(signer).toHaveProperty('xpubInfo.derivationPath', signer.xpubInfo.derivationPath);
-      expect(signer).toHaveProperty('xpubInfo.xfp', signer.xpubInfo.xfp);
+      expect(signer).toHaveProperty('derivationPath', signer.derivationPath);
+      expect(signer).toHaveProperty('masterFingerprint', signer.masterFingerprint);
       expect(signer).toHaveProperty('type', signerTypes[index]);
       expect(signer).toHaveProperty('storageType', SignerStorage.COLD);
       expect(signer).toHaveProperty('signerName', getSignerNameFromType(signerTypes[index]));
@@ -893,8 +867,7 @@ describe('Vault: Multi-sig(3-of-5)', () => {
   });
 
   test('vault operations: generating a receive address', () => {
-    const { receivingAddress, updatedWallet } = WalletOperations.getNextFreeExternalAddress(vault);
-    vault = updatedWallet;
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(vault);
     expect(receivingAddress).toEqual(
       'tb1qlwglqfsh3t4a7tzpkllwqassfspwm783wfhc2z38wut7kuuu8syq8qrchz'
     );
