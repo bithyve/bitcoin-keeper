@@ -479,7 +479,7 @@ export interface NewVaultInfo {
   collaborativeWalletId?: string;
 }
 
-function* addNewVaultWorker({
+export function* addNewVaultWorker({
   payload,
 }: {
   payload: {
@@ -487,10 +487,11 @@ function* addNewVaultWorker({
     vault?: Vault;
     isMigrated?: boolean;
     oldVaultId?: string;
+    isRecreation?: boolean;
   };
 }) {
   try {
-    const { newVaultInfo, isMigrated, oldVaultId } = payload;
+    const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
     const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
       newVaultInfo;
@@ -513,6 +514,22 @@ function* addNewVaultWorker({
         networkType,
         vaultShellId,
         collaborativeWalletId,
+      });
+    }
+
+    if (collaborativeWalletId && !isRecreation) {
+      const hotWallet = yield call(
+        dbManager.getObjectById,
+        RealmSchema.Wallet,
+        collaborativeWalletId
+      );
+      const descriptor = genrateOutputDescriptors(vault);
+      yield call(updateWalletsPropertyWorker, {
+        payload: {
+          wallet: hotWallet,
+          key: 'collaborativeWalletDetails',
+          value: { descriptor },
+        },
       });
     }
     yield put(setRelayVaultUpdateLoading(true));
@@ -1115,9 +1132,10 @@ function* updateWalletsPropertyWorker({
     value: any;
   } = payload;
   try {
-    wallet[key] = value;
+    const updatedWallet = getJSONFromRealmObject(wallet);
+    updatedWallet[key] = value;
     yield put(setRelayWalletUpdateLoading(true));
-    const response = yield call(updateAppImageWorker, { payload: { wallets: [wallet] } });
+    const response = yield call(updateAppImageWorker, { payload: { wallets: [updatedWallet] } });
     if (response.updated) {
       yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, { [key]: value });
       yield put(relayWalletUpdateSuccess());
@@ -1125,6 +1143,7 @@ function* updateWalletsPropertyWorker({
       yield put(relayWalletUpdateFail(response.error));
     }
   } catch (err) {
+    captureError(err);
     yield put(relayWalletUpdateFail('Something went wrong!'));
   }
 }

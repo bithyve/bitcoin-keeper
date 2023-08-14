@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import TorAsset from 'src/components/Loader';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'src/components/KeeperGradient';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
@@ -20,6 +19,7 @@ import messaging from '@react-native-firebase/messaging';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
+import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { isTestnet } from 'src/common/constants/Bitcoin';
 import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
@@ -313,7 +313,7 @@ function LoginScreen({ navigation, route }) {
   function NoInternetModalContent() {
     return (
       <Box width={wp(250)}>
-        <DowngradeToPleb />
+        {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
         {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
         <Box mt={10} alignItems="center" flexDirection="row">
           <TouchableOpacity
@@ -328,7 +328,7 @@ function LoginScreen({ navigation, route }) {
             }}
             activeOpacity={0.5}
           >
-            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
               Continue as Pleb
             </Text>
           </TouchableOpacity>
@@ -506,7 +506,7 @@ function LoginScreen({ navigation, route }) {
         subTitle={modelSubTitle}
         modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
@@ -522,7 +522,9 @@ function LoginScreen({ navigation, route }) {
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
         Content={NoInternetModalContent}
-        subTitleColor="light.secondaryText"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
         showButtons

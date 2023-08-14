@@ -10,12 +10,13 @@ import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive'
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { WalletType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import AddWallet from 'src/assets/images/addWallet.svg';
 import ImportWallet from 'src/assets/images/importWallet.svg';
+import AddCollaborativeWalletIcon from 'src/assets/images/icon_collab.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
 import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -42,6 +43,8 @@ import {
 } from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Fonts from 'src/common/Fonts';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
@@ -50,6 +53,20 @@ import ListItemView from './components/ListItemView';
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(180);
 const VIEW_WIDTH = TILE_WIDTH + TILE_MARGIN;
+
+const calculateBalancesForVaults = (vaults) => {
+  let totalUnconfirmedBalance = 0;
+  let totalConfirmedBalance = 0;
+
+  vaults.forEach((vault) => {
+    const unconfirmedBalance = idx(vault, (_) => _.specs.balances.unconfirmed) || 0;
+    const confirmedBalance = idx(vault, (_) => _.specs.balances.confirmed) || 0;
+
+    totalUnconfirmedBalance += unconfirmedBalance;
+    totalConfirmedBalance += confirmedBalance;
+  });
+  return totalUnconfirmedBalance + totalConfirmedBalance;
+};
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
@@ -74,7 +91,7 @@ function WalletItem({
   setAddImportVisible,
 }: {
   currentIndex: number;
-  item: Wallet;
+  item: Wallet | Vault;
   index: number;
   walletIndex: number;
   navigation;
@@ -87,6 +104,8 @@ function WalletItem({
     return null;
   }
   const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
+  const isCollaborativeWallet =
+    item.entityKind === EntityKind.VAULT && item.type === VaultType.COLLABORATIVE;
   const isActive = index === walletIndex;
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
@@ -103,7 +122,14 @@ function WalletItem({
       ]}
     >
       <TouchableOpacity
-        onPress={() => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })}
+        onPress={
+          isCollaborativeWallet
+            ? () =>
+                navigation.navigate('VaultDetails', {
+                  collaborativeWalletId: item.collaborativeWalletId,
+                })
+            : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
+        }
       >
         {!(item?.presentationData && item?.specs) ? (
           <AddNewWalletTile
@@ -116,6 +142,7 @@ function WalletItem({
         ) : (
           <WalletTile
             isWhirlpoolWallet={isWhirlpoolWallet}
+            isCollaborativeWallet={isCollaborativeWallet}
             isActive={isActive}
             wallet={item}
             balances={item?.specs?.balances}
@@ -132,18 +159,19 @@ function WalletList({
   onViewRef,
   viewConfigRef,
   wallets,
+  collaborativeWallets,
   hideAmounts,
   setAddImportVisible,
 }: any) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
-
+  const items = [...wallets, ...collaborativeWallets];
   return (
     <Box style={styles.walletsContainer}>
       <FlatList
         horizontal
         showsHorizontalScrollIndicator={false}
-        data={wallets.concat({ isEnd: true })}
+        data={items.concat({ isEnd: true })}
         disableIntervalMomentum
         decelerationRate="fast"
         contentContainerStyle={{ paddingHorizontal: VIEW_WIDTH / 2 }}
@@ -167,7 +195,14 @@ function WalletList({
   );
 }
 
-function WalletTile({ isActive, wallet, balances, isWhirlpoolWallet, hideAmounts }) {
+function WalletTile({
+  isActive,
+  wallet,
+  balances,
+  isWhirlpoolWallet,
+  hideAmounts,
+  isCollaborativeWallet,
+}) {
   const { colorMode } = useColorMode();
   const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
   const { satsEnabled } = useAppSelector((state) => state.settings);
@@ -213,7 +248,9 @@ const WalletsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
   const { wallets } = useWallets();
-  const netBalance = useAppSelector((state) => state.wallet.netBalance);
+  const { collaborativeWallets } = useCollaborativeWallet();
+  const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
+  const netBalanceCollaborativeWallets = calculateBalancesForVaults(collaborativeWallets);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(false);
@@ -286,7 +323,25 @@ const WalletsScreen = ({ navigation }) => {
       //
     }
   }
-  function AddImportWallet() {
+  function AddImportWallet({ wallets, collaborativeWallets }) {
+    const addCollaborativeWallet = () => {
+      setAddImportVisible(false);
+      const collaborativeWalletsCount = collaborativeWallets.length;
+      const walletsCount = wallets.length;
+      if (collaborativeWalletsCount < walletsCount) {
+        navigation.navigate('SetupCollaborativeWallet', {
+          coSigner: wallets[collaborativeWalletsCount],
+          walletId: wallets[collaborativeWalletsCount].id,
+          collaborativeWalletsCount,
+        });
+      } else {
+        showToast(
+          'Please create a wallet before creating a colloraive walllet ',
+          <ToastErrorIcon />
+        );
+      }
+    };
+
     return (
       <Box>
         <MenuItemButton
@@ -311,6 +366,13 @@ const WalletsScreen = ({ navigation }) => {
           icon={<ImportWallet />}
           title="Import Wallet"
           subTitle="Manage wallets in other apps"
+          height={80}
+        />
+        <MenuItemButton
+          onPress={addCollaborativeWallet}
+          icon={<AddCollaborativeWalletIcon />}
+          title="Add Collaborative Wallet"
+          subTitle="Create, sign and view collaborative wallet"
           height={80}
         />
         <Box>
@@ -341,7 +403,7 @@ const WalletsScreen = ({ navigation }) => {
   function DowngradeModalContent() {
     return (
       <Box>
-        <DowngradeToPleb />
+        {colorMode === 'light' ? <DowngradeToPleb /> : <DowngradeToPlebDark />}
         {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
         <Box alignItems="center" flexDirection="row">
           <TouchableOpacity
@@ -352,7 +414,7 @@ const WalletsScreen = ({ navigation }) => {
             }}
             activeOpacity={0.5}
           >
-            <Text numberOfLines={1} style={styles.btnText} color="light.greenText" bold>
+            <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
               View Subscription
             </Text>
           </TouchableOpacity>
@@ -390,7 +452,8 @@ const WalletsScreen = ({ navigation }) => {
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
           <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_HotWallet">
-            {wallets?.length} Hot Wallet{wallets?.length > 1 && 's'}
+            {wallets?.length + collaborativeWallets?.length} Wallet
+            {wallets?.length + collaborativeWallets?.length > 1 && 's'}
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
             Keys on this app
@@ -399,7 +462,7 @@ const WalletsScreen = ({ navigation }) => {
         <Box style={styles.netBalanceView} testID="view_netBalance">
           <CurrencyInfo
             hideAmounts={hideAmounts}
-            amount={netBalance}
+            amount={netBalanceWallets + netBalanceCollaborativeWallets}
             fontSize={20}
             color={`${colorMode}.primaryText`}
             variation={colorMode === 'light' ? 'dark' : 'light'}
@@ -413,6 +476,7 @@ const WalletsScreen = ({ navigation }) => {
         onViewRef={onViewRef}
         viewConfigRef={viewConfigRef}
         wallets={wallets}
+        collaborativeWallets={collaborativeWallets}
         setAddImportVisible={() => setAddImportVisible(true)}
       />
       <Box style={styles.listItemsWrapper}>
@@ -483,7 +547,9 @@ const WalletsScreen = ({ navigation }) => {
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
-        subTitleColor="light.secondaryText"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
         closeOnOverlayClick={() => {}}
         showButtons
@@ -497,7 +563,9 @@ const WalletsScreen = ({ navigation }) => {
         modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
-        Content={() => <AddImportWallet />}
+        Content={() => (
+          <AddImportWallet wallets={wallets} collaborativeWallets={collaborativeWallets} />
+        )}
       />
       <KeeperModal
         visible={electrumErrorVisible}

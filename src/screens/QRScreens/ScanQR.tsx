@@ -1,6 +1,6 @@
-import { ActivityIndicator, StyleSheet } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, useColorMode } from 'native-base';
+import { Box, HStack, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
@@ -19,6 +19,7 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 import useNfcModal from 'src/hooks/useNfcModal';
+import { globalStyles } from 'src/common/globalStyles';
 import MockWrapper from '../Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
 
@@ -114,43 +115,48 @@ function ScanQR() {
       <MockWrapper signerType={type} enable={setup && type}>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
-          {!nfcVisible ? (
-            <>
-              <Box style={styles.qrcontainer}>
-                <RNCamera
-                  autoFocus="on"
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={onBarCodeRead}
-                  useNativeZoom
-                  notAuthorizedView={<CameraUnauthorized />}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContainer}
+          >
+            {!nfcVisible ? (
+              <VStack style={globalStyles.centerColumn}>
+                <Box style={styles.qrcontainer}>
+                  <RNCamera
+                    autoFocus="on"
+                    style={styles.cameraView}
+                    captureAudio={false}
+                    onBarCodeRead={onBarCodeRead}
+                    useNativeZoom
+                    notAuthorizedView={<CameraUnauthorized />}
+                  />
+                </Box>
+                <UploadImage onPress={handleChooseImage} />
+                <HStack>
+                  {qrPercent !== 100 && <ActivityIndicator />}
+                  <Text>{`Scanned ${qrPercent}%`}</Text>
+                </HStack>
+              </VStack>
+            ) : (
+              <Box style={styles.cameraView} />
+            )}
+            <Box style={styles.noteWrapper}>
+              <Box style={{ paddingBottom: '10%' }}>
+                <NFCOption
+                  signerType={type}
+                  nfcVisible={nfcVisible}
+                  closeNfc={closeNfc}
+                  withNfcModal={withNfcModal}
+                  setData={setData}
                 />
               </Box>
-              <UploadImage onPress={handleChooseImage} />
-              <HStack>
-                {qrPercent !== 100 && <ActivityIndicator />}
-                <Text>{`Scanned ${qrPercent}%`}</Text>
-              </HStack>
-            </>
-          ) : (
-            <Box style={styles.cameraView} />
-          )}
-          <Box style={styles.noteWrapper}>
-            <Box style={{ paddingBottom: '10%' }}>
-              <NFCOption
-                signerType={type}
-                nfcVisible={nfcVisible}
-                closeNfc={closeNfc}
-                withNfcModal={withNfcModal}
-                setData={setData}
+              <Note
+                title={common.note}
+                subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+                subtitleColor="GreyText"
               />
             </Box>
-            <Note
-              title={common.note}
-              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-              subtitleColor="GreyText"
-            />
-          </Box>
+          </ScrollView>
         </Box>
       </MockWrapper>
     </ScreenWrapper>
@@ -173,7 +179,11 @@ const styles = StyleSheet.create({
   noteWrapper: {
     width: '100%',
     bottom: 0,
-    position: 'absolute',
     paddingHorizontal: 10,
+  },
+  scrollContainer: {
+    minHeight: '80%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 });

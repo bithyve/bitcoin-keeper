@@ -40,9 +40,8 @@ export default ShowQR;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: '20%',
+    marginTop: '10%',
   },
   bottom: {
     padding: '3%',

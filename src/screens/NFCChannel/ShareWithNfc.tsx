@@ -12,6 +12,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Share from 'react-native-share';
 import RNFS from 'react-native-fs';
+import { Box } from 'native-base';
 
 function ShareWithNfc({ data }: { data: string }) {
   const { session } = useContext(HCESessionContext);
@@ -97,7 +98,7 @@ function ShareWithNfc({ data }: { data: string }) {
     }
   };
   return (
-    <>
+    <Box>
       {isIos && (
         <OptionCTA
           icon={<AirDropIcon />}
@@ -112,9 +113,8 @@ function ShareWithNfc({ data }: { data: string }) {
         subtitle="Bring device close to use NFC"
         callback={shareWithNFC}
       />
-
-      <NfcPrompt visible={visible} close={cleanUp} />
-    </>
+      <NfcPrompt visible={visible} close={cleanUp} ctaText="Done" />
+    </Box>
   );
 }
 
