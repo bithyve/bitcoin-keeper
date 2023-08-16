@@ -1,11 +1,10 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { Box, HStack, VStack, View, useColorMode, Pressable } from 'native-base';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import {
   FlatList,
   Linking,
-  Platform,
   RefreshControl,
   StatusBar,
   StyleSheet,
@@ -31,7 +30,8 @@ import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
-import { VaultMigrationType } from 'src/core/wallets/enums';
+import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
+import { SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
@@ -46,9 +46,9 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import AddPhoneEmailIcon from 'src/assets/images/AddPhoneEmail.svg';
+import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
-import useExchangeRates from 'src/hooks/useExchangeRates';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
@@ -59,15 +59,29 @@ import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
 
-function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
+function Footer({
+  vault,
+  onPressBuy,
+  isCollaborativeWallet,
+}: {
+  vault: Vault;
+  onPressBuy: Function;
+  isCollaborativeWallet: boolean;
+}) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const featureMap = useFeatureMap({ scheme: vault.scheme });
+  const featureMap = useFeatureMap({ scheme: vault.scheme, isCollaborativeWallet });
 
   const styles = getStyles(0);
   return (
     <Box>
-      <Box borderWidth={0.5} borderColor="light.GreyText" borderRadius={20} opacity={0.2} />
+      <Box
+        borderWidth={0.5}
+        borderColor={`${colorMode}.GreyText`}
+        borderRadius={20}
+        opacity={0.2}
+      />
       <Box flexDirection="row" justifyContent="space-between" marginX={10} marginTop={3}>
         <TouchableOpacity
           style={styles.IconText}
@@ -76,7 +90,7 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
           }}
         >
           <Send />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Send
           </Text>
         </TouchableOpacity>
@@ -89,29 +103,34 @@ function Footer({ vault, onPressBuy }: { vault: Vault; onPressBuy: Function }) {
           }}
         >
           <Recieve />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Receive
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            featureMap.vaultBuy ? onPressBuy : showToast('Please Upgrade');
+            featureMap.vaultBuy ? onPressBuy() : showToast('Please Upgrade');
           }}
         >
           <Buy />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Buy
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.navigate('VaultSettings');
+            navigation.dispatch(
+              CommonActions.navigate(
+                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+                { wallet: isCollaborativeWallet ? vault : vault }
+              )
+            );
           }}
         >
           <IconSettings />
-          <Text color="light.primaryText" style={styles.footerText}>
+          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
             Settings
           </Text>
         </TouchableOpacity>
@@ -133,17 +152,26 @@ function Header() {
         </TouchableOpacity>
       </Box>
       <Box width="50%">
-        <TouchableOpacity style={styles.knowMore} onPress={() => dispatch(setIntroModal(true))}>
-          <Text color="light.white" style={styles.footerText} light>
-            Learn More
-          </Text>
+        <TouchableOpacity onPress={() => dispatch(setIntroModal(true))}>
+          <Box style={styles.knowMore} backgroundColor="rgba(0,0,0,.2)">
+            <Text color="light.white" style={styles.footerText} light>
+              Learn More
+            </Text>
+          </Box>
         </TouchableOpacity>
       </Box>
     </Box>
   );
 }
 
-function VaultInfo({ vault }: { vault: Vault }) {
+function VaultInfo({
+  vault,
+  isCollaborativeWallet,
+}: {
+  vault: Vault;
+  isCollaborativeWallet: boolean;
+}) {
+  const { colorMode } = useColorMode();
   const {
     presentationData: { name, description } = { name: '', description: '' },
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -155,41 +183,39 @@ function VaultInfo({ vault }: { vault: Vault }) {
   return (
     <VStack paddingY={10}>
       <HStack alignItems="center">
-        <Box paddingRight={3}>
-          <VaultIcon />
-        </Box>
+        <Box paddingRight={3}>{isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}</Box>
         <VStack>
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={16}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={16}>
             {name}
           </Text>
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={12}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={12}>
             {description}
           </Text>
         </VStack>
       </HStack>
-      <HStack justifyContent="space-between">
+      <HStack justifyContent="space-between" top={isCollaborativeWallet ? '16' : '0'}>
         <VStack paddingTop="6">
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
             Unconfirmed
           </Text>
           <CurrencyInfo
             hideAmounts={false}
             amount={unconfirmed}
             fontSize={14}
-            color="light.white"
-            variation="grey"
+            color={`${colorMode}.white`}
+            variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
-          <Text color="light.white" style={styles.vaultInfoText} fontSize={11}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
             Available Balance
           </Text>
           <CurrencyInfo
             hideAmounts={false}
             amount={confirmed}
             fontSize={20}
-            color="light.white"
-            variation="light"
+            color={`${colorMode}.white`}
+            variation={colorMode === 'light' ? 'light' : 'dark'}
           />
         </VStack>
       </HStack>
@@ -197,9 +223,15 @@ function VaultInfo({ vault }: { vault: Vault }) {
   );
 }
 
-function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) {
+function TransactionList({
+  transactions,
+  pullDownRefresh,
+  pullRefresh,
+  vault,
+  isCollaborativeWallet,
+}) {
   const navigation = useNavigation();
-
+  const { colorMode } = useColorMode();
   const renderTransactionElement = ({ item }) => (
     <TransactionElement
       transaction={item}
@@ -215,9 +247,9 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * 0.13 }}>
+      <VStack style={{ paddingTop: windowHeight * (isCollaborativeWallet ? 0.03 : 0.13) }}>
         <HStack justifyContent="space-between" alignItems="center">
-          <Text color="light.textBlack" marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
           </Text>
           {transactions ? (
@@ -233,7 +265,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
             >
               <HStack alignItems="center">
                 <Text
-                  color="light.primaryGreen"
+                  color={`${colorMode}.primaryGreen`}
                   marginRight={2}
                   fontSize={11}
                   bold
@@ -266,6 +298,7 @@ function TransactionList({ transactions, pullDownRefresh, pullRefresh, vault }) 
 }
 
 function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationType; vault: Vault }) {
+  const { colorMode } = useColorMode();
   const { signers: Signers, isMultiSig } = vault;
   const styles = getStyles(0);
   const navigation = useNavigation();
@@ -298,7 +331,13 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               <AddIcon />
             </Box>
             <VStack pb={2}>
-              <Text color="light.white" fontSize={10} bold letterSpacing={0.6} textAlign="center">
+              <Text
+                color={`${colorMode}.white`}
+                fontSize={10}
+                bold
+                letterSpacing={0.6}
+                textAlign="center"
+              >
                 Add signing device to upgrade
               </Text>
             </VStack>
@@ -321,7 +360,12 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
           !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
 
         return (
-          <Box style={styles.signerCard} marginRight="3" key={signer.signerId}>
+          <Box
+            style={styles.signerCard}
+            marginRight="3"
+            key={signer.signerId}
+            backgroundColor={`${colorMode}.seashellWhite`}
+          >
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
@@ -351,7 +395,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               </Text>
               <VStack pb={2}>
                 <Text
-                  color="light.textBlack"
+                  color={`${colorMode}.black`}
                   fontSize={11}
                   letterSpacing={0.6}
                   textAlign="center"
@@ -360,7 +404,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                   {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
                 <Text
-                  color="light.textBlack"
+                  color={`${colorMode}.black`}
                   fontSize={8}
                   letterSpacing={0.6}
                   textAlign="center"
@@ -444,17 +488,34 @@ function RampBuyContent({
   );
 }
 
-function VaultDetails({ route, navigation }) {
-  const { vaultTransferSuccessful = false, autoRefresh } = route.params || {};
+function VaultDetails({ navigation }) {
+  const { colorMode } = useColorMode();
+  const route = useRoute() as {
+    params: {
+      vaultTransferSuccessful: boolean;
+      autoRefresh: boolean;
+      collaborativeWalletId: string;
+    };
+  };
+
+  const {
+    vaultTransferSuccessful = false,
+    autoRefresh = false,
+    collaborativeWalletId = '',
+  } = route.params || {};
 
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
   const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
-  const vault: Vault = useVault().activeVault;
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { activeVault: vault } = useVault(collaborativeWalletId);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const inheritanceSigner = vault.signers.filter(
+    (signer) => signer.type === SignerType.INHERITANCEKEY
+  )[0];
   const [tireChangeModal, setTireChangeModal] = useState(false);
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
@@ -486,10 +547,6 @@ function VaultDetails({ route, navigation }) {
     setPullRefresh(false);
   };
 
-  const closeVaultCreatedDialog = () => {
-    setVaultCreated(false);
-  };
-
   useEffect(() => {
     if (hasPlanChanged() !== VaultMigrationType.CHANGE) {
       setTireChangeModal(true);
@@ -518,13 +575,41 @@ function VaultDetails({ route, navigation }) {
 
   const NewVaultContent = useCallback(
     () => (
-      <View>
-        <Success />
-        <Text fontSize={13} letterSpacing={0.65} color="light.greenText" marginTop={3}>
+      <Box>
+        <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
           For sending out of the Vault you will need the signing devices. This means no one can
           steal your bitcoin in the Vault unless they also have the signing devices
         </Text>
-      </View>
+        <Box alignItems="center">
+          <Success />
+        </Box>
+        {inheritanceSigner && (
+          <Pressable
+            style={styles.addPhoneEmailWrapper}
+            backgroundColor={`${colorMode}.primaryBackground`}
+            onPress={() => {
+              navigation.navigate('IKSAddEmailPhone');
+              setVaultCreated(false);
+            }}
+          >
+            <Box style={styles.iconWrapper}>
+              <AddPhoneEmailIcon />
+            </Box>
+            <Box style={styles.titleWrapper}>
+              <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.primaryText`}>
+                Add Email
+              </Text>
+              <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.secondaryText`}>
+                Additionally you can provide an email which will be used to notify you when someone
+                tries to access the Inheritance Key
+              </Text>
+            </Box>
+            <Box style={styles.rightIconWrapper}>
+              <RightArrowIcon />
+            </Box>
+          </Pressable>
+        )}
+      </Box>
     ),
     []
   );
@@ -540,25 +625,27 @@ function VaultDetails({ route, navigation }) {
 
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`
-      : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
+      ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`
+      : `Vault with ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
   return (
-    <LinearGradient
-      colors={['#B17F44', '#6E4A35']}
+    <Box
       style={styles.container}
-      start={[-0.5, 1]}
-      end={[1, 1]}
+      backgroundColor={
+        collaborativeWalletId ? `${colorMode}.greenText2` : `${colorMode}.learnMoreBorder`
+      }
     >
       <VStack zIndex={1}>
         <VStack mx="8%" mt={5}>
           <Header />
-          <VaultInfo vault={vault} />
+          <VaultInfo vault={vault} isCollaborativeWallet={!!collaborativeWalletId} />
         </VStack>
-        <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
+        {collaborativeWalletId ? null : (
+          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
+        )}
       </VStack>
       <VStack
-        backgroundColor="light.primaryBackground"
+        backgroundColor={`${colorMode}.primaryBackground`}
         px={wp(28)}
         borderTopLeftRadius={20}
         flex={1}
@@ -570,11 +657,16 @@ function VaultDetails({ route, navigation }) {
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
           vault={vault}
+          isCollaborativeWallet={!!collaborativeWalletId}
         />
-        <Footer onPressBuy={() => setShowBuyRampModal(true)} vault={vault} />
+        <Footer
+          onPressBuy={() => setShowBuyRampModal(true)}
+          vault={vault}
+          isCollaborativeWallet={!!collaborativeWalletId}
+        />
       </VStack>
       <TierUpgradeModal
-        visible={tireChangeModal}
+        visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
             setTireChangeModal(false);
@@ -592,9 +684,14 @@ function VaultDetails({ route, navigation }) {
         title="New Vault Created"
         subTitle={subtitle}
         buttonText="View Vault"
-        subTitleColor="light.secondaryText"
-        buttonCallback={closeVaultCreatedDialog}
-        close={closeVaultCreatedDialog}
+        DarkCloseIcon={colorMode === 'dark'}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        textColor={`${colorMode}.primaryText`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        buttonCallback={() => {
+          setVaultCreated(false);
+        }}
+        close={() => setVaultCreated(false)}
         Content={NewVaultContent}
       />
       <KeeperModal
@@ -604,12 +701,12 @@ function VaultDetails({ route, navigation }) {
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`}
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
+        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
         buttonBackground={['#FFFFFF', '#80A8A1']}
         buttonText="Continue"
-        buttonTextColor="light.greenText"
+        buttonTextColor={`${colorMode}.greenText`}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}
@@ -635,7 +732,7 @@ function VaultDetails({ route, navigation }) {
           />
         )}
       />
-    </LinearGradient>
+    </Box>
   );
 }
 
@@ -664,13 +761,11 @@ const getStyles = (top) =>
       alignItems: 'center',
       justifyContent: 'space-between',
       padding: 5,
-      backgroundColor: '#FDF7F0',
     },
     scrollContainer: {
       padding: '8%',
     },
     knowMore: {
-      backgroundColor: '#725436',
       paddingHorizontal: 5,
       borderRadius: 8,
       borderWidth: 1,
@@ -735,6 +830,29 @@ const getStyles = (top) =>
       letterSpacing: 1.28,
       color: '#041513',
       width: wp(200),
+    },
+    addPhoneEmailWrapper: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginVertical: hp(20),
+      paddingVertical: hp(10),
+      borderRadius: 10,
+    },
+    iconWrapper: {
+      width: '15%',
+    },
+    titleWrapper: {
+      width: '75%',
+    },
+    addPhoneEmailTitle: {
+      fontSize: 14,
+    },
+    addPhoneEmailSubTitle: {
+      fontSize: 12,
+    },
+    rightIconWrapper: {
+      width: '10%',
     },
   });
 export default VaultDetails;

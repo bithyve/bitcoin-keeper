@@ -82,17 +82,17 @@ export default class InheritanceKeyServer {
    */
   static updateInheritanceConfig = async (
     vaultShellId: string,
-    existingThresholdIDescriptors: string[],
+    existingThresholdDescriptors: string[],
     newConfiguration: InheritanceConfiguration
   ): Promise<{
     updated: boolean;
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritancePolicy`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritanceConfig`, {
         HEXA_ID,
         vaultId: vaultShellId,
-        existingThresholdIDescriptors,
+        existingThresholdDescriptors,
         newConfiguration,
       });
     } catch (err) {

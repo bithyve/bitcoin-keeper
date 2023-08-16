@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 
 import { Box } from 'native-base';
@@ -31,10 +31,15 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import useVault from 'src/hooks/useVault';
+import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
+import useWallets from 'src/hooks/useWallets';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import SignerModals from './SignerModals';
 import SignerList from './SignerList';
 import {
   signTransactionWithColdCard,
+  signTransactionWithInheritanceKey,
   signTransactionWithMobileKey,
   signTransactionWithSeedWords,
   signTransactionWithSigningServer,
@@ -43,15 +48,23 @@ import {
 
 function SignTransactionScreen() {
   const { useQuery } = useContext(RealmWrapperContext);
-  const defaultVault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
-  const { signers, id: vaultId, scheme, shellId } = defaultVault;
   const route = useRoute();
-  const { note, label } = (route.params || { note: '', label: [] }) as {
+  const { note, label, collaborativeWalletId } = (route.params || {
+    note: '',
+    label: [],
+    collaborativeWalletId: '',
+  }) as {
     note: string;
     label: { name: string; isSystem: boolean }[];
+    collaborativeWalletId: string;
   };
+  const { activeVault: defaultVault } = useVault(collaborativeWalletId);
+  const { signers, id: vaultId, scheme, shellId } = defaultVault;
+  const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
+  let parentCollaborativeWallet: Wallet;
+  if (collaborativeWalletId) {
+    parentCollaborativeWallet = wallets.find((wallet) => wallet.id === collaborativeWalletId);
+  }
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const [coldCardModal, setColdCardModal] = useState(false);
@@ -95,7 +108,10 @@ function SignTransactionScreen() {
         index: 1,
         routes: [
           { name: 'NewHome' },
-          { name: 'VaultDetails', params: { vaultTransferSuccessful: true, autoRefresh: true } },
+          {
+            name: 'VaultDetails',
+            params: { vaultTransferSuccessful: true, autoRefresh: true, collaborativeWalletId },
+          },
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
@@ -117,18 +133,25 @@ function SignTransactionScreen() {
       navigation.dispatch(
         CommonActions.reset({
           index: 1,
-          routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
+          routes: [
+            { name: 'NewHome' },
+            { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+          ],
         })
       );
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
-  useEffect(
-    () => () => {
-      dispatch(sendPhaseThreeReset());
-    },
-    []
-  );
+  useEffect(() => {
+    defaultVault.signers.forEach((signer) => {
+      const isCoSignerMyself = signer.masterFingerprint === collaborativeWalletId;
+      if (isCoSignerMyself) {
+        // self sign PSBT
+        signTransaction({ signerId: signer.signerId });
+      }
+    });
+    return () => dispatch(sendPhaseThreeReset());
+  }, []);
 
   useEffect(() => {
     if (sendFailedMessage && broadcasting) {
@@ -159,10 +182,12 @@ function SignTransactionScreen() {
       signerId,
       signingServerOTP,
       seedBasedSingerMnemonic,
+      thresholdDescriptors,
     }: {
       signerId?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
+      thresholdDescriptors?: string[];
     } = {}) => {
       const activeId = signerId || activeSignerId;
       const currentSigner = signers.filter((signer) => signer.signerId === activeId)[0];
@@ -217,6 +242,14 @@ function SignTransactionScreen() {
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
+        } else if (SignerType.INHERITANCEKEY === signerType) {
+          const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
+            signingPayload,
+            serializedPSBT,
+            shellId,
+            thresholdDescriptors,
+          });
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
@@ -228,13 +261,23 @@ function SignTransactionScreen() {
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
+        } else if (SignerType.KEEPER === signerType) {
+          const signedSerializedPSBT = signCosignerPSBT(parentCollaborativeWallet, serializedPSBT);
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(healthCheckSigner([currentSigner]));
         }
       }
     },
     [activeSignerId, serializedPSBTEnvelops]
   );
 
-  const callbackForSigners = ({ type, signerId, signerPolicy }: VaultSigner) => {
+  const callbackForSigners = ({
+    type,
+    signerId,
+    signerPolicy,
+    inheritanceKeyInfo,
+    masterFingerprint,
+  }: VaultSigner) => {
     setActiveSignerId(signerId);
     if (areSignaturesSufficient()) {
       showToast('We already have enough signatures, you can now broadcast.');
@@ -292,6 +335,10 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
+        if (masterFingerprint === collaborativeWalletId) {
+          signTransaction({ signerId });
+          return;
+        }
         setKeeperModal(true);
         break;
       case SignerType.TREZOR:
@@ -306,6 +353,13 @@ function SignTransactionScreen() {
         break;
       case SignerType.OTHER_SD:
         setOtherSDModal(true);
+        break;
+      case SignerType.INHERITANCEKEY:
+        // if (inheritanceKeyInfo) {
+        //   const thresholdDescriptors = inheritanceKeyInfo.configuration.descriptors.slice(0, 2);
+        //   signTransaction({ signerId, thresholdDescriptors });
+        // } else showToast('Inheritance config missing');
+        showToast('Signing via Inheritance Key is not available', <ToastErrorIcon />);
         break;
       default:
         showToast(`action not set for ${type}`);
@@ -391,6 +445,8 @@ function SignTransactionScreen() {
         showOTPModal={showOTPModal}
         signTransaction={signTransaction}
         textRef={textRef}
+        isMultisig={defaultVault.isMultiSig}
+        collaborativeWalletId={collaborativeWalletId}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
     </ScreenWrapper>

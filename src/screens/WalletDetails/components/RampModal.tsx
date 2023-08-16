@@ -1,14 +1,16 @@
-import { Linking, StyleSheet, Text } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import React, { useCallback } from 'react';
 import KeeperModal from 'src/components/KeeperModal';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import { wp } from 'src/common/data/responsiveness/responsive';
+import Text from 'src/components/KeeperText';
 import GradientIcon from './GradientIcon';
 
 function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }) {
+  const { colorMode } = useColorMode();
   const buyWithRamp = (address: string) => {
     try {
       setShowBuyRampModal(false);
@@ -20,28 +22,28 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
 
   return (
     <Box style={styles.buyBtcWrapper}>
-      <Text color="#073B36" style={styles.buyBtcContent}>
+      <Text color={`${colorMode}.black`} style={styles.buyBtcContent}>
         By proceeding, you understand that Ramp will process the payment and transfer for the
         purchased bitcoin
       </Text>
-      <Box style={styles.toWalletWrapper}>
+      <Box style={styles.toWalletWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
         <GradientIcon Icon={WalletInsideGreen} height={35} gradient={['#FFFFFF', '#80A8A1']} />
         <Box style={styles.buyBtcCard}>
-          <Text style={styles.buyBtcTitle}>Bitcoin will be transferred to</Text>
-          <Text style={styles.presentationName}>{name}</Text>
+          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>Bitcoin will be transferred to</Text>
+          <Text style={styles.presentationName} color={`${colorMode}.black`}>{name}</Text>
           <Text
             style={styles.confirmBalanceText}
           >{`Balance: ${balance} sats`}</Text>
         </Box>
       </Box>
 
-      <Box style={styles.atViewWrapper}>
+      <Box style={styles.atViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
         <Box style={styles.atViewWrapper02}>
           <Text style={styles.atText}>@</Text>
         </Box>
         <Box style={styles.buyBtcCard}>
-          <Text style={styles.buyBtcTitle}>Address for ramp transactions</Text>
-          <Text style={styles.addressTextView} ellipsizeMode="middle" numberOfLines={1}>
+          <Text style={styles.buyBtcTitle} color={`${colorMode}.primaryText`}>Address for ramp transactions</Text>
+          <Text style={styles.addressTextView} color={`${colorMode}.black`} ellipsizeMode="middle" numberOfLines={1}>
             {receivingAddress}
           </Text>
         </Box>
@@ -61,6 +63,7 @@ function RampBuyContent({ balance, setShowBuyRampModal, receivingAddress, name }
 }
 
 function RampModal({ showBuyRampModal, setShowBuyRampModal, balance, receivingAddress, name }) {
+  const { colorMode } = useColorMode();
   const Content = useCallback(
     () => <RampBuyContent
       balance={balance}
@@ -78,8 +81,9 @@ function RampModal({ showBuyRampModal, setShowBuyRampModal, balance, receivingAd
       }}
       title="Buy bitcoin with Ramp"
       subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
-      subTitleColor="#5F6965"
-      textColor="light.primaryText"
+      modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+      subTitleColor={`${colorMode}.secondaryText`}
+      textColor={`${colorMode}.primaryText`}
       Content={Content}
     />
   );
@@ -102,7 +106,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     padding: 10,
-    backgroundColor: '#FDF7F0',
     flexDirection: 'row',
   },
   buyBtcCard: {
@@ -110,12 +113,10 @@ const styles = StyleSheet.create({
   },
   buyBtcTitle: {
     fontSize: 12,
-    color: '#5F6965',
   },
   presentationName: {
     fontSize: 19,
     letterSpacing: 1.28,
-    color: '#041513',
   },
   confirmBalanceText: {
     fontStyle: 'italic',
@@ -128,7 +129,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
-    backgroundColor: '#FDF7F0',
     flexDirection: 'row',
   },
   atViewWrapper02: {
@@ -146,7 +146,6 @@ const styles = StyleSheet.create({
   addressTextView: {
     width: wp(200),
     fontSize: 19,
-    color: '#041513',
   },
   ctcWrapper: {
     paddingRight: 5

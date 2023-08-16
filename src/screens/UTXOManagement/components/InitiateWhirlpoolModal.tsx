@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import Illustration7 from 'src/assets/images/illustration_7.svg'
 import { hp } from 'src/common/data/responsiveness/responsive';
@@ -22,14 +22,15 @@ function InitiateContent() {
     );
 }
 function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
+    const { colorMode } = useColorMode();
     return (
         <KeeperModal
             visible={visible}
             close={() => closeModal()}
             title="Whirlpool"
             subTitle="Dissociate your Personal Identifyable Information (PII) from your bitcoin."
-            modalBackground={['light.gradientStart', 'light.gradientEnd']}
-            textColor="light.white"
+            modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+            textColor={`${colorMode}.modalGreenContent`}
             Content={InitiateContent}
             DarkCloseIcon
             learnMore

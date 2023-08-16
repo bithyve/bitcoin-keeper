@@ -2,7 +2,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import * as bip39 from 'bip39';
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
@@ -71,10 +71,11 @@ export const enum ModalTypes {
 }
 
 export function BulletPoint({ text }: { text: string }) {
+  const { colorMode } = useColorMode();
   return (
     <Box style={styles.bulletContainer}>
-      <Box backgroundColor="light.greenText" style={styles.bulletPoint} />
-      <Text color="light.greenText" style={styles.infoText}>
+      <Box backgroundColor={`${colorMode}.greenText`} style={styles.bulletPoint} />
+      <Text color={`${colorMode}.greenText`} style={styles.infoText}>
         {text}
       </Text>
     </Box>
@@ -95,24 +96,23 @@ const getSignerContent = (
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
           ? [
-              ccInstructions,
-              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-            ]
+            ccInstructions,
+            `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+          ]
           : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
-        isMultisig ? 'MultiSig' : 'SingleSig'
-      } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
+        } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-              jadeInstructions,
-              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-            ]
+            jadeInstructions,
+            `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+          ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -145,24 +145,23 @@ const getSignerContent = (
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-              keystoneInstructions,
-              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-            ]
+            keystoneInstructions,
+            `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+          ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-              passportInstructions,
-              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-            ]
+            passportInstructions,
+            `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+          ]
           : [passportInstructions],
         title: 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -173,23 +172,22 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signing server will be made to checks it health']
           : [
-              `A 2FA authenticator will have to be set up to use this option.`,
-              `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
-            ],
+            `A 2FA authenticator will have to be set up to use this option.`,
+            `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
+          ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
         subTitle: 'A Signing Server will hold one of the keys of the Vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-              seedSignerInstructions,
-              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
-            ]
+            seedSignerInstructions,
+            `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it.`,
+          ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
@@ -604,6 +602,7 @@ function HardwareModalMap({
   signer?: VaultSigner;
   skipHealthCheckCallBack?: any;
 }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -919,7 +918,9 @@ function HardwareModalMap({
         buttonText="Proceed"
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
-        textColor="light.primaryText"
+        DarkCloseIcon={colorMode === 'dark'}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        textColor={`${colorMode}.primaryText`}
         Content={Content}
         secondaryButtonText={isHealthcheck ? 'Skip' : null}
         secondaryCallback={isHealthcheck ? skipHealthCheckCallBack : null}

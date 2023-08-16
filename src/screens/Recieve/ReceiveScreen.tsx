@@ -1,19 +1,19 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
 
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { Keyboard, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import React, { useContext, useEffect, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/btc_input.svg';
+import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/common/Fonts';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
-import TagsGreen from 'src/assets/images/tags.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
@@ -29,6 +29,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import MenuItemButton from '../../components/CustomButton/MenuItemButton';
 
 function ReceiveScreen({ route }: { route }) {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [amount, setAmount] = useState('');
@@ -63,14 +64,14 @@ function ReceiveScreen({ route }: { route }) {
       <View>
         <View style={styles.Container}>
           <View style={styles.inputParentView}>
-            <Box style={styles.inputWrapper01} backgroundColor="light.primaryBackground">
+            <Box style={styles.inputWrapper01} backgroundColor={`${colorMode}.seashellWhite`}>
               <View style={styles.btcIconWrapper}>
-                <BtcInput />
+                {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
               </View>
               <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
               <Input
                 placeholder={home.ConvertedAmount}
-                placeholderTextColor="light.greenText"
+                placeholderTextColor={`${colorMode}.greenText`}
                 style={styles.inputField}
                 borderWidth="0"
                 value={amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
@@ -98,20 +99,20 @@ function ReceiveScreen({ route }: { route }) {
           <AppNumPad
             setValue={setAmount}
             clear={() => setAmount('')}
-            color="light.greenText"
-            darkDeleteIcon
+            color={colorMode === 'light' ? "#041513" : "#FFF"}
+            darkDeleteIcon={colorMode === 'light'}
           />
         </View>
       </View>
     );
   }
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title={common.receive}
         subtitle="Native segwit address"
         onPressHandler={() => navigtaion.goBack()}
-        headerTitleColor="light.textBlack"
+        headerTitleColor={`${colorMode}.black`}
         paddingTop={hp(6)}
         paddingLeft={hp(25)}
       />
@@ -121,8 +122,8 @@ function ReceiveScreen({ route }: { route }) {
           logoBackgroundColor="transparent"
           size={hp(200)}
         />
-        <Box background="light.QrCode" style={styles.receiveAddressWrapper}>
-          <Text style={styles.receiveAddressText} color="light.recieverAddress">
+        <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
+          <Text style={styles.receiveAddressText} color={`${colorMode}.recieverAddress`}>
             Receive Address
           </Text>
         </Box>
@@ -136,12 +137,12 @@ function ReceiveScreen({ route }: { route }) {
         }}
         style={styles.inputContainer}
       >
-        <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+        <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text width="80%" marginLeft={4} numberOfLines={1}>
             {paymentURI || receivingAddress}
           </Text>
 
-          <Box backgroundColor="light.copyBackground" style={styles.copyIconWrapper}>
+          <Box backgroundColor={`${colorMode}.copyBackground`} style={styles.copyIconWrapper}>
             <CopyIcon />
           </Box>
         </Box>
@@ -179,7 +180,9 @@ function ReceiveScreen({ route }: { route }) {
         close={() => setModalVisible(false)}
         title={home.AddAmount}
         subTitle={home.amountdesc}
-        textColor="light.primaryText"
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
       />
     </ScreenWrapper>

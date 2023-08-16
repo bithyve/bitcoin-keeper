@@ -1,15 +1,17 @@
 import { Platform, StyleSheet, TextInput } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { CKTapCard } from 'cktap-protocol-react-native';
+
 import Text from 'src/components/KeeperText';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-
-import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { ScrollView } from 'react-native-gesture-handler';
 import { getTapsignerDetails, getTapsignerErrorMessage } from 'src/hardware/tapsigner';
-
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
-import { CKTapCard } from 'cktap-protocol-react-native';
+
 import HeaderTitle from 'src/components/HeaderTitle';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/core/services/nfc';
@@ -36,6 +38,7 @@ import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
 function SetupTapsigner({ route }) {
+  const { colorMode } = useColorMode();
   const [cvc, setCvc] = React.useState('');
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
@@ -157,7 +160,7 @@ function SetupTapsigner({ route }) {
   }, [cvc]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box flex={1}>
         <HeaderTitle
           title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
@@ -167,14 +170,15 @@ function SetupTapsigner({ route }) {
         />
         <MockWrapper signerType={SignerType.TAPSIGNER}>
           <ScrollView>
-            <TextInput
-              style={styles.input}
-              value={cvc}
-              onChangeText={setCvc}
-              secureTextEntry
-              showSoftInputOnFocus={false}
-            />
-            <Text style={styles.heading} color="light.greenText">
+            <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+              <TextInput
+                value={cvc}
+                onChangeText={setCvc}
+                secureTextEntry
+                showSoftInputOnFocus={false}
+              />
+            </Box>
+            <Text style={styles.heading} color={`${colorMode}.greenText`}>
               You will be scanning the TAPSIGNER after this step
             </Text>
             <Box style={styles.btnContainer}>
@@ -189,8 +193,9 @@ function SetupTapsigner({ route }) {
         </MockWrapper>
         <KeyPadView
           onPressNumber={onPressHandler}
-          keyColor="#041513"
           onDeletePressed={onDeletePressed}
+          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </Box>
@@ -212,8 +217,8 @@ const styles = StyleSheet.create({
     width: wp(305),
     height: 50,
     borderRadius: 10,
-    backgroundColor: '#f0e7dd',
     letterSpacing: 5,
+    justifyContent: 'center'
   },
   inputContainer: {
     alignItems: 'flex-end',

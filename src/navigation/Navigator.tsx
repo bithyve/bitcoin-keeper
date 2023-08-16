@@ -55,6 +55,7 @@ import SplashScreen from 'src/screens/Splash/SplashScreen';
 import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
+import ManageWallets from 'src/screens/AppSettings/ManageWallets';
 import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails';
 import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
@@ -90,6 +91,12 @@ import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDeta
 import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
+import CosignerDetails from 'src/screens/WalletDetailScreen/CosignerDetails';
+import WalletDetailsSettings from 'src/screens/WalletDetailScreen/WalletDetailsSettings';
+import CollabrativeWalletSettings from 'src/screens/WalletDetailScreen/CollabrativeWalletSettings';
+import ImportDescriptorScreen from 'src/screens/WalletDetailScreen/ImportDescriptor';
+import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
+import SetupCollaborativeWallet from 'src/screens/AddCollaborativeWallet/SetupCollaborativeWallet';
 import Login from '../screens/LoginScreen/Login';
 
 const defaultTheme = {
@@ -157,6 +164,7 @@ function AppStack() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="NewHomeScreen" component={NewHomeScreen} />
         <Stack.Screen name="NewHome" component={NewHomeScreen} />
+        <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
         <Stack.Screen name="SignWithTapsigner" component={SignWithTapsigner} />
@@ -164,6 +172,7 @@ function AppStack() {
         <Stack.Screen name="AppSettings" component={AppSettings} />
         <Stack.Screen name="AppVersionHistory" component={AppVersionHistory} />
         <Stack.Screen name="TorSettings" component={TorSettings} />
+        <Stack.Screen name="ManageWallets" component={ManageWallets} />
         <Stack.Screen name="SetupInheritance" component={SetupInheritance} />
         <Stack.Screen name="PreviewPDF" component={PreviewPDF} />
         <Stack.Screen name="InheritanceStatus" component={InheritanceStatus} />
@@ -178,6 +187,9 @@ function AppStack() {
         <Stack.Screen name="EnterWalletDetail" component={EnterWalletDetailScreen} />
         <Stack.Screen name="UpdateWalletDetails" component={UpdateWalletDetails} />
         <Stack.Screen name="EditWalletDetails" component={EditWalletSettings} />
+        <Stack.Screen name="WalletDetailsSettings" component={WalletDetailsSettings} />
+        <Stack.Screen name="ImportDescriptorScreen" component={ImportDescriptorScreen} />
+        <Stack.Screen name="CollaborativeWalletSettings" component={CollabrativeWalletSettings} />
         <Stack.Screen name="AddAmount" component={AddAmountScreen} />
         <Stack.Screen name="ExportSeed" component={ExportSeedScreen} />
         <Stack.Screen name="ImportWallet" component={ImportWalletScreen} />
@@ -220,6 +232,9 @@ function AppStack() {
         <Stack.Screen name="PoolSelection" component={PoolSelection} />
         <Stack.Screen name="BroadcastPremix" component={BroadcastPremix} />
         <Stack.Screen name="WhirlpoolConfiguration" component={WhirlpoolConfiguration} />
+        <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
+        <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
+        <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}
@@ -248,7 +263,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />

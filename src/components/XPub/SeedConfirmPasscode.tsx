@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
@@ -8,13 +8,15 @@ import { increasePinFailAttempts } from 'src/store/reducers/storage';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { credsAuth } from 'src/store/sagaActions/login';
 import LoginMethod from 'src/common/data/enums/LoginMethod';
-import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from '../Buttons';
 import Text from '../KeeperText';
 
 function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
+  const { colorMode } = useColorMode();
   const relogin = false;
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -95,10 +97,10 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
     <Box borderRadius={10}>
       <Box>
         {/* pin input view */}
-        <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor textColor />
+        <PinInputsView passCode={passcode} passcodeFlag={loginError} backgroundColor={colorMode === 'light'} textColor />
         {loginError &&
           <Text
-            color='light.indicator'
+            color={`${colorMode}.indicator`}
             style={{
               textAlign: 'right',
               fontStyle: 'italic'
@@ -126,8 +128,8 @@ function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
-          keyColor="#041513"
-          ClearIcon={<DeleteIcon />}
+          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
       </Box>
     </Box>

@@ -8,7 +8,7 @@ import {
   Linking,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Pressable } from 'native-base';
+import { Box, HStack, Pressable, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 // Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
@@ -48,10 +48,12 @@ import { urlParamsToObj } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
 import useWallets from 'src/hooks/useWallets';
+import useVault from 'src/hooks/useVault';
 import UaiDisplay from './UaiDisplay';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 function InheritanceComponent() {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { plan } = usePlan();
 
@@ -97,6 +99,7 @@ function InheritanceComponent() {
 }
 
 function LinkedWallets(props) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { wallets } = useWallets();
@@ -119,7 +122,7 @@ function LinkedWallets(props) {
       <Box
         backgroundColor={{
           linearGradient: {
-            colors: ['light.gradientStart', 'light.gradientEnd'],
+            colors: [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
             start: [0, 0],
             end: [1, 1],
           },
@@ -130,7 +133,7 @@ function LinkedWallets(props) {
           <LinkedWallet />
           <Box style={styles.linkedWalletContent}>
             <Text
-              color="light.white"
+              color={`${colorMode}.white`}
               fontSize={22}
               style={{
                 letterSpacing: 1.76,
@@ -160,7 +163,7 @@ function LinkedWallets(props) {
                 {getCurrencyIcon(BTC, 'grey')}
               </Box>
               <Text
-                color="light.white"
+                color={`${colorMode}.white`}
                 fontSize={hp(21)}
                 style={{
                   letterSpacing: 0.6,
@@ -169,7 +172,7 @@ function LinkedWallets(props) {
                 {getBalance(netBalance)}
               </Text>
               <Text
-                color="light.white"
+                color={`${colorMode}.white`}
                 style={{
                   paddingLeft: 3,
                   letterSpacing: 0.6,
@@ -198,16 +201,14 @@ function LinkedWallets(props) {
 }
 
 function VaultStatus(props) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
-  const Vault: Vault =
-    useQuery(RealmSchema.Vault)
-      .map(getJSONFromRealmObject)
-      .filter((vault) => !vault.archived)[0] || [];
+  const { activeVault: Vault } = useVault();
 
   const {
     specs: { balances: { confirmed, unconfirmed } } = {
@@ -263,15 +264,15 @@ function VaultStatus(props) {
   const getTorStatusColor = useMemo(() => {
     switch (torStatus) {
       case TorStatus.OFF:
-        return 'light.lightAccent';
+        return `${colorMode}.lightAccent`;
       case TorStatus.CONNECTING:
-        return 'light.lightAccent';
+        return `${colorMode}.lightAccent`;
       case TorStatus.CONNECTED:
         return '#c6ecae';
       case TorStatus.ERROR:
         return 'red.400';
       default:
-        return 'light.lightAccent';
+        return `${colorMode}.lightAccent`;
     }
   }, [torStatus]);
 
@@ -283,18 +284,18 @@ function VaultStatus(props) {
             <Box style={styles.torContainer}>
               {getTorStatusText !== 'Tor disabled' && (
                 <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
-                  <Text color="light.primaryText" style={styles.torText} bold>
+                  <Text color={`${colorMode}.primaryText`} style={styles.torText} bold>
                     {getTorStatusText}
                   </Text>
                 </Box>
               )}
             </Box>
             <Box style={styles.vaultBody}>
-              <Text color="light.white" style={styles.vaultHeading} bold>
+              <Text color={`${colorMode}.white`} style={styles.vaultHeading} bold>
                 Your Vault
               </Text>
 
-              <Text color="light.white" style={styles.vaultSubHeading} bold>
+              <Text color={`${colorMode}.white`} style={styles.vaultSubHeading} bold>
                 {!signers.length
                   ? 'Add a signing device to enable '
                   : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
@@ -344,11 +345,11 @@ function VaultStatus(props) {
               </Pressable>
             </HStack>
             <Pressable
-              backgroundColor="light.accent"
+              backgroundColor={`${colorMode}.accent`}
               style={styles.balanceToggleContainer}
               onPress={() => props.onAmountPress()}
             >
-              <Text color="light.sendMax" style={styles.balanceToggleText} bold>
+              <Text color={`${colorMode}.sendMax`} style={styles.balanceToggleText} bold>
                 {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
               </Text>
             </Pressable>
@@ -360,6 +361,7 @@ function VaultStatus(props) {
 }
 
 function VaultInfo() {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { uaiStack } = useUaiStack();
   const { plan } = usePlan();
@@ -381,7 +383,7 @@ function VaultInfo() {
     <Box
       backgroundColor={{
         linearGradient: {
-          colors: ['light.gradientStart', 'light.gradientEnd'],
+          colors: [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
           start: [0, 0],
           end: [1, 1],
         },
@@ -399,10 +401,10 @@ function VaultInfo() {
               {getPlanIcon()}
               <Box
                 backgroundColor="#015A53"
-                borderColor="light.white"
+                borderColor={`${colorMode}.white`}
                 style={styles.subscriptionTextContainer}
               >
-                <Text color="light.white" style={styles.subscriptionText}>
+                <Text color={`${colorMode}.white`} style={styles.subscriptionText}>
                   {plan}
                 </Text>
               </Box>
@@ -423,10 +425,11 @@ function VaultInfo() {
 }
 
 export function NextIcon({ pressHandler }) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable onPress={pressHandler}>
       <Box
-        backgroundColor="light.accent"
+        backgroundColor={`${colorMode}.accent`}
         height={hp(37.352)}
         width={hp(37.352)}
         borderRadius={20}
@@ -439,18 +442,20 @@ export function NextIcon({ pressHandler }) {
   );
 }
 function TransVaultSuccessfulContent() {
+  const { colorMode } = useColorMode();
   return (
     <Box>
       <Box alignSelf="center">
         <VaultIcon />
       </Box>
-      <Text color="light.greenText" fontSize={13} padding={2}>
+      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
         The transaction should be visible in the vault in some time.
       </Text>
     </Box>
   );
 }
 function HomeScreen({ navigation }) {
+  const { colorMode } = useColorMode();
   const [showHideAmounts, setShowHideAmounts] = useState(false);
   const [visibleModal, setVisibleModal] = useState(false);
   const { showToast } = useToastMessage();
@@ -530,7 +535,7 @@ function HomeScreen({ navigation }) {
         >
           <InheritanceComponent />
         </Pressable>
-        <LinkedWallets onAmountPress={() => { }} showHideAmounts={showHideAmounts} />
+        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
       </Box>
       {/* Modal */}
       <KeeperModal
@@ -539,8 +544,8 @@ function HomeScreen({ navigation }) {
         title="Transfer to Vault Successfull"
         subTitle="You have successfully transferred from your wallet to the vault"
         buttonText="View Vault"
-        textcolor="light.greenText"
-        buttonTextColor="light.white"
+        textcolor={`${colorMode}.greenText`}
+        buttonTextColor={`${colorMode}.white`}
         Content={TransVaultSuccessfulContent}
       />
     </Box>

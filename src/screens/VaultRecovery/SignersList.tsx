@@ -39,18 +39,13 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
-import moment from 'moment';
 import { generateKey } from 'src/core/services/operations/encryption';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { close } from '@sentry/react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
-
-function formatDuration(ms) {
-  const duration = moment.duration(ms);
-  return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
-}
+import { formatDuration } from './VaultRecovery';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -64,7 +59,12 @@ const getnavigationState = (type) => ({
   ],
 });
 
-export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices) => {
+export const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  signingDevices,
+  inheritanceRequestId
+) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
@@ -84,7 +84,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
         disabled: false,
       };
     case SignerType.INHERITANCEKEY:
-      if (signingDevices.length < 2) {
+      if (signingDevices.length < 2 || inheritanceRequestId) {
         return {
           message: 'Add two other devices first to recover',
           disabled: true,
@@ -548,51 +548,24 @@ function SignersList({ navigation }) {
     }
   };
 
-  const requestInheritanceKey = async (signers: VaultSigner[], requestId?: string) => {
+  const requestInheritanceKey = async (signers: VaultSigner[]) => {
     try {
-      if (!requestId) {
-        requestId = `request-${generateKey(10)}`;
-        dispatch(setInheritanceRequestId(requestId));
-      }
-
+      const requestId = `request-${generateKey(10)}`;
       const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
 
-      const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
+      const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
         vaultId,
         thresholdDescriptors
       );
 
-      if (requestStatus.isDeclined) {
-        showToast('Inheritance request has been declined', <ToastErrorIcon />);
-        return;
-      }
-
-      if (!requestStatus.isApproved) {
-        showToast(
-          `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
-          <TickIcon />
-        );
-      }
-
-      if (requestStatus.isApproved && setupInfo) {
-        const inheritanceKey = generateSignerFromMetaData({
-          xpub: setupInfo.inheritanceXpub,
-          derivationPath: setupInfo.derivationPath,
-          xfp: setupInfo.masterFingerprint,
-          signerType: SignerType.INHERITANCEKEY,
-          storageType: SignerStorage.WARM,
-          isMultisig: true,
-          inheritanceKeyInfo: {
-            configuration: setupInfo.configuration,
-            policy: setupInfo.policy,
-          },
-        });
-        dispatch(setSigningDevices(inheritanceKey));
-        navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
-        showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
-      }
+      showToast(
+        `Request would approve in ${formatDuration(requestStatus.approvesIn)} if not rejected`,
+        <TickIcon />
+      );
+      dispatch(setInheritanceRequestId(requestId));
+      navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
     } catch (err) {
       showToast(`${err}`, <ToastErrorIcon />);
     }
@@ -601,7 +574,6 @@ function SignersList({ navigation }) {
 
   function HardWareWallet({ disabled, message, type, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
-    const { inheritanceRequestId } = useAppSelector((state) => state.storage);
     const { signingDevices } = useAppSelector((state) => state.bhr);
 
     const onPress = () => {
@@ -835,7 +807,7 @@ function SignersList({ navigation }) {
           buttonText="Continue"
           buttonTextColor="light.white"
           buttonCallback={() => {
-            requestInheritanceKey(signingDevices, inheritanceRequestId);
+            requestInheritanceKey(signingDevices);
           }}
           textColor="light.primaryText"
         />
@@ -864,6 +836,8 @@ function SignersList({ navigation }) {
       </>
     );
   }
+
+  const { inheritanceRequestId } = useAppSelector((state) => state.storage);
 
   return (
     <ScreenWrapper>
@@ -895,7 +869,12 @@ function SignersList({ navigation }) {
             SignerType.POLICY_SERVER,
             SignerType.INHERITANCEKEY,
           ].map((type: SignerType, index: number) => {
-            const { disabled, message } = getDeviceStatus(type, isNfcSupported, signingDevices);
+            const { disabled, message } = getDeviceStatus(
+              type,
+              isNfcSupported,
+              signingDevices,
+              inheritanceRequestId
+            );
             return (
               <HardWareWallet
                 type={type}

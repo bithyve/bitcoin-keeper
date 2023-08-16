@@ -1,7 +1,7 @@
 import { TextInput } from 'react-native';
 // libraries
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/Tapsigner_brown.svg';
@@ -13,10 +13,11 @@ import Buttons from 'src/components/Buttons';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 
 function AddDescription({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
 
   return (
-    <Box style={styles.Container}>
+    <Box style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
       <StatusBarComponent padding={50} />
       <Box marginX={3}>
         <Box width={wp(200)}>
@@ -24,7 +25,7 @@ function AddDescription({ route }) {
             title="Add Description"
             subtitle="Optionally you can add a short description to the Signing Device"
             onPressHandler={() => navigation.goBack()}
-            headerTitleColor="light.textBlack"
+            headerTitleColor={`${colorMode}.textBlack`}
             paddingTop={hp(5)}
           />
         </Box>
@@ -35,7 +36,7 @@ function AddDescription({ route }) {
             <Text fontSize={14} letterSpacing={1.12}>
               TapSigner
             </Text>
-            <Text fontSize={10} letterSpacing={1} color="light.greenText">
+            <Text fontSize={10} letterSpacing={1} color={`${colorMode}.greenText`}>
               Added on 12 January 2022
             </Text>
           </Box>
@@ -48,16 +49,16 @@ function AddDescription({ route }) {
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
-            placeholderTextColor="light.greenText"
+            placeholderTextColor={`${colorMode}.greenText`}
           />
         </Box>
 
         <Box marginTop={hp(70)}>
           <Buttons
             primaryText="Proceed"
-            primaryCallback={() => {}}
+            primaryCallback={() => { }}
             secondaryText="Skip"
-            secondaryCallback={() => {}}
+            secondaryCallback={() => { }}
           />
         </Box>
       </Box>
@@ -69,7 +70,6 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-    backgroundColor: 'light.secondaryBackground',
   },
   linearGradient: {
     borderRadius: 6,

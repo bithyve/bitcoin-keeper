@@ -1,11 +1,12 @@
 import React from 'react';
 import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import { wp, hp } from 'src/common/data/responsiveness/responsive';
 import Text from './KeeperText';
 
 function CameraUnauthorized() {
+  const { colorMode } = useColorMode();
   const requestPermission = () => {
     Linking.openSettings();
   };
@@ -14,7 +15,7 @@ function CameraUnauthorized() {
     <View style={{ ...styles.cameraView, backgroundColor: '#000' }}>
       <Box style={styles.container}>
         <Text
-          color="light.white"
+          color={`${colorMode}.white`}
           style={{
             fontSize: 13,
           }}
@@ -22,7 +23,7 @@ function CameraUnauthorized() {
           Camera access is turned off
         </Text>
         <Text
-          color="light.white"
+          color={`${colorMode}.white`}
           style={{
             fontSize: 11,
           }}
@@ -36,11 +37,11 @@ function CameraUnauthorized() {
           }}
         >
           <Box
-            borderColor="light.learnMoreBorder"
-            backgroundColor="light.lightAccent"
+            borderColor={`${colorMode}.learnMoreBorder`}
+            backgroundColor={`${colorMode}.lightAccent`}
             style={styles.learnMoreContainer}
           >
-            <Text color="light.learnMoreBorder" style={styles.learnMoreText}>
+            <Text color={`${colorMode}.learnMoreBorder`} style={styles.learnMoreText}>
               Tap to go to settings
             </Text>
           </Box>

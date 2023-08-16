@@ -3,7 +3,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { getColdcardDetails } from 'src/hardware/coldcard';
 
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect } from 'react';
@@ -27,6 +27,7 @@ import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
 function SetupColdCard({ route }) {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { subscriptionScheme } = usePlan();
@@ -106,7 +107,7 @@ function SetupColdCard({ route }) {
 
   const instructions = `Export the xPub by going to Advanced/Tools > Export wallet > Generic JSON. From here choose the account number and transfer over NFC. Make sure you remember the account you had chosen (This is important for recovering your vault).\n`;
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={SignerType.COLDCARD}>
         <Box flex={1}>
           <Box style={styles.header}>

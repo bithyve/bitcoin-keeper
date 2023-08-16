@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView } from 'native-base';
+import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -23,7 +23,7 @@ import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
+import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
@@ -33,6 +33,7 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
+import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 
 type Props = {
   title: string;
@@ -41,6 +42,7 @@ type Props = {
 };
 
 function Option({ title, subTitle, onPress }: Props) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable
       style={styles.optionContainer}
@@ -49,14 +51,14 @@ function Option({ title, subTitle, onPress }: Props) {
     >
       <Box style={{ width: '96%' }}>
         <Text
-          color="light.primaryText"
+          color={`${colorMode}.primaryText`}
           style={styles.optionTitle}
           testID={`text_${title.replace(/ /g, '_')}`}
         >
           {title}
         </Text>
         <Text
-          color="light.GreyText"
+          color={`${colorMode}.GreyText`}
           style={styles.optionSubtitle}
           numberOfLines={2}
           testID={`text_${subTitle.replace(/ /g, '_')}`}
@@ -71,7 +73,57 @@ function Option({ title, subTitle, onPress }: Props) {
   );
 }
 
+function CollabrativeModalContent({
+  navigation,
+  wallet,
+  setCollaborativeModalVisible,
+  signPSBT,
+}: any) {
+  return (
+    <Box>
+      <Box>
+        <Option
+          title="View CoSigner Details"
+          subTitle="To create a collaborative wallet"
+          onPress={() => {
+            setCollaborativeModalVisible(false);
+            navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
+          }}
+        />
+        <Option
+          title="Import Output Descriptor"
+          subTitle="To view collaborative wallet"
+          onPress={() => {
+            setCollaborativeModalVisible(false);
+            navigation.dispatch(
+              CommonActions.navigate('ImportDescriptorScreen', { walletId: wallet.id })
+            );
+          }}
+        />
+        <Option
+          title="Sign a PSBT"
+          subTitle="Sign a collaborative transaction"
+          onPress={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ScanQR',
+                params: {
+                  title: `Scan PSBT to Sign`,
+                  subtitle: 'Please scan until all the QR data has been retrieved',
+                  onQrScan: signPSBT,
+                  type: SignerType.KEEPER,
+                },
+              })
+            );
+          }}
+        />
+      </Box>
+    </Box>
+  );
+}
+
 function WalletSettings({ route }) {
+  const { colorMode } = useColorMode();
   const { wallet: walletRoute, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
   const dispatch = useDispatch();
@@ -81,6 +133,8 @@ function WalletSettings({ route }) {
   const [cosignerVisible, setCosignerVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
+  const [collaborativeModalVisible, setCollaborativeModalVisible] = useState(false);
+
   const [addWalletCosigner, setAddWalletCosignerVisible] = useState(editPolicy);
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -153,20 +207,6 @@ function WalletSettings({ route }) {
     }
   }, [testCoinsReceived, testCoinsFailed]);
 
-  const signPSBT = (serializedPSBT) => {
-    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ShowQR',
-        params: {
-          data: signedSerialisedPSBT,
-          encodeToBytes: false,
-          title: 'Signed PSBT',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-        },
-      })
-    );
-  };
   function AddWalletCosignerContent() {
     return (
       <Box>
@@ -179,15 +219,44 @@ function WalletSettings({ route }) {
       </Box>
     );
   }
+
+  // const { collaborativeWallet } = useCollaborativeWallet(wallet.id);
+
+  // const collaborativeWalletCheck = () => {
+  //   if (collaborativeWallet) {
+  //     navigation.dispatch(
+  //       CommonActions.navigate('VaultDetails', { walletId: wallet.id, isCollaborativeWallet: true })
+  //     );
+  //   } else {
+  //     setCollaborativeModalVisible(true);
+  //   }
+  // };
+
+  const signPSBT = (serializedPSBT) => {
+    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'ShowQR',
+        params: {
+          data: signedSerialisedPSBT,
+          encodeToBytes: false,
+          title: 'Signed PSBT',
+          subtitle: 'Please scan until all the QR data has been retrieved',
+          type: SignerType.KEEPER,
+        },
+      })
+    );
+  };
+
   return (
-    <Box style={styles.Container} background="light.secondaryBackground">
+    <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
       <Box>
         <HeaderTitle
           title="Wallet Settings"
           subtitle="Setting for the wallet only"
           onPressHandler={() => navigation.goBack()}
-          headerTitleColor="light.textBlack"
+          headerTitleColor={`${colorMode}.black`}
           titleFontSize={20}
           paddingTop={hp(5)}
           paddingLeft={20}
@@ -223,28 +292,7 @@ function WalletSettings({ route }) {
             title="Wallet Details"
             subTitle="Change wallet name & description"
             onPress={() => {
-              navigation.navigate('EditWalletDetails', { wallet });
-            }}
-          />
-          <Option
-            title="Update Path"
-            subTitle="Change Derivation path"
-            onPress={() => {
-              navigation.navigate('UpdateWalletDetails', { wallet });
-            }}
-          />
-          <Option
-            title="Show xPub"
-            subTitle="Use to create an external, watch-only wallet"
-            onPress={() => {
-              setXPubVisible(true);
-            }}
-          />
-          <Option
-            title="Show Cosigner Details"
-            subTitle="Use this wallet as a signing device"
-            onPress={() => {
-              setCosignerVisible(true);
+              navigation.navigate('WalletDetailsSettings', { wallet });
             }}
           />
           <Option
@@ -254,13 +302,11 @@ function WalletSettings({ route }) {
               setConfirmPassVisible(true);
             }}
           />
-          <Option
-            title="Transfer Policy"
-            subTitle={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
-            onPress={() => {
-              setTransferPolicyVisible(true);
-            }}
-          />
+          {/* <Option
+            title="Collaborative Wallet"
+            subTitle="Create, sign and view multisig"
+            onPress={collaborativeWalletCheck}
+          /> */}
           {config.NETWORK_TYPE === NetworkType.TESTNET && (
             <Option
               title="Receive Test Sats"
@@ -271,27 +317,10 @@ function WalletSettings({ route }) {
               }}
             />
           )}
-
-          <Option
-            title="Sign PSBT"
-            subTitle="Sign a transaction if this wallet has been used as a co-signer"
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ScanQR',
-                  params: {
-                    title: `Scan PSBT to Sign`,
-                    subtitle: 'Please scan until all the QR data has been retrieved',
-                    onQrScan: signPSBT,
-                  },
-                })
-              );
-            }}
-          />
         </ScrollView>
       </Box>
       {/* {Bottom note} */}
-      <Box style={styles.note} backgroundColor="light.secondaryBackground">
+      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -305,8 +334,12 @@ function WalletSettings({ route }) {
           title={walletTranslation?.confirmPassTitle}
           subTitleWidth={wp(240)}
           subTitle={walletTranslation?.confirmPassSubTitle}
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <SeedConfirmPasscode
@@ -324,8 +357,12 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <ShowXPub
@@ -347,12 +384,16 @@ function WalletSettings({ route }) {
           title="Cosigner Details"
           subTitleWidth={wp(260)}
           subTitle="Scan the cosigner details from another app in order to add this as a signer"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
           buttonText="Done"
           buttonCallback={() => {
             setCosignerVisible(false);
-            // setAddWalletCosignerVisible(true) 
+            // setAddWalletCosignerVisible(true)
           }}
           Content={() => (
             <ShowXPub
@@ -374,8 +415,13 @@ function WalletSettings({ route }) {
           }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={[
+            `${colorMode}.modalWhiteBackground`,
+            `${colorMode}.modalWhiteBackground`,
+          ]}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           Content={() => (
             <TransferPolicy
               wallet={wallet}
@@ -404,6 +450,23 @@ function WalletSettings({ route }) {
           Content={AddWalletCosignerContent}
         />
       </Box>
+
+      {/* <KeeperModal
+        visible={collaborativeModalVisible}
+        close={() => {
+          setCollaborativeModalVisible(false);
+        }}
+        title="No Collaborative Wallet Created"
+        subTitle="Import a product descriptor or BSMS file to view a collaborative wallet"
+        Content={() => (
+          <CollabrativeModalContent
+            navigation={navigation}
+            wallet={wallet}
+            setCollaborativeModalVisible={setCollaborativeModalVisible}
+            signPSBT={signPSBT}
+          />
+        )}
+      /> */}
       {/* end */}
     </Box>
   );

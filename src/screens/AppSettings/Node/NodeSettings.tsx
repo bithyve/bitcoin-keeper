@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -29,6 +29,7 @@ import AddNode from './AddNodeModal';
 import Node from '../../../core/services/electrum/node';
 
 function NodeSettings() {
+  const { colorMode } = useColorMode();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -155,9 +156,8 @@ function NodeSettings() {
   const onSelectedNodeitem = (selectedItem: NodeDetail) => {
     setCurrentlySelectedNodeItem(selectedItem);
   };
-  console.log('windowHeight', windowHeight)
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground" barStyle="dark-content">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <HeaderTitle
         paddingLeft={25}
         title={settings.nodeSettings}
@@ -165,10 +165,10 @@ function NodeSettings() {
       />
       {/* <Box style={styles.nodeConnectSwitchWrapper}>
         <Box>
-          <Text color="light.primaryText" style={styles.connectToMyNodeTitle}>
+          <Text color={`${colorMode}.primaryText`} style={styles.connectToMyNodeTitle}>
             {settings.connectToMyNode}
           </Text>
-          <Text style={styles.appSettingSubTitle} color="light.secondaryText">
+          <Text style={styles.appSettingSubTitle} color={`${colorMode}.secondaryText`}>
             {settings.connectToMyNodeSubtitle}
           </Text>
         </Box>
@@ -193,7 +193,7 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={isConnected ? 'light.primaryBackground' : 'light.fadedGray'}
+                    backgroundColor={isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`}
                     style={[styles.nodeList]}
                   >
                     <Box
@@ -201,13 +201,13 @@ function NodeSettings() {
                         styles.nodeDetail,
                         {
                           backgroundColor: isConnected
-                            ? 'light.primaryBackground'
-                            : 'light.fadedGray',
+                            ? `${colorMode}.seashellWhite`
+                            : `${colorMode}.fadedGray`,
                         },
                       ]}
                     >
                       <Box style={{ width: '60%' }}>
-                        <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                        <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.host}
                         </Text>
                         <Text numberOfLines={1} style={styles.nodeTextValue}>
@@ -215,7 +215,7 @@ function NodeSettings() {
                         </Text>
                       </Box>
                       <Box>
-                        <Text color="light.secondaryText" style={[styles.nodeTextHeader]}>
+                        <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
                           {settings.portNumber}
                         </Text>
                         <Text style={styles.nodeTextValue}>{item.port}</Text>
@@ -240,7 +240,7 @@ function NodeSettings() {
                           </Text>
                         </Box>
                       </TouchableOpacity>
-                      <Box borderColor="light.GreyText" style={styles.verticleSplitter} />
+                      <Box borderColor={`${colorMode}.GreyText`} style={styles.verticleSplitter} />
                       <TouchableOpacity onPress={() => onDelete(item)}>
                         <Box style={[styles.actionArea, { paddingLeft: 10 }]}>
                           <DeleteIcon />
@@ -256,17 +256,18 @@ function NodeSettings() {
             }}
           />
         </Box>
-      )}
+      )
+      }
 
       <TouchableOpacity onPress={onAdd}>
-        <Box backgroundColor="#E3BE96" style={styles.addNewNode}>
+        <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
           <AddIcon />
           <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
         </Box>
       </TouchableOpacity>
 
-      <Box style={styles.note} backgroundColor="light.mainBackground">
-        <Note title={common.note} subtitle={settings.nodeSettingsNote} />
+      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
+        <Note title={common.note} subtitle={settings.nodeSettingsNote} subtitleColor="GreyText" />
       </Box>
 
       <KeeperModal
@@ -275,9 +276,10 @@ function NodeSettings() {
         close={closeAddNodeModal}
         title={settings.nodeDetailsTitle}
         subTitle={settings.nodeDetailsSubtitle}
-        subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
+        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         buttonBackground={['#00836A', '#073E39']}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
         buttonText=""
         buttonTextColor="#FAFAFA"
         buttonCallback={closeAddNodeModal}
@@ -289,10 +291,9 @@ function NodeSettings() {
           <ActivityIndicator color="#017963" size="large" />
         </View>
       </Modal>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
-console.log(windowHeight)
 const styles = StyleSheet.create({
   nodeConnectSwitchWrapper: {
     flexDirection: 'row',

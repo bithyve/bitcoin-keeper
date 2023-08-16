@@ -1,8 +1,9 @@
 import { StyleSheet } from 'react-native';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 // icons and images
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
@@ -18,6 +19,8 @@ import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
 import useFeatureMap from 'src/hooks/useFeatureMap';
+import TransactionElement from 'src/components/TransactionElement';
+
 
 import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';
 import WalletList from './components/WalletList';
@@ -26,6 +29,7 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
+
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -56,6 +60,7 @@ function Footer({ currentWallet, onPressBuyBitcoin }) {
 }
 
 function WalletDetails({ route }) {
+  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { autoRefresh } = route?.params || {};
@@ -158,7 +163,7 @@ function WalletDetails({ route }) {
                       marginLeft: 10,
                     }}
                   >
-                    <Text color="light.white" style={styles.walletName}>
+                    <Text color={`${colorMode}.white`} style={styles.walletName}>
                       {walletName}
                     </Text>
                     <Text
@@ -172,7 +177,7 @@ function WalletDetails({ route }) {
                   </Box>
                 </Box>
                 <Box>
-                  <Text color="light.white" style={styles.unconfirmedText}>
+                  <Text color={`${colorMode}.white`} style={styles.unconfirmedText}>
                     Unconfirmed
                   </Text>
                   <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -197,7 +202,7 @@ function WalletDetails({ route }) {
               </Box>
 
               <Box style={styles.walletBalance}>
-                <Text color="light.white" style={styles.walletName}>
+                <Text color={`${colorMode}.white`} style={styles.walletName}>
                   Available Balance
                 </Text>
                 <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -387,7 +392,7 @@ function WalletDetails({ route }) {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text color="light.primaryText" numberOfLines={2} style={styles.addNewWalletText}>
+          <Text color={`${colorMode}.primaryText`} numberOfLines={2} style={styles.addNewWalletText}>
             Add a new wallet or import one
           </Text>
         </Box>

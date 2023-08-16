@@ -14,11 +14,16 @@ interface FeatureMap {
 interface UseFeatureMapProps {
   walletIndex?: number;
   scheme?: VaultScheme;
+  isCollaborativeWallet?: boolean;
 }
 
 type useFeatureMapInterface = (props?: UseFeatureMapProps) => FeatureMap;
 
-const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
+const useFeatureMap: useFeatureMapInterface = ({
+  walletIndex,
+  scheme,
+  isCollaborativeWallet = false,
+}) => {
   const { useQuery } = useContext(RealmWrapperContext);
   const {
     subscription: { level },
@@ -44,7 +49,7 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
 
   useEffect(() => {
     const updatedFeatureMap: FeatureMap = {};
-    if (level < 2) {
+    if (level < 2 && !isCollaborativeWallet) {
       updatedFeatureMap.vaultBuy = false;
       if (scheme) {
         if (scheme.m !== 1 || scheme.n !== 1) {
@@ -57,10 +62,6 @@ const useFeatureMap: useFeatureMapInterface = ({ walletIndex, scheme }) => {
     }
     setFeatureMap((prevFeatureMap) => ({ ...prevFeatureMap, ...updatedFeatureMap }));
   }, [scheme]);
-
-  useEffect(() => {
-    // console.log(featureMap);
-  }, [featureMap]);
 
   return featureMap;
 };

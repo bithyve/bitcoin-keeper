@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
@@ -13,10 +13,11 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 
 function AppVersionHistory() {
+  const { colorMode } = useColorMode();
   const { publicId }: KeeperApp = dbManager.getObjectByIndex(RealmSchema.KeeperApp);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
       <Box style={styles.versionHistoryTitleWrapper} testID='view_VersionHistory'>
         <Text color="light.headerText" style={styles.versionHistoryTitle}>

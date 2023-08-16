@@ -9,7 +9,7 @@ import HWError from '../HWErrorState';
 
 export const registerToColcard = async ({ vault }: { vault: Vault }) => {
   const config = getWalletConfig({ vault });
-  const enc = NFC.encodeForColdCard(config);
+  const enc = NFC.encodeTextRecord(config);
   await NFC.send(NfcTech.Ndef, enc);
 };
 export const extractColdCardExport = (data, isMultisig) => {
@@ -39,7 +39,7 @@ export const getColdcardDetails = async (isMultisig: boolean) => {
 };
 
 export const signWithColdCard = async (message) => {
-  const psbtBytes = NFC.encodeForColdCard(message);
+  const psbtBytes = NFC.encodeTextRecord(message);
   return NFC.send([NfcTech.Ndef], psbtBytes);
 };
 

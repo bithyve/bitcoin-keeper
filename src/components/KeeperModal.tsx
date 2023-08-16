@@ -91,7 +91,6 @@ function KeeperModal(props: ModalProps) {
   } = props;
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
-
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
   if (!visible) {
     return null;
@@ -189,7 +188,7 @@ const getStyles = (subTitleWidth) =>
     container: {
       borderRadius: 10,
       alignItems: 'center',
-      padding: '4%',
+      padding: '3%',
     },
     title: {
       fontSize: 19,

@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, View } from 'native-base';
+import { Box, useColorMode, View } from 'native-base';
 
 import BtcInput from 'src/assets/images/btc_input.svg';
+import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { wp } from 'src/common/data/responsiveness/responsive';
-import DeleteIcon from 'src/assets/images/deleteBlack.svg';
+import DeleteDarkIcon from 'src/assets/images/delete.svg';
+import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
@@ -20,6 +22,7 @@ import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
 function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; close: () => void; secondaryBtnPress: () => void; }) {
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -71,36 +74,36 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
     }
   };
   return (
-    <Box backgroundColor="light.secondaryBackground" width={wp(275)} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.modalWhiteBackground`} width={wp(275)} borderRadius={10}>
       <Box justifyContent="center" alignItems="center">
-        <View
+        <Box
           marginX="5%"
           flexDirection="row"
           width="100%"
           justifyContent="center"
           alignItems="center"
           borderRadius={5}
-          backgroundColor="light.primaryBackground"
+          backgroundColor={`${colorMode}.seashellWhite`}
           padding={3}
         >
           <View marginLeft={4}>
-            <BtcInput />
+            {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
           </View>
           <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
             bold
             fontSize={15}
-            color="light.greenText"
+            color={`${colorMode}.greenText`}
             marginLeft={3}
             width="100%"
             letterSpacing={3}
           >
             {policyText && `${policyText} sats`}
           </Text>
-        </View>
+        </Box>
       </Box>
       <Box py={5}>
-        <Text fontSize={13} color="light.greenText" letterSpacing={0.65}>
+        <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
           This will trigger a transfer request which you need to approve
         </Text>
       </Box>
@@ -116,8 +119,8 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor="#041513"
-        ClearIcon={<DeleteIcon />}
+        keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
       />
       {relayWalletUpdateLoading && <ActivityIndicatorView visible={relayWalletUpdateLoading} />}
     </Box>

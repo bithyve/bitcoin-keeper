@@ -23,7 +23,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
-import { TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
@@ -47,6 +47,7 @@ import useBalance from 'src/hooks/useBalance';
 import CurrencyKind from 'src/common/data/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
+import useVault from 'src/hooks/useVault';
 import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
@@ -96,12 +97,9 @@ function SendConfirmation({ route }) {
   );
 
   const [transactionPriority, setTransactionPriority] = useState(TxPriority.LOW);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { wallets } = useWallets({ getAll: true });
   const sourceWallet = wallets.find((item) => item.id === walletId);
-  const defaultVault: Vault = useQuery(RealmSchema.Vault)
-    .map(getJSONFromRealmObject)
-    .filter((vault) => !vault.archived)[0];
+  const { activeVault: defaultVault } = useVault();
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
@@ -224,11 +222,21 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
+  const collaborativeWalletId =
+    sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
+      ? sender.collaborativeWalletId
+      : '';
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
       setProgress(false);
-      navigation.dispatch(CommonActions.navigate('SignTransactionScreen', { note, label }));
+      navigation.dispatch(
+        CommonActions.navigate('SignTransactionScreen', {
+          note,
+          label,
+          collaborativeWalletId,
+        })
+      );
     }
   }, [serializedPSBTEnvelops]);
 
@@ -237,7 +245,10 @@ function SendConfirmation({ route }) {
     if (vaultTransfers.includes(transferType)) {
       const navigationState = {
         index: 1,
-        routes: [{ name: 'NewHome' }, { name: 'VaultDetails', params: { autoRefresh: true } }],
+        routes: [
+          { name: 'NewHome' },
+          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+        ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
     } else if (whirlPoolWalletTypes.includes(sender.type)) {
@@ -332,7 +343,7 @@ function SendConfirmation({ route }) {
         case TransferType.VAULT_TO_WALLET:
           return isSend ? (
             <Card
-              title="Vault"
+              title={sender.presentationData.name}
               subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
                 sender.specs.balances.confirmed
               )} ${getSatUnit()}`}
@@ -640,7 +651,8 @@ function SendConfirmation({ route }) {
           letterSpacing={1.12}
           marginTop={windowHeight * 0.011}
         >
-          <BTC />&nbsp;
+          <BTC />
+          &nbsp;
           {transferType === TransferType.WALLET_TO_VAULT
             ? sendMaxFee
             : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
@@ -745,7 +757,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-end',
     marginBottom: hp(40),
-    marginTop: hp(20)
+    marginTop: hp(20),
   },
   customPriority: {
     fontStyle: 'italic',

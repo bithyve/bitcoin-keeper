@@ -3,6 +3,8 @@ import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import _ from 'lodash';
 import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
+import { reduxStorage } from 'src/storage';
+import persistReducer from 'redux-persist/es/persistReducer';
 
 export interface VaultCreationPayload {
   hasNewVaultGenerationSucceeded: boolean;
@@ -35,6 +37,7 @@ export type VaultState = {
   sdIntroModal: boolean;
   whirlpoolIntro: boolean;
   tempShellId: string;
+  backupBSMSForIKS: boolean;
 };
 
 export type SignerUpdatePayload = {
@@ -57,6 +60,7 @@ const initialState: VaultState = {
   sdIntroModal: true,
   whirlpoolIntro: true,
   tempShellId: null,
+  backupBSMSForIKS: false,
 };
 
 const vaultSlice = createSlice({
@@ -155,8 +159,17 @@ const vaultSlice = createSlice({
       state.error = error;
       state.intrimVault = null;
     },
+    resetVaultFlags: (state) => {
+      (state.isGeneratingNewVault = false),
+        (state.hasNewVaultGenerationSucceeded = false),
+        (state.hasNewVaultGenerationFailed = false),
+        (state.error = null);
+    },
     setTempShellId: (state, action: PayloadAction<string>) => {
       state.tempShellId = action.payload;
+    },
+    setBackupBSMSForIKS: (state, action: PayloadAction<boolean>) => {
+      state.backupBSMSForIKS = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -182,6 +195,22 @@ export const {
   clearSigningDevice,
   resetVaultMigration,
   setTempShellId,
+  setBackupBSMSForIKS,
+  resetVaultFlags,
 } = vaultSlice.actions;
 
-export default vaultSlice.reducer;
+const vaultPersistConfig = {
+  key: 'vault',
+  storage: reduxStorage,
+  blacklist: [
+    'isMigratingNewVault',
+    'intrimVault',
+    'introModal',
+    'sdIntroModal',
+    'whirlpoolIntro',
+    'tempShellId',
+    'backupBSMSForIKS',
+  ],
+};
+
+export default persistReducer(vaultPersistConfig, vaultSlice.reducer);

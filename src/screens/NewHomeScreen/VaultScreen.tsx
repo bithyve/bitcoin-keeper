@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
@@ -8,7 +8,6 @@ import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
@@ -17,6 +16,7 @@ import HomeScreenWrapper from './components/HomeScreenWrapper';
 
 function VaultScreen() {
   const { activeVault } = useVault();
+  const { colorMode } = useColorMode();
   const signers = idx(activeVault, (_) => _.signers) || [];
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
@@ -42,7 +42,7 @@ function VaultScreen() {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color="light.primaryText" testID='text_YourVault'>
+          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID='text_YourVault'>
             Your Vault
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
@@ -52,26 +52,26 @@ function VaultScreen() {
         <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
           <Box
             style={!activeVault ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper}
-            backgroundColor="light.learnMoreBorder"
+            backgroundColor={`${colorMode}.learnMoreBorder`}
           >
             {!activeVault ? (
               <Box>
                 <Box style={styles.emptyVaultIllustration}>
                   <EmptyVaultIllustration />
                 </Box>
-                <Text color="light.white">Add Signers to activate your Vault</Text>
+                <Text color={`${colorMode}.white`}>Add Signers to activate your Vault</Text>
               </Box>
             ) : (
               <>
                 <Box style={styles.signingDeviceWrapper}>
                   <Box style={styles.signingDeviceDetails}>
-                    <Text style={styles.signingDeviceText} color="light.white">
+                    <Text style={styles.signingDeviceText} color={`${colorMode}.white`}>
                       {`${scheme.m} of ${scheme.n} Vault`}
                     </Text>
                     <Box style={styles.signingDeviceList}>
                       {signers.map((signer: any) => (
                         <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
-                          {SDIcons(signer.type, true).Icon}
+                          {SDIcons(signer.type, colorMode !== 'dark').Icon}
                         </Box>
                       ))}
                     </Box>
@@ -83,8 +83,8 @@ function VaultScreen() {
                       hideAmounts={hideAmounts}
                       amount={confirmedBalance + unconfirmedBalance}
                       fontSize={20}
-                      color={Colors.White}
-                      variation="grey"
+                      color={colorMode === 'light' ? 'white' : 'black'}
+                      variation={colorMode === 'light' ? "light" : "dark"}
                     />
                   </TouchableOpacity>
                 </Box>
@@ -96,8 +96,8 @@ function VaultScreen() {
         <ListItemView
           icon={<InheritanceIcon />}
           title="Inheritance Tools"
-          subTitle="Add Inheritance key or view documents"
-          iconBackColor="light.learnMoreBorder"
+          subTitle="Manage Inheritance key or view documents"
+          iconBackColor={`${colorMode}.learnMoreBorder`}
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
           }}
