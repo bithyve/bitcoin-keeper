@@ -44,6 +44,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
+import { REMOTE_CONFIG, getConfig } from 'src/core/services/firebase';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -245,7 +246,7 @@ function MixProgress({
             </Box>
           )}
         </Box>
-        <Box style={styles.progressStepsTextWrapper} >
+        <Box style={styles.progressStepsTextWrapper}>
           <Text color="light.secondaryText" style={styles.timeLineTitle}>
             {title}
           </Text>
@@ -294,7 +295,11 @@ function MixProgress({
   useEffect(() => {
     if (mixFailed) {
       const toastDuration = 3000;
-      showToast('Mix failed. Please try again later, our best minds are working on it.', <ToastErrorIcon />, toastDuration);
+      showToast(
+        'Mix failed. Please try again later, our best minds are working on it.',
+        <ToastErrorIcon />,
+        toastDuration
+      );
       setTimeout(() => {
         navigation.goBack();
       }, toastDuration);
@@ -326,7 +331,11 @@ function MixProgress({
           external: { incrementBy: 1 },
         })
       );
-      showToast('Mix completed successfully. Your UTXOs will be available in your postmix account shortly.', <TickIcon />, 3000);
+      showToast(
+        'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
+        <TickIcon />,
+        3000
+      );
       const postmixTags: BIP329Label[] = [];
       const userLabels = [];
       Object.keys(labels).forEach((key) => {
@@ -388,7 +397,7 @@ function MixProgress({
         }
       };
     } else if (Platform.OS === 'ios') {
-      channel = io(config.CHANNEL_URL);
+      channel = io(getConfig(REMOTE_CONFIG.CHANNEL_URL));
       channel.emit(WHIRLPOOL_LISTEN, { room: publicId, network: config.NETWORK_TYPE });
       channel.on(WHIRLPOOL_WORKING, ({ data }) => {
         onWorking(data);
@@ -428,7 +437,8 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${
+          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -581,17 +591,17 @@ const getStyles = (clock) =>
       alignItems: 'center',
       marginHorizontal: wp(5),
       justifyContent: 'center',
-      width: '15%'
+      width: '15%',
     },
     timeLineProgressWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(5),
       justifyContent: 'center',
-      width: '15%'
+      width: '15%',
     },
     contentWrapper: {
       flexDirection: 'row',
-      width: '100%'
+      width: '100%',
     },
     timeLineTitle: {
       fontSize: 13,
@@ -602,8 +612,8 @@ const getStyles = (clock) =>
       flexWrap: 'wrap',
     },
     progressStepsTextWrapper: {
-      flexDirection: "column",
-      width: '85%'
+      flexDirection: 'column',
+      width: '85%',
     },
     note: {
       position: 'absolute',

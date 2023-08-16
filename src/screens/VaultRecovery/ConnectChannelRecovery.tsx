@@ -30,13 +30,14 @@ import { getTrezorDetails } from 'src/hardware/trezor';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
+import { REMOTE_CONFIG, getConfig } from 'src/core/services/firebase';
 import MockWrapper from '../Vault/MockWrapper';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function ConnectChannelRecovery() {
   const route = useRoute();
   const { title = '', subtitle = '', type: signerType } = route.params as any;
-  const channel = io(config.CHANNEL_URL);
+  const channel = io(getConfig(REMOTE_CONFIG.CHANNEL_URL));
   let channelCreated = false;
 
   const { translations } = useContext(LocalizationContext);
@@ -154,11 +155,7 @@ function ConnectChannelRecovery() {
     <ScreenWrapper>
       <MockWrapper signerType={signerType}>
         <Box flex={1}>
-          <HeaderTitle
-            title={title}
-            subtitle={subtitle}
-            paddingLeft={wp(20)}
-          />
+          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(20)} />
           <Box style={styles.qrcontainer}>
             <RNCamera
               autoFocus="on"

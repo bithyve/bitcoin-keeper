@@ -43,6 +43,7 @@ import { generateKey } from 'src/core/services/operations/encryption';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { close } from '@sentry/react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import { REMOTE_CONFIG, getConfig } from 'src/core/services/firebase';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
@@ -137,7 +138,9 @@ function LedgerSetupContent() {
           letterSpacing={0.65}
           style={{ paddingVertical: 5 }}
         >
-          {`\u2022 Please visit ${config.KEEPER_HWI} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with Ledger.`}
+          {`\u2022 Please visit ${getConfig(
+            REMOTE_CONFIG.KEEPER_HWI
+          )} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with Ledger.`}
         </Text>
         <Text
           color="light.greenText"
@@ -295,7 +298,9 @@ function BitBox02Content() {
           letterSpacing={0.65}
           style={{ paddingVertical: 5 }}
         >
-          {`\u2022 Please visit ${config.KEEPER_HWI} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with BitBox02.`}
+          {`\u2022 Please visit ${getConfig(
+            REMOTE_CONFIG.KEEPER_HWI
+          )} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with BitBox02.`}
         </Text>
         <Text
           color="light.greenText"
@@ -321,7 +326,9 @@ function TrezorContent() {
           letterSpacing={0.65}
           style={{ paddingVertical: 5 }}
         >
-          {`\u2022 Please visit ${config.KEEPER_HWI} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with Trezor.`}
+          {`\u2022 Please visit ${getConfig(
+            REMOTE_CONFIG.KEEPER_HWI
+          )} using Chrome browser on your desktop to use the Keeper Hardware Interface to connect with Trezor.`}
         </Text>
         <Text
           color="light.greenText"
@@ -621,7 +628,9 @@ function SignersList({ navigation }) {
           name: 'ConnectChannelRecovery',
           params: {
             title: `Setting up ${getSignerNameFromType(type)}`,
-            subtitle: `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to setup`,
+            subtitle: `Please visit ${getConfig(
+              REMOTE_CONFIG.KEEPER_HWI
+            )} on your Chrome browser to use the Keeper Hardware Interface to setup`,
             type,
           },
         })
@@ -815,7 +824,9 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.BITBOX02}
           close={close}
           title="Keep BitBox02 Ready"
-          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
+          subTitle={`Please visit ${getConfig(
+            REMOTE_CONFIG.KEEPER_HWI
+          )} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => <BitBox02Content />}
@@ -826,7 +837,9 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.TREZOR}
           close={close}
           title="Keep Trezor Ready"
-          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+          subTitle={`Please visit ${getConfig(
+            REMOTE_CONFIG.KEEPER_HWI
+          )} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => <TrezorContent />}

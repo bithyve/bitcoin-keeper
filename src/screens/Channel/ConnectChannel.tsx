@@ -38,6 +38,7 @@ import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { REMOTE_CONFIG, getConfig } from 'src/core/services/firebase';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
 
@@ -45,7 +46,7 @@ function ConnectChannel() {
   const { colorMode } = useColorMode();
   const route = useRoute();
   const { title = '', subtitle = '', type: signerType, signer } = route.params as any;
-  const channel = io(config.CHANNEL_URL);
+  const channel = io(getConfig(REMOTE_CONFIG.CHANNEL_URL));
   let channelCreated = false;
 
   const { translations } = useContext(LocalizationContext);

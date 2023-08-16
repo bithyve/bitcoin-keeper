@@ -23,18 +23,17 @@ import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
 import { hash512 } from 'src/core/services/operations/encryption';
-import useVault from 'src/hooks/useVault';
 // import { signWithLedger } from 'src/hardware/ledger';
 // import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 // import { useDispatch } from 'react-redux';
 // import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 // import { captureError } from 'src/core/services/sentry';
 // import useToastMessage from 'src/hooks/useToastMessage';
-import config from 'src/core/config';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
+import { REMOTE_CONFIG, getConfig } from 'src/core/services/firebase';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from '../../storage/secure-store';
 // import LedgerScanningModal from '../Vault/components/LedgerScanningModal';
@@ -522,7 +521,9 @@ function SignerModals({
                   setLedgerModal(false);
                 }}
                 title="Keep Nano X Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+                subTitle={`Please visit ${getConfig(
+                  REMOTE_CONFIG.KEEPER_HWI
+                )} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
                 textColor="light.primaryText"
                 Content={() => <LedgerContent />}
                 buttonText="Proceed"
@@ -623,7 +624,9 @@ function SignerModals({
                   setTrezorModal(false);
                 }}
                 title="Keep Trezor Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+                subTitle={`Please visit ${getConfig(
+                  REMOTE_CONFIG.KEEPER_HWI
+                )} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
                 textColor="light.primaryText"
                 Content={() => <TrezorContent />}
                 buttonText="Proceed"
@@ -638,7 +641,9 @@ function SignerModals({
                   setBitbox02Modal(false);
                 }}
                 title="Keep BitBox02 Ready"
-                subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
+                subTitle={`Please visit ${getConfig(
+                  REMOTE_CONFIG.KEEPER_HWI
+                )} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
                 textColor="light.primaryText"
                 Content={() => <BitBox02Content />}
                 buttonText="Proceed"

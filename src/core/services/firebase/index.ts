@@ -1,16 +1,25 @@
+/* eslint-disable no-unused-vars */
 import remoteConfig from '@react-native-firebase/remote-config';
 import localConfig from 'src/core/config';
 import { captureError } from '../sentry';
+
+export enum REMOTE_CONFIG {
+  OLD_CHANNEL_URL = 'OLD_CHANNEL_URL',
+  CHANNEL_URL = 'CHANNEL_URL',
+  KEEPER_HWI = 'KEEPER_HWI',
+}
 
 const config = remoteConfig();
 const DEFAULTS = {
   TESTNET: JSON.stringify({
     OLD_CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
     KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
+    CHANNEL_URL: 'https://bithyve-dev-relay.el.r.appspot.com/',
   }),
   MAINNET: JSON.stringify({
     OLD_CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
     KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
+    CHANNEL_URL: 'https://keeper-relay.uc.r.appspot.com/',
   }),
 };
 
@@ -21,9 +30,7 @@ const initialiseRemoteConfig = async () => {
   });
   const remoteConfig = await config.fetchAndActivate();
   if (remoteConfig) {
-    console.log('remote config activated');
-  } else {
-    console.log('empty config');
+    console.log('fresh config activated at: ', new Date().toDateString());
   }
 };
 

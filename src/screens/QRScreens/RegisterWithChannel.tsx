@@ -24,11 +24,12 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
+import { REMOTE_CONFIG, getConfig } from 'src/core/services/firebase';
 
 function RegisterWithChannel() {
   const { params } = useRoute();
   const { signer } = params as { signer: VaultSigner };
-  const channel = io(config.CHANNEL_URL);
+  const channel = io(getConfig(REMOTE_CONFIG.CHANNEL_URL));
   let channelCreated = false;
   const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -73,7 +74,9 @@ function RegisterWithChannel() {
     <ScreenWrapper>
       <HeaderTitle
         title="Register with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to register with the device`}
+        subtitle={`Please visit ${getConfig(
+          REMOTE_CONFIG.KEEPER_HWI
+        )} on your Chrome browser to register with the device`}
       />
       <Box style={styles.qrcontainer}>
         <RNCamera

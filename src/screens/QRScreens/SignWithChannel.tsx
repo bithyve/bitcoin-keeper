@@ -32,6 +32,7 @@ import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
 import { signWithLedgerChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { REMOTE_CONFIG, getConfig } from 'src/core/services/firebase';
 
 function SignWithChannel() {
   const { params } = useRoute();
@@ -48,7 +49,7 @@ function SignWithChannel() {
   const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
     (envelop) => signer.signerId === envelop.signerId
   )[0];
-  const channel = io(config.CHANNEL_URL);
+  const channel = io(getConfig(REMOTE_CONFIG.CHANNEL_URL));
   let channelCreated = false;
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const dispatch = useDispatch();
@@ -133,7 +134,9 @@ function SignWithChannel() {
     <ScreenWrapper>
       <HeaderTitle
         title="Sign with Keeper Hardware Interface"
-        subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to sign with the device`}
+        subtitle={`Please visit ${getConfig(
+          REMOTE_CONFIG.KEEPER_HWI
+        )} on your Chrome browser to sign with the device`}
       />
       <Box style={styles.qrcontainer}>
         <RNCamera
