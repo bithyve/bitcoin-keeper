@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import WalletIcon from 'src/assets/images/walletTab.svg';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
-import walletDark from 'src/assets/images/walletDark.svg'
+import walletDark from 'src/assets/images/walletDark.svg';
 import VaultIcon from 'src/assets/images/vaultTab.svg';
 import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
 import VaultDark from 'src/assets/images/vaultDark.svg';
@@ -74,10 +74,14 @@ function NewHomeScreen({ navigation }) {
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
+            name: `${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
+            description: `Imported from ${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -97,11 +101,15 @@ function NewHomeScreen({ navigation }) {
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
+              name: `${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)} `,
+              description: `Imported from ${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -115,7 +123,7 @@ function NewHomeScreen({ navigation }) {
     }
   }
 
-  function TabBarButton({ focused, state, descriptors }) {
+  function TabBarButton({ state, descriptors }) {
     const { colorMode } = useColorMode();
     const styles = getStyles(colorMode);
     return (
@@ -126,8 +134,8 @@ function NewHomeScreen({ navigation }) {
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
-                ? options.title
-                : route.name;
+              ? options.title
+              : route.name;
 
           const isFocused = state.index === index;
 
@@ -136,14 +144,15 @@ function NewHomeScreen({ navigation }) {
               navigation.navigate({ name: route.name, merge: true });
             }
           };
-          const themeWalletActive = colorMode === 'light' ? "#2D6759" : "#89AEA7"
-          const themeVaultActive = colorMode === 'light' ? "#704E2E" : "#96826F"
-          const textWalletColor = colorMode === 'light' ? "#2D6759" : "#89AEA7"
-          const textVaultColor = colorMode === 'light' ? "#704E2E" : "#e3be96"
-          const vaultActiveIcon = colorMode === 'light' ? VaultActiveIcon : VaultDark
-          const walletActiveIcon = colorMode === 'light' ? WalletActiveIcon : walletDark
+          const themeWalletActive = colorMode === 'light' ? '#2D6759' : '#89AEA7';
+          const themeVaultActive = colorMode === 'light' ? '#704E2E' : '#96826F';
+          const textWalletColor = colorMode === 'light' ? '#2D6759' : '#89AEA7';
+          const textVaultColor = colorMode === 'light' ? '#704E2E' : '#e3be96';
+          const vaultActiveIcon = colorMode === 'light' ? VaultActiveIcon : VaultDark;
+          const walletActiveIcon = colorMode === 'light' ? WalletActiveIcon : walletDark;
           return (
             <TabButton
+              key={label}
               label={label === 'Wallet' ? 'Wallets' : label}
               Icon={route.name === 'Vault' ? VaultIcon : WalletIcon}
               IconActive={route.name === 'Vault' ? vaultActiveIcon : walletActiveIcon}
@@ -151,15 +160,13 @@ function NewHomeScreen({ navigation }) {
               active={isFocused}
               backgroundColorActive={route.name === 'Vault' ? themeVaultActive : themeWalletActive}
               backgroundColor="transparent"
-              textColorActive={colorMode === 'light' ? "#F7F2EC" : "#24312E"}
+              textColorActive={colorMode === 'light' ? '#F7F2EC' : '#24312E'}
               textColor={route.name === 'Vault' ? textVaultColor : textWalletColor}
             />
           );
         })}
-
-
       </Box>
-    )
+    );
   }
   const { colorMode } = useColorMode();
   const styles = getStyles(colorMode);
@@ -167,9 +174,9 @@ function NewHomeScreen({ navigation }) {
     <Tab.Navigator
       sceneContainerStyle={styles.tabContainer}
       screenOptions={{
-        headerShown: false
+        headerShown: false,
       }}
-      tabBar={props => <TabBarButton focused={undefined} {...props} />}
+      tabBar={(props) => <TabBarButton {...props} />}
     >
       <Tab.Screen name="Wallet" component={WalletsScreen} />
       <Tab.Screen name="Vault" component={VaultScreen} />
@@ -179,24 +186,23 @@ function NewHomeScreen({ navigation }) {
 
 export default NewHomeScreen;
 
-const getStyles = (colorMode) => StyleSheet.create({
-  container: {
-    backgroundColor: colorMode === 'light' ? '#FDF7F0' : '#48514F',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    // borderRadius: 30,
-    paddingHorizontal: 27,
-    paddingVertical: 15,
-    // marginHorizontal: 10,
-  },
-  tabContainer: {
-    backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A'
-  },
-  label: {
-    marginLeft: 10,
-    fontSize: 14,
-    fontWeight: '500',
-    fontFamily: Fonts.RobotoCondensedRegular,
-  },
-})
+const getStyles = (colorMode) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: colorMode === 'light' ? '#FDF7F0' : '#48514F',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 27,
+      paddingVertical: 15,
+    },
+    tabContainer: {
+      backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A',
+    },
+    label: {
+      marginLeft: 10,
+      fontSize: 14,
+      fontWeight: '500',
+      fontFamily: Fonts.RobotoCondensedRegular,
+    },
+  });

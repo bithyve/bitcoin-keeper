@@ -62,7 +62,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         </Pressable>
         <Box marginTop="4">
           {config.Instructions.map((instruction) => (
-            <BulletPoint text={instruction} />
+            <BulletPoint text={instruction} key={instruction} />
           ))}
         </Box>
       </View>

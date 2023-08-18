@@ -197,6 +197,7 @@ function UpdateWalletDetails({ route }) {
               <ScrollView style={styles.langScrollViewWrapper}>
                 {purposeList.map((item) => (
                   <TouchableOpacity
+                    key={item.value}
                     onPress={() => {
                       setShowPurpose(false);
                       setArrow(false);
@@ -280,14 +281,14 @@ const styles = ScaledSheet.create({
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
     // paddingHorizontal: '20@s',
-    paddingLeft: 25
+    paddingLeft: 25,
   },
   descriptionText: {
     fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
     fontWeight: '200',
-    paddingLeft: 25
+    paddingLeft: 25,
   },
   backButton: {
     height: 20,
@@ -401,7 +402,7 @@ const styles = ScaledSheet.create({
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10
+    borderRadius: 10,
   },
   transferText: {
     width: '100%',

@@ -73,10 +73,18 @@ function SetupInheritance() {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalTitle}>
+            <Text
+              color={`${colorMode}.modalGreenContent`}
+              numberOfLines={2}
+              style={styles.modalTitle}
+            >
               {title}
             </Text>
-            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalSubtitle}>
+            <Text
+              color={`${colorMode}.modalGreenContent`}
+              numberOfLines={2}
+              style={styles.modalSubtitle}
+            >
               {subTitle}
             </Text>
           </Box>
@@ -97,6 +105,7 @@ function SetupInheritance() {
       >
         {inheritanceData.map((item) => (
           <InheritancePoint
+            key={item.title}
             title={item.title}
             description={item.description}
             subTitle={item.subTitle}
@@ -131,7 +140,11 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color={`${colorMode}.primaryText`} style={styles.title} testID="text_InheritanceSupport">
+        <Text
+          color={`${colorMode}.primaryText`}
+          style={styles.title}
+          testID="text_InheritanceSupport"
+        >
           Inheritance Support
         </Text>
         <Text
@@ -158,7 +171,7 @@ function SetupInheritance() {
               backgroundColor={`${colorMode}.lightAccent`}
               style={styles.upgradeNowContainer}
             >
-              <Text color='light.learnMoreBorder' style={styles.upgradeNowText}>
+              <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
                 {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
               </Text>
             </Box>

@@ -125,7 +125,10 @@ function ImportWalletScreen({ route }) {
 
             <View style={styles.dotContainer}>
               {[1, 2, 3].map((item, index) => (
-                <View key={index} style={index == 0 ? styles.selectedDot : styles.unSelectedDot} />
+                <View
+                  key={item.toString()}
+                  style={index === 0 ? styles.selectedDot : styles.unSelectedDot}
+                />
               ))}
             </View>
           </Box>

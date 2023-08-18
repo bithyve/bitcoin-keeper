@@ -2,7 +2,7 @@ import { View, StyleSheet } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { Box, useColorMode } from 'native-base';
-import Illustration7 from 'src/assets/images/illustration_7.svg'
+import Illustration7 from 'src/assets/images/illustration_7.svg';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
@@ -21,9 +21,7 @@ function premixContent() {
           <DotView height={1.5} width={1.5} color={`${colorMode}.modalGreenContent`} />
         </Box>
         <Box style={styles.textWrapper}>
-          <Text style={styles.paraText}>
-            Once Tx0 is created, it goes into a Premix Wallet.
-          </Text>
+          <Text style={styles.paraText}>Once Tx0 is created, it goes into a Premix Wallet.</Text>
         </Box>
       </Box>
       <Box style={styles.paraViewWrapper}>
@@ -55,7 +53,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
     <KeeperModal
       visible={visible}
       close={() => {
-        closeModal()
+        closeModal();
       }}
       title="Setting up Premix"
       subTitle="You are about to start your first mix. In the next few steps, you’ll be guided to create your Tx0. Tx0 gets created based on the pool you select ahead."
@@ -65,8 +63,8 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-      buttonText='Proceed'
-      buttonTextColor="light.greenText02"
+      buttonText="Proceed"
+      buttonTextColor="light.greenText2"
       buttonBackground={['#FFFFFF', '#80A8A1']}
       buttonCallback={() => closeModal()}
     />
@@ -74,30 +72,30 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
 }
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 5
+    marginVertical: 5,
   },
   iconWrapper: {
-    alignSelf: "center"
+    alignSelf: 'center',
   },
   paraViewWrapper: {
     marginTop: hp(20),
     flexDirection: 'row',
     width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   dotWrapper: {
     height: '100%',
     width: '5%',
-    paddingTop: '3%'
+    paddingTop: '3%',
   },
   textWrapper: {
-    width: '95%'
+    width: '95%',
   },
   paraText: {
-    color: "white",
+    color: 'white',
     fontSize: 13,
     letterSpacing: 0.65,
-    padding: 1
-  }
-})
+    padding: 1,
+  },
+});
 export default LearnMoreModal;

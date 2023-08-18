@@ -346,8 +346,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -401,13 +401,13 @@ function EnterSeedScreen({ route }) {
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
-              keyboardShouldPersistTaps='handled'
+              keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
-                    key={wordIndex}
+                    key={`${word + wordIndex}`}
                     style={styles.suggestionTouchView}
                     onPress={() => {
                       Keyboard.dismiss();
@@ -473,7 +473,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);

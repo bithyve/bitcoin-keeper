@@ -157,7 +157,6 @@ const styles = StyleSheet.create({
 });
 
 function ChangeLanguage() {
-
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
   const { currencyCode, language, satsEnabled } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -220,7 +219,12 @@ function ChangeLanguage() {
       <HeaderTitle />
       <Box flex={1}>
         <Box marginLeft="5%">
-          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText} testID={`text_${settings.LanguageCountry}`}>
+          <Text
+            fontSize={16}
+            letterSpacing={0.8}
+            style={styles.mainText}
+            testID={`text_${settings.LanguageCountry}`}
+          >
             {settings.LanguageCountry}
           </Text>
           <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.GreyText`}>
@@ -302,6 +306,7 @@ function ChangeLanguage() {
           <ScrollView style={styles.langScrollViewWrapper}>
             {availableLanguages.map((item) => (
               <TouchableOpacity
+                key={item.iso}
                 onPress={() => {
                   setAppLanguage(item.iso);
                   setShowLanguages(false);

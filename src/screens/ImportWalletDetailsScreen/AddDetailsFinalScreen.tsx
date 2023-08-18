@@ -123,7 +123,7 @@ function AddDetailsFinalScreen({ route }) {
         navigation.goBack();
       } else {
         showToast('Wallet imported', <TickIcon />);
-        navigation.replace('WalletDetails')
+        navigation.replace('WalletDetails');
         // Linking.openURL(`${appId}://backup/true`);
       }
     }
@@ -192,6 +192,7 @@ function AddDetailsFinalScreen({ route }) {
             <ScrollView style={styles.langScrollViewWrapper}>
               {purposeList.map((item) => (
                 <TouchableOpacity
+                  key={item.value}
                   onPress={() => {
                     setShowPurpose(false);
                     setArrow(false);
@@ -209,7 +210,10 @@ function AddDetailsFinalScreen({ route }) {
         <View style={styles.dotContainer}>
           <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
             {[1, 2, 3].map((item, index) => (
-              <View key={index} style={index == 2 ? styles.selectedDot : styles.unSelectedDot} />
+              <View
+                key={item.toString()}
+                style={index === 2 ? styles.selectedDot : styles.unSelectedDot}
+              />
             ))}
           </View>
           <Box style={styles.ctaBtnWrapper}>
