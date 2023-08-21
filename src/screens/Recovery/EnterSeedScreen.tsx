@@ -38,6 +38,7 @@ import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/core/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -351,7 +352,7 @@ function EnterSeedScreen({ route }) {
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
-                  placeholderTextColor="rgba(7,62,57,0.6)"
+                  placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                   value={item?.name}
                   textContentType="none"
                   returnKeyType={isSeedFilled(12) ? 'done' : 'next'}

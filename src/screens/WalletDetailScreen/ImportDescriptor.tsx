@@ -23,6 +23,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useNfcModal from 'src/hooks/useNfcModal';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import NFCOption from '../NFCChannel/NFCOption';
 
 function ImportDescriptorScreen({ navigation }) {
@@ -105,7 +106,7 @@ function ImportDescriptorScreen({ navigation }) {
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
             <TextInput
               placeholder="Enter the output descriptor"
-              placeholderTextColor="light.GreyText"
+              placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
               style={styles.textInput}
               value={inputText}
               onChangeText={(text) => {

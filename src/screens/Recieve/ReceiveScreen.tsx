@@ -99,7 +99,7 @@ function ReceiveScreen({ route }: { route }) {
           <AppNumPad
             setValue={setAmount}
             clear={() => setAmount('')}
-            color={colorMode === 'light' ? "#041513" : "#FFF"}
+            color={colorMode === 'light' ? '#041513' : '#FFF'}
             darkDeleteIcon={colorMode === 'light'}
           />
         </View>
@@ -123,12 +123,15 @@ function ReceiveScreen({ route }: { route }) {
           size={hp(200)}
         />
         <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
-          <Text style={styles.receiveAddressText} color={`${colorMode}.recieverAddress`}>
+          <Text
+            style={styles.receiveAddressText}
+            color={`${colorMode}.recieverAddress`}
+            numberOfLines={1}
+          >
             Receive Address
           </Text>
         </Box>
       </Box>
-      {/* {Input Field} */}
       <TouchableOpacity
         activeOpacity={0.4}
         onPress={() => {
@@ -147,22 +150,12 @@ function ReceiveScreen({ route }: { route }) {
           </Box>
         </Box>
       </TouchableOpacity>
-      {/* {Add amount component} */}
       <MenuItemButton
         onPress={() => setModalVisible(true)}
         icon={<BtcGreen />}
         title={home.AddAmount}
         subTitle="Add a specific invoice amount"
       />
-      {/* {Add tags component} */}
-      {/* <MenuItemButton
-        // onPress={() => navigtaion.navigate('UTXOLabeling', { utxo: {}, wallet })}
-        onPress={() => showToast('Comming soon')}
-        icon={<TagsGreen />}
-        title="Add Tags"
-        subTitle="Tags help you remember and identify UTXOs"
-      /> */}
-      {/* {Bottom note} */}
       <Box style={styles.Note}>
         <Note
           title={wallet.entityKind === 'VAULT' ? 'Security Tip' : home.AddAmount}
@@ -213,7 +206,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',
-    numberOfLines: 1,
   },
   inputContainer: {
     alignItems: 'center',

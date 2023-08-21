@@ -164,7 +164,7 @@ function AddDetailsFinalScreen({ route }) {
               <TextInput
                 placeholder="Derivation Path"
                 style={styles.textInput}
-                placeholderTextColor="light.GreyText"
+                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 // width={wp(260)}

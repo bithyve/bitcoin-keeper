@@ -390,7 +390,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               >
                 {SDIcons(signer.type, true).Icon}
               </Box>
-              <Text bold style={styles.unregistered}>
+              <Text bold style={styles.unregistered} numberOfLines={1}>
                 {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack pb={2}>
@@ -797,7 +797,6 @@ const getStyles = (top) =>
       fontSize: 8,
       letterSpacing: 0.6,
       textAlign: 'center',
-      numberOfLines: 1,
       lineHeight: 16,
     },
     rampBuyContentWrapper: {

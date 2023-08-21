@@ -260,7 +260,7 @@ function SendScreen({ route }) {
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
                 placeholder="or enter address manually"
-                placeholderTextColor={`${colorMode}.GreyText`}
+                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}
                 value={paymentInfo}
                 onChangeText={handleTextChange}
