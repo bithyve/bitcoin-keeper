@@ -252,11 +252,7 @@ function SendScreen({ route }) {
                 notAuthorizedView={<CameraUnauthorized />}
               />
             </Box>
-            {/* Upload Image */}
-
             <UploadImage onPress={handleChooseImage} />
-
-            {/* send manually option */}
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
                 placeholder="or enter address manually"
@@ -266,8 +262,6 @@ function SendScreen({ route }) {
                 onChangeText={handleTextChange}
               />
             </Box>
-
-            {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
               <Text marginX={2} fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
@@ -287,8 +281,6 @@ function SendScreen({ route }) {
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* {Bottom note} */}
       {showNote && (
         <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Note

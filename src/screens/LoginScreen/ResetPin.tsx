@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,

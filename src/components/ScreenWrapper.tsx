@@ -1,9 +1,9 @@
-import { StatusBar, StatusBarStyle } from 'react-native';
+import { StatusBarStyle } from 'react-native';
 
 import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScaledSheet } from 'react-native-size-matters';
-import { Box, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 
 function ScreenWrapper({
   children,
@@ -18,7 +18,10 @@ function ScreenWrapper({
   return (
     <Box backgroundColor={backgroundcolor} style={styles.warpper}>
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle={colorMode === 'light' ? "dark-content" : "light-content"} backgroundColor={backgroundcolor} />
+        <StatusBar
+          barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'}
+          backgroundColor={backgroundcolor}
+        />
         {children}
       </SafeAreaView>
     </Box>
@@ -36,5 +39,5 @@ const styles = ScaledSheet.create({
   },
   warpper: {
     flex: 1,
-  }
+  },
 });

@@ -23,7 +23,7 @@ const useWallets: useWalletsInterface = ({ walletIds, getAll = false } = {}) => 
     for (let index = 0; index < walletIds.length; index += 1) {
       const id = walletIds[index];
       const wallet: Wallet = useObject(RealmSchema.Wallet, id);
-      extractedWallets.push(wallet);
+      if (wallet) extractedWallets.push(wallet);
     }
     return { wallets: extractedWallets.map(getJSONFromRealmObject) };
   }

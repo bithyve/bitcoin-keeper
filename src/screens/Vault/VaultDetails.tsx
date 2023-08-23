@@ -1,15 +1,8 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, Pressable } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import {
-  FlatList,
-  Linking,
-  RefreshControl,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
@@ -283,7 +276,7 @@ function TransactionList({
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.txid}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <EmptyStateView
