@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
     "prepare": "husky install && chmod +x setup.sh && sh ./setup.sh",
-    "postinstall": "patch-package && jetify",
+    "postinstall": "patch-package",
     "androidDevelopmentDebug": "ENVFILE=.env react-native run-android --variant=developmentDebug --appIdSuffix=development",
     "androidDevelopmentRelease": "ENVFILE=.env react-native run-android --variant=developmentRelease --appIdSuffix=development",
     "androidProductionDebug": "ENVFILE=.env react-native run-android --variant=productionDebug",
