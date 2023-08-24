@@ -505,7 +505,7 @@ function VaultDetails({ navigation }) {
   const { activeVault: vault } = useVault(collaborativeWalletId);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const inheritanceSigner = vault.signers.filter(
     (signer) => signer.type === SignerType.INHERITANCEKEY
   )[0];
