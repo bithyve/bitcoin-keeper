@@ -31,7 +31,8 @@ import { addNewVault } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
+import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
+import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
 
@@ -68,6 +69,7 @@ function SignerItem({
           type: SignerType.KEEPER,
           isHealthcheck: true,
           signer,
+          disableMockFlow: true,
         },
       })
     );
@@ -135,8 +137,9 @@ function SignerItem({
                 { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
               ]}
             >
-              {`${coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
-                }`}
+              {`${
+                coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
+              }`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text
@@ -245,6 +248,7 @@ function SetupCollaborativeWallet() {
   const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { showToast } = useToastMessage();
+  const { collaborativeWallet } = useCollaborativeWallet(walletId);
 
   const removeSigner = (index: number) => {
     const newSigners = coSigners.filter((_, i) => i !== index || index === 0);
@@ -323,12 +327,12 @@ function SetupCollaborativeWallet() {
       pushSigner(details, false);
     }, 200);
     return () => {
-      dispatch(resetRealyVaultState());
+      dispatch(resetVaultFlags());
     };
   }, []);
 
   useEffect(() => {
-    if (hasNewVaultGenerationSucceeded) {
+    if (hasNewVaultGenerationSucceeded && collaborativeWallet) {
       setIsCreating(false);
       const navigationState = {
         index: 1,
@@ -344,7 +348,7 @@ function SetupCollaborativeWallet() {
       showToast('Error creating collaborative wallet', <ToastErrorIcon />, 4000);
       captureError(error);
     }
-  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed]);
+  }, [hasNewVaultGenerationSucceeded, hasNewVaultGenerationFailed, collaborativeWallet]);
 
   const renderSigner = ({ item, index }) => (
     <SignerItem

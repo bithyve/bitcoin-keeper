@@ -38,6 +38,7 @@ import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/core/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -346,12 +347,12 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
-                  placeholderTextColor="rgba(7,62,57,0.6)"
+                  placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                   value={item?.name}
                   textContentType="none"
                   returnKeyType={isSeedFilled(12) ? 'done' : 'next'}
@@ -401,13 +402,13 @@ function EnterSeedScreen({ route }) {
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
-              keyboardShouldPersistTaps='handled'
+              keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
-                    key={wordIndex}
+                    key={`${word + wordIndex}`}
                     style={styles.suggestionTouchView}
                     onPress={() => {
                       Keyboard.dismiss();
@@ -473,7 +474,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);

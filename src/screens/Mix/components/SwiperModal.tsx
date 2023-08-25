@@ -22,7 +22,9 @@ function SwiperModalContent({ contentTitle, contentSubTitle }) {
         <Text bold italic style={styles.modalTitle} color={`${colorMode}.modalGreenContent`}>
           {contentTitle}
         </Text>
-        <Text style={styles.modalSubTitle} color={`${colorMode}.modalGreenContent`}>{contentSubTitle}</Text>
+        <Text style={styles.modalSubTitle} color={`${colorMode}.modalGreenContent`}>
+          {contentSubTitle}
+        </Text>
       </Box>
     </Box>
   );
@@ -118,7 +120,7 @@ function List() {
             }
           >
             <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
-              <Text style={styles.ctaText} color="light.greenText02" bold>
+              <Text style={styles.ctaText} color="light.greenText2" bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>

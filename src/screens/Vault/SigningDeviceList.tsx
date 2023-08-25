@@ -226,6 +226,7 @@ function SigningDeviceList() {
                 }
                 return (
                   <HardWareWallet
+                    key={type}
                     type={type}
                     first={index === 0}
                     last={index === 9}

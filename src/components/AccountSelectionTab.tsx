@@ -62,7 +62,7 @@ export function AccountSelectionTab({
   return (
     <Box style={styles.container}>
       {AccountTabs.map((account, index) => (
-        <Box>
+        <Box key={account.title}>
           <SingleAccount
             title={account.title}
             Icon={account.Icon}
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginHorizontal: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   accountText: {
     fontSize: 12,

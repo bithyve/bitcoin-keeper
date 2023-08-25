@@ -71,6 +71,7 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
           .sort((a, b) => (a.isSystem < b.isSystem ? 1 : a.isSystem > b.isSystem ? -1 : 0))
           .map((item, index) => (
             <Label
+              key={`${item.name + index}`}
               name={item.name}
               isSystem={item.isSystem}
               onLayout={onLayout}
@@ -191,7 +192,7 @@ function UTXOElement({
             amount={item.value}
             fontSize={17}
             color={`${colorMode}.GreyText`}
-            variation={colorMode === 'light' ? "dark" : "light"}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
           />
         </Box>
       </Box>

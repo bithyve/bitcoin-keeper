@@ -312,7 +312,11 @@ function VaultStatus(props) {
               ) : (
                 <Box style={styles.vaultSignersContainer}>
                   {signers.map((signer) => (
-                    <Box backgroundColor="light.lightAccent" style={styles.vaultSigner}>
+                    <Box
+                      backgroundColor="light.lightAccent"
+                      style={styles.vaultSigner}
+                      key={signer.signerId}
+                    >
                       {SDIcons(signer.type).Icon}
                     </Box>
                   ))}

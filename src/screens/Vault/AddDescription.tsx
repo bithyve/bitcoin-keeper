@@ -11,6 +11,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function AddDescription({ route }) {
   const { colorMode } = useColorMode();
@@ -49,16 +50,16 @@ function AddDescription({ route }) {
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
-            placeholderTextColor={`${colorMode}.greenText`}
+            placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
           />
         </Box>
 
         <Box marginTop={hp(70)}>
           <Buttons
             primaryText="Proceed"
-            primaryCallback={() => { }}
+            primaryCallback={() => {}}
             secondaryText="Skip"
-            secondaryCallback={() => { }}
+            secondaryCallback={() => {}}
           />
         </Box>
       </Box>

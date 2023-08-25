@@ -336,7 +336,7 @@ const WalletsScreen = ({ navigation }) => {
         });
       } else {
         showToast(
-          'Please create a wallet before creating a colloraive walllet ',
+          'Please create a wallet before creating a Collaborative Wallet. ',
           <ToastErrorIcon />
         );
       }

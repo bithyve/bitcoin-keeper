@@ -23,6 +23,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useNfcModal from 'src/hooks/useNfcModal';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import NFCOption from '../NFCChannel/NFCOption';
 
 function ImportDescriptorScreen({ navigation }) {

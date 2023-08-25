@@ -10,7 +10,7 @@ type Props = {
   width?: string | number;
 };
 
-function Note({ title = 'Note', subtitle, subtitleColor = 'lightBlack', width = '100%' }: Props) {
+function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '100%' }: Props) {
   const { colorMode } = useColorMode();
 
   return (

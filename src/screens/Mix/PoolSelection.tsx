@@ -30,7 +30,7 @@ const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
     {pools &&
       pools.map((pool) => (
-        <TouchableOpacity onPress={() => onPoolSelectionCallback(pool)}>
+        <TouchableOpacity onPress={() => onPoolSelectionCallback(pool)} key={pool.denomination}>
           <Box style={styles.poolItem}>
             <Text style={styles.poolItemText} color="#073e39">
               {satsEnabled ? pool?.denomination : SatsToBtc(pool?.denomination)}
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
-    bottom: 10
+    bottom: 10,
   },
   footerContainer: {
     position: 'absolute',
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     width: '65%',
   },
   pageIndicatorWrapper: {
-    width: '40%'
+    width: '40%',
   },
   poolTextDirection: {
     flexDirection: 'row',

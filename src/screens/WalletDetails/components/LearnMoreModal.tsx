@@ -41,8 +41,8 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-      buttonText='Continue'
-      buttonTextColor="light.greenText02"
+      buttonText="Continue"
+      buttonTextColor="light.greenText2"
       buttonBackground={['#FFFFFF', '#80A8A1']}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />

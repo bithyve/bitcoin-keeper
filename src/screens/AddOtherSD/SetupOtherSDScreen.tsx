@@ -15,6 +15,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
+import Colors from 'src/theme/Colors';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function SetupOtherSDScreen() {
@@ -67,7 +68,7 @@ function SetupOtherSDScreen() {
           onChangeText={setXpub}
           placeholder="xPub"
           autoCapitalize="none"
-          placeholderTextColor="light.greenText"
+          placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
         />
         <TextInput
           style={styles.input}
@@ -75,7 +76,7 @@ function SetupOtherSDScreen() {
           onChangeText={setDerivationPath}
           placeholder="Derivation path (m/84h/0h/0h)"
           autoCapitalize="none"
-          placeholderTextColor="light.greenText"
+          placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
         />
         <TextInput
           style={styles.input}
@@ -83,7 +84,7 @@ function SetupOtherSDScreen() {
           onChangeText={setMasterFingerprint}
           placeholder="Master fingerprint"
           autoCapitalize="none"
-          placeholderTextColor="light.greenText"
+          placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
         />
       </Box>
       <Buttons
