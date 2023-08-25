@@ -106,7 +106,7 @@ function ImportDescriptorScreen({ navigation }) {
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput
               placeholder="Enter the output descriptor"
-              placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+              placeholderTextColor={`${colorMode}.GreyText`}
               style={styles.textInput}
               value={inputText}
               onChangeText={(text) => {
