@@ -69,6 +69,7 @@ function SignerItem({
           type: SignerType.KEEPER,
           isHealthcheck: true,
           signer,
+          disableMockFlow: true,
         },
       })
     );
