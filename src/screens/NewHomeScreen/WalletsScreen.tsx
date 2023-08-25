@@ -125,9 +125,9 @@ function WalletItem({
         onPress={
           isCollaborativeWallet
             ? () =>
-                navigation.navigate('VaultDetails', {
-                  collaborativeWalletId: item.collaborativeWalletId,
-                })
+              navigation.navigate('VaultDetails', {
+                collaborativeWalletId: item.collaborativeWalletId,
+              })
             : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
         }
       >
@@ -300,7 +300,7 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
-  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => { }, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
@@ -336,7 +336,7 @@ const WalletsScreen = ({ navigation }) => {
         });
       } else {
         showToast(
-          'Please create a wallet before creating a colloraive walllet ',
+          'Please create a wallet before creating a Collaborative Wallet. ',
           <ToastErrorIcon />
         );
       }
@@ -542,7 +542,7 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -551,7 +551,7 @@ const WalletsScreen = ({ navigation }) => {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />
