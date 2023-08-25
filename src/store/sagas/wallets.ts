@@ -289,7 +289,7 @@ export function* addWhirlpoolWalletsWorker({
     };
 
     yield call(updateWalletsPropertyWorker, {
-      payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
+      payload: { walletId: depositWallet.id, key: 'whirlpoolConfig', value: whirlpoolConfig },
     });
     const newWalletsInfo: NewWalletInfo[] = [
       preMixWalletInfo,
@@ -526,7 +526,7 @@ export function* addNewVaultWorker({
       const descriptor = genrateOutputDescriptors(vault);
       yield call(updateWalletsPropertyWorker, {
         payload: {
-          wallet: hotWallet,
+          walletId: hotWallet.id,
           key: 'collaborativeWalletDetails',
           value: { descriptor },
         },
@@ -1117,27 +1117,28 @@ function* updateWalletsPropertyWorker({
   payload,
 }: {
   payload: {
-    wallet: Wallet;
+    walletId: string;
     key: string;
     value: any;
   };
 }) {
   const {
-    wallet,
+    walletId,
     key,
     value,
   }: {
-    wallet: Wallet;
+    walletId: string;
     key: string;
     value: any;
   } = payload;
   try {
-    const updatedWallet = getJSONFromRealmObject(wallet);
+    const walletObjectRealm = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
+    const updatedWallet = getJSONFromRealmObject(walletObjectRealm);
     updatedWallet[key] = value;
     yield put(setRelayWalletUpdateLoading(true));
     const response = yield call(updateAppImageWorker, { payload: { wallets: [updatedWallet] } });
     if (response.updated) {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, { [key]: value });
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, walletId, { [key]: value });
       yield put(relayWalletUpdateSuccess());
     } else {
       yield put(relayWalletUpdateFail(response.error));

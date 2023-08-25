@@ -380,7 +380,7 @@ function WalletSettings({ route }) {
             />
           )}
         />
-        <KeeperModal
+        {/* <KeeperModal
           visible={cosignerVisible}
           close={() => setCosignerVisible(false)}
           title="Cosigner Details"
@@ -408,8 +408,8 @@ function WalletSettings({ route }) {
               keeper={keeper}
             />
           )}
-        />
-        <KeeperModal
+        /> */}
+        {/* <KeeperModal
           visible={transferPolicyVisible}
           close={() => {
             setTransferPolicyVisible(false);
@@ -435,8 +435,8 @@ function WalletSettings({ route }) {
               }}
             />
           )}
-        />
-        <KeeperModal
+        /> */}
+        {/* <KeeperModal
           visible={addWalletCosigner}
           close={() => setAddWalletCosignerVisible(false)}
           title={walletTranslation?.AddWalletCosigner}
@@ -449,7 +449,7 @@ function WalletSettings({ route }) {
           showButtons
           secondaryButtonText="Decline"
           Content={AddWalletCosignerContent}
-        />
+        /> */}
       </Box>
     </Box>
   );
