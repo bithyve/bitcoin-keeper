@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useState, useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
@@ -73,8 +74,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  dropdownIconWrapper: {
+    marginLeft: 'auto',
+    height: wp('13%'),
+    justifyContent: 'center',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10
+  },
   emptyView: {
-    height: '55%',
+    height: '65%',
     marginTop: 10,
     width: 2,
     backgroundColor: '#D8A572',
@@ -187,17 +195,14 @@ function ChangeLanguage() {
           <Text style={styles.textCurrency}>{label}</Text>
         </Box>
         <Box style={styles.emptyView} />
-        <Box style={styles.textValueWrapper}>
+        <Box style={styles.textValueWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
             {value}
           </Text>
         </Box>
         <Box
-          style={{
-            marginLeft: 'auto',
-            height: wp('13%'),
-            justifyContent: 'center',
-          }}
+          style={styles.dropdownIconWrapper}
+          backgroundColor={`${colorMode}.seashellWhite`}
         >
           <Box
             style={[

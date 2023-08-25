@@ -66,9 +66,8 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
       <PassportSVG />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${
-            isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
-          }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
+            }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
@@ -102,14 +101,12 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
       <KeystoneSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${
-            isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
-          }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
+            }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Keystone ${
-            isMultisig ? 'multisig menu' : 'Generic Wallet section'
-          }, press the scan icon on the top bar and wait for the QR to be scanned.`}
+          {`\u2022 On the Keystone ${isMultisig ? 'multisig menu' : 'Generic Wallet section'
+            }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -186,7 +183,7 @@ export function KeeperContent() {
       <KeeperSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Within settings of KSD, choose 'Scan PSBT' option and wait for the QR to be scanned\n`}
+          {`\u2022 Choose the wallet that was used as a co-signer and select signing PSBT option\n`}
         </Text>
       </Box>
     </Box>

@@ -445,7 +445,6 @@ const styles = ScaledSheet.create({
   },
   bottomContainer: {
     bottom: 5,
-    right: 20,
     padding: 20,
   },
   descriptionBox: {
