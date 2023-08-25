@@ -31,9 +31,9 @@ import { addNewVault } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/core/services/sentry';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
-import { resetRealyVaultState } from 'src/store/reducers/bhr';
 
 const { width } = Dimensions.get('screen');
 
@@ -135,9 +135,8 @@ function SignerItem({
                 { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
               ]}
             >
-              {`${
-                coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
-              }`}
+              {`${coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
+                }`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text
@@ -442,7 +441,6 @@ const styles = ScaledSheet.create({
   },
   bottomContainer: {
     bottom: 5,
-    right: 20,
     padding: 20,
   },
   descriptionBox: {

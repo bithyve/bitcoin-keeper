@@ -1,14 +1,15 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box, HStack, Pressable, VStack } from 'native-base';
+import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { windowWidth } from 'src/common/data/responsiveness/responsive';
 import Text from './KeeperText';
 
 function OptionCTA({ icon, title, subtitle, callback }) {
+  const { colorMode } = useColorMode();
   return (
     <Pressable onPress={() => callback()}>
-      <Box style={styles.container}>
+      <Box style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
         <HStack style={styles.main}>
           <HStack style={styles.main}>
             <Box>{icon}</Box>
@@ -33,7 +34,6 @@ export default OptionCTA;
 const styles = StyleSheet.create({
   container: {
     borderRadius: 10,
-    backgroundColor: '#FDF7F0',
     padding: 15,
     width: windowWidth * 0.85,
     marginTop: 5,
