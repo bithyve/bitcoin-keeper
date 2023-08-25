@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cameraView: {
-    height: hp(280),
+    height: hp(320),
     width: wp(375),
   },
   noteWrapper: {
