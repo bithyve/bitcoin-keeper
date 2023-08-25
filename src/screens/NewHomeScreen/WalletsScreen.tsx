@@ -563,6 +563,7 @@ const WalletsScreen = ({ navigation }) => {
         modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <AddImportWallet wallets={wallets} collaborativeWallets={collaborativeWallets} />
         )}

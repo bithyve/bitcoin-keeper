@@ -137,9 +137,8 @@ function SignerItem({
                 { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
               ]}
             >
-              {`${
-                coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
-              }`}
+              {`${coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
+                }`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text
@@ -445,7 +444,6 @@ const styles = ScaledSheet.create({
   },
   bottomContainer: {
     bottom: 5,
-    right: 20,
     padding: 20,
   },
   descriptionBox: {

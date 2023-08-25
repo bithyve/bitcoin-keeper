@@ -1,12 +1,12 @@
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Fonts from 'src/common/Fonts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
@@ -27,6 +27,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import NFCOption from '../NFCChannel/NFCOption';
 
 function ImportDescriptorScreen({ navigation }) {
+  const { colorMode } = useColorMode();
   const [inputText, setInputText] = useState(``);
   //   const { recoveryLoading, initateRecovery } = useConfigRecovery();
   const [walletCreationLoading, setWalletCreationLoading] = useState(false);
@@ -89,7 +90,7 @@ function ImportDescriptorScreen({ navigation }) {
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <TouchableWithoutFeedback
         onPress={() => {
           Keyboard.dismiss();
@@ -99,11 +100,10 @@ function ImportDescriptorScreen({ navigation }) {
           <HeaderTitle
             title="Create Wallet through descriptors"
             subtitle="Create Collabrative Wallet through descriptor"
-            headerTitleColor="light.textBlack"
             paddingTop={hp(5)}
             paddingLeft={wp(20)}
           />
-          <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
+          <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput
               placeholder="Enter the output descriptor"
               placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
