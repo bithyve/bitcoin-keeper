@@ -174,7 +174,7 @@ function WalletDetails({ route }) {
           backgroundColor={`${colorMode}.accent`}
           style={styles.transferPolicyCard}
           onPress={() => {
-            navigation.navigate('WalletSettings', {
+            navigation.navigate('WalletDetailsSettings', {
               wallet,
               editPolicy: true,
             });
