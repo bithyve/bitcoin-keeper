@@ -52,3 +52,14 @@ platform :ios do
     upload_to_testflight
   end
 end
+
+after_all do |lane|
+  slack(message: "Build success :rocket:")
+  end
+
+  error do |lane, exception|
+    slack(
+      message: exception.message,
+      success:false
+    )
+  end
