@@ -49,6 +49,12 @@ import RampModal from '../WalletDetails/components/RampModal';
 import CurrencyInfo from './components/CurrencyInfo';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import ListItemView from './components/ListItemView';
+import { NewWalletInfo } from 'src/store/sagas/wallets';
+import { v4 as uuidv4 } from 'uuid';
+import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
+import { resetRealyWalletState } from 'src/store/reducers/bhr';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
+import { addNewWallets } from 'src/store/sagaActions/wallets';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(180);
@@ -125,9 +131,9 @@ function WalletItem({
         onPress={
           isCollaborativeWallet
             ? () =>
-              navigation.navigate('VaultDetails', {
-                collaborativeWalletId: item.collaborativeWalletId,
-              })
+                navigation.navigate('VaultDetails', {
+                  collaborativeWalletId: item.collaborativeWalletId,
+                })
             : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
         }
       >
@@ -260,6 +266,9 @@ const WalletsScreen = ({ navigation }) => {
   const [addImportVisible, setAddImportVisible] = useState(false);
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
+  const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
 
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
@@ -300,7 +309,29 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [electrumClientConnectionStatus.setElectrumNotConnectedErr]);
 
-  useEffect(() => { }, [recepitVerificationError, recepitVerificationFailed]);
+  useEffect(() => {
+    if (relayWalletUpdate) {
+      if (defaultWalletCreation && wallets[collaborativeWallets.length]) {
+        navigation.navigate('SetupCollaborativeWallet', {
+          coSigner: wallets[collaborativeWallets.length],
+          walletId: wallets[collaborativeWallets.length].id,
+          collaborativeWalletsCount: collaborativeWallets.length,
+        });
+        dispatch(resetRealyWalletState());
+        setDefaultWalletCreation(false);
+      }
+    }
+    if (relayWalletError) {
+      showToast(
+        realyWalletErrorMessage || 'Something went wrong - Wallet creation failed',
+        <ToastErrorIcon />
+      );
+      setDefaultWalletCreation(false);
+      dispatch(resetRealyWalletState());
+    }
+  }, [relayWalletUpdate, relayWalletError, wallets]);
+
+  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
 
   async function downgradeToPleb() {
     try {
@@ -323,6 +354,22 @@ const WalletsScreen = ({ navigation }) => {
       //
     }
   }
+
+  const addNewDefaultWallet = (walletsCount) => {
+    const newWallet: NewWalletInfo = {
+      walletType: WalletType.DEFAULT,
+      walletDetails: {
+        name: `Wallet ${walletsCount + 1} `,
+        description: `Single-sig Wallet`,
+        transferPolicy: {
+          id: uuidv4(),
+          threshold: defaultTransferPolicyThreshold,
+        },
+      },
+    };
+    dispatch(addNewWallets([newWallet]));
+  };
+
   function AddImportWallet({ wallets, collaborativeWallets }) {
     const addCollaborativeWallet = () => {
       setAddImportVisible(false);
@@ -335,10 +382,8 @@ const WalletsScreen = ({ navigation }) => {
           collaborativeWalletsCount,
         });
       } else {
-        showToast(
-          'Please create a wallet before creating a Collaborative Wallet. ',
-          <ToastErrorIcon />
-        );
+        setDefaultWalletCreation(true);
+        addNewDefaultWallet(wallets.length);
       }
     };
 
@@ -449,6 +494,7 @@ const WalletsScreen = ({ navigation }) => {
   return (
     <HomeScreenWrapper>
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
+      <ActivityIndicatorView visible={defaultWalletCreation} />
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
           <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_HotWallet">
@@ -542,7 +588,7 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -551,7 +597,7 @@ const WalletsScreen = ({ navigation }) => {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        closeOnOverlayClick={() => {}}
         showButtons
         showCloseIcon={false}
       />
