@@ -34,6 +34,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Push a new dev build to Slack
 
+### android live
+
+```sh
+[bundle exec] fastlane android live
+```
+
+Push a new live build to Slack and internal track on Play Store
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
