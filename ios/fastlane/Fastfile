@@ -51,6 +51,41 @@ platform :ios do
     output_directory: "./builds")
     upload_to_testflight
   end
+
+  desc "Push a new live build to TestFlight"
+  lane :live do
+    ENV['ENVFILE'] = '.env.production'
+    get_certificates( # Create or get certificate, and install it
+      output_path: "./builds" # Download certificate in the build folder (you don't need to create the folder)
+    )
+
+    get_provisioning_profile( # Create or get provisioning profile
+      output_path: "./builds",  # Download provisioning profile in the build folder
+      filename: "Keeper_Distribution.mobileprovision" # Rename the local provisioning profile
+    )
+
+    update_project_provisioning( # Set the project provisioning profile (related in Xcode to the General > Signing Release section)
+      xcodeproj: "hexa_keeper.xcodeproj",
+      target_filter: "hexa_keeper", # Name of your project
+      profile: "./builds/Keeper_Distribution.mobileprovision",
+      build_configuration: "Release"
+    )
+
+    update_project_team( # Set the right team on your project
+      teamid: CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+    )
+
+    build_app(workspace: "hexa_keeper.xcworkspace", scheme: "hexa_keeper", clean: true,
+    export_method: "app-store",
+    export_options: {
+      provisioningProfiles: {
+          CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier) => CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier) + " AppStore" # Value of this parameter is the name of the Provisioning Profile. By default, it will be "{bundleId} AppStore"
+      }
+    },
+    build_path: "./builds",
+    output_directory: "./builds")
+    upload_to_testflight
+  end
 end
 
 after_all do |lane|
