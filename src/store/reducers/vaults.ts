@@ -2,9 +2,9 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import _ from 'lodash';
-import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 import { reduxStorage } from 'src/storage';
 import persistReducer from 'redux-persist/es/persistReducer';
+import { ADD_NEW_VAULT, ADD_SIGINING_DEVICE } from '../sagaActions/vaults';
 
 export interface VaultCreationPayload {
   hasNewVaultGenerationSucceeded: boolean;
@@ -160,10 +160,10 @@ const vaultSlice = createSlice({
       state.intrimVault = null;
     },
     resetVaultFlags: (state) => {
-      (state.isGeneratingNewVault = false),
-        (state.hasNewVaultGenerationSucceeded = false),
-        (state.hasNewVaultGenerationFailed = false),
-        (state.error = null);
+      state.isGeneratingNewVault = false;
+      state.hasNewVaultGenerationSucceeded = false;
+      state.hasNewVaultGenerationFailed = false;
+      state.error = null;
     },
     setTempShellId: (state, action: PayloadAction<string>) => {
       state.tempShellId = action.payload;

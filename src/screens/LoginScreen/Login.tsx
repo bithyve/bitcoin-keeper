@@ -1,8 +1,8 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -54,14 +54,16 @@ function LoginScreen({ navigation, route }) {
   const [resetPassSuccessVisible, setResetPassSuccessVisible] = useState(false);
   const existingFCMToken = useAppSelector((state) => state.notifications.fcmToken);
   const { loginMethod, torEnbled } = useAppSelector((state) => state.settings);
-  const { appId, failedAttempts, lastLoginFailedAt, } = useAppSelector((state) => state.storage);
+  const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
   const [canLogin, setCanLogin] = useState(false);
-  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector((state) => state.login);
+  const { isAuthenticated, authenticationFailed, recepitVerificationError } = useAppSelector(
+    (state) => state.login
+  );
 
   const { translations } = useContext(LocalizationContext);
   const { login } = translations;
@@ -80,7 +82,6 @@ function LoginScreen({ navigation, route }) {
       RestClient.unsubscribe(onChangeTorStatus);
     };
   }, [loggingIn]);
-
 
   useEffect(() => {
     if (failedAttempts >= 1) {
@@ -280,22 +281,24 @@ function LoginScreen({ navigation, route }) {
   function LoginModalContent() {
     return (
       <Box style={{ width: wp(280) }}>
-        <Box style={styles.modalAssetsWrapper}>
-          {modelAsset}
-        </Box>
+        <Box style={styles.modalAssetsWrapper}>{modelAsset}</Box>
         <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
           {modelMessage}
         </Text>
-        {modelButtonText === null ? <Text color={`${colorMode}.greenText`} style={[styles.modalMessageText, { paddingTop: hp(20) }]}>
-          This step will take a few seconds. You would be able to proceed soon
-        </Text> : null}
+        {modelButtonText === null ? (
+          <Text
+            color={`${colorMode}.greenText`}
+            style={[styles.modalMessageText, { paddingTop: hp(20) }]}
+          >
+            This step will take a few seconds. You would be able to proceed soon
+          </Text>
+        ) : null}
       </Box>
     );
   }
 
-
   function resetToPleb() {
-    const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0]
+    const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
     const updatedSubscription: SubScription = {
       receipt: '',
       productId: SubscriptionTier.L1,
@@ -317,14 +320,12 @@ function LoginScreen({ navigation, route }) {
         {/* <Text numberOfLines={1} style={[styles.btnText, { marginBottom: 30, marginTop: 20 }]}>You may choose to downgrade to Pleb</Text> */}
         <Box mt={10} alignItems="center" flexDirection="row">
           <TouchableOpacity
-            style={[
-              styles.cancelBtn,
-            ]}
+            style={[styles.cancelBtn]}
             onPress={() => {
               setLoginError(false);
               setLogging(false);
               dispatch(setRecepitVerificationError(false));
-              resetToPleb()
+              resetToPleb();
             }}
             activeOpacity={0.5}
           >
@@ -342,7 +343,7 @@ function LoginScreen({ navigation, route }) {
           >
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box
-                style={[styles.createBtn,]}
+                style={[styles.createBtn]}
                 paddingLeft={10}
                 paddingRight={10}
                 backgroundColor={{
@@ -361,7 +362,7 @@ function LoginScreen({ navigation, route }) {
           </TouchableOpacity>
         </Box>
       </Box>
-    )
+    );
   }
 
   return (
@@ -501,7 +502,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => { }}
+        close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
@@ -517,7 +518,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -615,7 +616,7 @@ const styles = StyleSheet.create({
   createBtn: {
     paddingVertical: hp(15),
     borderRadius: 10,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   cancelBtn: {
     marginRight: wp(20),
@@ -634,7 +635,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     letterSpacing: 0.65,
     width: wp(275),
-  }
+  },
 });
 
 export default LoginScreen;

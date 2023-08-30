@@ -133,7 +133,10 @@ function ImportWalletDetailsScreen({ route }) {
         <View style={styles.dotContainer}>
           <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
             {[1, 2, 3].map((item, index) => (
-              <View key={index} style={index == 1 ? styles.selectedDot : styles.unSelectedDot} />
+              <View
+                key={item.toString()}
+                style={index === 1 ? styles.selectedDot : styles.unSelectedDot}
+              />
             ))}
           </View>
           <Box style={styles.ctaBtnWrapper}>

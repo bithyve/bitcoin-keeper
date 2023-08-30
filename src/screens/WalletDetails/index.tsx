@@ -1,5 +1,5 @@
-import { StatusBar, StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Box, HStack, Pressable, StatusBar, useColorMode, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -95,7 +95,8 @@ function WalletDetails({ route }) {
 
   useEffect(() => {
     if (!syncing) {
-      dispatch(refreshWallets([wallet], { hardRefresh: true }));
+      // temporarily disabled due to huge performance lag (never call dispatch in useEffect)
+      // dispatch(refreshWallets([wallet], { hardRefresh: true }));
     }
   }, []);
 
@@ -112,7 +113,7 @@ function WalletDetails({ route }) {
 
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.greenText2`}>
-      <StatusBar barStyle="light-content" backgroundColor={`${colorMode}.greenText2`} />
+      <StatusBar barStyle="light-content" />
       <VStack mr={5}>
         <HeaderTitle
           learnMore
@@ -168,62 +169,48 @@ function WalletDetails({ route }) {
         flex={1}
         justifyContent="space-between"
       >
-        {/* <WalletInfo wallets={wallets} /> */}
-        {/* {Transfer pollicy} */}
-        <Box style={styles.transferPolicyContainer}>
-          <Pressable
-            backgroundColor={`${colorMode}.accent`}
-            style={styles.transferPolicyCard}
-            onPress={() => {
-              navigation.navigate('WalletSettings', {
-                wallet,
-                editPolicy: true,
-              });
-            }}
-          >
-            <Box style={styles.transferPolicyContent}>
-              <Box
+        <Pressable
+          key={wallet?.id}
+          backgroundColor={`${colorMode}.accent`}
+          style={styles.transferPolicyCard}
+          onPress={() => {
+            navigation.navigate('WalletDetailsSettings', {
+              wallet,
+              editPolicy: true,
+            });
+          }}
+        >
+          <Box style={styles.transferPolicyContent}>
+            <Box
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Text
+                color="light.learnMoreBorder"
+                fontSize={12}
                 style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
+                  letterSpacing: 0.6,
                 }}
               >
-                <Text
-                  color="light.learnMoreBorder"
-                  fontSize={12}
-                  style={{
-                    letterSpacing: 0.6,
-                  }}
-                >
-                  Transfer Policy is set at{'  '}
-                </Text>
-                <CurrencyInfo
-                  hideAmounts={false}
-                  amount={wallet?.transferPolicy.threshold}
-                  fontSize={14}
-                  color="light.learnMoreBorder"
-                  variation="dark"
-                />
-              </Box>
-              <Box>
-                <Arrow />
-              </Box>
+                Transfer Policy is set at{'  '}
+              </Text>
+              <CurrencyInfo
+                hideAmounts={false}
+                amount={wallet?.transferPolicy.threshold}
+                fontSize={14}
+                color="light.learnMoreBorder"
+                variation="dark"
+              />
             </Box>
-          </Pressable>
-        </Box>
+            <Box>
+              <Arrow />
+            </Box>
+          </Box>
+        </Pressable>
         {wallet ? (
           <>
-            {/* <UTXOsManageNavBox
-            wallet={wallet}
-            isWhirlpoolWallet={Boolean(wallet?.whirlpoolConfig?.whirlpoolWalletDetails?.length)}
-            onClick={() => {
-              navigation.navigate('UTXOManagement', {
-                data: wallet,
-                routeName: 'Wallet',
-                accountType: WalletType.DEFAULT,
-              });
-            }}
-          /> */}
             <HStack style={styles.transTitleWrapper}>
               <Text color={`${colorMode}.black`} fontSize={16} letterSpacing={1.28}>
                 Transactions
@@ -238,14 +225,6 @@ function WalletDetails({ route }) {
                   }
                 >
                   <HStack alignItems="center">
-                    {/* <TouchableOpacity
-                      onPress={() =>
-                        navigation.navigate('VaultTransactions', {
-                          title: 'Wallet Transactions',
-                          subtitle: 'All incoming and outgoing transactions',
-                        })
-                      }
-                    > */}
                     <Text
                       color={`${colorMode}.primaryGreen`}
                       marginRight={2}
@@ -255,7 +234,6 @@ function WalletDetails({ route }) {
                     >
                       View All
                     </Text>
-                    {/* </TouchableOpacity> */}
                     <IconArrowBlack />
                   </HStack>
                 </TouchableOpacity>
@@ -373,11 +351,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  transferPolicyContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: hp(15),
-  },
+
   transferPolicyCard: {
     paddingHorizontal: wp(10),
     height: hp(50),
@@ -386,6 +360,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: hp(15),
   },
   transferPolicyContent: {
     paddingLeft: wp(10),

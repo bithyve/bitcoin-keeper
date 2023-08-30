@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
-import { Dimensions, StatusBar, StyleSheet } from 'react-native';
+import { Box, StatusBar, useColorMode } from 'native-base';
+import { Dimensions, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   heightPercentageToDP as hp,
@@ -145,11 +145,7 @@ export default function CreatePin(props) {
   }
 
   return (
-    <Box
-      testID="main"
-      style={styles.linearGradient}
-      backgroundColor='light.pantoneGreen'
-    >
+    <Box testID="main" style={styles.linearGradient} backgroundColor="light.pantoneGreen">
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -171,7 +167,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                    `light.error`
+                      `light.error`
                     : 'transparent'
                 }
               />

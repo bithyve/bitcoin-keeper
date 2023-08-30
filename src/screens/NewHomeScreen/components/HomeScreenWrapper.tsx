@@ -1,13 +1,13 @@
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import HeaderDetails from './HeaderDetails';
 
 function HomeScreenWrapper({ children }) {
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.container}>
-      <StatusBar barStyle={colorMode === 'light' ? "dark-content" : "light-content"} />
+      <StatusBar barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'} />
       <HeaderDetails />
       <Box style={styles.container}>{children}</Box>
     </Box>

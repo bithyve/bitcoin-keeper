@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useState, useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
@@ -73,8 +74,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  dropdownIconWrapper: {
+    marginLeft: 'auto',
+    height: wp('13%'),
+    justifyContent: 'center',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10
+  },
   emptyView: {
-    height: '55%',
+    height: '65%',
     marginTop: 10,
     width: 2,
     backgroundColor: '#D8A572',
@@ -157,7 +165,6 @@ const styles = StyleSheet.create({
 });
 
 function ChangeLanguage() {
-
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
   const { currencyCode, language, satsEnabled } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -188,17 +195,14 @@ function ChangeLanguage() {
           <Text style={styles.textCurrency}>{label}</Text>
         </Box>
         <Box style={styles.emptyView} />
-        <Box style={styles.textValueWrapper}>
+        <Box style={styles.textValueWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
             {value}
           </Text>
         </Box>
         <Box
-          style={{
-            marginLeft: 'auto',
-            height: wp('13%'),
-            justifyContent: 'center',
-          }}
+          style={styles.dropdownIconWrapper}
+          backgroundColor={`${colorMode}.seashellWhite`}
         >
           <Box
             style={[
@@ -220,7 +224,12 @@ function ChangeLanguage() {
       <HeaderTitle />
       <Box flex={1}>
         <Box marginLeft="5%">
-          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText} testID={`text_${settings.LanguageCountry}`}>
+          <Text
+            fontSize={16}
+            letterSpacing={0.8}
+            style={styles.mainText}
+            testID={`text_${settings.LanguageCountry}`}
+          >
             {settings.LanguageCountry}
           </Text>
           <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.GreyText`}>
@@ -302,6 +311,7 @@ function ChangeLanguage() {
           <ScrollView style={styles.langScrollViewWrapper}>
             {availableLanguages.map((item) => (
               <TouchableOpacity
+                key={item.iso}
                 onPress={() => {
                   setAppLanguage(item.iso);
                   setShowLanguages(false);

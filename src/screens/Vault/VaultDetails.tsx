@@ -1,15 +1,8 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, Pressable } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import {
-  FlatList,
-  Linking,
-  RefreshControl,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
@@ -283,7 +276,7 @@ function TransactionList({
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.txid}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <EmptyStateView
@@ -390,7 +383,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               >
                 {SDIcons(signer.type, true).Icon}
               </Box>
-              <Text bold style={styles.unregistered}>
+              <Text bold style={styles.unregistered} numberOfLines={1}>
                 {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack pb={2}>
@@ -512,7 +505,7 @@ function VaultDetails({ navigation }) {
   const { activeVault: vault } = useVault(collaborativeWalletId);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const inheritanceSigner = vault.signers.filter(
     (signer) => signer.type === SignerType.INHERITANCEKEY
   )[0];
@@ -797,7 +790,6 @@ const getStyles = (top) =>
       fontSize: 8,
       letterSpacing: 0.6,
       textAlign: 'center',
-      numberOfLines: 1,
       lineHeight: 16,
     },
     rampBuyContentWrapper: {

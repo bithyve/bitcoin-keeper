@@ -42,7 +42,7 @@ function VaultScreen() {
       {/* <BalanceToggle hideAmounts={hideAmounts} setHideAmounts={setHideAmounts} /> */}
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
-          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID='text_YourVault'>
+          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_YourVault">
             Your Vault
           </Text>
           {/* <Text style={styles.subTitleText} color="light.secondaryText">
@@ -70,7 +70,11 @@ function VaultScreen() {
                     </Text>
                     <Box style={styles.signingDeviceList}>
                       {signers.map((signer: any) => (
-                        <Box backgroundColor="rgba(245, 241, 234, .2)" style={styles.vaultSigner}>
+                        <Box
+                          backgroundColor="rgba(245, 241, 234, .2)"
+                          style={styles.vaultSigner}
+                          key={signer.signerId}
+                        >
                           {SDIcons(signer.type, colorMode !== 'dark').Icon}
                         </Box>
                       ))}
@@ -78,13 +82,16 @@ function VaultScreen() {
                   </Box>
                 </Box>
                 <Box style={styles.availableBalanceWrapper}>
-                  <TouchableOpacity onPress={() => setHideAmounts(!hideAmounts)} testID='btn_vaultBalance'>
+                  <TouchableOpacity
+                    onPress={() => setHideAmounts(!hideAmounts)}
+                    testID="btn_vaultBalance"
+                  >
                     <CurrencyInfo
                       hideAmounts={hideAmounts}
                       amount={confirmedBalance + unconfirmedBalance}
                       fontSize={20}
                       color={colorMode === 'light' ? 'white' : 'black'}
-                      variation={colorMode === 'light' ? "light" : "dark"}
+                      variation={colorMode === 'light' ? 'light' : 'dark'}
                     />
                   </TouchableOpacity>
                 </Box>
@@ -117,7 +124,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 16,
     fontFamily: Fonts.RobotoCondensedMedium,
-    letterSpacing: 1.28
+    letterSpacing: 1.28,
   },
   subTitleText: {
     fontSize: 12,
@@ -127,7 +134,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginVertical: hp(20),
     height: hp(210),
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   emptyVaultSignerWrapper: {
     // paddingVertical: 45,

@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React, { useContext, useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
@@ -18,6 +18,7 @@ import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 function CosignerDetails() {
+  const { colorMode } = useColorMode();
   const { params } = useRoute();
   const { wallet } = params as { wallet: Wallet };
   const { showToast } = useToastMessage();
@@ -35,10 +36,11 @@ function CosignerDetails() {
   }, []);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
         title="Cosigner Details"
         subtitle="Scan the cosigner details from another app in order to add this as a signer"
+        paddingLeft={25}
       />
       <Box style={styles.center}>
         <ShowXPub
@@ -55,7 +57,7 @@ function CosignerDetails() {
             <ShareWithNfc data={details} />
           </Box>
         ) : null}
-        <Note title="Note" subtitle="The cosigner details are for the selected wallet only" />
+        <Note title="Note" subtitle="The cosigner details are for the selected wallet only" subtitleColor="GreyText" />
         <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
       </Box>
     </ScreenWrapper>

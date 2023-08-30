@@ -39,6 +39,7 @@ function ScanQR() {
     type,
     isHealthcheck = false,
     signer,
+    disableMockFlow = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -112,7 +113,7 @@ function ScanQR() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={type} enable={setup && type}>
+      <MockWrapper signerType={type} enable={setup && type && !disableMockFlow}>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
           <ScrollView
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cameraView: {
-    height: hp(280),
+    height: hp(320),
     width: wp(375),
   },
   noteWrapper: {

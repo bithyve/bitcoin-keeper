@@ -55,7 +55,7 @@ function TransactionDetails({ route }) {
       >
         <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
           <Box width={showIcon ? '90%' : '100%'}>
-            <Text color={`${colorMode}.headerText`} style={styles.titleText}>
+            <Text color={`${colorMode}.headerText`} style={styles.titleText} numberOfLines={1}>
               {title}
             </Text>
             {Content ? (
@@ -79,7 +79,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };
@@ -113,9 +114,9 @@ function TransactionDetails({ route }) {
                 {getSatUnit()}
               </Text>
             </Text>
-          </Box >
-        </Box >
-      </Box >
+          </Box>
+        </Box>
+      </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
           {txnLabels.length ? (
@@ -181,7 +182,7 @@ function TransactionDetails({ route }) {
           ) : null}
         </Box>
       </ScrollView>
-    </Box >
+    </Box>
   );
 }
 
@@ -220,7 +221,6 @@ const styles = ScaledSheet.create({
     fontSize: 14,
     letterSpacing: 1.12,
     width: '90%',
-    numberOfLines: 1,
   },
   descText: {
     fontSize: 12,

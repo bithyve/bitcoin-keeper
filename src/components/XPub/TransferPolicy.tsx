@@ -21,7 +21,15 @@ import Buttons from '../Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
-function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; close: () => void; secondaryBtnPress: () => void; }) {
+function TransferPolicy({
+  wallet,
+  close,
+  secondaryBtnPress,
+}: {
+  wallet: Wallet;
+  close: () => void;
+  secondaryBtnPress: () => void;
+}) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
@@ -61,7 +69,7 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
       wallet.transferPolicy.threshold = Number(policyText);
       dispatch(
         updateWalletProperty({
-          wallet,
+          walletId: wallet.id,
           key: 'transferPolicy',
           value: {
             id: uuidv4(),
@@ -86,9 +94,7 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
           backgroundColor={`${colorMode}.seashellWhite`}
           padding={3}
         >
-          <View marginLeft={4}>
-            {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
-          </View>
+          <View marginLeft={4}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</View>
           <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
             bold
@@ -119,7 +125,7 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+        keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
         ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
       />
       {relayWalletUpdateLoading && <ActivityIndicatorView visible={relayWalletUpdateLoading} />}
