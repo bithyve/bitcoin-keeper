@@ -20,8 +20,8 @@
     "uninstall android:dev": "adb uninstall io.hexawallet.keeper.development",
     "release android dev": "cd android && ENVFILE=.env fastlane dev --env dev",
     "release android prod": "cd android && ENVFILE=.env.production fastlane live --env production",
-    "release ios dev": "cd ios && fastlane dev --env dev",
-    "release ios prod": "cd ios && fastlane live --env prod"
+    "release ios dev": "cd ios && ENVFILE=.env fastlane dev --env dev",
+    "release ios prod": "cd ios && ENVFILE=.env.production fastlane live --env production"
   },
   "dependencies": {
     "@ngraveio/bc-ur": "^1.1.6",
