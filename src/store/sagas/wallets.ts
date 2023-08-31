@@ -493,8 +493,13 @@ export function* addNewVaultWorker({
   try {
     const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
-    const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
-      newVaultInfo;
+    const {
+      vaultType = VaultType.DEFAULT,
+      vaultScheme,
+      vaultSigners,
+      vaultDetails,
+      collaborativeWalletId,
+    } = newVaultInfo;
 
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
@@ -582,7 +587,12 @@ function* migrateVaultWorker({
   payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType; vaultShellId: string };
 }) {
   try {
-    const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
+    const {
+      vaultType = VaultType.DEFAULT,
+      vaultScheme,
+      vaultSigners,
+      vaultDetails,
+    } = payload.newVaultData;
     const { vaultShellId } = payload;
 
     if (vaultScheme.n !== vaultSigners.length)
