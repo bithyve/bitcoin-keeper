@@ -289,15 +289,15 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Show CoSigner details"
+            title="Show Co-signer Details"
             subTitle="Use this wallet as a cosigner with other vaults"
             onPress={() => {
               navigation.navigate('CosignerDetails', { wallet });
             }}
           />
           <Option
-            title={`Act as CoSigner - ${wallet.id}`}
-            subTitle="Sign transactions as a CoSigner"
+            title="Act as Co-signer"
+            subTitle={`Sign transactions (${wallet.id})`}
             onPress={() => {
               navigation.dispatch(
                 CommonActions.navigate({

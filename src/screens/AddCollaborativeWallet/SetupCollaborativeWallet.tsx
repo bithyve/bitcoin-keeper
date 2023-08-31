@@ -95,13 +95,13 @@ function SignerItem({
                   numberOfLines={2}
                   style={[globalStyles.font15, { letterSpacing: 1.12, alignItems: 'center' }]}
                 >
-                  {`Add ${getPlaceholder(index)} CoSigner`}
+                  {`Add ${getPlaceholder(index)} co-signer`}
                 </Text>
                 <Text
                   color={`${colorMode}.GreyText`}
                   style={[globalStyles.font13, { letterSpacing: 0.06 }]}
                 >
-                  {index === 0 ? 'Adding your key...' : 'Add a coSigner'}
+                  {index === 0 ? 'Adding your key...' : 'Add a co-signer'}
                 </Text>
               </VStack>
             </HStack>
@@ -194,8 +194,8 @@ function ListFooter(wallet: Wallet, signPSBT: any) {
       <Spacer />
       <OptionCTA
         icon={null}
-        title="Show CoSigner Details"
-        subtitle="This is a read-only wallet"
+        title="Show Co-signer Details"
+        subtitle="Add to another Collaborative Wallet"
         callback={() => {
           navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
         }}
@@ -204,7 +204,7 @@ function ListFooter(wallet: Wallet, signPSBT: any) {
       <OptionCTA
         icon={null}
         title="Import Collaborative Wallet"
-        subtitle="This is a read-only wallet"
+        subtitle="To view wallet on this app"
         callback={() => {
           navigation.dispatch(CommonActions.navigate('ImportDescriptorScreen', { walletId: id }));
         }}
@@ -212,8 +212,8 @@ function ListFooter(wallet: Wallet, signPSBT: any) {
       <Spacer />
       <OptionCTA
         icon={null}
-        title={`Act as CoSigner - ${id}`}
-        subtitle="Sign transactions as a CoSigner"
+        title="Act as Co-signer"
+        subtitle={`Sign transactions (${id})`}
         callback={() => {
           navigation.dispatch(
             CommonActions.navigate({
