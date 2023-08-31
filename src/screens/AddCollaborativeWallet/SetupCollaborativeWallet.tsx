@@ -33,6 +33,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
+import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
 
@@ -328,6 +329,7 @@ function SetupCollaborativeWallet() {
     }, 200);
     return () => {
       dispatch(resetVaultFlags());
+      dispatch(resetRealyVaultState());
     };
   }, []);
 
@@ -342,6 +344,8 @@ function SetupCollaborativeWallet() {
         ],
       };
       navigation.dispatch(CommonActions.reset(navigationState));
+      dispatch(resetVaultFlags());
+      dispatch(resetRealyVaultState());
     }
     if (hasNewVaultGenerationFailed) {
       setIsCreating(false);
