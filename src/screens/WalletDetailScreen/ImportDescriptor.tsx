@@ -29,7 +29,6 @@ import NFCOption from '../NFCChannel/NFCOption';
 function ImportDescriptorScreen({ navigation }) {
   const { colorMode } = useColorMode();
   const [inputText, setInputText] = useState(``);
-  //   const { recoveryLoading, initateRecovery } = useConfigRecovery();
   const [walletCreationLoading, setWalletCreationLoading] = useState(false);
   const { showToast } = useToastMessage();
   const route = useRoute();
@@ -106,7 +105,7 @@ function ImportDescriptorScreen({ navigation }) {
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput
               placeholder="Enter the output descriptor"
-              placeholderTextColor={`${colorMode}.GreyText`}
+              placeholderTextColor={Colors.Feldgrau} // TODO: change this to colorMode
               style={styles.textInput}
               value={inputText}
               onChangeText={(text) => {

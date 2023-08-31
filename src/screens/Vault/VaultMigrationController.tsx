@@ -55,7 +55,7 @@ function VaultMigrationController({
   }, [vaultCreating]);
 
   useEffect(() => {
-    if (relayVaultUpdate) {
+    if (relayVaultUpdate && activeVault) {
       const navigationState = {
         index: 1,
         routes: [
