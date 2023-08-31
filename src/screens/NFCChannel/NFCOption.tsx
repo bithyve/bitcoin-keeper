@@ -45,7 +45,8 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         type: [DocumentPicker.types.allFiles],
       });
       try {
-        const cosigner = await RNFS.readFile(result[0].uri);
+        const filePath = result[0].uri.split('%20').join(' ');
+        const cosigner = await RNFS.readFile(filePath);
         setData(cosigner);
       } catch (err) {
         captureError(err);
