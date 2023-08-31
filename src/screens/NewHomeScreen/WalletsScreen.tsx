@@ -331,8 +331,6 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
-  useEffect(() => {}, [recepitVerificationError, recepitVerificationFailed]);
-
   async function downgradeToPleb() {
     try {
       const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
