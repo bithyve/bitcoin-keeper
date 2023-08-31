@@ -31,6 +31,7 @@ import useWhirlpoolWallets, {
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { resetSyncing } from 'src/store/reducers/wallets';
+import useToastMessage from 'src/hooks/useToastMessage';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -73,6 +74,7 @@ function Footer({
   remixingToVault,
 }) {
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
 
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
@@ -89,7 +91,8 @@ function Footer({
       Alert.alert('Please select atleast one UTXO');
       return;
     }
-    setShowBatteryWarningModal(true);
+    showToast('This feature is currently under review'); // temporarily disabling whirlpool mix
+    // setShowBatteryWarningModal(true);
   };
 
   return enableSelection ? (
@@ -216,16 +219,16 @@ function UTXOManagement({ route, navigation }) {
 
   const utxos = selectedWallet
     ? selectedWallet.specs.confirmedUTXOs
-      ?.map((utxo) => {
-        utxo.confirmed = true;
-        return utxo;
-      })
-      .concat(
-        selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
-          utxo.confirmed = false;
+        ?.map((utxo) => {
+          utxo.confirmed = true;
           return utxo;
         })
-      )
+        .concat(
+          selectedWallet.specs.unconfirmedUTXOs?.map((utxo) => {
+            utxo.confirmed = false;
+            return utxo;
+          })
+        )
     : [];
 
   useEffect(() => {
