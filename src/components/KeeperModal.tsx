@@ -1,4 +1,4 @@
-import { Box, Modal, Pressable } from 'native-base';
+import { Box, Modal, Pressable, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
 
@@ -46,9 +46,9 @@ KeeperModal.defaultProps = {
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: '#073E39',
-  buttonCallback: () => {},
+  buttonCallback: () => { },
   secondaryButtonText: null,
-  secondaryCallback: () => {},
+  secondaryCallback: () => { },
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -56,7 +56,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => {},
+  learnMoreCallback: () => { },
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
@@ -89,6 +89,7 @@ function KeeperModal(props: ModalProps) {
     showCloseIcon,
     justifyContent,
   } = props;
+  const { colorMode } = useColorMode();
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
@@ -144,9 +145,9 @@ function KeeperModal(props: ModalProps) {
             {((showButtons && learnMore) || !!buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+                  <Box borderColor={`${colorMode}.lightAccent`} backgroundColor={`${colorMode}.modalGreenLearnMore`} style={styles.learnMoreContainer}>
                     <Pressable onPress={learnMoreCallback}>
-                      <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+                      <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
                         See FAQs
                       </Text>
                     </Pressable>
@@ -231,7 +232,6 @@ const getStyles = (subTitleWidth) =>
       borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#00433A',
       height: hp(34),
       width: wp(110),
       marginLeft: wp(10),

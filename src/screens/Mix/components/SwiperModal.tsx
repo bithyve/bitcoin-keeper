@@ -102,13 +102,13 @@ function List() {
         viewabilityConfig={viewConfigRef.current}
       />
       <Box style={styles.ctaWrapper}>
-        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+        <Box borderColor={`${colorMode}.lightAccent`} backgroundColor={`${colorMode}.modalGreenLearnMore`} style={styles.learnMoreContainer}>
           <Pressable
             onPress={() => {
               openLink('https://www.bitcoinkeeper.app/');
             }}
           >
-            <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+            <Text borderColor={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
               See FAQs
             </Text>
           </Pressable>
@@ -181,7 +181,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#00433A',
     height: hp(34),
     width: wp(110),
   },
