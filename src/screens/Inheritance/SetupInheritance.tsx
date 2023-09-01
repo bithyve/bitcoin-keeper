@@ -195,8 +195,8 @@ function SetupInheritance() {
         modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
         textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
-        buttonTextColor={`${colorMode}.greenText`}
-        buttonBackground={['#FFF', '#80A8A1']}
+        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
         DarkCloseIcon

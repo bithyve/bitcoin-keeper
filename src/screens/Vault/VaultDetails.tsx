@@ -697,9 +697,9 @@ function VaultDetails({ navigation }) {
         modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
         buttonText="Continue"
-        buttonTextColor={`${colorMode}.greenText`}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}

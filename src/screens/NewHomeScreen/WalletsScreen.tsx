@@ -45,16 +45,16 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Fonts from 'src/common/Fonts';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
-import RampModal from '../WalletDetails/components/RampModal';
-import CurrencyInfo from './components/CurrencyInfo';
-import HomeScreenWrapper from './components/HomeScreenWrapper';
-import ListItemView from './components/ListItemView';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
 import { v4 as uuidv4 } from 'uuid';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
+import ListItemView from './components/ListItemView';
+import HomeScreenWrapper from './components/HomeScreenWrapper';
+import CurrencyInfo from './components/CurrencyInfo';
+import RampModal from '../WalletDetails/components/RampModal';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(180);
@@ -116,27 +116,28 @@ function WalletItem({
   const { wallet } = translations;
   const opacity = isActive ? 1 : 0.5;
   return (
-    <Box
-      backgroundColor={`${colorMode}.pantoneGreen`}
-      style={[
-        styles.walletContainer,
-        {
-          width: !(item?.presentationData && item?.specs) ? 120 : TILE_WIDTH,
-          opacity,
-          justifyContent: 'flex-end',
-        },
-      ]}
+    <TouchableOpacity
+      onPress={
+        isCollaborativeWallet
+          ? () =>
+            navigation.navigate('VaultDetails', {
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
+          : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
+      }
     >
-      <TouchableOpacity
-        onPress={
-          isCollaborativeWallet
-            ? () =>
-                navigation.navigate('VaultDetails', {
-                  collaborativeWalletId: item.collaborativeWalletId,
-                })
-            : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
-        }
+      <Box
+        backgroundColor={`${colorMode}.pantoneGreen`}
+        style={[
+          styles.walletContainer,
+          {
+            width: !(item?.presentationData && item?.specs) ? 120 : TILE_WIDTH,
+            opacity,
+            justifyContent: 'flex-end',
+          },
+        ]}
       >
+
         {!(item?.presentationData && item?.specs) ? (
           <AddNewWalletTile
             walletIndex={walletIndex}
@@ -155,8 +156,9 @@ function WalletItem({
             hideAmounts={hideAmounts}
           />
         )}
-      </TouchableOpacity>
-    </Box>
+
+      </Box>
+    </TouchableOpacity>
   );
 }
 
@@ -586,7 +588,7 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -595,7 +597,7 @@ const WalletsScreen = ({ navigation }) => {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />

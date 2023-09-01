@@ -164,7 +164,7 @@ function SetupTapsigner({ route }) {
       <Box flex={1}>
         <HeaderTitle
           title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
-          subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
+          subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
           onPressHandler={() => navigation.goBack()}
           paddingLeft={wp(25)}
         />

@@ -76,9 +76,9 @@ const getDeviceStatus = (
       return !isOnL1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
-            message: '',
-            disabled: false,
-          };
+          message: '',
+          disabled: false,
+        };
     case SignerType.SEED_WORDS:
     case SignerType.KEEPER:
     case SignerType.JADE:
@@ -250,9 +250,9 @@ function SigningDeviceList() {
             `${colorMode}.modalGreenBackground`,
             `${colorMode}.modalGreenBackground`,
           ]}
-          buttonBackground={['#FFFFFF', '#80A8A1']}
+          buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+          buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
           buttonText="Add Now"
-          buttonTextColor={`${colorMode}.greenText`}
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
