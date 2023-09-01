@@ -49,8 +49,8 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Proceed"
-      buttonTextColor="light.greenText2"
-      buttonBackground={['#FFFFFF', '#80A8A1']}
+      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
       buttonCallback={() => closeModal()}
     />
   );
