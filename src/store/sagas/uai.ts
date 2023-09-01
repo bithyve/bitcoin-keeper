@@ -20,6 +20,7 @@ import {
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
 import { isTestnet } from 'src/common/constants/Bitcoin';
+import { EntityKind } from 'src/core/wallets/enums';
 
 const healthCheckRemider = (signer: VaultSigner) => {
   const today = new Date();
@@ -139,7 +140,10 @@ function* uaiChecksWorker({ payload }) {
       );
       for (const wallet of wallets) {
         const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
-        if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
+        if (
+          wallet.entityKind === EntityKind.WALLET &&
+          wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
+        ) {
           if (uai) {
             if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
               yield put(uaiActionedEntity(uai.entityId, false));
