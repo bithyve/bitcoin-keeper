@@ -20,7 +20,6 @@ export const realmConfig = (key) => ({
 const AppWithNetwork = ({ children }) => {
   const { networkType }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   config.setNetwork(networkType);
-  console.log({ networkType });
   return children;
 };
 
