@@ -6,9 +6,10 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VisibilityType } from 'src/core/wallets/enums';
+import { VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
@@ -89,15 +90,21 @@ function ManageWallets() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
+
+  const { wallets } = useWallets();
   const { useQuery } = useContext(RealmWrapperContext);
-  const visibleWallets: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
-    `presentationData.visibility == "${VisibilityType.DEFAULT}"`
+
+  const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
+    `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
-  const hiddenWallets: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
-    `presentationData.visibility == "${VisibilityType.HIDDEN}"`
+  const visibleWallets = walletsWithoutWhirlpool.filter(
+    (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
+  );
+  const hiddenWallets = walletsWithoutWhirlpool.filter(
+    (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);
-  const { wallets } = useWallets();
+
   const navigation = useNavigation();
   const route = useRoute();
   const dispatch = useDispatch();
