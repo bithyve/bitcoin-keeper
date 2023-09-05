@@ -4,16 +4,13 @@ import moment from 'moment';
 import Text from 'src/components/KeeperText';
 
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import { BackupHistory, BackupType } from 'src/common/data/enums/BHR';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
-import {
-  seedBackedConfirmed,
-} from 'src/store/sagaActions/bhr';
+import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +18,7 @@ import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
 import DotView from '../DotView';
 import Buttons from '../Buttons';
+import { useQuery } from '@realm/react';
 
 function BackupHealthCheckList() {
   const navigtaion = useNavigation();
@@ -29,14 +27,11 @@ function BackupHealthCheckList() {
   const { BackupWallet } = translations;
   const dispatch = useAppDispatch();
   const strings = translations.BackupWallet;
-  const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
   const { primaryMnemonic, backup }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { backupMethod, seedConfirmed } = useAppSelector(
-    (state) => state.bhr
-  );
+  const { backupMethod, seedConfirmed } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [showConfirmSeedModal, setShowConfirmSeedModal] = useState(false);
   const history = useMemo(() => data.sorted('date', true), [data]);

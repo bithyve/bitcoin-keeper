@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import BackIcon from 'src/assets/images/back_white.svg';
@@ -14,7 +14,6 @@ import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/receive.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/send.svg';
@@ -51,6 +50,7 @@ import openLink from 'src/utils/OpenLink';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import { useQuery } from '@realm/react';
 
 function Footer({
   vault,
@@ -499,7 +499,6 @@ function VaultDetails({ navigation }) {
 
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { activeVault: vault } = useVault(collaborativeWalletId);

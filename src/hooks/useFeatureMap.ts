@@ -1,7 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useQuery } from '@realm/react';
+import { useEffect, useState } from 'react';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 
 interface FeatureMap {
@@ -24,7 +24,6 @@ const useFeatureMap: useFeatureMapInterface = ({
   scheme,
   isCollaborativeWallet = false,
 }) => {
-  const { useQuery } = useContext(RealmWrapperContext);
   const {
     subscription: { level },
   }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];

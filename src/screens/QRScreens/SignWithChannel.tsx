@@ -1,9 +1,8 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { Box } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -32,6 +31,7 @@ import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
 import { signWithLedgerChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import { useQuery } from '@realm/react';
 
 function SignWithChannel() {
   const { params } = useRoute();
@@ -39,7 +39,6 @@ function SignWithChannel() {
     signer: VaultSigner;
     collaborativeWalletId: string;
   };
-  const { useQuery } = useContext(RealmWrapperContext);
   const { activeVault } = useVault(collaborativeWalletId);
   const { isMultiSig: isMultisig } = activeVault;
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(

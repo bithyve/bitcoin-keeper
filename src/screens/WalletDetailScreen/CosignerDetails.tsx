@@ -1,12 +1,11 @@
 import { StyleSheet } from 'react-native';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Box, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import Buttons from 'src/components/Buttons';
@@ -16,6 +15,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import Note from 'src/components/Note/Note';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+import { useQuery } from '@realm/react';
 
 function CosignerDetails() {
   const { colorMode } = useColorMode();
@@ -25,7 +25,6 @@ function CosignerDetails() {
   const [details, setDetails] = React.useState('');
   const navgation = useNavigation();
 
-  const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   useEffect(() => {
@@ -57,7 +56,11 @@ function CosignerDetails() {
             <ShareWithNfc data={details} />
           </Box>
         ) : null}
-        <Note title="Note" subtitle="The cosigner details are for the selected wallet only" subtitleColor="GreyText" />
+        <Note
+          title="Note"
+          subtitle="The cosigner details are for the selected wallet only"
+          subtitleColor="GreyText"
+        />
         <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
       </Box>
     </ScreenWrapper>

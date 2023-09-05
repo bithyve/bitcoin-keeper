@@ -8,7 +8,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -40,6 +39,7 @@ import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from '../Vault/MockWrapper';
+import { useQuery } from '@realm/react';
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
@@ -50,7 +50,6 @@ function ConnectChannel() {
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const dispatch = useDispatch();
   const navigation = useNavigation();

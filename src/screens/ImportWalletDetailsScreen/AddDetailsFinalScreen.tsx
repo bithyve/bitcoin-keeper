@@ -15,7 +15,6 @@ import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
@@ -41,7 +40,6 @@ function AddDetailsFinalScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;

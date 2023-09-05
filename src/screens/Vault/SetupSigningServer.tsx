@@ -2,13 +2,11 @@ import { ActivityIndicator, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Box, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
-
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import Text from 'src/components/KeeperText';
-
 import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
@@ -20,7 +18,6 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -35,13 +32,13 @@ import useVault from 'src/hooks/useVault';
 import { setTempShellId } from 'src/store/reducers/vaults';
 import { generateKey } from 'src/core/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
+import { useQuery } from '@realm/react';
 
 function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [validationModal, showValidationModal] = useState(false);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { activeVault } = useVault();
   const { tempShellId } = useAppSelector((state) => state.vault);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
@@ -52,13 +49,13 @@ function SetupSigningServer({ route }: { route }) {
   const getShellId = () => {
     if (activeVault) {
       return activeVault.shellId;
-    } if (!tempShellId) {
+    }
+    if (!tempShellId) {
       const vaultShellId = generateKey(12);
       dispatch(setTempShellId(vaultShellId));
       return vaultShellId;
     }
     return tempShellId;
-
   };
 
   const fetchSetupData = async () => {

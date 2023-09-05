@@ -1,7 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-// libraries
 import { Box, useColorMode, View } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
@@ -12,11 +11,8 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import { RNCamera } from 'react-native-camera';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// components
-import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -26,13 +22,12 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { WalletType } from 'src/core/wallets/enums';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useQuery } from '@realm/react';
 
 function ImportWalletScreen({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;

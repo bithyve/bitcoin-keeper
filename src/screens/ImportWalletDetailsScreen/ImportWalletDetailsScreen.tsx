@@ -1,27 +1,15 @@
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput } from 'react-native';
-// libraries
 import { Box, Input, View } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
+import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
-
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
-import Note from 'src/components/Note/Note';
-import { RNCamera } from 'react-native-camera';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
-// components
-import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import UploadImage from 'src/components/UploadImage';
-import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
 import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
@@ -30,14 +18,9 @@ import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
-  const { showToast } = useToastMessage();
-  const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const { home } = translations;
-  const [error, setError] = useState(false); // this state will handle error
 
   const name = route?.params?.name;
   const desc = route?.params?.description;

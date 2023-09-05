@@ -18,7 +18,6 @@ import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import openLink from 'src/utils/OpenLink';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
 import moment from 'moment';
 
@@ -28,6 +27,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import { changeLoginMethod } from '../../store/sagaActions/login';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { useQuery } from '@realm/react';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -35,7 +35,6 @@ function AppSettings({ navigation }) {
   const { colorMode, toggleColorMode } = useColorMode();
   // const [darkMode, setDarkMode] = useState(false);
   const { backupMethod } = useAppSelector((state) => state.bhr);
-  const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
 
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
@@ -69,12 +68,11 @@ function AppSettings({ navigation }) {
 
   useEffect(() => {
     if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK))
+      dispatch(setThemeMode(ThemeMode.DARK));
     } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT))
+      dispatch(setThemeMode(ThemeMode.LIGHT));
     }
-
-  }, [colorMode])
+  }, [colorMode]);
 
   useEffect(() => {
     init();
@@ -88,8 +86,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -129,7 +127,7 @@ function AppSettings({ navigation }) {
 
   const changeThemeMode = () => {
     // setDarkMode(!darkMode);
-    toggleColorMode()
+    toggleColorMode();
   };
 
   function Option({ title, subTitle, onPress, Icon }) {
@@ -254,7 +252,10 @@ function AppSettings({ navigation }) {
           />
         </ScrollView>
 
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+        <Box
+          style={styles.socialMediaLinkWrapper}
+          backgroundColor={`${colorMode}.primaryBackground`}
+        >
           <Box style={styles.socialMediaLinkWrapper2}>
             <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
               <Box
@@ -308,7 +309,10 @@ function AppSettings({ navigation }) {
           </Box>
 
           <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+            <Box
+              style={styles.bottomLinkWrapper}
+              backgroundColor={`${colorMode}.primaryBackground`}
+            >
               <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
                 <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
                   {common.FAQs}

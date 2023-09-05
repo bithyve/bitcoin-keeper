@@ -1,11 +1,10 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { hp } from 'src/common/data/responsiveness/responsive';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -19,6 +18,7 @@ import TierUpgradeModal from 'src/screens/ChoosePlanScreen/TierUpgradeModal';
 import openLink from 'src/utils/OpenLink';
 import RampModal from './RampModal';
 import VaultCreatedModal from './VaultCreatedModal';
+import { useQuery } from '@realm/react';
 
 function VaultModals({
   showBuyRampModal,
@@ -35,7 +35,6 @@ function VaultModals({
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { activeVault: vault } = useVault();
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);

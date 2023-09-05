@@ -10,7 +10,6 @@ import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
-
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -24,14 +23,12 @@ import { LocalizationContext } from 'src/common/content/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
-// import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
@@ -62,6 +59,7 @@ import SigningServer from 'src/core/services/operations/SigningServer';
 import useVault from 'src/hooks/useVault';
 import { checkSigningDevice } from './AddSigningDevice';
 import * as SecureStore from '../../storage/secure-store';
+import { useQuery } from '@realm/react';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -614,7 +612,6 @@ function HardwareModalMap({
   const [inProgress, setInProgress] = useState(false);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];

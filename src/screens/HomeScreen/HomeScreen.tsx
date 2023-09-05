@@ -4,25 +4,20 @@ import {
   InteractionManager,
   StyleSheet,
   TouchableOpacity,
-  BackHandler,
   Linking,
 } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-// Components, Hooks and fonctions
 import KeeperModal from 'src/components/KeeperModal';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { useAppSelector } from 'src/store/hooks';
 import useUaiStack from 'src/hooks/useUaiStack';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { identifyUser } from 'src/core/services/sentry';
 import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
 import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
@@ -51,6 +46,7 @@ import useWallets from 'src/hooks/useWallets';
 import useVault from 'src/hooks/useVault';
 import UaiDisplay from './UaiDisplay';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import { useQuery } from '@realm/react';
 
 function InheritanceComponent() {
   const { colorMode } = useColorMode();
@@ -204,7 +200,6 @@ function VaultStatus(props) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const navigation = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 

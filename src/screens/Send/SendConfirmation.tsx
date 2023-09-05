@@ -10,7 +10,6 @@ import {
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import BTC from 'src/assets/images/btc_grey.svg';
 import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
@@ -19,8 +18,6 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/common/content/LocContext';
 import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
@@ -28,16 +25,12 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import VaultIcon from 'src/assets/images/icon_vault2.svg';
-
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { crossTransferReset, sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
 import { timeConvertNear30 } from 'src/common/utilities';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { useDispatch } from 'react-redux';
-import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
-import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
 import { TransferType } from 'src/common/data/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
