@@ -131,7 +131,7 @@ function VaultSettings() {
         </Box>
         <Box style={styles.optionViewWrapper}>
           <Option
-            title="Generate Descriptors"
+            title="Vault configuration file"
             subTitle="Vault configuration that needs to be stored privately"
             onPress={() => {
               navigation.dispatch(
