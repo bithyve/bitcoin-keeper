@@ -4,7 +4,7 @@ import { Box, StatusBar, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import TorAsset from 'src/components/Loader';
 import CustomButton from 'src/components/CustomButton/CustomButton';
@@ -627,7 +627,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
   },
   modalAssetsWrapper: {
-    width: '88%',
+    width: windowWidth * 0.8,
     alignItems: 'center',
     paddingVertical: hp(20),
   },
