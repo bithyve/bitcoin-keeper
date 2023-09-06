@@ -149,10 +149,7 @@ function WalletItem({
       }}
     >
       <View>
-        <Box
-          variant={isActive ? 'linearGradient' : 'InactiveGradient'}
-          style={styles.walletContainer}
-        >
+        <Box style={styles.walletContainer}>
           {!(item?.presentationData && item?.specs) ? (
             <AddNewWalletTile
               walletIndex={walletIndex}

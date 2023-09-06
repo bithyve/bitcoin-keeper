@@ -677,7 +677,7 @@ function VaultDetails({ navigation }) {
         subTitle={subtitle}
         buttonText="View Vault"
         DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         buttonCallback={() => {
@@ -693,11 +693,11 @@ function VaultDetails({ navigation }) {
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`}
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-        buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText="Continue"
         buttonCallback={() => {
           dispatch(setIntroModal(false));

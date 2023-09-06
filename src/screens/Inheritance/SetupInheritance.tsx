@@ -192,11 +192,11 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-        buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
         DarkCloseIcon

@@ -3,8 +3,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
-// icons and images
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -106,10 +104,7 @@ function WalletDetails({ route }) {
           marginRight: 15,
         }}
       >
-        <Box
-          variant={isActive ? 'linearGradient' : 'InactiveGradient'}
-          style={styles.walletContainer}
-        >
+        <Box style={styles.walletContainer}>
           {!(item?.presentationData && item?.specs) ? (
             <View style={styles.addWalletContent}>
               <TouchableOpacity
@@ -253,10 +248,8 @@ function WalletDetails({ route }) {
 
   function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) {
     return (
-      <LinearGradient
-        colors={gradient}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
+        backgroundColor={gradient[0]}
         style={{
           height: hp(height),
           width: hp(height),
@@ -265,7 +258,7 @@ function WalletDetails({ route }) {
         }}
       >
         <Icon />
-      </LinearGradient>
+      </Box>
     );
   }
   function LinkedWalletContent() {

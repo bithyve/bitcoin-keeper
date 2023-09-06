@@ -338,7 +338,7 @@ function ChoosePlan(props) {
         close={() => {}}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}

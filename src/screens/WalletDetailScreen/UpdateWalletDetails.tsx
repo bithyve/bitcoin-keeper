@@ -249,14 +249,9 @@ function UpdateWalletDetails({ route }) {
 }
 
 const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
   titleText: {
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    // paddingHorizontal: '20@s',
     paddingLeft: 25,
   },
   descriptionText: {

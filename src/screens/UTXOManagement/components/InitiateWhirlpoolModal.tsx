@@ -31,7 +31,7 @@ function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
       close={() => closeModal()}
       title="Whirlpool"
       subTitle="Dissociate your Personal Identifyable Information (PII) from your bitcoin."
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={InitiateContent}
       DarkCloseIcon
@@ -39,7 +39,7 @@ function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Proceed"
       buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-      buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />
   );

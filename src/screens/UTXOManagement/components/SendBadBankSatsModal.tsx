@@ -32,7 +32,7 @@ function SendBadBankSatsModal({ visible, closeModal, onclick }: modalParams) {
       Content={SendBadBankSatsContent}
       showCloseIcon
       buttonText="Proceed"
-      buttonBackground={['#00836A', '#073E39']}
+      buttonBackground={`${colorMode}.gradientStart`}
       buttonTextColor="#FAFAFA"
       buttonCallback={() => onclick()}
     />

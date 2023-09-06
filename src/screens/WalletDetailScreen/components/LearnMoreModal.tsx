@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
@@ -26,6 +26,7 @@ function LinkedWalletContent() {
 }
 function LearnMoreModal({ introModal, setIntroModal }) {
   const dispatch = useDispatch();
+  const { colorMode } = useColorMode();
   return (
     <KeeperModal
       visible={introModal}
@@ -34,7 +35,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       }}
       title="Bip-85 Wallets"
       subTitle="Create as many (hot) wallets as you want, and backup with a single Recovery Phrase"
-      modalBackground={['light.gradientStart', 'light.gradientEnd']}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor="light.white"
       Content={LinkedWalletContent}
       DarkCloseIcon

@@ -366,7 +366,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.linearGradient} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+    <Box style={styles.content} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -505,7 +505,7 @@ function LoginScreen({ navigation, route }) {
         close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
         showCloseIcon={false}
@@ -523,7 +523,7 @@ function LoginScreen({ navigation, route }) {
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
         Content={NoInternetModalContent}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
@@ -585,7 +585,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
   },
-  linearGradient: {
+  content: {
     flex: 1,
     padding: 10,
   },

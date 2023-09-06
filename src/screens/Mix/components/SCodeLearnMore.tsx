@@ -43,14 +43,14 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
       title="Some Definitions:"
       subTitle=""
       DarkCloseIcon
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={SCodeContent}
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Proceed"
       buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-      buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />
   );

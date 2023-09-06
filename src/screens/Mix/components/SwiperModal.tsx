@@ -145,7 +145,7 @@ function SwiperModal({ enable }) {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
       title=""
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={() => <List />}
       showCloseIcon={false}

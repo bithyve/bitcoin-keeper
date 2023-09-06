@@ -36,13 +36,7 @@ function Buttons({
       <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
         <Box
           style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
-          backgroundColor={{
-            linearGradient: {
-              colors: [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          }}
+          backgroundColor={`${colorMode}.primaryGreenBackground`}
         >
           <Text numberOfLines={1} style={styles.btnText} color="white" bold>
             {primaryText}

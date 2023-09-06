@@ -258,30 +258,14 @@ export default function WhirlpoolConfiguration({ route }) {
           title="Change Priority"
           subTitle="Select a priority for your transaction"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
+          modalBackground={'#F7F2EC'}
+          buttonBackground={`${colorMode}.gradientStart`}
           buttonText=""
           buttonTextColor="#FAFAFA"
           buttonCallback={closeFeeSelectionModal}
           closeOnOverlayClick={false}
           Content={() => feesContent(fees, onFeeSelectionCallback)}
         />
-
-        {/* <KeeperModal
-        visible={showWhirlpoolModal}
-        close={() => {
-          setShowWhirlpoolModal(false);
-          dispatch(setWhirlpoolModal(false));
-        }}
-        title="Whirlpool"
-        subTitle="Mix transactions to improve privacy and obfuscate your transaction history"
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
-        Content={WhirlpoolContent}
-        DarkCloseIcon
-        learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-      /> */}
         <LearnMoreModal
           visible={showWhirlpoolModal}
           closeModal={() => {

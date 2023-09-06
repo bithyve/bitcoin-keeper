@@ -72,10 +72,6 @@ const styles = ScaledSheet.create({
     flex: 1,
     padding: '20@s',
   },
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),

@@ -246,12 +246,9 @@ function SigningDeviceList() {
           }}
           title="Signing Devices"
           subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
-          modalBackground={[
-            `${colorMode}.modalGreenBackground`,
-            `${colorMode}.modalGreenBackground`,
-          ]}
+          modalBackground={`${colorMode}.modalGreenBackground`}
           buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-          buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+          buttonBackground={`${colorMode}.modalWhiteButton`}
           buttonText="Add Now"
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));

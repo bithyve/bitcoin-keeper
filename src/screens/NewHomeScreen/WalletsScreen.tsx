@@ -591,7 +591,7 @@ const WalletsScreen = ({ navigation }) => {
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
         Content={DowngradeModalContent}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
@@ -604,7 +604,7 @@ const WalletsScreen = ({ navigation }) => {
         close={() => setAddImportVisible(false)}
         title="Add or Import Wallet"
         subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
@@ -618,7 +618,7 @@ const WalletsScreen = ({ navigation }) => {
         title="Connection error"
         subTitle="Unable to connect to public electrum servers"
         buttonText="Continue"
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonTextColor="light.white"

@@ -127,7 +127,7 @@ export default function ResetPin(props) {
   return (
     <LinearGradient
       colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
-      style={styles.linearGradient}
+      style={styles.container}
     >
       <Box style={styles.wrapper}>
         <Box pt={50}>
@@ -195,7 +195,7 @@ export default function ResetPin(props) {
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  container: {
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,

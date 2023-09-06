@@ -97,11 +97,11 @@ function VaultModals({
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-        buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText="Continue"
         buttonCallback={() => {
           dispatch(setIntroModal(false));

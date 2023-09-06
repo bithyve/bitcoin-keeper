@@ -145,7 +145,7 @@ export default function CreatePin(props) {
   }
 
   return (
-    <Box testID="main" style={styles.linearGradient} backgroundColor="light.pantoneGreen">
+    <Box testID="main" style={styles.container} backgroundColor="light.pantoneGreen">
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -226,7 +226,7 @@ export default function CreatePin(props) {
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  container: {
     flex: 1,
     padding: 10,
   },

@@ -86,7 +86,7 @@ function DescriptionModal({
   return (
     <KeeperModal
       visible={visible}
-      modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
       DarkCloseIcon={colorMode === 'dark'}

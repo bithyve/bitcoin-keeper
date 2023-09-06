@@ -160,30 +160,6 @@ export const customTheme = extendTheme({
       seashellWhite: Colors.SeashellDark,
     },
   },
-  components: {
-    Box: {
-      variants: {
-        linearGradient: () => ({
-          backgroundColor: {
-            linearGradient: {
-              colors: ['light.gradientStart', 'light.gradientEnd'],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          },
-        }),
-        InactiveGradient: () => ({
-          backgroundColor: {
-            linearGradient: {
-              colors: ['light.gradientEnd', 'light.gradientEnd'],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          },
-        }),
-      },
-    },
-  },
   config: {
     initialColorMode: 'light',
   },

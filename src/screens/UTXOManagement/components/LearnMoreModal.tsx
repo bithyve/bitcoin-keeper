@@ -57,7 +57,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       }}
       title="Setting up Premix"
       subTitle="You are about to start your first mix. In the next few steps, you’ll be guided to create your Tx0. Tx0 gets created based on the pool you select ahead."
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={PremixContent}
       DarkCloseIcon
@@ -65,7 +65,7 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Proceed"
       buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-      buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />
   );

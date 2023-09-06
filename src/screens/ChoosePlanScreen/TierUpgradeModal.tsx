@@ -44,7 +44,7 @@ function TierUpgradeModal({
           ? `You have successfully upgraded to ${plan}`
           : `You have successfully downgraded to ${plan}`
       }
-      modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
       buttonText={isUpgrade ? 'Add now' : 'Remove now'}

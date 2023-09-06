@@ -277,8 +277,8 @@ function NodeSettings() {
         close={closeAddNodeModal}
         title={settings.nodeDetailsTitle}
         subTitle={settings.nodeDetailsSubtitle}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonBackground={`${colorMode}.gradientStart`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText=""

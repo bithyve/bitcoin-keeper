@@ -35,7 +35,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       }}
       title="Bip-85 Wallets"
       subTitle="Create as many (hot) wallets as you want, and backup with a single Recovery Phrase"
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={LinkedWalletContent}
       DarkCloseIcon
@@ -43,7 +43,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Continue"
       buttonTextColor="light.greenText2"
-      buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />
   );

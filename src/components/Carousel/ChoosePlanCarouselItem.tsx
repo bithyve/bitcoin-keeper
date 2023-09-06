@@ -89,16 +89,7 @@ function ChoosePlanCarouselItem({
   return (
     <Pressable onPress={() => onPress(index)} testID="btn_selectPlan">
       <Box
-        backgroundColor={{
-          linearGradient: {
-            colors:
-              currentPosition === index
-                ? [`${colorMode}.pantoneGreen`, `${colorMode}.pantoneGreen`]
-                : ['#848484', '#848484'],
-            start: [0, 0],
-            end: [1, 1],
-          },
-        }}
+        backgroundColor={currentPosition === index ? `${colorMode}.pantoneGreen` : '#848484'}
         style={[
           styles.wrapperView,
           {

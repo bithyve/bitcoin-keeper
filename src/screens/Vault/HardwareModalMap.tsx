@@ -919,7 +919,7 @@ function HardwareModalMap({
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         Content={Content}
         secondaryButtonText={isHealthcheck ? 'Skip' : null}

@@ -89,7 +89,10 @@ function WalletSettings({ route }) {
   // eslint-disable-next-line react/no-unstable-nested-components
   function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
-      <Box variant="linearGradient" style={styles.walletCardContainer}>
+      <Box
+        backgroundColor={`${colorMode}.primaryGreenBackground`}
+        style={styles.walletCardContainer}
+      >
         <Box style={styles.walletCard}>
           <Box style={styles.walletDetailsWrapper}>
             <Text color="light.white" style={styles.walletName}>
@@ -265,10 +268,7 @@ function WalletSettings({ route }) {
           title={walletTranslation?.confirmPassTitle}
           subTitleWidth={wp(240)}
           subTitle={walletTranslation?.confirmPassSubTitle}
-          modalBackground={[
-            `${colorMode}.modalWhiteBackground`,
-            `${colorMode}.modalWhiteBackground`,
-          ]}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           Content={() => (
@@ -287,10 +287,7 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          modalBackground={[
-            `${colorMode}.modalWhiteBackground`,
-            `${colorMode}.modalWhiteBackground`,
-          ]}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           Content={() => (

@@ -16,8 +16,8 @@ type ModalProps = {
   title?: string;
   subTitle?: string;
   subTitleWidth?: number;
-  modalBackground?: string[];
-  buttonBackground?: string[];
+  modalBackground?: string;
+  buttonBackground?: string;
   buttonText?: string;
   buttonTextColor?: string;
   secButtonTextColor?: string;
@@ -41,8 +41,8 @@ KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: ['light.mainBackground', 'light.mainBackground'],
-  buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
+  modalBackground: 'light.modalWhiteButton',
+  buttonBackground: '#00836A',
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: '#073E39',
@@ -99,16 +99,6 @@ function KeeperModal(props: ModalProps) {
 
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
-  const linearGradient = {
-    colors: modalBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
-  const linearGradientBtn = {
-    colors: buttonBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -121,7 +111,7 @@ function KeeperModal(props: ModalProps) {
     >
       <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
         <GestureHandlerRootView>
-          <Box backgroundColor={{ linearGradient }} style={styles.container}>
+          <Box backgroundColor={modalBackground} style={styles.container}>
             {showCloseIcon ? (
               <TouchableOpacity style={styles.close} onPress={close}>
                 {getCloseIcon()}
@@ -170,7 +160,7 @@ function KeeperModal(props: ModalProps) {
                 )}
                 {!!buttonText && (
                   <TouchableOpacity onPress={buttonCallback}>
-                    <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+                    <Box backgroundColor={buttonBackground} style={styles.cta}>
                       <Text style={styles.ctaText} color={buttonTextColor} bold>
                         {showButtons ? buttonText : null}
                       </Text>

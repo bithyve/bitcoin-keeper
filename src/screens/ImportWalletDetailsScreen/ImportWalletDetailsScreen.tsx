@@ -143,10 +143,6 @@ function ImportWalletDetailsScreen({ route }) {
 }
 
 const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),

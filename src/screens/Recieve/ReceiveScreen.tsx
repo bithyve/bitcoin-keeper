@@ -173,7 +173,7 @@ function ReceiveScreen({ route }: { route }) {
         close={() => setModalVisible(false)}
         title={home.AddAmount}
         subTitle={home.amountdesc}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
