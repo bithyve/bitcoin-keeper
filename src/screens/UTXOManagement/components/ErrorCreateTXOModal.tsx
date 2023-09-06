@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { hp } from 'src/constants/responsive';
 import TXOErrorIcon from 'src/assets/images/TXOError.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -16,6 +16,7 @@ function InitiateContent() {
   );
 }
 function ErrorCreateTxoModal({ visible, closeModal }: modalParams) {
+  const { colorMode } = useColorMode();
   return (
     <KeeperModal
       visible={visible}

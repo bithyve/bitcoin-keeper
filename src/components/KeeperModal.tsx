@@ -41,7 +41,7 @@ KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: 'light.modalWhiteButton',
+  modalBackground: 'light.modalWhiteBackground',
   buttonBackground: '#00836A',
   buttonText: null,
   buttonTextColor: 'white',

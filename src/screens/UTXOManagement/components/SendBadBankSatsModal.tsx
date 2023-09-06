@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { hp } from 'src/constants/responsive';
 import SendBadBankSatsIcon from 'src/assets/images/sendBadBankSats.svg';
 import KeeperModal from 'src/components/KeeperModal';
@@ -23,6 +23,7 @@ function SendBadBankSatsContent() {
   );
 }
 function SendBadBankSatsModal({ visible, closeModal, onclick }: modalParams) {
+  const { colorMode } = useColorMode();
   return (
     <KeeperModal
       visible={visible}

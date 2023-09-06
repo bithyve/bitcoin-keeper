@@ -111,7 +111,7 @@ function List() {
               openLink('https://www.bitcoinkeeper.app/');
             }}
           >
-            <Text borderColor={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
+            <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
               See FAQs
             </Text>
           </Pressable>
@@ -122,7 +122,7 @@ function List() {
               currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))
             }
           >
-            <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+            <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
               <Text style={styles.ctaText} color="light.greenText2" bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
