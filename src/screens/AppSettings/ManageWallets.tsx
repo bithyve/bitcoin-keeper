@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import { StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VisibilityType } from 'src/core/wallets/enums';
+import { VisibilityType, WalletType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
@@ -18,6 +18,10 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';
 import KeeperModal from 'src/components/KeeperModal';
 import { useQuery } from '@realm/react';
+import { captureError } from 'src/core/services/sentry';
+import useWallets from 'src/hooks/useWallets';
+import { useDispatch } from 'react-redux';
+import { setNetBalance } from 'src/store/reducers/wallets';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
@@ -86,17 +90,41 @@ function ManageWallets() {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { settings } = translations;
-  const visibleWallets: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
-    `presentationData.visibility == "${VisibilityType.DEFAULT}"`
+
+  const { wallets } = useWallets();
+
+  const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
+    `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
-  const hiddenWallets: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
-    `presentationData.visibility == "${VisibilityType.HIDDEN}"`
+  const visibleWallets = walletsWithoutWhirlpool.filter(
+    (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
+  );
+  const hiddenWallets = walletsWithoutWhirlpool.filter(
+    (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);
+
   const navigation = useNavigation();
   const route = useRoute();
+  const dispatch = useDispatch();
 
   const [selectedWallet, setSelectedWallet] = useState(null);
+
+  useEffect(() => {
+    calculateBalanceAfterVisblityChange();
+  }, [wallets]);
+
+  const calculateBalanceAfterVisblityChange = () => {
+    const nonHiddenWallets = wallets.filter(
+      (wallet) => wallet.presentationData.visibility === VisibilityType.DEFAULT
+    );
+    let netBalance = 0;
+    nonHiddenWallets.forEach((wallet) => {
+      const { confirmed, unconfirmed } = wallet.specs.balances;
+      netBalance = netBalance + confirmed + unconfirmed;
+    });
+    dispatch(setNetBalance(netBalance));
+  };
 
   useEffect(() => {
     if (route.params?.isAuthenticated) {
@@ -121,7 +149,7 @@ function ManageWallets() {
         },
       });
     } catch (error) {
-      console.log(error);
+      captureError(error);
     }
   };
 
@@ -140,7 +168,6 @@ function ManageWallets() {
     }
   };
 
-  // eslint-disable-next-line react/no-unstable-nested-components
   function BalanceAlertModalContent() {
     return (
       <Box>
@@ -196,54 +223,48 @@ function ManageWallets() {
         subtitle={settings.ManageWalletsSub}
         paddingLeft={wp(25)}
       />
-      <ScrollView
+      <FlatList
+        data={visibleWallets}
+        extraData={[visibleWallets, hiddenWallets]}
+        style={{ height: '50%' }}
+        contentContainerStyle={{ marginHorizontal: 20, marginTop: '5%' }}
+        renderItem={({ item }) => (
+          <ListItem
+            title={item.presentationData.name}
+            subtitle={item.presentationData.description}
+            balance={item.specs.balances.confirmed}
+            btnTitle="Hide"
+            onBtnPress={() => hideWallet(item)}
+          />
+        )}
         showsVerticalScrollIndicator={false}
-        nestedScrollEnabled
-        contentContainerStyle={{ flexGrow: 1, marginTop: 10, marginHorizontal: 15 }}
-      >
-        <FlatList
-          data={visibleWallets}
-          extraData={[visibleWallets, hiddenWallets]}
-          style={{ height: '50%' }}
-          renderItem={({ item }) => (
-            <ListItem
-              title={item.presentationData.name}
-              subtitle={item.presentationData.description}
-              balance={item.specs.balances.confirmed}
-              btnTitle="Hide"
-              onBtnPress={() => hideWallet(item)}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-        />
-        <Box backgroundColor="#BABABA" height={0.4} width="100%" />
-        <FlatList
-          data={hiddenWallets}
-          extraData={[visibleWallets, hiddenWallets]}
-          style={{ height: '50%' }}
-          // contentContainerStyle={{ marginBottom: 50 }}
-          renderItem={({ item }) => (
-            <ListItem
-              title={item.presentationData.name}
-              subtitle={item.presentationData.description}
-              balance={item.specs.balances.confirmed}
-              btnTitle="Unhide"
-              onBtnPress={() => {
-                setSelectedWallet(item);
-                navigation.navigate('Login', {
-                  relogin: true,
-                  screen: 'ManageWallets',
-                  title: 'Enter Passcode to Unhide Wallet',
-                });
-              }}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-          keyExtractor={(item) => item.id}
-        />
-      </ScrollView>
-
+        keyExtractor={(item) => item.id}
+      />
+      <Box backgroundColor="#BABABA" height={0.4} width="100%" />
+      <FlatList
+        data={hiddenWallets}
+        extraData={[visibleWallets, hiddenWallets]}
+        style={{ height: '50%' }}
+        contentContainerStyle={{ marginHorizontal: 20 }}
+        renderItem={({ item }) => (
+          <ListItem
+            title={item.presentationData.name}
+            subtitle={item.presentationData.description}
+            balance={item.specs.balances.confirmed}
+            btnTitle="Unhide"
+            onBtnPress={() => {
+              setSelectedWallet(item);
+              navigation.navigate('Login', {
+                relogin: true,
+                screen: 'ManageWallets',
+                title: 'Enter Passcode to Unhide Wallet',
+              });
+            }}
+          />
+        )}
+        showsVerticalScrollIndicator={false}
+        keyExtractor={(item) => item.id}
+      />
       <KeeperModal
         dismissible
         close={() => {

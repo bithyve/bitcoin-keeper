@@ -77,7 +77,7 @@ function* uaiChecksWorker({ payload }) {
   const { checkForTypes } = payload;
   const vault: Vault = dbManager
     .getCollection(RealmSchema.Vault)
-    .filter((vault: Vault) => !vault.archived)[0];
+    .filter((vault: Vault) => !vault.archived && vault.type !== VaultType.COLLABORATIVE)[0];
   try {
     if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {
       if (vault) {
