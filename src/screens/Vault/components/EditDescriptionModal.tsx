@@ -142,7 +142,6 @@ const styles = ScaledSheet.create({
   name: {
     fontSize: 15,
     alignItems: 'center',
-    fontWeight: '200',
     letterSpacing: 1.12,
   },
 });

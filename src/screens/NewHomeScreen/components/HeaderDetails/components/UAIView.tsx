@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   skipText: {
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
   },
   addNowWrapper: {
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
   },
   addNowCTAText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
 });
 export default UAIView;

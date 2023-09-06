@@ -42,6 +42,7 @@ import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import CustomPriorityModal from './CustomPriorityModal';
+import Fonts from 'src/constants/Fonts';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -710,7 +711,7 @@ export default SendConfirmation;
 const styles = StyleSheet.create({
   headingLabelText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     textAlign: 'center',
     color: '#656565',
   },

@@ -159,10 +159,10 @@ function UpdateWalletDetails({ route }) {
             {colorMode === 'light' ? <BackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
 
-          <KeeperText type="regular" style={styles.titleText} color={`${colorMode}.headerText`}>
+          <KeeperText style={styles.titleText} color={`${colorMode}.headerText`}>
             {isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
           </KeeperText>
-          <KeeperText type="regular" style={styles.descriptionText} color={`${colorMode}.black`}>
+          <KeeperText style={styles.descriptionText} color={`${colorMode}.black`}>
             {isFromSeed
               ? 'The QR below comprises of your 12 word Recovery Phrase'
               : 'Update Wallet Path'}
@@ -170,29 +170,6 @@ function UpdateWalletDetails({ route }) {
         </Box>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
-            {/* <KeeperText
-              type="regular"
-              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(20), }]}
-            >
-              Purpose
-            </KeeperText>
-            <TouchableOpacity
-              activeOpacity={!isFromSeed ? 0 : 1}
-              onPress={onDropDownClick}
-              style={styles.dropDownContainer}
-            >
-              <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
-              <Box
-                style={[
-                  styles.icArrow,
-                  {
-                    transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-                  },
-                ]}
-              >
-                {!isFromSeed && <RightArrowIcon />}
-              </Box>
-            </TouchableOpacity> */}
             {showPurpose && (
               <ScrollView style={styles.langScrollViewWrapper}>
                 {purposeList.map((item) => (
@@ -213,7 +190,6 @@ function UpdateWalletDetails({ route }) {
               </ScrollView>
             )}
             <KeeperText
-              type="regular"
               style={[styles.autoTransferText, { marginTop: hp(25) }]}
               color={`${colorMode}.GreyText`}
             >
@@ -287,7 +263,6 @@ const styles = ScaledSheet.create({
     fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    fontWeight: '200',
     paddingLeft: 25,
   },
   backButton: {

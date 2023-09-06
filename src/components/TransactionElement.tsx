@@ -97,7 +97,6 @@ const styles = StyleSheet.create({
   transactionDate: {
     marginHorizontal: 4,
     fontSize: 11,
-    fontWeight: '200',
     letterSpacing: 0.5,
     opacity: 0.82,
     width: 125,

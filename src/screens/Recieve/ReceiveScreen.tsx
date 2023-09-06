@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   receiveAddressText: {
     textAlign: 'center',
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',

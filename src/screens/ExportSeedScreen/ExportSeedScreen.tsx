@@ -20,6 +20,7 @@ import { globalStyles } from 'src/constants/globalStyles';
 import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
+import Fonts from 'src/constants/Fonts';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -227,7 +228,7 @@ const styles = StyleSheet.create({
   },
   seedTextStyle: {
     fontSize: 19,
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 1.64,
     marginRight: 5,
   },

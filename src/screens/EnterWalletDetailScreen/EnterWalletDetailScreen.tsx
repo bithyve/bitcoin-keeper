@@ -2,8 +2,6 @@ import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Select, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
-
-import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
@@ -26,7 +24,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
-import { Linking } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import { resetWalletStateFlags } from 'src/store/reducers/wallets';
 
 // eslint-disable-next-line react/prop-types
@@ -153,10 +151,7 @@ function EnterWalletDetailScreen({ route }) {
 
   const renderAdvanceOptions = () => (
     <Box>
-      <KeeperText
-        type="regular"
-        style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}
-      >
+      <KeeperText style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
         Path
       </KeeperText>
       <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
@@ -173,10 +168,7 @@ function EnterWalletDetailScreen({ route }) {
           maxLength={20}
         />
       </Box>
-      <KeeperText
-        type="regular"
-        style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}
-      >
+      <KeeperText style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
         Purpose
       </KeeperText>
       <Select
@@ -249,11 +241,7 @@ function EnterWalletDetailScreen({ route }) {
           </KeeperText>
         </Box>
         <Box marginTop={5}>
-          <KeeperText
-            type="regular"
-            style={styles.autoTransferText}
-            color={`${colorMode}.GreyText`}
-          >
+          <KeeperText style={styles.autoTransferText} color={`${colorMode}.GreyText`}>
             {wallet.AutoTransferInitiated}
           </KeeperText>
           <Box style={styles.transferPolicyTextArea} backgroundColor={`${colorMode}.seashellWhite`}>
@@ -285,11 +273,7 @@ function EnterWalletDetailScreen({ route }) {
               <KeeperText type="bold">{common.sats}</KeeperText>
             </Box>
           </Box>
-          <KeeperText
-            type="regular"
-            style={styles.autoTransferTextDesc}
-            color={`${colorMode}.GreyText`}
-          >
+          <KeeperText style={styles.autoTransferTextDesc} color={`${colorMode}.GreyText`}>
             {wallet.AutoTransferInitiatedDesc}
           </KeeperText>
         </Box>
@@ -299,16 +283,6 @@ function EnterWalletDetailScreen({ route }) {
             secondaryText={common.cancel}
             secondaryCallback={() => {
               navigtaion.goBack();
-              /* navigtaion.dispatch(
-                 CommonActions.navigate({
-                   name: 'ScanQR',
-                   params: {
-                     title: `Import`,
-                     subtitle: 'Please scan seed words',
-                     onQrScan,
-                   },
-                 })
-               ); */
             }}
             primaryText={`${common.create}`}
             primaryCallback={createNewWallet}
@@ -345,7 +319,7 @@ const styles = ScaledSheet.create({
   },
   autoTransferText: {
     fontSize: 12,
-    letterSpacing: '0.6@s',
+    // letterSpacing: '0.6@s',
   },
   autoTransferTextDesc: {
     fontSize: 10,

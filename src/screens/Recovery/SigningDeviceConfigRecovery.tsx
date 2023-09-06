@@ -235,7 +235,6 @@ const styles = StyleSheet.create({
   contactUsText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '200',
     width: wp(300),
     lineHeight: 20,
     marginTop: hp(20),

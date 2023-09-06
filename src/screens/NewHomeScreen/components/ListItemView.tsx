@@ -59,7 +59,6 @@ const styles = StyleSheet.create({
   titleText: {
     letterSpacing: 1.04,
     fontSize: 13,
-    fontWeight: '500',
     fontFamily: Fonts.FiraSansCondensedMedium,
   },
   subTitleText: {

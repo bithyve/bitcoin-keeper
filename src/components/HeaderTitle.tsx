@@ -111,14 +111,11 @@ const styles = ScaledSheet.create({
   addWalletText: {
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    // paddingHorizontal: '20@s',
   },
   addWalletDescription: {
     fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    // paddingHorizontal: '20@s',
-    fontWeight: '200',
   },
   backContainer: {
     justifyContent: 'space-between',
