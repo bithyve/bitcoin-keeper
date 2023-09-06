@@ -3,20 +3,21 @@ import React from 'react';
 import LoadingAnimation from 'src/components/Loader';
 import InheritanceToolsIllustartion from 'src/components/SVGComponents/InheritanceToolsIllustartion';
 
-
 export const securityTips = [
   {
     title: 'Introducing Whirlpool',
-    subTitle: 'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones',
+    subTitle:
+      'Whirlpool gives you forward looking privacy by breaking deterministic links of your future transactions from past ones',
     assert: <WhirlpoolLoader />,
-    message: 'For increased privacy and security, remix sats a few times, then transfer them to the Vault',
+    message:
+      'For increased privacy and security, remix sats a few times, then transfer them to the Vault',
   },
   {
     title: 'Connecting to Node',
-    subTitle:
-      'Interact with the bitcoin network more privately and securely',
+    subTitle: 'Interact with the bitcoin network more privately and securely',
     assert: <LoadingAnimation />,
-    message: 'Eliminate reliance on third parties to validate financial transactions and hold your funds.',
+    message:
+      'Eliminate reliance on third parties to validate financial transactions and hold your funds.',
   },
   {
     title: 'Security Tip',
@@ -45,9 +46,8 @@ export const securityTips = [
     assert: <LoadingAnimation />,
     message: 'Testing out your setup before using it is always a good idea',
   },
-
 ];
 export const getSecurityTip = () => {
   const selected = Math.floor(Math.random() * securityTips.length); // Comment for creating wallet modal WP
   return securityTips[selected];
-}
+};

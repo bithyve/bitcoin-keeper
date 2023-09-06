@@ -8,14 +8,14 @@ import {
   hash512,
 } from 'src/core/services/operations/encryption';
 import DeviceInfo from 'react-native-device-info';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import Relay from 'src/core/services/operations/Relay';
 import semver from 'semver';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 import * as SecureStore from '../../storage/secure-store';
 
 import {

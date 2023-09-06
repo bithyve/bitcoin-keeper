@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { Alert, StyleSheet } from 'react-native';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';

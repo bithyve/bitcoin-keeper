@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Box } from 'native-base';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';

@@ -5,7 +5,7 @@ import { Box } from 'native-base';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import idx from 'idx';
 import GradientIcon from './GradientIcon';
 

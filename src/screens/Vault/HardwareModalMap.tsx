@@ -6,32 +6,29 @@ import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Text from 'src/components/KeeperText';
-
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
-// import InheritanceKeyIllustration from 'src/assets/images/illustration_inheritanceKey.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
@@ -49,12 +46,12 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import HWError from 'src/hardware/HWErrorState';
-import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { HWErrorType } from 'src/models/enums/Hardware';
 import ReactNativeBiometrics from 'react-native-biometrics';
-import { crossInteractionHandler } from 'src/common/utilities';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { crossInteractionHandler } from 'src/utils/utilities';
+import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -62,6 +59,7 @@ import SigningServer from 'src/core/services/operations/SigningServer';
 import useVault from 'src/hooks/useVault';
 import { checkSigningDevice } from './AddSigningDevice';
 import * as SecureStore from '../../storage/secure-store';
+import { useQuery } from '@realm/react';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -614,7 +612,6 @@ function HardwareModalMap({
   const [inProgress, setInProgress] = useState(false);
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
@@ -922,7 +919,7 @@ function HardwareModalMap({
         buttonTextColor="light.white"
         buttonCallback={buttonCallback}
         DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         Content={Content}
         secondaryButtonText={isHealthcheck ? 'Skip' : null}

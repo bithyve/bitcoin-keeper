@@ -6,7 +6,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 // colors, aserts
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
@@ -101,7 +101,11 @@ function List() {
         viewabilityConfig={viewConfigRef.current}
       />
       <Box style={styles.ctaWrapper}>
-        <Box borderColor={`${colorMode}.lightAccent`} backgroundColor={`${colorMode}.modalGreenLearnMore`} style={styles.learnMoreContainer}>
+        <Box
+          borderColor={`${colorMode}.lightAccent`}
+          backgroundColor={`${colorMode}.modalGreenLearnMore`}
+          style={styles.learnMoreContainer}
+        >
           <Pressable
             onPress={() => {
               openLink('https://www.bitcoinkeeper.app/');
@@ -141,7 +145,7 @@ function SwiperModal({ enable }) {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
       title=""
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={() => <List />}
       showCloseIcon={false}

@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 // icons
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import Server from 'src/assets/images/server.svg';

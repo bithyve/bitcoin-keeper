@@ -9,11 +9,11 @@ import {
 // libraries
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 // import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
@@ -159,10 +159,10 @@ function UpdateWalletDetails({ route }) {
             {colorMode === 'light' ? <BackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
 
-          <KeeperText type="regular" style={styles.titleText} color={`${colorMode}.headerText`}>
+          <KeeperText style={styles.titleText} color={`${colorMode}.headerText`}>
             {isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
           </KeeperText>
-          <KeeperText type="regular" style={styles.descriptionText} color={`${colorMode}.black`}>
+          <KeeperText style={styles.descriptionText} color={`${colorMode}.black`}>
             {isFromSeed
               ? 'The QR below comprises of your 12 word Recovery Phrase'
               : 'Update Wallet Path'}
@@ -170,29 +170,6 @@ function UpdateWalletDetails({ route }) {
         </Box>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
-            {/* <KeeperText
-              type="regular"
-              style={[styles.autoTransferText, { color: 'light.GreyText', marginTop: hp(20), }]}
-            >
-              Purpose
-            </KeeperText>
-            <TouchableOpacity
-              activeOpacity={!isFromSeed ? 0 : 1}
-              onPress={onDropDownClick}
-              style={styles.dropDownContainer}
-            >
-              <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
-              <Box
-                style={[
-                  styles.icArrow,
-                  {
-                    transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-                  },
-                ]}
-              >
-                {!isFromSeed && <RightArrowIcon />}
-              </Box>
-            </TouchableOpacity> */}
             {showPurpose && (
               <ScrollView style={styles.langScrollViewWrapper}>
                 {purposeList.map((item) => (
@@ -213,7 +190,6 @@ function UpdateWalletDetails({ route }) {
               </ScrollView>
             )}
             <KeeperText
-              type="regular"
               style={[styles.autoTransferText, { marginTop: hp(25) }]}
               color={`${colorMode}.GreyText`}
             >
@@ -273,21 +249,15 @@ function UpdateWalletDetails({ route }) {
 }
 
 const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
   titleText: {
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    // paddingHorizontal: '20@s',
     paddingLeft: 25,
   },
   descriptionText: {
     fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    fontWeight: '200',
     paddingLeft: 25,
   },
   backButton: {
@@ -328,7 +298,6 @@ const styles = ScaledSheet.create({
   textInput: {
     width: '100%',
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
@@ -408,8 +377,6 @@ const styles = ScaledSheet.create({
     width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
@@ -419,11 +386,8 @@ const styles = ScaledSheet.create({
     marginTop: hp(10),
   },
   balanceCrossesText: {
-    // width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.96,
@@ -448,11 +412,9 @@ const styles = ScaledSheet.create({
   flagWrapper1: {
     flexDirection: 'row',
     height: wp(40),
-    // alignSelf: 'center',
     alignItems: 'center',
   },
   purposeText: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp(10),
     letterSpacing: 0.6,

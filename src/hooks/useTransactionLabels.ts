@@ -1,10 +1,8 @@
-import { useContext } from 'react';
+import { useQuery } from '@realm/react';
 import { EntityKind } from 'src/core/wallets/enums';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 
 const useTransactionLabels = ({ txid, wallet }) => {
-  const { useQuery } = useContext(RealmWrapperContext);
   const Tags = useQuery(RealmSchema.Tags);
   const isVault = wallet.entityKind === EntityKind.VAULT;
   const txLabels = Tags.filtered(`ref CONTAINS '${txid}' AND type != 'TXN'`);

@@ -12,13 +12,13 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 
 import openLink from 'src/utils/OpenLink';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Illustration1 from 'src/assets/images/illustration_1.svg';
 import Illustration2 from 'src/assets/images/illustration_2.svg';
 import Illustration7 from 'src/assets/images/illustration_7.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
-import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
 

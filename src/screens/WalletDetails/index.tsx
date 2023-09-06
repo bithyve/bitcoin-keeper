@@ -9,7 +9,7 @@ import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import Arrow from 'src/assets/images/arrow_brown.svg';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -20,7 +20,7 @@ import useWallets from 'src/hooks/useWallets';
 import { WalletType } from 'src/core/wallets/enums';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -302,7 +302,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 16,
     opacity: 0.85,
-    fontWeight: '300',
   },
   addNewWalletContainer: {
     justifyContent: 'center',

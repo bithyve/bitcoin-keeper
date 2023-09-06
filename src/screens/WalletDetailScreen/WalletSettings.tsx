@@ -8,19 +8,16 @@ import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { AppContext } from 'src/common/content/AppContext';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import Note from 'src/components/Note/Note';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
-import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
@@ -28,11 +25,8 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
-import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
+import { getAmt, getCurrencyImageByRegion } from 'src/constants/Bitcoin';
+import { AppContext } from 'src/context/AppContext';
 
 type Props = {
   title: string;
@@ -72,55 +66,6 @@ function Option({ title, subTitle, onPress }: Props) {
   );
 }
 
-function CollabrativeModalContent({
-  navigation,
-  wallet,
-  setCollaborativeModalVisible,
-  signPSBT,
-}: any) {
-  return (
-    <Box>
-      <Box>
-        <Option
-          title="View CoSigner Details"
-          subTitle="To create a collaborative wallet"
-          onPress={() => {
-            setCollaborativeModalVisible(false);
-            navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
-          }}
-        />
-        <Option
-          title="Import Output Descriptor"
-          subTitle="To view collaborative wallet"
-          onPress={() => {
-            setCollaborativeModalVisible(false);
-            navigation.dispatch(
-              CommonActions.navigate('ImportDescriptorScreen', { walletId: wallet.id })
-            );
-          }}
-        />
-        <Option
-          title="Sign a PSBT"
-          subTitle="Sign a collaborative transaction"
-          onPress={() => {
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'ScanQR',
-                params: {
-                  title: `Scan PSBT to Sign`,
-                  subtitle: 'Please scan until all the QR data has been retrieved',
-                  onQrScan: signPSBT,
-                  type: SignerType.KEEPER,
-                },
-              })
-            );
-          }}
-        />
-      </Box>
-    </Box>
-  );
-}
-
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
   const { wallet: walletRoute, editPolicy = false } = route.params || {};
@@ -129,13 +74,8 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const [xpubVisible, setXPubVisible] = useState(false);
-  const [cosignerVisible, setCosignerVisible] = useState(false);
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
-  const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
 
-  const [addWalletCosigner, setAddWalletCosignerVisible] = useState(editPolicy);
-  const { useQuery } = useContext(RealmWrapperContext);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
   const { testCoinsReceived, testCoinsFailed } = useAppSelector((state) => state.wallet);
@@ -149,7 +89,10 @@ function WalletSettings({ route }) {
   // eslint-disable-next-line react/no-unstable-nested-components
   function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
-      <Box variant="linearGradient" style={styles.walletCardContainer}>
+      <Box
+        backgroundColor={`${colorMode}.primaryGreenBackground`}
+        style={styles.walletCardContainer}
+      >
         <Box style={styles.walletCard}>
           <Box style={styles.walletDetailsWrapper}>
             <Text color="light.white" style={styles.walletName}>
@@ -204,19 +147,6 @@ function WalletSettings({ route }) {
       dispatch(setTestCoinsFailed(false));
     }
   }, [testCoinsReceived, testCoinsFailed]);
-
-  function AddWalletCosignerContent() {
-    return (
-      <Box>
-        <Box m={5}>
-          <KeeperSetup />
-        </Box>
-        <Text color="light.greenText" fontSize={13}>
-          {walletTranslation?.AddWalletCosignerParagraph}
-        </Text>
-      </Box>
-    );
-  }
 
   const signPSBT = (serializedPSBT) => {
     const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
@@ -338,10 +268,7 @@ function WalletSettings({ route }) {
           title={walletTranslation?.confirmPassTitle}
           subTitleWidth={wp(240)}
           subTitle={walletTranslation?.confirmPassSubTitle}
-          modalBackground={[
-            `${colorMode}.modalWhiteBackground`,
-            `${colorMode}.modalWhiteBackground`,
-          ]}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           Content={() => (
@@ -360,10 +287,7 @@ function WalletSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          modalBackground={[
-            `${colorMode}.modalWhiteBackground`,
-            `${colorMode}.modalWhiteBackground`,
-          ]}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
           Content={() => (
@@ -380,76 +304,6 @@ function WalletSettings({ route }) {
             />
           )}
         />
-        {/* <KeeperModal
-          visible={cosignerVisible}
-          close={() => setCosignerVisible(false)}
-          title="Cosigner Details"
-          subTitleWidth={wp(260)}
-          subTitle="Scan the cosigner details from another app in order to add this as a signer"
-          modalBackground={[
-            `${colorMode}.modalWhiteBackground`,
-            `${colorMode}.modalWhiteBackground`,
-          ]}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
-          buttonText="Done"
-          buttonCallback={() => {
-            setCosignerVisible(false);
-          }}
-          Content={() => (
-            <ShowXPub
-              data=""
-              wallet={wallet}
-              cosignerDetails
-              copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
-              subText="Cosigner Details"
-              noteSubText="The cosigner details are for the selected wallet only"
-              copyable={false}
-              keeper={keeper}
-            />
-          )}
-        /> */}
-        {/* <KeeperModal
-          visible={transferPolicyVisible}
-          close={() => {
-            setTransferPolicyVisible(false);
-          }}
-          title="Edit Transfer Policy"
-          subTitle="Threshold amount at which transfer is triggered"
-          modalBackground={[
-            `${colorMode}.modalWhiteBackground`,
-            `${colorMode}.modalWhiteBackground`,
-          ]}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
-          DarkCloseIcon={colorMode === 'dark'}
-          Content={() => (
-            <TransferPolicy
-              wallet={wallet}
-              close={() => {
-                showToast('Transfer Policy Changed', <TickIcon />);
-                setTransferPolicyVisible(false);
-              }}
-              secondaryBtnPress={() => {
-                setTransferPolicyVisible(false);
-              }}
-            />
-          )}
-        /> */}
-        {/* <KeeperModal
-          visible={addWalletCosigner}
-          close={() => setAddWalletCosignerVisible(false)}
-          title={walletTranslation?.AddWalletCosigner}
-          subTitleWidth={wp(240)}
-          subTitle={walletTranslation?.AddWalletCosignerSubTitle}
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
-          buttonText="Confirm"
-          buttonCallback={() => setAddWalletCosignerVisible(false)}
-          showButtons
-          secondaryButtonText="Decline"
-          Content={AddWalletCosignerContent}
-        /> */}
       </Box>
     </Box>
   );
@@ -492,7 +346,6 @@ const styles = ScaledSheet.create({
   walletDescription: {
     letterSpacing: 0.24,
     fontSize: 13,
-    fontWeight: '300',
   },
   walletBalance: {
     letterSpacing: 1.2,

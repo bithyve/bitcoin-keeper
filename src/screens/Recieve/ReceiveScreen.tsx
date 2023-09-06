@@ -9,24 +9,24 @@ import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/core/wallets/operations';
 import MenuItemButton from '../../components/CustomButton/MenuItemButton';
+import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -173,7 +173,7 @@ function ReceiveScreen({ route }: { route }) {
         close={() => setModalVisible(false)}
         title={home.AddAmount}
         subTitle={home.amountdesc}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
   receiveAddressText: {
     textAlign: 'center',
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 1.04,
   },
   inputParentView: {

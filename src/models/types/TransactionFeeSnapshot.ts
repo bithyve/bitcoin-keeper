@@ -1,4 +1,4 @@
-import { Satoshis } from '../typealiases/UnitAliases';
+import { Satoshis } from './UnitAliases';
 
 type TransactionFeeSnapshot = {
   amount: Satoshis;

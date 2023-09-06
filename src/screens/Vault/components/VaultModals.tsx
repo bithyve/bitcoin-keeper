@@ -1,24 +1,24 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import React, { useCallback, useEffect, useState } from 'react';
+import { hp } from 'src/constants/responsive';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import useVault from 'src/hooks/useVault';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import TierUpgradeModal from 'src/screens/ChoosePlanScreen/TierUpgradeModal';
 import openLink from 'src/utils/OpenLink';
 import RampModal from './RampModal';
 import VaultCreatedModal from './VaultCreatedModal';
+import { useQuery } from '@realm/react';
 
 function VaultModals({
   showBuyRampModal,
@@ -35,7 +35,6 @@ function VaultModals({
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { activeVault: vault } = useVault();
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
@@ -98,11 +97,11 @@ function VaultModals({
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-        buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText="Continue"
         buttonCallback={() => {
           dispatch(setIntroModal(false));

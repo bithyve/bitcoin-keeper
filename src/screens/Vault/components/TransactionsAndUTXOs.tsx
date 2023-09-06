@@ -10,7 +10,7 @@ import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
-import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, wp } from 'src/constants/responsive';
 
 function TransactionsAndUTXOs({
   transactions,

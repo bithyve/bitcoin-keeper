@@ -1,28 +1,16 @@
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput } from 'react-native';
-// libraries
 import { Box, Input, View } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-import { QRreader } from 'react-native-qr-decode-image-camera';
-
+import React, { useContext, useState } from 'react';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import Note from 'src/components/Note/Note';
-import { RNCamera } from 'react-native-camera';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
-// components
-import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import UploadImage from 'src/components/UploadImage';
-import useToastMessage from 'src/hooks/useToastMessage';
-import CameraUnauthorized from 'src/components/CameraUnauthorized';
-import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
+import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
@@ -30,14 +18,9 @@ import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
-  const { showToast } = useToastMessage();
-  const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const { home } = translations;
-  const [error, setError] = useState(false); // this state will handle error
 
   const name = route?.params?.name;
   const desc = route?.params?.description;
@@ -160,10 +143,6 @@ function ImportWalletDetailsScreen({ route }) {
 }
 
 const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -193,7 +172,6 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   cameraView: {
     height: hp(250),
@@ -263,8 +241,6 @@ const styles = ScaledSheet.create({
     width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
@@ -277,8 +253,6 @@ const styles = ScaledSheet.create({
     width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,

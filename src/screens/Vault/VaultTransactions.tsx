@@ -1,18 +1,13 @@
-// libraries
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { FlatList, RefreshControl } from 'react-native';
-import React, { useContext, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-
-// components, interfaces
+import React, { useState } from 'react';
+import { hp, wp } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
-// asserts
 import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
 import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -21,12 +16,12 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useVault from 'src/hooks/useVault';
+import { useQuery } from '@realm/react';
 
 function VaultTransactions({ route }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
   const [pullRefresh, setPullRefresh] = useState(false);
 
   const { activeVault: vault } = useVault();

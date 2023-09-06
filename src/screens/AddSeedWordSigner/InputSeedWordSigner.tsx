@@ -19,11 +19,11 @@ import * as bip39 from 'bip39';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import SeedWordsView from 'src/components/SeedWordsView';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import KeeperModal from 'src/components/KeeperModal';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import Illustration from 'src/assets/images/illustration.svg';
-import { getPlaceholder } from 'src/common/utilities';
+import { getPlaceholder } from 'src/utils/utilities';
 
 function InputSeedWordSigner({ route }: { route: any }) {
   const { colorMode } = useColorMode();
@@ -207,8 +207,8 @@ function InputSeedWordSigner({ route }: { route: any }) {
                       styles.input,
                       item.invalid
                         ? {
-                          borderColor: '#F58E6F',
-                        }
+                            borderColor: '#F58E6F',
+                          }
                         : { borderColor: '#FDF7F0' },
                     ]}
                     placeholder={`enter ${getPlaceholder(index)} word`}

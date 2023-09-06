@@ -5,7 +5,7 @@ import { SignerType, VaultMigrationType, XpubTypes } from 'src/core/wallets/enum
 import { useAppSelector } from 'src/store/hooks';
 import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import WalletUtilities from 'src/core/wallets/operations/utils';

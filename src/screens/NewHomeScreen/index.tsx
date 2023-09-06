@@ -11,7 +11,7 @@ import VaultDark from 'src/assets/images/vaultDark.svg';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import { Box, useColorMode } from 'native-base';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
@@ -202,7 +202,5 @@ const getStyles = (colorMode) =>
     label: {
       marginLeft: 10,
       fontSize: 14,
-      fontWeight: '500',
-      fontFamily: Fonts.RobotoCondensedRegular,
     },
   });

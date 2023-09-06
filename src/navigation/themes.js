@@ -1,52 +1,52 @@
 import Colors from 'src/theme/Colors';
 import { extendTheme } from 'native-base';
-import Fonts from './Fonts';
+import Fonts from 'src/constants/Fonts';
 
 export const customTheme = extendTheme({
   fontConfig: {
-    'RobotoCondensed-Regular': {
+    FiraSans: {
       100: {
-        normal: Fonts.RobotoCondensedLight,
-        italic: Fonts.RobotoCondensedLightItalic,
+        normal: Fonts.FiraSansCondensedLight,
+        italic: Fonts.FiraSansLightItalic,
       },
       200: {
-        normal: Fonts.RobotoCondensedRegular,
-        italic: Fonts.RobotoCondensedItalic,
+        normal: Fonts.FiraSansCondensedRegular,
+        italic: Fonts.FiraSansCondensedItalic,
       },
       300: {
-        normal: Fonts.RobotoCondensedBold,
-        italic: Fonts.RobotoCondensedBoldItalic,
+        normal: Fonts.FiraSansCondensedBold,
+        italic: Fonts.FiraSansCondensedBoldItalic,
       },
       400: {
-        normal: Fonts.RobotoCondensedRegular,
-        italic: Fonts.RobotoCondensedItalic,
+        normal: Fonts.FiraSansCondensedRegular,
+        italic: Fonts.FiraSansCondensedItalic,
       },
       500: {
-        normal: Fonts.RobotoCondensedRegular,
-        italic: Fonts.RobotoCondensedItalic,
+        normal: Fonts.FiraSansCondensedRegular,
+        italic: Fonts.FiraSansCondensedItalic,
       },
       600: {
-        normal: Fonts.RobotoCondensedRegular,
-        italic: Fonts.RobotoCondensedItalic,
+        normal: Fonts.FiraSansCondensedRegular,
+        italic: Fonts.FiraSansCondensedItalic,
       },
       700: {
-        normal: Fonts.RobotoCondensedRegular,
-        italic: Fonts.RobotoCondensedItalic,
+        normal: Fonts.FiraSansCondensedRegular,
+        italic: Fonts.FiraSansCondensedItalic,
       },
       800: {
-        normal: Fonts.RobotoCondensedRegular,
-        italic: Fonts.RobotoCondensedItalic,
+        normal: Fonts.FiraSansCondensedRegular,
+        italic: Fonts.FiraSansCondensedItalic,
       },
       900: {
-        normal: Fonts.RobotoCondensedRegular,
-        italic: Fonts.RobotoCondensedItalic,
+        normal: Fonts.FiraSansCondensedRegular,
+        italic: Fonts.FiraSansCondensedItalic,
       },
     },
   },
   fonts: {
-    heading: 'RobotoCondensed-Regular',
-    body: 'RobotoCondensed-Regular',
-    mono: 'RobotoCondensed-Regular',
+    heading: 'FiraSans',
+    body: 'FiraSans',
+    mono: 'FiraSans',
   },
   colors: {
     light: {
@@ -158,30 +158,6 @@ export const customTheme = extendTheme({
       forestGreen: Colors.ForestGreen,
       pantoneGreen: Colors.pantoneGreenDark,
       seashellWhite: Colors.SeashellDark,
-    },
-  },
-  components: {
-    Box: {
-      variants: {
-        linearGradient: () => ({
-          backgroundColor: {
-            linearGradient: {
-              colors: ['light.gradientStart', 'light.gradientEnd'],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          },
-        }),
-        InactiveGradient: () => ({
-          backgroundColor: {
-            linearGradient: {
-              colors: ['light.gradientEnd', 'light.gradientEnd'],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          },
-        }),
-      },
     },
   },
   config: {

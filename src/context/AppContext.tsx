@@ -1,15 +1,20 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useState } from 'react';
 
-export const AppContext = createContext(
-)
+interface IAppContext {
+  appLoading: boolean;
+  setAppLoading: any;
+  loadingContent: any;
+  setLoadingContent: any;
+}
+export const AppContext = createContext<IAppContext>(null);
 
 export function AppContextProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [loadingContent, setLoadingContent] = useState({
     title: '',
     subtitle: '',
-    message: ''
-  })
+    message: '',
+  });
 
   return (
     <AppContext.Provider
@@ -18,8 +23,9 @@ export function AppContextProvider({ children }) {
         setAppLoading: setLoading,
         loadingContent,
         setLoadingContent,
-      }}>
+      }}
+    >
       {children}
     </AppContext.Provider>
-  )
+  );
 }

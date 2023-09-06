@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box } from 'native-base';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 type Props = {

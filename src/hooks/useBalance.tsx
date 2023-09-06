@@ -1,9 +1,4 @@
-import {
-  getAmt,
-  getCurrencyImageByRegion,
-  getFiatIcon,
-  getUnit,
-} from 'src/common/constants/Bitcoin';
+import { getAmt, getCurrencyImageByRegion, getFiatIcon, getUnit } from 'src/constants/Bitcoin';
 import { useAppSelector } from 'src/store/hooks';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from './useExchangeRates';

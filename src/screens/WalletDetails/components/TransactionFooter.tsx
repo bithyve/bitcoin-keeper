@@ -4,7 +4,7 @@ import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
@@ -15,7 +15,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 
 import BottomMenuItem from '../BottomMenuItem';
 import { allowedRecieveTypes, allowedSendTypes } from '..';
-
 
 function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
   const { colorMode } = useColorMode();
@@ -45,7 +44,6 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
               featureMap.walletRecieve
                 ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
                 : showToast('Please Upgrade', <ToastErrorIcon />)
-
             }
             icon={<Recieve />}
             title="Receive"

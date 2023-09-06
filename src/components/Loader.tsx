@@ -6,7 +6,7 @@ import Background from 'src/assets/images/background elements.svg';
 import Gear1 from 'src/assets/images/gear1.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 
 function LoadingAnimation() {
   const spinValue = new Animated.Value(0);
@@ -29,7 +29,12 @@ function LoadingAnimation() {
   const styles = getStyles(clock, antiClock);
   return (
     <Box style={{ position: 'relative', alignItems: 'center' }}>
-      <Box style={{ width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65, alignItems: 'flex-start', }}>
+      <Box
+        style={{
+          width: windowWidth > 400 ? windowWidth * 0.6 : windowWidth * 0.65,
+          alignItems: 'flex-start',
+        }}
+      >
         <Background />
         <Animated.View style={styles.gear2}>
           <Gear2 />

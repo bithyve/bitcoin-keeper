@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 import { NetworkType } from 'src/core/wallets/enums';
-import { SATOSHIS_IN_BTC } from 'src/common/constants/Bitcoin';
-import { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
+import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
+import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
 import { AverageTxFeesByNetwork, UTXOInfo } from '../../wallets/interfaces';
 import { INotification } from '../interfaces';

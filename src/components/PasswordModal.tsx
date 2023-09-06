@@ -4,7 +4,7 @@ import Close from 'src/assets/images/modal_close.svg';
 import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BTC from 'src/assets/images/btc_white.svg';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
@@ -96,7 +96,7 @@ function PasswordModal(props) {
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       marginTop="20%"
-    //   justifyContent={'flex-end'}
+      //   justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
         <LinearGradient

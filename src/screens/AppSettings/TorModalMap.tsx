@@ -4,7 +4,7 @@ import { Box } from 'native-base';
 
 // components and functions
 import KeeperModal from 'src/components/KeeperModal';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 // Asserts
 import TOR from 'src/assets/images/TorAssert.svg';
 import AlertIllustration from 'src/assets/images/alert_illustration.svg';

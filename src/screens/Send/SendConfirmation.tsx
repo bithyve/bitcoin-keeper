@@ -9,18 +9,15 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import BTC from 'src/assets/images/btc_grey.svg';
-import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
+import BitcoinUnit from 'src/models/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import { EntityKind, TxPriority, VaultType } from 'src/core/wallets/enums';
@@ -28,27 +25,24 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import VaultIcon from 'src/assets/images/icon_vault2.svg';
-
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { crossTransferReset, sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
-import { timeConvertNear30 } from 'src/common/utilities';
+import { timeConvertNear30 } from 'src/utils/utilities';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { useDispatch } from 'react-redux';
-import useFormattedAmountText from 'src/hooks/formatting/UseFormattedAmountText';
-import useFormattedUnitText from 'src/hooks/formatting/UseFormattedUnitText';
 import KeeperModal from 'src/components/KeeperModal';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
-import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import CustomPriorityModal from './CustomPriorityModal';
+import Fonts from 'src/constants/Fonts';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -246,7 +240,7 @@ function SendConfirmation({ route }) {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
         ],
       };
@@ -258,7 +252,7 @@ function SendConfirmation({ route }) {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender.id } },
         ],
       };
@@ -717,7 +711,7 @@ export default SendConfirmation;
 const styles = StyleSheet.create({
   headingLabelText: {
     fontSize: 11,
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     textAlign: 'center',
     color: '#656565',
   },

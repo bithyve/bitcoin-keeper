@@ -1,9 +1,8 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { Box } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -11,9 +10,9 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
 import config from 'src/core/config';
 import { RNCamera } from 'react-native-camera';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { io } from 'src/core/services/channel';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import {
   BITBOX_REGISTER,
   CREATE_CHANNEL,
@@ -24,13 +23,13 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
+import { useQuery } from '@realm/react';
 
 function RegisterWithChannel() {
   const { params } = useRoute();
   const { signer } = params as { signer: VaultSigner };
   const channel = io(config.CHANNEL_URL);
   let channelCreated = false;
-  const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const dispatch = useDispatch();
   const navgation = useNavigation();

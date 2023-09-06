@@ -4,7 +4,7 @@ import Text from 'src/components/KeeperText';
 import { StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 
 function CurrentPlanView({ plan }) {
   const navigation = useNavigation();
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   currentPlanText: {
     fontSize: 18,
     letterSpacing: 1.8,
-    fontFamily: Fonts.RobotoCondensedSemiBold,
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
 });
 export default CurrentPlanView;

@@ -68,8 +68,8 @@ yarn-error.log
 env*
 !.env.example
 
-# test
-coverage/
+# testing
+/coverage
 
 # Rust artifacts
 ios/libwhirlpool.a

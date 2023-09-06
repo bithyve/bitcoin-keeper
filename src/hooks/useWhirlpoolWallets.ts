@@ -3,8 +3,7 @@ import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { useContext } from 'react';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { useQuery } from '@realm/react';
 
 export interface whirlpoolWalletAccountMapInterface {
   premixWallet?: Wallet;
@@ -22,7 +21,6 @@ type useWhirlpoolWalletsInterface = ({
 
 // TODO: generalize this hook to be consumed at Vault
 const useWhirlpoolWallets: useWhirlpoolWalletsInterface = ({ wallets }) => {
-  const { useQuery } = useContext(RealmWrapperContext);
   const allWallets = useQuery(RealmSchema.Wallet);
   const whirlpoolWalletsAccountsMap = {};
   wallets.forEach((wallet) => {

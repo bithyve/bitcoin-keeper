@@ -7,7 +7,7 @@ import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 
 function CustomPriorityModal(props) {
@@ -129,7 +129,12 @@ function CustomPriorityModal(props) {
                   setCustomPriorityFee('');
                 }}
               >
-                <Text mr={windowWidth * 0.07} color={`${colorMode}.greenText`} bold letterSpacing={1.6}>
+                <Text
+                  mr={windowWidth * 0.07}
+                  color={`${colorMode}.greenText`}
+                  bold
+                  letterSpacing={1.6}
+                >
                   Start Over
                 </Text>
               </TouchableOpacity>

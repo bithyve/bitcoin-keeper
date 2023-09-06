@@ -6,8 +6,8 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { io } from 'src/core/services/channel';
 import {
   BITBOX_SETUP,
@@ -154,11 +154,7 @@ function ConnectChannelRecovery() {
     <ScreenWrapper>
       <MockWrapper signerType={signerType}>
         <Box flex={1}>
-          <HeaderTitle
-            title={title}
-            subtitle={subtitle}
-            paddingLeft={wp(20)}
-          />
+          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(20)} />
           <Box style={styles.qrcontainer}>
             <RNCamera
               autoFocus="on"

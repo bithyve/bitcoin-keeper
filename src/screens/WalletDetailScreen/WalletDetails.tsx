@@ -3,10 +3,8 @@ import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
-// icons and images
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -21,7 +19,6 @@ import WalletOperations from 'src/core/wallets/operations';
 import useFeatureMap from 'src/hooks/useFeatureMap';
 import TransactionElement from 'src/components/TransactionElement';
 
-
 import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
@@ -29,7 +26,6 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
-
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -108,10 +104,7 @@ function WalletDetails({ route }) {
           marginRight: 15,
         }}
       >
-        <Box
-          variant={isActive ? 'linearGradient' : 'InactiveGradient'}
-          style={styles.walletContainer}
-        >
+        <Box style={styles.walletContainer}>
           {!(item?.presentationData && item?.specs) ? (
             <View style={styles.addWalletContent}>
               <TouchableOpacity
@@ -255,10 +248,8 @@ function WalletDetails({ route }) {
 
   function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }) {
     return (
-      <LinearGradient
-        colors={gradient}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
+        backgroundColor={gradient[0]}
         style={{
           height: hp(height),
           width: hp(height),
@@ -267,7 +258,7 @@ function WalletDetails({ route }) {
         }}
       >
         <Icon />
-      </LinearGradient>
+      </Box>
     );
   }
   function LinkedWalletContent() {
@@ -392,12 +383,15 @@ function WalletDetails({ route }) {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text color={`${colorMode}.primaryText`} numberOfLines={2} style={styles.addNewWalletText}>
+          <Text
+            color={`${colorMode}.primaryText`}
+            numberOfLines={2}
+            style={styles.addNewWalletText}
+          >
             Add a new wallet or import one
           </Text>
         </Box>
-      )
-      }
+      )}
       <RampModal
         showBuyRampModal={showBuyRampModal}
         setShowBuyRampModal={setShowBuyRampModal}
@@ -405,7 +399,7 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 
@@ -429,7 +423,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 16,
     opacity: 0.85,
-    fontWeight: '300',
   },
   addNewWalletContainer: {
     justifyContent: 'center',

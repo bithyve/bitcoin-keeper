@@ -4,15 +4,15 @@ import React, { useContext, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Keyboard, View } from 'react-native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
+import Fonts from 'src/constants/Fonts';
 
 function AddAmountScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -33,7 +33,9 @@ function AddAmountScreen({ route }: { route }) {
           onPressHandler={() => navigtaion.goBack()}
         />
         <View style={styles.inputParentView}>
-          <View style={[styles.inputWrapper, { backgroundColor: `${colorMode}.primaryBackground` }]}>
+          <View
+            style={[styles.inputWrapper, { backgroundColor: `${colorMode}.primaryBackground` }]}
+          >
             <View style={styles.btcIconWrapper}>
               <BtcInput />
             </View>
@@ -85,7 +87,7 @@ const styles = ScaledSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 1.04,
   },
   inputParentView: {

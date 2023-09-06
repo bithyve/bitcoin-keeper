@@ -1,6 +1,6 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
@@ -9,17 +9,16 @@ import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
@@ -45,9 +44,9 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
+import { useQuery } from '@realm/react';
 
 function SignTransactionScreen() {
-  const { useQuery } = useContext(RealmWrapperContext);
   const route = useRoute();
   const { note, label, collaborativeWalletId } = (route.params || {
     note: '',
@@ -107,7 +106,7 @@ function SignTransactionScreen() {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           {
             name: 'VaultDetails',
             params: { vaultTransferSuccessful: true, autoRefresh: true, collaborativeWalletId },
@@ -134,7 +133,7 @@ function SignTransactionScreen() {
         CommonActions.reset({
           index: 1,
           routes: [
-            { name: 'NewHome' },
+            { name: 'Home' },
             { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
           ],
         })

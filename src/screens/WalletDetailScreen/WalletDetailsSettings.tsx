@@ -6,10 +6,10 @@ import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
@@ -216,7 +216,6 @@ const styles = ScaledSheet.create({
   walletDescription: {
     letterSpacing: 0.24,
     fontSize: 13,
-    fontWeight: '300',
   },
   walletBalance: {
     letterSpacing: 1.2,

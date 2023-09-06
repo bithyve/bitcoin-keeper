@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 import React from 'react';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import HideIcon from 'src/assets/images/icon_hide.svg';
 import ShowIcon from 'src/assets/images/icon_show.svg';
 
@@ -16,7 +16,7 @@ function BalanceToggle({ hideAmounts, setHideAmounts }) {
         left: 10,
         right: 10,
       }}
-      testID='btn_balanceToggle'
+      testID="btn_balanceToggle"
     >
       {hideAmounts ? <ShowIcon /> : <HideIcon />}
       <Text style={[styles.hideBalanceText, { color: hideAmounts ? '#2D6759' : '#704E2E' }]}>

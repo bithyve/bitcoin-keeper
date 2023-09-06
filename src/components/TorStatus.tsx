@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React, { useContext, useMemo } from 'react';
 import { Box } from 'native-base';
 import { TorStatus } from 'src/core/services/rest/RestClient';
-import { TorContext } from 'src/store/contexts/TorContext';
+import { TorContext } from 'src/context/TorContext';
 import Text from './KeeperText';
 
 function TorStatusTag() {

@@ -3,11 +3,9 @@ import { Box, Text, Pressable, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
-import { wp, hp, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { wp, hp, windowWidth } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/images/backup.svg';
-import LinearGradient from 'react-native-linear-gradient';
 import useBalance from 'src/hooks/useBalance';
 import Note from 'src/components/Note/Note';
 import { genrateOutputDescriptors } from 'src/core/utils';
@@ -41,7 +39,7 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
         <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
           {title}
         </Text>
-        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
+        <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6} width={'95%'}>
           {subTitle}
         </Text>
       </Box>
@@ -53,17 +51,15 @@ function Option({ title, subTitle, onPress, Icon }: Props) {
 }
 
 function VaultCard({ vaultName, vaultBalance, vaultDescription, getSatUnit }) {
+  const { colorMode } = useColorMode();
   return (
-    <LinearGradient
-      colors={['#B17F44', '#6E4A35']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+    <Box
+      backgroundColor={`${colorMode}.learnMoreBorder`}
       style={{
         borderRadius: hp(20),
         width: wp(320),
         height: hp(75),
         position: 'relative',
-        marginLeft: -wp(20),
         marginBottom: hp(30),
       }}
     >
@@ -89,7 +85,7 @@ function VaultCard({ vaultName, vaultBalance, vaultDescription, getSatUnit }) {
           {getSatUnit()}
         </Text>
       </Box>
-    </LinearGradient>
+    </Box>
   );
 }
 
@@ -131,7 +127,7 @@ function VaultSettings() {
         </Box>
         <Box style={styles.optionViewWrapper}>
           <Option
-            title="Generate Descriptors"
+            title="Vault configuration file"
             subTitle="Vault configuration that needs to be stored privately"
             onPress={() => {
               navigation.dispatch(
@@ -169,6 +165,7 @@ const styles = ScaledSheet.create({
     flex: 1,
     padding: 20,
     position: 'relative',
+    alignItems: 'center',
   },
   moadalContainer: {
     width: wp(280),
@@ -200,13 +197,10 @@ const styles = ScaledSheet.create({
     paddingLeft: 3,
   },
   vaultCardWrapper: {
-    borderBottomWidth: 0.2,
     marginTop: hp(30),
-    paddingHorizontal: wp(25),
   },
   optionViewWrapper: {
     alignItems: 'center',
-    paddingHorizontal: wp(25),
   },
   bottomNoteWrapper: {
     position: 'absolute',

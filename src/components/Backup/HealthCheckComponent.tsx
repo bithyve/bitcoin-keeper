@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react';
 import { Box, Input } from 'native-base';
 
 import { useNavigation } from '@react-navigation/native';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { BackupType } from 'src/common/data/enums/BHR';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { BackupType } from 'src/models/enums/BHR';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import Buttons from '../Buttons';

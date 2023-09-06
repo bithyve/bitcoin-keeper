@@ -5,7 +5,7 @@ import { Box } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import ColdCardSVG from 'src/assets/images/ColdCardSetup.svg';
@@ -15,7 +15,7 @@ import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import KeystoneSetup from 'src/assets/images/keystone_illustration.svg';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
@@ -66,8 +66,9 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
       <PassportSVG />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
-            }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
@@ -101,12 +102,14 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
       <KeystoneSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
-            }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Keystone ${isMultisig ? 'multisig menu' : 'Generic Wallet section'
-            }, press the scan icon on the top bar and wait for the QR to be scanned.`}
+          {`\u2022 On the Keystone ${
+            isMultisig ? 'multisig menu' : 'Generic Wallet section'
+          }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>

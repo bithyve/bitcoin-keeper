@@ -1,23 +1,20 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import LinearGradient from 'src/components/KeeperGradient';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { Box } from 'native-base';
 
-function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }: any) {
+function GradientIcon({ height, Icon, gradient = ['#9BB4AF'] }: any) {
   return (
-    <LinearGradient
-      colors={gradient}
-      start={[0, 0]}
-      end={[1, 1]}
+    <Box
       style={{
         height: height,
         width: height,
         borderRadius: height,
+        backgroundColor: gradient[0],
         ...styles.center,
       }}
     >
       <Icon />
-    </LinearGradient>
+    </Box>
   );
 }
 

@@ -6,7 +6,7 @@ import Gear0 from 'src/assets/images/whirlpooll_loader_setting_inside.svg';
 import Gear1 from 'src/assets/images/whirlpooll_loader_setting.svg';
 import Gear2 from 'src/assets/images/gear 2.svg';
 import Gear3 from 'src/assets/images/gear 3.svg';
-import { windowWidth, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowWidth, windowHeight } from 'src/constants/responsive';
 
 function WhirlpoolLoader() {
   const spinValue = new Animated.Value(0);

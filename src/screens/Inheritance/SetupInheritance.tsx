@@ -5,7 +5,7 @@ import { Box, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 // components and functions
-import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { wp, hp, windowHeight } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
@@ -20,7 +20,7 @@ import Recovery from 'src/assets/images/recovery.svg';
 import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import { TouchableOpacity } from 'react-native';
@@ -192,11 +192,11 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
-        buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
         DarkCloseIcon

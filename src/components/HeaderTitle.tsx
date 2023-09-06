@@ -6,7 +6,7 @@ import React from 'react';
 import { ScaledSheet } from 'react-native-size-matters';
 import { TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 type Props = {
@@ -33,12 +33,12 @@ function HeaderTitle({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   titleFontSize = 16,
   textPadding = 0,
   backBtnBlackColor = true,
   learnBackgroundColor = 'light.lightAccent',
-  learnTextColor = 'light.learnMoreBorder'
+  learnTextColor = 'light.learnMoreBorder',
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -57,7 +57,9 @@ function HeaderTitle({
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
               <Box
-                borderColor={learnTextColor === "light.white" ? "light.white" : "light.learnMoreBorder"}
+                borderColor={
+                  learnTextColor === 'light.white' ? 'light.white' : 'light.learnMoreBorder'
+                }
                 backgroundColor={learnBackgroundColor}
                 style={styles.learnMoreContainer}
               >
@@ -109,14 +111,11 @@ const styles = ScaledSheet.create({
   addWalletText: {
     lineHeight: '23@s',
     letterSpacing: '0.8@s',
-    // paddingHorizontal: '20@s',
   },
   addWalletDescription: {
     fontSize: 12,
     lineHeight: '17@s',
     letterSpacing: '0.5@s',
-    // paddingHorizontal: '20@s',
-    fontWeight: '200',
   },
   backContainer: {
     justifyContent: 'space-between',

@@ -1,12 +1,12 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input } from 'native-base';
 import React, { useState } from 'react';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 // asserts
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 // components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Keyboard } from 'react-native';
@@ -85,7 +85,7 @@ const styles = ScaledSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansCondensedBold,
     fontSize: 13,
     letterSpacing: 2.6,
     height: hp(50),

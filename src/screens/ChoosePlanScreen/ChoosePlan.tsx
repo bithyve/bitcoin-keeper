@@ -1,14 +1,5 @@
 /* eslint-disable prefer-destructuring */
-import {
-  ActivityIndicator,
-  Platform,
-  ScrollView,
-  Alert,
-  Linking,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from 'react-native';
+import { ActivityIndicator, Platform, ScrollView, Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, Pressable } from 'native-base';
 import RNIap, {
@@ -22,27 +13,27 @@ import RNIap, {
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SubScription, { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
+import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import Relay from 'src/core/services/operations/Relay';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';
 import { useDispatch } from 'react-redux';
 import { uaiChecks } from 'src/store/sagaActions/uai';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
+import { useQuery } from '@realm/react';
 
 function ChoosePlan(props) {
   const { colorMode } = useColorMode();
@@ -61,7 +52,6 @@ function ChoosePlan(props) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isUpgrade, setIsUpgrade] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const navigation = useNavigation();
   const disptach = useDispatch();
@@ -348,7 +338,7 @@ function ChoosePlan(props) {
         close={() => {}}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         DarkCloseIcon={colorMode === 'dark'}
@@ -433,7 +423,7 @@ function ChoosePlan(props) {
             backgroundColor={`${colorMode}.lightAccent`}
             style={styles.restorePurchaseWrapper}
           >
-            <Text fontSize={12} color={colorMode === 'light' ? "light.learnMoreBorder" : '#24312E'}>
+            <Text fontSize={12} color={colorMode === 'light' ? 'light.learnMoreBorder' : '#24312E'}>
               Restore Purchases
             </Text>
           </Box>

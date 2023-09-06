@@ -4,12 +4,12 @@ import Text from 'src/components/KeeperText';
 import { TouchableOpacity, View } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { ScaledSheet } from 'react-native-size-matters';
 // components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
 // asserts
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';

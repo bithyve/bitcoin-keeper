@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { RealmSchema } from '../enum';
 
 export const StoreSubscriptionSchema: ObjectSchema = {

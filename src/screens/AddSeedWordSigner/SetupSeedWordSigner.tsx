@@ -6,11 +6,11 @@ import React, { useContext, useState } from 'react';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { useNavigation } from '@react-navigation/native';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight } from 'src/constants/responsive';
 
 function SetupSeedWordSigner({ route, navigation }) {
   const navigtaion = useNavigation();

@@ -5,7 +5,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 
 import IconSettings from 'src/assets/images/new_icon_settings.svg';
 import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import TorStatusTag from 'src/components/TorStatus';
 
 function HeaderBar() {

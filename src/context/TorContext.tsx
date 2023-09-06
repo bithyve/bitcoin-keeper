@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useMemo, useState } from 'react';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import useOrbot from 'src/hooks/useOrbot';
 import { useDispatch } from 'react-redux';
-import { setTorEnabled } from '../reducers/settings';
+import { setTorEnabled } from '../store/reducers/settings';
 
 export const TorContext = createContext(null);
 
