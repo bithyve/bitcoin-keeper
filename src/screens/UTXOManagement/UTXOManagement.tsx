@@ -17,7 +17,7 @@ import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTota
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { WalletType } from 'src/core/wallets/enums';
+import { NetworkType, WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
@@ -36,6 +36,7 @@ import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
+import config from 'src/core/config';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -91,8 +92,11 @@ function Footer({
       Alert.alert('Please select atleast one UTXO');
       return;
     }
-    showToast('This feature is currently under review'); // temporarily disabling whirlpool mix
-    // setShowBatteryWarningModal(true);
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      setShowBatteryWarningModal(true);
+    } else {
+      showToast('This feature is currently under review'); // temporarily disabling whirlpool mix
+    }
   };
 
   return enableSelection ? (
