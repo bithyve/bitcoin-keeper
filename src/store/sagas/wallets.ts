@@ -493,16 +493,17 @@ export function* addNewVaultWorker({
   try {
     const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
-    const {
-      vaultType = VaultType.DEFAULT,
-      vaultScheme,
-      vaultSigners,
-      vaultDetails,
-      collaborativeWalletId,
-    } = newVaultInfo;
 
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
+      const {
+        vaultType = VaultType.DEFAULT,
+        vaultScheme,
+        vaultSigners,
+        vaultDetails,
+        collaborativeWalletId,
+      } = newVaultInfo;
+
       if (vaultScheme.n !== vaultSigners.length)
         throw new Error('Vault schema(n) and signers mismatch');
 
@@ -522,11 +523,11 @@ export function* addNewVaultWorker({
       });
     }
 
-    if (collaborativeWalletId && !isRecreation) {
+    if (newVaultInfo && newVaultInfo.collaborativeWalletId && !isRecreation) {
       const hotWallet = yield call(
         dbManager.getObjectById,
         RealmSchema.Wallet,
-        collaborativeWalletId
+        newVaultInfo.collaborativeWalletId
       );
       const descriptor = genrateOutputDescriptors(vault);
       yield call(updateWalletsPropertyWorker, {
@@ -540,7 +541,7 @@ export function* addNewVaultWorker({
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
       ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : collaborativeWalletId
+      : newVaultInfo && newVaultInfo.collaborativeWalletId
       ? { updated: true }
       : yield call(updateVaultImageWorker, { payload: { vault } });
 
