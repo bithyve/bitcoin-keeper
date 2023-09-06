@@ -338,7 +338,7 @@ function SetupCollaborativeWallet() {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           { name: 'VaultDetails', params: { collaborativeWalletId: walletId } },
         ],
       };

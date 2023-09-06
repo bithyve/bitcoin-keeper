@@ -146,7 +146,7 @@ function EnterSeedScreen({ route }) {
     if (appId && recoveryLoading) {
       setRecoveryLoading(false);
       setRecoverySuccessModal(true);
-      navigation.navigate('App', { screen: 'NewHome' });
+      navigation.navigate('App', { screen: 'Home' });
     }
   }, [appId]);
 

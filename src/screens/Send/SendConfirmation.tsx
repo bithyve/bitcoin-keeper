@@ -240,7 +240,7 @@ function SendConfirmation({ route }) {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
         ],
       };
@@ -252,7 +252,7 @@ function SendConfirmation({ route }) {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           { name: 'WalletDetails', params: { autoRefresh: true, walletId: sender.id } },
         ],
       };

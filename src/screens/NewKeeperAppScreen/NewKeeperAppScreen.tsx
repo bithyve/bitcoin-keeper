@@ -106,7 +106,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   useEffect(() => {
     if (appRecreated) {
       setTimeout(() => {
-        navigation.replace('App', { screen: 'NewHome' });
+        navigation.replace('App', { screen: 'Home' });
       }, 3000);
     }
   }, [appRecreated]);
@@ -260,7 +260,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
-          navigation.replace('App', { screen: 'NewHome' });
+          navigation.replace('App', { screen: 'Home' });
         }}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
