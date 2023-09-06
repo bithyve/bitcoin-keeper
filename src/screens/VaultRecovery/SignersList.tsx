@@ -1,7 +1,7 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -25,7 +25,7 @@ import { getJadeDetails } from 'src/hardware/jade';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
-import { crossInteractionHandler } from 'src/common/utilities';
+import { crossInteractionHandler } from 'src/utils/utilities';
 import SigningServer from 'src/core/services/operations/SigningServer';
 import NFC from 'src/core/services/nfc';
 import { useAppSelector } from 'src/store/hooks';

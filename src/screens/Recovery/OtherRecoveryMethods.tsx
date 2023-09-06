@@ -4,7 +4,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 

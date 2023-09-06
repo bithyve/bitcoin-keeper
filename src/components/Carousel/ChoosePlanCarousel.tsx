@@ -1,11 +1,11 @@
 import { Box } from 'native-base';
 import { FlatList, StyleSheet, Dimensions } from 'react-native';
 import React, { useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { hp, wp } from 'src/constants/responsive';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import ChoosePlanCarouselItem from './ChoosePlanCarouselItem';
 import { useQuery } from '@realm/react';
 

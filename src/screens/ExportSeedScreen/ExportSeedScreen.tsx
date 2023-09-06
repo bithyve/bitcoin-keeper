@@ -8,15 +8,15 @@ import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { seedBackedUp } from 'src/store/sagaActions/bhr';
 import { useNavigation } from '@react-navigation/native';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
-import { globalStyles } from 'src/common/globalStyles';
+import { globalStyles } from 'src/constants/globalStyles';
 import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -157,7 +157,7 @@ function ExportSeedScreen({ route, navigation }) {
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
-              console.log('pressed')
+              console.log('pressed');
               setConfirmSeedModal(false);
             }}
             words={words}
@@ -181,7 +181,7 @@ function ExportSeedScreen({ route, navigation }) {
               setBackupSuccessModal(false);
             }}
             confirmBtnPress={() => {
-              navigtaion.navigate('NewHome');
+              navigtaion.navigate('Home');
             }}
           />
         </ModalWrapper>

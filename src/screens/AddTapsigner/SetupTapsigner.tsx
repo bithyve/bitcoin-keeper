@@ -23,9 +23,9 @@ import { useDispatch } from 'react-redux';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { isTestnet } from 'src/constants/Bitcoin';
 import usePlan from 'src/hooks/usePlan';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
@@ -194,7 +194,7 @@ function SetupTapsigner({ route }) {
         <KeyPadView
           onPressNumber={onPressHandler}
           onDeletePressed={onDeletePressed}
-          keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+          keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
           ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
         />
         <NfcPrompt visible={nfcVisible} close={closeNfc} />
@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 10,
     letterSpacing: 5,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   inputContainer: {
     alignItems: 'flex-end',

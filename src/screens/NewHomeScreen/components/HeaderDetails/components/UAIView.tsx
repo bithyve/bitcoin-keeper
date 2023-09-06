@@ -2,8 +2,8 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import Fonts from 'src/common/Fonts';
+import { hp } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
 
 function UAIView({
   title,
@@ -15,16 +15,22 @@ function UAIView({
   const { colorMode } = useColorMode();
   return (
     <Box style={styles.wrapper}>
-      <Box style={styles.uaiMessageWrapper} testID='btn_uaiTitleText'>
-        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>{title}</Text>
+      <Box style={styles.uaiMessageWrapper} testID="btn_uaiTitleText">
+        <Text style={styles.uaiMessageText} color={`${colorMode}.primaryText`}>
+          {title}
+        </Text>
       </Box>
-      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID='btn_uaiSkip'>
+      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID="btn_uaiSkip">
         <Text style={styles.skipText} color={`${colorMode}.learnMoreBorder`}>
           {secondaryCallbackText}
         </Text>
       </TouchableOpacity>
       {primaryCallbackText && primaryCallback && (
-        <TouchableOpacity style={styles.addNowWrapper} onPress={primaryCallback} testID='btn_uaiPrimary'>
+        <TouchableOpacity
+          style={styles.addNowWrapper}
+          onPress={primaryCallback}
+          testID="btn_uaiPrimary"
+        >
           <Box style={styles.addNowCTAWrapper} backgroundColor={`${colorMode}.greenText`}>
             <Text style={styles.addNowCTAText} color={`${colorMode}.white`}>
               {primaryCallbackText}
@@ -48,7 +54,7 @@ const styles = StyleSheet.create({
   uaiMessageText: {
     fontSize: 12,
     width: '100%',
-    fontFamily: Fonts.RobotoCondensedSemiBold,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 0,
   },
   skipWrapper: {

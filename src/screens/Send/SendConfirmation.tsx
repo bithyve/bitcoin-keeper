@@ -9,13 +9,13 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import BTC from 'src/assets/images/btc_grey.svg';
-import BitcoinUnit from 'src/common/data/enums/BitcoinUnit';
+import BitcoinUnit from 'src/models/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -27,17 +27,17 @@ import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import VaultIcon from 'src/assets/images/icon_vault2.svg';
 import moment from 'moment';
 import { crossTransferReset, sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
-import { timeConvertNear30 } from 'src/common/utilities';
+import { timeConvertNear30 } from 'src/utils/utilities';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { useDispatch } from 'react-redux';
 import KeeperModal from 'src/components/KeeperModal';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useBalance from 'src/hooks/useBalance';
-import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';

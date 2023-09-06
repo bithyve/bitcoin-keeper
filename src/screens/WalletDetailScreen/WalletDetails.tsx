@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 // icons and images
 import AddWalletIcon from 'src/assets/images/addWallet_illustration.svg';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
@@ -21,7 +21,6 @@ import WalletOperations from 'src/core/wallets/operations';
 import useFeatureMap from 'src/hooks/useFeatureMap';
 import TransactionElement from 'src/components/TransactionElement';
 
-
 import UTXOsManageNavBox from 'src/components/UTXOsComponents/UTXOsManageNavBox';
 import WalletList from './components/WalletList';
 import Transactions from './components/Transactions';
@@ -29,7 +28,6 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import WalletInfo from './components/WalletInfo';
-
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -392,12 +390,15 @@ function WalletDetails({ route }) {
       ) : (
         <Box style={styles.addNewWalletContainer}>
           <AddWalletIcon />
-          <Text color={`${colorMode}.primaryText`} numberOfLines={2} style={styles.addNewWalletText}>
+          <Text
+            color={`${colorMode}.primaryText`}
+            numberOfLines={2}
+            style={styles.addNewWalletText}
+          >
             Add a new wallet or import one
           </Text>
         </Box>
-      )
-      }
+      )}
       <RampModal
         showBuyRampModal={showBuyRampModal}
         setShowBuyRampModal={setShowBuyRampModal}
@@ -405,7 +406,7 @@ function WalletDetails({ route }) {
         walletIndex={walletIndex}
       />
       <LearnMoreModal introModal={introModal} setIntroModal={setIntroModal} />
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 
@@ -429,7 +430,6 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 16,
     opacity: 0.85,
-    fontWeight: '300',
   },
   addNewWalletContainer: {
     justifyContent: 'center',

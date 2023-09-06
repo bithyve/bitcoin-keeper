@@ -3,15 +3,15 @@ import { TouchableOpacity } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
 
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => { },
-  secondaryCallback = () => { },
+  primaryCallback = () => {},
+  secondaryCallback = () => {},
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
@@ -44,7 +44,7 @@ function Buttons({
             },
           }}
         >
-          <Text numberOfLines={1} style={styles.btnText} color='white' bold>
+          <Text numberOfLines={1} style={styles.btnText} color="white" bold>
             {primaryText}
           </Text>
         </Box>

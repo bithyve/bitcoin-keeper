@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import React, { useContext } from 'react';
 import LockIcon from 'src/assets/images/lock.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Text from 'src/components/KeeperText';
 
 function LogoContainer() {

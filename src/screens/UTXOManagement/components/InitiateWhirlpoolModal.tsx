@@ -3,11 +3,11 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 
 import Illustration7 from 'src/assets/images/illustration_7.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
-import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import { modalParams } from 'src/models/interfaces/UTXOs';
 
 function InitiateContent() {
   return (

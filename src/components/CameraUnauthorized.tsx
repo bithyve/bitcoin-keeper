@@ -2,7 +2,7 @@ import React from 'react';
 import { Linking, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import Text from './KeeperText';
 
 function CameraUnauthorized() {

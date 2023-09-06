@@ -13,14 +13,14 @@ import KeeperModal from 'src/components/KeeperModal';
 import TestnetIndicator from 'src/components/TestnetIndicator';
 import { useAppSelector } from 'src/store/hooks';
 import useUaiStack from 'src/hooks/useUaiStack';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
 import { identifyUser } from 'src/core/services/sentry';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 // asserts (svgs, pngs)
 import Arrow from 'src/assets/images/arrow.svg';
@@ -36,7 +36,7 @@ import SettingIcon from 'src/assets/images/settings.svg';
 import VaultImage from 'src/assets/images/Vault.png';
 import VaultIcon from 'src/assets/images/vaultSuccess.svg';
 import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { useDispatch } from 'react-redux';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import { urlParamsToObj } from 'src/core/utils';
@@ -700,7 +700,6 @@ const styles = StyleSheet.create({
   bottomCardSubtitle: {
     letterSpacing: 0.6,
     fontSize: 12,
-    fontWeight: '300',
     marginTop: -3,
   },
   LinkedWalletText: {

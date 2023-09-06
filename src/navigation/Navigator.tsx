@@ -5,7 +5,6 @@ import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
-import { AppContext } from 'src/common/content/AppContext';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import ArchivedVault from 'src/screens/Vault/ArchivedVault';
@@ -71,7 +70,6 @@ import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import NewHomeScreen from 'src/screens/NewHomeScreen';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
-// import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
@@ -98,6 +96,7 @@ import ImportDescriptorScreen from 'src/screens/WalletDetailScreen/ImportDescrip
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
 import SetupCollaborativeWallet from 'src/screens/AddCollaborativeWallet/SetupCollaborativeWallet';
 import Login from '../screens/LoginScreen/Login';
+import { AppContext } from 'src/context/AppContext';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -162,8 +161,7 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="NewHomeScreen" component={NewHomeScreen} />
-        <Stack.Screen name="NewHome" component={NewHomeScreen} />
+        <Stack.Screen name="Home" component={NewHomeScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />

@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import React from 'react';
 import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import Text from './KeeperText';
 
 function OptionCTA({ icon, title, subtitle, callback }) {

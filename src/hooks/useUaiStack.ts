@@ -1,4 +1,4 @@
-import { UAI } from 'src/common/data/models/interfaces/Uai';
+import { UAI } from 'src/models/interfaces/Uai';
 import { useEffect, useState } from 'react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useAppSelector } from 'src/store/hooks';

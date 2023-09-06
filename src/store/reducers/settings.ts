@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import CurrencyKind from 'src/common/data/enums/CurrencyKind';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import ThemeMode from 'src/common/data/enums/ThemeMode';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import ThemeMode from 'src/models/enums/ThemeMode';
 
 const initialState: {
   loginMethod: LoginMethod;
@@ -13,9 +13,9 @@ const initialState: {
   inheritanceModal: boolean;
   satsEnabled: boolean;
   whirlpoolSwiperModal: boolean;
-  keySecurityTips: string,
-  letterToAttorny: string,
-  recoveryInstruction: string
+  keySecurityTips: string;
+  letterToAttorny: string;
+  recoveryInstruction: string;
 } = {
   loginMethod: LoginMethod.PIN,
   themeMode: ThemeMode.LIGHT,
@@ -28,7 +28,7 @@ const initialState: {
   whirlpoolSwiperModal: true,
   keySecurityTips: '',
   letterToAttorny: '',
-  recoveryInstruction: ''
+  recoveryInstruction: '',
 };
 
 const settingsSlice = createSlice({
@@ -63,13 +63,13 @@ const settingsSlice = createSlice({
       state.whirlpoolSwiperModal = action.payload;
     },
     setKeySecurityTipsPath: (state, action: PayloadAction<string>) => {
-      state.keySecurityTips = action.payload
+      state.keySecurityTips = action.payload;
     },
     setLetterToAttornyPath: (state, action: PayloadAction<string>) => {
-      state.letterToAttorny = action.payload
+      state.letterToAttorny = action.payload;
     },
     setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
-      state.recoveryInstruction = action.payload
+      state.recoveryInstruction = action.payload;
     },
   },
 });
@@ -86,7 +86,7 @@ export const {
   setWhirlpoolSwiperModal,
   setKeySecurityTipsPath,
   setLetterToAttornyPath,
-  setRecoveryInstructionPath
+  setRecoveryInstructionPath,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

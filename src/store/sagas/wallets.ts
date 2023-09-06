@@ -37,7 +37,7 @@ import {
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Relay from 'src/core/services/operations/Relay';
 import SigningServer from 'src/core/services/operations/SigningServer';
@@ -50,7 +50,7 @@ import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateKey, hash256 } from 'src/core/services/operations/encryption';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
+import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/core/services/sentry';
 import {
   ELECTRUM_NOT_CONNECTED_ERR,

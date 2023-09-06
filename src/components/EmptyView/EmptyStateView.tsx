@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 
 function EmptyStateView({
   IllustartionImage,

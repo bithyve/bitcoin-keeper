@@ -1,6 +1,6 @@
 import { Box, Modal, Pressable, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/modal_close.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
@@ -46,9 +46,9 @@ KeeperModal.defaultProps = {
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: '#073E39',
-  buttonCallback: () => { },
+  buttonCallback: () => {},
   secondaryButtonText: null,
-  secondaryCallback: () => { },
+  secondaryCallback: () => {},
   textColor: '#000',
   subTitleColor: null,
   DarkCloseIcon: false,
@@ -56,7 +56,7 @@ KeeperModal.defaultProps = {
   dismissible: true,
   showButtons: true,
   learnMore: false,
-  learnMoreCallback: () => { },
+  learnMoreCallback: () => {},
   closeOnOverlayClick: true,
   showCloseIcon: true,
   justifyContent: 'flex-end',
@@ -145,7 +145,11 @@ function KeeperModal(props: ModalProps) {
             {((showButtons && learnMore) || !!buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box borderColor={`${colorMode}.lightAccent`} backgroundColor={`${colorMode}.modalGreenLearnMore`} style={styles.learnMoreContainer}>
+                  <Box
+                    borderColor={`${colorMode}.lightAccent`}
+                    backgroundColor={`${colorMode}.modalGreenLearnMore`}
+                    style={styles.learnMoreContainer}
+                  >
                     <Pressable onPress={learnMoreCallback}>
                       <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
                         See FAQs

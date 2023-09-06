@@ -4,15 +4,15 @@ import { StyleSheet, FlatList, ScrollView, TouchableOpacity } from 'react-native
 import { Box, useColorMode } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import BtcBlack from 'src/assets/images/btc_black.svg';
 import BtcWhite from 'src/assets/images/btc_white.svg';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import { SatsToBtc } from 'src/constants/Bitcoin';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Shadow } from 'react-native-shadow-2';

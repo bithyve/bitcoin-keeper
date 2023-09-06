@@ -12,15 +12,15 @@ import {
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { EntityKind, PaymentInfoKind } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
@@ -33,7 +33,7 @@ import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -340,7 +340,6 @@ const styles = ScaledSheet.create({
     borderRadius: 10,
     backgroundColor: Colors.Isabelline,
     padding: 15,
-    fontFamily: Fonts.RobotoCondensedRegular,
     opacity: 0.5,
   },
   cameraView: {

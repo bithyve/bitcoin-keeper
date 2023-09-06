@@ -1,7 +1,7 @@
 import { ImageSourcePropType } from 'react-native';
 import { WalletType } from 'src/core/wallets/enums';
-import RecipientKind from '../../enums/RecipientKind';
-import { Satoshis } from '../../typealiases/UnitAliases';
+import RecipientKind from '../enums/RecipientKind';
+import { Satoshis } from '../types/UnitAliases';
 
 export interface Recipient {
   id: string;

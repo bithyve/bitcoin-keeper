@@ -6,9 +6,9 @@ import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
 import { Box, FlatList, useColorMode } from 'native-base';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
@@ -30,9 +30,9 @@ import { Shadow } from 'react-native-shadow-2';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import dbManager from 'src/storage/realm/dbManager';
-import { SubscriptionTier, AppSubscriptionLevel } from 'src/common/data/enums/SubscriptionTier';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import SubScription from 'src/common/data/models/interfaces/Subscription';
+import { SubscriptionTier, AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import SubScription from 'src/models/interfaces/Subscription';
 import Relay from 'src/core/services/operations/Relay';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useDispatch } from 'react-redux';
@@ -42,7 +42,7 @@ import {
   setRecepitVerificationFailed,
 } from 'src/store/reducers/login';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { NewWalletInfo } from 'src/store/sagas/wallets';
@@ -651,7 +651,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 16,
-    fontFamily: Fonts.RobotoCondensedMedium,
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
   subTitleText: {
     fontSize: 12,

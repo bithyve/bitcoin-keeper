@@ -6,7 +6,7 @@ import Send from 'src/assets/images/send.svg';
 import { WalletType } from 'src/core/wallets/enums';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetailScreen/WalletDetails';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import BottomMenuItem from '../../screens/WalletDetails/BottomMenuItem';
@@ -27,7 +27,11 @@ function UTXOFooter({
   const { activeVault } = useVault();
   const { showToast } = useToastMessage();
   return (
-    <Box style={styles.footerContainer} borderColor={`${colorMode}.GreyText`} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Box
+      style={styles.footerContainer}
+      borderColor={`${colorMode}.GreyText`}
+      backgroundColor={`${colorMode}.seashellWhite`}
+    >
       <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
       <Box style={styles.footerItemContainer}>
         {allowedMixTypes.includes(wallet?.type) && (

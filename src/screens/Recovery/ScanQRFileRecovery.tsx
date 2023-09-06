@@ -6,12 +6,12 @@ import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/core/services/qr';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadFile from 'src/components/UploadFile';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();
@@ -90,7 +90,7 @@ function ScanQRFileRecovery({ route }) {
           />
         </Box>
       </Box>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({

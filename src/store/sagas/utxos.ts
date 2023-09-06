@@ -7,7 +7,7 @@ import Relay from 'src/core/services/operations/Relay';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS, BULK_UPDATE_UTXO_LABELS } from '../sagaActions/utxos';

@@ -4,7 +4,7 @@ import { Box } from 'native-base';
 import { TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 import Skip from 'src/assets/images/skip.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 
 const { width } = Dimensions.get('window');
 function OnboardingSlideComponent(props) {
@@ -17,10 +17,7 @@ function OnboardingSlideComponent(props) {
       </Box>
       <Box style={styles.illustartionWrapper}>{props.illustration}</Box>
       <Box style={styles.paragraphWrapper}>
-        <Text
-          color="light.primaryBackground"
-          style={styles.paragraphText}
-        >
+        <Text color="light.primaryBackground" style={styles.paragraphText}>
           {props.paragraph}
         </Text>
       </Box>
@@ -50,7 +47,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     flex: 0.2,
-    marginHorizontal: hp(20)
+    marginHorizontal: hp(20),
   },
   illustartionWrapper: {
     flex: 0.6,
@@ -61,14 +58,14 @@ const styles = StyleSheet.create({
     flex: 0.3,
     justifyContent: 'center',
     marginTop: hp(40),
-    marginHorizontal: hp(25)
+    marginHorizontal: hp(25),
   },
   paragraphText: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
     letterSpacing: 1.4,
     marginHorizontal: 5,
-    opacity: 1
+    opacity: 1,
   },
   buttonWrapper: {
     flexDirection: 'row',

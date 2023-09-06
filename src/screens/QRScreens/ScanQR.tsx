@@ -10,16 +10,16 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
 import { decodeURBytes } from 'src/core/services/qr';
 import { useRoute } from '@react-navigation/native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 import useNfcModal from 'src/hooks/useNfcModal';
-import { globalStyles } from 'src/common/globalStyles';
+import { globalStyles } from 'src/constants/globalStyles';
 import MockWrapper from '../Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
 

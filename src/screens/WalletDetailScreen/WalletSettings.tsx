@@ -8,14 +8,13 @@ import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { testSatsRecieve } from 'src/store/sagaActions/wallets';
 import { useAppSelector } from 'src/store/hooks';
 import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wallets';
-import { AppContext } from 'src/common/content/AppContext';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import Note from 'src/components/Note/Note';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
@@ -26,8 +25,8 @@ import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
-import { getAmt, getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
-import KeeperSetup from 'src/assets/images/illustration_ksd.svg';
+import { getAmt, getCurrencyImageByRegion } from 'src/constants/Bitcoin';
+import { AppContext } from 'src/context/AppContext';
 
 type Props = {
   title: string;
@@ -350,7 +349,6 @@ const styles = ScaledSheet.create({
   walletDescription: {
     letterSpacing: 0.24,
     fontSize: 13,
-    fontWeight: '300',
   },
   walletBalance: {
     letterSpacing: 1.2,

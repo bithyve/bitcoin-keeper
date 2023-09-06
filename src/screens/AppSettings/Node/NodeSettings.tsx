@@ -4,8 +4,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { hp, windowHeight } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -193,7 +193,9 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`}
+                    backgroundColor={
+                      isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`
+                    }
                     style={[styles.nodeList]}
                   >
                     <Box
@@ -256,8 +258,7 @@ function NodeSettings() {
             }}
           />
         </Box>
-      )
-      }
+      )}
 
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
@@ -286,12 +287,12 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
       </Modal>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({

@@ -7,7 +7,7 @@ import { Box, Text } from 'native-base';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import WalletIcon from 'src/assets/images/wallet_color.svg';
 import { useAppSelector } from 'src/store/hooks';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import { SatsToBtc } from 'src/constants/Bitcoin';
 
 export default function UtxoSummary({ utxoCount, totalAmount }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);

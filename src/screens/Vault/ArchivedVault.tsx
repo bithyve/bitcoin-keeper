@@ -6,7 +6,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import BTC from 'src/assets/images/btc_black.svg';
 import useBalance from 'src/hooks/useBalance';

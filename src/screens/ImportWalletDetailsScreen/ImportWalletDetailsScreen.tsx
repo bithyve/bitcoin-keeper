@@ -1,16 +1,16 @@
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput } from 'react-native';
 import { Box, Input, View } from 'native-base';
 import React, { useContext, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 import { useNavigation } from '@react-navigation/native';
-import { getCurrencyImageByRegion } from 'src/common/constants/Bitcoin';
+import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
@@ -176,7 +176,6 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   cameraView: {
     height: hp(250),
@@ -246,8 +245,6 @@ const styles = ScaledSheet.create({
     width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
@@ -260,8 +257,6 @@ const styles = ScaledSheet.create({
     width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,

@@ -8,9 +8,9 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
 
 import { ScaledSheet } from 'react-native-size-matters';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import { SDIcons } from '../SigningDeviceIcons';
 
 function SignerData({ signer }: { signer: VaultSigner }) {
@@ -113,7 +113,7 @@ const styles = ScaledSheet.create({
     borderRadius: 10,
     width: windowWidth * 0.7,
     fontSize: 13,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 1,
     opacity: 0.5,
   },

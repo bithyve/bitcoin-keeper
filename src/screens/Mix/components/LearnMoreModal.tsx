@@ -2,11 +2,11 @@ import { View, StyleSheet } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { Box, useColorMode } from 'native-base';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import SomeDefinationIcon from 'src/assets/images/SomeDefination.svg';
-import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import { modalParams } from 'src/models/interfaces/UTXOs';
 
 function MixContent() {
   const { colorMode } = useColorMode();

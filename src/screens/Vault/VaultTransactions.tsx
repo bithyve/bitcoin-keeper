@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { ScaledSheet } from 'react-native-size-matters';

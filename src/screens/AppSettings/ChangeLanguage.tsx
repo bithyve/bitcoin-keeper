@@ -9,15 +9,15 @@ import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard
 import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
-import FiatCurrencies from 'src/common/FiatCurrencies';
-import CountryCode from 'src/common/CountryCode';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import CountryCode from 'src/constants/CountryCode';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import availableLanguages from '../../common/content/availableLanguages';
+import availableLanguages from '../../context/Localization/availableLanguages';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Fonts from 'src/constants/Fonts';
+import FiatCurrencies from 'src/constants/FiatCurrencies';
 
 const styles = StyleSheet.create({
   btn: {
@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   textCurrency: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 18,
     color: '#00836A',
     fontWeight: '700',
@@ -38,7 +37,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   textValue: {
-    fontFamily: Fonts.FiraSansRegular,
     fontSize: 12,
     marginLeft: wp('3%'),
   },
@@ -79,7 +77,7 @@ const styles = StyleSheet.create({
     height: wp('13%'),
     justifyContent: 'center',
     borderTopRightRadius: 10,
-    borderBottomRightRadius: 10
+    borderBottomRightRadius: 10,
   },
   emptyView: {
     height: '65%',
@@ -107,10 +105,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   symbolText: {
-    fontFamily: Fonts.FiraSansMedium,
     fontSize: 13,
     color: '#00836A',
-    fontWeight: '700',
   },
   codeTextWrapper: {
     flex: 1,
@@ -121,7 +117,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF4ED',
   },
   codeText: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp('7%'),
     letterSpacing: 0.6,
@@ -141,7 +136,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   flagStyle: {
-    fontFamily: Fonts.FiraSansMedium,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
@@ -154,7 +149,6 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   countryCodeWrapper2: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp('3%'),
     letterSpacing: 0.6,
@@ -200,10 +194,7 @@ function ChangeLanguage() {
             {value}
           </Text>
         </Box>
-        <Box
-          style={styles.dropdownIconWrapper}
-          backgroundColor={`${colorMode}.seashellWhite`}
-        >
+        <Box style={styles.dropdownIconWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Box
             style={[
               styles.icArrow,

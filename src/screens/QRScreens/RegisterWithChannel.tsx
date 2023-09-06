@@ -10,9 +10,9 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
 import config from 'src/core/config';
 import { RNCamera } from 'react-native-camera';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { io } from 'src/core/services/channel';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import {
   BITBOX_REGISTER,
   CREATE_CHANNEL,

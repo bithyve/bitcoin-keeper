@@ -1,9 +1,9 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
 import AlertIllustration from 'src/assets/images/upgrade-successful.svg';
-import AlertIllustrationDark from 'src/assets/images/upgrade-successfulDark.svg'
+import AlertIllustrationDark from 'src/assets/images/upgrade-successfulDark.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import React from 'react';
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/icon_share.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';

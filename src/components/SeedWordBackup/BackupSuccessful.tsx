@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Illustration from 'src/assets/images/illustration.svg';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 

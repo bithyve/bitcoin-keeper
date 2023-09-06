@@ -7,7 +7,7 @@ import { StyleSheet, FlatList, Platform, Animated, Easing, BackHandler } from 'r
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
@@ -27,7 +27,7 @@ import {
   WHIRLPOOL_SUCCESS,
   WHIRLPOOL_WORKING,
 } from 'src/core/services/channel/constants';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';

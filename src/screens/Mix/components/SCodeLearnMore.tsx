@@ -4,7 +4,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
-import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import { modalParams } from 'src/models/interfaces/UTXOs';
 import ScodeIllustration from 'src/assets/images/SomeDefination.svg';
 
 function SCodeContent() {

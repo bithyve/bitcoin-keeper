@@ -10,7 +10,7 @@ import {
 } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config, { APP_STAGE } from 'src/core/config';
-import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { HWErrorType } from 'src/models/enums/Hardware';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import idx from 'idx';
 import HWError from './HWErrorState';

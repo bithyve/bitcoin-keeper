@@ -6,13 +6,13 @@ import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { ScaledSheet } from 'react-native-size-matters';
 
 import KeeperText from 'src/components/KeeperText';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { updateWalletDetails } from 'src/store/sagaActions/wallets';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -77,7 +77,7 @@ function EditWalletSettings({ route }) {
             marginY={2}
             borderWidth="0"
             maxLength={20}
-            testID='input_walletName'
+            testID="input_walletName"
           />
           <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletName && walletName.length}/20
@@ -94,7 +94,7 @@ function EditWalletSettings({ route }) {
             borderWidth="0"
             marginY={2}
             maxLength={40}
-            testID='input_walletDescription'
+            testID="input_walletDescription"
           />
           <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
@@ -137,7 +137,6 @@ const styles = ScaledSheet.create({
     padding: 30,
     color: '#073E39',
     marginVertical: 10,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     letterSpacing: 0.96,
   },

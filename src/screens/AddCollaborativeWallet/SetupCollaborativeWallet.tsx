@@ -11,16 +11,15 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
-import { crossInteractionHandler, getPlaceholder } from 'src/common/utilities';
+import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { globalStyles } from 'src/common/globalStyles';
 import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -36,6 +35,7 @@ import { resetRealyVaultState } from 'src/store/reducers/bhr';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
 import { useQuery } from '@realm/react';
+import { globalStyles } from 'src/constants/globalStyles';
 
 const { width } = Dimensions.get('screen');
 

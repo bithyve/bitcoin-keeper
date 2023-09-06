@@ -2,13 +2,13 @@ import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { RNCamera } from 'react-native-camera';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -176,7 +176,6 @@ const styles = ScaledSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 15,
-    fontFamily: Fonts.RobotoCondensedRegular,
     opacity: 0.5,
   },
   cameraView: {

@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
 import LinearGradient from 'src/components/KeeperGradient';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 
 function GradientIcon({ height, Icon, gradient = ['#9BB4AF', '#9BB4AF'] }: any) {
   return (

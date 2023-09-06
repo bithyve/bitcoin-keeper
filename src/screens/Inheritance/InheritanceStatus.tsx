@@ -21,7 +21,7 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';

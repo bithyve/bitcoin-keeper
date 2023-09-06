@@ -4,8 +4,8 @@ import { Box, useColorMode, View } from 'native-base';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { wp } from 'src/constants/responsive';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';

@@ -6,8 +6,8 @@ import {
 } from 'src/core/wallets/interfaces/';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
-import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
-import TransactionFeeSnapshot from 'src/common/data/models/TransactionFeeSnapshot';
+import { Satoshis } from 'src/models/types/UnitAliases';
+import TransactionFeeSnapshot from 'src/models/types/TransactionFeeSnapshot';
 import { TxPriority } from 'src/core/wallets/enums';
 import idx from 'idx';
 

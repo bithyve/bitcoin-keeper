@@ -18,7 +18,7 @@ import {
 import { createWatcher } from '../utilities';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { addToUaiStack } from '../sagaActions/uai';
 import { setRefreshUai } from '../reducers/uai';
 

@@ -14,14 +14,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import SeedWordsView from 'src/components/SeedWordsView';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -31,7 +31,7 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { getPlaceholder } from 'src/common/utilities';
+import { getPlaceholder } from 'src/utils/utilities';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
@@ -529,7 +529,6 @@ const styles = ScaledSheet.create({
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
-    fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 1.32,
     zIndex: 1,
   },

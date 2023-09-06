@@ -3,16 +3,16 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
 import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import Fonts from 'src/common/Fonts';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
+import Fonts from 'src/constants/Fonts';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 16,
-    fontFamily: Fonts.RobotoCondensedMedium,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     letterSpacing: 1.28,
   },
   subTitleText: {

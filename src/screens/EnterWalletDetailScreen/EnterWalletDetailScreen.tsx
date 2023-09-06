@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Select, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
@@ -11,7 +11,7 @@ import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
 import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addNewWallets } from 'src/store/sagaActions/wallets';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import BitcoinGreyIcon from 'src/assets/images/btc_grey.svg';
 import BitcoinWhiteIcon from 'src/assets/images/btc_white.svg';
 import KeeperText from 'src/components/KeeperText';
@@ -23,7 +23,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
 import { v4 as uuidv4 } from 'uuid';
 import KeeperModal from 'src/components/KeeperModal';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import { Linking } from 'react-native';
@@ -44,13 +44,10 @@ function EnterWalletDetailScreen({ route }) {
   const [walletLoading, setWalletLoading] = useState(false);
   const [walletDescription, setWalletDescription] = useState(route.params?.description);
   const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
-  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
-    (state) => state.bhr
-  );
-  const { hasNewWalletsGenerationFailed, err } = useAppSelector(
-    (state) => state.wallet
-  );
-  const [purpose, setPurpose] = useState(route.params?.purpose)
+  const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
+    useAppSelector((state) => state.bhr);
+  const { hasNewWalletsGenerationFailed, err } = useAppSelector((state) => state.wallet);
+  const [purpose, setPurpose] = useState(route.params?.purpose);
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
@@ -127,13 +124,13 @@ function EnterWalletDetailScreen({ route }) {
       <Box w="100%">
         <Buttons
           primaryCallback={() => {
-            navigtaion.replace('ChoosePlan')
-            dispatch(resetWalletStateFlags())
+            navigtaion.replace('ChoosePlan');
+            dispatch(resetWalletStateFlags());
           }}
           primaryText="View Subsciption"
           activeOpacity={0.5}
           secondaryCallback={() => {
-            dispatch(resetWalletStateFlags())
+            dispatch(resetWalletStateFlags());
             navigtaion.replace('ChoosePlan');
           }}
           secondaryText={common.cancel}
@@ -156,7 +153,10 @@ function EnterWalletDetailScreen({ route }) {
 
   const renderAdvanceOptions = () => (
     <Box>
-      <KeeperText type="regular" style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
+      <KeeperText
+        type="regular"
+        style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}
+      >
         Path
       </KeeperText>
       <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
@@ -173,7 +173,10 @@ function EnterWalletDetailScreen({ route }) {
           maxLength={20}
         />
       </Box>
-      <KeeperText type="regular" style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
+      <KeeperText
+        type="regular"
+        style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}
+      >
         Purpose
       </KeeperText>
       <Select
@@ -246,18 +249,24 @@ function EnterWalletDetailScreen({ route }) {
           </KeeperText>
         </Box>
         <Box marginTop={5}>
-          <KeeperText type="regular" style={styles.autoTransferText} color={`${colorMode}.GreyText`}>
+          <KeeperText
+            type="regular"
+            style={styles.autoTransferText}
+            color={`${colorMode}.GreyText`}
+          >
             {wallet.AutoTransferInitiated}
           </KeeperText>
           <Box style={styles.transferPolicyTextArea} backgroundColor={`${colorMode}.seashellWhite`}>
             <Box style={styles.bitcoinLogo}>
-              {colorMode === 'light' ?
+              {colorMode === 'light' ? (
                 <BitcoinGreyIcon height="15" width="15" />
-                :
+              ) : (
                 <BitcoinWhiteIcon height="15" width="15" />
-              }
+              )}
             </Box>
-            <KeeperText style={styles.splitter} color={`${colorMode}.divider`}>|</KeeperText>
+            <KeeperText style={styles.splitter} color={`${colorMode}.divider`}>
+              |
+            </KeeperText>
             <Input
               placeholderTextColor={`${colorMode}.GreyText`}
               value={formatNumber(transferPolicy)}
@@ -311,7 +320,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => { }}
+        close={() => {}}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -361,7 +370,6 @@ const styles = ScaledSheet.create({
   },
   inputField: {
     marginVertical: 10,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     letterSpacing: 0.96,
   },

@@ -1,7 +1,7 @@
 import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
 import { Box } from 'native-base';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';

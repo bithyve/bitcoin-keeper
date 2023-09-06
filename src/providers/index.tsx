@@ -2,7 +2,7 @@ import React from 'react';
 import { NativeBaseProvider } from 'native-base';
 
 import LinearGradient from 'src/components/KeeperGradient';
-import { customTheme } from '../common/themes';
+import { customTheme } from '../navigation/themes';
 
 const config = {
   dependencies: {

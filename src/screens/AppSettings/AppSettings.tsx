@@ -2,27 +2,27 @@ import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import BackupIcon from 'src/assets/images/backup.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import HeaderTitle from 'src/components/HeaderTitle';
 import LinkIcon from 'src/assets/images/link.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import ThemeMode from 'src/common/data/enums/ThemeMode';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import ThemeMode from 'src/models/enums/ThemeMode';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import openLink from 'src/utils/OpenLink';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
+import { BackupAction, BackupHistory } from 'src/models/enums/BHR';
 import moment from 'moment';
 
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getBackupDuration } from 'src/common/utilities';
+import { getBackupDuration } from 'src/utils/utilities';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
 import { changeLoginMethod } from '../../store/sagaActions/login';
@@ -395,7 +395,6 @@ const styles = StyleSheet.create({
   },
   appSettingSubTitle: {
     fontSize: 12,
-    fontWeight: '300',
     letterSpacing: 0.6,
   },
   currentTypeSwitchWrapper: {

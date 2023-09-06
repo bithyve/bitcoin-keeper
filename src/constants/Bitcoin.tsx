@@ -7,8 +7,8 @@ import Text from 'src/components/KeeperText';
 import React from 'react';
 // asserts
 import Colors from 'src/theme/Colors';
-import CurrencyKind from '../data/enums/CurrencyKind';
-import FiatCurrencies from '../FiatCurrencies';
+import CurrencyKind from '../models/enums/CurrencyKind';
+import FiatCurrencies from './FiatCurrencies';
 
 export const SATOSHIS_IN_BTC = 1e8;
 

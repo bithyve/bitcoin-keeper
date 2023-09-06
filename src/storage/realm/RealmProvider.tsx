@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import config from 'src/core/config';
 import { RealmProvider as Provider, useQuery } from '@realm/react';
 import { stringToArrayBuffer } from 'src/store/sagas/login';

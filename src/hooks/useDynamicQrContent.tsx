@@ -1,6 +1,6 @@
 import { encodeBytesUR, encodePsbtUR } from 'src/core/services/qr';
 import { useCallback, useEffect, useState } from 'react';
-import { BufferEncoding } from 'src/common/data/enums/BufferEncoding';
+import { BufferEncoding } from 'src/models/enums/BufferEncoding';
 
 const useDynamicQrContent = ({
   data,

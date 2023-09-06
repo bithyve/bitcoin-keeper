@@ -8,7 +8,7 @@ import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { encrypt, generateEncryptionKey } from 'src/core/services/operations/encryption';
 import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
 import { LabelRefType } from 'src/core/wallets/enums';

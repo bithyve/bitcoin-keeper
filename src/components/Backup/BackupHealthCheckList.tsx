@@ -5,14 +5,14 @@ import Text from 'src/components/KeeperText';
 
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { BackupHistory, BackupType } from 'src/common/data/enums/BHR';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { BackupHistory, BackupType } from 'src/models/enums/BHR';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { seedBackedConfirmed } from 'src/store/sagaActions/bhr';
 import { setSeedConfirmed } from 'src/store/reducers/bhr';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import HealthCheckComponent from './HealthCheckComponent';
 import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
@@ -148,7 +148,7 @@ function BackupHealthCheckList() {
           subTitle={BackupWallet.backupSuccessSubTitle}
           paragraph={BackupWallet.backupSuccessParagraph}
           confirmBtnPress={() => {
-            navigtaion.navigate('NewHome');
+            navigtaion.navigate('Home');
           }}
         />
       </ModalWrapper>

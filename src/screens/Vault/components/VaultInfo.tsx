@@ -1,12 +1,12 @@
 import React from 'react';
 import { Box, HStack, VStack } from 'native-base';
-import { getNetworkAmount } from 'src/common/constants/Bitcoin';
+import { getNetworkAmount } from 'src/constants/Bitcoin';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 

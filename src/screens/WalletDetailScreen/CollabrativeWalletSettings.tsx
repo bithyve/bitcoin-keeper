@@ -5,7 +5,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
+import { wp, hp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import { SignerType } from 'src/core/wallets/enums';
@@ -185,7 +185,6 @@ const styles = ScaledSheet.create({
   walletDescription: {
     letterSpacing: 0.24,
     fontSize: 13,
-    fontWeight: '300',
   },
   walletBalance: {
     letterSpacing: 1.2,

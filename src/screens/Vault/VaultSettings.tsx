@@ -4,7 +4,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { wp, hp, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { wp, hp, windowWidth } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import BackupIcon from 'src/assets/images/backup.svg';
 import LinearGradient from 'react-native-linear-gradient';

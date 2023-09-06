@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { ScrollView } from 'react-native-gesture-handler';
-import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -16,7 +16,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { isTestnet } from 'src/constants/Bitcoin';
 import { getTapsignerDetails } from 'src/hardware/tapsigner';
 import { generateSignerFromMetaData } from 'src/hardware';
 import NFC from 'src/core/services/nfc';

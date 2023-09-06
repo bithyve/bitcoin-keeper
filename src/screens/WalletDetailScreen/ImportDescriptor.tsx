@@ -1,8 +1,8 @@
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import Fonts from 'src/common/Fonts';
+import { hp, wp } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
@@ -171,7 +171,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     opacity: 0.5,
     height: 150,
   },

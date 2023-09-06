@@ -9,11 +9,11 @@ import {
 // libraries
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 // import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 // components
@@ -328,7 +328,6 @@ const styles = ScaledSheet.create({
   textInput: {
     width: '100%',
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
@@ -408,8 +407,6 @@ const styles = ScaledSheet.create({
     width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
@@ -419,11 +416,8 @@ const styles = ScaledSheet.create({
     marginTop: hp(10),
   },
   balanceCrossesText: {
-    // width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.96,
@@ -448,11 +442,9 @@ const styles = ScaledSheet.create({
   flagWrapper1: {
     flexDirection: 'row',
     height: wp(40),
-    // alignSelf: 'center',
     alignItems: 'center',
   },
   purposeText: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp(10),
     letterSpacing: 0.6,

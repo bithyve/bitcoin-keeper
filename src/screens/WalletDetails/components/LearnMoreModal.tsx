@@ -4,7 +4,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 
@@ -42,7 +42,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Continue"
-      buttonTextColor='light.greenText2'
+      buttonTextColor="light.greenText2"
       buttonBackground={[`${colorMode}.modalWhiteButton`, `${colorMode}.modalWhiteButton`]}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />

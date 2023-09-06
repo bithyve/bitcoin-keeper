@@ -21,7 +21,7 @@ import { useAppSelector } from 'src/store/hooks';
 import NFC from 'src/core/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import MockWrapper from '../Vault/MockWrapper';
 
 function ColdCardReocvery({ route }) {

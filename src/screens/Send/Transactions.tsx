@@ -7,10 +7,10 @@ import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { ScaledSheet } from 'react-native-size-matters';
 import Close from 'src/assets/images/modal_close.svg';
 // components
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
-function Transactions({ transactions, addTransaction = () => { } }) {
+function Transactions({ transactions, addTransaction = () => {} }) {
   const renderTranscation = ({ item }: { item; index }) => {
     const { address, amount } = item;
     return (
