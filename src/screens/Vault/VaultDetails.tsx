@@ -49,7 +49,7 @@ import useFeatureMap from 'src/hooks/useFeatureMap';
 import openLink from 'src/utils/OpenLink';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import { useQuery } from '@realm/react';
 
 function Footer({

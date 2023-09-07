@@ -28,7 +28,7 @@ import Transactions from './components/Transactions';
 import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
-import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,

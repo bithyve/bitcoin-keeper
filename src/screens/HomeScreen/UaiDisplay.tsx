@@ -13,7 +13,7 @@ import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
 import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
+import UAIView from './components/HeaderDetails/components/UAIView';
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState<UAI | {}>({});

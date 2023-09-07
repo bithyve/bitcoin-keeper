@@ -18,7 +18,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import CurrencyInfo from 'src/screens/NewHomeScreen/components/CurrencyInfo';
+import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
 
 function Label({
   name,
