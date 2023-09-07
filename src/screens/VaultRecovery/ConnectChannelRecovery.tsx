@@ -30,7 +30,7 @@ import { getTrezorDetails } from 'src/hardware/trezor';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
-import MockWrapper from '../Vault/MockWrapper';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function ConnectChannelRecovery() {

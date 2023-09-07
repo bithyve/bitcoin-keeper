@@ -35,7 +35,7 @@ import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
-import MockWrapper from '../Vault/MockWrapper';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();

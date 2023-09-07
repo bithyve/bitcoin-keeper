@@ -13,7 +13,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { setBackupBSMSForIKS } from 'src/store/reducers/vaults';
 import Text from 'src/components/KeeperText';
-import { BulletPoint } from './HardwareModalMap';
+import { BulletPoint } from '../Vault/HardwareModalMap';
 
 const config = {
   Illustration: <InheritanceKeyIllustration />,

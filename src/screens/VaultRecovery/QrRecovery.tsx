@@ -15,7 +15,7 @@ import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-pick
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
 import { wp } from 'src/constants/responsive';
-import MockWrapper from '../Vault/MockWrapper';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 
 const { width } = Dimensions.get('screen');
 let decoder = new URRegistryDecoder();

@@ -20,7 +20,7 @@ import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 import useNfcModal from 'src/hooks/useNfcModal';
 import { globalStyles } from 'src/constants/globalStyles';
-import MockWrapper from '../Vault/MockWrapper';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
 
 let decoder = new URRegistryDecoder();

@@ -1,6 +1,5 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
-
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -18,7 +17,6 @@ import EditWalletSettings from 'src/screens/WalletDetails/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import KeeperLoader from 'src/components/KeeperLoader';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -30,16 +28,13 @@ import ScanQR from 'src/screens/QRScreens/ScanQR';
 import ShowQR from 'src/screens/QRScreens/ShowQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
-import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
+import SetupColdCard from 'src/screens/SigningDeveices/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
 import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
 import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
 import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
 import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConfirmation';
-import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
-import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
-import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
@@ -73,7 +68,6 @@ import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
-import SetupOtherSDScreen from 'src/screens/AddOtherSD/SetupOtherSDScreen';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
@@ -94,9 +88,14 @@ import WalletDetailsSettings from 'src/screens/WalletDetails/WalletDetailsSettin
 import CollabrativeWalletSettings from 'src/screens/WalletDetails/CollabrativeWalletSettings';
 import ImportDescriptorScreen from 'src/screens/WalletDetails/ImportDescriptor';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
-import SetupCollaborativeWallet from 'src/screens/AddCollaborativeWallet/SetupCollaborativeWallet';
 import Login from '../screens/LoginScreen/Login';
 import { AppContext } from 'src/context/AppContext';
+import SetupTapsigner from 'src/screens/SigningDeveices/SetupTapsigner';
+import SetupSeedWordSigner from 'src/screens/SigningDeveices/SetupSeedWordSigner';
+import InputSeedWordSigner from 'src/screens/SigningDeveices/InputSeedWordSigner';
+import SetupOtherSDScreen from 'src/screens/SigningDeveices/SetupOtherSDScreen';
+import SetupCollaborativeWallet from 'src/screens/SigningDeveices/SetupCollaborativeWallet';
+import SetupSigningServer from 'src/screens/SigningDeveices/SetupSigningServer';
 
 const defaultTheme = {
   ...DefaultTheme,

@@ -27,7 +27,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config from 'src/core/config';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import MockWrapper from '../Vault/MockWrapper';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 
 function TapSignerRecovery() {
   const [cvc, setCvc] = React.useState('');
