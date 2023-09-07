@@ -4,7 +4,7 @@ import { Box, Pressable } from 'native-base';
 
 import Text from 'src/components/KeeperText';
 import { hp, wp } from 'src/constants/responsive';
-import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
+import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 
 import PreMix from 'src/assets/images/icon_premix.svg';
 import PostMix from 'src/assets/images/icon_postmix.svg';

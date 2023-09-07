@@ -22,9 +22,9 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
-import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import { TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
+import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();

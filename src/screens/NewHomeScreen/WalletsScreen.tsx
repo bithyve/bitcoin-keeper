@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
-import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
+import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import AddWallet from 'src/assets/images/addWallet.svg';

@@ -14,7 +14,7 @@ import useFeatureMap from 'src/hooks/useFeatureMap';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 import BottomMenuItem from '../BottomMenuItem';
-import { allowedRecieveTypes, allowedSendTypes } from '..';
+import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 
 function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
   const { colorMode } = useColorMode();
