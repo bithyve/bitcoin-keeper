@@ -6,7 +6,6 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import LinearGradient from 'src/components/KeeperGradient';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
@@ -125,10 +124,7 @@ export default function ResetPin(props) {
   }, [passcode, confirmPasscode]);
 
   return (
-    <LinearGradient
-      colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
-      style={styles.container}
-    >
+    <Box style={styles.container} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -152,11 +148,6 @@ export default function ResetPin(props) {
                 {login.Confirmyourpasscode}
               </Text>
               <Box mb={10}>
-                {/* pin input view */}
-                {/* <PinInputsView
-                  passCode={confirmPasscode}
-                  passcodeFlag={confirmPasscodeFlag !== 0 && confirmPasscodeFlag===2}
-                /> */}
                 <PinInputsView
                   passCode={confirmPasscode}
                   passcodeFlag={!(confirmPasscodeFlag === 0 && confirmPasscodeFlag === 2)}
@@ -190,7 +181,7 @@ export default function ResetPin(props) {
           />
         </Box>
       </Box>
-    </LinearGradient>
+    </Box>
   );
 }
 
