@@ -20,7 +20,7 @@ import {
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
 import { isTestnet } from 'src/constants/Bitcoin';
-import { EntityKind } from 'src/core/wallets/enums';
+import { EntityKind, VaultType } from 'src/core/wallets/enums';
 
 const healthCheckRemider = (signer: VaultSigner) => {
   const today = new Date();
