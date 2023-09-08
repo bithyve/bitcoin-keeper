@@ -3,7 +3,6 @@ import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/images/modal_close.svg';
-import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
