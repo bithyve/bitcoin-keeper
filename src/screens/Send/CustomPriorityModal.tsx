@@ -143,12 +143,7 @@ function CustomPriorityModal(props) {
                   buttonCallback(customPriorityFee, customEstBlocks);
                 }}
               >
-                <LinearGradient
-                  start={[0, 0]}
-                  end={[1, 1]}
-                  colors={buttonBackground}
-                  style={styles.cta}
-                >
+                <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text
                     fontSize={13}
                     bold
@@ -159,7 +154,7 @@ function CustomPriorityModal(props) {
                   >
                     {buttonText}
                   </Text>
-                </LinearGradient>
+                </Box>
               </TouchableOpacity>
             </Box>
             <KeyPadView
