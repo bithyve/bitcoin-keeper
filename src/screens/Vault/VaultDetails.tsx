@@ -12,7 +12,6 @@ import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
-import LinearGradient from 'src/components/KeeperGradient';
 import { RealmSchema } from 'src/storage/realm/enum';
 import Recieve from 'src/assets/images/receive.svg';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -299,12 +298,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
   const AddSigner = useCallback(() => {
     if (upgradeStatus === VaultMigrationType.UPGRADE) {
       return (
-        <LinearGradient
-          start={[0, 0]}
-          end={[1, 1]}
-          colors={['#B17F44', '#6E4A35']}
-          style={[styles.signerCard]}
-        >
+        <Box style={[styles.signerCard]} backgroundColor={`${colorMode}.coffeeBackground`}>
           <TouchableOpacity
             onPress={() => {
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
@@ -335,7 +329,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               </Text>
             </VStack>
           </TouchableOpacity>
-        </LinearGradient>
+        </Box>
       );
     }
     return null;
@@ -376,7 +370,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 width="12"
                 height="12"
                 borderRadius={30}
-                backgroundColor="#725436"
+                backgroundColor={`${colorMode}.coffeeBackground`}
                 justifyContent="center"
                 alignItems="center"
                 alignSelf="center"
