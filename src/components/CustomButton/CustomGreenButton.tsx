@@ -18,7 +18,7 @@ function CustomGreenButton(props: Props) {
         props.onPress();
       }}
     >
-      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.greenButtonBackground`}>
         <Text color={`${colorMode}.white`} fontSize={13} bold letterSpacing={0.78}>
           {props.value}
         </Text>
