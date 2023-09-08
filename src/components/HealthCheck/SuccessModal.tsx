@@ -2,7 +2,6 @@ import Text from 'src/components/KeeperText';
 import { Modal, View, Box, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
-import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
 import { wp } from 'src/constants/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -40,18 +39,13 @@ function SuccessModal(props) {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent="flex-end"
 
-      // zIndex={'-1'}
-      // style={styles.viewContainer}
-      // overlayVisible
+    // zIndex={'-1'}
+    // style={styles.viewContainer}
+    // overlayVisible
     >
       <View flex={1} style={styles.viewContainer}>
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-          <LinearGradient
-            start={[0, 0]}
-            end={[1, 1]}
-            colors={modalBackground}
-            style={styles.container}
-          >
+          <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>
             <TouchableOpacity style={styles.close} onPress={close}>
               <Close />
             </TouchableOpacity>
@@ -83,19 +77,14 @@ function SuccessModal(props) {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={buttonPressed}>
-                <LinearGradient
-                  start={[0, 0]}
-                  end={[1, 1]}
-                  colors={buttonBackground}
-                  style={styles.cta}
-                >
+                <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                     {buttonText}
                   </Text>
-                </LinearGradient>
+                </Box>
               </TouchableOpacity>
             </Box>
-          </LinearGradient>
+          </Box>
         </Modal.Content>
       </View>
     </Modal>
