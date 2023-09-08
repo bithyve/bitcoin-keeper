@@ -7,7 +7,6 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import IconBitcoin from 'src/assets/images/icon_bitcoin.svg';
 import IconBitcoinWhite from 'src/assets/images/icon_bitcoin_white.svg';
 import IconDoller from 'src/assets/images/icon_dollar.svg';
-import LinearGradient from 'src/components/KeeperGradient';
 import { setCurrencyKind } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import useBalance from 'src/hooks/useBalance';
@@ -44,12 +43,7 @@ function CurrencyTypeSwitch() {
 
   return (
     <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID="btn_currencyToggle">
-      <LinearGradient
-        start={[0, 0]}
-        end={[1, 0]}
-        style={styles.container}
-        colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
-      >
+      <Box style={styles.container} backgroundColor={`${colorMode}.greenButtonBackground`}>
         <Box
           borderRadius={10}
           justifyContent="space-between"
@@ -83,7 +77,7 @@ function CurrencyTypeSwitch() {
             {prefersBitcoin ? <IconBitcoin /> : <IconBitcoinWhite />}
           </Box>
         </Box>
-      </LinearGradient>
+      </Box>
     </TouchableOpacity>
   );
 }
