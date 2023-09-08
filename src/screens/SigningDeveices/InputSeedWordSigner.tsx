@@ -14,7 +14,6 @@ import {
 
 import { useNavigation } from '@react-navigation/native';
 import { ScaledSheet } from 'react-native-size-matters';
-import LinearGradient from 'src/components/KeeperGradient';
 import * as bip39 from 'bip39';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -207,8 +206,8 @@ function InputSeedWordSigner({ route }: { route: any }) {
                       styles.input,
                       item.invalid
                         ? {
-                            borderColor: '#F58E6F',
-                          }
+                          borderColor: '#F58E6F',
+                        }
                         : { borderColor: '#FDF7F0' },
                     ]}
                     placeholder={`enter ${getPlaceholder(index)} word`}
@@ -262,16 +261,11 @@ function InputSeedWordSigner({ route }: { route: any }) {
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={onPressNext} disabled={false}>
-                <LinearGradient
-                  start={[0, 0]}
-                  end={[1, 1]}
-                  colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
-                  style={styles.cta}
-                >
+                <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text fontSize={13} bold letterSpacing={1} color="white">
                     {common.next}
                   </Text>
-                </LinearGradient>
+                </Box>
               </TouchableOpacity>
             </Box>
             <KeeperModal
