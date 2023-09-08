@@ -1,7 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Box, Text } from 'native-base';
-import LinearGradient from 'src/components/KeeperGradient';
+import { Box, useColorMode } from 'native-base';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 
 const styles = StyleSheet.create({
@@ -19,14 +18,10 @@ type Props = {
 };
 
 function Switch({ value, onValueChange, loading }: Props) {
+  const { colorMode } = useColorMode();
   return (
     <TouchableOpacity onPress={() => onValueChange(!value)} disabled={loading}>
-      <LinearGradient
-        start={[0, 0]}
-        end={[1, 0]}
-        style={styles.container}
-        colors={value ? ['#2C3E50', '#00836A'] : ['#4E5C6A', '#4E5C6A']}
-      >
+      <Box style={styles.container} backgroundColor={`${colorMode}.greenButtonBackground`}>
         <Box height={8} width={12} borderRadius={10} justifyContent="center" alignItems="center">
           {value ? (
             <Box
@@ -48,8 +43,8 @@ function Switch({ value, onValueChange, loading }: Props) {
             />
           )}
         </Box>
-      </LinearGradient>
-    </TouchableOpacity>
+      </Box>
+    </TouchableOpacity >
   );
 }
 
