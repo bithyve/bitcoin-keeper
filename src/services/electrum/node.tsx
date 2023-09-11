@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import ElectrumClient from 'src/core/services/electrum/client';
+import ElectrumClient from 'src/services/electrum/client';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';

@@ -33,7 +33,7 @@ import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -41,7 +41,7 @@ import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
-import { hash512 } from 'src/core/services/operations/encryption';
+import { hash512 } from 'src/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import usePlan from 'src/hooks/usePlan';
@@ -55,10 +55,10 @@ import { isTestnet } from 'src/constants/Bitcoin';
 import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import SigningServer from 'src/services/operations/SigningServer';
 import useVault from 'src/hooks/useVault';
 import { checkSigningDevice } from './AddSigningDevice';
-import * as SecureStore from '../../storage/secure-store';
+import * as SecureStore from 'src/storage/secure-store';
 import { useQuery } from '@realm/react';
 
 const RNBiometrics = new ReactNativeBiometrics();
@@ -253,16 +253,6 @@ const getSignerContent = (
         title: 'Keep your signing device ready',
         subTitle: 'Keep your signing device ready before proceeding',
       };
-    // case SignerType.INHERITANCEKEY:
-    //   return {
-    //     Illustration: <InheritanceKeyIllustration />,
-    //     Instructions: [
-    //       'Manually provide the signing device details',
-    //       `The hardened part of the derivation path of the xpub has to be denoted with a " h " or " ' ". Please do not use any other charecter`,
-    //     ],
-    //     title: 'Setting up a Inheritance Key',
-    //     subTitle: 'Keep your signing device ready before proceeding',
-    //   };
     default:
       return {
         Illustration: null,
@@ -726,16 +716,6 @@ function HardwareModalMap({
       })
     );
   };
-  // const navigateToSendConfirmation = () => {
-  //   // navigation.dispatch(
-  //   //   CommonActions.navigate('SendConfirmation', {
-  //   //     sender: {},
-  //   //     recipients: {},
-  //   //     transferType: TransferType.VAULT_TO_VAULT,
-  //   //   })
-  //   // );
-  //   navigation.dispatch(CommonActions.navigate('IKSAddEmailPhone'));
-  // };
 
   const onQRScan = async (qrData, resetQR) => {
     let hw: VaultSigner;

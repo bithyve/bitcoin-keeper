@@ -3,7 +3,7 @@ import { Box, Input } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import Buttons from '../Buttons';
+import Buttons from 'src/components/Buttons';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);

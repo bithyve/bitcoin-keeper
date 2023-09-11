@@ -10,7 +10,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import config from 'src/core/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, wp } from 'src/constants/responsive';
-import { io } from 'src/core/services/channel';
+import { io } from 'src/services/channel';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import {
   BITBOX_SIGN,
@@ -18,13 +18,13 @@ import {
   LEDGER_SIGN,
   SIGNED_TX,
   TREZOR_SIGN,
-} from 'src/core/services/channel/constants';
+} from 'src/services/channel/constants';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { useAppSelector } from 'src/store/hooks';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { getTxForTrezor } from 'src/hardware/trezor';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
 import { getSignedSerializedPSBTForBitbox02, getTxForBitBox02 } from 'src/hardware/bitbox';
 import useVault from 'src/hooks/useVault';

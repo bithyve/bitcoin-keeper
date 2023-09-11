@@ -3,11 +3,11 @@ import { NetworkType } from 'src/core/wallets/enums';
 import { SATOSHIS_IN_BTC } from 'src/constants/Bitcoin';
 import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import { AxiosResponse } from 'axios';
-import { AverageTxFeesByNetwork, UTXOInfo } from '../../wallets/interfaces';
+import { AverageTxFeesByNetwork, UTXOInfo } from 'src/core/wallets/interfaces';
 import { INotification } from '../interfaces';
 import RestClient from '../rest/RestClient';
 import { captureError } from '../sentry';
-import config from '../../config';
+import config from 'src/core/config';
 
 const { HEXA_ID, RELAY } = config;
 const TOR_ENDPOINT = 'https://check.torproject.org/api/ip';

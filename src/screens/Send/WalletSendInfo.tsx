@@ -2,10 +2,7 @@ import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-
 import { ScaledSheet } from 'react-native-size-matters';
-
-// components
 import { hp, wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';

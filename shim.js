@@ -14,8 +14,8 @@ if (typeof process === 'undefined') {
 
 process.browser = false;
 
-global.net = require('./src/core/services/electrum/net');
-global.tls = require('./src/core/services/electrum/tls');
+global.net = require('./src/services/electrum/net');
+global.tls = require('./src/services/electrum/tls');
 
 // global.location = global.location || { port: 80 }
 const isDev = typeof __DEV__ === 'boolean' && __DEV__;
@@ -27,4 +27,4 @@ if (typeof localStorage !== 'undefined') {
 // global.net = require('react-native-tcp');
 // If using the crypto shim, uncomment the following line to ensure
 // crypto is loaded first, so it can populate global.crypto
-require('crypto')
+require('crypto');

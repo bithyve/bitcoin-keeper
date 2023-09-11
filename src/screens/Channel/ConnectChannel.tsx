@@ -11,7 +11,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { io } from 'src/core/services/channel';
+import { io } from 'src/services/channel';
 import {
   BITBOX_HEALTHCHECK,
   BITBOX_SETUP,
@@ -20,7 +20,7 @@ import {
   LEDGER_SETUP,
   TREZOR_HEALTHCHECK,
   TREZOR_SETUP,
-} from 'src/core/services/channel/constants';
+} from 'src/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import usePlan from 'src/hooks/usePlan';
@@ -32,7 +32,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';

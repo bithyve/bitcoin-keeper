@@ -11,7 +11,7 @@ import { SignerType } from 'src/core/wallets/enums';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import config, { APP_STAGE } from 'src/core/config';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 
 import { SDIcons } from '../Vault/SigningDeviceIcons';

@@ -7,7 +7,7 @@ import { getMockSigner } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 
 MockWrapper.defaultProps = {

@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { windowWidth } from 'src/constants/responsive';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
-import BottomMenuItem from '../../screens/WalletDetails/BottomMenuItem';
+import BottomMenuItem from 'src/screens/WalletDetails/BottomMenuItem';
 import { allowedMixTypes, allowedSendTypes } from 'src/screens/WalletDetails/WalletDetails';
 
 function UTXOFooter({

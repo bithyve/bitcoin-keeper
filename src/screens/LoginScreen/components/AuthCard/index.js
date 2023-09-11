@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import React from 'react';
 import CheckBoxIconUnchecked from 'src/assets/images/checkbox.svg';
 import CheckBoxIconChecked from 'src/assets/images/checkbox_filled.svg';
-import { authStatus } from '../../constants';
+import { authStatus } from 'src/constants';
 import Text from './KeeperText';
 
 function AuthCard({ type, status = authStatus.QUEUED }) {
