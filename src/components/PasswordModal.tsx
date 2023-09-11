@@ -1,7 +1,6 @@
 import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Close from 'src/assets/images/modal_close.svg';
-import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState, useContext } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -53,12 +52,7 @@ function PasswordModal(props) {
   function RecoverWalletScreen() {
     return (
       <View>
-        <LinearGradient
-          start={[0, 0]}
-          end={[1, 1]}
-          colors={buttonBackground}
-          style={styles.ctabutton}
-        >
+        <Box style={styles.ctabutton} backgroundColor={`${colorMode}.greenButtonBackground`}>
           <Text textAlign="right" fontSize={12} color={buttonTextColor}>
             Last Backup: July 15, 2021
           </Text>
@@ -80,7 +74,7 @@ function PasswordModal(props) {
               </View>
             </View>
           </View>
-        </LinearGradient>
+        </Box>
         <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, iqua
         </Text>
@@ -96,15 +90,10 @@ function PasswordModal(props) {
       size="xl"
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       marginTop="20%"
-      //   justifyContent={'flex-end'}
+    //   justifyContent={'flex-end'}
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-        <LinearGradient
-          start={[0, 0]}
-          end={[1, 1]}
-          colors={modalBackground}
-          style={styles.container}
-        >
+        <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>
           <TouchableOpacity style={styles.close} onPress={closePasswordModal}>
             <Close />
           </TouchableOpacity>
@@ -149,19 +138,14 @@ function PasswordModal(props) {
               disabled={password.trim() === ''}
               onPress={() => props.onPressNext(password)}
             >
-              <LinearGradient
-                start={[0, 0]}
-                end={[1, 1]}
-                colors={buttonBackground}
-                style={styles.cta}
-              >
+              <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                 <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}
                 </Text>
-              </LinearGradient>
+              </Box>
             </TouchableOpacity>
           </Box>
-        </LinearGradient>
+        </Box>
         <KeeperModal
           visible={recoverySuccessModal}
           close={closeRecovery}
