@@ -1,10 +1,8 @@
 import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
+import { Box, useColorMode } from 'native-base';
+
 import Text from 'src/components/KeeperText';
-
-import LinearGradient from 'src/components/KeeperGradient';
-import { useColorMode } from 'native-base';
-
 export interface Props {
   value: string;
   onPress?: Function;
@@ -22,16 +20,11 @@ function CustomYellowButton(props: Props) {
       }}
       testID="btn_customYellowButton"
     >
-      <LinearGradient
-        start={[1, 0]}
-        end={[0, 0]}
-        colors={colorMode === 'light' ? ['#E3BE96', '#E3BE96'] : ['#212726', '#212726']}
-        style={styles.buttonContent}
-      >
+      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.coffeeBackground`}>
         <Text color={props.titleColor} style={styles.btnText}>
           {props.value}
         </Text>
-      </LinearGradient>
+      </Box>
     </TouchableHighlight>
   );
 }
