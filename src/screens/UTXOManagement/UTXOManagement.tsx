@@ -8,7 +8,7 @@ import LinkedWallet from 'src/assets/images/walletUtxos.svg';
 import UTXOFooter from 'src/components/UTXOsComponents/UTXOFooter';
 import FinalizeFooter from 'src/components/UTXOsComponents/FinalizeFooter';
 import Text from 'src/components/KeeperText';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setWhirlpoolIntro } from 'src/store/reducers/vaults';
@@ -17,7 +17,7 @@ import UTXOSelectionTotal from 'src/components/UTXOsComponents/UTXOSelectionTota
 import { AccountSelectionTab } from 'src/components/AccountSelectionTab';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { WalletType } from 'src/core/wallets/enums';
+import { NetworkType, WalletType } from 'src/core/wallets/enums';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperModal from 'src/components/KeeperModal';
 import Buttons from 'src/components/Buttons';
@@ -36,6 +36,7 @@ import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
 import SendBadBankSatsModal from './components/SendBadBankSatsModal';
+import config from 'src/core/config';
 
 const getWalletBasedOnAccount = (
   depositWallet: Wallet,
@@ -91,8 +92,11 @@ function Footer({
       Alert.alert('Please select atleast one UTXO');
       return;
     }
-    showToast('This feature is currently under review'); // temporarily disabling whirlpool mix
-    // setShowBatteryWarningModal(true);
+    if (config.NETWORK_TYPE === NetworkType.TESTNET) {
+      setShowBatteryWarningModal(true);
+    } else {
+      showToast('This feature is currently under review'); // temporarily disabling whirlpool mix
+    }
   };
 
   return enableSelection ? (
@@ -324,8 +328,8 @@ function UTXOManagement({ route, navigation }) {
         title="Caution during the mix"
         subTitle="The mix may take some time to complete. Please do not close the app or navigate away."
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground={'#F7F2EC'}
+        buttonBackground={`${colorMode}.gradientStart`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (

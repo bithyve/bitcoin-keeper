@@ -1,9 +1,17 @@
 import Text from 'src/components/KeeperText';
-import { Box, HStack, Input, KeyboardAvoidingView, Pressable, useColorMode, VStack } from 'native-base';
+import {
+  Box,
+  HStack,
+  Input,
+  KeyboardAvoidingView,
+  Pressable,
+  useColorMode,
+  VStack,
+} from 'native-base';
 import { Platform, ScrollView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
@@ -18,14 +26,14 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/common/constants/Bitcoin';
+import { BtcToSats, SATOSHIS_IN_BTC, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import CurrencyKind from 'src/common/data/enums/CurrencyKind';
-import { Satoshis } from 'src/common/data/typealiases/UnitAliases';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
+import { Satoshis } from 'src/models/types/UnitAliases';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import { UTXO } from 'src/core/wallets/interfaces';
 import config from 'src/core/config';
@@ -276,7 +284,9 @@ function AddSendAmount({ route }) {
               style={styles.inputWrapper}
             >
               <Box flexDirection="row" alignItems="center" style={{ width: '70%' }}>
-                <Box marginRight={2}>{getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}</Box>
+                <Box marginRight={2}>
+                  {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
+                </Box>
                 <Box
                   marginLeft={2}
                   width={0.5}
@@ -499,7 +509,6 @@ const styles = ScaledSheet.create({
   },
   infoNoteText: {
     fontSize: 12,
-    fontWeight: '300',
     opacity: 1,
   },
   infoText: {

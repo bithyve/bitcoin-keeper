@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Box, Input } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { StyleSheet } from 'react-native';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';

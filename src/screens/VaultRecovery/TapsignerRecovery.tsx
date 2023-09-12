@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { ScrollView } from 'react-native-gesture-handler';
-import { windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -16,7 +16,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useTapsignerModal from 'src/hooks/useTapsignerModal';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { isTestnet } from 'src/constants/Bitcoin';
 import { getTapsignerDetails } from 'src/hardware/tapsigner';
 import { generateSignerFromMetaData } from 'src/hardware';
 import NFC from 'src/core/services/nfc';
@@ -27,7 +27,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import config from 'src/core/config';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import MockWrapper from '../Vault/MockWrapper';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 
 function TapSignerRecovery() {
   const [cvc, setCvc] = React.useState('');
@@ -122,7 +122,7 @@ function TapSignerRecovery() {
       <Box flex={1}>
         <HeaderTitle
           title="Setting up TAPSIGNER"
-          subtitle="Enter the 6-32 digit code printed on back of your TAPSIGNER"
+          subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
           onPressHandler={() => navigation.goBack()}
           paddingLeft={wp(25)}
         />

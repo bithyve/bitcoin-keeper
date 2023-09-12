@@ -5,13 +5,13 @@ import { StyleSheet } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import PageIndicator from 'src/components/PageIndicator';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppSelector } from 'src/store/hooks';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import { SatsToBtc } from 'src/constants/Bitcoin';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { useDispatch } from 'react-redux';
 import { addNewWhirlpoolWallets, incrementAddressIndex } from 'src/store/sagaActions/wallets';
@@ -262,7 +262,9 @@ export default function BroadcastPremix({ route, navigation }) {
             Fee
           </Text>
           <Box style={styles.textDirection}>
-            <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(tx0Preview.minerFee)}</Text>
+            <Text color={`${colorMode}.secondaryText`}>
+              {valueByPreferredUnit(tx0Preview.minerFee)}
+            </Text>
             <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
@@ -290,7 +292,9 @@ export default function BroadcastPremix({ route, navigation }) {
             Badbank Change
           </Text>
           <Box style={styles.textDirection}>
-            <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(tx0Preview.change)}</Text>
+            <Text color={`${colorMode}.secondaryText`}>
+              {valueByPreferredUnit(tx0Preview.change)}
+            </Text>
             <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
               {getSatUnit()}
             </Text>
@@ -309,7 +313,9 @@ export default function BroadcastPremix({ route, navigation }) {
                 Premix value
               </Text>
               <Box style={styles.textDirection}>
-                <Text color={`${colorMode}.secondaryText`}>{valueByPreferredUnit(premixOutputs[0])}</Text>
+                <Text color={`${colorMode}.secondaryText`}>
+                  {valueByPreferredUnit(premixOutputs[0])}
+                </Text>
                 <Text color={`${colorMode}.secondaryText`} style={{ paddingLeft: 5 }}>
                   {getSatUnit()}
                 </Text>
@@ -350,8 +356,8 @@ export default function BroadcastPremix({ route, navigation }) {
         title="Broadcasting Tx0"
         subTitle="This step prepares your sats to enter a Whirlpool. After the Tx0 is confirmed, it is picked up soon, to be mixed with other UTXOs from the same pool."
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground={'#F7F2EC'}
+        buttonBackground={`${colorMode}.gradientStart`}
         buttonTextColor="#FAFAFA"
         closeOnOverlayClick={false}
         Content={() => (

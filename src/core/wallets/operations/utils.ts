@@ -16,7 +16,7 @@ import ECPairFactory, { ECPairInterface } from 'ecpair';
 import RestClient from 'src/core/services/rest/RestClient';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
 import { Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';

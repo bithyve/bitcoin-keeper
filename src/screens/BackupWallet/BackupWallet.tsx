@@ -4,12 +4,11 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import HealthCheckComponent from 'src/components/Backup/HealthCheckComponent';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import SkipHealthCheck from 'src/components/Backup/SkipHealthCheck';
@@ -17,6 +16,7 @@ import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import { useAppSelector } from 'src/store/hooks';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import { StyleSheet } from 'react-native';
+import { useQuery } from '@realm/react';
 
 type Props = {
   title: string;
@@ -35,7 +35,6 @@ function BackupWallet() {
   const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
   const navigation = useNavigation();
 
-  const { useQuery } = useContext(RealmWrapperContext);
   const { primaryMnemonic } = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   function Option({ title, subTitle, onPress }: Props) {

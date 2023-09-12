@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import BtcBlack from 'src/assets/images/btc_black.svg';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/core/wallets/interfaces';
@@ -18,7 +18,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import CurrencyInfo from 'src/screens/NewHomeScreen/components/CurrencyInfo';
+import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
 
 function Label({
   name,

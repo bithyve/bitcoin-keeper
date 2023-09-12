@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import { Box, useColorMode } from 'native-base';
-import CurrencyKind from 'src/common/data/enums/CurrencyKind';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 import IconBitcoin from 'src/assets/images/icon_bitcoin.svg';
 import IconBitcoinWhite from 'src/assets/images/icon_bitcoin_white.svg';
 import IconDoller from 'src/assets/images/icon_dollar.svg';
@@ -43,7 +43,7 @@ function CurrencyTypeSwitch() {
   }, [currencyKind]);
 
   return (
-    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID='btn_currencyToggle'>
+    <TouchableOpacity activeOpacity={0.6} onPress={() => changeType()} testID="btn_currencyToggle">
       <LinearGradient
         start={[0, 0]}
         end={[1, 0]}

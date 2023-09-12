@@ -16,7 +16,7 @@ import idx from 'idx';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { globalStyles } from 'src/common/globalStyles';
+import { globalStyles } from 'src/constants/globalStyles';
 import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { SDIcons } from './SigningDeviceIcons';
@@ -113,7 +113,11 @@ function SignerAdvanceSettings({ route }: any) {
   const { font12, font10, font14 } = globalStyles;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title="Advanced Settings" headerTitleColor={`${colorMode}.primaryText`} paddingLeft={25} />
+      <HeaderTitle
+        title="Advanced Settings"
+        headerTitleColor={`${colorMode}.primaryText`}
+        paddingLeft={25}
+      />
       <Box backgroundColor={gradientStyles} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>

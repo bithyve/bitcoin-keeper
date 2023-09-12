@@ -12,7 +12,7 @@ import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import {
   removeSigningDeviceBhr,
   setRelayVaultRecoveryShellId,
@@ -327,7 +327,7 @@ function VaultRecovery({ navigation }) {
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),
-                height: windowHeight > 680 ? '66%' : '51%'
+                height: windowHeight > 680 ? '66%' : '51%',
               }}
             />
             {inheritanceRequestId && (
@@ -395,7 +395,7 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => { }}
+        close={() => {}}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);

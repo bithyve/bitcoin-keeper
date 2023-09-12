@@ -3,13 +3,13 @@ import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { Box, useColorMode } from 'native-base';
 import Illustration7 from 'src/assets/images/illustration_7.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import DotView from 'src/components/DotView';
-import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import { modalParams } from 'src/models/interfaces/UTXOs';
 
-function premixContent() {
+function PremixContent() {
   const { colorMode } = useColorMode();
   return (
     <View style={styles.container}>
@@ -57,15 +57,15 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       }}
       title="Setting up Premix"
       subTitle="You are about to start your first mix. In the next few steps, you’ll be guided to create your Tx0. Tx0 gets created based on the pool you select ahead."
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
-      Content={premixContent}
+      Content={PremixContent}
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Proceed"
-      buttonTextColor="light.greenText2"
-      buttonBackground={['#FFFFFF', '#80A8A1']}
+      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />
   );

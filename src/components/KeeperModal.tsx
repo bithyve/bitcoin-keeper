@@ -1,6 +1,6 @@
-import { Box, Modal, Pressable } from 'native-base';
+import { Box, Modal, Pressable, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 
 import Close from 'src/assets/images/modal_close.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
@@ -16,8 +16,8 @@ type ModalProps = {
   title?: string;
   subTitle?: string;
   subTitleWidth?: number;
-  modalBackground?: string[];
-  buttonBackground?: string[];
+  modalBackground?: string;
+  buttonBackground?: string;
   buttonText?: string;
   buttonTextColor?: string;
   secButtonTextColor?: string;
@@ -41,8 +41,8 @@ KeeperModal.defaultProps = {
   title: '',
   subTitle: null,
   subTitleWidth: windowWidth * 0.7,
-  modalBackground: ['light.mainBackground', 'light.mainBackground'],
-  buttonBackground: ['light.gradientStart', 'light.gradientEnd'],
+  modalBackground: 'light.modalWhiteBackground',
+  buttonBackground: '#00836A',
   buttonText: null,
   buttonTextColor: 'white',
   secButtonTextColor: '#073E39',
@@ -89,6 +89,7 @@ function KeeperModal(props: ModalProps) {
     showCloseIcon,
     justifyContent,
   } = props;
+  const { colorMode } = useColorMode();
   const subTitleColor = ignored || textColor;
   const { bottom } = useSafeAreaInsets();
   const bottomMargin = Platform.select<number>({ ios: bottom, android: 10 });
@@ -98,16 +99,6 @@ function KeeperModal(props: ModalProps) {
 
   const getCloseIcon = () => (DarkCloseIcon ? <CloseGreen /> : <Close />);
   const styles = getStyles(subTitleWidth);
-  const linearGradient = {
-    colors: modalBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
-  const linearGradientBtn = {
-    colors: buttonBackground,
-    start: [0, 0],
-    end: [1, 1],
-  };
   return (
     <Modal
       closeOnOverlayClick={closeOnOverlayClick}
@@ -120,7 +111,7 @@ function KeeperModal(props: ModalProps) {
     >
       <Modal.Content borderRadius={10} marginBottom={Math.max(5, bottomMargin)} maxHeight="full">
         <GestureHandlerRootView>
-          <Box backgroundColor={{ linearGradient }} style={styles.container}>
+          <Box backgroundColor={modalBackground} style={styles.container}>
             {showCloseIcon ? (
               <TouchableOpacity style={styles.close} onPress={close}>
                 {getCloseIcon()}
@@ -144,9 +135,13 @@ function KeeperModal(props: ModalProps) {
             {((showButtons && learnMore) || !!buttonText) && (
               <Box style={styles.footerContainer}>
                 {learnMore ? (
-                  <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+                  <Box
+                    borderColor={`${colorMode}.lightAccent`}
+                    backgroundColor={`${colorMode}.modalGreenLearnMore`}
+                    style={styles.learnMoreContainer}
+                  >
                     <Pressable onPress={learnMoreCallback}>
-                      <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+                      <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
                         See FAQs
                       </Text>
                     </Pressable>
@@ -165,7 +160,7 @@ function KeeperModal(props: ModalProps) {
                 )}
                 {!!buttonText && (
                   <TouchableOpacity onPress={buttonCallback}>
-                    <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+                    <Box backgroundColor={buttonBackground} style={styles.cta}>
                       <Text style={styles.ctaText} color={buttonTextColor} bold>
                         {showButtons ? buttonText : null}
                       </Text>
@@ -231,7 +226,6 @@ const getStyles = (subTitleWidth) =>
       borderWidth: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#00433A',
       height: hp(34),
       width: wp(110),
       marginLeft: wp(10),

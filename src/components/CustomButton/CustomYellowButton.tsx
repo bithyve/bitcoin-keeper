@@ -20,13 +20,13 @@ function CustomYellowButton(props: Props) {
       onPress={() => {
         props.onPress();
       }}
-      testID='btn_customYellowButton'
+      testID="btn_customYellowButton"
     >
       <LinearGradient
         start={[1, 0]}
         end={[0, 0]}
         colors={colorMode === 'light' ? ['#E3BE96', '#E3BE96'] : ['#212726', '#212726']}
-        style={styles.linearGradient}
+        style={styles.buttonContent}
       >
         <Text color={props.titleColor} style={styles.btnText}>
           {props.value}
@@ -37,7 +37,7 @@ function CustomYellowButton(props: Props) {
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  buttonContent: {
     paddingVertical: 6,
     paddingHorizontal: 20,
     borderColor: '#725436',
@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
   },
   btnText: {
     letterSpacing: 1,
-    fontSize: 14
-  }
+    fontSize: 14,
+  },
 });
 
 export default CustomYellowButton;

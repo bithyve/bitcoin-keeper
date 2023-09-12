@@ -10,7 +10,7 @@ import { ScaledSheet } from 'react-native-size-matters';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function AddDescription({ route }) {
@@ -71,10 +71,6 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-  },
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
   },
   cardContainer: {
     flexDirection: 'row',

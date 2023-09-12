@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/icon_share.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Note from 'src/components/Note/Note';
@@ -26,7 +26,7 @@ function GenerateVaultDescriptor() {
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title="Generate Vault Descriptor"
+        title="Vault Configuration"
         subtitle="A descriptor contains sensitive information. Please use with caution"
       />
       <Box style={styles.container}>
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderColor: Colors.Seashell,
-    marginTop: 10,
+    marginTop: 0,
     paddingTop: 20,
     borderTopWidth: 0.5,
     alignItems: 'center',

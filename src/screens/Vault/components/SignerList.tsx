@@ -10,7 +10,7 @@ import Text from 'src/components/KeeperText';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight } from 'src/constants/responsive';
 import { WalletMap } from '../WalletMap';
 
 function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: VaultMigrationType }) {

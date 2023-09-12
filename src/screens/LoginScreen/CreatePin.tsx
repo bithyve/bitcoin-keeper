@@ -11,7 +11,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
@@ -145,7 +145,7 @@ export default function CreatePin(props) {
   }
 
   return (
-    <Box testID="main" style={styles.linearGradient} backgroundColor="light.pantoneGreen">
+    <Box testID="main" style={styles.container} backgroundColor="light.pantoneGreen">
       <Box style={styles.wrapper}>
         <Box pt={50}>
           <StatusBar barStyle="light-content" />
@@ -226,7 +226,7 @@ export default function CreatePin(props) {
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  container: {
     flex: 1,
     padding: 10,
   },

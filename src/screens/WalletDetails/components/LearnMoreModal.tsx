@@ -4,7 +4,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { useDispatch } from 'react-redux';
 import { Box, useColorMode } from 'native-base';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 
@@ -35,7 +35,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       }}
       title="Bip-85 Wallets"
       subTitle="Create as many (hot) wallets as you want, and backup with a single Recovery Phrase"
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={LinkedWalletContent}
       DarkCloseIcon
@@ -43,7 +43,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Continue"
       buttonTextColor="light.greenText2"
-      buttonBackground={['#FFFFFF', '#80A8A1']}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => dispatch(setIntroModal(false))}
     />
   );

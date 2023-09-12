@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Box } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import Text from 'src/components/KeeperText';
 import KeyPadView from './AppNumPad/KeyPadView';

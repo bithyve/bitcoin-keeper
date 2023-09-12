@@ -1,15 +1,14 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import React, { MutableRefObject, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 // hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 // colors, aserts
-import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';
@@ -102,13 +101,17 @@ function List() {
         viewabilityConfig={viewConfigRef.current}
       />
       <Box style={styles.ctaWrapper}>
-        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+        <Box
+          borderColor={`${colorMode}.lightAccent`}
+          backgroundColor={`${colorMode}.modalGreenLearnMore`}
+          style={styles.learnMoreContainer}
+        >
           <Pressable
             onPress={() => {
               openLink('https://www.bitcoinkeeper.app/');
             }}
           >
-            <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+            <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
               See FAQs
             </Text>
           </Pressable>
@@ -119,7 +122,7 @@ function List() {
               currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))
             }
           >
-            <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
+            <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
               <Text style={styles.ctaText} color="light.greenText2" bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
@@ -142,7 +145,7 @@ function SwiperModal({ enable }) {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
       title=""
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={() => <List />}
       showCloseIcon={false}
@@ -181,7 +184,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#00433A',
     height: hp(34),
     width: wp(110),
   },

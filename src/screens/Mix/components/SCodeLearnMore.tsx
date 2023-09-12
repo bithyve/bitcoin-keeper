@@ -4,7 +4,7 @@ import KeeperModal from 'src/components/KeeperModal';
 import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
-import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import { modalParams } from 'src/models/interfaces/UTXOs';
 import ScodeIllustration from 'src/assets/images/SomeDefination.svg';
 
 function SCodeContent() {
@@ -43,14 +43,14 @@ function SCodeLearnMore({ visible, closeModal }: modalParams) {
       title="Some Definitions:"
       subTitle=""
       DarkCloseIcon
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={SCodeContent}
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       buttonText="Proceed"
-      buttonTextColor="light.greenText2"
-      buttonBackground={['#FFFFFF', '#80A8A1']}
+      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />
   );
