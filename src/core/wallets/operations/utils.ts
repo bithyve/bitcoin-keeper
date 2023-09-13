@@ -10,10 +10,10 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 import bitcoinMessage from 'bitcoinjs-message';
 
-import { CryptoAccount, CryptoHDKey } from 'src/core/services/qr/bc-ur-registry';
+import { CryptoAccount, CryptoHDKey } from 'src/services/qr/bc-ur-registry';
 import ECPairFactory, { ECPairInterface } from 'ecpair';
 
-import RestClient from 'src/core/services/rest/RestClient';
+import RestClient from 'src/services/rest/RestClient';
 import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
@@ -29,7 +29,7 @@ import {
   ScriptTypes,
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
-import config from '../../config';
+import config from 'src/core/config';
 
 const ECPair = ECPairFactory(ecc);
 

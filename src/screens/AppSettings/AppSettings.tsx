@@ -25,8 +25,8 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { getBackupDuration } from 'src/utils/utilities';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
-import { changeLoginMethod } from '../../store/sagaActions/login';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { changeLoginMethod } from 'src/store/sagaActions/login';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
 
 const RNBiometrics = new ReactNativeBiometrics();

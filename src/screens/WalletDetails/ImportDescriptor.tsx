@@ -22,7 +22,7 @@ import NFCOption from '../NFCChannel/NFCOption';
 import { useAppSelector } from 'src/store/hooks';
 import { resetVaultFlags } from 'src/store/reducers/vaults';
 import { resetRealyVaultState } from 'src/store/reducers/bhr';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 function ImportDescriptorScreen({ navigation }) {

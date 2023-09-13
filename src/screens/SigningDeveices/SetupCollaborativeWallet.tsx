@@ -26,7 +26,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import OptionCTA from 'src/components/OptionCTA';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { addNewVault } from 'src/store/sagaActions/vaults';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';

@@ -1,14 +1,12 @@
 import { Box, Pressable, useColorMode } from 'native-base';
 import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-// hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
-// colors, aserts
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';

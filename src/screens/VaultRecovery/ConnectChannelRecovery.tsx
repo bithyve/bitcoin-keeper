@@ -8,13 +8,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { io } from 'src/core/services/channel';
+import { io } from 'src/services/channel';
 import {
   BITBOX_SETUP,
   CREATE_CHANNEL,
   LEDGER_SETUP,
   TREZOR_SETUP,
-} from 'src/core/services/channel/constants';
+} from 'src/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -24,7 +24,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { setSigningDevices } from 'src/store/reducers/bhr';

@@ -23,20 +23,6 @@ import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
 import LearnMoreModal from '../UTXOManagement/components/LearnMoreModal';
 
-// function WhirlpoolContent() {
-//   return (
-//     <View>
-//       <Text color='light.white' style={{ letterSpacing: 0.6 }}>
-//         Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
-//         These wallets are all based off the same seed that you used to create the BIP39 software
-//         wallet you are using. They simply use different (but well known) derivation paths to derive
-//         other addresses. That means that you can always recover all your funds so long as you have
-//         the seed.
-//       </Text>
-//     </View>
-//   );
-// }
-
 export default function WhirlpoolConfiguration({ route }) {
   const { colorMode } = useColorMode();
   const { utxos, wallet } = route.params;

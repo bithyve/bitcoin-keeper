@@ -1,5 +1,5 @@
 import { call, put, select } from 'redux-saga/effects';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { RootState } from '../store';
 import {
   notificationsFetched,

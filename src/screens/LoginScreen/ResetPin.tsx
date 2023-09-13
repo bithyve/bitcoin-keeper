@@ -13,7 +13,7 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { resetPin } from '../../store/sagaActions/login';
+import { resetPin } from 'src/store/sagaActions/login';
 
 export default function ResetPin(props) {
   const { colorMode } = useColorMode();

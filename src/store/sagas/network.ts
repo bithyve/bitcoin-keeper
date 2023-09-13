@@ -6,9 +6,9 @@ import { NetworkType } from 'src/core/wallets/enums';
 import {
   predefinedMainnetNodes,
   predefinedTestnetNodes,
-} from 'src/core/services/electrum/predefinedNodes';
-import ElectrumClient from 'src/core/services/electrum/client';
-import { captureError } from 'src/core/services/sentry';
+} from 'src/services/electrum/predefinedNodes';
+import ElectrumClient from 'src/services/electrum/client';
+import { captureError } from 'src/services/sentry';
 import { setDefaultNodesSaved } from '../reducers/network';
 import { RootState } from '../store';
 import {

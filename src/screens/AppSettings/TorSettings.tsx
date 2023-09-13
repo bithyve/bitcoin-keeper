@@ -2,7 +2,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { setTorEnabled } from 'src/store/reducers/settings';

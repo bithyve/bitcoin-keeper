@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import config from '../../config';
+import config from 'src/core/config';
 import {
   SignerException,
   SignerPolicy,

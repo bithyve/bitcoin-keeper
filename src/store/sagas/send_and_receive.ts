@@ -5,7 +5,7 @@ import { EntityKind, LabelRefType, TxPriority } from 'src/core/wallets/enums';
 import { call, put, select } from 'redux-saga/effects';
 
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -15,9 +15,9 @@ import { TransferType } from 'src/models/enums/TransferType';
 import {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
-} from 'src/core/services/electrum/client';
+} from 'src/services/electrum/client';
 import { createWatcher } from '../utilities';
-import dbManager from '../../storage/realm/dbManager';
+import dbManager from 'src/storage/realm/dbManager';
 import {
   SendPhaseOneExecutedPayload,
   sendPhaseOneExecuted,

@@ -12,13 +12,13 @@ import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { Step } from 'src/nativemodules/interface';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import WhirlpoolClient from 'src/services/whirlpool/client';
 import { LabelRefType, WalletType } from 'src/core/wallets/enums';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Gear0 from 'src/assets/images/WP.svg';
-import ElectrumClient from 'src/core/services/electrum/client';
+import ElectrumClient from 'src/services/electrum/client';
 import config from 'src/core/config';
 import {
   WHIRLPOOL_ERROR,
@@ -26,16 +26,16 @@ import {
   WHIRLPOOL_LISTEN,
   WHIRLPOOL_SUCCESS,
   WHIRLPOOL_WORKING,
-} from 'src/core/services/channel/constants';
+} from 'src/services/channel/constants';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
-import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
-import { io } from 'src/core/services/channel';
+import { initiateWhirlpoolSocket } from 'src/services/whirlpool/sockets';
+import { io } from 'src/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useVault from 'src/hooks/useVault';

@@ -11,7 +11,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';

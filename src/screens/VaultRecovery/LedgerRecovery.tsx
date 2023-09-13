@@ -5,7 +5,7 @@
 // import { getLedgerDetails } from 'src/hardware/ledger';
 
 // import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-// import { captureError } from 'src/core/services/sentry';
+// import { captureError } from 'src/services/sentry';
 // import { generateSignerFromMetaData } from 'src/hardware';
 // import { useDispatch } from 'react-redux';
 // import useToastMessage from 'src/hooks/useToastMessage';
