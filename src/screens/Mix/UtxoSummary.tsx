@@ -1,8 +1,5 @@
-// utxo summary component
-
 import React from 'react';
 import { StyleSheet } from 'react-native';
-
 import { Box, Text } from 'native-base';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import WalletIcon from 'src/assets/images/wallet_color.svg';

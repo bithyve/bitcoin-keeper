@@ -8,7 +8,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { NativeBaseProvider } from 'native-base';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
-import { sentryConfig } from 'src/core/services/sentry';
 import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
 import { TorContextProvider } from 'src/context/TorContext';
 import { HCESessionProvider } from 'react-native-hce';
@@ -17,6 +16,7 @@ import Navigator from './src/navigation/Navigator';
 import { persistor, store } from './src/store/store';
 import { LocalizationProvider } from 'src/context/Localization/LocContext';
 import { AppContextProvider } from 'src/context/AppContext';
+import { sentryConfig } from 'src/services/sentry';
 
 LogBox.ignoreLogs([
   "[react-native-gesture-handler] Seems like you're using an old API with gesture components, check out new Gestures system!",

@@ -22,7 +22,7 @@ import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
-import { hash512 } from 'src/core/services/operations/encryption';
+import { hash512 } from 'src/services/operations/encryption';
 import config from 'src/core/config';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
@@ -30,7 +30,7 @@ import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { BulletPoint } from '../Vault/HardwareModalMap';
-import * as SecureStore from '../../storage/secure-store';
+import * as SecureStore from 'src/storage/secure-store';
 
 const RNBiometrics = new ReactNativeBiometrics();
 

@@ -27,10 +27,10 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import SigningServer from 'src/services/operations/SigningServer';
 import useVault from 'src/hooks/useVault';
 import { setTempShellId } from 'src/store/reducers/vaults';
-import { generateKey } from 'src/core/services/operations/encryption';
+import { generateKey } from 'src/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
 

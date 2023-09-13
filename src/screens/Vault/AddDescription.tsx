@@ -1,12 +1,10 @@
 import { TextInput } from 'react-native';
-// libraries
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/Tapsigner_brown.svg';
 import { ScaledSheet } from 'react-native-size-matters';
-// components
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';

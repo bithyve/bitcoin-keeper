@@ -15,9 +15,9 @@ import { setSeedConfirmed } from 'src/store/reducers/bhr';
 import { hp, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import HealthCheckComponent from './HealthCheckComponent';
-import BackupSuccessful from '../SeedWordBackup/BackupSuccessful';
-import DotView from '../DotView';
-import Buttons from '../Buttons';
+import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
+import DotView from 'src/components/DotView';
+import Buttons from 'src/components/Buttons';
 import { useQuery } from '@realm/react';
 
 function BackupHealthCheckList() {

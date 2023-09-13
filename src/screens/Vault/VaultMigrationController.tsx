@@ -9,7 +9,7 @@ import { TransferType } from 'src/models/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';

@@ -4,14 +4,12 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-// components and functions
 import { wp, hp, windowHeight } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setInheritance } from 'src/store/reducers/settings';
-// icons and asserts
 import Assert from 'src/assets/images/InheritanceSupportIllustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';

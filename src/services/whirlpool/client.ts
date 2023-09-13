@@ -17,8 +17,8 @@ import {
   TorConfig,
   TX0Data,
   WhirlpoolInput,
-} from '../../../nativemodules/interface';
-import { hash256 } from '../operations/encryption';
+} from 'src/nativemodules/interface';
+import { hash256 } from 'src/services/operations/encryption';
 
 const LOCALHOST = '127.0.0.1';
 export const TOR_CONFIG: TorConfig = {

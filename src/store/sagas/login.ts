@@ -6,17 +6,17 @@ import {
   encrypt,
   generateEncryptionKey,
   hash512,
-} from 'src/core/services/operations/encryption';
+} from 'src/services/operations/encryption';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import semver from 'semver';
 import { uaiType } from 'src/models/interfaces/Uai';
-import * as SecureStore from '../../storage/secure-store';
+import * as SecureStore from 'src/storage/secure-store';
 
 import {
   CHANGE_AUTH_CRED,
@@ -45,7 +45,7 @@ import {
 
 import { RootState } from '../store';
 import { createWatcher } from '../utilities';
-import dbManager from '../../storage/realm/dbManager';
+import dbManager from 'src/storage/realm/dbManager';
 import { fetchExchangeRates } from '../sagaActions/send_and_receive';
 import { getMessages } from '../sagaActions/notifications';
 import { setLoginMethod } from '../reducers/settings';

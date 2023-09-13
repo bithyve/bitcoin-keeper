@@ -5,9 +5,7 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
-// asserts
 import Fonts from 'src/constants/Fonts';
-// components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
 import { Keyboard } from 'react-native';
 import Note from 'src/components/Note/Note';

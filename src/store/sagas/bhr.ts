@@ -9,14 +9,14 @@ import {
   encrypt,
   generateEncryptionKey,
   hash256,
-} from 'src/core/services/operations/encryption';
+} from 'src/services/operations/encryption';
 import BIP85 from 'src/core/wallets/operations/BIP85';
 import DeviceInfo from 'react-native-device-info';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import crypto from 'crypto';
 import dbManager from 'src/storage/realm/dbManager';
 import moment from 'moment';
@@ -51,7 +51,7 @@ import {
   UPDATE_VAULT_IMAGE,
   getAppImage,
 } from '../sagaActions/bhr';
-import { BackupAction, BackupHistory, BackupType } from '../../models/enums/BHR';
+import { BackupAction, BackupHistory, BackupType } from 'src/models/enums/BHR';
 import { uaiActionedEntity } from '../sagaActions/uai';
 import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';

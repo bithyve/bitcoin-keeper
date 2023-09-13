@@ -15,7 +15,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
-import { storeCreds, switchCredsChanged } from '../../store/sagaActions/login';
+import { storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
 
 const windowHeight = Dimensions.get('window').height;
 

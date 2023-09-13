@@ -1,5 +1,5 @@
 import { Action } from 'redux';
-import CurrencyKind from '../../models/enums/CurrencyKind';
+import CurrencyKind from 'src/models/enums/CurrencyKind';
 
 export const CARD_DATA = 'CARD_DATA';
 export const CURRENCY_CODE = 'CURRENCY_CODE';

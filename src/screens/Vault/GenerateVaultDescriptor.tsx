@@ -9,7 +9,7 @@ import Note from 'src/components/Note/Note';
 import Colors from 'src/theme/Colors';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useRoute } from '@react-navigation/native';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
 
 function GenerateVaultDescriptor() {
