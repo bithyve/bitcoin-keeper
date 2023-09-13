@@ -5,7 +5,7 @@ import NFCSVG from 'src/assets/images/nfc.svg';
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 
 function NfcPrompt({ visible, close, ctaText }: { visible: boolean; close; ctaText?: string }) {
   const animation = React.useRef(new Animated.Value(0)).current;

@@ -5,7 +5,6 @@ import BTC from 'src/assets/images/btc_white.svg';
 import { HStack } from 'native-base';
 import Text from 'src/components/KeeperText';
 import React from 'react';
-// asserts
 import Colors from 'src/theme/Colors';
 import CurrencyKind from '../models/enums/CurrencyKind';
 import FiatCurrencies from './FiatCurrencies';

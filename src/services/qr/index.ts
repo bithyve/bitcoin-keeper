@@ -4,7 +4,7 @@ import {
   CryptoPSBT,
   CryptoOutput,
   URRegistryDecoder,
-} from 'src/core/services/qr/bc-ur-registry';
+} from 'src/services/qr/bc-ur-registry';
 
 import { Psbt } from 'bitcoinjs-lib';
 import WalletUtilities from 'src/core/wallets/operations/utils';

@@ -6,7 +6,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { BackupType } from 'src/models/enums/BHR';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import Buttons from '../Buttons';
+import Buttons from 'src/components/Buttons';
 
 function HealthCheckComponent(props) {
   const navigation = useNavigation();

@@ -17,7 +17,7 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';

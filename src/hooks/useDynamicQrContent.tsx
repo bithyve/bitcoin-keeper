@@ -1,4 +1,4 @@
-import { encodeBytesUR, encodePsbtUR } from 'src/core/services/qr';
+import { encodeBytesUR, encodePsbtUR } from 'src/services/qr';
 import { useCallback, useEffect, useState } from 'react';
 import { BufferEncoding } from 'src/models/enums/BufferEncoding';
 

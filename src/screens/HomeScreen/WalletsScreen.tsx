@@ -33,7 +33,7 @@ import dbManager from 'src/storage/realm/dbManager';
 import { SubscriptionTier, AppSubscriptionLevel } from 'src/models/enums/SubscriptionTier';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import SubScription from 'src/models/interfaces/Subscription';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useDispatch } from 'react-redux';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';

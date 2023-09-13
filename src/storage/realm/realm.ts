@@ -1,5 +1,5 @@
 import Realm from 'realm';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { RealmSchema } from './enum';
 import schema from './schema';
 

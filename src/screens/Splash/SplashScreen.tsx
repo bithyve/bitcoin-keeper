@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useColorMode } from 'native-base';
-import RestClient from 'src/core/services/rest/RestClient';
+import RestClient from 'src/services/rest/RestClient';
 import { useAppSelector } from 'src/store/hooks';
 import * as SecureStore from 'src/storage/secure-store';
 import Animated, {

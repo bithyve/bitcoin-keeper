@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import Assert from 'src/assets/images/illustration.svg';
 import { hp } from 'src/constants/responsive';
@@ -22,6 +22,7 @@ function InitiateContent() {
   );
 }
 function IKSetupSuccessModal({ visible, closeModal }: modalParams) {
+  const { colorMode } = useColorMode();
   return (
     <KeeperModal
       visible={visible}

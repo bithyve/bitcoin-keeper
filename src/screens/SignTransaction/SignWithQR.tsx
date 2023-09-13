@@ -11,7 +11,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';

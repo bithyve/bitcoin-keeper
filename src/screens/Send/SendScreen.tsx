@@ -26,7 +26,6 @@ import { EntityKind, PaymentInfoKind } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// components
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';

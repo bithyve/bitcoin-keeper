@@ -1,6 +1,6 @@
 import { Alert } from 'react-native';
 import WalletOperations from 'src/core/wallets/operations';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import idx from 'idx';
@@ -8,7 +8,7 @@ import { signWithTapsigner, readTapsigner } from 'src/hardware/tapsigner';
 import { signWithColdCard } from 'src/hardware/coldcard';
 import { isSignerAMF } from 'src/hardware';
 import { EntityKind } from 'src/core/wallets/enums';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,

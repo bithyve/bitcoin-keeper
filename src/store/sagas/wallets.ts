@@ -16,7 +16,7 @@ import {
   InheritancePolicy,
   SignerException,
   SignerRestriction,
-} from 'src/core/services/interfaces';
+} from 'src/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
@@ -39,8 +39,8 @@ import {
 import { Alert } from 'react-native';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import Relay from 'src/services/operations/Relay';
+import SigningServer from 'src/services/operations/SigningServer';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -49,14 +49,14 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { generateKey, hash256 } from 'src/core/services/operations/encryption';
+import { generateKey, hash256 } from 'src/services/operations/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
-} from 'src/core/services/electrum/client';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+} from 'src/services/electrum/client';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { RootState } from '../store';
 import {

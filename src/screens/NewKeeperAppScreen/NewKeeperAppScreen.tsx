@@ -20,7 +20,7 @@ import { isTestnet } from 'src/constants/Bitcoin';
 import openLink from 'src/utils/OpenLink';
 import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import LoadingAnimation from 'src/components/Loader';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
+import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import Fonts from 'src/constants/Fonts';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {

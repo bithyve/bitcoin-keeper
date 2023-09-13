@@ -11,14 +11,10 @@ import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
 import config from 'src/core/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, wp } from 'src/constants/responsive';
-import { io } from 'src/core/services/channel';
+import { io } from 'src/services/channel';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import {
-  BITBOX_REGISTER,
-  CREATE_CHANNEL,
-  LEDGER_REGISTER,
-} from 'src/core/services/channel/constants';
-import { captureError } from 'src/core/services/sentry';
+import { BITBOX_REGISTER, CREATE_CHANNEL, LEDGER_REGISTER } from 'src/services/channel/constants';
+import { captureError } from 'src/services/sentry';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';

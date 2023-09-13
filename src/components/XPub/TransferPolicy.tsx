@@ -17,7 +17,7 @@ import { updateWalletProperty } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { v4 as uuidv4 } from 'uuid';
-import Buttons from '../Buttons';
+import Buttons from 'src/components/Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 

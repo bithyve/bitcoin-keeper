@@ -12,7 +12,7 @@ import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import PinInputsView from '../AppPinInput/PinInputsView';
-import Buttons from '../Buttons';
+import Buttons from 'src/components/Buttons';
 import Text from '../KeeperText';
 
 function SeedConfirmPasscode({ navigation, closeBottomSheet, wallet }) {

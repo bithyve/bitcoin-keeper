@@ -11,9 +11,7 @@ import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/add.svg';
-// import EditIcon from 'src/assets/images/edit_yellow.svg';
 import ConnectIcon from 'src/assets/images/connectNode.svg';
 import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
@@ -26,7 +24,7 @@ import {
   electrumClientConnectionInitiated,
 } from 'src/store/reducers/login';
 import AddNode from './AddNodeModal';
-import Node from '../../../core/services/electrum/node';
+import Node from 'src/services/electrum/node';
 
 function NodeSettings() {
   const { colorMode } = useColorMode();

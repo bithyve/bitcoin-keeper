@@ -19,7 +19,7 @@ import useTapsignerModal from 'src/hooks/useTapsignerModal';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { getTapsignerDetails } from 'src/hardware/tapsigner';
 import { generateSignerFromMetaData } from 'src/hardware';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Box } from 'native-base';
 import { useAppSelector } from 'src/store/hooks';

@@ -6,7 +6,7 @@ import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { TransferType } from 'src/models/enums/TransferType';
-import { Satoshis } from '../../models/types/UnitAliases';
+import { Satoshis } from 'src/models/types/UnitAliases';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
 export const SOURCE_WALLET_SELECTED_FOR_SENDING = 'SOURCE_WALLET_SELECTED_FOR_SENDING';

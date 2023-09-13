@@ -22,7 +22,7 @@ import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscripti
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp } from 'src/constants/responsive';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment';
 import { getBundleId } from 'react-native-device-info';

@@ -3,7 +3,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
 import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
 import { LabelRefType } from 'src/core/wallets/enums';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Vault } from 'src/core/wallets/interfaces/vault';

@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import { Alert } from 'react-native';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { ScriptTypes, XpubTypes } from 'src/core/wallets/enums';
 import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';

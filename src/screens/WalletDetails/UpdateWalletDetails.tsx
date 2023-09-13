@@ -6,25 +6,19 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-// libraries
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/constants/Fonts';
-// import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// components
 import KeeperText from 'src/components/KeeperText';
-
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
-import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { DerivationPurpose } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
