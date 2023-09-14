@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Select, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
@@ -294,7 +293,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => {}}
+        close={() => { }}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -312,10 +311,10 @@ function EnterWalletDetailScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
   autoTransferText: {
     fontSize: 12,
@@ -324,7 +323,7 @@ const styles = ScaledSheet.create({
   autoTransferTextDesc: {
     fontSize: 10,
     paddingTop: 10,
-    letterSpacing: '0.5@s',
+    letterSpacing: 0.5,
   },
   transferPolicyInput: {
     fontSize: 18,
@@ -332,8 +331,8 @@ const styles = ScaledSheet.create({
   },
   addWalletDescription: {
     fontSize: 12,
-    lineHeight: '15@s',
-    letterSpacing: '0.5@s',
+    lineHeight: 15,
+    letterSpacing: 0.5,
   },
   inputFieldWrapper: {
     flexDirection: 'row',
