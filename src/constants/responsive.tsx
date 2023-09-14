@@ -1,6 +1,6 @@
 import { Dimensions } from 'react-native';
 
-export const windowHeight: number = Dimensions.get('window').height;
+export const windowHeight: number = Dimensions.get('screen').height;
 export const windowWidth: number = Dimensions.get('window').width;
 
 export const getTransactionPadding = () => windowHeight * 0.047;

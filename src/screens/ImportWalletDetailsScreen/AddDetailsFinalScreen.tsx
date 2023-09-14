@@ -6,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { Box, View } from 'native-base';
+import { Box, View, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -69,6 +69,7 @@ function AddDetailsFinalScreen({ route }) {
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     const path = WalletUtilities.getDerivationPath(
@@ -139,7 +140,7 @@ function AddDetailsFinalScreen({ route }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
