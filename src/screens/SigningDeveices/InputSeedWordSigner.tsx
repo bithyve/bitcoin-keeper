@@ -10,10 +10,10 @@ import {
   FlatList,
   TextInput,
   Alert,
+  StyleSheet,
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import { ScaledSheet } from 'react-native-size-matters';
 import * as bip39 from 'bip39';
 
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -297,7 +297,7 @@ function InputSeedWordSigner({ route }: { route: any }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },

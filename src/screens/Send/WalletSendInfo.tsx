@@ -1,8 +1,7 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { TouchableOpacity } from 'react-native';
-import { ScaledSheet } from 'react-native-size-matters';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
@@ -72,7 +71,7 @@ function WalletSendInfo({
     </Box>
   );
 }
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   buttonBackground: {
     backgroundColor: '#FAC48B',
     width: hp(45),
