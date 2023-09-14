@@ -3,8 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
 import React from 'react';
-import { ScaledSheet } from 'react-native-size-matters';
-import { TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -33,7 +32,7 @@ function HeaderTitle({
   paddingLeft = 0,
   paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   titleFontSize = 16,
   textPadding = 0,
   backBtnBlackColor = true,
@@ -104,30 +103,30 @@ function HeaderTitle({
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
   },
   addWalletText: {
-    lineHeight: '23@s',
-    letterSpacing: '0.8@s',
+    lineHeight: 26,
+    letterSpacing: 0.8,
   },
   addWalletDescription: {
     fontSize: 12,
-    lineHeight: '17@s',
-    letterSpacing: '0.5@s',
+    lineHeight: 20,
+    letterSpacing: 0.5,
   },
   backContainer: {
     justifyContent: 'space-between',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: '5@s',
+    paddingHorizontal: 5,
   },
   backBtnVerticalPadding: {
-    paddingVertical: windowHeight > 680 ? '15@s' : '7@s',
+    paddingVertical: windowHeight > 680 ? 15 : 7,
   },
   backBtnTopPadding: {
-    paddingTop: windowHeight > 680 ? '15@s' : '7@s',
+    paddingTop: windowHeight > 680 ? 15 : 7,
   },
   backButton: {
     height: 20,
