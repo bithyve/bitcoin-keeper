@@ -1,7 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -13,6 +12,7 @@ import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { genrateOutputDescriptors } from 'src/core/utils';
+import { StyleSheet } from 'react-native';
 
 type Props = {
   title: string;
@@ -148,7 +148,7 @@ function CollabrativeWalletSettings() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
     padding: 20,
