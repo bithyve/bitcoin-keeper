@@ -120,9 +120,9 @@ function WalletItem({
       onPress={
         isCollaborativeWallet
           ? () =>
-              navigation.navigate('VaultDetails', {
-                collaborativeWalletId: item.collaborativeWalletId,
-              })
+            navigation.navigate('VaultDetails', {
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
           : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
       }
     >
@@ -470,13 +470,7 @@ const WalletsScreen = ({ navigation }) => {
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box
                 style={[styles.createBtn]}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
+                backgroundColor={`${colorMode}.greenButtonBackground`}
               >
                 <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
                   Continue as Pleb
@@ -586,7 +580,7 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -595,7 +589,7 @@ const WalletsScreen = ({ navigation }) => {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />

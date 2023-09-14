@@ -346,13 +346,7 @@ function LoginScreen({ navigation, route }) {
                 style={[styles.createBtn]}
                 paddingLeft={10}
                 paddingRight={10}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
+                backgroundColor={`${colorMode}.greenButtonBackground`}
               >
                 <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
                   Retry
@@ -502,7 +496,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -518,7 +512,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
