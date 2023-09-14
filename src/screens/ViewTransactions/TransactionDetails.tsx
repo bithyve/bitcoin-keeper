@@ -1,11 +1,10 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
-import { TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/constants/responsive';
-import { ScaledSheet } from 'react-native-size-matters';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -77,8 +76,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
       }`
     );
   };
@@ -184,10 +182,10 @@ function TransactionDetails({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
   transViewWrapper: {
     flexDirection: 'row',

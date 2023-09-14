@@ -1,6 +1,6 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
 import AddIcon from 'src/assets/images/green_add.svg';
@@ -9,7 +9,6 @@ import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
@@ -395,7 +394,7 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => {}}
+        close={() => { }}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
@@ -407,7 +406,7 @@ function VaultRecovery({ navigation }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',
