@@ -1,4 +1,4 @@
-import { ActivityIndicator, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 import { Box, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -18,7 +18,6 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
@@ -284,23 +283,22 @@ function SetupSigningServer({ route }: { route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
     position: 'relative',
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.20,
   },
   textBox: {
     width: '80%',
-    // backgroundColor: Colors?.textInputBackground,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,

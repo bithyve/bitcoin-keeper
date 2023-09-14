@@ -1,8 +1,11 @@
 import React from 'react';
-import Text from 'src/components/KeeperText';
+import { StyleSheet } from 'react-native';
+
+
 import { Box, Pressable, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
+
+import Text from 'src/components/KeeperText';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
@@ -10,6 +13,7 @@ import { wp, hp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import Server from 'src/assets/images/server.svg';
 import BackupIcon from 'src/assets/images/backupIcon.svg';
+
 
 type Props = {
   title: string;
@@ -160,10 +164,10 @@ function SigningServerSettings({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
     position: 'relative',
   },
 });

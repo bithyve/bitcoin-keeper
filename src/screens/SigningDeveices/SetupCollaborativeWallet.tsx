@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, Pressable } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
@@ -9,7 +9,6 @@ import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import moment from 'moment';
@@ -138,9 +137,8 @@ function SignerItem({
                 { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
               ]}
             >
-              {`${
-                coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
-              }`}
+              {`${coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
+                }`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text
@@ -421,7 +419,7 @@ function SetupCollaborativeWallet() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
