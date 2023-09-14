@@ -1,5 +1,5 @@
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
-import { Box, Input, View } from 'native-base';
+import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, StyleSheet } from 'react-native';
+import { Box, Input, View, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -44,8 +44,10 @@ function ImportWalletDetailsScreen({ route }) {
   const formatNumber = (value: string) =>
     value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+  const { colorMode } = useColorMode();
+
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -92,9 +92,10 @@ function HealthCheckComponent(props) {
       setInvalid(true);
     }
   };
+  const { colorMode } = useColorMode();
 
   return (
-    <Box backgroundColor="light.mainBackground" style={styles.wrapper}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.healthCheck}
