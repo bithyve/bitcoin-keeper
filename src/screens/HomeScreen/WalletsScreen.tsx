@@ -12,7 +12,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
-import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
+import WalletDark from 'src/assets/images/walletDark.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import AddWallet from 'src/assets/images/addWallet.svg';
 import ImportWallet from 'src/assets/images/importWallet.svg';
@@ -76,14 +77,12 @@ const calculateBalancesForVaults = (vaults) => {
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
-    // <View style={styles.addWalletContent}>
     <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
       <AddSCardIcon />
       <Text color="light.white" style={styles.addWalletText}>
         {wallet.AddImportNewWallet}
       </Text>
     </TouchableOpacity>
-    // </View>
   );
 }
 
@@ -120,9 +119,9 @@ function WalletItem({
       onPress={
         isCollaborativeWallet
           ? () =>
-              navigation.navigate('VaultDetails', {
-                collaborativeWalletId: item.collaborativeWalletId,
-              })
+            navigation.navigate('VaultDetails', {
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
           : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
       }
     >
@@ -223,11 +222,9 @@ function WalletTile({
               gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
             />
           ) : (
-            <GradientIcon
-              Icon={WalletInsideGreen}
-              height={35}
-              gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-            />
+            <Box style={styles.walletIconWrapper}>
+              {colorMode === 'light' ? <WalletActiveIcon /> : <WalletDark />}
+            </Box>
           )}
 
           <Box style={styles.walletDetailsWrapper}>
@@ -470,13 +467,7 @@ const WalletsScreen = ({ navigation }) => {
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box
                 style={[styles.createBtn]}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
+                backgroundColor={`${colorMode}.greenButtonBackground`}
               >
                 <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
                   Continue as Pleb
@@ -586,7 +577,7 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -595,7 +586,7 @@ const WalletsScreen = ({ navigation }) => {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />
@@ -665,11 +656,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  balanceUnit: {
-    letterSpacing: 0.6,
-    fontSize: 12,
-  },
   walletsContainer: {
     marginTop: 18,
     height: hp(210),
@@ -726,30 +712,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     lineHeight: hp(30),
   },
-  atViewWrapper: {
-    marginVertical: 4,
-    alignItems: 'center',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 6,
-    backgroundColor: '#FDF7F0',
-    flexDirection: 'row',
-  },
   walletDetailsWrapper: {
     marginTop: 5,
     width: '68%',
-  },
-  listViewWrapper: {
-    flexDirection: 'row',
-    width: '99%',
-    justifyContent: 'space-around',
-  },
-  tranferPolicyWrapper: {
-    width: '48%',
-    marginRight: wp(10),
-  },
-  buyWrapper: {
-    width: '51%',
   },
   listItemsWrapper: {
     marginTop: hp(20),
@@ -764,12 +729,6 @@ const styles = StyleSheet.create({
   netBalanceView: {
     width: '40%',
     alignItems: 'center',
-  },
-  addWalletContent: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    width: '100%',
   },
   AddNewWalletIllustrationWrapper: {
     flexDirection: 'row',
@@ -807,4 +766,7 @@ const styles = StyleSheet.create({
     padding: 2,
     marginTop: hp(20),
   },
+  walletIconWrapper: {
+    marginVertical: hp(5)
+  }
 });

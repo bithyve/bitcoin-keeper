@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable no-await-in-loop */
 import React, { useEffect, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { StyleSheet, FlatList, Platform, Animated, Easing, BackHandler } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -468,13 +468,15 @@ function MixProgress({
       </Text>
     );
   }
+
+  const { colorMode } = useColorMode();
+
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
         <HeaderTitle
           enableBack={false}
           paddingTop={hp(30)}
-          headerTitleColor=""
           titleFontSize={20}
           title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
@@ -503,7 +505,7 @@ function MixProgress({
           />
         </Box>
       </ScreenWrapper>
-      <Box backgroundColor="light.mainBackground" style={styles.note}>
+      <Box style={styles.note}>
         <Note title="Note:" subtitle="Make sure your phone is sufficiently charged" />
       </Box>
     </Box>

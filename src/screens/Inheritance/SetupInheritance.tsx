@@ -2,7 +2,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, windowHeight } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -20,7 +19,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
-import { TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 
@@ -205,7 +204,7 @@ function SetupInheritance() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   note: {
     position: 'absolute',
     bottom: hp(20),

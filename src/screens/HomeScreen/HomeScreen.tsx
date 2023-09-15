@@ -11,7 +11,6 @@ import VaultDark from 'src/assets/images/vaultDark.svg';
 import { urlParamsToObj } from 'src/core/utils';
 import { WalletType } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
-import Fonts from 'src/constants/Fonts';
 import { Box, useColorMode } from 'native-base';
 import VaultScreen from './VaultScreen';
 import WalletsScreen from './WalletsScreen';
@@ -74,14 +73,12 @@ function NewHomeScreen({ navigation }) {
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: `${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
+            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${
-              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-            } `,
+            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -101,15 +98,13 @@ function NewHomeScreen({ navigation }) {
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: `${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+                } `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${
-                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+                } `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -134,8 +129,8 @@ function NewHomeScreen({ navigation }) {
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
-              ? options.title
-              : route.name;
+                ? options.title
+                : route.name;
 
           const isFocused = state.index === index;
 

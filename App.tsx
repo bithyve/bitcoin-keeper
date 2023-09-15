@@ -1,11 +1,10 @@
 import * as Sentry from '@sentry/react-native';
 
-import { LogBox, Platform, StatusBar, UIManager } from 'react-native';
+import { LogBox, Platform, UIManager } from 'react-native';
 import React, { ReactElement, useEffect } from 'react';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import LinearGradient from 'react-native-linear-gradient';
-import { NativeBaseProvider } from 'native-base';
+import { NativeBaseProvider, StatusBar } from 'native-base';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Provider } from 'react-redux';
 import { withIAPContext, initConnection, endConnection } from 'react-native-iap';
@@ -44,16 +43,9 @@ function App() {
     };
   }, []);
 
-  // linear-gradient configs for NativeBase
-  const config = {
-    dependencies: {
-      'linear-gradient': LinearGradient,
-    },
-  };
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NativeBaseProvider theme={customTheme} config={config}>
+      <NativeBaseProvider theme={customTheme}>
         <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
         <LocalizationProvider>
           <AppContextProvider>

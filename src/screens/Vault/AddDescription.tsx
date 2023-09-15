@@ -1,10 +1,9 @@
-import { TextInput } from 'react-native';
+import { StyleSheet, TextInput } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/Tapsigner_brown.svg';
-import { ScaledSheet } from 'react-native-size-matters';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
@@ -55,9 +54,9 @@ function AddDescription({ route }) {
         <Box marginTop={hp(70)}>
           <Buttons
             primaryText="Proceed"
-            primaryCallback={() => {}}
+            primaryCallback={() => { }}
             secondaryText="Skip"
-            secondaryCallback={() => {}}
+            secondaryCallback={() => { }}
           />
         </Box>
       </Box>
@@ -65,10 +64,10 @@ function AddDescription({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
   cardContainer: {
     flexDirection: 'row',
@@ -79,11 +78,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.20,
   },
 
   textInput: {

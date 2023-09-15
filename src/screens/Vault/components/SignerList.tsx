@@ -1,10 +1,9 @@
 import { Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback } from 'react';
-import { Box, VStack } from 'native-base';
+import { Box, useColorMode, VStack } from 'native-base';
 import moment from 'moment';
 import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import LinearGradient from 'src/components/KeeperGradient';
 import { VaultMigrationType } from 'src/core/wallets/enums';
 import Text from 'src/components/KeeperText';
 import { Vault } from 'src/core/wallets/interfaces/vault';
@@ -14,18 +13,14 @@ import { windowHeight } from 'src/constants/responsive';
 import { WalletMap } from '../WalletMap';
 
 function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: VaultMigrationType }) {
+  const { colorMode } = useColorMode();
   const { signers: Signers, isMultiSig } = vault;
   const navigation = useNavigation();
 
   const AddSigner = useCallback(() => {
     if (upgradeStatus === VaultMigrationType.UPGRADE) {
       return (
-        <LinearGradient
-          start={[0, 0]}
-          end={[1, 1]}
-          colors={['#B17F44', '#6E4A35']}
-          style={[styles.signerCard]}
-        >
+        <Box style={styles.signerCard} backgroundColor={`${colorMode}.coffeeBackground`}>
           <TouchableOpacity
             onPress={() => {
               navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
@@ -50,7 +45,7 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
               </Text>
             </VStack>
           </TouchableOpacity>
-        </LinearGradient>
+        </Box>
       );
     }
     return null;

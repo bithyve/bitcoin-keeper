@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
-import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
@@ -27,6 +26,7 @@ import BtcWallet from 'src/assets/images/btc_walletCard.svg';
 import useWallets from 'src/hooks/useWallets';
 import { getAmt, getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import { AppContext } from 'src/context/AppContext';
+import { StyleSheet } from 'react-native';
 
 type Props = {
   title: string;
@@ -309,7 +309,7 @@ function WalletSettings({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
     padding: 20,

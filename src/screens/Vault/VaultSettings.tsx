@@ -1,6 +1,6 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { Box, Text, Pressable, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { wp, hp, windowWidth } from 'src/constants/responsive';
@@ -12,6 +12,7 @@ import { genrateOutputDescriptors } from 'src/core/utils';
 import Colors from 'src/theme/Colors';
 import useVault from 'src/hooks/useVault';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+
 
 type Props = {
   title: string;
@@ -160,7 +161,7 @@ function VaultSettings() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
     padding: 20,

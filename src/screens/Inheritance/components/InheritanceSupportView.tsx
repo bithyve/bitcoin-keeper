@@ -5,7 +5,6 @@ import { Box, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 
 import { hp, wp } from 'src/constants/responsive';
-import LinearGradient from 'src/components/KeeperGradient';
 import Text from 'src/components/KeeperText';
 import Inheritance from 'src/assets/images/inheritance_Inner.svg';
 
@@ -18,10 +17,8 @@ function InheritanceSupportView({ title = '', subtitle = '' }: Props) {
   const { colorMode } = useColorMode();
   function GradientIcon({ height, Icon }) {
     return (
-      <LinearGradient
-        colors={['light.gradientStart', 'light.gradientEnd']}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
+        backgroundColor={`${colorMode}.modalGreenBackground`}
         style={{
           ...styles.gradientIcon,
           height: hp(height),
@@ -30,7 +27,7 @@ function InheritanceSupportView({ title = '', subtitle = '' }: Props) {
         }}
       >
         <Icon />
-      </LinearGradient>
+      </Box>
     );
   }
   return (
