@@ -54,7 +54,7 @@ function CurrencyTypeSwitch() {
             height={7}
             width={7}
             borderRadius={!prefersBitcoin ? 16 : 0}
-            backgroundColor={!prefersBitcoin ? '#fcfcfc' : null}
+            backgroundColor={!prefersBitcoin ? `${colorMode}.fadedGray` : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
@@ -67,7 +67,7 @@ function CurrencyTypeSwitch() {
             height={7}
             width={7}
             borderRadius={prefersBitcoin ? 16 : 0}
-            backgroundColor={prefersBitcoin ? '#fcfcfc' : null}
+            backgroundColor={prefersBitcoin ? `${colorMode}.fadedGray` : null}
             alignSelf={prefersBitcoin ? 'flex-end' : 'flex-start'}
             marginRight={prefersBitcoin ? 1 : 0}
             marginLeft={prefersBitcoin ? 0 : 1}
