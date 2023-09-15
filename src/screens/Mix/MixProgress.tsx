@@ -477,7 +477,6 @@ function MixProgress({
         <HeaderTitle
           enableBack={false}
           paddingTop={hp(30)}
-          headerTitleColor=""
           titleFontSize={20}
           title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
@@ -506,7 +505,7 @@ function MixProgress({
           />
         </Box>
       </ScreenWrapper>
-      <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.note}>
+      <Box style={styles.note}>
         <Note title="Note:" subtitle="Make sure your phone is sufficiently charged" />
       </Box>
     </Box>

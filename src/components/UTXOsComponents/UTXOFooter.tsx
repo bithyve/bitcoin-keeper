@@ -28,9 +28,8 @@ function UTXOFooter({
   const { showToast } = useToastMessage();
   return (
     <Box
-      style={styles.footerContainer}
+      style={[styles.footerContainer, { marginBottom: bottom / 2 }]}
       borderColor={`${colorMode}.GreyText`}
-      backgroundColor={`${colorMode}.seashellWhite`}
     >
       <Box style={styles.border} borderColor={`${colorMode}.GreyText`} />
       <Box style={styles.footerItemContainer}>
@@ -93,9 +92,8 @@ const styles = StyleSheet.create({
   footerContainer: {
     height: 75,
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 5 : 15,
+    bottom: Platform.OS === 'ios' ? 0 : 15,
     width: windowWidth,
-    // paddingHorizontal: '10%',
   },
   footerItemContainer: {
     marginVertical: 10,
@@ -103,7 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
   },
   border: {
-    borderWidth: 0.5,
+    borderWidth: 0.3,
     borderRadius: 20,
     opacity: 0.2,
   },
