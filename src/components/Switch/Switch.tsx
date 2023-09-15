@@ -6,8 +6,6 @@ import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 const styles = StyleSheet.create({
   container: {
     borderRadius: wp(5),
-    // height: wp(8),
-    // with: wp(12),
   },
 });
 
@@ -28,7 +26,7 @@ function Switch({ value, onValueChange, loading }: Props) {
               height={6}
               width={6}
               borderRadius={15}
-              backgroundColor="#fcfcfc"
+              backgroundColor={`${colorMode}.fadedGray`}
               alignSelf="flex-end"
               mx={1}
             />
@@ -37,7 +35,7 @@ function Switch({ value, onValueChange, loading }: Props) {
               height={6}
               width={6}
               borderRadius={15}
-              backgroundColor="#fbfbfb"
+              backgroundColor={`${colorMode}.fadedGray`}
               alignSelf="flex-start"
               mx={1}
             />
