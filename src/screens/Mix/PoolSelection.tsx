@@ -1,10 +1,8 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet } from 'react-native';
-
+import { ActivityIndicator, InteractionManager, StyleSheet } from 'react-native';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -13,7 +11,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useAppSelector } from 'src/store/hooks';
 import { SatsToBtc } from 'src/constants/Bitcoin';
 import PageIndicator from 'src/components/PageIndicator';
-import Fonts from 'src/constants/Fonts';
 import WhirlpoolClient from 'src/services/whirlpool/client';
 import { InputStructure, PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import useBalance from 'src/hooks/useBalance';
@@ -25,6 +22,7 @@ import { NetworkType } from 'src/core/wallets/enums';
 import Note from 'src/components/Note/Note';
 import LearnMoreModal from './components/LearnMoreModal';
 import UtxoSummary from './UtxoSummary';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
@@ -63,8 +61,10 @@ export default function PoolSelection({ route, navigation }) {
   const { showToast } = useToastMessage();
 
   useEffect(() => {
-    setPoolLoading(true);
-    initPoolData();
+    InteractionManager.runAfterInteractions(() => {
+      setPoolLoading(true);
+      initPoolData();
+    });
   }, []);
 
   const initPoolData = async () => {
@@ -180,6 +180,8 @@ export default function PoolSelection({ route, navigation }) {
     return valueInPreferredUnit;
   };
 
+  const { bottom } = useSafeAreaInsets();
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <HeaderTitle
@@ -265,7 +267,7 @@ export default function PoolSelection({ route, navigation }) {
         </Text>
       </Box>
 
-      <Box style={styles.footerContainer}>
+      <Box style={[styles.footerContainer, { marginBottom: bottom / 2 }]}>
         <Box style={styles.noteWrapper}>
           <Note title="Note" subtitle="Pool may take sometime to load" subtitleColor="GreyText" />
         </Box>
