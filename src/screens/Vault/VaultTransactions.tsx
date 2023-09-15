@@ -21,18 +21,19 @@ function VaultTransactions({ route }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [pullRefresh, setPullRefresh] = useState(false);
+  const title = route?.params?.title;
+  const subtitle = route?.params?.subtitle;
+  const collaborativeWalletId = route?.params?.collaborativeWalletId;
+  const { activeVault: vault } = useVault(collaborativeWalletId);
 
-  const { activeVault: vault } = useVault();
   const wallet: Wallet = useQuery(RealmSchema.Wallet)
     .map(getJSONFromRealmObject)
     .filter((wallet) => !wallet.archived)[0];
 
+  const [pullRefresh, setPullRefresh] = useState(false);
+
   const vaultTrans = vault?.specs?.transactions || [];
   const walletTrans = wallet?.specs.transactions || [];
-  const title = route?.params?.title;
-  const subtitle = route?.params?.subtitle;
-
   const renderTransactionElement = ({ item }) => <TransactionElement transaction={item} />;
 
   const pullDownRefresh = () => {

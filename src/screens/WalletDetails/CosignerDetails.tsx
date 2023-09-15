@@ -37,15 +37,15 @@ function CosignerDetails() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
-        title="Cosigner Details"
-        subtitle="Scan the cosigner details from another app in order to add this as a signer"
+        title="Co-signer Details"
+        subtitle="Scan the co-signer details from another app in order to add this as a signer"
         paddingLeft={25}
       />
       <Box style={styles.center}>
         <ShowXPub
           data={details}
-          copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
-          subText="Cosigner Details"
+          copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
+          subText="Co-signer Details"
           copyable={false}
           keeper={keeper}
         />

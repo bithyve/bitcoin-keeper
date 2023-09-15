@@ -102,8 +102,8 @@ function CollabrativeWalletSettings() {
           showsVerticalScrollIndicator={false}
         >
           <Option
-            title="View CoSigner Details"
-            subTitle="View CoSigner Details"
+            title="View co-signer Details"
+            subTitle="View co-signer Details"
             onPress={() => {
               navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
             }}

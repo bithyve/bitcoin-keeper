@@ -17,7 +17,10 @@ function HeaderDetails() {
   const { plan } = usePlan();
 
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} style={[styles.wrapper, { paddingTop: top }]}>
+    <Box
+      backgroundColor={`${colorMode}.seashellWhite`}
+      style={[styles.wrapper, { paddingTop: top }]}
+    >
       <HeaderBar />
       <CurrentPlanView plan={plan} />
       <UaiDisplay uaiStack={uaiStack} />

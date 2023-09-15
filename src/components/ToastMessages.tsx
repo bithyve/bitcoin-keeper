@@ -4,6 +4,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { windowWidth, hp } from 'src/constants/responsive';
 import Text from './KeeperText';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 HexaToastMessages.defaultProps = {
   Image: null,
@@ -20,8 +21,8 @@ function HexaToastMessages({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={error ? 'error.500' : `${colorMode}.accent`} style={styles.toast}>
-      {Image && <Box>{Image}</Box>}
+    <Box backgroundColor={`${colorMode}.accent`} style={styles.toast}>
+      {error ? <ToastErrorIcon /> : Image ? <Box>{Image}</Box> : null}
       <Text color="light.black" style={styles.toastMsgText}>
         {ToastBody}
       </Text>

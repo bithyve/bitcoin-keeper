@@ -121,7 +121,7 @@ const getSignerContent = (
         Illustration: <KeeperSetupImage />,
         Instructions: [
           `Choose a wallet or create a new one from your Linked Wallets`,
-          `Within settings choose Show Cosigner Details to scan the QR`,
+          `Within settings choose Show co-signer Details to scan the QR`,
         ],
         title: 'Keep your Device Ready',
         subTitle: 'Keep your Keeper Signing Device ready before proceeding',

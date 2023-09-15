@@ -26,7 +26,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
           setData(cosigner);
         } catch (err) {
           captureError(err);
-          showToast('Please scan a valid cosigner tag', <ToastErrorIcon />);
+          showToast('Please scan a valid co-signer tag', <ToastErrorIcon />);
         }
       });
     } catch (err) {
@@ -50,7 +50,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         setData(cosigner);
       } catch (err) {
         captureError(err);
-        showToast('Please pick a valid cosigner file', <ToastErrorIcon />);
+        showToast('Please pick a valid co-signer file', <ToastErrorIcon />);
       }
     } catch (err) {
       if (err.toString().includes('user canceled')) {
@@ -85,7 +85,7 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         // content written from iOS to android
         const data = idx(session, (_) => _.application.content.content);
         if (!data) {
-          showToast('Please scan a valid cosigner', <ToastErrorIcon />);
+          showToast('Please scan a valid co-signer', <ToastErrorIcon />);
           return;
         }
         setData(data);

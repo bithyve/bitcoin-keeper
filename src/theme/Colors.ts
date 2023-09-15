@@ -54,6 +54,6 @@ const Colors = {
   pantoneGreenDark: 'rgba(107,155,146,1)',
   SeashellDark: 'rgba(72,81,79,1)',
   CastelGreenDark: 'rgba(0, 67, 58, 1)',
-  CoffeeDark: 'rgb(150,130,111, 1)'
+  CoffeeDark: 'rgba(150,130,111, 1)',
 };
 export default Colors;

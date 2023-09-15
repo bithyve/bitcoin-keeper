@@ -34,6 +34,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
 import AddIKS from '../SigningDeveices/AddIKS';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const { width } = Dimensions.get('screen');
 
@@ -205,6 +206,7 @@ function AddSigningDevice() {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [inheritanceInit, setInheritanceInit] = useState(false);
+  const { showToast } = useToastMessage();
 
   const signers = activeVault?.signers || [];
   const isInheritance =
@@ -253,8 +255,9 @@ function AddSigningDevice() {
   }
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
-      } setup will be created${isInheritance ? ' for Inheritance' : ''}`
+      ? `Vault with a ${subscriptionScheme.m} of ${
+          subscriptionScheme.n + (isInheritance ? 1 : 0)
+        } setup will be created${isInheritance ? ' for Inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   const trezorNotInPleb =
@@ -305,8 +308,9 @@ function AddSigningDevice() {
               title="WARNING"
               subtitle={`A few signers (${invalidSigners
                 .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${SubscriptionTier.L3
-                }. Please remove them or upgrade your plan.`}
+                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
+                SubscriptionTier.L3
+              }. Please remove them or upgrade your plan.`}
               subtitleColor="error"
             />
           </Box>
@@ -314,8 +318,9 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
@@ -334,11 +339,17 @@ function AddSigningDevice() {
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
           secondaryText="Cancel"
-          secondaryCallback={
-            planStatus !== VaultMigrationType.DOWNGRADE
-              ? navigation.goBack
-              : () => navigation.replace('App')
-          }
+          secondaryCallback={() => {
+            if (planStatus === VaultMigrationType.DOWNGRADE) {
+              showToast(
+                'Please downgrade your vault or uplgrade your plan to continue using the vault',
+                null,
+                3000,
+                true
+              );
+            }
+            navigation.goBack();
+          }}
           paddingHorizontal={wp(30)}
         />
       </Box>

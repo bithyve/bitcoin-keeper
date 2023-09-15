@@ -62,7 +62,7 @@ function SignerItem({
       CommonActions.navigate({
         name: 'ScanQR',
         params: {
-          title: `Add a CoSigner`,
+          title: `Add a co-signer`,
           subtitle: 'Please scan until all the QR data has been retrieved',
           onQrScan: onQRScan,
           setup: true,
@@ -137,8 +137,11 @@ function SignerItem({
                 { alignItems: 'center', letterSpacing: 1.12, maxWidth: width * 0.5 },
               ]}
             >
-              {`${coSignerFingerprint === signer.masterFingerprint ? 'My CoSigner' : signer.signerName
-                }`}
+              {`${
+                coSignerFingerprint === signer.masterFingerprint
+                  ? 'My co-signer'
+                  : signer.signerName
+              }`}
               <Text style={[globalStyles.font12]}>{` (${signer.masterFingerprint})`}</Text>
             </Text>
             <Text
@@ -192,7 +195,7 @@ function ListFooter(wallet: Wallet, signPSBT: any) {
       <Spacer />
       <OptionCTA
         icon={null}
-        title="Show Co-signer Details"
+        title="Show co-signer Details"
         subtitle="Add to another Collaborative Wallet"
         callback={() => {
           navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
@@ -291,7 +294,7 @@ function SetupCollaborativeWallet() {
       const { mfp, xpub, derivationPath } = coSigner;
       // duplicate check
       if (coSigners.find((item) => item && item.xpub === xpub)) {
-        showToast('This CoSigner has already been added', <ToastErrorIcon />);
+        showToast('This co-signer has already been added', <ToastErrorIcon />);
         return;
       }
       const ksd = generateSignerFromMetaData({

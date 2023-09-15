@@ -219,8 +219,8 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Show Co-signer Details"
-            subTitle="Use this wallet as a cosigner with other vaults"
+            title="Show co-signer Details"
+            subTitle="Use this wallet as a co-signer with other vaults"
             onPress={() => {
               navigation.navigate('CosignerDetails', { wallet });
             }}

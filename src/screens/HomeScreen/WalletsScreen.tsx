@@ -56,6 +56,8 @@ import ListItemView from './components/ListItemView';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import CurrencyInfo from './components/CurrencyInfo';
 import RampModal from '../WalletDetails/components/RampModal';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { useQuery } from '@realm/react';
 
 const TILE_MARGIN = wp(10);
 const TILE_WIDTH = hp(180);
@@ -119,9 +121,9 @@ function WalletItem({
       onPress={
         isCollaborativeWallet
           ? () =>
-            navigation.navigate('VaultDetails', {
-              collaborativeWalletId: item.collaborativeWalletId,
-            })
+              navigation.navigate('VaultDetails', {
+                collaborativeWalletId: item.collaborativeWalletId,
+              })
           : () => navigation.navigate('WalletDetails', { walletId: item.id, walletIndex })
       }
     >
@@ -266,6 +268,7 @@ const WalletsScreen = ({ navigation }) => {
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
+  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const { showToast } = useToastMessage();
   const onViewRef = useRef((viewableItems) => {
@@ -330,7 +333,6 @@ const WalletsScreen = ({ navigation }) => {
 
   async function downgradeToPleb() {
     try {
-      const app: KeeperApp = dbManager.getCollection(RealmSchema.KeeperApp)[0];
       const updatedSubscription: SubScription = {
         receipt: '',
         productId: SubscriptionTier.L1,
@@ -577,7 +579,7 @@ const WalletsScreen = ({ navigation }) => {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -586,7 +588,7 @@ const WalletsScreen = ({ navigation }) => {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        closeOnOverlayClick={() => {}}
         showButtons
         showCloseIcon={false}
       />
@@ -767,6 +769,6 @@ const styles = StyleSheet.create({
     marginTop: hp(20),
   },
   walletIconWrapper: {
-    marginVertical: hp(5)
-  }
+    marginVertical: hp(5),
+  },
 });

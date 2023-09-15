@@ -220,7 +220,7 @@ function TransactionList({
   pullDownRefresh,
   pullRefresh,
   vault,
-  isCollaborativeWallet,
+  collaborativeWalletId,
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
@@ -239,7 +239,7 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (isCollaborativeWallet ? 0.03 : 0.13) }}>
+      <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.13) }}>
         <HStack justifyContent="space-between" alignItems="center">
           <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
@@ -251,6 +251,7 @@ function TransactionList({
                   CommonActions.navigate('VaultTransactions', {
                     title: 'Vault Transactions',
                     subtitle: 'All incoming and outgoing transactions',
+                    collaborativeWalletId,
                   })
                 );
               }}
@@ -643,7 +644,7 @@ function VaultDetails({ navigation }) {
           pullDownRefresh={syncVault}
           pullRefresh={pullRefresh}
           vault={vault}
-          isCollaborativeWallet={!!collaborativeWalletId}
+          collaborativeWalletId={collaborativeWalletId}
         />
         <Footer
           onPressBuy={() => setShowBuyRampModal(true)}
@@ -655,7 +656,6 @@ function VaultDetails({ navigation }) {
         visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
-            setTireChangeModal(false);
             return;
           }
           setTireChangeModal(false);
