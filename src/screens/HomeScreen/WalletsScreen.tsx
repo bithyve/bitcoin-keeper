@@ -77,14 +77,12 @@ const calculateBalancesForVaults = (vaults) => {
 
 function AddNewWalletTile({ walletIndex, isActive, wallet, navigation, setAddImportVisible }) {
   return (
-    // <View style={styles.addWalletContent}>
     <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
       <AddSCardIcon />
       <Text color="light.white" style={styles.addWalletText}>
         {wallet.AddImportNewWallet}
       </Text>
     </TouchableOpacity>
-    // </View>
   );
 }
 
@@ -658,11 +656,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  balanceUnit: {
-    letterSpacing: 0.6,
-    fontSize: 12,
-  },
   walletsContainer: {
     marginTop: 18,
     height: hp(210),
@@ -719,30 +712,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
     lineHeight: hp(30),
   },
-  atViewWrapper: {
-    marginVertical: 4,
-    alignItems: 'center',
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 6,
-    backgroundColor: '#FDF7F0',
-    flexDirection: 'row',
-  },
   walletDetailsWrapper: {
     marginTop: 5,
     width: '68%',
-  },
-  listViewWrapper: {
-    flexDirection: 'row',
-    width: '99%',
-    justifyContent: 'space-around',
-  },
-  tranferPolicyWrapper: {
-    width: '48%',
-    marginRight: wp(10),
-  },
-  buyWrapper: {
-    width: '51%',
   },
   listItemsWrapper: {
     marginTop: hp(20),
@@ -757,12 +729,6 @@ const styles = StyleSheet.create({
   netBalanceView: {
     width: '40%',
     alignItems: 'center',
-  },
-  addWalletContent: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-    width: '100%',
   },
   AddNewWalletIllustrationWrapper: {
     flexDirection: 'row',
