@@ -12,7 +12,8 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
-import WalletInsideGreen from 'src/assets/images/Wallet_inside_green.svg';
+import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
+import WalletDark from 'src/assets/images/walletDark.svg';
 import WhirlpoolAccountIcon from 'src/assets/images/whirlpool_account.svg';
 import AddWallet from 'src/assets/images/addWallet.svg';
 import ImportWallet from 'src/assets/images/importWallet.svg';
@@ -223,11 +224,9 @@ function WalletTile({
               gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
             />
           ) : (
-            <GradientIcon
-              Icon={WalletInsideGreen}
-              height={35}
-              gradient={isActive ? ['#FFFFFF', '#80A8A1'] : ['#9BB4AF', '#9BB4AF']}
-            />
+            <Box style={styles.walletIconWrapper}>
+              {colorMode === 'light' ? <WalletActiveIcon /> : <WalletDark />}
+            </Box>
           )}
 
           <Box style={styles.walletDetailsWrapper}>
@@ -801,4 +800,7 @@ const styles = StyleSheet.create({
     padding: 2,
     marginTop: hp(20),
   },
+  walletIconWrapper: {
+    marginVertical: hp(5)
+  }
 });
