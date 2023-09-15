@@ -22,7 +22,7 @@ function FinalizeFooter({
   const { colorMode } = useColorMode();
   return (
     <Box
-      style={[styles.footerContainer, { marginBottom: bottom }]}
+      style={[styles.footerContainer, { marginBottom: bottom / 2 }]}
       backgroundColor={`${colorMode}.primaryBackground`}
     >
       <Buttons

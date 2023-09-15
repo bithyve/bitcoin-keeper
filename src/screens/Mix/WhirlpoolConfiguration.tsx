@@ -22,6 +22,7 @@ import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
 import LearnMoreModal from '../UTXOManagement/components/LearnMoreModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function WhirlpoolConfiguration({ route }) {
   const { colorMode } = useColorMode();
@@ -163,6 +164,8 @@ export default function WhirlpoolConfiguration({ route }) {
     setShowFee(false);
   };
 
+  const { bottom } = useSafeAreaInsets();
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -227,7 +230,7 @@ export default function WhirlpoolConfiguration({ route }) {
           </Box>
         </ScrollView>
 
-        <Box style={styles.footerContainer}>
+        <Box style={[styles.footerContainer, { marginBottom: bottom / 2 }]}>
           <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
               <PageIndicator currentPage={0} totalPage={2} />
