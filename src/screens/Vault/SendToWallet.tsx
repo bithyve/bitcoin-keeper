@@ -25,7 +25,7 @@ const onDeletePressed = () => {
 function SendToWallet({ navigation }) {
   return (
     <Box style={styles.Container} backgroundColor="light.secondaryBackground">
-      <StatusBar backgroundColor="#F7F2EC" barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" />
       <Pressable onPress={() => navigation.goBack()} mx={8} my={12}>
         <BackIcon />
       </Pressable>

@@ -50,11 +50,7 @@ const renderItem = ({ item }) => (
     />
   </Box>
 );
-const linearGradientBtn = {
-  colors: ['#FFFFFF', '#80A8A1'],
-  start: [0, 0],
-  end: [1, 1],
-};
+
 function List() {
   const { colorMode } = useColorMode();
   const listRef = useRef(null);

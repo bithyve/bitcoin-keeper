@@ -1,11 +1,10 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { FlatList, RefreshControl } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { ScaledSheet } from 'react-native-size-matters';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
 import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
@@ -79,10 +78,10 @@ function VaultTransactions({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
 });
 export default VaultTransactions;

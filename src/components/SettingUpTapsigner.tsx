@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
@@ -31,9 +31,10 @@ function SettingUpTapsigner(props) {
     str = str.substring(0, str.length - 1);
     setInputText(str);
   };
+  const { colorMode } = useColorMode();
 
   return (
-    <Box backgroundColor="light.mainBackground" borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} borderRadius={10}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           margin={5}

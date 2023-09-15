@@ -1,7 +1,6 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import { Shadow } from 'react-native-shadow-2';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -10,8 +9,8 @@ import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView'
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => {},
-  secondaryCallback = () => {},
+  primaryCallback = () => { },
+  secondaryCallback = () => { },
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
@@ -70,7 +69,7 @@ function Buttons({
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -79,11 +78,11 @@ const styles = ScaledSheet.create({
   },
   createBtn: {
     paddingVertical: hp(15),
-    borderRadius: '10@s',
+    borderRadius: 10,
   },
   cancelBtn: {
     marginRight: wp(20),
-    borderRadius: '10@s',
+    borderRadius: 10,
   },
   btnText: {
     fontSize: 14,

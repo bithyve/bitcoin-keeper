@@ -1,8 +1,11 @@
 import React from 'react';
-import Text from 'src/components/KeeperText';
-import { Box, Pressable } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
+import { StyleSheet } from 'react-native';
+
+
+import { Box, Pressable, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
+
+import Text from 'src/components/KeeperText';
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
@@ -10,7 +13,7 @@ import { wp, hp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import Server from 'src/assets/images/server.svg';
 import BackupIcon from 'src/assets/images/backupIcon.svg';
-import LinearGradient from 'src/components/KeeperGradient';
+
 
 type Props = {
   title: string;
@@ -52,30 +55,27 @@ function SigningServerSettings({ route }) {
   const navigtaion = useNavigation();
 
   function GradientIcon({ height, Icon }) {
+    const { colorMode } = useColorMode();
     return (
-      <LinearGradient
-        colors={['#694B2E', '#694B2E']}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
+        backgroundColor={`${colorMode}.coffeeBackground`}
         style={{
           height: hp(height),
           width: hp(height),
           borderRadius: height,
           justifyContent: 'center',
           alignItems: 'center',
-        }}
-      >
+        }}>
         <Icon />
-      </LinearGradient>
+      </Box>
     );
   }
 
   function VaultCard({ signingServerName, addedOn, signingServerDescription }) {
+    const { colorMode } = useColorMode();
     return (
-      <LinearGradient
-        colors={['#B17F44', '#6E4A35']}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
+        backgroundColor={`${colorMode}.coffeeBackground`}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -84,8 +84,7 @@ function SigningServerSettings({ route }) {
           marginLeft: -wp(20),
           marginBottom: hp(30),
           justifyContent: 'center',
-        }}
-      >
+        }}>
         <Box flexDirection="row" alignItems="center" style={{}}>
           <Box
             style={{
@@ -107,7 +106,7 @@ function SigningServerSettings({ route }) {
             </Text>
           </Box>
         </Box>
-      </LinearGradient>
+      </Box>
     );
   }
   return (
@@ -142,13 +141,13 @@ function SigningServerSettings({ route }) {
         <Option
           title="Consectetur"
           subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {}}
+          onPress={() => { }}
           Icon={false}
         />
         <Option
           title="Consectetur"
           subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {}}
+          onPress={() => { }}
           Icon={false}
         />
       </Box>
@@ -165,10 +164,10 @@ function SigningServerSettings({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
     position: 'relative',
   },
 });

@@ -2,6 +2,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,7 +12,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperText from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
@@ -242,16 +242,16 @@ function UpdateWalletDetails({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   titleText: {
-    lineHeight: '23@s',
-    letterSpacing: '0.8@s',
+    lineHeight: 23,
+    letterSpacing: 0.8,
     paddingLeft: 25,
   },
   descriptionText: {
     fontSize: 12,
-    lineHeight: '17@s',
-    letterSpacing: '0.5@s',
+    lineHeight: 17,
+    letterSpacing: 0.5,
     paddingLeft: 25,
   },
   backButton: {
@@ -264,7 +264,7 @@ const styles = ScaledSheet.create({
   autoTransferText: {
     fontSize: 12,
     paddingHorizontal: wp(5),
-    letterSpacing: '0.6@s',
+    letterSpacing: 0.6,
   },
   cardContainer: {
     flexDirection: 'row',
@@ -275,11 +275,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.20,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -296,10 +296,7 @@ const styles = ScaledSheet.create({
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
     borderRadius: 10,
-    // borderTopLeftRadius: 10,
-    // borderBottomLeftRadius: 10,
     paddingVertical: 20,
-    // marginTop: 10,
     flexDirection: 'row',
   },
   cameraView: {
@@ -332,17 +329,13 @@ const styles = ScaledSheet.create({
   },
   noteWrapper: {
     marginTop: hp(35),
-    // position: 'absolute',
-    // bottom: windowHeight > 680 ? hp(20) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {
     marginTop: windowHeight > 680 ? hp(20) : hp(10),
   },
   dotContainer: {
-    // flexDirection: 'row',
     justifyContent: 'space-between',
-    // alignItems: 'center',
     marginTop: hp(20),
   },
   selectedDot: {
@@ -361,7 +354,6 @@ const styles = ScaledSheet.create({
   },
   textInputWrapper: {
     flexDirection: 'row',
-    // marginTop: hp(15),
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
@@ -388,7 +380,6 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   ctaBtnWrapper: {
-    // marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },

@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -179,7 +179,7 @@ function WalletDetailsSettings({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
     padding: 20,

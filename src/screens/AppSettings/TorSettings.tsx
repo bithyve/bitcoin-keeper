@@ -1,6 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -12,7 +13,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
 import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import TorStatusTag from 'src/components/TorStatus';
@@ -131,7 +131,7 @@ function TorSettings() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   note: {
     position: 'absolute',
     bottom: hp(35),

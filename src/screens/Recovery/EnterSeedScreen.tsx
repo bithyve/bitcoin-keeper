@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
@@ -18,11 +19,9 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/constants/Fonts';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
 import SeedWordsView from 'src/components/SeedWordsView';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -347,8 +346,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -474,7 +473,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -485,7 +484,7 @@ function EnterSeedScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },

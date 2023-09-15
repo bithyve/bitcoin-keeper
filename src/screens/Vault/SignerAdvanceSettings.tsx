@@ -24,14 +24,6 @@ import DescriptionModal from './components/EditDescriptionModal';
 
 const { width } = Dimensions.get('screen');
 
-const gradientStyles = {
-  linearGradient: {
-    colors: ['#B17F44', '#6E4A35'],
-    start: [0, 0],
-    end: [1, 0],
-  },
-};
-
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
   const { signer }: { signer: VaultSigner } = route.params;
@@ -118,7 +110,7 @@ function SignerAdvanceSettings({ route }: any) {
         headerTitleColor={`${colorMode}.primaryText`}
         paddingLeft={25}
       />
-      <Box backgroundColor={gradientStyles} style={styles.card}>
+      <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
           <VStack justifyContent="center" px={4}>

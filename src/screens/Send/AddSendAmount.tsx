@@ -8,7 +8,7 @@ import {
   useColorMode,
   VStack,
 } from 'native-base';
-import { Platform, ScrollView } from 'react-native';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -18,7 +18,6 @@ import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 import HeaderTitle from 'src/components/HeaderTitle';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
@@ -433,7 +432,7 @@ function AddSendAmount({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
   },

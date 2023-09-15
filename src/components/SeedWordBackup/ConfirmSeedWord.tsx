@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -71,9 +71,9 @@ function ConfirmSeedWord(props) {
         return 'twelfth';
     }
   };
-
+  const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor="light.mainBackground" padding={10} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} padding={10} borderRadius={10}>
       <Box>
         <Text fontSize={19} color="light.primaryText">
           {BackupWallet.confirmSeedWord}

@@ -2,8 +2,7 @@ import { Box } from 'native-base';
 
 import BackButton from 'src/assets/images/back.svg';
 import React from 'react';
-import { ScaledSheet } from 'react-native-size-matters';
-import { TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Text from 'src/components/KeeperText';
 
@@ -49,27 +48,27 @@ function SeedWordsView({ title = '', subtitle = '', onPressHandler, enableBack =
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
   },
   addWalletText: {
     fontSize: 16,
-    lineHeight: '23@s',
-    letterSpacing: '0.8@s',
-    paddingHorizontal: '10@s',
-    paddingTop: '15@s',
+    lineHeight: 23,
+    letterSpacing: 0.8,
+    paddingHorizontal: 10,
+    paddingTop: 15,
   },
   addWalletDescription: {
     fontSize: 12,
-    lineHeight: '17@s',
-    letterSpacing: '0.5@s',
-    paddingHorizontal: '10@s',
-    paddingBottom: '25@s',
+    lineHeight: 17,
+    letterSpacing: 0.5,
+    paddingHorizontal: 10,
+    paddingBottom: 25,
   },
   back: {
-    paddingHorizontal: '5@s',
-    paddingVertical: '15@s',
+    paddingHorizontal: 5,
+    paddingVertical: 15,
   },
 });
 export default SeedWordsView;

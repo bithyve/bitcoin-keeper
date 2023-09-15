@@ -7,9 +7,8 @@ import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { Keyboard } from 'react-native';
+import { Keyboard, StyleSheet } from 'react-native';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
 
@@ -69,7 +68,7 @@ function TimelockScreen() {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          clear={() => {}}
+          clear={() => { }}
           color="light.greenText"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon
@@ -79,7 +78,7 @@ function TimelockScreen() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
