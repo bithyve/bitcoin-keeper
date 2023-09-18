@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet, FlatList, Platform, Animated, Easing, BackHandler } from 'react-native';
-
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
@@ -334,36 +333,41 @@ function MixProgress({
         <TickIcon />,
         3000
       );
-      const postmixTags: BIP329Label[] = [];
-      const userLabels = [];
-      Object.keys(labels).forEach((key) => {
-        const tags = labels[key].filter((t) => !t.isSystem);
-        userLabels.push(...tags);
-      });
-      const origin = genrateOutputDescriptors(depositWallet, false);
-      const transaction = await ElectrumClient.getTransactionsById([txid]);
-      const vout = transaction[txid].vout.findIndex(
-        (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
-      );
-      userLabels.forEach((label) => {
-        postmixTags.push({
-          id: `${txid}:${vout}${label.name}`,
-          ref: `${txid}:${vout}`,
-          type: LabelRefType.OUTPUT,
-          label: label.name,
-          isSystem: label.isSystem,
-          origin,
+      try {
+        const postmixTags: BIP329Label[] = [];
+        const userLabels = [];
+        Object.keys(labels).forEach((key) => {
+          const tags = labels[key].filter((t) => !t.isSystem);
+          userLabels.push(...tags);
         });
-      });
-      dispatch(bulkUpdateUTXOLabels({ addedTags: postmixTags }));
-      setTimeout(async () => {
-        dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
-        navigation.navigate('UTXOManagement', {
-          data: depositWallet,
-          accountType: WalletType.POST_MIX,
-          routeName: 'Wallet',
+        const origin = genrateOutputDescriptors(depositWallet, false);
+        const transaction = await ElectrumClient.getTransactionsById([txid]);
+        const vout = transaction[txid].vout.findIndex(
+          (vout) => vout.scriptPubKey.addresses[0] === destination.specs.receivingAddress
+        );
+        userLabels.forEach((label) => {
+          postmixTags.push({
+            id: `${txid}:${vout}${label.name}`,
+            ref: `${txid}:${vout}`,
+            type: LabelRefType.OUTPUT,
+            label: label.name,
+            isSystem: label.isSystem,
+            origin,
+          });
         });
-      }, 3000);
+        dispatch(bulkUpdateUTXOLabels({ addedTags: postmixTags }));
+      } catch (err) {
+        captureError(err);
+      } finally {
+        setTimeout(async () => {
+          dispatch(refreshWallets(walletsToRefresh, { hardRefresh: true }));
+          navigation.navigate('UTXOManagement', {
+            data: depositWallet,
+            accountType: WalletType.POST_MIX,
+            routeName: 'Wallet',
+          });
+        }, 3000);
+      }
     }
   };
 
