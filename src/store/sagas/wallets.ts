@@ -814,8 +814,10 @@ function* refreshWalletsWorker({
 
     let netBalance = 0;
     existingWallets.forEach((wallet) => {
-      const { confirmed, unconfirmed } = wallet.specs.balances;
-      netBalance = netBalance + confirmed + unconfirmed;
+      if (wallet.presentationData.visibility !== VisibilityType.HIDDEN) {
+        const { confirmed, unconfirmed } = wallet.specs.balances;
+        netBalance = netBalance + confirmed + unconfirmed;
+      }
     });
 
     yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
