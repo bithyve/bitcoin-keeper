@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import DownloadIcon from 'src/assets/images/download.svg';
 import ViewIcon from 'src/assets/images/icon_show.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function InheritanceDownloadView(props) {
@@ -38,7 +38,6 @@ function InheritanceDownloadView(props) {
               <Pressable style={styles.successTickBtn} onPress={props.onPress}>
                 <TickIcon />
               </Pressable>
-
             ) : (
               <TouchableOpacity style={styles.setupBtn} onPress={props.onPress}>
                 <Text style={styles.setupBtnText}>&nbsp;&nbsp;Setup</Text>
@@ -47,7 +46,7 @@ function InheritanceDownloadView(props) {
           </Box>
         )}
       </Box>
-    </Box >
+    </Box>
   );
 }
 const styles = StyleSheet.create({
@@ -80,7 +79,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   setupBtn: {
     flexDirection: 'row',

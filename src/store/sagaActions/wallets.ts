@@ -1,7 +1,7 @@
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { SignerException, SignerRestriction } from 'src/core/services/interfaces';
+import { SignerException, SignerRestriction } from 'src/services/interfaces';
 import { NewWalletInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -195,7 +195,7 @@ export const updateWalletSettings = (payload: {
   payload,
 });
 
-export const updateWalletProperty = (payload: { wallet: Wallet; key: string; value: any }) => ({
+export const updateWalletProperty = (payload: { walletId: string; key: string; value: any }) => ({
   type: UPDATE_WALLET_PROPERTY,
   payload,
 });

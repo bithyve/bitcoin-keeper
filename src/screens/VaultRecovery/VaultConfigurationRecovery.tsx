@@ -1,13 +1,14 @@
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useState } from 'react';
 import { Box } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import Fonts from 'src/common/Fonts';
+import { hp, wp } from 'src/constants/responsive';
+import Fonts from 'src/constants/Fonts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import { useNavigation } from '@react-navigation/native';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
 function VaultConfigurationRecovery() {
@@ -34,7 +35,7 @@ function VaultConfigurationRecovery() {
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
             <TextInput
               placeholder="Enter the Vault configuration or output descriptor"
-              placeholderTextColor="light.GreyText"
+              placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
               style={styles.textInput}
               value={inputText}
               onChangeText={(text) => {
@@ -71,7 +72,7 @@ export default VaultConfigurationRecovery;
 
 const styles = StyleSheet.create({
   wrapper: {
-    flex: 1
+    flex: 1,
   },
   inputWrapper: {
     flexDirection: 'column',
@@ -86,7 +87,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     opacity: 0.5,
     height: 150,
   },
@@ -94,9 +94,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     width: '100%',
-
   },
   tileWrapper: {
-    marginBottom: 15
-  }
+    marginBottom: 15,
+  },
 });

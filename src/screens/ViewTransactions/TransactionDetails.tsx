@@ -4,14 +4,12 @@ import Text from 'src/components/KeeperText';
 import { TouchableOpacity, View } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { ScaledSheet } from 'react-native-size-matters';
-// components, interfaces
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
-// asserts
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
 import IconSend from 'src/assets/images/icon_send_lg.svg';
 import Link from 'src/assets/images/link.svg';
@@ -55,7 +53,7 @@ function TransactionDetails({ route }) {
       >
         <Box style={[showIcon && { flexDirection: 'row', width: '100%', alignItems: 'center' }]}>
           <Box width={showIcon ? '90%' : '100%'}>
-            <Text color={`${colorMode}.headerText`} style={styles.titleText}>
+            <Text color={`${colorMode}.headerText`} style={styles.titleText} numberOfLines={1}>
               {title}
             </Text>
             {Content ? (
@@ -79,7 +77,8 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };
@@ -113,9 +112,9 @@ function TransactionDetails({ route }) {
                 {getSatUnit()}
               </Text>
             </Text>
-          </Box >
-        </Box >
-      </Box >
+          </Box>
+        </Box>
+      </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.infoCardsWrapper}>
           {txnLabels.length ? (
@@ -181,7 +180,7 @@ function TransactionDetails({ route }) {
           ) : null}
         </Box>
       </ScrollView>
-    </Box >
+    </Box>
   );
 }
 
@@ -220,7 +219,6 @@ const styles = ScaledSheet.create({
     fontSize: 14,
     letterSpacing: 1.12,
     width: '90%',
-    numberOfLines: 1,
   },
   descText: {
     fontSize: 12,

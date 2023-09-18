@@ -1,12 +1,12 @@
 import { TransactionPrerequisiteElements, UTXO } from 'src/core/wallets/interfaces';
 
 import { Action } from 'redux';
-import { Recipient } from 'src/common/data/models/interfaces/Recipient';
+import { Recipient } from 'src/models/interfaces/Recipient';
 import { TxPriority } from 'src/core/wallets/enums';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { TransferType } from 'src/common/data/enums/TransferType';
-import { Satoshis } from '../../common/data/typealiases/UnitAliases';
+import { TransferType } from 'src/models/enums/TransferType';
+import { Satoshis } from 'src/models/types/UnitAliases';
 
 export const RESET_SEND_STATE = 'RESET_SEND_STATE';
 export const SOURCE_WALLET_SELECTED_FOR_SENDING = 'SOURCE_WALLET_SELECTED_FOR_SENDING';

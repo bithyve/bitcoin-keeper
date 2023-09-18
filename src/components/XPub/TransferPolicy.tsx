@@ -4,8 +4,8 @@ import { Box, useColorMode, View } from 'native-base';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { wp } from 'src/constants/responsive';
 import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -17,11 +17,19 @@ import { updateWalletProperty } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { v4 as uuidv4 } from 'uuid';
-import Buttons from '../Buttons';
+import Buttons from 'src/components/Buttons';
 import KeyPadView from '../AppNumPad/KeyPadView';
 import ActivityIndicatorView from '../AppActivityIndicator/ActivityIndicatorView';
 
-function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; close: () => void; secondaryBtnPress: () => void; }) {
+function TransferPolicy({
+  wallet,
+  close,
+  secondaryBtnPress,
+}: {
+  wallet: Wallet;
+  close: () => void;
+  secondaryBtnPress: () => void;
+}) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
@@ -61,7 +69,7 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
       wallet.transferPolicy.threshold = Number(policyText);
       dispatch(
         updateWalletProperty({
-          wallet,
+          walletId: wallet.id,
           key: 'transferPolicy',
           value: {
             id: uuidv4(),
@@ -86,9 +94,7 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
           backgroundColor={`${colorMode}.seashellWhite`}
           padding={3}
         >
-          <View marginLeft={4}>
-            {colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}
-          </View>
+          <View marginLeft={4}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</View>
           <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
             bold
@@ -119,7 +125,7 @@ function TransferPolicy({ wallet, close, secondaryBtnPress }: { wallet: Wallet; 
       <KeyPadView
         onPressNumber={onPressNumber}
         onDeletePressed={onDeletePressed}
-        keyColor={colorMode === 'light' ? "#041513" : "#FFF"}
+        keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
         ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
       />
       {relayWalletUpdateLoading && <ActivityIndicatorView visible={relayWalletUpdateLoading} />}

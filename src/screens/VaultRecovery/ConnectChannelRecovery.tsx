@@ -6,15 +6,15 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { io } from 'src/core/services/channel';
+import { hp, wp } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { io } from 'src/services/channel';
 import {
   BITBOX_SETUP,
   CREATE_CHANNEL,
   LEDGER_SETUP,
   TREZOR_SETUP,
-} from 'src/core/services/channel/constants';
+} from 'src/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -24,13 +24,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
-import MockWrapper from '../Vault/MockWrapper';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 
 function ConnectChannelRecovery() {
@@ -154,11 +154,7 @@ function ConnectChannelRecovery() {
     <ScreenWrapper>
       <MockWrapper signerType={signerType}>
         <Box flex={1}>
-          <HeaderTitle
-            title={title}
-            subtitle={subtitle}
-            paddingLeft={wp(20)}
-          />
+          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(20)} />
           <Box style={styles.qrcontainer}>
             <RNCamera
               autoFocus="on"

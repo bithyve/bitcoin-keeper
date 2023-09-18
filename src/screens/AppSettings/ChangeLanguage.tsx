@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useState, useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
@@ -8,15 +9,15 @@ import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard
 import { setCurrencyCode, setLanguage, setSatsEnabled } from 'src/store/reducers/settings';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
-import FiatCurrencies from 'src/common/FiatCurrencies';
-import CountryCode from 'src/common/CountryCode';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import CountryCode from 'src/constants/CountryCode';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
-import availableLanguages from '../../common/content/availableLanguages';
-import { useAppSelector, useAppDispatch } from '../../store/hooks';
+import availableLanguages from 'src/context/Localization/availableLanguages';
+import { useAppSelector, useAppDispatch } from 'src/store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Fonts from 'src/constants/Fonts';
+import FiatCurrencies from 'src/constants/FiatCurrencies';
 
 const styles = StyleSheet.create({
   btn: {
@@ -26,7 +27,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   textCurrency: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 18,
     color: '#00836A',
     fontWeight: '700',
@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   textValue: {
-    fontFamily: Fonts.FiraSansRegular,
     fontSize: 12,
     marginLeft: wp('3%'),
   },
@@ -73,8 +72,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  dropdownIconWrapper: {
+    marginLeft: 'auto',
+    height: wp('13%'),
+    justifyContent: 'center',
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+  },
   emptyView: {
-    height: '55%',
+    height: '65%',
     marginTop: 10,
     width: 2,
     backgroundColor: '#D8A572',
@@ -99,10 +105,8 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   symbolText: {
-    fontFamily: Fonts.FiraSansMedium,
     fontSize: 13,
     color: '#00836A',
-    fontWeight: '700',
   },
   codeTextWrapper: {
     flex: 1,
@@ -113,7 +117,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAF4ED',
   },
   codeText: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp('7%'),
     letterSpacing: 0.6,
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   flagStyle: {
-    fontFamily: Fonts.FiraSansMedium,
+    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 13,
     color: '#00836A',
     fontWeight: '700',
@@ -146,7 +149,6 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.Platinum,
   },
   countryCodeWrapper2: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp('3%'),
     letterSpacing: 0.6,
@@ -157,7 +159,6 @@ const styles = StyleSheet.create({
 });
 
 function ChangeLanguage() {
-
   const { appLanguage, setAppLanguage } = useContext(LocalizationContext);
   const { currencyCode, language, satsEnabled } = useAppSelector((state) => state.settings);
   const dispatch = useAppDispatch();
@@ -188,18 +189,12 @@ function ChangeLanguage() {
           <Text style={styles.textCurrency}>{label}</Text>
         </Box>
         <Box style={styles.emptyView} />
-        <Box style={styles.textValueWrapper}>
+        <Box style={styles.textValueWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Text style={styles.textValue} color={`${colorMode}.GreyText`}>
             {value}
           </Text>
         </Box>
-        <Box
-          style={{
-            marginLeft: 'auto',
-            height: wp('13%'),
-            justifyContent: 'center',
-          }}
-        >
+        <Box style={styles.dropdownIconWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Box
             style={[
               styles.icArrow,
@@ -220,7 +215,12 @@ function ChangeLanguage() {
       <HeaderTitle />
       <Box flex={1}>
         <Box marginLeft="5%">
-          <Text fontSize={16} letterSpacing={0.8} style={styles.mainText} testID={`text_${settings.LanguageCountry}`}>
+          <Text
+            fontSize={16}
+            letterSpacing={0.8}
+            style={styles.mainText}
+            testID={`text_${settings.LanguageCountry}`}
+          >
             {settings.LanguageCountry}
           </Text>
           <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.GreyText`}>
@@ -302,6 +302,7 @@ function ChangeLanguage() {
           <ScrollView style={styles.langScrollViewWrapper}>
             {availableLanguages.map((item) => (
               <TouchableOpacity
+                key={item.iso}
                 onPress={() => {
                   setAppLanguage(item.iso);
                   setShowLanguages(false);

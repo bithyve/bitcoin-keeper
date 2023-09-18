@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { StyleSheet, StatusBar } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, StatusBar, useColorMode } from 'native-base';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -13,8 +13,8 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { resetPin } from '../../store/sagaActions/login';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { resetPin } from 'src/store/sagaActions/login';
 
 export default function ResetPin(props) {
   const { colorMode } = useColorMode();
@@ -127,7 +127,7 @@ export default function ResetPin(props) {
   return (
     <LinearGradient
       colors={[`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`]}
-      style={styles.linearGradient}
+      style={styles.container}
     >
       <Box style={styles.wrapper}>
         <Box pt={50}>
@@ -195,7 +195,7 @@ export default function ResetPin(props) {
 }
 
 const styles = StyleSheet.create({
-  linearGradient: {
+  container: {
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,

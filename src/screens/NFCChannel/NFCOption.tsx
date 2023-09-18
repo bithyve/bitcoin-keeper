@@ -2,11 +2,11 @@ import React, { useContext, useEffect } from 'react';
 import OptionCTA from 'src/components/OptionCTA';
 import NFCIcon from 'src/assets/images/nfc.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import nfcManager, { NfcTech } from 'react-native-nfc-manager';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 import { SignerType } from 'src/core/wallets/enums';
 import { HCESession, HCESessionContext } from 'react-native-hce';
 import { Platform } from 'react-native';
@@ -45,7 +45,8 @@ function NFCOption({ nfcVisible, closeNfc, withNfcModal, setData, signerType }) 
         type: [DocumentPicker.types.allFiles],
       });
       try {
-        const cosigner = await RNFS.readFile(result[0].uri);
+        const filePath = result[0].uri.split('%20').join(' ');
+        const cosigner = await RNFS.readFile(filePath);
         setData(cosigner);
       } catch (err) {
         captureError(err);

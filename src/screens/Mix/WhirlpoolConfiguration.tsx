@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -22,20 +22,6 @@ import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
 import LearnMoreModal from '../UTXOManagement/components/LearnMoreModal';
-
-// function WhirlpoolContent() {
-//   return (
-//     <View>
-//       <Text color='light.white' style={{ letterSpacing: 0.6 }}>
-//         Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
-//         These wallets are all based off the same seed that you used to create the BIP39 software
-//         wallet you are using. They simply use different (but well known) derivation paths to derive
-//         other addresses. That means that you can always recover all your funds so long as you have
-//         the seed.
-//       </Text>
-//     </View>
-//   );
-// }
 
 export default function WhirlpoolConfiguration({ route }) {
   const { colorMode } = useColorMode();
@@ -54,14 +40,14 @@ export default function WhirlpoolConfiguration({ route }) {
   const [utxoCount, setUtxoCount] = useState(0);
   const [utxoTotal, setUtxoTotal] = useState(0);
   const [scodeModalVisible, setScodeModalVisible] = useState(false);
-  const [transactionPriority, setTransactionPriority] = useState('high')
+  const [transactionPriority, setTransactionPriority] = useState('high');
 
   function capitalizeFirstLetter(priority) {
-    const firstLetter = priority && priority.charAt(0)
-    const firstLetterCap = firstLetter && firstLetter.toUpperCase()
-    const remainingLetters = priority && priority.slice(1)
-    const capitalizedWord = firstLetterCap + remainingLetters
-    return capitalizedWord
+    const firstLetter = priority && priority.charAt(0);
+    const firstLetterCap = firstLetter && firstLetter.toUpperCase();
+    const remainingLetters = priority && priority.slice(1);
+    const capitalizedWord = firstLetterCap + remainingLetters;
+    return capitalizedWord;
   }
 
   const feesContent = (fees, onFeeSelectionCallback) => (
@@ -73,7 +59,13 @@ export default function WhirlpoolConfiguration({ route }) {
       </Box>
       {fees &&
         fees.map((fee) => (
-          <TouchableOpacity onPress={() => { onFeeSelectionCallback(fee); setTransactionPriority(fee?.priority) }}>
+          <TouchableOpacity
+            key={fee.fee}
+            onPress={() => {
+              onFeeSelectionCallback(fee);
+              setTransactionPriority(fee?.priority);
+            }}
+          >
             <Box style={styles.feeItem}>
               <Box style={styles.priorityWrapper}>
                 <RadioButton
@@ -85,7 +77,9 @@ export default function WhirlpoolConfiguration({ route }) {
                     // onTransactionPriorityChanged(priority)
                   }}
                 />
-                <Text style={[styles.feeItemText, { width: 90 }]}>&nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}</Text>
+                <Text style={[styles.feeItemText, { width: 90 }]}>
+                  &nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}
+                </Text>
               </Box>
               <Text style={[styles.feeItemText, { width: 110 }]}>{fee?.time}</Text>
               <Text style={[styles.feeItemText, { width: 110 }]}>
@@ -149,7 +143,7 @@ export default function WhirlpoolConfiguration({ route }) {
   };
 
   const onProceed = () => {
-    Keyboard.dismiss()
+    Keyboard.dismiss();
     setTimeout(() => {
       navigation.navigate('PoolSelection', {
         scode,
@@ -160,7 +154,7 @@ export default function WhirlpoolConfiguration({ route }) {
         utxoTotal,
         wallet,
       });
-    }, 0)
+    }, 0);
   };
 
   const onFeeSelectionCallback = (fee) => {
@@ -177,8 +171,14 @@ export default function WhirlpoolConfiguration({ route }) {
       style={styles.keyBoardAvoidViewWrapper}
     >
       <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-        <HeaderTitle paddingLeft={25} title="Configure Whirlpool" subtitle="Prepare to start a mix" learnMore learnMorePressed={() => setScodeModalVisible(true)} />
-        <ScrollView style={styles.scrollViewWrapper} keyboardShouldPersistTaps='always'>
+        <HeaderTitle
+          paddingLeft={25}
+          title="Configure Whirlpool"
+          subtitle="Prepare to start a mix"
+          learnMore
+          learnMorePressed={() => setScodeModalVisible(true)}
+        />
+        <ScrollView style={styles.scrollViewWrapper} keyboardShouldPersistTaps="always">
           <UtxoSummary utxoCount={utxoCount} totalAmount={utxoTotal} />
 
           <Box style={styles.scode}>
@@ -244,37 +244,25 @@ export default function WhirlpoolConfiguration({ route }) {
           title="Change Priority"
           subTitle="Select a priority for your transaction"
           subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
+          modalBackground={'#F7F2EC'}
+          buttonBackground={`${colorMode}.gradientStart`}
           buttonText=""
           buttonTextColor="#FAFAFA"
           buttonCallback={closeFeeSelectionModal}
           closeOnOverlayClick={false}
           Content={() => feesContent(fees, onFeeSelectionCallback)}
         />
-
-        {/* <KeeperModal
-        visible={showWhirlpoolModal}
-        close={() => {
-          setShowWhirlpoolModal(false);
-          dispatch(setWhirlpoolModal(false));
-        }}
-        title="Whirlpool"
-        subTitle="Mix transactions to improve privacy and obfuscate your transaction history"
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
-        Content={WhirlpoolContent}
-        DarkCloseIcon
-        learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-      /> */}
         <LearnMoreModal
           visible={showWhirlpoolModal}
           closeModal={() => {
             setShowWhirlpoolModal(false);
             dispatch(setWhirlpoolModal(false));
-          }} />
-        <SCodeLearnMore visible={scodeModalVisible} closeModal={() => setScodeModalVisible(false)} />
+          }}
+        />
+        <SCodeLearnMore
+          visible={scodeModalVisible}
+          closeModal={() => setScodeModalVisible(false)}
+        />
       </ScreenWrapper>
     </KeyboardAvoidingView>
   );
@@ -282,7 +270,7 @@ export default function WhirlpoolConfiguration({ route }) {
 
 const styles = StyleSheet.create({
   keyBoardAvoidViewWrapper: {
-    flex: 1
+    flex: 1,
   },
   scrollViewWrapper: {
     height: '60%',
@@ -390,6 +378,6 @@ const styles = StyleSheet.create({
   },
   priorityWrapper: {
     flexDirection: 'row',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });

@@ -1,11 +1,7 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 
-import {
-  generateEncryptionKey,
-  generateKey,
-  hash256,
-} from 'src/core/services/operations/encryption';
+import { generateEncryptionKey, generateKey, hash256 } from 'src/services/operations/encryption';
 import {
   EntityKind,
   NetworkType,
@@ -23,7 +19,7 @@ import {
 } from '../interfaces/vault';
 
 import WalletUtilities from '../operations/utils';
-import config from '../../config';
+import config from 'src/core/config';
 import WalletOperations from '../operations';
 
 const crypto = require('crypto');

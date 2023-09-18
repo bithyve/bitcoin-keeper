@@ -1,11 +1,9 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
-
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
 import AddSigningDevice from 'src/screens/Vault/AddSigningDevice';
-import { AppContext } from 'src/common/content/AppContext';
 import AppSettings from 'src/screens/AppSettings/AppSettings';
 import AppVersionHistory from 'src/screens/AppSettings/AppVersionHistoty';
 import ArchivedVault from 'src/screens/Vault/ArchivedVault';
@@ -15,11 +13,10 @@ import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
 import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
-import EditWalletSettings from 'src/screens/WalletDetailScreen/EditWalletDetails';
+import EditWalletSettings from 'src/screens/WalletDetails/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
 import EnterWalletDetailScreen from 'src/screens/EnterWalletDetailScreen/EnterWalletDetailScreen';
 import ExportSeedScreen from 'src/screens/ExportSeedScreen/ExportSeedScreen';
-import InputSeedWordSigner from 'src/screens/AddSeedWordSigner/InputSeedWordSigner';
 import KeeperLoader from 'src/components/KeeperLoader';
 import NewKeeperApp from 'src/screens/NewKeeperAppScreen/NewKeeperAppScreen';
 import OnBoardingSlides from 'src/screens/Splash/OnBoardingSlides';
@@ -31,16 +28,13 @@ import ScanQR from 'src/screens/QRScreens/ScanQR';
 import ShowQR from 'src/screens/QRScreens/ShowQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
-import SetupColdCard from 'src/screens/AddColdCard/SetupColdCard';
+import SetupColdCard from 'src/screens/SigningDeveices/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
 import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
 import InheritanceSetupInfo from 'src/screens/Inheritance/InheritanceSetupInfo';
 import IKSAddEmailPhone from 'src/screens/Inheritance/IKSAddEmailPhone';
 import EnterOTPEmailConfirmation from 'src/screens/Inheritance/EnterOTPEmailConfirmation';
-import SetupSeedWordSigner from 'src/screens/AddSeedWordSigner/SetupSeedWordSigner';
-import SetupSigningServer from 'src/screens/Vault/SetupSigningServer';
-import SetupTapsigner from 'src/screens/AddTapsigner/SetupTapsigner';
 import SignTransactionScreen from 'src/screens/SignTransaction/SignTransactionScreen';
 import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
@@ -62,20 +56,18 @@ import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
 import VaultTransactions from 'src/screens/Vault/VaultTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
-import WalletDetails from 'src/screens/WalletDetails';
-import WalletSettings from 'src/screens/WalletDetailScreen/WalletSettings';
+import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
+import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { routingInstrumentation } from 'src/core/services/sentry';
+import { routingInstrumentation } from 'src/services/sentry';
 import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
-import NewHomeScreen from 'src/screens/NewHomeScreen';
+import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
 import OtherRecoveryMethods from 'src/screens/Recovery/OtherRecoveryMethods';
-// import LedgerRecovery from 'src/screens/VaultRecovery/LedgerRecovery';
 import ConnectChannel from 'src/screens/Channel/ConnectChannel';
 import RegisterWithChannel from 'src/screens/QRScreens/RegisterWithChannel';
 import VaultConfigurationRecovery from 'src/screens/VaultRecovery/VaultConfigurationRecovery';
-import SetupOtherSDScreen from 'src/screens/AddOtherSD/SetupOtherSDScreen';
 import SignWithChannel from 'src/screens/QRScreens/SignWithChannel';
 import SigningDeviceConfigRecovery from 'src/screens/Recovery/SigningDeviceConfigRecovery';
 import ScanQRFileRecovery from 'src/screens/Recovery/ScanQRFileRecovery';
@@ -89,15 +81,21 @@ import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScree
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
 import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
-import UpdateWalletDetails from 'src/screens/WalletDetailScreen/UpdateWalletDetails';
+import UpdateWalletDetails from 'src/screens/WalletDetails/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
-import CosignerDetails from 'src/screens/WalletDetailScreen/CosignerDetails';
-import WalletDetailsSettings from 'src/screens/WalletDetailScreen/WalletDetailsSettings';
-import CollabrativeWalletSettings from 'src/screens/WalletDetailScreen/CollabrativeWalletSettings';
-import ImportDescriptorScreen from 'src/screens/WalletDetailScreen/ImportDescriptor';
+import CosignerDetails from 'src/screens/WalletDetails/CosignerDetails';
+import WalletDetailsSettings from 'src/screens/WalletDetails/WalletDetailsSettings';
+import CollabrativeWalletSettings from 'src/screens/WalletDetails/CollabrativeWalletSettings';
+import ImportDescriptorScreen from 'src/screens/WalletDetails/ImportDescriptor';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
-import SetupCollaborativeWallet from 'src/screens/AddCollaborativeWallet/SetupCollaborativeWallet';
 import Login from '../screens/LoginScreen/Login';
+import { AppContext } from 'src/context/AppContext';
+import SetupTapsigner from 'src/screens/SigningDeveices/SetupTapsigner';
+import SetupSeedWordSigner from 'src/screens/SigningDeveices/SetupSeedWordSigner';
+import InputSeedWordSigner from 'src/screens/SigningDeveices/InputSeedWordSigner';
+import SetupOtherSDScreen from 'src/screens/SigningDeveices/SetupOtherSDScreen';
+import SetupCollaborativeWallet from 'src/screens/SigningDeveices/SetupCollaborativeWallet';
+import SetupSigningServer from 'src/screens/SigningDeveices/SetupSigningServer';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -162,8 +160,7 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="NewHomeScreen" component={NewHomeScreen} />
-        <Stack.Screen name="NewHome" component={NewHomeScreen} />
+        <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />

@@ -3,7 +3,7 @@ import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
 import Arrow from 'src/assets/images/rightarrow.svg';
 import HeaderTitle from 'src/components/HeaderTitle';

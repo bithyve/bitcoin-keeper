@@ -4,16 +4,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { hp, windowHeight } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/add.svg';
-// import EditIcon from 'src/assets/images/edit_yellow.svg';
 import ConnectIcon from 'src/assets/images/connectNode.svg';
 import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
@@ -26,7 +24,7 @@ import {
   electrumClientConnectionInitiated,
 } from 'src/store/reducers/login';
 import AddNode from './AddNodeModal';
-import Node from '../../../core/services/electrum/node';
+import Node from 'src/services/electrum/node';
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -193,7 +191,9 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`}
+                    backgroundColor={
+                      isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`
+                    }
                     style={[styles.nodeList]}
                   >
                     <Box
@@ -256,8 +256,7 @@ function NodeSettings() {
             }}
           />
         </Box>
-      )
-      }
+      )}
 
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
@@ -276,8 +275,8 @@ function NodeSettings() {
         close={closeAddNodeModal}
         title={settings.nodeDetailsTitle}
         subTitle={settings.nodeDetailsSubtitle}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonBackground={`${colorMode}.gradientStart`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         buttonText=""
@@ -286,12 +285,12 @@ function NodeSettings() {
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
       </Modal>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({

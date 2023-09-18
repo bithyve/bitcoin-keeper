@@ -2,20 +2,17 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 
-// asserts
 import BackIcon from 'src/assets/images/back.svg';
 import Change from 'src/assets/images/change.svg';
 import DotView from 'src/components/DotView';
 import Edit from 'src/assets/images/edit.svg';
 import Heathcheck from 'src/assets/images/heathcheck.svg';
 import LinearGradient from 'src/components/KeeperGradient';
-// libraries
 import React from 'react';
 import Server from 'src/assets/images/server.svg';
 import Settings from 'src/assets/images/settings_brown.svg';
-// Components
 import StatusBarComponent from 'src/components/StatusBarComponent';
 
 function SigningServer({ navigation }) {

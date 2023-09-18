@@ -2,33 +2,40 @@ import { View, StyleSheet } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { Box, useColorMode } from 'native-base';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import SomeDefinationIcon from 'src/assets/images/SomeDefination.svg';
-import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import { modalParams } from 'src/models/interfaces/UTXOs';
 
 function MixContent() {
   const { colorMode } = useColorMode();
   return (
     <View style={styles.container}>
-
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>Pool</Text>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+        Pool
+      </Text>
       <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
         The denonination of the pool you have selected for this mix.
       </Text>
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>Anonset</Text>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+        Anonset
+      </Text>
       <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
         This is a measure of how well hidden you are
       </Text>
       <Box style={styles.iconWrapper}>
         <SomeDefinationIcon />
       </Box>
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>Pool Fee</Text>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+        Pool Fee
+      </Text>
       <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
         The fixed fee required to enter the pool
       </Text>
-      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>Premix Outputs</Text>
+      <Text style={[styles.paraText, styles.italianText]} color={`${colorMode}.modalGreenContent`}>
+        Premix Outputs
+      </Text>
       <Text style={styles.paraText} color={`${colorMode}.modalGreenContent`}>
         Number of UTXOs that come out of the Premix
       </Text>
@@ -41,39 +48,39 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
     <KeeperModal
       visible={visible}
       close={() => {
-        closeModal()
+        closeModal();
       }}
       title="Some Definitions:"
       subTitle=""
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={MixContent}
       DarkCloseIcon
       learnMore
       learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-      buttonText='Proceed'
-      buttonTextColor="light.greenText02"
-      buttonBackground={['#FFFFFF', '#80A8A1']}
+      buttonText="Proceed"
+      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />
   );
 }
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 5
+    marginVertical: 5,
   },
   iconWrapper: {
-    alignSelf: "center",
-    marginVertical: hp(20)
+    alignSelf: 'center',
+    marginVertical: hp(20),
   },
   paraText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    padding: 1
+    padding: 1,
   },
   italianText: {
     fontStyle: 'italic',
-    fontWeight: '700'
-  }
-})
+    fontWeight: '700',
+  },
+});
 export default LearnMoreModal;

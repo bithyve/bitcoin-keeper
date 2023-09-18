@@ -4,14 +4,12 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
-// components and functions
-import { wp, hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { wp, hp, windowHeight } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { setInheritance } from 'src/store/reducers/settings';
-// icons and asserts
 import Assert from 'src/assets/images/InheritanceSupportIllustration.svg';
 import Vault from 'src/assets/images/vault.svg';
 import Letter from 'src/assets/images/LETTER.svg';
@@ -20,11 +18,11 @@ import Recovery from 'src/assets/images/recovery.svg';
 import Inheritance from 'src/assets/images/icon_inheritance.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
-import GradientIcon from 'src/screens/WalletDetailScreen/components/GradientIcon';
 import { TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
+import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();
@@ -73,10 +71,18 @@ function SetupInheritance() {
         <Box style={styles.modalTopContainer}>
           <Icon />
           <Box style={{ marginLeft: wp(15) }}>
-            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalTitle}>
+            <Text
+              color={`${colorMode}.modalGreenContent`}
+              numberOfLines={2}
+              style={styles.modalTitle}
+            >
               {title}
             </Text>
-            <Text color={`${colorMode}.modalGreenContent`} numberOfLines={2} style={styles.modalSubtitle}>
+            <Text
+              color={`${colorMode}.modalGreenContent`}
+              numberOfLines={2}
+              style={styles.modalSubtitle}
+            >
               {subTitle}
             </Text>
           </Box>
@@ -97,6 +103,7 @@ function SetupInheritance() {
       >
         {inheritanceData.map((item) => (
           <InheritancePoint
+            key={item.title}
             title={item.title}
             description={item.description}
             subTitle={item.subTitle}
@@ -131,7 +138,11 @@ function SetupInheritance() {
       </Box>
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
-        <Text color={`${colorMode}.primaryText`} style={styles.title} testID="text_InheritanceSupport">
+        <Text
+          color={`${colorMode}.primaryText`}
+          style={styles.title}
+          testID="text_InheritanceSupport"
+        >
           Inheritance Support
         </Text>
         <Text
@@ -158,7 +169,7 @@ function SetupInheritance() {
               backgroundColor={`${colorMode}.lightAccent`}
               style={styles.upgradeNowContainer}
             >
-              <Text color='light.learnMoreBorder' style={styles.upgradeNowText}>
+              <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
                 {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
               </Text>
             </Box>
@@ -179,11 +190,11 @@ function SetupInheritance() {
         }}
         title="Inheritance"
         subTitle="Securely bequeath your bitcoin"
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
-        buttonTextColor={`${colorMode}.greenText`}
-        buttonBackground={['#FFF', '#80A8A1']}
+        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonCallback={() => proceedCallback()}
         Content={InheritanceContent}
         DarkCloseIcon

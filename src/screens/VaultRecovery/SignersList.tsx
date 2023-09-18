@@ -1,7 +1,7 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
@@ -12,7 +12,7 @@ import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config, { APP_STAGE } from 'src/core/config';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
@@ -25,9 +25,9 @@ import { getJadeDetails } from 'src/hardware/jade';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
-import { crossInteractionHandler } from 'src/common/utilities';
-import SigningServer from 'src/core/services/operations/SigningServer';
-import NFC from 'src/core/services/nfc';
+import { crossInteractionHandler } from 'src/utils/utilities';
+import SigningServer from 'src/services/operations/SigningServer';
+import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 import Clipboard from '@react-native-community/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -38,8 +38,8 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
-import { generateKey } from 'src/core/services/operations/encryption';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { generateKey } from 'src/services/operations/encryption';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { close } from '@sentry/react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -877,6 +877,7 @@ function SignersList({ navigation }) {
             );
             return (
               <HardWareWallet
+                key={type}
                 type={type}
                 first={index === 0}
                 last={index === 3}
@@ -908,7 +909,6 @@ const styles = StyleSheet.create({
   contactUsText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '200',
     width: wp(300),
     lineHeight: 20,
     marginTop: hp(20),

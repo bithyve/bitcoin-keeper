@@ -16,7 +16,7 @@ import {
   InheritancePolicy,
   SignerException,
   SignerRestriction,
-} from 'src/core/services/interfaces';
+} from 'src/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
@@ -37,10 +37,10 @@ import {
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import Relay from 'src/services/operations/Relay';
+import SigningServer from 'src/services/operations/SigningServer';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -49,14 +49,14 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { generateKey, hash256 } from 'src/core/services/operations/encryption';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { captureError } from 'src/core/services/sentry';
+import { generateKey, hash256 } from 'src/services/operations/encryption';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { captureError } from 'src/services/sentry';
 import {
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
-} from 'src/core/services/electrum/client';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+} from 'src/services/electrum/client';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { RootState } from '../store';
 import {
@@ -289,7 +289,7 @@ export function* addWhirlpoolWalletsWorker({
     };
 
     yield call(updateWalletsPropertyWorker, {
-      payload: { wallet: depositWallet, key: 'whirlpoolConfig', value: whirlpoolConfig },
+      payload: { walletId: depositWallet.id, key: 'whirlpoolConfig', value: whirlpoolConfig },
     });
     const newWalletsInfo: NewWalletInfo[] = [
       preMixWalletInfo,
@@ -493,11 +493,17 @@ export function* addNewVaultWorker({
   try {
     const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
-    const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
-      newVaultInfo;
 
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
+      const {
+        vaultType = VaultType.DEFAULT,
+        vaultScheme,
+        vaultSigners,
+        vaultDetails,
+        collaborativeWalletId,
+      } = newVaultInfo;
+
       if (vaultScheme.n !== vaultSigners.length)
         throw new Error('Vault schema(n) and signers mismatch');
 
@@ -517,16 +523,16 @@ export function* addNewVaultWorker({
       });
     }
 
-    if (collaborativeWalletId && !isRecreation) {
+    if (newVaultInfo && newVaultInfo.collaborativeWalletId && !isRecreation) {
       const hotWallet = yield call(
         dbManager.getObjectById,
         RealmSchema.Wallet,
-        collaborativeWalletId
+        newVaultInfo.collaborativeWalletId
       );
       const descriptor = genrateOutputDescriptors(vault);
       yield call(updateWalletsPropertyWorker, {
         payload: {
-          wallet: hotWallet,
+          walletId: hotWallet.id,
           key: 'collaborativeWalletDetails',
           value: { descriptor },
         },
@@ -535,7 +541,7 @@ export function* addNewVaultWorker({
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
       ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : collaborativeWalletId
+      : newVaultInfo && newVaultInfo.collaborativeWalletId
       ? { updated: true }
       : yield call(updateVaultImageWorker, { payload: { vault } });
 
@@ -582,7 +588,12 @@ function* migrateVaultWorker({
   payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType; vaultShellId: string };
 }) {
   try {
-    const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
+    const {
+      vaultType = VaultType.DEFAULT,
+      vaultScheme,
+      vaultSigners,
+      vaultDetails,
+    } = payload.newVaultData;
     const { vaultShellId } = payload;
 
     if (vaultScheme.n !== vaultSigners.length)
@@ -1117,27 +1128,28 @@ function* updateWalletsPropertyWorker({
   payload,
 }: {
   payload: {
-    wallet: Wallet;
+    walletId: string;
     key: string;
     value: any;
   };
 }) {
   const {
-    wallet,
+    walletId,
     key,
     value,
   }: {
-    wallet: Wallet;
+    walletId: string;
     key: string;
     value: any;
   } = payload;
   try {
-    const updatedWallet = getJSONFromRealmObject(wallet);
+    const walletObjectRealm = yield call(dbManager.getObjectById, RealmSchema.Wallet, walletId);
+    const updatedWallet = getJSONFromRealmObject(walletObjectRealm);
     updatedWallet[key] = value;
     yield put(setRelayWalletUpdateLoading(true));
     const response = yield call(updateAppImageWorker, { payload: { wallets: [updatedWallet] } });
     if (response.updated) {
-      yield call(dbManager.updateObjectById, RealmSchema.Wallet, wallet.id, { [key]: value });
+      yield call(dbManager.updateObjectById, RealmSchema.Wallet, walletId, { [key]: value });
       yield put(relayWalletUpdateSuccess());
     } else {
       yield put(relayWalletUpdateFail(response.error));

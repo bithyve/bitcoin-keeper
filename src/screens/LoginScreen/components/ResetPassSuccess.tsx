@@ -6,7 +6,7 @@ import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 
 import Illustration from 'src/assets/images/illustration.svg';
 // import login from 'src/store/reducers/login';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ResetPassSuccess(props) {
   const { translations } = useContext(LocalizationContext);

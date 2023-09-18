@@ -5,11 +5,10 @@ import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
-// Components, Hooks, functions etc
 import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';

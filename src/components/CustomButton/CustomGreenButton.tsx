@@ -23,7 +23,7 @@ function CustomGreenButton(props: Props) {
         start={[1, 0]}
         end={[0, 0]}
         colors={['#073E39', '#00836A']}
-        style={styles.linearGradient}
+        style={styles.buttonContent}
       >
         <Text color="light.white" fontSize={13} bold letterSpacing={0.78}>
           {props.value}
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  linearGradient: {
+  buttonContent: {
     width: 120,
     height: 50,
     borderRadius: 10,

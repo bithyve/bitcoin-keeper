@@ -51,6 +51,7 @@ const Colors = {
   RichGreenDark: 'rgba(137,174,167,1)',
   DeepSpaceSparkleDark: 'rgba(160,160,160,1)',
   pantoneGreenDark: 'rgba(107,155,146,1)',
-  SeashellDark: 'rgba(72,81,79,1)'
+  SeashellDark: 'rgba(72,81,79,1)',
+  CastelGreenDark: 'rgba(0, 67, 58, 1)'
 };
 export default Colors;

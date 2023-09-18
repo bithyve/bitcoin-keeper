@@ -4,22 +4,22 @@ import { ActivityIndicator, StyleSheet } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useAppSelector } from 'src/store/hooks';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
+import { SatsToBtc } from 'src/constants/Bitcoin';
 import PageIndicator from 'src/components/PageIndicator';
-import Fonts from 'src/common/Fonts';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import Fonts from 'src/constants/Fonts';
+import WhirlpoolClient from 'src/services/whirlpool/client';
 import { InputStructure, PoolData, Preview, TX0Data } from 'src/nativemodules/interface';
 import useBalance from 'src/hooks/useBalance';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
 import Note from 'src/components/Note/Note';
@@ -30,7 +30,7 @@ const poolContent = (pools, onPoolSelectionCallback, satsEnabled) => (
   <Box style={styles.poolContent}>
     {pools &&
       pools.map((pool) => (
-        <TouchableOpacity onPress={() => onPoolSelectionCallback(pool)}>
+        <TouchableOpacity onPress={() => onPoolSelectionCallback(pool)} key={pool.denomination}>
           <Box style={styles.poolItem}>
             <Text style={styles.poolItemText} color="#073e39">
               {satsEnabled ? pool?.denomination : SatsToBtc(pool?.denomination)}
@@ -299,8 +299,8 @@ export default function PoolSelection({ route, navigation }) {
         title="Select Pool"
         subTitle="Determins the pool you want to mix your sats in. Bigger the pool, lesser the Doxxic"
         subTitleColor="#5F6965"
-        modalBackground={['#F7F2EC', '#F7F2EC']}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground={'#F7F2EC'}
+        buttonBackground={`${colorMode}.gradientStart`}
         buttonText=""
         buttonTextColor="#FAFAFA"
         buttonCallback={closePoolSelectionModal}
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     alignItems: 'center',
-    bottom: 10
+    bottom: 10,
   },
   footerContainer: {
     position: 'absolute',
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     width: '65%',
   },
   pageIndicatorWrapper: {
-    width: '40%'
+    width: '40%',
   },
   poolTextDirection: {
     flexDirection: 'row',
@@ -350,7 +350,6 @@ const styles = StyleSheet.create({
   poolText: {
     paddingTop: 4,
     fontSize: 16,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   poolErrorContainer: {
     borderColor: '#F58E6F',

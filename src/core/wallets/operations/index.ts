@@ -20,7 +20,7 @@ import coinselect from 'coinselect';
 import coinselectSplit from 'coinselect/split';
 import config from 'src/core/config';
 import { parseInt } from 'lodash';
-import ElectrumClient from 'src/core/services/electrum/client';
+import ElectrumClient from 'src/services/electrum/client';
 import { isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import {

@@ -14,14 +14,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import SeedWordsView from 'src/components/SeedWordsView';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -31,13 +31,14 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { getPlaceholder } from 'src/common/utilities';
+import { getPlaceholder } from 'src/utils/utilities';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
 import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -145,7 +146,7 @@ function EnterSeedScreen({ route }) {
     if (appId && recoveryLoading) {
       setRecoveryLoading(false);
       setRecoverySuccessModal(true);
-      navigation.navigate('App', { screen: 'NewHome' });
+      navigation.navigate('App', { screen: 'Home' });
     }
   }, [appId]);
 
@@ -346,12 +347,12 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
-                  placeholderTextColor="rgba(7,62,57,0.6)"
+                  placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                   value={item?.name}
                   textContentType="none"
                   returnKeyType={isSeedFilled(12) ? 'done' : 'next'}
@@ -401,13 +402,13 @@ function EnterSeedScreen({ route }) {
                   height: onChangeIndex === 4 || onChangeIndex === 5 ? hp(90) : null,
                 },
               ]}
-              keyboardShouldPersistTaps='handled'
+              keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
-                    key={wordIndex}
+                    key={`${word + wordIndex}`}
                     style={styles.suggestionTouchView}
                     onPress={() => {
                       Keyboard.dismiss();
@@ -473,7 +474,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -528,7 +529,6 @@ const styles = ScaledSheet.create({
     marginLeft: 10,
     borderWidth: 1,
     paddingHorizontal: 5,
-    fontFamily: Fonts.RobotoCondensedRegular,
     letterSpacing: 1.32,
     zIndex: 1,
   },

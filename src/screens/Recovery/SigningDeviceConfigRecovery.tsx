@@ -1,7 +1,7 @@
 import { Box, ScrollView, View } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
@@ -11,7 +11,7 @@ import { SignerType } from 'src/core/wallets/enums';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import config, { APP_STAGE } from 'src/core/config';
 import KeystoneSetupImage from 'src/assets/images/keystone_illustration.svg';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -235,7 +235,6 @@ const styles = StyleSheet.create({
   contactUsText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '200',
     width: wp(300),
     lineHeight: 20,
     marginTop: hp(20),

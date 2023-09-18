@@ -1,10 +1,10 @@
 /* eslint-disable no-await-in-loop */
 import { DerivationPurpose, XpubTypes } from 'src/core/wallets/enums';
 import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
-import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { HWErrorType } from 'src/models/enums/Hardware';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/core/wallets/interfaces';
 import reverse from 'buffer-reverse';

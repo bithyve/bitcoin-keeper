@@ -7,18 +7,18 @@ import {
   SignerPolicy,
   SignerRestriction,
   VerificationType,
-} from 'src/core/services/interfaces';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+} from 'src/services/interfaces';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import idx from 'idx';
-import { numberWithCommas } from 'src/common/utilities';
+import { numberWithCommas } from 'src/utils/utilities';
 import { useDispatch } from 'react-redux';
 
 function ChoosePolicyNew({ navigation, route }) {
@@ -156,7 +156,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => { }}
+          clear={() => {}}
           color="light.greenText"
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
@@ -172,7 +172,6 @@ const styles = StyleSheet.create({
     padding: 15,
     fontSize: 20,
     letterSpacing: 0.23,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   fieldWrapper: {
     flexDirection: 'row',

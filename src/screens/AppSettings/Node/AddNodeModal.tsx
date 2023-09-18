@@ -2,7 +2,7 @@ import { Box, Input, useColorMode } from 'native-base';
 import { View, StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { NodeDetail } from 'src/core/wallets/interfaces';
 import Buttons from 'src/components/Buttons';
 import Switch from 'src/components/Switch/Switch';

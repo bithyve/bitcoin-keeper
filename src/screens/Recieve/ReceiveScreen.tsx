@@ -9,24 +9,24 @@ import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/common/Fonts';
 import QRCode from 'react-native-qrcode-svg';
 import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import WalletOperations from 'src/core/wallets/operations';
-import MenuItemButton from '../../components/CustomButton/MenuItemButton';
+import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ReceiveScreen({ route }: { route }) {
   const { colorMode } = useColorMode();
@@ -99,7 +99,7 @@ function ReceiveScreen({ route }: { route }) {
           <AppNumPad
             setValue={setAmount}
             clear={() => setAmount('')}
-            color={colorMode === 'light' ? "#041513" : "#FFF"}
+            color={colorMode === 'light' ? '#041513' : '#FFF'}
             darkDeleteIcon={colorMode === 'light'}
           />
         </View>
@@ -123,12 +123,15 @@ function ReceiveScreen({ route }: { route }) {
           size={hp(200)}
         />
         <Box background={`${colorMode}.QrCode`} style={styles.receiveAddressWrapper}>
-          <Text style={styles.receiveAddressText} color={`${colorMode}.recieverAddress`}>
+          <Text
+            style={styles.receiveAddressText}
+            color={`${colorMode}.recieverAddress`}
+            numberOfLines={1}
+          >
             Receive Address
           </Text>
         </Box>
       </Box>
-      {/* {Input Field} */}
       <TouchableOpacity
         activeOpacity={0.4}
         onPress={() => {
@@ -147,22 +150,12 @@ function ReceiveScreen({ route }: { route }) {
           </Box>
         </Box>
       </TouchableOpacity>
-      {/* {Add amount component} */}
       <MenuItemButton
         onPress={() => setModalVisible(true)}
         icon={<BtcGreen />}
         title={home.AddAmount}
         subTitle="Add a specific invoice amount"
       />
-      {/* {Add tags component} */}
-      {/* <MenuItemButton
-        // onPress={() => navigtaion.navigate('UTXOLabeling', { utxo: {}, wallet })}
-        onPress={() => showToast('Comming soon')}
-        icon={<TagsGreen />}
-        title="Add Tags"
-        subTitle="Tags help you remember and identify UTXOs"
-      /> */}
-      {/* {Bottom note} */}
       <Box style={styles.Note}>
         <Note
           title={wallet.entityKind === 'VAULT' ? 'Security Tip' : home.AddAmount}
@@ -180,7 +173,7 @@ function ReceiveScreen({ route }: { route }) {
         close={() => setModalVisible(false)}
         title={home.AddAmount}
         subTitle={home.amountdesc}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={AddAmountContent}
@@ -209,11 +202,10 @@ const styles = StyleSheet.create({
   },
   receiveAddressText: {
     textAlign: 'center',
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     fontSize: 12,
     letterSpacing: 1.08,
     width: '100%',
-    numberOfLines: 1,
   },
   inputContainer: {
     alignItems: 'center',
@@ -238,7 +230,7 @@ const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 1.04,
   },
   inputParentView: {

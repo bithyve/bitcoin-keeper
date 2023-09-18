@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BackupType } from 'src/common/data/enums/BHR';
+import { BackupType } from 'src/models/enums/BHR';
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
 import { persistReducer } from 'redux-persist';

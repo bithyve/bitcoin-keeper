@@ -10,7 +10,7 @@ import Text from 'src/components/KeeperText';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
-import { windowHeight } from 'src/common/data/responsiveness/responsive';
+import { windowHeight } from 'src/constants/responsive';
 import { WalletMap } from '../WalletMap';
 
 function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: VaultMigrationType }) {
@@ -84,10 +84,14 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
                 {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack style={styles.signerNameFromTypeWrapper}>
-                <Text color="light.textBlack" style={styles.signerNameFromTypeText}>
+                <Text
+                  color="light.textBlack"
+                  style={styles.signerNameFromTypeText}
+                  numberOfLines={1}
+                >
                   {getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer))}
                 </Text>
-                <Text color="light.textBlack" style={styles.signerDescDateText}>
+                <Text color="light.textBlack" style={styles.signerDescDateText} numberOfLines={2}>
                   {signer.signerDescription
                     ? signer.signerDescription
                     : `Added ${moment(signer.addedOn).fromNow().toLowerCase()}`}
@@ -132,7 +136,6 @@ const styles = StyleSheet.create({
     fontSize: 8,
     letterSpacing: 0.6,
     textAlign: 'center',
-    numberOfLines: 1,
     lineHeight: 16,
   },
   indicator: {
@@ -151,13 +154,11 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 0.6,
     textAlign: 'center',
-    numberOfLines: 1,
   },
   signerDescDateText: {
     fontSize: 7,
     letterSpacing: windowHeight > 670 ? 0.6 : 0,
     textAlign: 'center',
-    numberOfLines: 2,
   },
   signerNameFromTypeWrapper: {
     paddingBottom: 2,

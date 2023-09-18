@@ -1,24 +1,24 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable no-await-in-loop */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from 'native-base';
 import { StyleSheet, FlatList, Platform, Animated, Easing, BackHandler } from 'react-native';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
 import { useDispatch } from 'react-redux';
 import { Step } from 'src/nativemodules/interface';
-import WhirlpoolClient from 'src/core/services/whirlpool/client';
+import WhirlpoolClient from 'src/services/whirlpool/client';
 import { LabelRefType, WalletType } from 'src/core/wallets/enums';
 import { incrementAddressIndex, refreshWallets } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import Gear0 from 'src/assets/images/WP.svg';
-import ElectrumClient from 'src/core/services/electrum/client';
+import ElectrumClient from 'src/services/electrum/client';
 import config from 'src/core/config';
 import {
   WHIRLPOOL_ERROR,
@@ -26,17 +26,16 @@ import {
   WHIRLPOOL_LISTEN,
   WHIRLPOOL_SUCCESS,
   WHIRLPOOL_WORKING,
-} from 'src/core/services/channel/constants';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+} from 'src/services/channel/constants';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import useWhirlpoolWallets from 'src/hooks/useWhirlpoolWallets';
-import { initiateWhirlpoolSocket } from 'src/core/services/whirlpool/sockets';
-import { io } from 'src/core/services/channel';
+import { initiateWhirlpoolSocket } from 'src/services/whirlpool/sockets';
+import { io } from 'src/services/channel';
 import KeepAwake from 'src/nativemodules/KeepScreenAwake';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import useVault from 'src/hooks/useVault';
@@ -44,6 +43,7 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { bulkUpdateUTXOLabels } from 'src/store/sagaActions/utxos';
+import { useQuery } from '@realm/react';
 
 const getBackgroungColor = (completed: boolean, error: boolean): string => {
   if (error) {
@@ -151,7 +151,6 @@ function MixProgress({
   const [mixFailed, setMixFailed] = React.useState('');
   const [statuses, setStatus] = React.useState(statusData);
   const { showToast } = useToastMessage();
-  const { useQuery } = useContext(RealmWrapperContext);
   const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [poolsData, setPoolsData] = useState([]);
   const { postmixWallet, premixWallet } = useWhirlpoolWallets({ wallets: [depositWallet] })[
@@ -245,7 +244,7 @@ function MixProgress({
             </Box>
           )}
         </Box>
-        <Box style={styles.progressStepsTextWrapper} >
+        <Box style={styles.progressStepsTextWrapper}>
           <Text color="light.secondaryText" style={styles.timeLineTitle}>
             {title}
           </Text>
@@ -294,7 +293,11 @@ function MixProgress({
   useEffect(() => {
     if (mixFailed) {
       const toastDuration = 3000;
-      showToast('Mix failed. Please try again later, our best minds are working on it.', <ToastErrorIcon />, toastDuration);
+      showToast(
+        'Mix failed. Please try again later, our best minds are working on it.',
+        <ToastErrorIcon />,
+        toastDuration
+      );
       setTimeout(() => {
         navigation.goBack();
       }, toastDuration);
@@ -326,7 +329,11 @@ function MixProgress({
           external: { incrementBy: 1 },
         })
       );
-      showToast('Mix completed successfully. Your UTXOs will be available in your postmix account shortly.', <TickIcon />, 3000);
+      showToast(
+        'Mix completed successfully. Your UTXOs will be available in your postmix account shortly.',
+        <TickIcon />,
+        3000
+      );
       const postmixTags: BIP329Label[] = [];
       const userLabels = [];
       Object.keys(labels).forEach((key) => {
@@ -428,7 +435,8 @@ function MixProgress({
       setStatus(updatedArray);
       const toastDuration = 3000;
       showToast(
-        ` ${err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
+        ` ${
+          err.message ? err.message : `${isRemix ? 'Remix' : 'Mix'} failed`
         }. Please refresh the ${isRemix ? 'Postmix' : 'Premix'} account and try again.`,
         <ToastErrorIcon />,
         toastDuration
@@ -581,17 +589,17 @@ const getStyles = (clock) =>
       alignItems: 'center',
       marginHorizontal: wp(5),
       justifyContent: 'center',
-      width: '15%'
+      width: '15%',
     },
     timeLineProgressWrapper: {
       alignItems: 'center',
       marginHorizontal: wp(5),
       justifyContent: 'center',
-      width: '15%'
+      width: '15%',
     },
     contentWrapper: {
       flexDirection: 'row',
-      width: '100%'
+      width: '100%',
     },
     timeLineTitle: {
       fontSize: 13,
@@ -602,8 +610,8 @@ const getStyles = (clock) =>
       flexWrap: 'wrap',
     },
     progressStepsTextWrapper: {
-      flexDirection: "column",
-      width: '85%'
+      flexDirection: 'column',
+      width: '85%',
     },
     note: {
       position: 'absolute',

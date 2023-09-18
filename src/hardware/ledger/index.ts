@@ -2,7 +2,7 @@ import { XpubTypes } from 'src/core/wallets/enums';
 import { XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { SigningPayload } from 'src/core/wallets/interfaces';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 
 const bscript = require('bitcoinjs-lib/src/script');

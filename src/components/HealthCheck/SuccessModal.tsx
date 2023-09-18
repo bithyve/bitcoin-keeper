@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
 import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
-import { wp } from 'src/common/data/responsiveness/responsive';
+import { wp } from 'src/constants/responsive';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Close from 'src/assets/images/modal_close.svg';
 
@@ -40,9 +40,9 @@ function SuccessModal(props) {
       _backdrop={{ bg: '#000', opacity: 0.8 }}
       justifyContent="flex-end"
 
-    // zIndex={'-1'}
-    // style={styles.viewContainer}
-    // overlayVisible
+      // zIndex={'-1'}
+      // style={styles.viewContainer}
+      // overlayVisible
     >
       <View flex={1} style={styles.viewContainer}>
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>

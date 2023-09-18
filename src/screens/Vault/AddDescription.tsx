@@ -1,16 +1,15 @@
 import { TextInput } from 'react-native';
-// libraries
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/Tapsigner_brown.svg';
 import { ScaledSheet } from 'react-native-size-matters';
-// components
 import HeaderTitle from 'src/components/HeaderTitle';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 function AddDescription({ route }) {
   const { colorMode } = useColorMode();
@@ -49,16 +48,16 @@ function AddDescription({ route }) {
           <TextInput
             placeholder="Add Description"
             style={styles.textInput}
-            placeholderTextColor={`${colorMode}.greenText`}
+            placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
           />
         </Box>
 
         <Box marginTop={hp(70)}>
           <Buttons
             primaryText="Proceed"
-            primaryCallback={() => { }}
+            primaryCallback={() => {}}
             secondaryText="Skip"
-            secondaryCallback={() => { }}
+            secondaryCallback={() => {}}
           />
         </Box>
       </Box>
@@ -70,10 +69,6 @@ const styles = ScaledSheet.create({
   Container: {
     flex: 1,
     padding: '20@s',
-  },
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
   },
   cardContainer: {
     flexDirection: 'row',

@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 
 export interface Props {
   title: string;
@@ -34,7 +34,6 @@ const getStyles = (keyColor) =>
     keyPadElementText: {
       color: keyColor,
       fontSize: 25,
-      fontFamily: Fonts.RobotoCondensedRegular,
     },
   });
 export default KeyPadButton;

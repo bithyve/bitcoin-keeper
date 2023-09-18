@@ -6,12 +6,12 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
@@ -88,22 +88,26 @@ function SignWithQR() {
   return (
     <ScreenWrapper>
       <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />
-      <Box style={styles.center}>
-        <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
-      </Box>
-      <Box style={styles.bottom}>
-        {signer.type === SignerType.KEEPER ? (
-          <Box style={{ paddingBottom: '5%' }}>
-            <ShareWithNfc data={serializedPSBT} />
+      <ScrollView style={{ flex: 1 }}>
+        <>
+          <Box style={styles.center}>
+            <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
           </Box>
-        ) : null}
-        <Buttons
-          primaryText="Scan PSBT"
-          primaryCallback={navigateToQrScan}
-          secondaryText="Vault Details"
-          secondaryCallback={navigateToVaultRegistration}
-        />
-      </Box>
+          <Box style={styles.bottom}>
+            {signer.type === SignerType.KEEPER ? (
+              <Box style={{ paddingBottom: '5%' }}>
+                <ShareWithNfc data={serializedPSBT} />
+              </Box>
+            ) : null}
+            <Buttons
+              primaryText="Scan PSBT"
+              primaryCallback={navigateToQrScan}
+              secondaryText="Vault Details"
+              secondaryCallback={navigateToVaultRegistration}
+            />
+          </Box>
+        </>
+      </ScrollView>
     </ScreenWrapper>
   );
 }

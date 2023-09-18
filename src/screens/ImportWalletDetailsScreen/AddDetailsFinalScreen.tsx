@@ -1,6 +1,5 @@
 import {
   KeyboardAvoidingView,
-  // Linking,
   Platform,
   ScrollView,
   Text,
@@ -9,16 +8,12 @@ import {
 } from 'react-native';
 import { Box, View } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
-
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// components
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -41,7 +36,6 @@ function AddDetailsFinalScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
-  const { useQuery } = useContext(RealmWrapperContext);
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -123,7 +117,7 @@ function AddDetailsFinalScreen({ route }) {
         navigation.goBack();
       } else {
         showToast('Wallet imported', <TickIcon />);
-        navigation.replace('WalletDetails')
+        navigation.replace('WalletDetails');
         // Linking.openURL(`${appId}://backup/true`);
       }
     }
@@ -164,7 +158,7 @@ function AddDetailsFinalScreen({ route }) {
               <TextInput
                 placeholder="Derivation Path"
                 style={styles.textInput}
-                placeholderTextColor="light.GreyText"
+                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 // width={wp(260)}
@@ -192,6 +186,7 @@ function AddDetailsFinalScreen({ route }) {
             <ScrollView style={styles.langScrollViewWrapper}>
               {purposeList.map((item) => (
                 <TouchableOpacity
+                  key={item.value}
                   onPress={() => {
                     setShowPurpose(false);
                     setArrow(false);
@@ -209,7 +204,10 @@ function AddDetailsFinalScreen({ route }) {
         <View style={styles.dotContainer}>
           <View style={{ flexDirection: 'row', marginTop: hp(15) }}>
             {[1, 2, 3].map((item, index) => (
-              <View key={index} style={index == 2 ? styles.selectedDot : styles.unSelectedDot} />
+              <View
+                key={item.toString()}
+                style={index === 2 ? styles.selectedDot : styles.unSelectedDot}
+              />
             ))}
           </View>
           <Box style={styles.ctaBtnWrapper}>
@@ -233,10 +231,6 @@ function AddDetailsFinalScreen({ route }) {
 }
 
 const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -264,9 +258,7 @@ const styles = ScaledSheet.create({
     width: '100%',
     backgroundColor: Colors.Isabelline,
     borderRadius: 10,
-    // borderBottomLeftRadius: 10,
     padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
   },
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
@@ -345,8 +337,6 @@ const styles = ScaledSheet.create({
     width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
@@ -356,11 +346,8 @@ const styles = ScaledSheet.create({
     marginTop: hp(10),
   },
   balanceCrossesText: {
-    // width: '100%',
     color: Colors.Feldgrau,
     marginHorizontal: 20,
-    // padding: 20,
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.96,
@@ -387,7 +374,6 @@ const styles = ScaledSheet.create({
     alignItems: 'center',
   },
   purposeText: {
-    fontFamily: Fonts.RobotoCondensedRegular,
     fontSize: 13,
     marginLeft: wp(10),
     letterSpacing: 0.6,

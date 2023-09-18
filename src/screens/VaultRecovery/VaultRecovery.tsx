@@ -12,7 +12,7 @@ import Note from 'src/components/Note/Note';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import {
   removeSigningDeviceBhr,
   setRelayVaultRecoveryShellId,
@@ -22,13 +22,13 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
-import { hash256 } from 'src/core/services/operations/encryption';
+import { hash256 } from 'src/services/operations/encryption';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
@@ -37,7 +37,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceBrown.svg';
 import TimeIcon from 'src/assets/images/time.svg';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
@@ -327,7 +327,7 @@ function VaultRecovery({ navigation }) {
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),
-                height: windowHeight > 680 ? '66%' : '51%'
+                height: windowHeight > 680 ? '66%' : '51%',
               }}
             />
             {inheritanceRequestId && (
@@ -395,7 +395,7 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => { }}
+        close={() => {}}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);

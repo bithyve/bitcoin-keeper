@@ -4,20 +4,20 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import config, { APP_STAGE } from 'src/core/config';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
 import HeaderTitle from 'src/components/HeaderTitle';
 
 import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import NFC from 'src/core/services/nfc';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import NFC from 'src/services/nfc';
 
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
@@ -226,6 +226,7 @@ function SigningDeviceList() {
                 }
                 return (
                   <HardWareWallet
+                    key={type}
                     type={type}
                     first={index === 0}
                     last={index === 9}
@@ -245,13 +246,10 @@ function SigningDeviceList() {
           }}
           title="Signing Devices"
           subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
-          modalBackground={[
-            `${colorMode}.modalGreenBackground`,
-            `${colorMode}.modalGreenBackground`,
-          ]}
-          buttonBackground={['#FFFFFF', '#80A8A1']}
+          modalBackground={`${colorMode}.modalGreenBackground`}
+          buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+          buttonBackground={`${colorMode}.modalWhiteButton`}
           buttonText="Add Now"
-          buttonTextColor={`${colorMode}.greenText`}
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
@@ -290,7 +288,6 @@ const styles = StyleSheet.create({
   contactUsText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '200',
     width: wp(300),
     lineHeight: 20,
     marginTop: hp(20),

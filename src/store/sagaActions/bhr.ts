@@ -1,4 +1,4 @@
-import { BackupHistory } from 'src/common/data/enums/BHR';
+import { BackupHistory } from 'src/models/enums/BHR';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 export const UPDATE_APP_IMAGE = 'UPDATE_APP_IMAGE';

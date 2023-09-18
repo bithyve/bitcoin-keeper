@@ -1,27 +1,19 @@
 /* eslint-disable react/no-unstable-nested-components */
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View, useColorMode, Pressable } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import {
-  FlatList,
-  Linking,
-  RefreshControl,
-  StatusBar,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import BackIcon from 'src/assets/images/back_white.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import LinearGradient from 'src/components/KeeperGradient';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import Recieve from 'src/assets/images/receive.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/send.svg';
@@ -43,7 +35,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
 import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import AddPhoneEmailIcon from 'src/assets/images/AddPhoneEmail.svg';
@@ -57,7 +49,8 @@ import useFeatureMap from 'src/hooks/useFeatureMap';
 import openLink from 'src/utils/OpenLink';
 import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
-import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import { useQuery } from '@realm/react';
 
 function Footer({
   vault,
@@ -283,7 +276,7 @@ function TransactionList({
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.txid}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <EmptyStateView
@@ -390,7 +383,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
               >
                 {SDIcons(signer.type, true).Icon}
               </Box>
-              <Text bold style={styles.unregistered}>
+              <Text bold style={styles.unregistered} numberOfLines={1}>
                 {indicate ? 'Not registered' : ' '}
               </Text>
               <VStack pb={2}>
@@ -506,13 +499,12 @@ function VaultDetails({ navigation }) {
 
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { top } = useSafeAreaInsets();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { activeVault: vault } = useVault(collaborativeWalletId);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
-  const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
+  const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const inheritanceSigner = vault.signers.filter(
     (signer) => signer.type === SignerType.INHERITANCEKEY
   )[0];
@@ -685,7 +677,7 @@ function VaultDetails({ navigation }) {
         subTitle={subtitle}
         buttonText="View Vault"
         DarkCloseIcon={colorMode === 'dark'}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
         subTitleColor={`${colorMode}.secondaryText`}
         buttonCallback={() => {
@@ -701,12 +693,12 @@ function VaultDetails({ navigation }) {
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`}
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText="Continue"
-        buttonTextColor={`${colorMode}.greenText`}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}
@@ -797,7 +789,6 @@ const getStyles = (top) =>
       fontSize: 8,
       letterSpacing: 0.6,
       textAlign: 'center',
-      numberOfLines: 1,
       lineHeight: 16,
     },
     rampBuyContentWrapper: {

@@ -4,8 +4,8 @@ import { Box, Input } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import { hash512 } from 'src/core/services/operations/encryption';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { hash512 } from 'src/services/operations/encryption';
 import Close from 'src/assets/images/modal_close.svg';
 
 function FogotPassword(props) {
@@ -105,11 +105,7 @@ function FogotPassword(props) {
             secureTextEntry
           />
 
-          {invalid && (
-            <Text color="#FF0000">
-              {login.Invalidword}
-            </Text>
-          )}
+          {invalid && <Text color="#FF0000">{login.Invalidword}</Text>}
         </Box>
       ) : (
         <Box>

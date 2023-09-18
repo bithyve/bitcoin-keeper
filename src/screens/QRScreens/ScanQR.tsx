@@ -7,20 +7,20 @@ import { QRreader } from 'react-native-qr-decode-image-camera';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
-import { decodeURBytes } from 'src/core/services/qr';
+import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
+import { decodeURBytes } from 'src/services/qr';
 import { useRoute } from '@react-navigation/native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 import useNfcModal from 'src/hooks/useNfcModal';
-import { globalStyles } from 'src/common/globalStyles';
-import MockWrapper from '../Vault/MockWrapper';
+import { globalStyles } from 'src/constants/globalStyles';
+import MockWrapper from 'src/screens/Vault/MockWrapper';
 import NFCOption from '../NFCChannel/NFCOption';
 
 let decoder = new URRegistryDecoder();
@@ -39,6 +39,7 @@ function ScanQR() {
     type,
     isHealthcheck = false,
     signer,
+    disableMockFlow = false,
   } = route.params as any;
 
   const { translations } = useContext(LocalizationContext);
@@ -112,7 +113,7 @@ function ScanQR() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={type} enable={setup && type}>
+      <MockWrapper signerType={type} enable={setup && type && !disableMockFlow}>
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
           <ScrollView
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cameraView: {
-    height: hp(280),
+    height: hp(320),
     width: wp(375),
   },
   noteWrapper: {

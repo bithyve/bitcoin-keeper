@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Box } from 'native-base';
 
 import BackupHealthCheckList from 'src/components/Backup/BackupHealthCheckList';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,

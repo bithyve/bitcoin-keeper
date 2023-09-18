@@ -3,7 +3,7 @@
 import { ActivityIndicator, StyleSheet, BackHandler, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import React, { useEffect, useState } from 'react';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import App from 'src/assets/images/app.svg';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -16,13 +16,12 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from 'native-base';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { isTestnet } from 'src/constants/Bitcoin';
 import openLink from 'src/utils/OpenLink';
-import Fonts from 'src/common/Fonts';
 import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import LoadingAnimation from 'src/components/Loader';
-import { updateFCMTokens } from '../../store/sagaActions/notifications';
-
+import { updateFCMTokens } from 'src/store/sagaActions/notifications';
+import Fonts from 'src/constants/Fonts';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -107,7 +106,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   useEffect(() => {
     if (appRecreated) {
       setTimeout(() => {
-        navigation.replace('App', { screen: 'NewHome' });
+        navigation.replace('App', { screen: 'Home' });
       }, 3000);
     }
   }, [appRecreated]);
@@ -137,8 +136,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   const getSignUpModalContent = () => ({
     title: 'Setting up your app',
     subTitle: 'Keeper allows you to create single sig wallets and a multisig Vault',
-    message:
-      'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
+    message: 'Stack sats, whirlpool them, hodl long term and plan your inheritance with Keeper.',
   });
 
   function SignUpModalContent() {
@@ -150,9 +148,11 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {getSignUpModalContent().message}
         </Text>
-        {!appCreated ? <Text color="light.greenText" fontSize={13} letterSpacing={0.65} pt={5}>
-          This step will take a few seconds. You would be able to proceed soon
-        </Text> : null}
+        {!appCreated ? (
+          <Text color="light.greenText" fontSize={13} letterSpacing={0.65} pt={5}>
+            This step will take a few seconds. You would be able to proceed soon
+          </Text>
+        ) : null}
       </Box>
     );
   }
@@ -212,16 +212,32 @@ function NewKeeperApp({ navigation }: { navigation }) {
             </Text>
           </Box>
           <Box style={styles.subTitleWrapper}>
-            <Text color="light.secondaryText" style={styles.subTitle}>By proceeding, you agree to our </Text>
-            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}><Text color="#2D6759" italic style={styles.termOfServiceText}>Terms of Service</Text></TouchableOpacity>
-            <Text color="light.secondaryText" style={styles.subTitle}> and </Text>
-            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}><Text color="#2D6759" italic style={styles.termOfServiceText}> Privacy Policy</Text></TouchableOpacity>
+            <Text color="light.secondaryText" style={styles.subTitle}>
+              By proceeding, you agree to our{' '}
+            </Text>
+            <TouchableOpacity
+              onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
+            >
+              <Text color="#2D6759" italic style={styles.termOfServiceText}>
+                Terms of Service
+              </Text>
+            </TouchableOpacity>
+            <Text color="light.secondaryText" style={styles.subTitle}>
+              {' '}
+              and{' '}
+            </Text>
+            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}>
+              <Text color="#2D6759" italic style={styles.termOfServiceText}>
+                {' '}
+                Privacy Policy
+              </Text>
+            </TouchableOpacity>
           </Box>
         </Box>
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -236,7 +252,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -244,7 +260,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
         buttonText={appCreated ? 'Next' : null}
         buttonCallback={() => {
           setModalVisible(false);
-          navigation.replace('App', { screen: 'NewHome' });
+          navigation.replace('App', { screen: 'Home' });
         }}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
@@ -252,14 +268,14 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
         Content={Box}
         buttonText="Retry"
         buttonCallback={() => {
-          setInitiating(true)
+          setInitiating(true);
         }}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
@@ -292,7 +308,7 @@ const styles = StyleSheet.create({
   },
   noteContainer: {
     padding: 4,
-    width: wp(290)
+    width: wp(290),
   },
   title: {
     fontSize: 15,
@@ -309,8 +325,8 @@ const styles = StyleSheet.create({
   },
   subTitleWrapper: {
     flexDirection: 'row',
-    flexWrap: 'wrap'
-  }
+    flexWrap: 'wrap',
+  },
 });
 
 export default NewKeeperApp;

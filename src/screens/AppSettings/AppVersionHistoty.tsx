@@ -9,7 +9,7 @@ import VersionHistoryList from 'src/components/SettingComponent/VersionHistoryLi
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import dbManager from 'src/storage/realm/dbManager';
 
 function AppVersionHistory() {
@@ -19,13 +19,13 @@ function AppVersionHistory() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle />
-      <Box style={styles.versionHistoryTitleWrapper} testID='view_VersionHistory'>
+      <Box style={styles.versionHistoryTitleWrapper} testID="view_VersionHistory">
         <Text color="light.headerText" style={styles.versionHistoryTitle}>
           Version History
         </Text>
       </Box>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <Box margin={10} testID='view_VersionHistoryList'>
+        <Box margin={10} testID="view_VersionHistoryList">
           <VersionHistoryList />
         </Box>
       </ScrollView>
@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   versionHistoryTitle: {
-    fontWeight: '300',
     letterSpacing: 1,
     fontSize: 16,
     paddingLeft: 7,
@@ -48,6 +47,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 10,
     color: 'gray',
-  }
+  },
 });
 export default AppVersionHistory;

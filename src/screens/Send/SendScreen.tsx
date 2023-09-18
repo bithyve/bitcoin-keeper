@@ -12,28 +12,27 @@ import {
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { EntityKind, PaymentInfoKind } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// components
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import UploadImage from 'src/components/UploadImage';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -252,22 +251,16 @@ function SendScreen({ route }) {
                 notAuthorizedView={<CameraUnauthorized />}
               />
             </Box>
-            {/* Upload Image */}
-
             <UploadImage onPress={handleChooseImage} />
-
-            {/* send manually option */}
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
                 placeholder="or enter address manually"
-                placeholderTextColor={`${colorMode}.GreyText`}
+                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}
                 value={paymentInfo}
                 onChangeText={handleTextChange}
               />
             </Box>
-
-            {/* Send to Wallet options */}
             <Box style={styles.sendToWalletWrapper}>
               <Text marginX={2} fontSize={14} letterSpacing={1.12}>
                 or send to a wallet
@@ -287,8 +280,6 @@ function SendScreen({ route }) {
           </Box>
         </ScrollView>
       </KeyboardAvoidingView>
-
-      {/* {Bottom note} */}
       {showNote && (
         <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
           <Note
@@ -307,10 +298,6 @@ function SendScreen({ route }) {
 }
 
 const styles = ScaledSheet.create({
-  linearGradient: {
-    borderRadius: 6,
-    marginTop: hp(3),
-  },
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -348,7 +335,6 @@ const styles = ScaledSheet.create({
     borderRadius: 10,
     backgroundColor: Colors.Isabelline,
     padding: 15,
-    fontFamily: Fonts.RobotoCondensedRegular,
     opacity: 0.5,
   },
   cameraView: {
