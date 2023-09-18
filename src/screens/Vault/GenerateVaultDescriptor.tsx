@@ -48,11 +48,11 @@ function GenerateVaultDescriptor() {
         <Box style={{ paddingBottom: '10%' }}>
           <ShareWithNfc data={descriptorString} />
         </Box>
-        <Note
-          subtitle="Save the file with .bsms extension to import it in other cordinating apps"
-          subtitleColor="GreyText"
-        />
       </Box>
+      <Note
+        subtitle="Save the file with .bsms extension to import it in other cordinating apps"
+        subtitleColor="GreyText"
+      />
     </ScreenWrapper>
   );
 }
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     borderColor: Colors.Seashell,
-    marginTop: 0,
+    marginTop: 5,
     paddingTop: 20,
     borderTopWidth: 0.5,
     alignItems: 'center',
