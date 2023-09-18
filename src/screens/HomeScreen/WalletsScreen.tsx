@@ -143,8 +143,8 @@ function WalletList({
   wallets,
   hideAmounts,
   setAddImportVisible,
+  navigation,
 }: any) {
-  const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const items = [{ key: 'spacer-start' }, ...wallets, { key: 'add-wallet' }, { key: 'spacer-end' }];
   const scrollX = React.useRef(new Animated.Value(0)).current;
@@ -254,9 +254,9 @@ function AddImportWallet({
   setAddImportVisible,
   setDefaultWalletCreation,
   walletIndex,
+  navigation,
 }) {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
   const dispatch = useDispatch();
 
   const addCollaborativeWallet = () => {
@@ -487,6 +487,7 @@ const WalletsScreen = ({ navigation }) => {
         setWalletIndex={setWalletIndex}
         wallets={allWallets}
         setAddImportVisible={() => setAddImportVisible(true)}
+        navigation={navigation}
       />
       <Box style={styles.listItemsWrapper}>
         <Box style={styles.whirlpoolListItemWrapper} testID="view_WhirlpoolUTXOs">
@@ -549,6 +550,7 @@ const WalletsScreen = ({ navigation }) => {
             setAddImportVisible={setAddImportVisible}
             setDefaultWalletCreation={setDefaultWalletCreation}
             walletIndex={walletIndex}
+            navigation={navigation}
           />
         )}
       />
