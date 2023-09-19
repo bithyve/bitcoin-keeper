@@ -54,7 +54,7 @@ import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails'
 import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
-import VaultTransactions from 'src/screens/Vault/VaultTransactions';
+import AllTransactions from 'src/screens/Vault/AllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
@@ -213,7 +213,7 @@ function AppStack() {
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
         <Stack.Screen name="SigningServer" component={SigningServer} />
         <Stack.Screen name="AddDescription" component={AddDescription} />
-        <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
+        <Stack.Screen name="AllTransactions" component={AllTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />

@@ -35,6 +35,7 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
 import { useQuery } from '@realm/react';
 import { globalStyles } from 'src/constants/globalStyles';
+import FloatingCTA from 'src/components/FloatingCTA';
 
 const { width } = Dimensions.get('screen');
 
@@ -407,17 +408,13 @@ function SetupCollaborativeWallet() {
         }}
         ListFooterComponent={ListFooterComponent}
       />
-      <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
-        <Buttons
-          primaryDisable={coSigners.filter((item) => item).length < 2}
-          primaryText="Create"
-          primaryCallback={createVault}
-          secondaryText="Cancel"
-          secondaryCallback={navigation.goBack}
-          paddingHorizontal={wp(30)}
-          primaryLoading={isCreating}
-        />
-      </Box>
+      <FloatingCTA
+        primaryText={'Create'}
+        primaryCallback={createVault}
+        secondaryText="Cancel"
+        primaryLoading={isCreating}
+        primaryDisable={coSigners.filter((item) => item).length < 2}
+      />
     </ScreenWrapper>
   );
 }

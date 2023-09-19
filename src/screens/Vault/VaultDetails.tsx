@@ -22,7 +22,7 @@ import TransactionElement from 'src/components/TransactionElement';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
-import { SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
+import { EntityKind, SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
@@ -50,6 +50,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import { useQuery } from '@realm/react';
+import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 
 function Footer({
   vault,
@@ -248,10 +249,11 @@ function TransactionList({
             <TouchableOpacity
               onPress={() => {
                 navigation.dispatch(
-                  CommonActions.navigate('VaultTransactions', {
-                    title: 'Vault Transactions',
+                  CommonActions.navigate('AllTransactions', {
+                    title: collaborativeWalletId ? 'Wallet Transactions' : 'Vault Transactions',
                     subtitle: 'All incoming and outgoing transactions',
                     collaborativeWalletId,
+                    entityKind: EntityKind.VAULT,
                   })
                 );
               }}
@@ -279,11 +281,19 @@ function TransactionList({
         keyExtractor={(item) => item.txid}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <EmptyStateView
-            IllustartionImage={NoVaultTransactionIcon}
-            title="Security Tip"
-            subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
-          />
+          collaborativeWalletId ? (
+            <EmptyStateView
+              IllustartionImage={NoTransactionIcon}
+              title="No transactions yet."
+              subTitle="Pull down to refresh"
+            />
+          ) : (
+            <EmptyStateView
+              IllustartionImage={NoVaultTransactionIcon}
+              title="Security Tip"
+              subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
+            />
+          )
         }
       />
     </>
@@ -549,15 +559,18 @@ function VaultDetails({ navigation }) {
           <VaultSetupIcon />
         </Box>
         <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-          Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can
-          select
+          {collaborativeWalletId
+            ? 'This kind of wallet setup can be used for business partnerships, family funds, or any scenario where joint control of funds is necessary.'
+            : 'Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select'}
         </Text>
-        <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-          There are also some additional options if you do not have hardware signing devices
-        </Text>
+        {!collaborativeWalletId ? (
+          <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
+            There are also some additional options if you do not have hardware signing devices
+          </Text>
+        ) : null}
       </View>
     ),
-    []
+    [collaborativeWalletId]
   );
 
   const NewVaultContent = useCallback(
@@ -685,8 +698,12 @@ function VaultDetails({ navigation }) {
         close={() => {
           dispatch(setIntroModal(false));
         }}
-        title="Keeper Vault"
-        subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`}
+        title={collaborativeWalletId ? 'Collaborative Wallet' : 'Keeper Vault'}
+        subTitle={
+          collaborativeWalletId
+            ? 'Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.'
+            : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`
+        }
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
@@ -700,7 +717,6 @@ function VaultDetails({ navigation }) {
         learnMore
         learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
       />
-
       <KeeperModal
         visible={showBuyRampModal}
         close={() => {

@@ -35,6 +35,7 @@ import Relay from 'src/services/operations/Relay';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { useDispatch } from 'react-redux';
 import MenuItemButton from 'src/components/CustomButton/MenuItemButton';
+import CollaborativeWalletIcon from 'src/assets/images/icon_collaborative_home.svg';
 import {
   resetElectrumNotConnectedErr,
   setRecepitVerificationFailed,
@@ -207,6 +208,8 @@ function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollab
         <Box style={styles.walletInnerView}>
           {isWhirlpoolWallet ? (
             <GradientIcon Icon={WhirlpoolAccountIcon} height={35} />
+          ) : isCollaborativeWallet ? (
+            <CollaborativeWalletIcon />
           ) : (
             <Box style={styles.walletIconWrapper}>
               {colorMode === 'light' ? <WalletActiveIcon /> : <WalletDark />}
