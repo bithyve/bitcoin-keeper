@@ -360,7 +360,7 @@ function SignersList({ navigation }) {
 
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const verifyPassport = async (qrData) => {
+  const verifyPassport = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
       const passport: VaultSigner = generateSignerFromMetaData({
@@ -374,6 +374,7 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(passport));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from Passport!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
@@ -445,7 +446,7 @@ function SignersList({ navigation }) {
     );
   };
 
-  const verifySeedSigner = async (qrData) => {
+  const verifySeedSigner = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
       const seedSigner: VaultSigner = generateSignerFromMetaData({
@@ -459,13 +460,14 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(seedSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from SeedSigner!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
-  const verifyKeystone = async (qrData) => {
+  const verifyKeystone = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
       const keystone: VaultSigner = generateSignerFromMetaData({
@@ -479,13 +481,14 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(keystone));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from Keystone!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
-  const verifyJade = async (qrData) => {
+  const verifyJade = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
       const jade: VaultSigner = generateSignerFromMetaData({
@@ -499,13 +502,14 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(jade));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from Jade!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
-  const verifyKeeperSigner = (qrData) => {
+  const verifyKeeperSigner = (qrData, resetQR) => {
     try {
       const { mfp, xpub, derivationPath } = JSON.parse(qrData);
       const ksd = generateSignerFromMetaData({
@@ -519,6 +523,7 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(ksd));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       const message = crossInteractionHandler(err);
       throw new Error(message);
     }
@@ -583,18 +588,18 @@ function SignersList({ navigation }) {
     const open = () => setVisible(true);
     const close = () => setVisible(false);
 
-    const onQRScan = (qrData) => {
+    const onQRScan = (qrData, resetQR) => {
       switch (type as SignerType) {
         case SignerType.PASSPORT:
-          return verifyPassport(qrData);
+          return verifyPassport(qrData, resetQR);
         case SignerType.SEEDSIGNER:
-          return verifySeedSigner(qrData);
+          return verifySeedSigner(qrData, resetQR);
         case SignerType.KEYSTONE:
-          return verifyKeystone(qrData);
+          return verifyKeystone(qrData, resetQR);
         case SignerType.JADE:
-          return verifyJade(qrData);
+          return verifyJade(qrData, resetQR);
         case SignerType.KEEPER:
-          return verifyKeeperSigner(qrData);
+          return verifyKeeperSigner(qrData, resetQR);
         default:
       }
     };
