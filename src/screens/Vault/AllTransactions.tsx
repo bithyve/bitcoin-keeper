@@ -18,6 +18,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
 import { EntityKind } from 'src/core/wallets/enums';
+import { Transaction } from 'src/core/wallets/interfaces';
 
 function AllTransactions({ route }) {
   const { colorMode } = useColorMode();
@@ -35,8 +36,8 @@ function AllTransactions({ route }) {
 
   const [pullRefresh, setPullRefresh] = useState(false);
 
-  const vaultTrans = vault?.specs?.transactions || [];
-  const walletTrans = wallet?.specs.transactions || [];
+  const vaultTrans: Transaction[] = vault?.specs?.transactions || [];
+  const walletTrans: Transaction[] = wallet?.specs.transactions || [];
   const renderTransactionElement = ({ item }) => <TransactionElement transaction={item} />;
 
   const pullDownRefresh = () => {
@@ -78,7 +79,7 @@ function AllTransactions({ route }) {
             data={entityKind === EntityKind.WALLET ? walletTrans : vaultTrans}
             refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
             renderItem={renderTransactionElement}
-            keyExtractor={(item) => item}
+            keyExtractor={(item: Transaction) => item.txid}
             showsVerticalScrollIndicator={false}
           />
         </Box>
