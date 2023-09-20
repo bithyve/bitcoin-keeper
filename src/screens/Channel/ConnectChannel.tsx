@@ -1,12 +1,11 @@
-import { StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect } from 'react';
-
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import { Box, VStack, useColorMode } from 'native-base';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -40,13 +39,14 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { useQuery } from '@realm/react';
+import Text from 'src/components/KeeperText';
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
   const route = useRoute();
   const { title = '', subtitle = '', type: signerType, signer } = route.params as any;
-  const channel = io(config.CHANNEL_URL);
-  let channelCreated = false;
+  const channel = useRef(io(config.CHANNEL_URL)).current;
+  const [channelCreated, setChannelCreated] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -61,7 +61,7 @@ function ConnectChannel() {
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {
       channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
-      channelCreated = true;
+      setChannelCreated(true);
     }
   };
 
@@ -218,13 +218,35 @@ function ConnectChannel() {
         <Box flex={1}>
           <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(25)} />
           <Box style={styles.qrcontainer}>
-            <RNCamera
-              autoFocus="on"
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={onBarCodeRead}
-              useNativeZoom
-            />
+            {!channelCreated ? (
+              <RNCamera
+                autoFocus="on"
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={onBarCodeRead}
+                useNativeZoom
+              />
+            ) : (
+              <VStack>
+                <Text
+                  numberOfLines={2}
+                  color={`${colorMode}.greenText`}
+                  style={styles.instructions}
+                >
+                  {'\u2022 Please share the xPub from the Keeper web interface...'}
+                </Text>
+                <Text
+                  numberOfLines={3}
+                  color={`${colorMode}.greenText`}
+                  style={styles.instructions}
+                >
+                  {
+                    '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+                  }
+                </Text>
+                <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+              </VStack>
+            )}
           </Box>
           <Box style={styles.noteWrapper}>
             <Note
@@ -257,5 +279,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     position: 'absolute',
     padding: 20,
+  },
+  instructions: {
+    width: windowWidth * 0.8,
+    padding: '2%',
+    letterSpacing: 0.65,
+    fontSize: 13,
   },
 });
