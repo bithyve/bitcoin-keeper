@@ -3,11 +3,10 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { Box, View, useColorMode } from 'native-base';
+import { Box, Text, View, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -15,9 +14,8 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -38,10 +36,7 @@ function AddDetailsFinalScreen({ route }) {
   const dispatch = useDispatch();
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const { home } = translations;
-  const [amount, setAmount] = useState('');
-  const [error, setError] = useState(false); // this state will handle error
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
@@ -65,10 +60,6 @@ function AddDetailsFinalScreen({ route }) {
     (state) => state.bhr
   );
   const [walletLoading, setWalletLoading] = useState(false);
-  const { appId } = useAppSelector((state) => state.storage);
-
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
   const { colorMode } = useColorMode();
 
   useEffect(() => {
@@ -118,8 +109,7 @@ function AddDetailsFinalScreen({ route }) {
         navigation.goBack();
       } else {
         showToast('Wallet imported', <TickIcon />);
-        navigation.replace('WalletDetails');
-        // Linking.openURL(`${appId}://backup/true`);
+        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
       }
     }
     if (relayWalletError) {
@@ -245,7 +235,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -264,8 +254,6 @@ const styles = StyleSheet.create({
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
     borderRadius: 10,
-    // borderTopLeftRadius: 10,
-    // borderBottomLeftRadius: 10,
     paddingVertical: 20,
     marginTop: 10,
     flexDirection: 'row',
@@ -378,11 +366,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: wp(10),
     letterSpacing: 0.6,
-    color: 'light.GreyText',
   },
   icArrow: {
     marginLeft: wp(10),
-    marginRight: wp(10),
+    marginRight: wp(20),
     alignSelf: 'center',
   },
 });
