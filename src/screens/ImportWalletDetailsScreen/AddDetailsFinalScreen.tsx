@@ -74,30 +74,31 @@ function AddDetailsFinalScreen({ route }) {
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
+    //TODO: remove this timeout once the crypto is optimised
+    setTimeout(() => {
+      const derivationConfig: DerivationConfig = {
+        path,
+        purpose: Number(purpose),
+      };
 
-    const derivationConfig: DerivationConfig = {
-      path,
-      purpose: Number(purpose),
-    };
-
-    const newWallet: NewWalletInfo = {
-      walletType,
-      walletDetails: {
-        name: walletName,
-        description: walletDescription,
-        derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: parseInt(transferPolicy),
+      const newWallet: NewWalletInfo = {
+        walletType,
+        walletDetails: {
+          name: walletName,
+          description: walletDescription,
+          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
+          transferPolicy: {
+            id: uuidv4(),
+            threshold: parseInt(transferPolicy),
+          },
         },
-      },
-      importDetails: {
-        derivationConfig,
-        // eslint-disable-next-line react/prop-types
-        mnemonic: importedSeed,
-      },
-    };
-    dispatch(addNewWallets([newWallet]));
+        importDetails: {
+          derivationConfig,
+          mnemonic: importedSeed,
+        },
+      };
+      dispatch(addNewWallets([newWallet]));
+    }, 200);
   }, [walletName, walletDescription, transferPolicy, path]);
 
   useEffect(() => {
