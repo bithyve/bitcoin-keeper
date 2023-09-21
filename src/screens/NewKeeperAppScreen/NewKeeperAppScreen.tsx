@@ -33,7 +33,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       alignItems="center"
       width="100%"
       testID="btn_startNew"
-      style={{ marginTop: hp(20), height: hp(110) }}
+      style={{ marginTop: hp(20), height: hp(110), borderRadius: hp(10) }}
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
@@ -41,8 +41,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
-          borderRadius: hp(10),
-          width: '80%',
+          width: '75%',
         }}
       >
         <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
@@ -290,8 +289,7 @@ const styles = StyleSheet.create({
     marginTop: hp(70),
   },
   iconContainer: {
-    padding: 10,
-    flex: 1,
+    marginRight: 20,
     flexDirection: 'row-reverse',
   },
   tileContainer: {
