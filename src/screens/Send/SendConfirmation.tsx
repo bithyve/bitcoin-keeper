@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -53,10 +53,11 @@ const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WA
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
 function Card({ title, subTitle, isVault = false }) {
+  const { colorMode } = useColorMode();
   return (
     <Box
       borderRadius={10}
-      backgroundColor="light.primaryBackground"
+      backgroundColor={`${colorMode}.seashellWhite`}
       flexDirection="row"
       padding={windowHeight * 0.019}
     >
@@ -72,7 +73,7 @@ function Card({ title, subTitle, isVault = false }) {
       </Box>
       <Box marginLeft={3}>
         <Text
-          color="light.sendCardHeading"
+          color={`${colorMode}.headerText`}
           fontSize={14}
           letterSpacing={1.12}
           numberOfLines={1}
@@ -99,6 +100,7 @@ function SendingCard({
   getSatUnit,
   sourceWallet,
 }) {
+  const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
     if (currentCurrency === CurrencyKind.BITCOIN) {
       return '₿';
@@ -190,7 +192,7 @@ function SendingCard({
   return (
     <Box marginY={windowHeight * 0.01}>
       <Text
-        color="light.primaryText"
+        color={`${colorMode}.primaryText`}
         fontSize={14}
         letterSpacing={1.12}
         marginY={windowHeight * 0.011}
@@ -203,12 +205,13 @@ function SendingCard({
 }
 
 function Transaction({ txFeeInfo, transactionPriority }) {
+  const { colorMode } = useColorMode();
   return (
     <Box flexDirection="row" justifyContent="space-between" marginY={3}>
-      <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
+      <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
         Transaction Priority
       </Text>
-      <Text color="light.GreyText" fontSize={14} letterSpacing={0.28}>
+      <Text color={`${colorMode}.GreyText`} fontSize={14} letterSpacing={0.28}>
         {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
       </Text>
     </Box>
@@ -377,6 +380,7 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
 }
 
 function SendConfirmation({ route }) {
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const {
@@ -572,9 +576,9 @@ function SendConfirmation({ route }) {
   }, [crossTransferSuccess]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} paddingLeft={hp(25)} />
-      <Box marginTop={windowHeight * 0.01} marginX={7}>
+      <Box marginX={7}>
         <SendingCard
           isSend
           currentCurrency={currentCurrency}
@@ -601,7 +605,7 @@ function SendConfirmation({ route }) {
           getSatUnit={getSatUnit}
           sourceWallet={sourceWallet}
         />
-        <Box marginTop={windowHeight * 0.01}>
+        <Box>
           {customFeeOptionTransfers.includes(transferType) ? (
             <SendingPriority
               txFeeInfo={txFeeInfo}
