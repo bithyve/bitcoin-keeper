@@ -223,7 +223,7 @@ function SeedSignerSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it`}
+          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it`}
         </Text>
       </Box>
     </View>
