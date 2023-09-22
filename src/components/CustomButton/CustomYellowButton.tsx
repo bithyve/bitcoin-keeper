@@ -20,7 +20,7 @@ function CustomYellowButton(props: Props) {
       }}
       testID="btn_customYellowButton"
     >
-      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.coffeeBackground`}>
+      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.yellowButtonBackground`}>
         <Text color={props.titleColor} style={styles.btnText}>
           {props.value}
         </Text>
