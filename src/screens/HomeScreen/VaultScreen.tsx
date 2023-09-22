@@ -59,7 +59,7 @@ function VaultScreen() {
                 <Box style={styles.emptyVaultIllustration}>
                   <EmptyVaultIllustration />
                 </Box>
-                <Text color={`${colorMode}.white`}>Add Signers to activate your Vault</Text>
+                <Text color={`${colorMode}.white`}>Add Signing Device to activate your Vault</Text>
               </Box>
             ) : (
               <>
