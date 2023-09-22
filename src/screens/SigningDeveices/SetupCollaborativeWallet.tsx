@@ -213,7 +213,7 @@ function ListFooter(wallet: Wallet, signPSBT: any) {
       <Spacer />
       <OptionCTA
         icon={null}
-        title="Act as Co-signer"
+        title="Act as co-signer"
         subtitle={`Sign transactions (${id})`}
         callback={() => {
           navigation.dispatch(
