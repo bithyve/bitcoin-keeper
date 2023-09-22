@@ -9,8 +9,8 @@ import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView'
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => {},
-  secondaryCallback = () => {},
+  primaryCallback = () => { },
+  secondaryCallback = () => { },
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
@@ -32,16 +32,14 @@ function Buttons({
       activeOpacity={activeOpacity}
       testID="btn_primaryText"
     >
-      <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
-        <Box
-          style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
-          backgroundColor={`${colorMode}.primaryGreenBackground`}
-        >
-          <Text numberOfLines={1} style={styles.btnText} color="white" bold>
-            {primaryText}
-          </Text>
-        </Box>
-      </Shadow>
+      <Box
+        style={[styles.createBtn, { opacity: primaryDisable ? 0.5 : 1, paddingHorizontal }]}
+        backgroundColor={`${colorMode}.greenButtonBackground`}
+      >
+        <Text numberOfLines={1} style={styles.btnText} color="white" bold>
+          {primaryText}
+        </Text>
+      </Box>
     </TouchableOpacity>
   );
   return (

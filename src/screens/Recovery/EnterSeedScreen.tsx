@@ -38,6 +38,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Fonts from 'src/constants/Fonts';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
@@ -530,6 +531,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     letterSpacing: 1.32,
     zIndex: 1,
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
   inputListWrapper: {
     flexDirection: 'row',
