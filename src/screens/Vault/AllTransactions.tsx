@@ -9,6 +9,7 @@ import StatusBarComponent from 'src/components/StatusBarComponent';
 import TransactionElement from 'src/components/TransactionElement';
 import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
 import LinkedWallet from 'src/assets/images/walletUtxos.svg';
+import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -16,12 +17,15 @@ import { useNavigation } from '@react-navigation/native';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
+import { EntityKind } from 'src/core/wallets/enums';
+import { Transaction } from 'src/core/wallets/interfaces';
 
-function VaultTransactions({ route }) {
+function AllTransactions({ route }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const title = route?.params?.title;
+  const entityKind = route?.params?.entityKind;
   const subtitle = route?.params?.subtitle;
   const collaborativeWalletId = route?.params?.collaborativeWalletId;
   const { activeVault: vault } = useVault(collaborativeWalletId);
@@ -32,8 +36,8 @@ function VaultTransactions({ route }) {
 
   const [pullRefresh, setPullRefresh] = useState(false);
 
-  const vaultTrans = vault?.specs?.transactions || [];
-  const walletTrans = wallet?.specs.transactions || [];
+  const vaultTrans: Transaction[] = vault?.specs?.transactions || [];
+  const walletTrans: Transaction[] = wallet?.specs.transactions || [];
   const renderTransactionElement = ({ item }) => <TransactionElement transaction={item} />;
 
   const pullDownRefresh = () => {
@@ -53,9 +57,14 @@ function VaultTransactions({ route }) {
         <Box width={wp(200)}>
           <HeaderTitle onPressHandler={() => navigation.goBack()} />
         </Box>
-
         <Box flexDirection="row" alignItems="center">
-          {title === 'Wallet Transactions' ? <LinkedWallet /> : <VaultIcon />}
+          {entityKind === EntityKind.WALLET ? (
+            <LinkedWallet />
+          ) : collaborativeWalletId ? (
+            <CollaborativeIcon />
+          ) : (
+            <VaultIcon />
+          )}
           <Box marginX={5}>
             <Text fontSize={16} letterSpacing={0.8} color="light.headerText">
               {title}
@@ -67,10 +76,10 @@ function VaultTransactions({ route }) {
         </Box>
         <Box marginTop={hp(10)} paddingBottom={hp(300)}>
           <FlatList
-            data={title === 'Wallet Transactions' ? walletTrans : vaultTrans}
+            data={entityKind === EntityKind.WALLET ? walletTrans : vaultTrans}
             refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
             renderItem={renderTransactionElement}
-            keyExtractor={(item) => item}
+            keyExtractor={(item: Transaction) => item.txid}
             showsVerticalScrollIndicator={false}
           />
         </Box>
@@ -85,4 +94,4 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 });
-export default VaultTransactions;
+export default AllTransactions;

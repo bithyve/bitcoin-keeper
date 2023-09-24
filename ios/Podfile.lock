@@ -610,9 +610,6 @@ PODS:
     - React-Core
   - RNKeychain (8.1.2):
     - React-Core
-  - RNLinearGradient (3.0.0-alpha.1):
-    - RCT-Folly (= 2021.07.22.00)
-    - React-Core
   - RNLocalize (2.2.2):
     - React-Core
   - RNReanimated (3.4.2):
@@ -752,7 +749,6 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNIap (from `../node_modules/react-native-iap`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
-  - RNLinearGradient (from `../node_modules/react-native-linear-gradient`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
@@ -922,8 +918,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-iap"
   RNKeychain:
     :path: "../node_modules/react-native-keychain"
-  RNLinearGradient:
-    :path: "../node_modules/react-native-linear-gradient"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
   RNReanimated:
@@ -1028,7 +1022,6 @@ SPEC CHECKSUMS:
   RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
   RNIap: c397f49db45af3b10dca64b2325f21bb8078ad21
   RNKeychain: a65256b6ca6ba6976132cc4124b238a5b13b3d9c
-  RNLinearGradient: 03fc377e5f7a1483a33a0642bb523ae4cf102211
   RNLocalize: 95a43f85e41a966be7bc9cff2437128911c52da0
   RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
   RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa

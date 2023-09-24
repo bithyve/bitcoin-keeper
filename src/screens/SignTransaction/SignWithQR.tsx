@@ -38,7 +38,7 @@ function SignWithQR() {
   const { activeVault } = useVault(collaborativeWalletId);
   const isSingleSig = activeVault.scheme.n === 1;
 
-  const signTransaction = (signedSerializedPSBT) => {
+  const signTransaction = (signedSerializedPSBT, resetQR) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
       if (isSingleSig) {
@@ -63,6 +63,7 @@ function SignWithQR() {
       dispatch(healthCheckSigner([signer]));
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
+      resetQR();
       captureError(err);
       Alert.alert('Invalid QR, please scan the signed PSBT!');
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));

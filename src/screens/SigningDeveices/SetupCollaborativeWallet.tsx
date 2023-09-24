@@ -6,11 +6,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import AddIcon from 'src/assets/images/green_add.svg';
-import Buttons from 'src/components/Buttons';
 import HeaderTitle from 'src/components/HeaderTitle';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
 import { crossInteractionHandler, getPlaceholder } from 'src/utils/utilities';
@@ -35,6 +34,7 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import DescriptionModal from '../Vault/components/EditDescriptionModal';
 import { useQuery } from '@realm/react';
 import { globalStyles } from 'src/constants/globalStyles';
+import FloatingCTA from 'src/components/FloatingCTA';
 
 const { width } = Dimensions.get('screen');
 
@@ -266,20 +266,25 @@ function SetupCollaborativeWallet() {
     setCoSigners(newSigners);
   };
 
-  const signPSBT = (serializedPSBT) => {
-    const signedSerialisedPSBT = signCosignerPSBT(coSigner, serializedPSBT);
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ShowQR',
-        params: {
-          data: signedSerialisedPSBT,
-          encodeToBytes: false,
-          title: 'Signed PSBT',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-          type: SignerType.KEEPER,
-        },
-      })
-    );
+  const signPSBT = (serializedPSBT, resetQR) => {
+    try {
+      const signedSerialisedPSBT = signCosignerPSBT(coSigner, serializedPSBT);
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ShowQR',
+          params: {
+            data: signedSerialisedPSBT,
+            encodeToBytes: false,
+            title: 'Signed PSBT',
+            subtitle: 'Please scan until all the QR data has been retrieved',
+            type: SignerType.KEEPER,
+          },
+        })
+      );
+    } catch (err) {
+      resetQR();
+      showToast('Please scan a valid PSBT', null, 3000, true);
+    }
   };
 
   const pushSigner = (coSigner, goBack = true) => {
@@ -407,17 +412,13 @@ function SetupCollaborativeWallet() {
         }}
         ListFooterComponent={ListFooterComponent}
       />
-      <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
-        <Buttons
-          primaryDisable={coSigners.filter((item) => item).length < 2}
-          primaryText="Create"
-          primaryCallback={createVault}
-          secondaryText="Cancel"
-          secondaryCallback={navigation.goBack}
-          paddingHorizontal={wp(30)}
-          primaryLoading={isCreating}
-        />
-      </Box>
+      <FloatingCTA
+        primaryText={'Create'}
+        primaryCallback={createVault}
+        secondaryText="Cancel"
+        primaryLoading={isCreating}
+        primaryDisable={coSigners.filter((item) => item).length < 2}
+      />
     </ScreenWrapper>
   );
 }

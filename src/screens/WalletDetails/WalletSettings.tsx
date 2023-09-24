@@ -148,20 +148,25 @@ function WalletSettings({ route }) {
     }
   }, [testCoinsReceived, testCoinsFailed]);
 
-  const signPSBT = (serializedPSBT) => {
-    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ShowQR',
-        params: {
-          data: signedSerialisedPSBT,
-          encodeToBytes: false,
-          title: 'Signed PSBT',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-          type: SignerType.KEEPER,
-        },
-      })
-    );
+  const signPSBT = (serializedPSBT, resetQR) => {
+    try {
+      const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ShowQR',
+          params: {
+            data: signedSerialisedPSBT,
+            encodeToBytes: false,
+            title: 'Signed PSBT',
+            subtitle: 'Please scan until all the QR data has been retrieved',
+            type: SignerType.KEEPER,
+          },
+        })
+      );
+    } catch (e) {
+      resetQR();
+      showToast('Please scan a valid PSBT', null, 3000, true);
+    }
   };
 
   return (

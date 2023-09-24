@@ -51,6 +51,7 @@ const styles = StyleSheet.create({
   toastMsgText: {
     marginLeft: 5,
     fontSize: 14,
+    width: windowWidth * 0.8,
   },
 });
 

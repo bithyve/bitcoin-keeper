@@ -17,10 +17,8 @@ import { useAppSelector } from 'src/store/hooks';
 import HeaderTitle from 'src/components/HeaderTitle';
 import useWallets from 'src/hooks/useWallets';
 
-import { WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import BtcBlack from 'src/assets/images/btc_black.svg';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -218,9 +216,10 @@ function WalletDetails({ route }) {
               {wallet?.specs.transactions.length ? (
                 <TouchableOpacity
                   onPress={() =>
-                    navigation.navigate('VaultTransactions', {
+                    navigation.navigate('AllTransactions', {
                       title: 'Wallet Transactions',
                       subtitle: 'All incoming and outgoing transactions',
+                      entityKind: EntityKind.WALLET,
                     })
                   }
                 >
