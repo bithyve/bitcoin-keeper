@@ -36,6 +36,8 @@ import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setSigningDevices } from 'src/store/reducers/bhr';
 
 function SetupTapsigner({ route }) {
   const { colorMode } = useColorMode();
@@ -43,7 +45,8 @@ function SetupTapsigner({ route }) {
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
-  const { isHealthcheck = false, signer } = route.params;
+  const { mode, signer, isMultisig } = route.params;
+  const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
   const onPressHandler = (digit) => {
     let temp = cvc;
     if (digit !== 'x') {
@@ -62,8 +65,6 @@ function SetupTapsigner({ route }) {
   };
 
   const isAMF = isTestnet();
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
   const { inProgress, start } = useAsync();
 
   const addTapsignerWithProgress = async () => {
@@ -111,8 +112,16 @@ function SetupTapsigner({ route }) {
           xpubDetails,
         });
       }
-      dispatch(addSigningDevice(tapsigner));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      if (mode === InteracationMode.SIGNING) {
+        dispatch(addSigningDevice(tapsigner));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      } else {
+        dispatch(setSigningDevices(tapsigner));
+        navigation.dispatch(
+          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        );
+      }
+
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
       if (!isSignerAMF(tapsigner)) {
         const exsists = await checkSigningDevice(tapsigner.signerId);
