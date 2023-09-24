@@ -23,8 +23,13 @@ import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
 import Note from 'src/components/Note/Note';
 import { SDIcons } from './SigningDeviceIcons';
-import HardwareModalMap from './HardwareModalMap';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
 import { getSDMessage } from './components/SDMessage';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import useVault from 'src/hooks/useVault';
 
 type HWProps = {
   type: SignerType;
@@ -105,6 +110,11 @@ function SigningDeviceList() {
   const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
+  const { subscriptionScheme } = usePlan();
+  const isMultisig = subscriptionScheme.n !== 1;
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -188,7 +198,14 @@ function SigningDeviceList() {
             <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
-        <HardwareModalMap visible={visible} close={close} type={type} />
+        <HardwareModalMap
+          visible={visible}
+          close={close}
+          type={type}
+          mode={InteracationMode.SIGNING}
+          isMultisig={isMultisig}
+          primaryMnemonic={primaryMnemonic}
+        />
       </React.Fragment>
     );
   }

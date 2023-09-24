@@ -36,7 +36,11 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
 import SigningDeviceChecklist from './SigningDeviceChecklist';
 import { SDIcons } from './SigningDeviceIcons';
-import HardwareModalMap, { ModalTypes } from './HardwareModalMap';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -51,6 +55,10 @@ function SigningDeviceDetails({ route }) {
   const signer: VaultSigner = activeVault.signers.filter(
     (signer) => signer?.signerId === signerId
   )[0];
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
+
   const getSignerContent = (type: SignerType) => {
     switch (type) {
       case SignerType.COLDCARD:
@@ -328,12 +336,15 @@ function SigningDeviceDetails({ route }) {
           type={signer?.type}
           visible={visible}
           close={() => setVisible(false)}
-          modalType={ModalTypes.HEALTH_CHECK}
           signer={signer}
           skipHealthCheckCallBack={() => {
             setVisible(false);
             setSkipHealthCheckModalVisible(true);
           }}
+          mode={InteracationMode.HEALTH_CHECK}
+          vaultShellId={activeVault.shellId}
+          isMultisig={activeVault.isMultiSig}
+          primaryMnemonic={primaryMnemonic}
         />
 
         <KeeperModal
