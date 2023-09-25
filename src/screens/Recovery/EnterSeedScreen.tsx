@@ -38,6 +38,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Fonts from 'src/constants/Fonts';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -390,8 +391,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -519,7 +520,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -577,6 +578,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     letterSpacing: 1.32,
     zIndex: 1,
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
   inputListWrapper: {
     flexDirection: 'row',

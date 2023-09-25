@@ -116,9 +116,8 @@ function ChoosePlan(props) {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${
-                subscription.introductoryPriceNumberOfPeriodsIOS
-              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
+                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -238,7 +237,7 @@ function ChoosePlan(props) {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => {},
+              onPress: () => { },
               style: 'cancel',
             },
             { text: 'Manage', onPress: () => manageSubscription(response.productId) },
@@ -335,7 +334,7 @@ function ChoosePlan(props) {
 
       <KeeperModal
         visible={requesting}
-        close={() => {}}
+        close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -344,7 +343,7 @@ function ChoosePlan(props) {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => {}}
+        buttonCallback={() => { }}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
