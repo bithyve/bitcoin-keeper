@@ -58,7 +58,7 @@ function CosignerDetails() {
         ) : null}
         <Note
           title="Note"
-          subtitle="The cosigner details are for the selected wallet only"
+          subtitle="The co-signer details are for the selected wallet only"
           subtitleColor="GreyText"
         />
         <Buttons primaryText="Done" primaryCallback={navgation.goBack} />

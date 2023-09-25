@@ -39,28 +39,43 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { useQuery } from '@realm/react';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
   const route = useRoute();
-  const { title = '', subtitle = '', type: signerType, signer } = route.params as any;
+  const {
+    title = '',
+    subtitle = '',
+    type: signerType,
+    signer,
+    mode,
+    isMultisig,
+  } = route.params as any;
   const channel = useRef(io(config.CHANNEL_URL)).current;
   const [channelCreated, setChannelCreated] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
+  let id;
+  if (mode === InteracationMode.RECOVERY) {
+    const randomId = Math.random();
+    id = randomId;
+  } else {
+    const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+    id = publicId;
+  }
 
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
+      channel.emit(CREATE_CHANNEL, { room: `${id}${data}`, network: config.NETWORK_TYPE });
       setChannelCreated(true);
     }
   };
@@ -78,8 +93,17 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(bitbox02));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(bitbox02));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else {
+          dispatch(addSigningDevice(bitbox02));
+          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        }
+
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(bitbox02.signerId);
         if (exsists)
@@ -104,8 +128,15 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(trezor));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(trezor));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else {
+          dispatch(addSigningDevice(trezor));
+          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(trezor.signerId);
         if (exsists)
@@ -118,7 +149,6 @@ function ConnectChannel() {
         } else captureError(error);
       }
     });
-
     channel.on(LEDGER_SETUP, async (data) => {
       try {
         const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
@@ -134,8 +164,16 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(ledger));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(ledger));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else {
+          dispatch(addSigningDevice(ledger));
+          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        }
+
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(ledger.signerId);
         if (exsists)

@@ -8,7 +8,6 @@ import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import usePlan from 'src/hooks/usePlan';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -17,16 +16,19 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
 import Colors from 'src/theme/Colors';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setSigningDevices } from 'src/store/reducers/bhr';
 
-function SetupOtherSDScreen() {
+function SetupOtherSDScreen({ route }) {
   const [xpub, setXpub] = useState('');
   const [derivationPath, setDerivationPath] = useState('');
   const [masterFingerprint, setMasterFingerprint] = useState('');
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
+  const { mode, isMultisig } = route.params;
+  // const { subscriptionScheme } = usePlan();
+  // const isMultisig = subscriptionScheme.n !== 1;
 
   const validateAndAddSigner = async () => {
     try {
@@ -41,8 +43,16 @@ function SetupOtherSDScreen() {
         signerType: SignerType.OTHER_SD,
         storageType: SignerStorage.COLD,
       });
-      dispatch(addSigningDevice(signer));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      if (mode === InteracationMode.RECOVERY) {
+        dispatch(setSigningDevices(signer));
+        navigation.dispatch(
+          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        );
+      } else if (mode === InteracationMode.SIGNING) {
+        dispatch(addSigningDevice(signer));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      }
+
       showToast(`${signer.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(signer.signerId);
       if (exsists) showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);

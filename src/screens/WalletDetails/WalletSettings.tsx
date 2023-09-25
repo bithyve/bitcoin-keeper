@@ -231,7 +231,7 @@ function WalletSettings({ route }) {
             }}
           />
           <Option
-            title="Act as Co-signer"
+            title="Act as co-signer"
             subTitle={`Sign transactions (${wallet.id})`}
             onPress={() => {
               navigation.dispatch(

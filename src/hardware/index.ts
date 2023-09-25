@@ -23,6 +23,7 @@ export const UNVERIFYING_SIGNERS = [
   SignerType.POLICY_SERVER,
   SignerType.SEED_WORDS,
   SignerType.TAPSIGNER,
+  SignerType.INHERITANCEKEY,
 ];
 export const generateSignerFromMetaData = ({
   xpub,
