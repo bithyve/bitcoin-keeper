@@ -11,7 +11,6 @@ import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
-import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EditWalletSettings from 'src/screens/WalletDetails/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
@@ -40,13 +39,11 @@ import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
-import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SigningServer from 'src/screens/Vault/SigningServer';
 import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
-import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
@@ -60,7 +57,6 @@ import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/services/sentry';
-import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
@@ -80,7 +76,6 @@ import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
-import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 import UpdateWalletDetails from 'src/screens/WalletDetails/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import CosignerDetails from 'src/screens/WalletDetails/CosignerDetails';
@@ -96,6 +91,7 @@ import InputSeedWordSigner from 'src/screens/SigningDeveices/InputSeedWordSigner
 import SetupOtherSDScreen from 'src/screens/SigningDeveices/SetupOtherSDScreen';
 import SetupCollaborativeWallet from 'src/screens/SigningDeveices/SetupCollaborativeWallet';
 import SetupSigningServer from 'src/screens/SigningDeveices/SetupSigningServer';
+import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListRecovery';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -116,27 +112,6 @@ function LoginStack() {
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
-        name="VaultRecoveryAddSigner"
-        component={VaultRecovery}
-      />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="ColdCardReocvery"
-        component={ColdCardReocvery}
-      />
-      <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="SignersList"
-        component={SignersList}
-      />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="TapSignerRecovery"
-        component={TapSignerRecovery}
-      />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
         component={OnBoardingSlides}
       />
@@ -145,12 +120,28 @@ function LoginStack() {
         options={{ gestureEnabled: false }}
         component={NewKeeperApp}
       />
-      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="VaultRecoveryAddSigner"
+        component={VaultRecovery}
+      />
       <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
       <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
+      <Stack.Screen name="SigningDeviceListRecovery" component={SigningDeviceListRecovery} />
       <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
-      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannelRecovery} />
+
+      {/* Cold Card */}
+      <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
+      {/* Tap Signer  */}
+      <Stack.Screen name="AddTapsignerRecovery" component={SetupTapsigner} />
+      {/* QR Based SDs */}
+      <Stack.Screen options={{ gestureEnabled: false }} name="ScanQR" component={ScanQR} />
+      {/* Channel Based SDs */}
+      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannel} />
+      {/* Mobile Key, Seed Key */}
+      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>
   );
 }
@@ -232,6 +223,7 @@ function AppStack() {
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
+        <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

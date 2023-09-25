@@ -11,8 +11,8 @@ import HeaderTitle from 'src/components/HeaderTitle';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { seedBackedUp } from 'src/store/sagaActions/bhr';
-import { useNavigation } from '@react-navigation/native';
+import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
@@ -21,6 +21,10 @@ import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Fonts from 'src/constants/Fonts';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { SignerType } from 'src/core/wallets/enums';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -29,8 +33,14 @@ function ExportSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { login } = translations;
-  const { seed, wallet } = route.params;
-  const [words] = useState(seed.split(' '));
+  const {
+    seed,
+    wallet,
+    isHealthCheck,
+    signer,
+  }: { seed: string; wallet: Wallet; isHealthCheck: boolean; signer: VaultSigner } = route.params;
+  const { showToast } = useToastMessage();
+  const [words, setWords] = useState(seed.split(' '));
   const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
@@ -164,7 +174,20 @@ function ExportSeedScreen({ route, navigation }) {
             words={words}
             confirmBtnPress={() => {
               setConfirmSeedModal(false);
-              dispatch(seedBackedUp());
+              if (isHealthCheck) {
+                if (signer.type === SignerType.MOBILE_KEY) {
+                  dispatch(healthCheckSigner([signer]));
+                  navigation.dispatch(CommonActions.goBack());
+                  showToast(`Mobile Key verified successfully`, <TickIcon />);
+                }
+                if (signer.type === SignerType.SEED_WORDS) {
+                  dispatch(healthCheckSigner([signer]));
+                  navigation.dispatch(CommonActions.goBack());
+                  showToast(`Seed Words verified successfully`, <TickIcon />);
+                }
+              } else {
+                dispatch(seedBackedUp());
+              }
             }}
           />
         </ModalWrapper>

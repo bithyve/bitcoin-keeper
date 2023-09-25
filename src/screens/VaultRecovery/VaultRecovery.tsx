@@ -348,7 +348,7 @@ function VaultRecovery({ navigation }) {
                   showToast(
                     'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
                   );
-                } else navigation.navigate('LoginStack', { screen: 'SignersList' });
+                } else navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' });
               }}
               title="Add Another"
               subTitle="Select signing device"
@@ -357,7 +357,9 @@ function VaultRecovery({ navigation }) {
         ) : (
           <Box flex={1} alignItems="center" justifyContent="center">
             <TouchableOpacity
-              onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
+              onPress={() =>
+                navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' })
+              }
             >
               <Box alignItems="center">
                 <AddSignerIcon />
@@ -394,7 +396,7 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => { }}
+        close={() => {}}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);

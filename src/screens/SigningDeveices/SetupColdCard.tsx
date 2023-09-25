@@ -25,14 +25,23 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { wp } from 'src/constants/responsive';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 function SetupColdCard({ route }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
-  const { isHealthcheck = false, signer } = route.params;
+  const {
+    mode,
+    signer,
+    isMultisig,
+  }: {
+    mode: InteracationMode;
+    signer: VaultSigner;
+    isMultisig: boolean;
+  } = route.params;
   const { nfcVisible, withNfcModal, closeNfc } = useNfcModal();
   const { showToast } = useToastMessage();
   const { start } = useAsync();
@@ -40,7 +49,7 @@ function SetupColdCard({ route }) {
   useEffect(() => {
     NfcManager.isSupported().then((supported) => {
       if (supported) {
-        if (isHealthcheck) verifyColdCardWithProgress();
+        if (mode === InteracationMode.HEALTH_CHECK) verifyColdCardWithProgress();
         else {
           addColdCardWithProgress();
         }
@@ -50,15 +59,23 @@ function SetupColdCard({ route }) {
     });
   }, []);
 
+  const handleNFCError = (error) => {
+    if (error instanceof HWError) {
+      showToast(error.message, <ToastErrorIcon />, 3000);
+    } else if (error.toString() !== 'Error') {
+      captureError(error);
+    }
+  };
+
   const addColdCardWithProgress = async () => {
-    await start(addColdCard);
+    await start(() => addColdCard(mode));
   };
 
   const verifyColdCardWithProgress = async () => {
     await start(verifyColdCard);
   };
 
-  const addColdCard = async () => {
+  const addColdCard = async (mode) => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
@@ -71,17 +88,22 @@ function SetupColdCard({ route }) {
         storageType: SignerStorage.COLD,
         xpubDetails,
       });
-      dispatch(addSigningDevice(coldcard));
-      navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+
+      if (mode === InteracationMode.RECOVERY) {
+        dispatch(setSigningDevices(coldcard));
+        navigation.dispatch(
+          CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+        );
+      } else {
+        dispatch(addSigningDevice(coldcard));
+        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+      }
+
       showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
-      const exsists = await checkSigningDevice(coldcard.signerId);
-      if (exsists) showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+      const exists = await checkSigningDevice(coldcard.signerId);
+      if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
     } catch (error) {
-      if (error instanceof HWError) {
-        showToast(error.message, <ToastErrorIcon />, 3000);
-      } else if (error.toString() === 'Error') {
-        // ignore if user cancels NFC interaction
-      } else captureError(error);
+      handleNFCError(error);
     }
   };
 
@@ -112,7 +134,9 @@ function SetupColdCard({ route }) {
         <Box flex={1}>
           <Box style={styles.header}>
             <HeaderTitle
-              title={isHealthcheck ? 'Verify Coldcard' : 'Setting up Coldcard'}
+              title={
+                mode === InteracationMode.HEALTH_CHECK ? 'Verify Coldcard' : 'Setting up Coldcard'
+              }
               subtitle={instructions}
               onPressHandler={() => navigation.goBack()}
               paddingLeft={wp(25)}
