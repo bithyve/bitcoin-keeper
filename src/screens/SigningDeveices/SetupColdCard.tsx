@@ -116,7 +116,7 @@ function SetupColdCard({ route }) {
         navigation.dispatch(CommonActions.goBack());
         showToast(`ColdCard verified successfully`, <TickIcon />);
       } else {
-        showToast('Something went worng!', <ToastErrorIcon />, 3000);
+        showToast('Something went wrong!', <ToastErrorIcon />, 3000);
       }
     } catch (error) {
       if (error instanceof HWError) {

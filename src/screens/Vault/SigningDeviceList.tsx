@@ -24,12 +24,11 @@ import usePlan from 'src/hooks/usePlan';
 import Note from 'src/components/Note/Note';
 import { SDIcons } from './SigningDeviceIcons';
 import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
-import { getSDMessage } from './components/SDMessage';
 import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import useVault from 'src/hooks/useVault';
+import { getDeviceStatus, getSDMessage } from 'src/hardware';
 
 type HWProps = {
   type: SignerType;
@@ -38,67 +37,6 @@ type HWProps = {
   first?: boolean;
   last?: boolean;
 };
-const findKeyInServer = (vaultSigners, type: SignerType) =>
-  vaultSigners.find(
-    (element) =>
-      element.type === type && [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY].includes(type)
-  );
-
-const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
-  // Keys Incase of level 1 we have level 1
-  if (isOnL1) {
-    return { disabled: true, message: 'Upgrade tier to use as key' };
-  }
-  // Keys Incase of already added
-  if (findKeyInServer(vaultSigners, type)) {
-    return { disabled: true, message: 'Key already added to the Vault.' };
-  }
-  return { disabled: false, message: '' };
-};
-
-const getDeviceStatus = (
-  type: SignerType,
-  isNfcSupported,
-  vaultSigners,
-  isOnL1,
-  isOnL2,
-  isOnL3
-) => {
-  switch (type) {
-    case SignerType.COLDCARD:
-    case SignerType.TAPSIGNER:
-      return {
-        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
-      };
-    case SignerType.MOBILE_KEY:
-    case SignerType.POLICY_SERVER:
-      return {
-        message: getDisabled(type, isOnL1, vaultSigners).message,
-        disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
-      };
-    case SignerType.TREZOR:
-      return !isOnL1
-        ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
-        : {
-            message: '',
-            disabled: false,
-          };
-    case SignerType.SEED_WORDS:
-    case SignerType.KEEPER:
-    case SignerType.JADE:
-    case SignerType.BITBOX02:
-    case SignerType.PASSPORT:
-    case SignerType.SEEDSIGNER:
-    case SignerType.LEDGER:
-    case SignerType.KEYSTONE:
-    default:
-      return {
-        message: '',
-        disabled: false,
-      };
-  }
-};
 
 function SigningDeviceList() {
   const { colorMode } = useColorMode();
@@ -106,8 +44,6 @@ function SigningDeviceList() {
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
-  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
@@ -155,10 +91,10 @@ function SigningDeviceList() {
     SignerType.JADE,
     SignerType.KEYSTONE,
     SignerType.OTHER_SD,
+    SignerType.SEED_WORDS,
     SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
-    SignerType.SEED_WORDS,
   ];
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
@@ -233,9 +169,7 @@ function SigningDeviceList() {
                   type,
                   isNfcSupported,
                   vaultSigners,
-                  isOnL1,
-                  isOnL2,
-                  isOnL3
+                  isOnL1
                 );
                 let message = connectivityStatus;
                 if (!connectivityStatus) {

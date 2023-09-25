@@ -21,6 +21,8 @@ import useVault from 'src/hooks/useVault';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
+import WarningIllustration from 'src/assets/images/warning.svg';
+import KeeperModal from 'src/components/KeeperModal';
 
 const { width } = Dimensions.get('screen');
 
@@ -31,6 +33,7 @@ function SignerAdvanceSettings({ route }: any) {
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
   const [visible, setVisible] = useState(false);
+  const [waningModal, setWarning] = useState(false);
   const { withNfcModal, nfcVisible, closeNfc } = useNfcModal();
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
@@ -83,7 +86,22 @@ function SignerAdvanceSettings({ route }: any) {
     );
   };
 
+  function WarningContent() {
+    return (
+      <Box alignItems="center">
+        <WarningIllustration />
+        <Box>
+          <Text color="light.greenText" fontSize={13} padding={1} letterSpacing={0.65}>
+            If the signer is identified incorrectly there may be repurcusssions with general signer
+            interactions like signing etc.
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   const navigateToAssignSigner = () => {
+    setWarning(false);
     navigation.dispatch(
       CommonActions.navigate({
         name: 'AssignSignerType',
@@ -105,11 +123,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { font12, font10, font14 } = globalStyles;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        title="Advanced Settings"
-        headerTitleColor={`${colorMode}.primaryText`}
-        paddingLeft={25}
-      />
+      <HeaderTitle title="Advanced Settings" headerTitleColor={`${colorMode}.primaryText`} />
       <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
@@ -169,21 +183,20 @@ function SignerAdvanceSettings({ route }: any) {
           </HStack>
         </TouchableOpacity>
       )}
-      {isOtherSD && (
-        <TouchableOpacity onPress={navigateToAssignSigner}>
-          <HStack style={styles.item}>
-            <VStack px={4} width="90%">
-              <Text color={`${colorMode}.primaryText`} style={[font14]}>
-                Assign Type
-              </Text>
-              <Text color={`${colorMode}.primaryText`} style={[font12]} light>
-                Identify your signer type for enhanced connectivity and communication
-              </Text>
-            </VStack>
-            <RightArrowIcon />
-          </HStack>
-        </TouchableOpacity>
-      )}
+
+      <TouchableOpacity onPress={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}>
+        <HStack style={styles.item}>
+          <VStack px={4} width="90%">
+            <Text color={`${colorMode}.primaryText`} style={[font14]}>
+              {isOtherSD ? 'Assign signer type' : 'Change signer type'}
+            </Text>
+            <Text color={`${colorMode}.primaryText`} style={[font12]} light>
+              Identify your signer type for enhanced connectivity and communication
+            </Text>
+          </VStack>
+          <RightArrowIcon />
+        </HStack>
+      </TouchableOpacity>
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}
@@ -193,6 +206,20 @@ function SignerAdvanceSettings({ route }: any) {
           navigation.setParams({ signer: { ...signer, signerDescription: value } });
           dispatch(updateSignerDetails(signer, 'signerDescription', value));
         }}
+      />
+      <KeeperModal
+        visible={waningModal}
+        close={() => setWarning(false)}
+        title="Changing signer sype"
+        subTitle="Are you sure you want to change the signer type?"
+        subTitleColor="light.secondaryText"
+        buttonText="Continue"
+        buttonTextColor="light.white"
+        secondaryButtonText="Cancel"
+        secondaryCallback={() => setWarning(false)}
+        buttonCallback={navigateToAssignSigner}
+        textColor="light.primaryText"
+        Content={WarningContent}
       />
     </ScreenWrapper>
   );

@@ -1,15 +1,20 @@
-import { Box, ScrollView } from 'native-base';
-import React from 'react';
+import { Box, ScrollView, VStack } from 'native-base';
+import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
-import { getSignerNameFromType } from 'src/hardware';
+import { getDeviceStatus, getSDMessage, getSignerNameFromType } from 'src/hardware';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
+import usePlan from 'src/hooks/usePlan';
+import NFC from 'src/services/nfc';
+import useVault from 'src/hooks/useVault';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import Text from 'src/components/KeeperText';
 
 type IProps = {
   navigation: any;
@@ -31,6 +36,8 @@ function AssignSignerType({ navigation, route }: IProps) {
     dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type)));
     navigation.goBack();
   };
+  const { plan } = usePlan();
+
   const availableSigners = [
     SignerType.TAPSIGNER,
     SignerType.COLDCARD,
@@ -46,6 +53,24 @@ function AssignSignerType({ navigation, route }: IProps) {
     SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
   ];
+  const [isNfcSupported, setNfcSupport] = useState(true);
+  const [signersLoaded, setSignersLoaded] = useState(false);
+  const {
+    activeVault: { signers },
+  } = useVault();
+
+  const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
+
+  const getNfcSupport = async () => {
+    const isSupported = await NFC.isNFCSupported();
+    setNfcSupport(isSupported);
+    setSignersLoaded(true);
+  };
+
+  useEffect(() => {
+    getNfcSupport();
+  }, []);
+
   return (
     <ScreenWrapper>
       <HeaderTitle
@@ -53,35 +78,64 @@ function AssignSignerType({ navigation, route }: IProps) {
         subtitle="for better communication and conectivity"
         headerTitleColor="light.textBlack"
         onPressHandler={() => navigation.goBack()}
-        paddingTop={hp(5)}
       />
-      <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
-        <Box>
-          {availableSigners.map((type: SignerType, index: number) => {
-            const first = index === 0;
-            const last = index === availableSigners.length - 1;
-            return (
-              <TouchableOpacity
-                activeOpacity={0.7}
-                onPress={() => assignSignerType(type)}
-                key={type}
-              >
-                <Box
-                  backgroundColor="light.primaryBackground"
-                  borderTopRadius={first ? 15 : 0}
-                  borderBottomRadius={last ? 15 : 0}
+      <VStack paddingLeft={'10%'} paddingTop={'5%'}>
+        <Text>Master fingerprint: {signer.masterFingerprint}</Text>
+        <Text>Fingerprint: {signer.signerId}</Text>
+        <Text>xPub: {signer.xpub}</Text>
+      </VStack>
+      <ScrollView
+        contentContainerStyle={{ paddingVertical: '10%' }}
+        style={{ height: hp(520) }}
+        showsVerticalScrollIndicator={false}
+      >
+        {!signersLoaded ? (
+          <ActivityIndicator />
+        ) : (
+          <Box>
+            {availableSigners.map((type: SignerType, index: number) => {
+              const { disabled, message: connectivityStatus } = getDeviceStatus(
+                type,
+                isNfcSupported,
+                signers,
+                isOnL1
+              );
+              let message = connectivityStatus;
+              if (!connectivityStatus) {
+                message = getSDMessage({ type });
+              }
+              const first = index === 0;
+              const last = index === availableSigners.length - 1;
+              return (
+                <TouchableOpacity
+                  disabled={disabled}
+                  activeOpacity={0.7}
+                  onPress={() => assignSignerType(type)}
+                  key={type}
                 >
-                  <Box style={styles.walletMapContainer}>
-                    <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
-                    <Box backgroundColor="light.divider" style={styles.divider} />
-                    <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
+                  <Box
+                    backgroundColor="light.primaryBackground"
+                    borderTopRadius={first ? 15 : 0}
+                    borderBottomRadius={last ? 15 : 0}
+                    opacity={disabled ? 0.5 : 1}
+                  >
+                    <Box style={styles.walletMapContainer}>
+                      <Box style={styles.walletMapWrapper}>{SDIcons(type).Icon}</Box>
+                      <Box backgroundColor="light.divider" style={styles.divider} />
+                      <VStack style={styles.content}>
+                        <Box style={styles.walletMapLogoWrapper}>{SDIcons(type).Logo}</Box>
+                        <Text color="light.inActiveMsg" style={styles.messageText}>
+                          {message}
+                        </Text>
+                      </VStack>
+                    </Box>
+                    <Box backgroundColor="light.divider" style={styles.dividerStyle} />
                   </Box>
-                  <Box backgroundColor="light.divider" style={styles.dividerStyle} />
-                </Box>
-              </TouchableOpacity>
-            );
-          })}
-        </Box>
+                </TouchableOpacity>
+              );
+            })}
+          </Box>
+        )}
       </ScrollView>
     </ScreenWrapper>
   );
@@ -100,8 +154,6 @@ const styles = StyleSheet.create({
   },
   walletMapLogoWrapper: {
     alignItems: 'center',
-    marginLeft: wp(23),
-    justifyContent: 'flex-end',
   },
   dividerStyle: {
     opacity: 0.1,
@@ -112,6 +164,16 @@ const styles = StyleSheet.create({
     opacity: 0.5,
     height: hp(26),
     width: 1.5,
+  },
+  messageText: {
+    fontSize: 10,
+    fontWeight: '400',
+    letterSpacing: 1.3,
+    marginTop: hp(5),
+  },
+  content: {
+    alignItems: 'flex-start',
+    paddingLeft: wp(30),
   },
 });
 

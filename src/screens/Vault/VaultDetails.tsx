@@ -19,7 +19,7 @@ import Send from 'src/assets/images/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Vault } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
 import { EntityKind, SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
@@ -51,15 +51,20 @@ import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import { useQuery } from '@realm/react';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
+import IdentifySignerModal from './components/IdentifySignerModal';
 
 function Footer({
   vault,
   onPressBuy,
   isCollaborativeWallet,
+  identifySigner,
+  setIdentifySignerModal,
 }: {
   vault: Vault;
   onPressBuy: Function;
   isCollaborativeWallet: boolean;
+  identifySigner: VaultSigner;
+  setIdentifySignerModal: any;
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -79,7 +84,11 @@ function Footer({
         <TouchableOpacity
           style={styles.IconText}
           onPress={() => {
-            navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+            if (identifySigner) {
+              setIdentifySignerModal(true);
+            } else {
+              navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+            }
           }}
         >
           <Send />
@@ -509,6 +518,7 @@ function VaultDetails({ navigation }) {
   const { activeVault: vault } = useVault(collaborativeWalletId);
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
+  const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const inheritanceSigner = vault.signers.filter(
     (signer) => signer.type === SignerType.INHERITANCEKEY
@@ -628,6 +638,8 @@ function VaultDetails({ navigation }) {
       ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`
       : `Vault with ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
+  const identifySigner = vault.signers.find((signer) => signer.type === SignerType.OTHER_SD);
+
   return (
     <Box
       style={styles.container}
@@ -663,6 +675,8 @@ function VaultDetails({ navigation }) {
           onPressBuy={() => setShowBuyRampModal(true)}
           vault={vault}
           isCollaborativeWallet={!!collaborativeWalletId}
+          identifySigner={identifySigner}
+          setIdentifySignerModal={setIdentifySignerModal}
         />
       </VStack>
       <TierUpgradeModal
@@ -733,6 +747,14 @@ function VaultDetails({ navigation }) {
             vault={vault}
           />
         )}
+      />
+      <IdentifySignerModal
+        visible={identifySigner && identifySignerModal}
+        close={() => setIdentifySignerModal(false)}
+        signer={identifySigner}
+        secondaryCallback={() => {
+          navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+        }}
       />
     </Box>
   );
