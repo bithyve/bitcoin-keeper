@@ -151,6 +151,7 @@ function VaultRecovery({ navigation }) {
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
+  const [isIKS, setIsIKS] = useState(false);
 
   async function createNewApp() {
     try {
@@ -221,6 +222,8 @@ function VaultRecovery({ navigation }) {
     if (signersList.length === 1) {
       getMetaData();
     }
+    const isIksAdded = signersList.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
+    setIsIKS(isIksAdded);
   }, [signersList]);
 
   useEffect(() => {
@@ -375,11 +378,15 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText={inheritanceRequestId ? 'Restore via IKS' : 'Recover Vault'}
+              primaryText={inheritanceRequestId || isIKS ? 'Restore via IKS' : 'Recover Vault'}
               primaryCallback={
-                inheritanceRequestId
+                inheritanceRequestId || isIKS
                   ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
                   : startRecovery
+              }
+              secondaryText={isIKS && 'Recreate via BSMS'}
+              secondaryCallback={() =>
+                navigation.navigate('LoginStack', { screen: 'VaultConfigurationRecovery' })
               }
               primaryLoading={recoveryLoading}
             />
