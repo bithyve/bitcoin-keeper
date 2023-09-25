@@ -4,7 +4,7 @@ import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'n
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import BackIcon from 'src/assets/images/back_white.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
@@ -240,7 +240,7 @@ function TransactionList({
   );
   return (
     <>
-      <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.13) }}>
+      <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.1) }}>
         <HStack justifyContent="space-between" alignItems="center">
           <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
             Transactions
@@ -766,6 +766,7 @@ const getStyles = (top) =>
     },
     scrollContainer: {
       padding: '8%',
+      width: windowWidth,
     },
     knowMore: {
       paddingHorizontal: 5,
