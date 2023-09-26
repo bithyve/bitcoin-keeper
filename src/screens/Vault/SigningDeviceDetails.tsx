@@ -9,7 +9,7 @@ import Text from 'src/components/KeeperText';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import KeeperModal from 'src/components/KeeperModal';
@@ -244,7 +244,7 @@ function SigningDeviceDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         learnMore
         learnMorePressed={() => setDetailModal(getSignerContent(signer?.type).title)}
       />

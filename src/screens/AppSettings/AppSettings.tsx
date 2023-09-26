@@ -7,7 +7,7 @@ import BackupIcon from 'src/assets/images/backup.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import LinkIcon from 'src/assets/images/link.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LoginMethod from 'src/models/enums/LoginMethod';
@@ -162,7 +162,7 @@ function AppSettings({ navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title={`App ${common.settings}`}
         subtitle={'Configure your app here'}
         rightComponent={

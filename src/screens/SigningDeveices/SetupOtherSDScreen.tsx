@@ -1,7 +1,7 @@
 import { StyleSheet, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { Box } from 'native-base';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
@@ -66,7 +66,7 @@ function SetupOtherSDScreen({ route }) {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Setup other signing device"
         subtitle="Manually provide the signer details"
         paddingLeft={wp(25)}

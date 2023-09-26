@@ -1,10 +1,9 @@
 import { useRoute } from '@react-navigation/native';
 import { Box, ScrollView } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
-import { wp } from 'src/constants/responsive';
 import { SignerType } from 'src/core/wallets/enums';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
@@ -21,7 +20,7 @@ function ShowQR() {
     route.params as any;
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subTitle} />
+      <KeeperHeader title={title} subtitle={subTitle} />
       <Box style={styles.center}>
         <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
       </Box>

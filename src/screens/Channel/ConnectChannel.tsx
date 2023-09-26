@@ -1,11 +1,11 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -22,7 +22,6 @@ import {
 } from 'src/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
-import usePlan from 'src/hooks/usePlan';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
@@ -254,7 +253,7 @@ function ConnectChannel() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={signerType}>
         <>
-          <HeaderTitle title={title} subtitle={subtitle} />
+          <KeeperHeader title={title} subtitle={subtitle} />
           <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
             {!channelCreated ? (
               <RNCamera

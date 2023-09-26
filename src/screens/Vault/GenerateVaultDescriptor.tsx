@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Text, useColorMode } from 'native-base';
 import { Share, StyleSheet } from 'react-native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { windowWidth } from 'src/constants/responsive';
 import IconShare from 'src/assets/images/icon_share.svg';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -25,7 +25,7 @@ function GenerateVaultDescriptor() {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Vault Configuration"
         subtitle="A descriptor contains sensitive information. Please use with caution"
       />

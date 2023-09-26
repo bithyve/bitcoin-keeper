@@ -2,18 +2,17 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
 import { globalStyles } from 'src/constants/globalStyles';
@@ -95,7 +94,7 @@ function ExportSeedScreen({ route, navigation }) {
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <HeaderTitle title={seedText.recoveryPhrase} subtitle={seedText.SeedDesc} />
+      <KeeperHeader title={seedText.recoveryPhrase} subtitle={seedText.SeedDesc} />
 
       <Box style={{ flex: 1 }}>
         <FlatList

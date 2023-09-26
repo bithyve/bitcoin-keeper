@@ -5,7 +5,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
@@ -846,7 +846,7 @@ function SignersList({ navigation }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Select Signing Device"
         subtitle="To recover your Vault"
         onPressHandler={() =>

@@ -12,7 +12,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import BTC from 'src/assets/images/btc_grey.svg';
 import BitcoinUnit from 'src/models/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
@@ -577,7 +577,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title={title} subtitle={subTitle} />
+      <KeeperHeader title={title} subtitle={subTitle} />
       <Box marginX={7}>
         <SendingCard
           isSend

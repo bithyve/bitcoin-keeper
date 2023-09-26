@@ -3,7 +3,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { setTorEnabled } from 'src/store/reducers/settings';
 import { TorContext } from 'src/context/TorContext';
@@ -61,7 +61,7 @@ function TorSettings() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title="Tor Settings"
         subtitle="Tor improves your network privacy. To learn more visit: https://www.torproject.org/"
       />

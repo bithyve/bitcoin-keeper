@@ -3,8 +3,7 @@ import { StyleSheet } from 'react-native';
 import { Box, ScrollView } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -26,7 +25,7 @@ function WalletDetailsSettings({ route }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Wallet Details" subtitle="Name, details and transfer policy" />
+      <KeeperHeader title="Wallet Details" subtitle="Name, details and transfer policy" />
 
       <ScrollView
         contentContainerStyle={styles.optionsListContainer}

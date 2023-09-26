@@ -1,10 +1,9 @@
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useState } from 'react';
 import { Box } from 'native-base';
-import { hp, wp } from 'src/constants/responsive';
-import Fonts from 'src/constants/Fonts';
+import { hp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import { useNavigation } from '@react-navigation/native';
@@ -24,7 +23,7 @@ function VaultConfigurationRecovery() {
         }}
       >
         <View style={styles.wrapper}>
-          <HeaderTitle
+          <KeeperHeader
             title="Recovery through Vault configuration"
             subtitle="Recover the Vault from output descriptor or configuration"
           />

@@ -14,11 +14,8 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
-import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
-import { isTestnet } from 'src/constants/Bitcoin';
+import KeeperHeader from 'src/components/KeeperHeader';
 import openLink from 'src/utils/OpenLink';
-import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import Fonts from 'src/constants/Fonts';
@@ -160,7 +157,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
-          <HeaderTitle
+          <KeeperHeader
             title="New Keeper App"
             subtitle="Choose this option when you want to start with a fresh app"
             enableBack={false}
@@ -181,7 +178,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
       <Box style={styles.titleWrapper02}>
         <Box style={styles.headerContainer}>
-          <HeaderTitle
+          <KeeperHeader
             title="Restore"
             subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
             enableBack={false}

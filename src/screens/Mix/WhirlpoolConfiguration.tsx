@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
@@ -174,7 +174,7 @@ export default function WhirlpoolConfiguration({ route }) {
       style={styles.keyBoardAvoidViewWrapper}
     >
       <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-        <HeaderTitle
+        <KeeperHeader
           title="Configure Whirlpool"
           subtitle="Prepare to start a mix"
           learnMore

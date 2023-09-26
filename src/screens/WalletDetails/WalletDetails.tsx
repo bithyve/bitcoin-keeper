@@ -14,7 +14,7 @@ import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
 import { EntityKind, WalletType } from 'src/core/wallets/enums';
@@ -113,7 +113,7 @@ function WalletDetails({ route }) {
     <Box style={styles.container} backgroundColor={`${colorMode}.greenText2`}>
       <StatusBar barStyle="light-content" />
       <Box style={{ paddingHorizontal: 20, paddingTop: 15 }}>
-        <HeaderTitle
+        <KeeperHeader
           learnMore
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}

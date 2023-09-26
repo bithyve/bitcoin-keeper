@@ -4,14 +4,13 @@ import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { getColdcardDetails } from 'src/hardware/coldcard';
 
 import { Box, useColorMode } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import React, { useEffect } from 'react';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { useDispatch } from 'react-redux';
-import usePlan from 'src/hooks/usePlan';
 import useNfcModal from 'src/hooks/useNfcModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -22,7 +21,6 @@ import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { wp } from 'src/constants/responsive';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { InteracationMode } from '../Vault/HardwareModalMap';
@@ -133,7 +131,7 @@ function SetupColdCard({ route }) {
       <MockWrapper signerType={SignerType.COLDCARD}>
         <Box flex={1}>
           <Box style={styles.header}>
-            <HeaderTitle
+            <KeeperHeader
               title={
                 mode === InteracationMode.HEALTH_CHECK ? 'Verify Coldcard' : 'Setting up Coldcard'
               }

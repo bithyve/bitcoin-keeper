@@ -5,7 +5,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/constants/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
@@ -84,7 +84,7 @@ function TransactionDetails({ route }) {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title={transactions.TransactionDetails}
         subtitle="Detailed information for this Transaction"
       />

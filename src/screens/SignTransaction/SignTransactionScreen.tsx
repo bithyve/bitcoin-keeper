@@ -8,7 +8,7 @@ import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
@@ -368,7 +368,7 @@ function SignTransactionScreen() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Sign Transaction"
         subtitle={`Chose any ${scheme.m} to sign the transaction`}
       />

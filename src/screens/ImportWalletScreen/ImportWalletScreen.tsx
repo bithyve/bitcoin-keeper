@@ -6,7 +6,7 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Colors from 'src/theme/Colors';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { RNCamera } from 'react-native-camera';
@@ -84,7 +84,7 @@ function ImportWalletScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle title={home.ImportWallet} subtitle="Scan your seed words/Backup Phrase" />
+        <KeeperHeader title={home.ImportWallet} subtitle="Scan your seed words/Backup Phrase" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>

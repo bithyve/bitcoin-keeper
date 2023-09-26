@@ -11,7 +11,7 @@ import Buttons from 'src/components/Buttons';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
@@ -173,7 +173,7 @@ function SetupSigningServer({ route }: { route }) {
     <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
-        <HeaderTitle title="Set up 2FA for Signing Server" subtitle="Scan on any 2FA auth app" />
+        <KeeperHeader title="Set up 2FA for Signing Server" subtitle="Scan on any 2FA auth app" />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
         {validationKey === '' ? (

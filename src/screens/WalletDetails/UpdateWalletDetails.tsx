@@ -132,7 +132,7 @@ function UpdateWalletDetails({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        {/* <HeaderTitle
+        {/* <KeeperHeader
           title={isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
           subtitle={
             isFromSeed
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',

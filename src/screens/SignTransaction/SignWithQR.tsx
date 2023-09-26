@@ -2,7 +2,7 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
@@ -88,7 +88,7 @@ function SignWithQR() {
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />
+      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signing device" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
       </Box>

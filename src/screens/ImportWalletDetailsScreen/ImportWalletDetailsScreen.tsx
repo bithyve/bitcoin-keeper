@@ -10,7 +10,7 @@ import { Box, Input, View, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
@@ -61,7 +61,7 @@ function ImportWalletDetailsScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle title={home.ImportWallet} subtitle="Add details" />
+        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>

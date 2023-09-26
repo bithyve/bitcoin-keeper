@@ -6,7 +6,7 @@ import { BtcToSats, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 
 import { hp, wp, windowWidth } from 'src/constants/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useAppSelector } from 'src/store/hooks';
 import BtcBlack from 'src/assets/images/btc_black.svg';
@@ -109,7 +109,7 @@ function UTXOSelection({ route }: any) {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Manual Select UTXOs"
         subtitle={`Select a minimum of ${amount} BTC to proceed`}
       />

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { StyleSheet, FlatList, Platform, Animated, Easing, BackHandler } from 'react-native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { hp, wp } from 'src/constants/responsive';
@@ -478,7 +478,7 @@ function MixProgress({
   return (
     <Box style={styles.container}>
       <ScreenWrapper>
-        <HeaderTitle
+        <KeeperHeader
           enableBack={false}
           title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}

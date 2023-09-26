@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import UTXOList from 'src/components/UTXOsComponents/UTXOList';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
@@ -256,7 +256,7 @@ function UTXOManagement({ route, navigation }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <ActivityIndicatorView visible={syncing} showLoader />
-      <HeaderTitle learnMore learnMorePressed={() => setLearnModalVisible(true)} />
+      <KeeperHeader learnMore learnMorePressed={() => setLearnModalVisible(true)} />
       {isWhirlpoolWallet ? (
         <AccountSelectionTab
           selectedAccount={selectedAccount}
