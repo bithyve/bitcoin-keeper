@@ -789,7 +789,7 @@ const getStyles = (top) =>
     },
     scrollContainer: {
       padding: '8%',
-      width: windowWidth,
+      minWidth: windowWidth,
     },
     knowMore: {
       paddingHorizontal: 5,
