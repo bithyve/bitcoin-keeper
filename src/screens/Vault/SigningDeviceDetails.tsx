@@ -41,6 +41,7 @@ import { useQuery } from '@realm/react';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import IdentifySignerModal from './components/IdentifySignerModal';
 
 function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -50,6 +51,7 @@ function SigningDeviceDetails({ route }) {
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
   const { activeVault } = useVault();
   const signer: VaultSigner = activeVault.signers.filter(
@@ -238,6 +240,8 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
+  const identifySigner = signer.type === SignerType.OTHER_SD;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
@@ -320,8 +324,11 @@ function SigningDeviceDetails({ route }) {
             Icon={HealthCheck}
             title="Health Check"
             onPress={() => {
-              setVisible(true);
-              // openHealthCheckModal(signer?.type);
+              if (signer.type === SignerType.OTHER_SD) {
+                setIdentifySignerModal(true);
+              } else {
+                setVisible(true);
+              }
             }}
           />
           <FooterItem
@@ -363,6 +370,14 @@ function SigningDeviceDetails({ route }) {
           }}
           textColor="light.primaryText"
           Content={HealthCheckContentTapsigner}
+        />
+        <IdentifySignerModal
+          visible={identifySigner && identifySignerModal}
+          close={() => setIdentifySignerModal(false)}
+          signer={signer}
+          secondaryCallback={() => {
+            setVisible(true);
+          }}
         />
       </Box>
     </ScreenWrapper>
