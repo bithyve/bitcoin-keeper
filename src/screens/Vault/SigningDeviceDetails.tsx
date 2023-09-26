@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Box, useColorMode } from 'native-base';
+import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 import moment from 'moment';
@@ -61,26 +61,43 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
 
+  function SignerContent() {
+    return (
+      <Box>
+        <Center>{getSignerContent(signer?.type).assert}</Center>
+        <Text
+          color="light.white"
+          style={{
+            fontSize: 13,
+            letterSpacing: 0.65,
+            marginTop: hp(25),
+          }}
+        >
+          {getSignerContent(signer?.type).description}
+        </Text>
+      </Box>
+    );
+  }
   const getSignerContent = (type: SignerType) => {
     switch (type) {
       case SignerType.COLDCARD:
         return {
           title: 'Coldcard',
           subTitle:
-            'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip. MicroPython software design allows you to make changes',
+            'Coldcard is an easy-to-use, ultra-secure, open-source, and affordable hardware wallet that is easy to back up via an encrypted microSD card. Your private key is stored in a dedicated security chip.',
           assert: <ColdCardSetupImage />,
           description:
-            '\u2022 It provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
+            '\u2022 Coldcard provides the best Physical Security.\n\u2022 All of the Coldcard is viewable, editable, and verifiable. You can compile it yourself.\n\u2022 Only signing device (hardware wallet) with the option to avoid ever being connected to a computer.',
           FAQ: 'https://coldcard.com/docs/faq',
         };
       case SignerType.TAPSIGNER:
         return {
           title: 'TAPSIGNER',
           subTitle:
-            "TAPSIGNER's lower cost makes hardware wallet features and security available to a wider market around the world.",
+            "TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone",
           assert: <TapsignerSetupImage />,
           description:
-            '\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s).\n\u2022 The card form factor makes it easy to carry and easy to conceal.',
+            '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s) \n\u2022 The card form factor makes it easy to carry and easy to conceal',
           FAQ: 'https://tapsigner.com/faq',
         };
       case SignerType.LEDGER:
@@ -96,9 +113,9 @@ function SigningDeviceDetails({ route }) {
         return {
           title: 'SeedSigner',
           subTitle:
-            'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signing device using inexpensive, publicly available hardware components (usually < $50). SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup, and helps users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
+            'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signing device using inexpensive, publicly available hardware components (usually < $50).',
           assert: <SeedSigner />,
-          description: '',
+          description: '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022  It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
           FAQ: 'https://seedsigner.com/faqs/',
         };
       case SignerType.KEYSTONE:
@@ -370,6 +387,18 @@ function SigningDeviceDetails({ route }) {
           }}
           textColor="light.primaryText"
           Content={HealthCheckContentTapsigner}
+        />
+        <KeeperModal
+          visible={detailModal}
+          close={() => setDetailModal(false)}
+          title={getSignerContent(signer?.type).title}
+          subTitle={getSignerContent(signer?.type).subTitle}
+          modalBackground={`${colorMode}.modalGreenBackground`}
+          textColor="light.white"
+          learnMoreCallback={() => openLink(getSignerContent(signer?.type).FAQ)}
+          Content={SignerContent}
+          DarkCloseIcon
+          learnMore
         />
         <IdentifySignerModal
           visible={identifySigner && identifySignerModal}
