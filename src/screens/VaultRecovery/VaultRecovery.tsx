@@ -40,7 +40,7 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
-import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import { setInheritanceRequestId, setRecoveryCreatedApp } from 'src/store/reducers/storage';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -156,8 +156,10 @@ function VaultRecovery({ navigation }) {
   async function createNewApp() {
     try {
       const fcmToken = await messaging().getToken();
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp());
     }
   }

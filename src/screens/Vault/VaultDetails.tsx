@@ -516,7 +516,7 @@ function VaultDetails({ navigation }) {
   const [tireChangeModal, setTireChangeModal] = useState(false);
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-
+  const recoveryAppCreated = useAppSelector((state) => state.storage.recoveryAppCreated);
   const onPressModalBtn = () => {
     setTireChangeModal(false);
     navigation.navigate('AddSigningDevice');
@@ -666,7 +666,7 @@ function VaultDetails({ navigation }) {
         />
       </VStack>
       <TierUpgradeModal
-        visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE}
+        visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE && !recoveryAppCreated}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
             return;
