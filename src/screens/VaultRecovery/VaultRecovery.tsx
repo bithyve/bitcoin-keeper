@@ -40,7 +40,7 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
-import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import { setInheritanceRequestId, setRecoveryCreatedApp } from 'src/store/reducers/storage';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -151,12 +151,15 @@ function VaultRecovery({ navigation }) {
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
+  const [isIKS, setIsIKS] = useState(false);
 
   async function createNewApp() {
     try {
       const fcmToken = await messaging().getToken();
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp());
     }
   }
@@ -221,6 +224,8 @@ function VaultRecovery({ navigation }) {
     if (signersList.length === 1) {
       getMetaData();
     }
+    const isIksAdded = signersList.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
+    setIsIKS(isIksAdded);
   }, [signersList]);
 
   useEffect(() => {
@@ -369,11 +374,15 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText={inheritanceRequestId ? 'Restore via IKS' : 'Recover Vault'}
+              primaryText={inheritanceRequestId || isIKS ? 'Restore via IKS' : 'Recover Vault'}
               primaryCallback={
-                inheritanceRequestId
+                inheritanceRequestId || isIKS
                   ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
                   : startRecovery
+              }
+              secondaryText={isIKS && 'Recreate via BSMS'}
+              secondaryCallback={() =>
+                navigation.navigate('LoginStack', { screen: 'VaultConfigurationRecovery' })
               }
               primaryLoading={recoveryLoading}
             />

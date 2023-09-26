@@ -11,6 +11,7 @@ const initialState: {
   pinHash: string;
   appVersion: string;
   inheritanceRequestId: string;
+  recoveryAppCreated: boolean;
 } = {
   appId: '',
   resetCred: {
@@ -22,6 +23,7 @@ const initialState: {
   pinHash: '',
   appVersion: '',
   inheritanceRequestId: '',
+  recoveryAppCreated: null,
 };
 
 const storageSlice = createSlice({
@@ -54,6 +56,9 @@ const storageSlice = createSlice({
     setInheritanceRequestId: (state, action: PayloadAction<string>) => {
       state.inheritanceRequestId = action.payload;
     },
+    setRecoveryCreatedApp: (state, action: PayloadAction<boolean>) => {
+      state.recoveryAppCreated = action.payload;
+    },
   },
 });
 
@@ -65,6 +70,7 @@ export const {
   setPinHash,
   setAppVersion,
   setInheritanceRequestId,
+  setRecoveryCreatedApp,
 } = storageSlice.actions;
 
 export default storageSlice.reducer;
