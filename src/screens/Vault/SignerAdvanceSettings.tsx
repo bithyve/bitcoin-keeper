@@ -123,7 +123,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { font12, font10, font14 } = globalStyles;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title="Advanced Settings" headerTitleColor={`${colorMode}.primaryText`} />
+      <HeaderTitle title="Advanced Settings" headerTitleColor={`${colorMode}.primaryText`} paddingLeft={25} />
       <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>
