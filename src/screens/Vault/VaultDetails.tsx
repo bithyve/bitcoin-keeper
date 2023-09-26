@@ -146,7 +146,7 @@ function Header() {
   const dispatch = useDispatch();
   const styles = getStyles(0);
   return (
-    <Box flexDirection="row" width="100%" px="2%">
+    <Box flexDirection="row" width="100%" px="3%" pt={'4%'}>
       <StatusBar barStyle="light-content" />
       <Box width="50%">
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -256,6 +256,7 @@ function TransactionList({
           </Text>
           {transactions ? (
             <TouchableOpacity
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={() => {
                 navigation.dispatch(
                   CommonActions.navigate('AllTransactions', {

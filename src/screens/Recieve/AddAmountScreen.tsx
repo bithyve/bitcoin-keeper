@@ -26,11 +26,7 @@ function AddAmountScreen({ route }: { route }) {
     <View style={styles.wrapper}>
       <View style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
         <StatusBarComponent padding={50} />
-        <HeaderTitle
-          title={home.AddAmount}
-          subtitle={home.amountdesc}
-          onPressHandler={() => navigtaion.goBack()}
-        />
+        <HeaderTitle title={home.AddAmount} subtitle={home.amountdesc} />
         <View style={styles.inputParentView}>
           <View
             style={[styles.inputWrapper, { backgroundColor: `${colorMode}.primaryBackground` }]}

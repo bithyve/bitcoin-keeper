@@ -137,7 +137,6 @@ function UTXOLabeling() {
       <HeaderTitle
         title="UTXO Details"
         subtitle="Easily identify specific aspects of various UTXOs"
-        paddingLeft={25}
       />
       <ScrollView
         style={styles.scrollViewWrapper}

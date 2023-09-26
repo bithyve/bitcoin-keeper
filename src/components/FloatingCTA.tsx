@@ -43,7 +43,7 @@ export default FloatingCTA;
 
 const styles = StyleSheet.create({
   bottomContainer: {
-    paddingRight: '5%',
+    marginHorizontal: '5%',
     paddingTop: '5%',
   },
 });

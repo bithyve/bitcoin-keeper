@@ -212,21 +212,8 @@ function ChangeLanguage() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle />
+      <HeaderTitle title={settings.LanguageCountry} subtitle={settings.biometricsDesc} />
       <Box flex={1}>
-        <Box marginLeft="5%">
-          <Text
-            fontSize={16}
-            letterSpacing={0.8}
-            style={styles.mainText}
-            testID={`text_${settings.LanguageCountry}`}
-          >
-            {settings.LanguageCountry}
-          </Text>
-          <Text fontSize={12} letterSpacing={0.6} color={`${colorMode}.GreyText`}>
-            {settings.biometricsDesc}
-          </Text>
-        </Box>
         <CountryCard
           title={settings.SatsMode}
           description={settings.Viewbalancessats}

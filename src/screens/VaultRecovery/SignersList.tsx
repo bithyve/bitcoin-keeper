@@ -849,12 +849,9 @@ function SignersList({ navigation }) {
       <HeaderTitle
         title="Select Signing Device"
         subtitle="To recover your Vault"
-        headerTitleColor="light.textBlack"
         onPressHandler={() =>
           navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         }
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">

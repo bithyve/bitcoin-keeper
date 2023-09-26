@@ -156,28 +156,7 @@ function NodeSettings() {
   };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-      <HeaderTitle
-        paddingLeft={25}
-        title={settings.nodeSettings}
-        subtitle={settings.nodeSettingUsedSoFar}
-      />
-      {/* <Box style={styles.nodeConnectSwitchWrapper}>
-        <Box>
-          <Text color={`${colorMode}.primaryText`} style={styles.connectToMyNodeTitle}>
-            {settings.connectToMyNode}
-          </Text>
-          <Text style={styles.appSettingSubTitle} color={`${colorMode}.secondaryText`}>
-            {settings.connectToMyNodeSubtitle}
-          </Text>
-        </Box>
-        <Box>
-          <Switch value={ConnectToNode} onValueChange={onChangeConnectToMyNode} />
-        </Box>
-      </Box> */}
-      {/* <Box borderColor="light.GreyText" style={styles.splitter} /> */}
-      {/* <Box style={styles.nodeListHeader}>
-        <Text style={styles.nodeListTitle}>{settings.currentlyConnected}</Text>
-      </Box> */}
+      <HeaderTitle title={settings.nodeSettings} subtitle={settings.nodeSettingUsedSoFar} />
       {nodeList.length > 0 && (
         <Box style={styles.nodesListWrapper}>
           <FlatList
@@ -257,18 +236,15 @@ function NodeSettings() {
           />
         </Box>
       )}
-
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
           <AddIcon />
           <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
         </Box>
       </TouchableOpacity>
-
       <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
         <Note title={common.note} subtitle={settings.nodeSettingsNote} subtitleColor="GreyText" />
       </Box>
-
       <KeeperModal
         justifyContent="center"
         visible={visible}
@@ -340,7 +316,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     height: windowHeight > 800 ? '65%' : '56%',
-    // alignItems: 'center',
   },
   nodeListTitle: {
     fontSize: 14,
@@ -416,7 +391,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    width: '100%',
   },
   addNewNodeText: {
     fontSize: 15,

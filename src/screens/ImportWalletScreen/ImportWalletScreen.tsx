@@ -84,13 +84,7 @@ function ImportWalletScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Scan your seed words/Backup Phrase"
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-          paddingLeft={25}
-        />
+        <HeaderTitle title={home.ImportWallet} subtitle="Scan your seed words/Backup Phrase" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
@@ -145,7 +139,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',

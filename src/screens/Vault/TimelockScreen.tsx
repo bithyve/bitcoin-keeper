@@ -22,7 +22,6 @@ function TimelockScreen() {
         <Box marginX={3}>
           <Box width={wp(320)}>
             <HeaderTitle
-              onPressHandler={() => navigation.goBack()}
               title="Timelock Vault"
               subtitle="Provide number of blocks from the current block"
             />
@@ -68,7 +67,7 @@ function TimelockScreen() {
       <Box position="absolute" bottom={0}>
         <AppNumPad
           setValue={setAmount}
-          clear={() => { }}
+          clear={() => {}}
           color="light.greenText"
           height={windowHeight >= 850 ? 80 : 60}
           darkDeleteIcon

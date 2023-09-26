@@ -114,8 +114,6 @@ function ImportDescriptorScreen({ navigation }) {
           <HeaderTitle
             title="Create Wallet through descriptors"
             subtitle="Create Collabrative Wallet through descriptor"
-            paddingTop={hp(5)}
-            paddingLeft={wp(20)}
           />
           <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput

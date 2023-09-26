@@ -67,7 +67,6 @@ function ScanQRFileRecovery({ route }) {
         <HeaderTitle
           title="Recover Using Vault Configuration File"
           subtitle="Recover the Vault from output descriptor or configuration"
-          paddingLeft={wp(20)}
         />
         <Box style={styles.qrcontainer}>
           <RNCamera

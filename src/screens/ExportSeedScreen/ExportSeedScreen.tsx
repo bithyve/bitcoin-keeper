@@ -95,12 +95,7 @@ function ExportSeedScreen({ route, navigation }) {
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <HeaderTitle
-        title={seedText.recoveryPhrase}
-        subtitle={seedText.SeedDesc}
-        onPressHandler={() => navigtaion.goBack()}
-        paddingLeft={25}
-      />
+      <HeaderTitle title={seedText.recoveryPhrase} subtitle={seedText.SeedDesc} />
 
       <Box style={{ flex: 1 }}>
         <FlatList

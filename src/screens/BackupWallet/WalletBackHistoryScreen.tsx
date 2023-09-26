@@ -16,7 +16,7 @@ function WalletBackHistoryScreen({ navigation }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={BackupWallet.myWalletBackupTitle} paddingTop={5} paddingLeft={25} />
+      <HeaderTitle title={BackupWallet.myWalletBackupTitle} />
       <Box mx={wp(5)}>
         <BackupHealthCheckList />
       </Box>

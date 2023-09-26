@@ -27,11 +27,7 @@ function VaultConfigurationRecovery() {
           <HeaderTitle
             title="Recovery through Vault configuration"
             subtitle="Recover the Vault from output descriptor or configuration"
-            headerTitleColor="light.textBlack"
-            paddingTop={hp(5)}
-            paddingLeft={wp(20)}
           />
-
           <Box style={styles.inputWrapper} backgroundColor="light.textInputBackground">
             <TextInput
               placeholder="Enter the Vault configuration or output descriptor"

@@ -18,12 +18,10 @@ function AppVersionHistory() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle />
-      <Box style={styles.versionHistoryTitleWrapper} testID="view_VersionHistory">
-        <Text color="light.headerText" style={styles.versionHistoryTitle}>
-          Version History
-        </Text>
-      </Box>
+      <HeaderTitle
+        title={'Version History'}
+        subtitle={'You can verify the history of your app upgrades here'}
+      />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <Box margin={10} testID="view_VersionHistoryList">
           <VersionHistoryList />
@@ -34,15 +32,6 @@ function AppVersionHistory() {
   );
 }
 const styles = StyleSheet.create({
-  versionHistoryTitleWrapper: {
-    marginHorizontal: wp('10%'),
-    marginBottom: 5,
-  },
-  versionHistoryTitle: {
-    letterSpacing: 1,
-    fontSize: 16,
-    paddingLeft: 7,
-  },
   textAppId: {
     textAlign: 'center',
     fontSize: 10,

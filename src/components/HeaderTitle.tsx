@@ -1,57 +1,44 @@
 import { Box, useColorMode } from 'native-base';
-
 import BackBlackButton from 'src/assets/images/back.svg';
 import BackWhiteButton from 'src/assets/images/back_white.svg';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { windowHeight } from 'src/constants/responsive';
+import { windowHeight, windowWidth } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 
 type Props = {
   title?: string;
-  subtitle?: string | Element;
+  subtitle?: string;
   onPressHandler?: () => void;
   enableBack?: boolean;
-  headerTitleColor?: string;
-  paddingLeft?: number;
-  paddingTop?: number;
   learnMore?: boolean;
   learnMorePressed?: () => void;
-  titleFontSize?: number;
-  backBtnColor?: boolean;
   learnBackgroundColor?: string;
   learnTextColor?: string;
+  rightComponent?: Element;
+  contrastScreen?: boolean;
 };
 function HeaderTitle({
   title = '',
   subtitle = '',
   onPressHandler,
   enableBack = true,
-  headerTitleColor = 'light.headerText',
-  paddingLeft = 0,
-  paddingTop = 0,
   learnMore = false,
-  learnMorePressed = () => { },
-  titleFontSize = 16,
-  textPadding = 0,
-  backBtnBlackColor = true,
+  learnMorePressed = () => {},
   learnBackgroundColor = 'light.lightAccent',
   learnTextColor = 'light.learnMoreBorder',
+  rightComponent = null,
+  contrastScreen = false,
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   return (
     <Box style={styles.container}>
       {enableBack && (
-        <Box
-          style={[
-            styles.backContainer,
-            title && subtitle ? styles.backBtnVerticalPadding : styles.backBtnTopPadding,
-          ]}
-        >
+        <Box style={[styles.backContainer]}>
           <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.backButton}>
-            {colorMode === 'light' && backBtnBlackColor ? <BackBlackButton /> : <BackWhiteButton />}
+            {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
           {learnMore && (
             <TouchableOpacity onPress={learnMorePressed} testID="btn_learnMore">
@@ -71,33 +58,23 @@ function HeaderTitle({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box
-          style={{
-            paddingLeft,
-            paddingTop,
-          }}
-        >
+        <Box style={{ paddingLeft: '10%' }}>
           {title && (
             <Text
               numberOfLines={1}
-              style={[
-                styles.addWalletText,
-                { fontSize: titleFontSize, paddingHorizontal: textPadding },
-              ]}
-              color={headerTitleColor}
+              style={[styles.addWalletText, { fontSize: 16 }]}
+              color={'light.headerText'}
             >
               {title}
             </Text>
           )}
           {subtitle && (
-            <Text
-              style={[styles.addWalletDescription, { paddingHorizontal: textPadding }]}
-              color={`${colorMode}.black`}
-            >
+            <Text style={[styles.addWalletDescription]} color={`${colorMode}.black`}>
               {subtitle}
             </Text>
           )}
         </Box>
+        <Box>{rightComponent}</Box>
       </Box>
     </Box>
   );
@@ -121,12 +98,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 5,
-  },
-  backBtnVerticalPadding: {
     paddingVertical: windowHeight > 680 ? 15 : 7,
-  },
-  backBtnTopPadding: {
-    paddingTop: windowHeight > 680 ? 15 : 7,
   },
   backButton: {
     height: 20,
@@ -148,6 +120,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   headerContainer: {
+    width: windowWidth * 0.85,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

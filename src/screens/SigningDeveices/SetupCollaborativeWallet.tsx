@@ -395,12 +395,7 @@ function SetupCollaborativeWallet() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        title="Add Signers"
-        subtitle="A 2 of 3 collaborative wallet will be created"
-        headerTitleColor={`${colorMode}.black`}
-        paddingLeft={25}
-      />
+      <HeaderTitle title="Add Signers" subtitle="A 2 of 3 collaborative wallet will be created" />
       <FlatList
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}

@@ -27,6 +27,8 @@ import useWallets from 'src/hooks/useWallets';
 import { getAmt, getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import { AppContext } from 'src/context/AppContext';
 import { StyleSheet } from 'react-native';
+import OptionCard from 'src/components/OptionCard';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 type Props = {
   title: string;
@@ -170,19 +172,8 @@ function WalletSettings({ route }) {
   };
 
   return (
-    <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
-      <StatusBarComponent padding={50} />
-      <Box>
-        <HeaderTitle
-          title="Wallet Settings"
-          subtitle="Setting for the wallet only"
-          onPressHandler={() => navigation.goBack()}
-          headerTitleColor={`${colorMode}.black`}
-          titleFontSize={20}
-          paddingTop={hp(5)}
-          paddingLeft={20}
-        />
-      </Box>
+    <ScreenWrapper>
+      <HeaderTitle title="Wallet Settings" subtitle="Setting for the wallet only" />
       <Box
         style={{
           marginTop: hp(35),
@@ -202,115 +193,109 @@ function WalletSettings({ route }) {
           Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
         />
       </Box>
-      <Box style={styles.optionsListContainer}>
-        <ScrollView
-          style={{
-            marginBottom: hp(40),
+      <ScrollView
+        contentContainerStyle={styles.optionsListContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <OptionCard
+          title="Wallet Details"
+          description="Change wallet name & description"
+          callback={() => {
+            navigation.navigate('WalletDetailsSettings', { wallet });
           }}
-          showsVerticalScrollIndicator={false}
-        >
-          <Option
-            title="Wallet Details"
-            subTitle="Change wallet name & description"
-            onPress={() => {
-              navigation.navigate('WalletDetailsSettings', { wallet });
+        />
+        <OptionCard
+          title="Wallet Seed Words"
+          description="Use to link external wallets to Keeper"
+          callback={() => {
+            setConfirmPassVisible(true);
+          }}
+        />
+        <OptionCard
+          title="Show co-signer Details"
+          description="Use this wallet as a co-signer with other vaults"
+          callback={() => {
+            navigation.navigate('CosignerDetails', { wallet });
+          }}
+        />
+        <OptionCard
+          title="Act as co-signer"
+          description={`Sign transactions (${wallet.id})`}
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ScanQR',
+                params: {
+                  title: 'Scan PSBT to Sign',
+                  subtitle: 'Please scan until all the QR data has been retrieved',
+                  onQrScan: signPSBT,
+                  type: SignerType.KEEPER,
+                },
+              })
+            );
+          }}
+        />
+        {config.NETWORK_TYPE === NetworkType.TESTNET && (
+          <OptionCard
+            title="Receive Test Sats"
+            description="Receive Test Sats to this address"
+            callback={() => {
+              setAppLoading(true);
+              getTestSats();
             }}
           />
-          <Option
-            title="Wallet Seed Words"
-            subTitle="Use to link external wallets to Keeper"
-            onPress={() => {
-              setConfirmPassVisible(true);
-            }}
-          />
-          <Option
-            title="Show co-signer Details"
-            subTitle="Use this wallet as a co-signer with other vaults"
-            onPress={() => {
-              navigation.navigate('CosignerDetails', { wallet });
-            }}
-          />
-          <Option
-            title="Act as co-signer"
-            subTitle={`Sign transactions (${wallet.id})`}
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ScanQR',
-                  params: {
-                    title: 'Scan PSBT to Sign',
-                    subtitle: 'Please scan until all the QR data has been retrieved',
-                    onQrScan: signPSBT,
-                    type: SignerType.KEEPER,
-                  },
-                })
-              );
-            }}
-          />
-          {config.NETWORK_TYPE === NetworkType.TESTNET && (
-            <Option
-              title="Receive Test Sats"
-              subTitle="Receive Test Sats to this address"
-              onPress={() => {
-                setAppLoading(true);
-                getTestSats();
-              }}
-            />
-          )}
-        </ScrollView>
-      </Box>
-      <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
+        )}
+      </ScrollView>
+      <Box style={styles.note}>
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
           subtitleColor="GreyText"
         />
       </Box>
-      <Box>
-        <KeeperModal
-          visible={confirmPassVisible}
-          close={() => setConfirmPassVisible(false)}
-          title={walletTranslation?.confirmPassTitle}
-          subTitleWidth={wp(240)}
-          subTitle={walletTranslation?.confirmPassSubTitle}
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
-          Content={() => (
-            <SeedConfirmPasscode
-              closeBottomSheet={() => {
-                setConfirmPassVisible(false);
-              }}
-              wallet={wallet}
-              navigation={navigation}
-            />
-          )}
-        />
-        <KeeperModal
-          visible={xpubVisible}
-          close={() => setXPubVisible(false)}
-          title="Wallet xPub"
-          subTitleWidth={wp(240)}
-          subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          modalBackground={`${colorMode}.modalWhiteBackground`}
-          subTitleColor={`${colorMode}.secondaryText`}
-          textColor={`${colorMode}.primaryText`}
-          Content={() => (
-            <ShowXPub
-              data={wallet?.specs?.xpub}
-              copy={() => {
-                setXPubVisible(false);
-                showToast('Xpub Copied Successfully', <TickIcon />);
-              }}
-              copyable
-              close={() => setXPubVisible(false)}
-              subText={walletTranslation?.AccountXpub}
-              noteSubText={walletTranslation?.AccountXpubNote}
-            />
-          )}
-        />
-      </Box>
-    </Box>
+      <KeeperModal
+        visible={confirmPassVisible}
+        close={() => setConfirmPassVisible(false)}
+        title={walletTranslation?.confirmPassTitle}
+        subTitleWidth={wp(240)}
+        subTitle={walletTranslation?.confirmPassSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <SeedConfirmPasscode
+            closeBottomSheet={() => {
+              setConfirmPassVisible(false);
+            }}
+            wallet={wallet}
+            navigation={navigation}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={xpubVisible}
+        close={() => setXPubVisible(false)}
+        title="Wallet xPub"
+        subTitleWidth={wp(240)}
+        subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <ShowXPub
+            data={wallet?.specs?.xpub}
+            copy={() => {
+              setXPubVisible(false);
+              showToast('Xpub Copied Successfully', <TickIcon />);
+            }}
+            copyable
+            close={() => setXPubVisible(false)}
+            subText={walletTranslation?.AccountXpub}
+            noteSubText={walletTranslation?.AccountXpubNote}
+          />
+        )}
+      />
+    </ScreenWrapper>
   );
 }
 
@@ -321,11 +306,7 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   note: {
-    position: 'absolute',
-    bottom: hp(35),
-    marginLeft: 26,
-    width: '90%',
-    paddingTop: hp(10),
+    marginHorizontal: '5%',
   },
   walletCardContainer: {
     borderRadius: hp(20),
@@ -359,9 +340,7 @@ const styles = StyleSheet.create({
   },
   optionsListContainer: {
     alignItems: 'center',
-    marginLeft: wp(25),
-    marginTop: 10,
-    height: hp(425),
+    marginTop: 20,
   },
   optionContainer: {
     marginTop: hp(20),

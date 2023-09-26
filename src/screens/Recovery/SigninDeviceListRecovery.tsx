@@ -187,7 +187,6 @@ function SigningDeviceListRecovery({ navigation }) {
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
-        paddingLeft={25}
         onPressHandler={() =>
           navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         }

@@ -577,7 +577,7 @@ function SendConfirmation({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} paddingLeft={hp(25)} />
+      <HeaderTitle title={title} subtitle={subTitle} />
       <Box marginX={7}>
         <SendingCard
           isSend

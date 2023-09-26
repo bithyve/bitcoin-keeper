@@ -185,7 +185,6 @@ export default function PoolSelection({ route, navigation }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={25}
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
         learnMore

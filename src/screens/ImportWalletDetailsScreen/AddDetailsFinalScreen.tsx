@@ -138,12 +138,7 @@ function AddDetailsFinalScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Add details"
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-        />
+        <HeaderTitle title={home.ImportWallet} subtitle="Add details" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper]}>
@@ -153,10 +148,7 @@ function AddDetailsFinalScreen({ route }) {
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
-                // width={wp(260)}
                 autoCorrect={false}
-                // marginY={2}
-                // borderWidth="0"
                 maxLength={20}
               />
             </Box>

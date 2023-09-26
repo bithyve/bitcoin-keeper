@@ -309,13 +309,7 @@ function VaultRecovery({ navigation }) {
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title="Add signing devices"
-        subtitle="To recover your Vault"
-        headerTitleColor="light.textBlack"
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
-      />
+      <HeaderTitle title="Add signing devices" subtitle="To recover your Vault" />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>

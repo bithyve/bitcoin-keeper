@@ -76,8 +76,6 @@ function AssignSignerType({ navigation, route }: IProps) {
       <HeaderTitle
         title="Identify your Signing Device"
         subtitle="for better communication and conectivity"
-        headerTitleColor="light.textBlack"
-        onPressHandler={() => navigation.goBack()}
       />
       <VStack paddingLeft={'10%'} paddingTop={'5%'}>
         <Text>Master fingerprint: {signer.masterFingerprint}</Text>

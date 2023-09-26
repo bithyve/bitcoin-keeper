@@ -175,7 +175,6 @@ export default function WhirlpoolConfiguration({ route }) {
     >
       <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
         <HeaderTitle
-          paddingLeft={25}
           title="Configure Whirlpool"
           subtitle="Prepare to start a mix"
           learnMore

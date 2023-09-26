@@ -480,8 +480,6 @@ function MixProgress({
       <ScreenWrapper>
         <HeaderTitle
           enableBack={false}
-          paddingTop={hp(30)}
-          titleFontSize={20}
           title={isRemix ? 'Remix Progress' : 'Mix Progress'}
           subtitle={<MixDurationText />}
         />

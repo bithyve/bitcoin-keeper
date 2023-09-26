@@ -371,8 +371,6 @@ function SignTransactionScreen() {
       <HeaderTitle
         title="Sign Transaction"
         subtitle={`Chose any ${scheme.m} to sign the transaction`}
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '10%' }}

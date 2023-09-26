@@ -108,14 +108,7 @@ function ReceiveScreen({ route }: { route }) {
   }
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        title={common.receive}
-        subtitle="Native segwit address"
-        onPressHandler={() => navigtaion.goBack()}
-        headerTitleColor={`${colorMode}.black`}
-        paddingTop={hp(6)}
-        paddingLeft={hp(25)}
-      />
+      <HeaderTitle title={common.receive} subtitle="Native segwit address" />
       <Box style={styles.qrWrapper}>
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
