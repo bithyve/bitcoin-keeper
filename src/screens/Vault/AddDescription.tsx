@@ -22,9 +22,6 @@ function AddDescription({ route }) {
           <HeaderTitle
             title="Add Description"
             subtitle="Optionally you can add a short description to the Signing Device"
-            onPressHandler={() => navigation.goBack()}
-            headerTitleColor={`${colorMode}.textBlack`}
-            paddingTop={hp(5)}
           />
         </Box>
 
@@ -54,9 +51,9 @@ function AddDescription({ route }) {
         <Box marginTop={hp(70)}>
           <Buttons
             primaryText="Proceed"
-            primaryCallback={() => { }}
+            primaryCallback={() => {}}
             secondaryText="Skip"
-            secondaryCallback={() => { }}
+            secondaryCallback={() => {}}
           />
         </Box>
       </Box>
@@ -82,7 +79,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
   },
 
   textInput: {

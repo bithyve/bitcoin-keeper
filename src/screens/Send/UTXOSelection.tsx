@@ -112,7 +112,6 @@ function UTXOSelection({ route }: any) {
       <HeaderTitle
         title="Manual Select UTXOs"
         subtitle={`Select a minimum of ${amount} BTC to proceed`}
-        onPressHandler={() => navigation.goBack()}
       />
       <FlatList
         style={{ marginTop: 20 }}

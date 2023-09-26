@@ -146,7 +146,7 @@ function Header() {
   const dispatch = useDispatch();
   const styles = getStyles(0);
   return (
-    <Box flexDirection="row" width="100%" px="2%">
+    <Box flexDirection="row" width="100%" px="3%" pt={'4%'}>
       <StatusBar barStyle="light-content" />
       <Box width="50%">
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -256,6 +256,7 @@ function TransactionList({
           </Text>
           {transactions ? (
             <TouchableOpacity
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={() => {
                 navigation.dispatch(
                   CommonActions.navigate('AllTransactions', {
@@ -526,7 +527,7 @@ function VaultDetails({ navigation }) {
   const [tireChangeModal, setTireChangeModal] = useState(false);
   const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-
+  const recoveryAppCreated = useAppSelector((state) => state.storage.recoveryAppCreated);
   const onPressModalBtn = () => {
     setTireChangeModal(false);
     navigation.navigate('AddSigningDevice');
@@ -680,7 +681,7 @@ function VaultDetails({ navigation }) {
         />
       </VStack>
       <TierUpgradeModal
-        visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE}
+        visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE && !recoveryAppCreated}
         close={() => {
           if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
             return;

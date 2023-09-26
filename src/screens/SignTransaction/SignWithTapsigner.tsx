@@ -72,8 +72,6 @@ function SignWithTapsigner() {
         <HeaderTitle
           title="Sign with TAPSIGNER"
           subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
-          onPressHandler={() => navigation.goBack()}
-          paddingLeft={wp(25)}
         />
         <ScrollView>
           <TextInput

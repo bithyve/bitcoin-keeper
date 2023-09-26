@@ -30,13 +30,7 @@ function EnterOTPEmailConfirmation() {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        onPressHandler={() => navigtaion.goBack()}
-        title="Add phone or email"
-        subtitle="Check your email for OTP"
-        paddingLeft={22}
-      />
-      {/* pin input view */}
+      <HeaderTitle title="Add phone or email" subtitle="Check your email for OTP" />
       <Box style={styles.passwordContainer}>
         <CVVInputsView
           passCode={emailOrPhoneOTP}

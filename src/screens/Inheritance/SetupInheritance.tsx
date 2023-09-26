@@ -126,15 +126,12 @@ function SetupInheritance() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box style={styles.header}>
-        <HeaderTitle
-          onPressHandler={() => navigtaion.goBack()}
-          learnMore
-          learnMorePressed={() => {
-            dispatch(setInheritance(true));
-          }}
-        />
-      </Box>
+      <HeaderTitle
+        learnMore
+        learnMorePressed={() => {
+          dispatch(setInheritance(true));
+        }}
+      />
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
         <Text
@@ -243,9 +240,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.8,
   },
-  header: {
-    // marginBottom: -50,
-  },
+
   modalContainer: {
     // marginBottom: hp(25),
   },

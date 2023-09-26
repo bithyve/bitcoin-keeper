@@ -31,7 +31,7 @@ export const getnavigationState = (type) => ({
     { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: false, type } },
     { name: 'OtherRecoveryMethods' },
     { name: 'VaultRecoveryAddSigner' },
-    { name: 'SignersList' },
+    { name: 'SigningDeviceListRecovery' },
     { name: 'EnterSeedScreen', params: { isSoftKeyRecovery: true, type } },
   ],
 });
@@ -187,7 +187,6 @@ function SigningDeviceListRecovery({ navigation }) {
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
-        paddingLeft={25}
         onPressHandler={() =>
           navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         }

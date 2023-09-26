@@ -18,7 +18,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { useAppSelector } from 'src/store/hooks';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 
-
 function EditWalletSettings({ route }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
@@ -58,13 +57,7 @@ function EditWalletSettings({ route }) {
   return (
     <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title={walletText.WalletDetails}
-        subtitle={walletText.EditWalletDeatils}
-        onPressHandler={() => navigtaion.goBack()}
-        paddingTop={3}
-        paddingLeft={25}
-      />
+      <HeaderTitle title={walletText.WalletDetails} subtitle={walletText.EditWalletDeatils} />
       <View style={styles.inputWrapper}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input

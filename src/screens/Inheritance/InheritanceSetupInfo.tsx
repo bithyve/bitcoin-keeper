@@ -24,11 +24,10 @@ const renderItem = ({ item }) => (
 );
 function InheritanceSetupInfo({ route }) {
   const { title, subTitle, infoData, icon } = route.params;
-  const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle onPressHandler={() => navigtaion.goBack()} />
+      <HeaderTitle />
       <InheritanceHeaderView icon={icon} title={title && title} subTitle={subTitle && subTitle} />
       <FlatList
         showsVerticalScrollIndicator={false}

@@ -197,9 +197,6 @@ function EnterWalletDetailScreen({ route }) {
       <HeaderTitle
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
-        onPressHandler={() => navigtaion.goBack()}
-        paddingTop={3}
-        paddingLeft={25}
       />
       <View marginX={4} marginY={4}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
@@ -292,7 +289,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => { }}
+        close={() => {}}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"

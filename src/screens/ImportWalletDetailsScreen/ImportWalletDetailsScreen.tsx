@@ -1,4 +1,11 @@
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, StyleSheet } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
 import { Box, Input, View, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -54,12 +61,7 @@ function ImportWalletDetailsScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Add details"
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-        />
+        <HeaderTitle title={home.ImportWallet} subtitle="Add details" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',

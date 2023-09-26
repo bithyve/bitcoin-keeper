@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
 type Props = {
   value: boolean;
   onValueChange: Function;
-  loading: boolean;
+  loading?: boolean;
 };
 
 function Switch({ value, onValueChange, loading }: Props) {
@@ -42,7 +42,7 @@ function Switch({ value, onValueChange, loading }: Props) {
           )}
         </Box>
       </Box>
-    </TouchableOpacity >
+    </TouchableOpacity>
   );
 }
 

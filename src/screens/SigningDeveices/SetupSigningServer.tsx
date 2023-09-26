@@ -173,14 +173,7 @@ function SetupSigningServer({ route }: { route }) {
     <View style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
-        <HeaderTitle
-          title="Set up 2FA for Signing Server"
-          subtitle="Scan on any 2FA auth app"
-          onPressHandler={() => navigation.goBack()}
-          headerTitleColor="light.headerText"
-          paddingTop={hp(5)}
-          paddingLeft={wp(25)}
-        />
+        <HeaderTitle title="Set up 2FA for Signing Server" subtitle="Scan on any 2FA auth app" />
       </Box>
       <Box marginTop={hp(50)} alignItems="center" alignSelf="center" width={wp(250)}>
         {validationKey === '' ? (
@@ -295,7 +288,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: 0.20,
+    letterSpacing: 0.2,
   },
   textBox: {
     width: '80%',

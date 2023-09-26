@@ -6,10 +6,6 @@ import KeeperGradient from '../KeeperGradient';
 
 const getStyles = (btnActiveBack) =>
   StyleSheet.create({
-    container: {
-      alignSelf: 'flex-end',
-      marginRight: 10,
-    },
     gradient: {
       borderRadius: 20,
       flexDirection: 'row',
@@ -66,12 +62,7 @@ function MonthlyYearlySwitch({ value, onValueChange }: Props) {
   const { colorMode } = useColorMode();
   const styles = getStyles('');
   return (
-    <TouchableOpacity
-      activeOpacity={0.6}
-      onPress={onValueChange}
-      style={styles.container}
-      testID="btn_monthlyYearlySwitch"
-    >
+    <TouchableOpacity activeOpacity={0.6} onPress={onValueChange} testID="btn_monthlyYearlySwitch">
       <KeeperGradient
         start={[0, 0]}
         end={[1, 0]}

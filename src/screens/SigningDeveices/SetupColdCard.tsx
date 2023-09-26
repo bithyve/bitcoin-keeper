@@ -138,8 +138,6 @@ function SetupColdCard({ route }) {
                 mode === InteracationMode.HEALTH_CHECK ? 'Verify Coldcard' : 'Setting up Coldcard'
               }
               subtitle={instructions}
-              onPressHandler={() => navigation.goBack()}
-              paddingLeft={wp(25)}
             />
           </Box>
           <NfcPrompt visible={nfcVisible} close={closeNfc} />

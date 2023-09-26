@@ -1,5 +1,5 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
-import { Box, VStack, useColorMode } from 'native-base';
+import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import HeaderTitle from 'src/components/HeaderTitle';
 import { RNCamera } from 'react-native-camera';
@@ -253,9 +253,9 @@ function ConnectChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={signerType}>
-        <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(25)} />
-          <Box style={styles.qrcontainer}>
+        <>
+          <HeaderTitle title={title} subtitle={subtitle} />
+          <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
             {!channelCreated ? (
               <RNCamera
                 autoFocus="on"
@@ -285,7 +285,7 @@ function ConnectChannel() {
                 <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
               </VStack>
             )}
-          </Box>
+          </ScrollView>
           <Box style={styles.noteWrapper}>
             <Note
               title={common.note}
@@ -293,7 +293,7 @@ function ConnectChannel() {
               subtitleColor="GreyText"
             />
           </Box>
-        </Box>
+        </>
       </MockWrapper>
     </ScreenWrapper>
   );
@@ -302,21 +302,16 @@ function ConnectChannel() {
 export default ConnectChannel;
 
 const styles = StyleSheet.create({
-  qrcontainer: {
-    borderRadius: 10,
-    overflow: 'hidden',
+  container: {
     marginVertical: 25,
     alignItems: 'center',
   },
   cameraView: {
-    height: hp(280),
-    width: wp(375),
+    height: windowWidth * 0.7,
+    width: windowWidth * 0.8,
   },
   noteWrapper: {
-    width: '100%',
-    bottom: 0,
-    position: 'absolute',
-    padding: 20,
+    marginHorizontal: '5%',
   },
   instructions: {
     width: windowWidth * 0.8,

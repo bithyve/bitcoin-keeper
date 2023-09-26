@@ -64,7 +64,6 @@ function InheritanceStatus() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <HeaderTitle
-        onPressHandler={() => navigtaion.goBack()}
         learnMore
         learnMorePressed={() => {
           dispatch(setInheritance(true));

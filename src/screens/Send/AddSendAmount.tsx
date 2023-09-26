@@ -235,7 +235,6 @@ function AddSendAmount({ route }) {
                   ? `Sending to Wallet`
                   : `Enter the Amount`
               }
-              paddingLeft={25}
             />
           </Box>
           <Box style={styles.currentTypeSwitchWrapper}>

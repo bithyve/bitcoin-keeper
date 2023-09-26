@@ -16,7 +16,6 @@ function OtherRecoveryMethods() {
       <HeaderTitle
         title="Other methods for restoring the Vault"
         subtitle="This method can only be used for restoring the Vault"
-        paddingLeft={wp(20)}
       />
       <Box style={{ marginTop: hp(30) }}>
         <Tile

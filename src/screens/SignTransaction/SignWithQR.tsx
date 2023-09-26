@@ -89,26 +89,22 @@ function SignWithQR() {
   return (
     <ScreenWrapper>
       <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />
-      <ScrollView style={{ flex: 1 }}>
-        <>
-          <Box style={styles.center}>
-            <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
-          </Box>
-          <Box style={styles.bottom}>
-            {signer.type === SignerType.KEEPER ? (
-              <Box style={{ paddingBottom: '5%' }}>
-                <ShareWithNfc data={serializedPSBT} />
-              </Box>
-            ) : null}
-            <Buttons
-              primaryText="Scan PSBT"
-              primaryCallback={navigateToQrScan}
-              secondaryText="Vault Details"
-              secondaryCallback={navigateToVaultRegistration}
-            />
-          </Box>
-        </>
-      </ScrollView>
+      <Box style={styles.center}>
+        <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
+      </Box>
+      {signer.type === SignerType.KEEPER ? (
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+          <ShareWithNfc data={serializedPSBT} />
+        </ScrollView>
+      ) : null}
+      <Box style={styles.bottom}>
+        <Buttons
+          primaryText="Scan PSBT"
+          primaryCallback={navigateToQrScan}
+          secondaryText="Vault Details"
+          secondaryCallback={navigateToVaultRegistration}
+        />
+      </Box>
     </ScreenWrapper>
   );
 }
@@ -117,11 +113,10 @@ export default SignWithQR;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: '20%',
+    marginTop: '10%',
   },
   bottom: {
-    padding: '3%',
+    marginHorizontal: '5%',
   },
 });

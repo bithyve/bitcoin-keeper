@@ -151,12 +151,10 @@ function SigningDeviceList() {
       <HeaderTitle
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
-        headerTitleColor={`${colorMode}.black`}
         learnMore
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
-        paddingLeft={25}
       />
       <Box style={styles.scrollViewContainer}>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>

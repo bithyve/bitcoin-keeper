@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
-
 import { Box, Pressable, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 
@@ -13,7 +12,7 @@ import { wp, hp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import Server from 'src/assets/images/server.svg';
 import BackupIcon from 'src/assets/images/backupIcon.svg';
-
+import OptionCard from 'src/components/OptionCard';
 
 type Props = {
   title: string;
@@ -65,7 +64,8 @@ function SigningServerSettings({ route }) {
           borderRadius: height,
           justifyContent: 'center',
           alignItems: 'center',
-        }}>
+        }}
+      >
         <Icon />
       </Box>
     );
@@ -84,7 +84,8 @@ function SigningServerSettings({ route }) {
           marginLeft: -wp(20),
           marginBottom: hp(30),
           justifyContent: 'center',
-        }}>
+        }}
+      >
         <Box flexDirection="row" alignItems="center" style={{}}>
           <Box
             style={{
@@ -113,14 +114,7 @@ function SigningServerSettings({ route }) {
     <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
-        <HeaderTitle
-          title="Signing Server Settings"
-          subtitle="Lorem Ipsum Dolor"
-          onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor="light.textBlack"
-          titleFontSize={20}
-          paddingTop={hp(5)}
-        />
+        <HeaderTitle title="Signing Server Settings" subtitle="Lorem Ipsum Dolor" />
       </Box>
       <Box borderBottomColor="light.divider" marginTop={hp(40)} paddingX={wp(25)}>
         <VaultCard
@@ -129,30 +123,25 @@ function SigningServerSettings({ route }) {
           addedOn="Added on 12 January 2022"
         />
       </Box>
-      <Box alignItems="center" paddingX={wp(25)}>
-        <Option
+      <Box alignItems="center">
+        <OptionCard
           title="Change Verification & Policy"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {
+          description="Lorem ipsum dolor sit amet, consectetur"
+          callback={() => {
             console.log('Change Verification & Policy');
           }}
-          Icon={false}
         />
-        <Option
+        <OptionCard
           title="Consectetur"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => { }}
-          Icon={false}
+          description="Lorem ipsum dolor sit amet, consectetur"
+          callback={() => {}}
         />
-        <Option
+        <OptionCard
           title="Consectetur"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => { }}
-          Icon={false}
+          description="Lorem ipsum dolor sit amet, consectetur"
+          callback={() => {}}
         />
       </Box>
-
-      {/* {Bottom note} */}
       <Box position="absolute" bottom={hp(45)} marginX={5}>
         <InfoBox
           title="Note"

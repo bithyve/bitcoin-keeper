@@ -139,7 +139,7 @@ function LoginStack() {
       {/* QR Based SDs */}
       <Stack.Screen options={{ gestureEnabled: false }} name="ScanQR" component={ScanQR} />
       {/* Channel Based SDs */}
-      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannel} />
+      <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
       {/* Mobile Key, Seed Key */}
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
     </Stack.Navigator>

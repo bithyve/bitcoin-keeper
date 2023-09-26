@@ -247,7 +247,6 @@ export default function BroadcastPremix({ route, navigation }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
       <HeaderTitle
-        paddingLeft={25}
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore

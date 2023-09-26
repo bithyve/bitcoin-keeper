@@ -99,10 +99,7 @@ function ArchivedVault() {
         title="Archived Vaults"
         subtitle="Previously used vaults"
         headerTitleColor="light.headerText"
-        paddingLeft={20}
-        paddingTop={5}
       />
-
       <Box alignItems="center">
         <FlatList
           data={vault}

@@ -212,11 +212,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        title={settings.ManageWallets}
-        subtitle={settings.ManageWalletsSub}
-        paddingLeft={wp(25)}
-      />
+      <HeaderTitle title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
       <FlatList
         data={visibleWallets}
         extraData={[visibleWallets, hiddenWallets]}
@@ -270,7 +266,7 @@ function ManageWallets() {
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        closeOnOverlayClick={() => {}}
         showButtons
         showCloseIcon={false}
       />

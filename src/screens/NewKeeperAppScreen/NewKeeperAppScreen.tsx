@@ -163,9 +163,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           <HeaderTitle
             title="New Keeper App"
             subtitle="Choose this option when you want to start with a fresh app"
-            paddingTop={3}
             enableBack={false}
-            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -186,10 +184,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
           <HeaderTitle
             title="Restore"
             subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
-            paddingTop={3}
             enableBack={false}
-            headerTitleColor="black"
-            textPadding={0}
           />
         </Box>
         <Box style={styles.tileContainer}>

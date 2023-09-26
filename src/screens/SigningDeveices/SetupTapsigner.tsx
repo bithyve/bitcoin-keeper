@@ -174,8 +174,6 @@ function SetupTapsigner({ route }) {
         <HeaderTitle
           title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
           subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
-          onPressHandler={() => navigation.goBack()}
-          paddingLeft={wp(25)}
         />
         <MockWrapper signerType={SignerType.TAPSIGNER}>
           <ScrollView>

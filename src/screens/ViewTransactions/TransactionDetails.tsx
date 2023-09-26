@@ -23,6 +23,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import useTransactionLabels from 'src/hooks/useTransactionLabels';
 import LabelItem from '../UTXOManagement/components/LabelItem';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -76,41 +77,36 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
+        transaction.txid
       }`
     );
   };
   return (
-    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBarComponent padding={50} />
-      <Box width={wp(250)}>
-        <HeaderTitle
-          onPressHandler={() => navigation.goBack()}
-          title={transactions.TransactionDetails}
-          subtitle="Detailed information for this Transaction"
-          paddingTop={hp(20)}
-          paddingLeft={25}
-        />
-        <Box style={styles.transViewWrapper}>
-          <Box flexDirection="row">
-            {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
-            <Box style={styles.transView}>
-              <Text color={`${colorMode}.headerText`} numberOfLines={1} style={styles.transIDText}>
-                {transaction.txid}
-              </Text>
-              <Text style={styles.transDateText} color={`${colorMode}.dateText`}>
-                {moment(transaction?.date).format('DD MMM YY  •  hh:mm A')}
-              </Text>
-            </Box>
-          </Box>
-          <Box>
-            <Text style={styles.amountText}>
-              {`${getBalance(transaction.amount)} `}
-              <Text color="light.dateText" style={styles.unitText}>
-                {getSatUnit()}
-              </Text>
+    <ScreenWrapper>
+      <HeaderTitle
+        title={transactions.TransactionDetails}
+        subtitle="Detailed information for this Transaction"
+      />
+      <Box style={styles.transViewWrapper}>
+        <Box flexDirection="row">
+          {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
+          <Box style={styles.transView}>
+            <Text color={`${colorMode}.headerText`} numberOfLines={1} style={styles.transIDText}>
+              {transaction.txid}
+            </Text>
+            <Text style={styles.transDateText} color={`${colorMode}.dateText`}>
+              {moment(transaction?.date).format('DD MMM YY  •  hh:mm A')}
             </Text>
           </Box>
+        </Box>
+        <Box>
+          <Text style={styles.amountText}>
+            {`${getBalance(transaction.amount)} `}
+            <Text color="light.dateText" style={styles.unitText}>
+              {getSatUnit()}
+            </Text>
+          </Text>
         </Box>
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -178,7 +174,7 @@ function TransactionDetails({ route }) {
           ) : null}
         </Box>
       </ScrollView>
-    </Box>
+    </ScreenWrapper>
   );
 }
 
