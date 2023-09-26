@@ -4,7 +4,7 @@ import {
   generateEncryptionKey,
   encrypt,
   decrypt,
-} from '../src/core/services/operations/encryption/index';
+} from '../src/services/operations/encryption/index';
 
 describe('Testing cryptographic primitives', () => {
   test('hashing::sha256', () => {
