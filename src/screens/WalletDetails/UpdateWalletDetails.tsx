@@ -30,8 +30,7 @@ import { generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
-import BackButton from 'src/assets/images/back.svg';
-import BackWhiteButton from 'src/assets/images/back_white.svg';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 function UpdateWalletDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -132,36 +131,14 @@ function UpdateWalletDetails({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        {/* <KeeperHeader
+        <KeeperHeader
           title={isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
           subtitle={
             isFromSeed
               ? 'The QR below comprises of your 12 word Recovery Phrase'
               : 'Update Wallet Path'
           }
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-          paddingLeft={hp(-25)}
-        /> */}
-        <Box>
-          <TouchableOpacity
-            onPress={() => {
-              navigtaion.goBack();
-            }}
-            style={styles.backButton}
-          >
-            {colorMode === 'light' ? <BackButton /> : <BackWhiteButton />}
-          </TouchableOpacity>
-
-          <KeeperText style={styles.titleText} color={`${colorMode}.headerText`}>
-            {isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
-          </KeeperText>
-          <KeeperText style={styles.descriptionText} color={`${colorMode}.black`}>
-            {isFromSeed
-              ? 'The QR below comprises of your 12 word Recovery Phrase'
-              : 'Update Wallet Path'}
-          </KeeperText>
-        </Box>
+        />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             {showPurpose && (
@@ -174,7 +151,6 @@ function UpdateWalletDetails({ route }) {
                       setArrow(false);
                       setPurpose(item.value);
                       setPurposeLbl(item.label);
-                      // setPath('');
                     }}
                     style={styles.flagWrapper1}
                   >
@@ -196,10 +172,7 @@ function UpdateWalletDetails({ route }) {
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
-                // width={wp(260)}
                 autoCorrect={false}
-                // marginY={2}
-                // borderWidth="0"
                 editable={!isFromSeed}
                 maxLength={20}
                 onFocus={() => {
