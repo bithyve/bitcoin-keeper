@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import KeeperHeader from 'src/components/KeeperHeader';
+import Share from 'react-native-share';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
   setInheritance,
-  setKeySecurityTipsPath,
-  setLetterToAttornyPath,
-  setRecoveryInstructionPath,
+  // setKeySecurityTipsPath,
+  // setLetterToAttornyPath,
+  // setRecoveryInstructionPath,
 } from 'src/store/reducers/settings';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
@@ -30,15 +30,16 @@ import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 function InheritanceStatus() {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
-  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector(
-    (state) => state.settings
-  );
+  // const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector(
+  //   (state) => state.settings
+  // );
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
@@ -76,20 +77,40 @@ function InheritanceStatus() {
           title="Key Security Tips"
           subTitle="How to store your keys securely"
           previewPDF={() => {
-            if (keySecurityTips) {
-              navigtaion.navigate('PreviewPDF', { source: keySecurityTips });
-            } else {
-              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
-            }
-          }}
-          downloadPDF={() => {
             GenerateSecurityTipsPDF().then((res) => {
               if (res) {
-                dispatch(setKeySecurityTipsPath(res));
+                navigtaion.navigate('PreviewPDF', { source: res });
               }
-              showToast('Document has been downloaded.', <TickIcon />);
-            });
+            })
+            // if (keySecurityTips) {
+            //   navigtaion.navigate('PreviewPDF', { source: keySecurityTips });
+            // } else {
+            //   showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
+            // }
           }}
+          // downloadPDF={() => {
+          //   GenerateSecurityTipsPDF().then((res) => {
+          //     if (res) {
+          //       // dispatch(setKeySecurityTipsPath(res));
+          //       Share.open({
+          //         url: res,
+          //         excludedActivityTypes: [
+          //           'copyToPasteBoard',
+          //           'markupAsPDF',
+          //           'addToReadingList',
+          //           'assignToContact',
+          //           'mail',
+          //           'default',
+          //           'message',
+          //           'postToFacebook',
+          //           'print',
+          //           'saveToCameraRoll',
+          //         ],
+          //       });
+          //     }
+          //     // showToast('Document has been downloaded.', <TickIcon />);
+          //   });
+          // }}
           isDownload
         />
         <InheritanceDownloadView
@@ -119,20 +140,22 @@ function InheritanceStatus() {
           title="Letter to the Attorney"
           subTitle="A partly filled pdf template"
           previewPDF={() => {
-            if (letterToAttorny) {
-              navigtaion.navigate('PreviewPDF', { source: letterToAttorny });
-            } else {
-              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
-            }
-          }}
-          downloadPDF={() => {
             GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
               if (res) {
-                dispatch(setLetterToAttornyPath(res));
+                navigtaion.navigate('PreviewPDF', { source: res });
               }
-              showToast('Document has been downloaded.', <TickIcon />);
-            });
+            })
+            // navigtaion.navigate('PreviewPDF', { source: letterToAttorny });
           }}
+          // downloadPDF={() => {
+          //   GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
+          //     if (res) {
+          //       // dispatch(setLetterToAttornyPath(res));
+
+          //     }
+          //     // showToast('Document has been downloaded.', <TickIcon />);
+          //   });
+          // }}
           isDownload
         />
         <InheritanceDownloadView
@@ -140,20 +163,35 @@ function InheritanceStatus() {
           title="Recovery Instructions"
           subTitle="A document for the heir only"
           previewPDF={() => {
-            if (recoveryInstruction) {
-              navigtaion.navigate('PreviewPDF', { source: recoveryInstruction });
-            } else {
-              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
-            }
-          }}
-          downloadPDF={() =>
             GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
               if (res) {
-                dispatch(setRecoveryInstructionPath(res));
+                navigtaion.navigate('PreviewPDF', { source: res });
               }
-              showToast('Document has been downloaded.', <TickIcon />);
             })
-          }
+          }}
+          // downloadPDF={() =>
+          //   GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
+          //     if (res) {
+          //       // dispatch(setRecoveryInstructionPath(res));
+          //       Share.open({
+          //         url: res,
+          //         excludedActivityTypes: [
+          //           'copyToPasteBoard',
+          //           'markupAsPDF',
+          //           'addToReadingList',
+          //           'assignToContact',
+          //           'mail',
+          //           'default',
+          //           'message',
+          //           'postToFacebook',
+          //           'print',
+          //           'saveToCameraRoll',
+          //         ],
+          //       });
+          //     }
+          //     // showToast('Document has been downloaded.', <TickIcon />);
+          //   })
+          // }
           isDownload
         />
       </ScrollView>
