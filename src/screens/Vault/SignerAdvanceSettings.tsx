@@ -132,7 +132,7 @@ function SignerAdvanceSettings({ route }: any) {
               {signerName}
             </Text>
             <Text color={`${colorMode}.white`} style={[font10]} light>
-              {moment(signer.addedOn).calendar().toLowerCase()}
+              {moment(signer.addedOn).format('DD MMM YYYY, hh:mmA')}
             </Text>
             {signer.signerDescription ? (
               <Text color={`${colorMode}.white`} style={[font12]} light>
