@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native'
+import { Dimensions, Platform, StyleSheet, TouchableOpacity } from 'react-native'
 import React from 'react'
 import Pdf from 'react-native-pdf';
 import { Box, useColorMode } from 'native-base';
@@ -13,7 +13,7 @@ function PreviewPDF({ route }: any) {
     const { source } = route.params;
     const DownloadPDF = () => {
         Share.open({
-            url: source,
+            url: Platform.OS === 'ios' ? source : `file://${source}`,
             excludedActivityTypes: [
                 'copyToPasteBoard',
                 'markupAsPDF',
