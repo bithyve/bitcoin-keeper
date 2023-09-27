@@ -85,7 +85,10 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box style={[styles.utxoLabelView, { maxHeight: 19 }]} backgroundColor={`${colorMode}.accent`}>
+        <Box
+          style={[styles.utxoLabelView, { maxHeight: 19 }]}
+          backgroundColor={`${colorMode}.accent`}
+        >
           <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>
@@ -223,7 +226,6 @@ function UTXOList({
   return (
     <FlatList
       data={utxoState}
-      contentContainerStyle={{ paddingBottom: 70 }}
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
