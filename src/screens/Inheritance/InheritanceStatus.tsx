@@ -88,29 +88,29 @@ function InheritanceStatus() {
             //   showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
             // }
           }}
-          downloadPDF={() => {
-            GenerateSecurityTipsPDF().then((res) => {
-              if (res) {
-                // dispatch(setKeySecurityTipsPath(res));
-                Share.open({
-                  url: res,
-                  excludedActivityTypes: [
-                    'copyToPasteBoard',
-                    'markupAsPDF',
-                    'addToReadingList',
-                    'assignToContact',
-                    'mail',
-                    'default',
-                    'message',
-                    'postToFacebook',
-                    'print',
-                    'saveToCameraRoll',
-                  ],
-                });
-              }
-              // showToast('Document has been downloaded.', <TickIcon />);
-            });
-          }}
+          // downloadPDF={() => {
+          //   GenerateSecurityTipsPDF().then((res) => {
+          //     if (res) {
+          //       // dispatch(setKeySecurityTipsPath(res));
+          //       Share.open({
+          //         url: res,
+          //         excludedActivityTypes: [
+          //           'copyToPasteBoard',
+          //           'markupAsPDF',
+          //           'addToReadingList',
+          //           'assignToContact',
+          //           'mail',
+          //           'default',
+          //           'message',
+          //           'postToFacebook',
+          //           'print',
+          //           'saveToCameraRoll',
+          //         ],
+          //       });
+          //     }
+          //     // showToast('Document has been downloaded.', <TickIcon />);
+          //   });
+          // }}
           isDownload
         />
         <InheritanceDownloadView
@@ -147,29 +147,15 @@ function InheritanceStatus() {
             })
             // navigtaion.navigate('PreviewPDF', { source: letterToAttorny });
           }}
-          downloadPDF={() => {
-            GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
-              if (res) {
-                // dispatch(setLetterToAttornyPath(res));
-                Share.open({
-                  url: res,
-                  excludedActivityTypes: [
-                    'copyToPasteBoard',
-                    'markupAsPDF',
-                    'addToReadingList',
-                    'assignToContact',
-                    'mail',
-                    'default',
-                    'message',
-                    'postToFacebook',
-                    'print',
-                    'saveToCameraRoll',
-                  ],
-                });
-              }
-              // showToast('Document has been downloaded.', <TickIcon />);
-            });
-          }}
+          // downloadPDF={() => {
+          //   GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
+          //     if (res) {
+          //       // dispatch(setLetterToAttornyPath(res));
+
+          //     }
+          //     // showToast('Document has been downloaded.', <TickIcon />);
+          //   });
+          // }}
           isDownload
         />
         <InheritanceDownloadView
@@ -183,29 +169,29 @@ function InheritanceStatus() {
               }
             })
           }}
-          downloadPDF={() =>
-            GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
-              if (res) {
-                // dispatch(setRecoveryInstructionPath(res));
-                Share.open({
-                  url: res,
-                  excludedActivityTypes: [
-                    'copyToPasteBoard',
-                    'markupAsPDF',
-                    'addToReadingList',
-                    'assignToContact',
-                    'mail',
-                    'default',
-                    'message',
-                    'postToFacebook',
-                    'print',
-                    'saveToCameraRoll',
-                  ],
-                });
-              }
-              // showToast('Document has been downloaded.', <TickIcon />);
-            })
-          }
+          // downloadPDF={() =>
+          //   GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
+          //     if (res) {
+          //       // dispatch(setRecoveryInstructionPath(res));
+          //       Share.open({
+          //         url: res,
+          //         excludedActivityTypes: [
+          //           'copyToPasteBoard',
+          //           'markupAsPDF',
+          //           'addToReadingList',
+          //           'assignToContact',
+          //           'mail',
+          //           'default',
+          //           'message',
+          //           'postToFacebook',
+          //           'print',
+          //           'saveToCameraRoll',
+          //         ],
+          //       });
+          //     }
+          //     // showToast('Document has been downloaded.', <TickIcon />);
+          //   })
+          // }
           isDownload
         />
       </ScrollView>
