@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useState } from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -42,6 +42,7 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import IdentifySignerModal from './components/IdentifySignerModal';
+import KeeperFooter from 'src/components/KeeperFooter';
 
 function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -229,35 +230,50 @@ function SigningDeviceDetails({ route }) {
     );
   }
 
-  function FooterItem({ Icon, title, onPress }) {
+  const FooterIcon = ({ Icon }) => {
     return (
-      <TouchableOpacity style={{ width: wp(100) }} onPress={onPress}>
-        <Box
-          style={{
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            margin="1"
-            marginBottom="3"
-            width="12"
-            height="12"
-            borderRadius={30}
-            backgroundColor={`${colorMode}.accent`}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Icon />
-          </Box>
-          <Text numberOfLines={2} fontSize={12} letterSpacing={0.84} textAlign="center">
-            {title}
-          </Text>
-        </Box>
-      </TouchableOpacity>
+      <Box
+        margin="1"
+        marginBottom="3"
+        width="12"
+        height="12"
+        borderRadius={30}
+        backgroundColor={`${colorMode}.accent`}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Icon />
+      </Box>
     );
-  }
+  };
 
   const identifySigner = signer.type === SignerType.OTHER_SD;
+
+  const footerItems = [
+    {
+      text: 'Change signing device',
+      Icon: () => <FooterIcon Icon={Change} />,
+      onPress: () => navigation.dispatch(CommonActions.navigate('AddSigningDevice')),
+    },
+    {
+      text: 'Health Check',
+      Icon: () => <FooterIcon Icon={HealthCheck} />,
+      onPress: () => {
+        if (signer.type === SignerType.OTHER_SD) {
+          setIdentifySignerModal(true);
+        } else {
+          setVisible(true);
+        }
+      },
+    },
+    {
+      text: 'Advance Options',
+      Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
+      onPress: () => {
+        navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
+      },
+    },
+  ];
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -296,13 +312,11 @@ function SigningDeviceDetails({ route }) {
           </Box>
         </Box>
       </Box>
-
       <ScrollView>
         <Box mx={5} mt={4}>
           <SigningDeviceChecklist signer={signer} />
         </Box>
       </ScrollView>
-
       <Box
         position="absolute"
         bottom={0}
@@ -315,47 +329,7 @@ function SigningDeviceDetails({ route }) {
         <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
           You will be reminded in 90 days for the health check
         </Text>
-        <Box
-          borderColor={`${colorMode}.GreyText`}
-          style={{
-            borderWidth: 0.5,
-            width: '90%',
-            borderRadius: 20,
-            opacity: 0.2,
-            marginVertical: hp(15),
-          }}
-        />
-
-        <Box
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-        >
-          <FooterItem
-            Icon={Change}
-            title="Change signing device"
-            onPress={() => navigation.dispatch(CommonActions.navigate('AddSigningDevice'))}
-          />
-          <FooterItem
-            Icon={HealthCheck}
-            title="Health Check"
-            onPress={() => {
-              if (signer.type === SignerType.OTHER_SD) {
-                setIdentifySignerModal(true);
-              } else {
-                setVisible(true);
-              }
-            }}
-          />
-          <FooterItem
-            Icon={AdvnaceOptions}
-            title="Advance Options"
-            onPress={() => {
-              navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
-            }}
-          />
-        </Box>
+        <KeeperFooter items={footerItems} />
         <HardwareModalMap
           type={signer?.type}
           visible={visible}
@@ -370,7 +344,6 @@ function SigningDeviceDetails({ route }) {
           isMultisig={activeVault.isMultiSig}
           primaryMnemonic={primaryMnemonic}
         />
-
         <KeeperModal
           visible={skipHealthCheckModalVisible}
           close={() => setSkipHealthCheckModalVisible(false)}
@@ -413,11 +386,6 @@ function SigningDeviceDetails({ route }) {
   );
 }
 const styles = StyleSheet.create({
-  textStyle: {
-    fontSize: 13,
-    paddingVertical: 2,
-    left: -7,
-  },
   skipHealthIllustration: {
     marginLeft: wp(25),
   },

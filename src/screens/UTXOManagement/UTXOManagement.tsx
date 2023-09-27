@@ -31,7 +31,6 @@ import useWhirlpoolWallets, {
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { resetSyncing } from 'src/store/reducers/wallets';
-import useToastMessage from 'src/hooks/useToastMessage';
 import LearnMoreModal from './components/LearnMoreModal';
 import InitiateWhirlpoolModal from './components/InitiateWhirlpoolModal';
 import ErrorCreateTxoModal from './components/ErrorCreateTXOModal';
@@ -74,7 +73,6 @@ function Footer({
   remixingToVault,
 }) {
   const navigation = useNavigation();
-  const { showToast } = useToastMessage();
 
   const goToWhirlpoolConfiguration = () => {
     setEnableSelection(false);
@@ -128,7 +126,6 @@ function Footer({
       setInitateWhirlpoolMix={setInitateWhirlpoolMix}
       wallet={wallet}
       utxos={utxos}
-      selectedUTXOs
       setRemixingToVault={setRemixingToVault}
     />
   );
@@ -277,22 +274,20 @@ function UTXOManagement({ route, navigation }) {
           </VStack>
         </HStack>
       )}
-      <Box style={{ flex: 1 }}>
-        {enableSelection ? (
-          <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
-        ) : null}
-        <UTXOList
-          utxoState={utxos}
-          enableSelection={enableSelection}
-          setSelectionTotal={setSelectionTotal}
-          selectedUTXOMap={selectedUTXOMap}
-          setSelectedUTXOMap={setSelectedUTXOMap}
-          currentWallet={selectedWallet}
-          emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
-          selectedAccount={selectedAccount}
-          initateWhirlpoolMix={initateWhirlpoolMix}
-        />
-      </Box>
+      {enableSelection ? (
+        <UTXOSelectionTotal selectionTotal={selectionTotal} selectedUTXOs={selectedUTXOs} />
+      ) : null}
+      <UTXOList
+        utxoState={utxos}
+        enableSelection={enableSelection}
+        setSelectionTotal={setSelectionTotal}
+        selectedUTXOMap={selectedUTXOMap}
+        setSelectedUTXOMap={setSelectedUTXOMap}
+        currentWallet={selectedWallet}
+        emptyIcon={routeName === 'Vault' ? NoVaultTransactionIcon : NoTransactionIcon}
+        selectedAccount={selectedAccount}
+        initateWhirlpoolMix={initateWhirlpoolMix}
+      />
       {utxos?.length ? (
         <Footer
           utxos={utxos}
