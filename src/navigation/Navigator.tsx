@@ -142,6 +142,8 @@ function LoginStack() {
       <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
       {/* Mobile Key, Seed Key */}
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+      {/* Other SD */}
+      <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
     </Stack.Navigator>
   );
 }

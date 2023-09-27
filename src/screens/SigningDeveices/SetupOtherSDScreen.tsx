@@ -18,6 +18,7 @@ import Colors from 'src/theme/Colors';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
+import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SetupOtherSDScreen({ route }) {
   const [xpub, setXpub] = useState('');
@@ -26,7 +27,7 @@ function SetupOtherSDScreen({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { mode, isMultisig } = route.params;
+  const { mode, isMultisig, signer: hcSigner } = route.params;
   // const { subscriptionScheme } = usePlan();
   // const isMultisig = subscriptionScheme.n !== 1;
 
@@ -51,11 +52,19 @@ function SetupOtherSDScreen({ route }) {
       } else if (mode === InteracationMode.SIGNING) {
         dispatch(addSigningDevice(signer));
         navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        showToast(`${signer.signerName} added successfully`, <TickIcon />);
+        const exsists = await checkSigningDevice(signer.signerId);
+        if (exsists)
+          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+      } else if (mode === InteracationMode.HEALTH_CHECK) {
+        if (signer.xpub === hcSigner.xpub) {
+          dispatch(healthCheckSigner([signer]));
+          navigation.dispatch(CommonActions.goBack());
+          showToast(`Other SD verified successfully`, <TickIcon />);
+        } else {
+          showToast('Something went wrong!', <ToastErrorIcon />, 3000);
+        }
       }
-
-      showToast(`${signer.signerName} added successfully`, <TickIcon />);
-      const exsists = await checkSigningDevice(signer.signerId);
-      if (exsists) showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);
@@ -67,7 +76,9 @@ function SetupOtherSDScreen({ route }) {
   return (
     <ScreenWrapper>
       <HeaderTitle
-        title="Setup other signing device"
+        title={`${
+          mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'
+        } other signing device`}
         subtitle="Manually provide the signer details"
         paddingLeft={wp(25)}
       />
