@@ -252,47 +252,37 @@ function ConnectChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={signerType}>
-        <>
-          <KeeperHeader title={title} subtitle={subtitle} />
-          <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
-            {!channelCreated ? (
-              <RNCamera
-                autoFocus="on"
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={onBarCodeRead}
-                useNativeZoom
-              />
-            ) : (
-              <VStack>
-                <Text
-                  numberOfLines={2}
-                  color={`${colorMode}.greenText`}
-                  style={styles.instructions}
-                >
-                  {'\u2022 Please share the xPub from the Keeper web interface...'}
-                </Text>
-                <Text
-                  numberOfLines={3}
-                  color={`${colorMode}.greenText`}
-                  style={styles.instructions}
-                >
-                  {
-                    '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
-                  }
-                </Text>
-                <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
-              </VStack>
-            )}
-          </ScrollView>
-          <Box style={styles.noteWrapper}>
-            <Note
-              title={common.note}
-              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-              subtitleColor="GreyText"
+        <KeeperHeader title={title} subtitle={subtitle} />
+        <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
+          {!channelCreated ? (
+            <RNCamera
+              autoFocus="on"
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={onBarCodeRead}
+              useNativeZoom
             />
-          </Box>
-        </>
+          ) : (
+            <VStack>
+              <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+                {'\u2022 Please share the xPub from the Keeper web interface...'}
+              </Text>
+              <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+                {
+                  '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+                }
+              </Text>
+              <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+            </VStack>
+          )}
+        </ScrollView>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+            subtitleColor="GreyText"
+          />
+        </Box>
       </MockWrapper>
     </ScreenWrapper>
   );

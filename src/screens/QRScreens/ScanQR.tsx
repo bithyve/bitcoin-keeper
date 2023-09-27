@@ -114,50 +114,48 @@ function ScanQR() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={type} enable={setup && type && !disableMockFlow}>
-        <>
-          <KeeperHeader title={title} subtitle={subtitle} />
-          <VStack style={globalStyles.centerColumn}>
-            <Box style={styles.qrcontainer}>
-              {!nfcVisible ? (
-                <RNCamera
-                  autoFocus="on"
-                  style={styles.cameraView}
-                  captureAudio={false}
-                  onBarCodeRead={onBarCodeRead}
-                  useNativeZoom
-                  notAuthorizedView={<CameraUnauthorized />}
-                />
-              ) : (
-                <Box style={styles.cameraView} />
-              )}
-            </Box>
-            <UploadImage onPress={handleChooseImage} />
-            <HStack>
-              {qrPercent !== 100 && <ActivityIndicator />}
-              <Text>{`Scanned ${qrPercent}%`}</Text>
-            </HStack>
-          </VStack>
-
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContainer}
-          >
-            <NFCOption
-              signerType={type}
-              nfcVisible={nfcVisible}
-              closeNfc={closeNfc}
-              withNfcModal={withNfcModal}
-              setData={setData}
-            />
-          </ScrollView>
-          <Box style={styles.noteWrapper}>
-            <Note
-              title={common.note}
-              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-              subtitleColor="GreyText"
-            />
+        <KeeperHeader title={title} subtitle={subtitle} />
+        <VStack style={globalStyles.centerColumn}>
+          <Box style={styles.qrcontainer}>
+            {!nfcVisible ? (
+              <RNCamera
+                autoFocus="on"
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={onBarCodeRead}
+                useNativeZoom
+                notAuthorizedView={<CameraUnauthorized />}
+              />
+            ) : (
+              <Box style={styles.cameraView} />
+            )}
           </Box>
-        </>
+          <UploadImage onPress={handleChooseImage} />
+          <HStack>
+            {qrPercent !== 100 && <ActivityIndicator />}
+            <Text>{`Scanned ${qrPercent}%`}</Text>
+          </HStack>
+        </VStack>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          <NFCOption
+            signerType={type}
+            nfcVisible={nfcVisible}
+            closeNfc={closeNfc}
+            withNfcModal={withNfcModal}
+            setData={setData}
+          />
+        </ScrollView>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+            subtitleColor="GreyText"
+          />
+        </Box>
       </MockWrapper>
     </ScreenWrapper>
   );

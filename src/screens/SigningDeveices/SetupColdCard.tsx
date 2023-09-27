@@ -129,17 +129,15 @@ function SetupColdCard({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={SignerType.COLDCARD}>
-        <Box flex={1}>
-          <Box style={styles.header}>
-            <KeeperHeader
-              title={
-                mode === InteracationMode.HEALTH_CHECK ? 'Verify Coldcard' : 'Setting up Coldcard'
-              }
-              subtitle={instructions}
-            />
-          </Box>
-          <NfcPrompt visible={nfcVisible} close={closeNfc} />
+        <Box style={styles.header}>
+          <KeeperHeader
+            title={
+              mode === InteracationMode.HEALTH_CHECK ? 'Verify Coldcard' : 'Setting up Coldcard'
+            }
+            subtitle={instructions}
+          />
         </Box>
+        <NfcPrompt visible={nfcVisible} close={closeNfc} />
       </MockWrapper>
     </ScreenWrapper>
   );
