@@ -230,7 +230,7 @@ function ManageWallets() {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
       />
-      <Box backgroundColor="#BABABA" height={0.4} width="100%" />
+      <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <FlatList
         data={hiddenWallets}
         extraData={[visibleWallets, hiddenWallets]}
@@ -266,7 +266,7 @@ function ManageWallets() {
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />
