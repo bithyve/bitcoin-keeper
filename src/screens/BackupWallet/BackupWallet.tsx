@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { hp } from 'src/constants/responsive';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -34,7 +34,10 @@ function BackupWallet() {
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
     <ScreenWrapper>
-      <HeaderTitle title={BackupWallet.backupWallet} subtitle={BackupWallet.backupWalletSubTitle} />
+      <KeeperHeader
+        title={BackupWallet.backupWallet}
+        subtitle={BackupWallet.backupWalletSubTitle}
+      />
       <Box style={styles.optionWrapper}>
         <OptionCard
           title={BackupWallet.exportAppSeed}

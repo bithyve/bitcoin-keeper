@@ -6,7 +6,7 @@ import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { hp, wp } from 'src/constants/responsive';
 
 import Arrow from 'src/assets/images/rightarrow.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -99,7 +99,7 @@ function SignWithColdCard({ route }: { route }) {
         <VStack>
           {!registered && isMultisig ? (
             <>
-              <HeaderTitle
+              <KeeperHeader
                 title="Register Device"
                 subtitle="The vault needs to be registered only once"
               />
@@ -110,7 +110,7 @@ function SignWithColdCard({ route }: { route }) {
               />
             </>
           ) : null}
-          <HeaderTitle title="Sign Transaction" subtitle="Two step process" enableBack={false} />
+          <KeeperHeader title="Sign Transaction" subtitle="Two step process" enableBack={false} />
           <Card
             message="Send PSBT from the app to Coldcard"
             buttonText="Send"

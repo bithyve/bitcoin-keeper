@@ -3,7 +3,7 @@ import { Box, useColorMode } from 'native-base';
 import { FlatList, RefreshControl } from 'react-native';
 import React, { useState } from 'react';
 import { hp } from 'src/constants/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RealmSchema } from 'src/storage/realm/enum';
 import TransactionElement from 'src/components/TransactionElement';
 import VaultIcon from 'src/assets/images/icon_vault_brown.svg';
@@ -50,7 +50,7 @@ function AllTransactions({ route }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subtitle} />
+      <KeeperHeader title={title} subtitle={subtitle} />
       <FlatList
         data={entityKind === EntityKind.WALLET ? walletTrans : vaultTrans}
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}

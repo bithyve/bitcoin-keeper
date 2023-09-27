@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Box } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -24,7 +24,7 @@ function RegisterWithQR({ route, navigation }: any) {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Register Signing Device"
         subtitle="Register the vault with any of the QR based signing devices"
       />

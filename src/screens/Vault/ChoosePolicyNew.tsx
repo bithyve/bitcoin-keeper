@@ -14,7 +14,7 @@ import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import idx from 'idx';
 import { numberWithCommas } from 'src/utils/utilities';
@@ -115,7 +115,7 @@ function ChoosePolicyNew({ navigation, route }) {
   return (
     <Box flex={1} position="relative">
       <ScreenWrapper barStyle="dark-content">
-        <HeaderTitle title="Choose Policy" subtitle="For the signing server" />
+        <KeeperHeader title="Choose Policy" subtitle="For the signing server" />
         <Box
           style={{
             paddingHorizontal: wp(15),

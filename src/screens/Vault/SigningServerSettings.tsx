@@ -5,7 +5,7 @@ import { Box, Pressable, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 
 import Text from 'src/components/KeeperText';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
 import { wp, hp } from 'src/constants/responsive';
@@ -114,7 +114,7 @@ function SigningServerSettings({ route }) {
     <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
-        <HeaderTitle title="Signing Server Settings" subtitle="Lorem Ipsum Dolor" />
+        <KeeperHeader title="Signing Server Settings" subtitle="Lorem Ipsum Dolor" />
       </Box>
       <Box borderBottomColor="light.divider" marginTop={hp(40)} paddingX={wp(25)}>
         <VaultCard

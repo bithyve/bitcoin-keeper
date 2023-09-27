@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -212,7 +212,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
+      <KeeperHeader title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
       <FlatList
         data={visibleWallets}
         extraData={[visibleWallets, hiddenWallets]}

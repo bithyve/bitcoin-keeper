@@ -4,7 +4,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -123,7 +123,7 @@ function SignerAdvanceSettings({ route }: any) {
   const { font12, font10, font14 } = globalStyles;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title="Advanced Settings" paddingLeft={25} />
+      <KeeperHeader title="Advanced Settings" />
       <Box backgroundColor={`${colorMode}.coffeeBackground`} style={styles.card}>
         <HStack alignItems="center">
           <Box style={styles.circle}>{SDIcons(signer.type, true).Icon}</Box>

@@ -1,8 +1,6 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React, { useState, useContext } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
-
 import Text from 'src/components/KeeperText';
 import CountryCard from 'src/components/SettingComponent/CountryCard';
 import CountrySwitchCard from 'src/components/SettingComponent/CountrySwitchCard';
@@ -12,7 +10,7 @@ import Colors from 'src/theme/Colors';
 import CountryCode from 'src/constants/CountryCode';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import availableLanguages from 'src/context/Localization/availableLanguages';
 import { useAppSelector, useAppDispatch } from 'src/store/hooks';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -212,7 +210,7 @@ function ChangeLanguage() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title={settings.LanguageCountry} subtitle={settings.biometricsDesc} />
+      <KeeperHeader title={settings.LanguageCountry} subtitle={settings.biometricsDesc} />
       <Box flex={1}>
         <CountryCard
           title={settings.SatsMode}

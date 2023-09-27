@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import Share from 'react-native-share';
-
-import HeaderTitle from 'src/components/HeaderTitle';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
   setInheritance,
@@ -19,7 +17,6 @@ import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-
 import Text from 'src/components/KeeperText';
 import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
@@ -33,15 +30,16 @@ import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 function InheritanceStatus() {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
-  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector(
-    (state) => state.settings
-  );
+  // const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector(
+  //   (state) => state.settings
+  // );
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
@@ -63,7 +61,7 @@ function InheritanceStatus() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         learnMore
         learnMorePressed={() => {
           dispatch(setInheritance(true));

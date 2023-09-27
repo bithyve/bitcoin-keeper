@@ -17,7 +17,7 @@ import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
@@ -229,7 +229,7 @@ function AddSendAmount({ route }) {
       >
         <Box style={styles.HeaderContainer}>
           <Box style={styles.headerWrapper}>
-            <HeaderTitle
+            <KeeperHeader
               title={
                 transferType === TransferType.WALLET_TO_WALLET
                   ? `Sending to Wallet`

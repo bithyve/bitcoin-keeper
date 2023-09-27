@@ -5,7 +5,7 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import NFC from 'src/services/nfc';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -40,7 +40,7 @@ function SigningDeviceListRecovery({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const dispatch = useAppDispatch();
-  const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
+  const { signingDevices } = useAppSelector((state) => state.bhr);
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -179,7 +179,7 @@ function SigningDeviceListRecovery({ navigation }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
         headerTitleColor={`${colorMode}.black`}

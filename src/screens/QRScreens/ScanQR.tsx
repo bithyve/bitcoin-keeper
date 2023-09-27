@@ -4,7 +4,7 @@ import { Box, HStack, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
@@ -115,7 +115,7 @@ function ScanQR() {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={type} enable={setup && type && !disableMockFlow}>
         <>
-          <HeaderTitle title={title} subtitle={subtitle} />
+          <KeeperHeader title={title} subtitle={subtitle} />
           <VStack style={globalStyles.centerColumn}>
             <Box style={styles.qrcontainer}>
               {!nfcVisible ? (

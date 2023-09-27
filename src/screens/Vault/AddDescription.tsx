@@ -4,7 +4,7 @@ import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import Tapsigner from 'src/assets/images/Tapsigner_brown.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
 import { hp, wp } from 'src/constants/responsive';
@@ -19,7 +19,7 @@ function AddDescription({ route }) {
       <StatusBarComponent padding={50} />
       <Box marginX={3}>
         <Box width={wp(200)}>
-          <HeaderTitle
+          <KeeperHeader
             title="Add Description"
             subtitle="Optionally you can add a short description to the Signing Device"
           />
