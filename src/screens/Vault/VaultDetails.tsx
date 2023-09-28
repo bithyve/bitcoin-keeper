@@ -700,7 +700,7 @@ function VaultDetails({ navigation }) {
         }}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink(collaborativeWalletId ? 'https://www.bitcoinkeeper.app/' : 'https://help.bitcoinkeeper.app/knowledge-base/what-is-vault/')}
+        learnMoreCallback={() => openLink(collaborativeWalletId ? 'https://bitcoinkeeper.app/features/' : 'https://help.bitcoinkeeper.app/knowledge-base/what-is-vault/')}
       />
       <KeeperModal
         visible={showBuyRampModal}

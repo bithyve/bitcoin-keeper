@@ -43,6 +43,7 @@ import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
+import openLink from 'src/utils/OpenLink';
 
 function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
