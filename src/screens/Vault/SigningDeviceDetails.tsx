@@ -30,6 +30,7 @@ import SigningServerIllustration from 'src/assets/images/signingServer_illustrat
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import JadeSVG from 'src/assets/images/illustration_jade.svg';
+import InhertanceKeyIcon from 'src/assets/images/illustration_inheritanceKey.svg'
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -205,6 +206,16 @@ function SigningDeviceDetails({ route }) {
           description:
             '\u2022World-class security.\n\u2022 Manage your assets from mobile or desktop.\n\u2022 Camera for fully air-gapped transactions',
           FAQ: 'https://help.blockstream.com/hc/en-us/categories/900000061906-Blockstream-Jade',
+        };
+      case SignerType.INHERITANCEKEY:
+        return {
+          title: 'Inheritance Key',
+          subTitle:
+            'Secure your legacy with the Inheritance Key feature in Keeper.',
+          assert: <InhertanceKeyIcon />,
+          description:
+            '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
+          FAQ: 'https://help.bitcoinkeeper.app/knowledge-base/how-to-setup-inheritance-in-keeper-app/',
         };
       default:
         return {
