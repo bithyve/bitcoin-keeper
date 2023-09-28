@@ -82,8 +82,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -281,7 +281,7 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-          <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
+          <Pressable onPress={() => openLink('https://help.bitcoinkeeper.app/knowledge-base/')} testID="btn_FAQ">
             <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
               {common.FAQs}
             </Text>
