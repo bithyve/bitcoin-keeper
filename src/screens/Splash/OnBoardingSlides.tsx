@@ -126,7 +126,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink('https://help.bitcoinkeeper.app/knowledge-base/')}>
+              <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/features/')}>
                 <Box
                   borderColor="light.lightAccent"
                   backgroundColor="light.gradientEnd"
