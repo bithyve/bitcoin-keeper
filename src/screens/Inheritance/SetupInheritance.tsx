@@ -195,7 +195,7 @@ function SetupInheritance() {
         Content={InheritanceContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+        learnMoreCallback={() => openLink('https://help.bitcoinkeeper.app/knowledge-base/how-to-setup-inheritance-in-keeper-app/')}
       />
     </ScreenWrapper>
   );

@@ -36,7 +36,7 @@ function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
       Content={InitiateContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+      learnMoreCallback={() => openLink('https://help.bitcoinkeeper.app/knowledge-base/what-is-whirlpool/')}
       buttonText="Proceed"
       buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
       buttonBackground={`${colorMode}.modalWhiteButton`}
