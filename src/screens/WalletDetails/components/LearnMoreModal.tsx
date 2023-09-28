@@ -40,7 +40,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       Content={LinkedWalletContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+      learnMoreCallback={() => openLink('https://help.bitcoinkeeper.app/knowledge-base/backup/')}
       buttonText="Continue"
       buttonTextColor="light.greenText2"
       buttonBackground={`${colorMode}.modalWhiteButton`}
