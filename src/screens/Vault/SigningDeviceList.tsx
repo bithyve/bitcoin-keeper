@@ -206,7 +206,7 @@ function SigningDeviceList() {
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
-          learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+          learnMoreCallback={() => openLink('https://help.bitcoinkeeper.app/knowledge-base-category/signing-device-usekeeper/')}
         />
       </Box>
       <Note

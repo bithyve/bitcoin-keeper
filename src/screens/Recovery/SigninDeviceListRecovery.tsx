@@ -15,6 +15,10 @@ import { setSdIntroModal } from 'src/store/reducers/vaults';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HardwareModalMap, { InteracationMode } from '../Vault/HardwareModalMap';
 import config, { APP_STAGE } from 'src/core/config';
+import KeeperModal from 'src/components/KeeperModal';
+import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import openLink from 'src/utils/OpenLink';
 
 type HWProps = {
   type: SignerType;
@@ -42,6 +46,7 @@ function SigningDeviceListRecovery({ navigation }) {
   const dispatch = useAppDispatch();
   const { signingDevices } = useAppSelector((state) => state.bhr);
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
+  const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
 
@@ -127,6 +132,19 @@ function SigningDeviceListRecovery({ navigation }) {
     SignerType.SEED_WORDS,
     SignerType.INHERITANCEKEY,
   ];
+
+  function VaultSetupContent() {
+    return (
+      <Box>
+        <Box alignSelf="center">
+          <SigningDevicesIllustration />
+        </Box>
+        <Text color={`${colorMode}.modalGreenContent`} style={styles.modalText}>
+          {`In the ${SubscriptionTier.L1} tier, you can add one signing device to activate your vault. This can be upgraded to three signing devices and five signing devices on ${SubscriptionTier.L2} and ${SubscriptionTier.L3} tiers\n\nIf a particular signing device is not supported, it will be indicated.`}
+        </Text>
+      </Box>
+    );
+  }
 
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
@@ -219,6 +237,26 @@ function SigningDeviceListRecovery({ navigation }) {
           )}
         </ScrollView>
       </Box>
+      <KeeperModal
+        visible={sdModal}
+        close={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+        title="Signing Devices"
+        subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
+        modalBackground={`${colorMode}.modalGreenBackground`}
+        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
+        buttonText="Add Now"
+        buttonCallback={() => {
+          dispatch(setSdIntroModal(false));
+        }}
+        textColor={`${colorMode}.modalGreenContent`}
+        Content={VaultSetupContent}
+        DarkCloseIcon
+        learnMore
+        learnMoreCallback={() => openLink('https://help.bitcoinkeeper.app/knowledge-base-category/recovery-why-keeper/')}
+      />
     </ScreenWrapper>
   );
 }
