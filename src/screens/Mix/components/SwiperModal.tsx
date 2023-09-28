@@ -103,7 +103,7 @@ function List() {
         >
           <Pressable
             onPress={() => {
-              openLink('https://www.bitcoinkeeper.app/');
+              openLink('https://help.bitcoinkeeper.app/knowledge-base/what-is-whirlpool/');
             }}
           >
             <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
