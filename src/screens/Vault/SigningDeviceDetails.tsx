@@ -62,6 +62,10 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
 
+  if (!signer) {
+    return null;
+  }
+
   function SignerContent() {
     return (
       <Box>
@@ -95,7 +99,7 @@ function SigningDeviceDetails({ route }) {
         return {
           title: 'TAPSIGNER',
           subTitle:
-            "TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone",
+            'TAPSIGNER is a Bitcoin private key on a card! You can sign mobile wallet transaction by tapping the phone',
           assert: <TapsignerSetupImage />,
           description:
             '\u2022 TAPSIGNER’s lower cost makes hardware wallet features and security available to a wider market around the world.\n\u2022 An NFC card provides fast and easy user experiences.\n\u2022 TAPSIGNER is a great way to keep your keys separate from your wallet(s) \n\u2022 The card form factor makes it easy to carry and easy to conceal',
@@ -116,7 +120,8 @@ function SigningDeviceDetails({ route }) {
           subTitle:
             'The goal of SeedSigner is to lower the cost and complexity of Bitcoin multi-signature wallet use. To accomplish this goal, SeedSigner offers anyone the opportunity to build a verifiably air-gapped, stateless Bitcoin signing device using inexpensive, publicly available hardware components (usually < $50).',
           assert: <SeedSigner />,
-          description: '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022  It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
+          description:
+            '\u2022 SeedSigner helps users save with Bitcoin by assisting with trustless private key generation and multi-signature wallet setup. \n\u2022  It also help users transact with Bitcoin via a secure, air-gapped QR-exchange signing model.',
           FAQ: 'https://seedsigner.com/faqs/',
         };
       case SignerType.KEYSTONE:
