@@ -3,7 +3,7 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-nat
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import config, { APP_STAGE } from 'src/core/config';
+import { KEEPERWEBSITE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
@@ -206,7 +206,7 @@ function SigningDeviceList() {
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
-          learnMoreCallback={() => openLink('https://help.bitcoinkeeper.app/knowledge-base-category/signing-device-usekeeper/')}
+          learnMoreCallback={() => openLink(`${KEEPERWEBSITE}knowledge-base-category/signing-device-usekeeper/`)}
         />
       </Box>
       <Note

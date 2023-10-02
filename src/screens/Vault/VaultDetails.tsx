@@ -52,6 +52,7 @@ import { useQuery } from '@realm/react';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
+import { KEEPERWEBSITE } from 'src/core/config';
 
 function Footer({
   vault,
@@ -700,7 +701,7 @@ function VaultDetails({ navigation }) {
         }}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink(collaborativeWalletId ? 'https://bitcoinkeeper.app/features/' : 'https://help.bitcoinkeeper.app/knowledge-base/what-is-vault/')}
+        learnMoreCallback={() => openLink(collaborativeWalletId ? `${KEEPERWEBSITE}features/` : `${KEEPERWEBSITE}knowledge-base/what-is-vault/`)}
       />
       <KeeperModal
         visible={showBuyRampModal}

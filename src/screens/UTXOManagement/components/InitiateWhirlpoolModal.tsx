@@ -8,6 +8,7 @@ import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { modalParams } from 'src/models/interfaces/UTXOs';
+import { KEEPERWEBSITE } from 'src/core/config';
 
 function InitiateContent() {
   return (
@@ -36,7 +37,7 @@ function InitiateWhirlpoolModal({ visible, closeModal }: modalParams) {
       Content={InitiateContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() => openLink('https://help.bitcoinkeeper.app/knowledge-base/what-is-whirlpool/')}
+      learnMoreCallback={() => openLink(`${KEEPERWEBSITE}knowledge-base/what-is-whirlpool/`)}
       buttonText="Proceed"
       buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
       buttonBackground={`${colorMode}.modalWhiteButton`}

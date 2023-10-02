@@ -45,6 +45,7 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
+import { KEEPERWEBSITE } from 'src/core/config';
 
 function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -215,7 +216,7 @@ function SigningDeviceDetails({ route }) {
           assert: <InhertanceKeyIcon />,
           description:
             '\u2022Prepare for the future by using a 3-of-6 multisig setup with one key being an Inheritance Key.\n\u2022 Ensure a seamless transfer of assets while maintaining control over your financial legacy.',
-          FAQ: 'https://help.bitcoinkeeper.app/knowledge-base/how-to-setup-inheritance-in-keeper-app/',
+          FAQ: `${KEEPERWEBSITE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`,
         };
       default:
         return {
