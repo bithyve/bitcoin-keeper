@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React, { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, Center, useColorMode } from 'native-base';
@@ -65,10 +64,17 @@ function SigningDeviceDetails({ route }) {
     getJSONFromRealmObject
   )[0];
 
+  if (!signer) {
+    return null;
+  }
+
+  const { title, subTitle, assert, description, FAQ } = getSignerContent(signer?.type);
+  const { Icon } = SDIcons(signer?.type, true);
+
   function SignerContent() {
     return (
       <Box>
-        <Center>{getSignerContent(signer?.type).assert}</Center>
+        <Center>{assert}</Center>
         <Text
           color="light.white"
           style={{
@@ -77,7 +83,7 @@ function SigningDeviceDetails({ route }) {
             marginTop: hp(25),
           }}
         >
-          {getSignerContent(signer?.type).description}
+          {description}
         </Text>
       </Box>
     );
@@ -229,7 +235,7 @@ function SigningDeviceDetails({ route }) {
     }
   };
 
-  function HealthCheckContentTapsigner() {
+  function HealthCheckSkipContent() {
     return (
       <Box>
         <Box style={styles.skipHealthIllustration}>
@@ -290,10 +296,7 @@ function SigningDeviceDetails({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
-        learnMore
-        learnMorePressed={() => setDetailModal(getSignerContent(signer?.type).title)}
-      />
+      <KeeperHeader learnMore learnMorePressed={() => setDetailModal(true)} />
       <Box
         style={{
           flexDirection: 'row',
@@ -312,7 +315,7 @@ function SigningDeviceDetails({ route }) {
             backgroundColor: '#725436',
           }}
         >
-          {SDIcons(signer?.type, true).Icon}
+          {Icon}
         </Box>
         <Box marginTop={2} width="75%" flexDirection="row" justifyContent="space-between">
           <Box flexDirection="column">
@@ -372,16 +375,16 @@ function SigningDeviceDetails({ route }) {
             setSkipHealthCheckModalVisible(false);
           }}
           textColor="light.primaryText"
-          Content={HealthCheckContentTapsigner}
+          Content={HealthCheckSkipContent}
         />
         <KeeperModal
           visible={detailModal}
           close={() => setDetailModal(false)}
-          title={getSignerContent(signer?.type).title}
-          subTitle={getSignerContent(signer?.type).subTitle}
+          title={title}
+          subTitle={subTitle}
           modalBackground={`${colorMode}.modalGreenBackground`}
           textColor="light.white"
-          learnMoreCallback={() => openLink(getSignerContent(signer?.type).FAQ)}
+          learnMoreCallback={() => openLink(FAQ)}
           Content={SignerContent}
           DarkCloseIcon
           learnMore

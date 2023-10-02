@@ -373,7 +373,7 @@ function SignTransactionScreen() {
         subtitle={`Chose any ${scheme.m} to sign the transaction`}
       />
       <FlatList
-        contentContainerStyle={{ paddingTop: '10%' }}
+        contentContainerStyle={{ paddingTop: '5%' }}
         data={signers}
         keyExtractor={(item) => item.signerId}
         renderItem={({ item }) => (
@@ -383,11 +383,6 @@ function SignTransactionScreen() {
             envelops={serializedPSBTEnvelops}
           />
         )}
-      />
-      <Note
-        title="Note"
-        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
-        subtitleColor="GreyText"
       />
       <Box alignItems="flex-end" marginY={5}>
         <Buttons
@@ -411,6 +406,11 @@ function SignTransactionScreen() {
           }}
         />
       </Box>
+      <Note
+        title="Note"
+        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
+        subtitleColor="GreyText"
+      />
       <SignerModals
         signers={signers}
         activeSignerId={activeSignerId}
