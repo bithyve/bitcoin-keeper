@@ -32,7 +32,6 @@ function OnBoardingSlides({ navigation }) {
   const { onboarding } = translations;
   const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
-  // console.log('currentPosition', currentPosition)
   const [items] = useState([
     {
       id: 1,
