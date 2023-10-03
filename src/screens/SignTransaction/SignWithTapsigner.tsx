@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { Platform, StyleSheet, TextInput } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
@@ -53,6 +53,10 @@ function SignWithTapsigner() {
       navigation.goBack();
     } catch (err) {
       const errorMessage = getTapsignerErrorMessage(err);
+      if (errorMessage.includes('cvc retry')) {
+        navigation.dispatch(CommonActions.navigate('UnlockTapsigner'));
+        return;
+      }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
         showToast(errorMessage, null, 2000, true);
