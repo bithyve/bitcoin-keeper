@@ -8,7 +8,7 @@ import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { EntityKind, VaultType, WalletType } from 'src/core/wallets/enums';
+import { EntityKind, VaultType, VisibilityType, WalletType } from 'src/core/wallets/enums';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import WalletDark from 'src/assets/images/walletDark.svg';
@@ -256,7 +256,6 @@ function AddImportWallet({
   collaborativeWallets,
   setAddImportVisible,
   setDefaultWalletCreation,
-  walletIndex,
   navigation,
 }) {
   const { colorMode } = useColorMode();
@@ -284,7 +283,7 @@ function AddImportWallet({
         onPress={() => {
           setAddImportVisible(false);
           navigation.navigate('EnterWalletDetail', {
-            name: `Wallet ${walletIndex + 1}`,
+            name: `Wallet ${wallets.length + 1}`,
             description: 'Single-sig Wallet',
             type: WalletType.DEFAULT,
           });
@@ -400,9 +399,12 @@ function DowngradeModalContent() {
 const WalletsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
-  const { wallets } = useWallets();
+  const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
-  const allWallets = wallets.concat(collaborativeWallets);
+  const nonHiddenWallets = wallets.filter(
+    (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
+  );
+  const allWallets = nonHiddenWallets.concat(collaborativeWallets);
   const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
   const netBalanceCollaborativeWallets = calculateBalancesForVaults(collaborativeWallets);
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
@@ -470,8 +472,8 @@ const WalletsScreen = ({ navigation }) => {
       <Box style={styles.titleWrapper}>
         <Box style={styles.titleInfoView}>
           <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_HotWallet">
-            {wallets?.length + collaborativeWallets?.length} Wallet
-            {wallets?.length + collaborativeWallets?.length > 1 && 's'}
+            {nonHiddenWallets?.length + collaborativeWallets?.length} Wallet
+            {nonHiddenWallets?.length + collaborativeWallets?.length > 1 && 's'}
           </Text>
         </Box>
         <Box style={styles.netBalanceView} testID="view_netBalance">
@@ -489,6 +491,7 @@ const WalletsScreen = ({ navigation }) => {
         walletIndex={walletIndex}
         setWalletIndex={setWalletIndex}
         wallets={allWallets}
+        walletsCount={wallets.length}
         setAddImportVisible={() => setAddImportVisible(true)}
         navigation={navigation}
       />

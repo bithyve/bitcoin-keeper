@@ -245,6 +245,7 @@ function ManageWallets() {
             onBtnPress={() => {
               setSelectedWallet(item);
               navigation.navigate('Login', {
+                internalCheck: true,
                 relogin: true,
                 screen: 'ManageWallets',
                 title: 'Enter Passcode to Unhide Wallet',

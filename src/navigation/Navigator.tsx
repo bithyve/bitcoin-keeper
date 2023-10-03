@@ -144,6 +144,8 @@ function LoginStack() {
       {/* Mobile Key, Seed Key */}
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
       <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
+      {/* Other SD */}
+      <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
     </Stack.Navigator>
   );
 }
