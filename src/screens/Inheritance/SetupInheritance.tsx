@@ -22,6 +22,7 @@ import usePlan from 'src/hooks/usePlan';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();
@@ -195,7 +196,7 @@ function SetupInheritance() {
         Content={InheritanceContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+        learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`)}
       />
     </ScreenWrapper>
   );

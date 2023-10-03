@@ -27,6 +27,7 @@ import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
+import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -82,8 +83,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -281,14 +282,14 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-          <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
+          <Pressable onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)} testID="btn_FAQ">
             <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
               {common.FAQs}
             </Text>
           </Pressable>
           <Text color={`${colorMode}.textColor2`}>|</Text>
           <Pressable
-            onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
+            onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}terms-of-service/`)}
             testID="btn_termsCondition"
           >
             <Text
@@ -301,7 +302,7 @@ function AppSettings({ navigation }) {
           </Pressable>
           <Text color={`${colorMode}.textColor2`}>|</Text>
           <Pressable
-            onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
             testID="btn_privacyPolicy"
           >
             <Text
