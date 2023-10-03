@@ -435,11 +435,11 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
-      setTitle('Sending to Vault');
+      setTitle('Sending to vault');
     } else if (walletTransfers.includes(transferType)) {
       setTitle('Sending to wallet');
     } else if (internalTransfers.includes(transferType)) {
-      setTitle('Transfer Funds to the new Vault');
+      setTitle('Transfer Funds to the new vault');
       setSubTitle('On-chain transaction incurs fees');
     }
   }, []);
@@ -511,10 +511,12 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
-  const collaborativeWalletId =
+  let collaborativeWalletId;
+  if (transferType !== TransferType.WALLET_TO_VAULT) {
     sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
       ? sender.collaborativeWalletId
       : '';
+  }
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {

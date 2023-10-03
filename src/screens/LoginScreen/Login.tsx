@@ -43,7 +43,7 @@ const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
   const { colorMode } = useColorMode();
-  const { relogin, title, screen } = route.params;
+  const { relogin, title, screen, internalCheck } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -166,6 +166,17 @@ function LoginScreen({ navigation, route }) {
     }
   }, [authenticationFailed]);
 
+  useEffect(() => {
+    if (isAuthenticated && internalCheck) {
+      navigation.navigate({
+        name: screen,
+        params: { isAuthenticated: true },
+        merge: true,
+      });
+    }
+    dispatch(credsAuthenticated(false));
+  }, [isAuthenticated]);
+
   const loginModalAction = () => {
     if (isAuthenticated) {
       setLoginModal(false);
@@ -195,6 +206,7 @@ function LoginScreen({ navigation, route }) {
 
   const attemptLogin = (passcode: string) => {
     setLoginModal(true);
+
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -495,8 +507,8 @@ function LoginScreen({ navigation, route }) {
         </Box>
       </Box>
       <KeeperModal
-        visible={loginModal}
-        close={() => { }}
+        visible={loginModal && !internalCheck}
+        close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -512,7 +524,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."

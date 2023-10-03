@@ -9,12 +9,14 @@ type useWalletsInterface = ({ getAll, walletIds }?: { getAll?: boolean; walletId
 };
 
 const useWallets: useWalletsInterface = ({ walletIds, getAll = false } = {}) => {
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet);
   const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}" && presentationData.visibility == "${VisibilityType.DEFAULT}"`
   );
+  const allWalletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
+    `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
+  );
   if (getAll) {
-    return { wallets: wallets.map(getJSONFromRealmObject) };
+    return { wallets: allWalletsWithoutWhirlpool.map(getJSONFromRealmObject) };
   }
   if (walletIds) {
     const extractedWallets = [];
