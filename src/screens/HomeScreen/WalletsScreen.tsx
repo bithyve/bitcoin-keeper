@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity, Animated, Pressable, View } from 'react-native';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import useBalance from 'src/hooks/useBalance';
@@ -120,8 +120,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-              collaborativeWalletId: item.collaborativeWalletId,
-            })
+            collaborativeWalletId: item.collaborativeWalletId,
+          })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -200,7 +200,6 @@ function WalletList({
 
 function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollaborativeWallet }) {
   const { colorMode } = useColorMode();
-  const { getBalance, getCurrencyIcon, getSatUnit } = useBalance();
   const { satsEnabled } = useAppSelector((state) => state.settings);
   return (
     <Box>
@@ -405,7 +404,6 @@ const WalletsScreen = ({ navigation }) => {
   const allWallets = wallets.concat(collaborativeWallets);
   const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
   const netBalanceCollaborativeWallets = calculateBalancesForVaults(collaborativeWallets);
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const [walletIndex, setWalletIndex] = useState<number>(0);
   const currentWallet = allWallets[walletIndex];
   const [addImportVisible, setAddImportVisible] = useState(false);
@@ -416,7 +414,7 @@ const WalletsScreen = ({ navigation }) => {
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
 
   const { showToast } = useToastMessage();
-  const { recepitVerificationError, recepitVerificationFailed } = useAppSelector(
+  const { recepitVerificationFailed } = useAppSelector(
     (state) => state.login
   );
 
@@ -525,7 +523,7 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
