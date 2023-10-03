@@ -19,8 +19,8 @@ export enum BITCOIN_NETWORK {
   MAINNET = 'MAINNET',
 }
 
-export const KEEPERWEBSITE = 'https://help.bitcoinkeeper.app/';
-export const MAINKEEPERWEBSITE = 'https://bitcoinkeeper.app/'
+export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/';
+export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/'
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
