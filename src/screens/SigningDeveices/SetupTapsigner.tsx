@@ -12,7 +12,7 @@ import DeleteDarkIcon from 'src/assets/images/delete.svg';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import Buttons from 'src/components/Buttons';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -170,42 +170,40 @@ function SetupTapsigner({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box flex={1}>
-        <HeaderTitle
-          title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
-          subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
-        />
-        <MockWrapper signerType={SignerType.TAPSIGNER}>
-          <ScrollView>
-            <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
-              <TextInput
-                value={cvc}
-                onChangeText={setCvc}
-                secureTextEntry
-                showSoftInputOnFocus={false}
-              />
-            </Box>
-            <Text style={styles.heading} color={`${colorMode}.greenText`}>
-              You will be scanning the TAPSIGNER after this step
-            </Text>
-            <Box style={styles.btnContainer}>
-              <Buttons
-                primaryText="Proceed"
-                primaryCallback={isHealthcheck ? verifyTapsginer : addTapsignerWithProgress}
-                primaryDisable={cvc.length < 6}
-                primaryLoading={inProgress}
-              />
-            </Box>
-          </ScrollView>
-        </MockWrapper>
-        <KeyPadView
-          onPressNumber={onPressHandler}
-          onDeletePressed={onDeletePressed}
-          keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
-          ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
-        />
-        <NfcPrompt visible={nfcVisible} close={closeNfc} />
-      </Box>
+      <KeeperHeader
+        title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
+        subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
+      />
+      <MockWrapper signerType={SignerType.TAPSIGNER}>
+        <ScrollView>
+          <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
+            <TextInput
+              value={cvc}
+              onChangeText={setCvc}
+              secureTextEntry
+              showSoftInputOnFocus={false}
+            />
+          </Box>
+          <Text style={styles.heading} color={`${colorMode}.greenText`}>
+            You will be scanning the TAPSIGNER after this step
+          </Text>
+          <Box style={styles.btnContainer}>
+            <Buttons
+              primaryText="Proceed"
+              primaryCallback={isHealthcheck ? verifyTapsginer : addTapsignerWithProgress}
+              primaryDisable={cvc.length < 6}
+              primaryLoading={inProgress}
+            />
+          </Box>
+        </ScrollView>
+      </MockWrapper>
+      <KeyPadView
+        onPressNumber={onPressHandler}
+        onDeletePressed={onDeletePressed}
+        keyColor={colorMode === 'light' ? '#041513' : '#FFF'}
+        ClearIcon={colorMode === 'dark' ? <DeleteIcon /> : <DeleteDarkIcon />}
+      />
+      <NfcPrompt visible={nfcVisible} close={closeNfc} />
     </ScreenWrapper>
   );
 }

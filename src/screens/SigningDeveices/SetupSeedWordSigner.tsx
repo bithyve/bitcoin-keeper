@@ -5,7 +5,7 @@ import React, { useContext, useState } from 'react';
 
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -67,7 +67,7 @@ function SetupSeedWordSigner({ route, navigation }) {
   return (
     <Box flex={1} padding={5} background="light.secondaryBackground">
       <StatusBarComponent padding={30} />
-      <HeaderTitle title="Seed Key" subtitle={seedText.SeedDesc} />
+      <KeeperHeader title="Seed Key" subtitle={seedText.SeedDesc} />
 
       <Box marginTop={windowHeight > 800 ? 10 : 2} height={windowHeight / 1.5}>
         <FlatList

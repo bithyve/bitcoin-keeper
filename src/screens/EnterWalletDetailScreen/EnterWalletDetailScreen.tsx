@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Select, useColorMode } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
@@ -194,7 +194,7 @@ function EnterWalletDetailScreen({ route }) {
   return (
     <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle
+      <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
       />

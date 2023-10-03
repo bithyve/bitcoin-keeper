@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -36,7 +36,7 @@ function CosignerDetails() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title="Co-signer Details"
         subtitle="Scan the co-signer details from another app in order to add this as a signer"
       />

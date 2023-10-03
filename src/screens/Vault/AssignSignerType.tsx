@@ -1,7 +1,7 @@
 import { Box, ScrollView, VStack } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
@@ -73,7 +73,7 @@ function AssignSignerType({ navigation, route }: IProps) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Identify your Signing Device"
         subtitle="for better communication and conectivity"
       />

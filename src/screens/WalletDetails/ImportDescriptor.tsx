@@ -4,7 +4,7 @@ import { Box, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import Fonts from 'src/constants/Fonts';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
@@ -111,7 +111,7 @@ function ImportDescriptorScreen({ navigation }) {
         }}
       >
         <View style={styles.wrapper}>
-          <HeaderTitle
+          <KeeperHeader
             title="Create Wallet through descriptors"
             subtitle="Create Collabrative Wallet through descriptor"
           />

@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Box, ScrollView, Text, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp, windowWidth } from 'src/constants/responsive';
 import useBalance from 'src/hooks/useBalance';
 import Note from 'src/components/Note/Note';
@@ -67,7 +67,7 @@ function VaultSettings() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Vault Settings" subtitle="Settings specific to the Vault" />
+      <KeeperHeader title="Vault Settings" subtitle="Settings specific to the Vault" />
       <Box borderBottomColor={`${colorMode}.divider`} style={styles.vaultCardWrapper}>
         <VaultCard
           vaultName={name}

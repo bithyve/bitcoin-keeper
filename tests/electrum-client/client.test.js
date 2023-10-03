@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import ElectrumClient from '../../src/core/services/electrum/client';
+import ElectrumClient from '../../src/services/electrum/client';
 
 jest.setTimeout(150 * 1000);
 

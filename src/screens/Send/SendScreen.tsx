@@ -18,7 +18,7 @@ import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
@@ -231,7 +231,7 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle title={common.send} subtitle="Scan a bitcoin address" />
+        <KeeperHeader title={common.send} subtitle="Scan a bitcoin address" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>

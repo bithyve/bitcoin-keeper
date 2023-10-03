@@ -9,6 +9,7 @@ import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { captureError } from 'src/services/sentry';
 import { setSigningDevices } from 'src/store/reducers/bhr';
+import { View } from 'native-base';
 
 MockWrapper.defaultProps = {
   enable: true,
@@ -23,7 +24,7 @@ function MockWrapper({
   isRecovery,
   navigation,
 }: {
-  children: ReactElement;
+  children: any;
   signerType: SignerType;
   enable?: boolean;
   isRecovery?: boolean;
@@ -56,7 +57,7 @@ function MockWrapper({
   }
   return (
     <TapGestureHandler numberOfTaps={3} onActivated={addMockSigner}>
-      {children}
+      <View flex={1}>{children}</View>
     </TapGestureHandler>
   );
 }

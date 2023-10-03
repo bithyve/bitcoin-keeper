@@ -6,7 +6,7 @@ import { StyleSheet } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
 import KeeperText from 'src/components/KeeperText';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
@@ -57,7 +57,7 @@ function EditWalletSettings({ route }) {
   return (
     <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle title={walletText.WalletDetails} subtitle={walletText.EditWalletDeatils} />
+      <KeeperHeader title={walletText.WalletDetails} subtitle={walletText.EditWalletDeatils} />
       <View style={styles.inputWrapper}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input

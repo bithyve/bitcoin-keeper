@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -212,7 +212,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
+      <KeeperHeader title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
       <FlatList
         data={visibleWallets}
         extraData={[visibleWallets, hiddenWallets]}
@@ -230,7 +230,7 @@ function ManageWallets() {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
       />
-      <Box backgroundColor="#BABABA" height={0.4} width="100%" />
+      <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <FlatList
         data={hiddenWallets}
         extraData={[visibleWallets, hiddenWallets]}
@@ -267,7 +267,7 @@ function ManageWallets() {
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />

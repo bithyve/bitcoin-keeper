@@ -68,9 +68,9 @@ const settingsSlice = createSlice({
     setLetterToAttornyPath: (state, action: PayloadAction<string>) => {
       state.letterToAttorny = action.payload;
     },
-    setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
-      state.recoveryInstruction = action.payload;
-    },
+    // setRecoveryInstructionPath: (state, action: PayloadAction<string>) => {
+    //   state.recoveryInstruction = action.payload;
+    // },
   },
 });
 
@@ -86,7 +86,7 @@ export const {
   setWhirlpoolSwiperModal,
   setKeySecurityTipsPath,
   setLetterToAttornyPath,
-  setRecoveryInstructionPath,
+  // setRecoveryInstructionPath,
 } = settingsSlice.actions;
 
 export default settingsSlice.reducer;

@@ -14,7 +14,7 @@ import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
 import { EntityKind, WalletType } from 'src/core/wallets/enums';
@@ -41,8 +41,9 @@ export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
+
   return (
-    <Box style={styles.transactionsListContainer}>
+    <>
       <ActivityIndicatorView visible={syncing} showLoader />
       <Transactions
         transactions={transactions}
@@ -50,17 +51,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
         pullRefresh={pullRefresh}
         currentWallet={wallet}
       />
-    </Box>
-  );
-}
-
-function Footer({ wallet, onPressBuyBitcoin, walletIndex }) {
-  return (
-    <TransactionFooter
-      currentWallet={wallet}
-      onPressBuyBitcoin={onPressBuyBitcoin}
-      walletIndex={walletIndex}
-    />
+    </>
   );
 }
 
@@ -113,7 +104,7 @@ function WalletDetails({ route }) {
     <Box style={styles.container} backgroundColor={`${colorMode}.greenText2`}>
       <StatusBar barStyle="light-content" />
       <Box style={{ paddingHorizontal: 20, paddingTop: 15 }}>
-        <HeaderTitle
+        <KeeperHeader
           learnMore
           learnMorePressed={() => dispatch(setIntroModal(true))}
           contrastScreen={true}
@@ -236,8 +227,8 @@ function WalletDetails({ route }) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <Footer
-              wallet={wallet}
+            <TransactionFooter
+              currentWallet={wallet}
               onPressBuyBitcoin={onPressBuyBitcoin}
               walletIndex={walletIndex}
             />
@@ -283,7 +274,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   transactionsListContainer: {
-    paddingVertical: hp(10),
     height: windowHeight > 800 ? '66%' : '58%',
     position: 'relative',
   },
