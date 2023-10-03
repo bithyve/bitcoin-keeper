@@ -10,7 +10,7 @@ import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';
-import { KEEPERWEBSITE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
@@ -104,7 +104,7 @@ function List() {
         >
           <Pressable
             onPress={() => {
-              openLink(`${KEEPERWEBSITE}knowledge-base/what-is-whirlpool/`);
+              openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-whirlpool/`);
             }}
           >
             <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>

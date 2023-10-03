@@ -21,7 +21,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
-import { KEEPERWEBSITE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 const { width } = Dimensions.get('window');
 
@@ -126,7 +126,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink(`${KEEPERWEBSITE}knowledge-base/`)}>
+              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}>
                 <Box
                   borderColor="light.lightAccent"
                   backgroundColor="light.gradientEnd"

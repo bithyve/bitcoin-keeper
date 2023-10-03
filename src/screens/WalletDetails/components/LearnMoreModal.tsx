@@ -7,7 +7,7 @@ import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
 import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
-import { KEEPERWEBSITE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function LinkedWalletContent() {
   return (
@@ -41,7 +41,7 @@ function LearnMoreModal({ introModal, setIntroModal }) {
       Content={LinkedWalletContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() => openLink(`${KEEPERWEBSITE}knowledge-base/backup/`)}
+      learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/backup/`)}
       buttonText="Continue"
       buttonTextColor="light.greenText2"
       buttonBackground={`${colorMode}.modalWhiteButton`}

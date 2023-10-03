@@ -14,7 +14,7 @@ import { SignerType } from 'src/core/wallets/enums';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HardwareModalMap, { InteracationMode } from '../Vault/HardwareModalMap';
-import config, { APP_STAGE, KEEPERWEBSITE } from 'src/core/config';
+import config, { APP_STAGE, KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperModal from 'src/components/KeeperModal';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
@@ -255,7 +255,7 @@ function SigningDeviceListRecovery({ navigation }) {
         Content={VaultSetupContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink(`${KEEPERWEBSITE}knowledge-base-category/recovery-why-keeper/`)}
+        learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/recovery-why-keeper/`)}
       />
     </ScreenWrapper>
   );
