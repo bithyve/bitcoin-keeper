@@ -118,7 +118,7 @@ function AddSendAmount({ route }) {
     } else if (availableToSpend < Number(amountToSend))
       setErrorMessage('Amount entered is more than available to spend');
     else setErrorMessage('');
-  }, [amountToSend, selectedUTXOs]);
+  }, [amountToSend, selectedUTXOs.length]);
 
   useEffect(() => {
     // send max handler
@@ -135,7 +135,7 @@ function AddSendAmount({ route }) {
         else setAmount(`${SatsToBtc(sendMaxBalance)}`);
       } else setAmount(convertSatsToFiat(sendMaxBalance).toString());
     }
-  }, [sendMaxFee, selectedUTXOs]);
+  }, [sendMaxFee, selectedUTXOs.length]);
 
   const navigateToNext = () => {
     navigation.dispatch(
