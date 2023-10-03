@@ -54,7 +54,7 @@ function AppNumPad({
             />
           );
         }
-        return <CharButton char={' '} key={char} height={height} pressHandler={() => { }} />;
+        return <CharButton char={' '} key={char} height={height} pressHandler={() => {}} />;
       })}
     </View>
   );
