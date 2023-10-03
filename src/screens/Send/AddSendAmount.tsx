@@ -120,7 +120,7 @@ function AddSendAmount({ route }) {
     else setErrorMessage('');
   }, [amountToSend, selectedUTXOs.length]);
 
-  useEffect(() => {
+  const onSendMax = (sendMaxFee, selectedUTXOs) => {
     // send max handler
     if (!sendMaxFee) return;
 
@@ -135,6 +135,10 @@ function AddSendAmount({ route }) {
         else setAmount(`${SatsToBtc(sendMaxBalance)}`);
       } else setAmount(convertSatsToFiat(sendMaxBalance).toString());
     }
+  };
+
+  useEffect(() => {
+    onSendMax(sendMaxFee, selectedUTXOs.length);
   }, [sendMaxFee, selectedUTXOs.length]);
 
   const navigateToNext = () => {
@@ -319,7 +323,11 @@ function AddSendAmount({ route }) {
               <Pressable
                 onPress={() => {
                   const confirmBalance = sender.specs.balances.confirmed;
-                  if (confirmBalance)
+                  if (confirmBalance) {
+                    if (sendMaxFee) {
+                      onSendMax(sendMaxFee, selectedUTXOs);
+                      return;
+                    }
                     dispatch(
                       calculateSendMaxFee({
                         numberOfRecipients: recipientCount,
@@ -327,6 +335,7 @@ function AddSendAmount({ route }) {
                         selectedUTXOs,
                       })
                     );
+                  }
                 }}
                 backgroundColor={`${colorMode}.accent`}
                 style={styles.sendMaxWrapper}
