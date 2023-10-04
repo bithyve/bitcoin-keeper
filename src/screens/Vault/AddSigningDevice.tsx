@@ -380,10 +380,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottomContainer: {
-    width: windowWidth,
-    bottom: 5,
-    right: 20,
-    padding: 20,
+    paddingHorizontal: 15,
   },
   noteContainer: {
     width: wp(330),

@@ -62,7 +62,9 @@ function SignTransactionScreen() {
   const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
   let parentCollaborativeWallet: Wallet;
   if (collaborativeWalletId) {
-    parentCollaborativeWallet = wallets.find((wallet) => wallet.id === collaborativeWalletId);
+    parentCollaborativeWallet = wallets.find(
+      (wallet) => wallet && wallet.id === collaborativeWalletId
+    );
   }
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
@@ -365,7 +367,6 @@ function SignTransactionScreen() {
         break;
     }
   };
-
   return (
     <ScreenWrapper>
       <KeeperHeader

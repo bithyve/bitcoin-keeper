@@ -151,7 +151,6 @@ function SetupInheritance() {
           planning
         </Text>
       </Box>
-
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
@@ -173,13 +172,11 @@ function SetupInheritance() {
           </TouchableOpacity>
         </Box>
       </Box>
-      <Box style={styles.note} testID="view_ISNote">
-        <Note
-          title="Note"
-          subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
-          subtitleColor="GreyText"
-        />
-      </Box>
+      <Note
+        title="Note"
+        subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+        subtitleColor="GreyText"
+      />
       <KeeperModal
         visible={introModal}
         close={() => {
@@ -196,7 +193,9 @@ function SetupInheritance() {
         Content={InheritanceContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`)}
+        learnMoreCallback={() =>
+          openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`)
+        }
       />
     </ScreenWrapper>
   );
