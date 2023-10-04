@@ -1,7 +1,7 @@
 import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, InteractionManager, StyleSheet } from 'react-native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
@@ -184,7 +184,7 @@ export default function PoolSelection({ route, navigation }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-      <HeaderTitle
+      <KeeperHeader
         title="Selecting Pool"
         subtitle="Choose a pool based on total sats shown below"
         learnMore

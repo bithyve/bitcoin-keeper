@@ -3,11 +3,11 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-nat
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import config, { APP_STAGE } from 'src/core/config';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -148,7 +148,7 @@ function SigningDeviceList() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
         learnMore
@@ -206,7 +206,7 @@ function SigningDeviceList() {
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
-          learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+          learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)}
         />
       </Box>
       <Note

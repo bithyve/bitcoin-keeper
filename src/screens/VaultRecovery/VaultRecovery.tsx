@@ -6,7 +6,7 @@ import messaging from '@react-native-firebase/messaging';
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/images/addSigner.svg';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -224,8 +224,8 @@ function VaultRecovery({ navigation }) {
     if (signersList.length === 1) {
       getMetaData();
     }
-    const isIksAdded = signersList.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
-    setIsIKS(isIksAdded);
+    const hasIKS = signersList.some((signer) => signer.type === SignerType.INHERITANCEKEY);
+    setIsIKS(hasIKS);
   }, [signersList]);
 
   useEffect(() => {
@@ -314,7 +314,7 @@ function VaultRecovery({ navigation }) {
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Add signing devices" subtitle="To recover your Vault" />
+      <KeeperHeader title="Add signing devices" subtitle="To recover your Vault" />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>

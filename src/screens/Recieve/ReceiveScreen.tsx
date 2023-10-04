@@ -14,7 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 
 import BtcGreen from 'src/assets/images/btc_round_green.svg';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -108,7 +108,7 @@ function ReceiveScreen({ route }: { route }) {
   }
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title={common.receive} subtitle="Native segwit address" />
+      <KeeperHeader title={common.receive} subtitle="Native segwit address" />
       <Box style={styles.qrWrapper}>
         <QRCode
           value={paymentURI || receivingAddress || 'address'}

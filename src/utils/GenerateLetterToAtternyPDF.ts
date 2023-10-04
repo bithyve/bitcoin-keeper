@@ -45,7 +45,7 @@ const GenerateLetterToAtternyPDF = async (fingerPrints) => {
       `;
     const options = {
       html,
-      fileName: `RecoveryInstruction`,
+      fileName: `LetterToAtterny`,
       directory: 'Documents',
       base64: true,
     };

@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import AddIcon from 'src/assets/images/green_add.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight } from 'src/constants/responsive';
@@ -395,7 +395,7 @@ function SetupCollaborativeWallet() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle title="Add Signers" subtitle="A 2 of 3 collaborative wallet will be created" />
+      <KeeperHeader title="Add Signers" subtitle="A 2 of 3 collaborative wallet will be created" />
       <FlatList
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}

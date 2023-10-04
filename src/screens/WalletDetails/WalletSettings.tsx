@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -16,7 +15,6 @@ import { setTestCoinsFailed, setTestCoinsReceived } from 'src/store/reducers/wal
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import Note from 'src/components/Note/Note';
-import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
@@ -29,44 +27,6 @@ import { AppContext } from 'src/context/AppContext';
 import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-
-type Props = {
-  title: string;
-  subTitle: string;
-  onPress: () => void;
-};
-
-function Option({ title, subTitle, onPress }: Props) {
-  const { colorMode } = useColorMode();
-  return (
-    <Pressable
-      style={styles.optionContainer}
-      onPress={onPress}
-      testID={`btn_${title.replace(/ /g, '_')}`}
-    >
-      <Box style={{ width: '96%' }}>
-        <Text
-          color={`${colorMode}.primaryText`}
-          style={styles.optionTitle}
-          testID={`text_${title.replace(/ /g, '_')}`}
-        >
-          {title}
-        </Text>
-        <Text
-          color={`${colorMode}.GreyText`}
-          style={styles.optionSubtitle}
-          numberOfLines={2}
-          testID={`text_${subTitle.replace(/ /g, '_')}`}
-        >
-          {subTitle}
-        </Text>
-      </Box>
-      <Box style={{ width: '4%' }}>
-        <Arrow />
-      </Box>
-    </Pressable>
-  );
-}
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -173,7 +133,7 @@ function WalletSettings({ route }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Wallet Settings" subtitle="Setting for the wallet only" />
+      <KeeperHeader title="Wallet Settings" subtitle="Setting for the wallet only" />
       <Box
         style={{
           marginTop: hp(35),

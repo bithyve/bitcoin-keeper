@@ -15,11 +15,8 @@ const useWallets: useWalletsInterface = ({ walletIds = [], getAll = false } = {}
   const allWalletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
   );
-
-  console.log(walletsWithoutWhirlpoolNonHidden.length);
-
   if (getAll) {
-    return { wallets: wallets.map(getJSONFromRealmObject) };
+    return { wallets: allWalletsWithoutWhirlpool.map(getJSONFromRealmObject) };
   }
   walletIds = walletIds?.filter((item) => !!item);
   if (walletIds && walletIds.length) {

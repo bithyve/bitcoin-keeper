@@ -1,10 +1,10 @@
-import Relay from 'src/core/services/operations/Relay';
-import { getRandomBytes } from 'src/core/services/operations/encryption';
+import Relay from 'src/services/operations/Relay';
+import { getRandomBytes } from 'src/services/operations/encryption';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { WalletType, NetworkType, TxPriority } from 'src/core/wallets/enums';
 import { generateWallet } from 'src/core/wallets/factories/WalletFactory';
-import ElectrumClient from 'src/core/services/electrum/client';
+import ElectrumClient from 'src/services/electrum/client';
 
 describe('Wallet primitives', () => {
   let primaryMnemonic;

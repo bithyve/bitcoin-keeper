@@ -36,7 +36,6 @@ import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import AddPhoneEmailIcon from 'src/assets/images/AddPhoneEmail.svg';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -52,6 +51,8 @@ import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 import { useQuery } from '@realm/react';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import IdentifySignerModal from './components/IdentifySignerModal';
+import KeeperFooter from 'src/components/KeeperFooter';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function Footer({
   vault,
@@ -66,79 +67,49 @@ function Footer({
   identifySigner: VaultSigner;
   setIdentifySignerModal: any;
 }) {
-  const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const featureMap = useFeatureMap({ scheme: vault.scheme, isCollaborativeWallet });
-
-  const styles = getStyles(0);
-  return (
-    <Box>
-      <Box
-        borderWidth={0.5}
-        borderColor={`${colorMode}.GreyText`}
-        borderRadius={20}
-        opacity={0.2}
-      />
-      <Box flexDirection="row" justifyContent="space-between" marginX={10} marginTop={3}>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={() => {
-            if (identifySigner) {
-              setIdentifySignerModal(true);
-            } else {
-              navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
-            }
-          }}
-        >
-          <Send />
-          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
-            Send
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={() => {
-            featureMap.vaultRecieve
-              ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }))
-              : showToast('Please Upgrade', <ToastErrorIcon />);
-          }}
-        >
-          <Recieve />
-          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
-            Receive
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={() => {
-            featureMap.vaultBuy ? onPressBuy() : showToast('Please Upgrade');
-          }}
-        >
-          <Buy />
-          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
-            Buy
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.IconText}
-          onPress={() => {
-            navigation.dispatch(
-              CommonActions.navigate(
-                isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
-                { wallet: isCollaborativeWallet ? vault : vault }
-              )
-            );
-          }}
-        >
-          <IconSettings />
-          <Text color={`${colorMode}.primaryText`} style={styles.footerText}>
-            Settings
-          </Text>
-        </TouchableOpacity>
-      </Box>
-    </Box>
-  );
+  const footerItems = [
+    {
+      Icon: Send,
+      text: 'Send',
+      onPress: () => {
+        if (identifySigner) {
+          setIdentifySignerModal(true);
+        } else {
+          navigation.dispatch(CommonActions.navigate('Send', { sender: vault }));
+        }
+      },
+    },
+    {
+      Icon: Recieve,
+      text: 'Receive',
+      onPress: () => {
+        navigation.dispatch(CommonActions.navigate('Receive', { wallet: vault }));
+      },
+    },
+    {
+      Icon: Buy,
+      text: 'Buy',
+      onPress: () => {
+        featureMap.vaultBuy ? onPressBuy() : showToast('Please Upgrade');
+      },
+    },
+    {
+      Icon: IconSettings,
+      text: 'Settings',
+      onPress: () => {
+        navigation.dispatch(
+          CommonActions.navigate(
+            isCollaborativeWallet ? 'CollaborativeWalletSettings' : 'VaultSettings',
+            { wallet: isCollaborativeWallet ? vault : vault }
+          )
+        );
+      },
+    },
+  ];
+  return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
 
 function Header() {
@@ -730,7 +701,7 @@ function VaultDetails({ navigation }) {
         }}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+        learnMoreCallback={() => openLink(collaborativeWalletId ? `${KEEPER_KNOWLEDGEBASE}features/` : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`)}
       />
       <KeeperModal
         visible={showBuyRampModal}
@@ -789,7 +760,7 @@ const getStyles = (top) =>
     },
     scrollContainer: {
       padding: '8%',
-      width: windowWidth,
+      minWidth: windowWidth,
     },
     knowMore: {
       paddingHorizontal: 5,

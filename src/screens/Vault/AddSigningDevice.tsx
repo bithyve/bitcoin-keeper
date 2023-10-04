@@ -13,7 +13,7 @@ import {
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
@@ -33,7 +33,7 @@ import { globalStyles } from 'src/constants/globalStyles';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
-import AddIKS from '../SigningDeveices/AddIKS';
+import AddIKS from '../SigningDevices/AddIKS';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 const { width } = Dimensions.get('screen');
@@ -266,7 +266,7 @@ function AddSigningDevice() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title={`${preTitle}`}
         subtitle={subtitle}
         enableBack={planStatus !== VaultMigrationType.DOWNGRADE}
@@ -380,10 +380,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottomContainer: {
-    width: windowWidth,
-    bottom: 5,
-    right: 20,
-    padding: 20,
+    paddingHorizontal: 15,
   },
   noteContainer: {
     width: wp(330),

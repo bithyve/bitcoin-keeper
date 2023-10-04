@@ -1,11 +1,11 @@
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import { Platform, StyleSheet, TextInput } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import NFC from 'src/services/nfc';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -53,6 +53,10 @@ function SignWithTapsigner() {
       navigation.goBack();
     } catch (err) {
       const errorMessage = getTapsignerErrorMessage(err);
+      if (errorMessage.includes('cvc retry')) {
+        navigation.dispatch(CommonActions.navigate('UnlockTapsigner'));
+        return;
+      }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
         showToast(errorMessage, null, 2000, true);
@@ -69,7 +73,7 @@ function SignWithTapsigner() {
   return (
     <ScreenWrapper>
       <Box flex={1}>
-        <HeaderTitle
+        <KeeperHeader
           title="Sign with TAPSIGNER"
           subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
         />

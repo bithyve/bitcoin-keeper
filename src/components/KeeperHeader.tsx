@@ -19,7 +19,7 @@ type Props = {
   rightComponent?: Element;
   contrastScreen?: boolean;
 };
-function HeaderTitle({
+function KeeperHeader({
   title = '',
   subtitle = '',
   onPressHandler,
@@ -126,4 +126,4 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 });
-export default HeaderTitle;
+export default KeeperHeader;

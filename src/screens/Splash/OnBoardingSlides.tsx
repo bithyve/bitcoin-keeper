@@ -21,6 +21,7 @@ import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
 import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 const { width } = Dimensions.get('window');
 
@@ -31,7 +32,6 @@ function OnBoardingSlides({ navigation }) {
   const { onboarding } = translations;
   const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
-  // console.log('currentPosition', currentPosition)
   const [items] = useState([
     {
       id: 1,
@@ -126,7 +126,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink('https://help.bitcoinkeeper.app/knowledge-base/')}>
+              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}>
                 <Box
                   borderColor="light.lightAccent"
                   backgroundColor="light.gradientEnd"

@@ -4,7 +4,7 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, windowHeight } from 'src/constants/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -22,6 +22,7 @@ import usePlan from 'src/hooks/usePlan';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();
@@ -126,7 +127,7 @@ function SetupInheritance() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         learnMore
         learnMorePressed={() => {
           dispatch(setInheritance(true));
@@ -150,7 +151,6 @@ function SetupInheritance() {
           planning
         </Text>
       </Box>
-
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
@@ -172,13 +172,11 @@ function SetupInheritance() {
           </TouchableOpacity>
         </Box>
       </Box>
-      <Box style={styles.note} testID="view_ISNote">
-        <Note
-          title="Note"
-          subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
-          subtitleColor="GreyText"
-        />
-      </Box>
+      <Note
+        title="Note"
+        subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+        subtitleColor="GreyText"
+      />
       <KeeperModal
         visible={introModal}
         close={() => {
@@ -195,7 +193,9 @@ function SetupInheritance() {
         Content={InheritanceContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+        learnMoreCallback={() =>
+          openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`)
+        }
       />
     </ScreenWrapper>
   );

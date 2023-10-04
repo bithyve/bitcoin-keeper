@@ -4,7 +4,7 @@ import React, { useContext, useState } from 'react';
 import AppNumPad from 'src/components/AppNumPad';
 import BtcInput from 'src/assets/images/btc_input.svg';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { Keyboard, StyleSheet, View } from 'react-native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import StatusBarComponent from 'src/components/StatusBarComponent';
@@ -26,7 +26,7 @@ function AddAmountScreen({ route }: { route }) {
     <View style={styles.wrapper}>
       <View style={[styles.Container, { backgroundColor: `${colorMode}.secondaryBackground` }]}>
         <StatusBarComponent padding={50} />
-        <HeaderTitle title={home.AddAmount} subtitle={home.amountdesc} />
+        <KeeperHeader title={home.AddAmount} subtitle={home.amountdesc} />
         <View style={styles.inputParentView}>
           <View
             style={[styles.inputWrapper, { backgroundColor: `${colorMode}.primaryBackground` }]}

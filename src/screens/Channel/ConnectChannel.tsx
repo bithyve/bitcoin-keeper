@@ -1,11 +1,11 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { Box, ScrollView, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -22,7 +22,6 @@ import {
 } from 'src/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
-import usePlan from 'src/hooks/usePlan';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
@@ -253,47 +252,37 @@ function ConnectChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={signerType}>
-        <>
-          <HeaderTitle title={title} subtitle={subtitle} />
-          <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
-            {!channelCreated ? (
-              <RNCamera
-                autoFocus="on"
-                style={styles.cameraView}
-                captureAudio={false}
-                onBarCodeRead={onBarCodeRead}
-                useNativeZoom
-              />
-            ) : (
-              <VStack>
-                <Text
-                  numberOfLines={2}
-                  color={`${colorMode}.greenText`}
-                  style={styles.instructions}
-                >
-                  {'\u2022 Please share the xPub from the Keeper web interface...'}
-                </Text>
-                <Text
-                  numberOfLines={3}
-                  color={`${colorMode}.greenText`}
-                  style={styles.instructions}
-                >
-                  {
-                    '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
-                  }
-                </Text>
-                <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
-              </VStack>
-            )}
-          </ScrollView>
-          <Box style={styles.noteWrapper}>
-            <Note
-              title={common.note}
-              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-              subtitleColor="GreyText"
+        <KeeperHeader title={title} subtitle={subtitle} />
+        <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
+          {!channelCreated ? (
+            <RNCamera
+              autoFocus="on"
+              style={styles.cameraView}
+              captureAudio={false}
+              onBarCodeRead={onBarCodeRead}
+              useNativeZoom
             />
-          </Box>
-        </>
+          ) : (
+            <VStack>
+              <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+                {'\u2022 Please share the xPub from the Keeper web interface...'}
+              </Text>
+              <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+                {
+                  '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+                }
+              </Text>
+              <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+            </VStack>
+          )}
+        </ScrollView>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+            subtitleColor="GreyText"
+          />
+        </Box>
       </MockWrapper>
     </ScreenWrapper>
   );

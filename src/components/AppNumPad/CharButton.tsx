@@ -1,6 +1,6 @@
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import React from 'react';
-import Fonts from 'src/constants/Fonts';
+import Text from 'src/components/KeeperText';
 
 function CharButton({ char, Icon, pressHandler, color, height }) {
   return (
@@ -11,7 +11,9 @@ function CharButton({ char, Icon, pressHandler, color, height }) {
       {Icon ? (
         <View style={styles.icon}>{Icon}</View>
       ) : (
-        <Text style={{ ...styles.char, color }}>{char}</Text>
+        <Text style={styles.char} color={color}>
+          {char}
+        </Text>
       )}
     </TouchableOpacity>
   );
@@ -27,7 +29,7 @@ const styles = StyleSheet.create({
   char: {
     textAlign: 'center',
     fontSize: 25,
-    color: '#041513',
+    lineHeight: 25,
   },
   icon: {
     alignSelf: 'center',

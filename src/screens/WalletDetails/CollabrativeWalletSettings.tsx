@@ -1,8 +1,7 @@
 import React from 'react';
 import { Box, ScrollView } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
 import { SignerType } from 'src/core/wallets/enums';
@@ -46,7 +45,7 @@ function CollabrativeWalletSettings() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Collaborative Wallet Settings"
         subtitle={collaborativeWallet.presentationData.description}
       />
