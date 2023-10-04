@@ -8,15 +8,21 @@ type useWalletsInterface = ({ getAll, walletIds }?: { getAll?: boolean; walletId
   wallets: Wallet[];
 };
 
-const useWallets: useWalletsInterface = ({ walletIds, getAll = false } = {}) => {
-  const wallets: Wallet[] = useQuery(RealmSchema.Wallet);
-  const walletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
+const useWallets: useWalletsInterface = ({ walletIds = [], getAll = false } = {}) => {
+  const walletsWithoutWhirlpoolNonHidden: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
     `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}" && presentationData.visibility == "${VisibilityType.DEFAULT}"`
   );
+  const allWalletsWithoutWhirlpool: Wallet[] = useQuery(RealmSchema.Wallet).filtered(
+    `type != "${WalletType.PRE_MIX}" && type != "${WalletType.POST_MIX}" && type != "${WalletType.BAD_BANK}"`
+  );
+
+  console.log(walletsWithoutWhirlpoolNonHidden.length);
+
   if (getAll) {
     return { wallets: wallets.map(getJSONFromRealmObject) };
   }
-  if (walletIds) {
+  walletIds = walletIds?.filter((item) => !!item);
+  if (walletIds && walletIds.length) {
     const extractedWallets = [];
     for (let index = 0; index < walletIds.length; index += 1) {
       const id = walletIds[index];
@@ -25,7 +31,8 @@ const useWallets: useWalletsInterface = ({ walletIds, getAll = false } = {}) => 
     }
     return { wallets: extractedWallets.map(getJSONFromRealmObject) };
   }
-  return { wallets: walletsWithoutWhirlpool.map(getJSONFromRealmObject) };
+
+  return { wallets: walletsWithoutWhirlpoolNonHidden.map(getJSONFromRealmObject) };
 };
 
 export default useWallets;
