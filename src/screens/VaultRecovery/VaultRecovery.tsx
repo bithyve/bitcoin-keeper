@@ -224,8 +224,8 @@ function VaultRecovery({ navigation }) {
     if (signersList.length === 1) {
       getMetaData();
     }
-    const isIksAdded = signersList.filter((signer) => signer.type === SignerType.INHERITANCEKEY);
-    setIsIKS(isIksAdded);
+    const hasIKS = signersList.some((signer) => signer.type === SignerType.INHERITANCEKEY);
+    setIsIKS(hasIKS);
   }, [signersList]);
 
   useEffect(() => {
