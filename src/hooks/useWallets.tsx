@@ -18,7 +18,8 @@ const useWallets: useWalletsInterface = ({ walletIds, getAll = false } = {}) => 
   if (getAll) {
     return { wallets: allWalletsWithoutWhirlpool.map(getJSONFromRealmObject) };
   }
-  if (walletIds) {
+  walletIds = walletIds.filter((item) => !!item);
+  if (walletIds && walletIds.length) {
     const extractedWallets = [];
     for (let index = 0; index < walletIds.length; index += 1) {
       const id = walletIds[index];

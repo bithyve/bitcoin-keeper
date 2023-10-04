@@ -580,7 +580,7 @@ function SendConfirmation({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
-      <Box marginX={7}>
+      <Box marginX={7} flex={1}>
         <SendingCard
           isSend
           currentCurrency={currentCurrency}
@@ -625,25 +625,21 @@ function SendConfirmation({ route }) {
           )}
         </Box>
       </Box>
-      <Box style={styles.noteBox}>
-        {transferType === TransferType.VAULT_TO_VAULT ? (
-          <Note
-            title="Note"
-            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
-          />
-        ) : null}
-      </Box>
-      <Box position="absolute" bottom={windowHeight > 800 ? windowHeight * 0.025 : 2} right={10}>
-        <Buttons
-          primaryText="Proceed"
-          secondaryText="Cancel"
-          secondaryCallback={() => {
-            navigation.goBack();
-          }}
-          primaryCallback={onProceed}
-          primaryLoading={inProgress}
+      {transferType === TransferType.VAULT_TO_VAULT ? (
+        <Note
+          title="Note"
+          subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
         />
-      </Box>
+      ) : null}
+      <Buttons
+        primaryText="Proceed"
+        secondaryText="Cancel"
+        secondaryCallback={() => {
+          navigation.goBack();
+        }}
+        primaryCallback={onProceed}
+        primaryLoading={inProgress}
+      />
       <KeeperModal
         visible={visibleModal}
         close={viewDetails}
