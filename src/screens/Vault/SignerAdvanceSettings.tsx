@@ -2,11 +2,10 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { Dimensions, StyleSheet, TouchableOpacity } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
-import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
 import { getSignerNameFromType, isSignerAMF } from 'src/hardware';
@@ -23,6 +22,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import WarningIllustration from 'src/assets/images/warning.svg';
 import KeeperModal from 'src/components/KeeperModal';
+import OptionCard from 'src/components/OptionCard';
 
 const { width } = Dimensions.get('screen');
 
@@ -112,9 +112,17 @@ function SignerAdvanceSettings({ route }: any) {
       })
     );
   };
+  const navigateToUnlockTapsigner = () => {
+    navigation.dispatch(
+      CommonActions.navigate({
+        name: 'UnlockTapsigner',
+      })
+    );
+  };
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
   const isOtherSD = signer.type === SignerType.OTHER_SD;
+  const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
   const changePolicy = () => {
     if (isPolicyServer) navigateToPolicyChange(signer);
@@ -142,61 +150,35 @@ function SignerAdvanceSettings({ route }: any) {
           </VStack>
         </HStack>
       </Box>
-      <TouchableOpacity onPress={openDescriptionModal}>
-        <HStack style={styles.item}>
-          <VStack px={4} width="90%">
-            <Text color={`${colorMode}.primaryText`} style={[font14]}>
-              Edit Description
-            </Text>
-            <Text color={`${colorMode}.primaryText`} style={[font12]} light>
-              Short description to help you remember
-            </Text>
-          </VStack>
-          <RightArrowIcon />
-        </HStack>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={registerSigner}>
-        <HStack style={styles.item}>
-          <VStack px={4} width="90%">
-            <Text color={`${colorMode}.primaryText`} style={[font14]}>
-              Manual Registration
-            </Text>
-            <Text color={`${colorMode}.primaryText`} style={[font12]} light>
-              {`Register your active vault with the ${signerName}.`}
-            </Text>
-          </VStack>
-          <RightArrowIcon />
-        </HStack>
-      </TouchableOpacity>
+      <OptionCard
+        title={'Edit Description'}
+        description={`Short description to help you remember`}
+        callback={openDescriptionModal}
+      />
+      <OptionCard
+        title={'Manual Registration'}
+        description={`Register your active vault with the ${signerName}`}
+        callback={registerSigner}
+      />
+      <OptionCard
+        title={isOtherSD ? 'Assign signer type' : 'Change signer type'}
+        description="Identify your signer type for enhanced connectivity and communication"
+        callback={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}
+      />
       {isPolicyServer && (
-        <TouchableOpacity onPress={changePolicy}>
-          <HStack style={styles.item}>
-            <VStack px={4} width="90%">
-              <Text color={`${colorMode}.primaryText`} style={[font14]}>
-                Change Verification & Policy
-              </Text>
-              <Text color={`${colorMode}.primaryText`} style={[font12]} light>
-                Restriction and threshold
-              </Text>
-            </VStack>
-            <RightArrowIcon />
-          </HStack>
-        </TouchableOpacity>
+        <OptionCard
+          title="Change Verification & Policy"
+          description="Restriction and threshold"
+          callback={changePolicy}
+        />
       )}
-
-      <TouchableOpacity onPress={isOtherSD ? navigateToAssignSigner : () => setWarning(true)}>
-        <HStack style={styles.item}>
-          <VStack px={4} width="90%">
-            <Text color={`${colorMode}.primaryText`} style={[font14]}>
-              {isOtherSD ? 'Assign signer type' : 'Change signer type'}
-            </Text>
-            <Text color={`${colorMode}.primaryText`} style={[font12]} light>
-              Identify your signer type for enhanced connectivity and communication
-            </Text>
-          </VStack>
-          <RightArrowIcon />
-        </HStack>
-      </TouchableOpacity>
+      {isTapsigner && (
+        <OptionCard
+          title="Unlock card"
+          description="Run the unlock card process if it's rate-limited"
+          callback={navigateToUnlockTapsigner}
+        />
+      )}
       <NfcPrompt visible={nfcVisible} close={closeNfc} />
       <DescriptionModal
         visible={visible}

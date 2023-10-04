@@ -173,8 +173,8 @@ function LoginScreen({ navigation, route }) {
         params: { isAuthenticated: true },
         merge: true,
       });
+      dispatch(credsAuthenticated(false));
     }
-    dispatch(credsAuthenticated(false));
   }, [isAuthenticated]);
 
   const loginModalAction = () => {

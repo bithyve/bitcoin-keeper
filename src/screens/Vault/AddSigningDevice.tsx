@@ -33,7 +33,7 @@ import { globalStyles } from 'src/constants/globalStyles';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
-import AddIKS from '../SigningDeveices/AddIKS';
+import AddIKS from '../SigningDevices/AddIKS';
 import useToastMessage from 'src/hooks/useToastMessage';
 
 const { width } = Dimensions.get('screen');

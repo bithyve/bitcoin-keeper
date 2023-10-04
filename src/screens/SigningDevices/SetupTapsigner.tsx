@@ -26,7 +26,6 @@ import TickIcon from 'src/assets/images/icon_tick.svg';
 import { windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
-import usePlan from 'src/hooks/usePlan';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
@@ -130,6 +129,10 @@ function SetupTapsigner({ route }) {
       }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
+      if (errorMessage.includes('cvc retry')) {
+        navigation.dispatch(CommonActions.navigate('UnlockTapsigner'));
+        return;
+      }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
         showToast(errorMessage, null, 2000, true);
@@ -155,6 +158,10 @@ function SetupTapsigner({ route }) {
       }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
+      if (errorMessage.includes('cvc retry')) {
+        navigation.dispatch(CommonActions.navigate('UnlockTapsigner'));
+        return;
+      }
       if (errorMessage) {
         if (Platform.OS === 'ios') NFC.showiOSMessage(errorMessage);
         showToast(errorMessage, null, 2000, true);

@@ -27,7 +27,7 @@ import ScanQR from 'src/screens/QRScreens/ScanQR';
 import ShowQR from 'src/screens/QRScreens/ShowQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
-import SetupColdCard from 'src/screens/SigningDeveices/SetupColdCard';
+import SetupColdCard from 'src/screens/SigningDevices/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
 import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
@@ -85,13 +85,14 @@ import ImportDescriptorScreen from 'src/screens/WalletDetails/ImportDescriptor';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
 import Login from '../screens/LoginScreen/Login';
 import { AppContext } from 'src/context/AppContext';
-import SetupTapsigner from 'src/screens/SigningDeveices/SetupTapsigner';
-import SetupSeedWordSigner from 'src/screens/SigningDeveices/SetupSeedWordSigner';
-import InputSeedWordSigner from 'src/screens/SigningDeveices/InputSeedWordSigner';
-import SetupOtherSDScreen from 'src/screens/SigningDeveices/SetupOtherSDScreen';
-import SetupCollaborativeWallet from 'src/screens/SigningDeveices/SetupCollaborativeWallet';
-import SetupSigningServer from 'src/screens/SigningDeveices/SetupSigningServer';
+import SetupTapsigner from 'src/screens/SigningDevices/SetupTapsigner';
+import SetupSeedWordSigner from 'src/screens/SigningDevices/SetupSeedWordSigner';
+import InputSeedWordSigner from 'src/screens/SigningDevices/InputSeedWordSigner';
+import SetupOtherSDScreen from 'src/screens/SigningDevices/SetupOtherSDScreen';
+import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborativeWallet';
+import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListRecovery';
+import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -142,6 +143,7 @@ function LoginStack() {
       <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
       {/* Mobile Key, Seed Key */}
       <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+      <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
       {/* Other SD */}
       <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
     </Stack.Navigator>
@@ -226,6 +228,7 @@ function AppStack() {
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+        <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

@@ -790,8 +790,9 @@ function* refreshWalletsWorker({
         },
       }
     );
+
     for (const synchedWallet of synchedWallets) {
-      if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+      // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
       if (synchedWallet.entityKind === EntityKind.VAULT) {
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
