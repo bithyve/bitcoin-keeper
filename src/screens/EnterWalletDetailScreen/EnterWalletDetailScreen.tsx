@@ -250,20 +250,22 @@ function EnterWalletDetailScreen({ route }) {
             <KeeperText style={styles.splitter} color={`${colorMode}.divider`}>
               |
             </KeeperText>
-            <Input
-              placeholderTextColor={`${colorMode}.GreyText`}
-              value={formatNumber(transferPolicy)}
-              onChangeText={(value) => setTransferPolicy(value)}
-              autoCorrect={false}
-              fontSize={15}
-              fontWeight="300"
-              style={styles.transferPolicyInput}
-              keyboardType="numeric"
-              borderWidth="0"
-              letterSpacing={3}
-              color={`${colorMode}.greenText`}
-              testID={`input_${formatNumber(transferPolicy)}`}
-            />
+            <Box style={styles.transferPolicyInputWrapper}>
+              <Input
+                placeholderTextColor={`${colorMode}.GreyText`}
+                value={formatNumber(transferPolicy)}
+                onChangeText={(value) => setTransferPolicy(value)}
+                autoCorrect={false}
+                fontSize={15}
+                fontWeight="300"
+                style={styles.transferPolicyInput}
+                keyboardType="numeric"
+                borderWidth="0"
+                // letterSpacing={3}
+                color={`${colorMode}.greenText`}
+                testID={`input_${formatNumber(transferPolicy)}`}
+              />
+            </Box>
             <Box style={styles.sats}>
               <KeeperText type="bold">{common.sats}</KeeperText>
             </Box>
@@ -289,7 +291,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => {}}
+        close={() => { }}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -346,6 +348,10 @@ const styles = StyleSheet.create({
     marginRight: 10,
     fontSize: 10,
     alignSelf: 'flex-end',
+  },
+  transferPolicyInputWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   transferPolicyTextArea: {
     flexDirection: 'row',
