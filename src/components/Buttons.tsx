@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { View, Box, useColorMode } from 'native-base';
-import { Shadow } from 'react-native-shadow-2';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView';
@@ -9,8 +8,8 @@ import ActivityIndicatorView from './AppActivityIndicator/ActivityIndicatorView'
 function Buttons({
   primaryText = '',
   secondaryText = '',
-  primaryCallback = () => { },
-  secondaryCallback = () => { },
+  primaryCallback = () => {},
+  secondaryCallback = () => {},
   primaryDisable = false,
   secondaryDisable = false,
   primaryLoading = false,
