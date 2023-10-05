@@ -20,7 +20,7 @@ import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import VaultIcon from 'src/assets/images/icon_vault.svg';
+import VaultIcon from 'src/assets/images/icon_vault_new.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
 import { EntityKind, SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
@@ -53,6 +53,7 @@ import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 function Footer({
   vault,
@@ -154,7 +155,7 @@ function VaultInfo({
 
   const styles = getStyles(0);
   return (
-    <VStack paddingY={10}>
+    <VStack paddingBottom={10} paddingLeft={5}>
       <HStack alignItems="center">
         <Box paddingRight={3}>{isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}</Box>
         <VStack>
@@ -619,9 +620,16 @@ function VaultDetails({ navigation }) {
         collaborativeWalletId ? `${colorMode}.greenText2` : `${colorMode}.learnMoreBorder`
       }
     >
+      <StatusBar barStyle="light-content" />
       <VStack zIndex={1}>
-        <VStack mx="8%" mt={5}>
-          <Header />
+        <VStack style={{ paddingHorizontal: 20, paddingTop: 15 }}>
+          <KeeperHeader
+            learnMore
+            learnTextColor="light.white"
+            learnBackgroundColor="rgba(0,0,0,.2)"
+            learnMorePressed={() => dispatch(setIntroModal(true))}
+            contrastScreen={true}
+          />
           <VaultInfo vault={vault} isCollaborativeWallet={!!collaborativeWalletId} />
         </VStack>
         {collaborativeWalletId ? null : (
@@ -701,7 +709,13 @@ function VaultDetails({ navigation }) {
         }}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink(collaborativeWalletId ? `${KEEPER_KNOWLEDGEBASE}features/` : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`)}
+        learnMoreCallback={() =>
+          openLink(
+            collaborativeWalletId
+              ? `${KEEPER_KNOWLEDGEBASE}features/`
+              : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`
+          )
+        }
       />
       <KeeperModal
         visible={showBuyRampModal}
@@ -735,7 +749,7 @@ function VaultDetails({ navigation }) {
 const getStyles = (top) =>
   StyleSheet.create({
     container: {
-      paddingTop: Math.max(top, 35),
+      paddingTop: '10%',
       justifyContent: 'space-between',
       flex: 1,
     },
@@ -774,7 +788,6 @@ const getStyles = (top) =>
       letterSpacing: 0.84,
     },
     vaultInfoText: {
-      marginLeft: wp(3),
       letterSpacing: 1.28,
     },
     indicator: {
