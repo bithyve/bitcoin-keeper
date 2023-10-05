@@ -2,6 +2,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,7 +12,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperText from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
@@ -30,8 +30,7 @@ import { generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
-import BackButton from 'src/assets/images/back.svg';
-import BackWhiteButton from 'src/assets/images/back_white.svg';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 function UpdateWalletDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -132,36 +131,14 @@ function UpdateWalletDetails({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        {/* <HeaderTitle
+        <KeeperHeader
           title={isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
           subtitle={
             isFromSeed
               ? 'The QR below comprises of your 12 word Recovery Phrase'
               : 'Update Wallet Path'
           }
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-          paddingLeft={hp(-25)}
-        /> */}
-        <Box>
-          <TouchableOpacity
-            onPress={() => {
-              navigtaion.goBack();
-            }}
-            style={styles.backButton}
-          >
-            {colorMode === 'light' ? <BackButton /> : <BackWhiteButton />}
-          </TouchableOpacity>
-
-          <KeeperText style={styles.titleText} color={`${colorMode}.headerText`}>
-            {isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
-          </KeeperText>
-          <KeeperText style={styles.descriptionText} color={`${colorMode}.black`}>
-            {isFromSeed
-              ? 'The QR below comprises of your 12 word Recovery Phrase'
-              : 'Update Wallet Path'}
-          </KeeperText>
-        </Box>
+        />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             {showPurpose && (
@@ -174,7 +151,6 @@ function UpdateWalletDetails({ route }) {
                       setArrow(false);
                       setPurpose(item.value);
                       setPurposeLbl(item.label);
-                      // setPath('');
                     }}
                     style={styles.flagWrapper1}
                   >
@@ -196,10 +172,7 @@ function UpdateWalletDetails({ route }) {
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
-                // width={wp(260)}
                 autoCorrect={false}
-                // marginY={2}
-                // borderWidth="0"
                 editable={!isFromSeed}
                 maxLength={20}
                 onFocus={() => {
@@ -242,16 +215,16 @@ function UpdateWalletDetails({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   titleText: {
-    lineHeight: '23@s',
-    letterSpacing: '0.8@s',
+    lineHeight: 23,
+    letterSpacing: 0.8,
     paddingLeft: 25,
   },
   descriptionText: {
     fontSize: 12,
-    lineHeight: '17@s',
-    letterSpacing: '0.5@s',
+    lineHeight: 17,
+    letterSpacing: 0.5,
     paddingLeft: 25,
   },
   backButton: {
@@ -264,7 +237,7 @@ const styles = ScaledSheet.create({
   autoTransferText: {
     fontSize: 12,
     paddingHorizontal: wp(5),
-    letterSpacing: '0.6@s',
+    letterSpacing: 0.6,
   },
   cardContainer: {
     flexDirection: 'row',
@@ -275,11 +248,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -296,10 +269,7 @@ const styles = ScaledSheet.create({
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
     borderRadius: 10,
-    // borderTopLeftRadius: 10,
-    // borderBottomLeftRadius: 10,
     paddingVertical: 20,
-    // marginTop: 10,
     flexDirection: 'row',
   },
   cameraView: {
@@ -332,17 +302,13 @@ const styles = ScaledSheet.create({
   },
   noteWrapper: {
     marginTop: hp(35),
-    // position: 'absolute',
-    // bottom: windowHeight > 680 ? hp(20) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {
     marginTop: windowHeight > 680 ? hp(20) : hp(10),
   },
   dotContainer: {
-    // flexDirection: 'row',
     justifyContent: 'space-between',
-    // alignItems: 'center',
     marginTop: hp(20),
   },
   selectedDot: {
@@ -361,7 +327,6 @@ const styles = ScaledSheet.create({
   },
   textInputWrapper: {
     flexDirection: 'row',
-    // marginTop: hp(15),
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
@@ -388,7 +353,6 @@ const styles = ScaledSheet.create({
     flex: 1,
   },
   ctaBtnWrapper: {
-    // marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },

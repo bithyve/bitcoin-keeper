@@ -2,18 +2,17 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, useColorMode, VStack } from 'native-base';
 import { FlatList, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
-
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import BackupSuccessful from 'src/components/SeedWordBackup/BackupSuccessful';
 import ConfirmSeedWord from 'src/components/SeedWordBackup/ConfirmSeedWord';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import StatusBarComponent from 'src/components/StatusBarComponent';
-import { seedBackedUp } from 'src/store/sagaActions/bhr';
-import { useNavigation } from '@react-navigation/native';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { healthCheckSigner, seedBackedUp } from 'src/store/sagaActions/bhr';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { hp, wp } from 'src/constants/responsive';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import QR from 'src/assets/images/qr.svg';
 import { globalStyles } from 'src/constants/globalStyles';
@@ -21,6 +20,10 @@ import KeeperModal from 'src/components/KeeperModal';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Fonts from 'src/constants/Fonts';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { SignerType } from 'src/core/wallets/enums';
+import { Wallet } from 'src/core/wallets/interfaces/wallet';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -29,8 +32,14 @@ function ExportSeedScreen({ route, navigation }) {
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
   const { login } = translations;
-  const { seed, wallet } = route.params;
-  const [words] = useState(seed.split(' '));
+  const {
+    seed,
+    wallet,
+    isHealthCheck,
+    signer,
+  }: { seed: string; wallet: Wallet; isHealthCheck: boolean; signer: VaultSigner } = route.params;
+  const { showToast } = useToastMessage();
+  const [words, setWords] = useState(seed.split(' '));
   const { next } = route.params;
   const [confirmSeedModal, setConfirmSeedModal] = useState(false);
   const [backupSuccessModal, setBackupSuccessModal] = useState(false);
@@ -85,12 +94,7 @@ function ExportSeedScreen({ route, navigation }) {
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={30} />
-      <HeaderTitle
-        title={seedText.recoveryPhrase}
-        subtitle={seedText.SeedDesc}
-        onPressHandler={() => navigtaion.goBack()}
-        paddingLeft={25}
-      />
+      <KeeperHeader title={seedText.recoveryPhrase} subtitle={seedText.SeedDesc} />
 
       <Box style={{ flex: 1 }}>
         <FlatList
@@ -164,7 +168,20 @@ function ExportSeedScreen({ route, navigation }) {
             words={words}
             confirmBtnPress={() => {
               setConfirmSeedModal(false);
-              dispatch(seedBackedUp());
+              if (isHealthCheck) {
+                if (signer.type === SignerType.MOBILE_KEY) {
+                  dispatch(healthCheckSigner([signer]));
+                  navigation.dispatch(CommonActions.goBack());
+                  showToast(`Mobile Key verified successfully`, <TickIcon />);
+                }
+                if (signer.type === SignerType.SEED_WORDS) {
+                  dispatch(healthCheckSigner([signer]));
+                  navigation.dispatch(CommonActions.goBack());
+                  showToast(`Seed Words verified successfully`, <TickIcon />);
+                }
+              } else {
+                dispatch(seedBackedUp());
+              }
             }}
           />
         </ModalWrapper>

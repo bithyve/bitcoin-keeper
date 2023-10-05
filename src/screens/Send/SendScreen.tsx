@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  StyleSheet,
 } from 'react-native';
 // libraries
 import { Box, useColorMode, View } from 'native-base';
@@ -17,14 +18,12 @@ import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Text from 'src/components/KeeperText';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/constants/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { EntityKind, PaymentInfoKind } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -232,13 +231,7 @@ function SendScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={common.send}
-          subtitle="Scan a bitcoin address"
-          headerTitleColor={`${colorMode}.black`}
-          paddingTop={hp(5)}
-          paddingLeft={25}
-        />
+        <KeeperHeader title={common.send} subtitle="Scan a bitcoin address" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
@@ -297,7 +290,7 @@ function SendScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -307,11 +300,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',

@@ -1,12 +1,11 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
-import { TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/constants/responsive';
-import { ScaledSheet } from 'react-native-size-matters';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
@@ -24,6 +23,7 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import useTransactionLabels from 'src/hooks/useTransactionLabels';
 import LabelItem from '../UTXOManagement/components/LabelItem';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -83,36 +83,30 @@ function TransactionDetails({ route }) {
     );
   };
   return (
-    <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
-      <StatusBarComponent padding={50} />
-      <Box width={wp(250)}>
-        <HeaderTitle
-          onPressHandler={() => navigation.goBack()}
-          title={transactions.TransactionDetails}
-          subtitle="Detailed information for this Transaction"
-          paddingTop={hp(20)}
-          paddingLeft={25}
-        />
-        <Box style={styles.transViewWrapper}>
-          <Box flexDirection="row">
-            {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
-            <Box style={styles.transView}>
-              <Text color={`${colorMode}.headerText`} numberOfLines={1} style={styles.transIDText}>
-                {transaction.txid}
-              </Text>
-              <Text style={styles.transDateText} color={`${colorMode}.dateText`}>
-                {moment(transaction?.date).format('DD MMM YY  •  hh:mm A')}
-              </Text>
-            </Box>
-          </Box>
-          <Box>
-            <Text style={styles.amountText}>
-              {`${getBalance(transaction.amount)} `}
-              <Text color="light.dateText" style={styles.unitText}>
-                {getSatUnit()}
-              </Text>
+    <ScreenWrapper>
+      <KeeperHeader
+        title={transactions.TransactionDetails}
+        subtitle="Detailed information for this Transaction"
+      />
+      <Box style={styles.transViewWrapper}>
+        <Box flexDirection="row">
+          {transaction.transactionType === 'Received' ? <IconRecieve /> : <IconSend />}
+          <Box style={styles.transView}>
+            <Text color={`${colorMode}.headerText`} numberOfLines={1} style={styles.transIDText}>
+              {transaction.txid}
+            </Text>
+            <Text style={styles.transDateText} color={`${colorMode}.dateText`}>
+              {moment(transaction?.date).format('DD MMM YY  •  hh:mm A')}
             </Text>
           </Box>
+        </Box>
+        <Box>
+          <Text style={styles.amountText}>
+            {`${getBalance(transaction.amount)} `}
+            <Text color="light.dateText" style={styles.unitText}>
+              {getSatUnit()}
+            </Text>
+          </Text>
         </Box>
       </Box>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -180,14 +174,14 @@ function TransactionDetails({ route }) {
           ) : null}
         </Box>
       </ScrollView>
-    </Box>
+    </ScreenWrapper>
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
   transViewWrapper: {
     flexDirection: 'row',

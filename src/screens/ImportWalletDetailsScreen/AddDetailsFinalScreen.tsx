@@ -2,22 +2,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Text,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { Box, View } from 'native-base';
+import { Box, Text, View, useColorMode } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useDispatch } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
@@ -38,10 +36,7 @@ function AddDetailsFinalScreen({ route }) {
   const dispatch = useDispatch();
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const { home } = translations;
-  const [amount, setAmount] = useState('');
-  const [error, setError] = useState(false); // this state will handle error
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
@@ -65,10 +60,7 @@ function AddDetailsFinalScreen({ route }) {
     (state) => state.bhr
   );
   const [walletLoading, setWalletLoading] = useState(false);
-  const { appId } = useAppSelector((state) => state.storage);
-
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     const path = WalletUtilities.getDerivationPath(
@@ -82,30 +74,31 @@ function AddDetailsFinalScreen({ route }) {
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
+    //TODO: remove this timeout once the crypto is optimised
+    setTimeout(() => {
+      const derivationConfig: DerivationConfig = {
+        path,
+        purpose: Number(purpose),
+      };
 
-    const derivationConfig: DerivationConfig = {
-      path,
-      purpose: Number(purpose),
-    };
-
-    const newWallet: NewWalletInfo = {
-      walletType,
-      walletDetails: {
-        name: walletName,
-        description: walletDescription,
-        derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: parseInt(transferPolicy),
+      const newWallet: NewWalletInfo = {
+        walletType,
+        walletDetails: {
+          name: walletName,
+          description: walletDescription,
+          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
+          transferPolicy: {
+            id: uuidv4(),
+            threshold: parseInt(transferPolicy),
+          },
         },
-      },
-      importDetails: {
-        derivationConfig,
-        // eslint-disable-next-line react/prop-types
-        mnemonic: importedSeed,
-      },
-    };
-    dispatch(addNewWallets([newWallet]));
+        importDetails: {
+          derivationConfig,
+          mnemonic: importedSeed,
+        },
+      };
+      dispatch(addNewWallets([newWallet]));
+    }, 200);
   }, [walletName, walletDescription, transferPolicy, path]);
 
   useEffect(() => {
@@ -117,8 +110,7 @@ function AddDetailsFinalScreen({ route }) {
         navigation.goBack();
       } else {
         showToast('Wallet imported', <TickIcon />);
-        navigation.replace('WalletDetails');
-        // Linking.openURL(`${appId}://backup/true`);
+        navigation.dispatch(CommonActions.reset({ index: 1, routes: [{ name: 'Home' }] }));
       }
     }
     if (relayWalletError) {
@@ -139,19 +131,14 @@ function AddDetailsFinalScreen({ route }) {
   };
 
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Add details"
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-        />
+        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper]}>
@@ -161,10 +148,7 @@ function AddDetailsFinalScreen({ route }) {
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
-                // width={wp(260)}
                 autoCorrect={false}
-                // marginY={2}
-                // borderWidth="0"
                 maxLength={20}
               />
             </Box>
@@ -230,7 +214,7 @@ function AddDetailsFinalScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -240,11 +224,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -263,8 +247,6 @@ const styles = ScaledSheet.create({
   dropDownContainer: {
     backgroundColor: Colors.Isabelline,
     borderRadius: 10,
-    // borderTopLeftRadius: 10,
-    // borderBottomLeftRadius: 10,
     paddingVertical: 20,
     marginTop: 10,
     flexDirection: 'row',
@@ -377,11 +359,10 @@ const styles = ScaledSheet.create({
     fontSize: 13,
     marginLeft: wp(10),
     letterSpacing: 0.6,
-    color: 'light.GreyText',
   },
   icArrow: {
     marginLeft: wp(10),
-    marginRight: wp(10),
+    marginRight: wp(20),
     alignSelf: 'center',
   },
 });

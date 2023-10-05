@@ -1,8 +1,6 @@
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
-import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import Fonts from 'src/constants/Fonts';
+import Text from 'src/components/KeeperText';
 
 export interface Props {
   title: string;
@@ -10,7 +8,6 @@ export interface Props {
   keyColor: string;
 }
 const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor }: Props) => {
-  const styles = getStyles(keyColor);
   return (
     <TouchableOpacity
       activeOpacity={1}
@@ -18,22 +15,21 @@ const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor }: Props
       style={styles.keyPadElementTouchable}
       testID={`key_${title}`}
     >
-      <Text style={styles.keyPadElementText}>{title}</Text>
+      <Text style={styles.keyPadElementText} color={keyColor}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
-const getStyles = (keyColor) =>
-  StyleSheet.create({
-    keyPadElementTouchable: {
-      flex: 1,
-      height: hp('8%'),
-      fontSize: 18,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    keyPadElementText: {
-      color: keyColor,
-      fontSize: 25,
-    },
-  });
+const styles = StyleSheet.create({
+  keyPadElementTouchable: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  keyPadElementText: {
+    fontSize: 25,
+    lineHeight: 30,
+  },
+});
 export default KeyPadButton;

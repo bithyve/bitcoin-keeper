@@ -4,7 +4,7 @@ import { Box, HStack, VStack, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
@@ -15,7 +15,7 @@ import Note from 'src/components/Note/Note';
 import { ImageLibraryOptions, launchImageLibrary } from 'react-native-image-picker';
 import useToastMessage from 'src/hooks/useToastMessage';
 import UploadImage from 'src/components/UploadImage';
-import { hp, wp } from 'src/constants/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import CameraUnauthorized from 'src/components/CameraUnauthorized';
 
 import useNfcModal from 'src/hooks/useNfcModal';
@@ -114,50 +114,47 @@ function ScanQR() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={type} enable={setup && type && !disableMockFlow}>
-        <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={25} />
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContainer}
-          >
+        <KeeperHeader title={title} subtitle={subtitle} />
+        <VStack style={globalStyles.centerColumn}>
+          <Box style={styles.qrcontainer}>
             {!nfcVisible ? (
-              <VStack style={globalStyles.centerColumn}>
-                <Box style={styles.qrcontainer}>
-                  <RNCamera
-                    autoFocus="on"
-                    style={styles.cameraView}
-                    captureAudio={false}
-                    onBarCodeRead={onBarCodeRead}
-                    useNativeZoom
-                    notAuthorizedView={<CameraUnauthorized />}
-                  />
-                </Box>
-                <UploadImage onPress={handleChooseImage} />
-                <HStack>
-                  {qrPercent !== 100 && <ActivityIndicator />}
-                  <Text>{`Scanned ${qrPercent}%`}</Text>
-                </HStack>
-              </VStack>
+              <RNCamera
+                autoFocus="on"
+                style={styles.cameraView}
+                captureAudio={false}
+                onBarCodeRead={onBarCodeRead}
+                useNativeZoom
+                notAuthorizedView={<CameraUnauthorized />}
+              />
             ) : (
               <Box style={styles.cameraView} />
             )}
-            <Box style={styles.noteWrapper}>
-              <Box style={{ paddingBottom: '10%' }}>
-                <NFCOption
-                  signerType={type}
-                  nfcVisible={nfcVisible}
-                  closeNfc={closeNfc}
-                  withNfcModal={withNfcModal}
-                  setData={setData}
-                />
-              </Box>
-              <Note
-                title={common.note}
-                subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-                subtitleColor="GreyText"
-              />
-            </Box>
-          </ScrollView>
+          </Box>
+          <UploadImage onPress={handleChooseImage} />
+          <HStack>
+            {qrPercent !== 100 && <ActivityIndicator />}
+            <Text>{`Scanned ${qrPercent}%`}</Text>
+          </HStack>
+        </VStack>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          <NFCOption
+            signerType={type}
+            nfcVisible={nfcVisible}
+            closeNfc={closeNfc}
+            withNfcModal={withNfcModal}
+            setData={setData}
+          />
+        </ScrollView>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+            subtitleColor="GreyText"
+          />
         </Box>
       </MockWrapper>
     </ScreenWrapper>
@@ -174,17 +171,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cameraView: {
-    height: hp(320),
-    width: wp(375),
+    height: windowWidth * 0.7,
+    width: windowWidth * 0.8,
   },
   noteWrapper: {
-    width: '100%',
-    bottom: 0,
-    paddingHorizontal: 10,
+    marginHorizontal: '5%',
   },
   scrollContainer: {
-    minHeight: '80%',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
 });

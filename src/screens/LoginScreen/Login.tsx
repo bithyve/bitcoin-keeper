@@ -43,7 +43,7 @@ const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
   const { colorMode } = useColorMode();
-  const { relogin, title, screen } = route.params;
+  const { relogin, title, screen, internalCheck } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -166,6 +166,17 @@ function LoginScreen({ navigation, route }) {
     }
   }, [authenticationFailed]);
 
+  useEffect(() => {
+    if (isAuthenticated && internalCheck) {
+      navigation.navigate({
+        name: screen,
+        params: { isAuthenticated: true },
+        merge: true,
+      });
+      dispatch(credsAuthenticated(false));
+    }
+  }, [isAuthenticated]);
+
   const loginModalAction = () => {
     if (isAuthenticated) {
       setLoginModal(false);
@@ -195,6 +206,7 @@ function LoginScreen({ navigation, route }) {
 
   const attemptLogin = (passcode: string) => {
     setLoginModal(true);
+
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
@@ -346,13 +358,7 @@ function LoginScreen({ navigation, route }) {
                 style={[styles.createBtn]}
                 paddingLeft={10}
                 paddingRight={10}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
+                backgroundColor={`${colorMode}.greenButtonBackground`}
               >
                 <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
                   Retry
@@ -501,7 +507,7 @@ function LoginScreen({ navigation, route }) {
         </Box>
       </Box>
       <KeeperModal
-        visible={loginModal}
+        visible={loginModal && !internalCheck}
         close={() => {}}
         title={modelTitle}
         subTitle={modelSubTitle}

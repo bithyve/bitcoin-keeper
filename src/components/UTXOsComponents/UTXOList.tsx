@@ -3,7 +3,6 @@ import { Box, useColorMode } from 'native-base';
 import React, { useEffect, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import BtcBlack from 'src/assets/images/btc_black.svg';
 import { hp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
@@ -29,6 +28,7 @@ function Label({
   extraLabelMap,
   setExtraLabelCount,
 }) {
+  const { colorMode } = useColorMode();
   useEffect(
     () => () => {
       extraLabelMap.delete(`${index}`);
@@ -41,7 +41,8 @@ function Label({
     <Box
       key={name}
       onLayout={(event) => onLayout(event, index)}
-      style={[styles.utxoLabelView, { backgroundColor: isSystem ? '#23A289' : '#E0B486' }]}
+      style={styles.utxoLabelView}
+      backgroundColor={isSystem ? `${colorMode}.forestGreen` : `${colorMode}.accent`}
     >
       <Text style={styles.labelText} bold testID={`text_${name.replace(/ /g, '_')}`}>
         {name.toUpperCase()}
@@ -50,6 +51,7 @@ function Label({
   );
 }
 function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }) {
+  const { colorMode } = useColorMode();
   const { labels } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
   const [extraLabelMap, setExtraLabelMap] = useState(new Map());
@@ -83,7 +85,10 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96', maxHeight: 19 }]}>
+        <Box
+          style={[styles.utxoLabelView, { maxHeight: 19 }]}
+          backgroundColor={`${colorMode}.accent`}
+        >
           <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>
@@ -221,7 +226,6 @@ function UTXOList({
   return (
     <FlatList
       data={utxoState}
-      contentContainerStyle={{ paddingBottom: 70 }}
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (

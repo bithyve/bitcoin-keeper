@@ -1,126 +1,65 @@
-import React, { useContext, useEffect, useState } from 'react';
-import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
+import React, { useContext, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import { Box, ScrollView } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import TransferPolicy from 'src/components/XPub/TransferPolicy';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-
-type Props = {
-  title: string;
-  subTitle: string;
-  onPress: () => void;
-};
-
-function Option({ title, subTitle, onPress }: Props) {
-  return (
-    <Pressable
-      style={styles.optionContainer}
-      onPress={onPress}
-      testID={`btn_${title.replace(/ /g, '_')}`}
-    >
-      <Box style={{ width: '96%' }}>
-        <Text
-          color="light.primaryText"
-          style={styles.optionTitle}
-          testID={`text_${title.replace(/ /g, '_')}`}
-        >
-          {title}
-        </Text>
-        <Text
-          color="light.GreyText"
-          style={styles.optionSubtitle}
-          numberOfLines={2}
-          testID={`text_${subTitle.replace(/ /g, '_')}`}
-        >
-          {subTitle}
-        </Text>
-      </Box>
-      <Box style={{ width: '4%' }}>
-        <Arrow />
-      </Box>
-    </Pressable>
-  );
-}
+import OptionCard from 'src/components/OptionCard';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function WalletDetailsSettings({ route }) {
   const { wallet, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const [xpubVisible, setXPubVisible] = useState(false);
-  //   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
 
   return (
-    <Box style={styles.Container} background="light.secondaryBackground">
-      <StatusBarComponent padding={50} />
-      <Box>
-        <HeaderTitle
-          title="Wallet Details"
-          subtitle="Name, details and transfer policy"
-          onPressHandler={() => navigation.goBack()}
-          headerTitleColor="light.textBlack"
-          titleFontSize={20}
-          paddingTop={hp(5)}
-          paddingLeft={20}
-        />
-      </Box>
-      <Box
-        style={{
-          marginTop: hp(35),
-          marginLeft: wp(25),
-        }}
-      ></Box>
-      <Box style={styles.optionsListContainer}>
-        <ScrollView
-          style={{
-            marginBottom: hp(40),
-          }}
-          showsVerticalScrollIndicator={false}
-        >
-          <Option
-            title="Edit Wallet Name & Description"
-            subTitle="Change wallet name & description"
-            onPress={() => {
-              navigation.navigate('EditWalletDetails', { wallet });
-            }}
-          />
-          <Option
-            title="Show xPub"
-            subTitle="Use to create an external, watch-only wallet"
-            onPress={() => {
-              setXPubVisible(true);
-            }}
-          />
-          <Option
-            title="Derivation Path"
-            subTitle="Change Derivation path"
-            onPress={() => {
-              navigation.navigate('UpdateWalletDetails', { wallet });
-            }}
-          />
+    <ScreenWrapper>
+      <KeeperHeader title="Wallet Details" subtitle="Name, details and transfer policy" />
 
-          <Option
-            title="Transfer Policy"
-            subTitle={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
-            onPress={() => {
-              setTransferPolicyVisible(true);
-            }}
-          />
-        </ScrollView>
-      </Box>
-      {/* {Bottom note} */}
+      <ScrollView
+        contentContainerStyle={styles.optionsListContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <OptionCard
+          title="Edit Wallet Name & Description"
+          description="Change wallet name & description"
+          callback={() => {
+            navigation.navigate('EditWalletDetails', { wallet });
+          }}
+        />
+        <OptionCard
+          title="Show xPub"
+          description="Use to create an external, watch-only wallet"
+          callback={() => {
+            setXPubVisible(true);
+          }}
+        />
+        <OptionCard
+          title="Derivation Path"
+          description="Change Derivation path"
+          callback={() => {
+            navigation.navigate('UpdateWalletDetails', { wallet });
+          }}
+        />
+        <OptionCard
+          title="Transfer Policy"
+          description={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
+          callback={() => {
+            setTransferPolicyVisible(true);
+          }}
+        />
+      </ScrollView>
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
           title="Note"
@@ -175,11 +114,11 @@ function WalletDetailsSettings({ route }) {
           )}
         />
       </Box>
-    </Box>
+    </ScreenWrapper>
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
     padding: 20,
@@ -224,24 +163,7 @@ const styles = ScaledSheet.create({
   },
   optionsListContainer: {
     alignItems: 'center',
-    marginLeft: wp(25),
-    marginTop: 10,
-    height: hp(425),
-  },
-  optionContainer: {
-    marginTop: hp(20),
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-  },
-  optionTitle: {
-    fontSize: 14,
-    letterSpacing: 1.12,
-  },
-  optionSubtitle: {
-    fontSize: 12,
-    letterSpacing: 0.6,
-    width: '90%',
+    paddingTop: '10%',
   },
 });
 export default WalletDetailsSettings;

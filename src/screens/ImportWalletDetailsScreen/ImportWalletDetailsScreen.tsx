@@ -1,12 +1,17 @@
-import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput } from 'react-native';
-import { Box, Input, View } from 'native-base';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
+import { Box, Input, View, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/constants/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 import { useNavigation } from '@react-navigation/native';
@@ -46,20 +51,17 @@ function ImportWalletDetailsScreen({ route }) {
   const formatNumber = (value: string) =>
     value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+  const { colorMode } = useColorMode();
+
   return (
-    <ScreenWrapper backgroundColor="light.mainBackground">
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : null}
         enabled
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Add details"
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-        />
+        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>
@@ -142,7 +144,7 @@ function ImportWalletDetailsScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -152,11 +154,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -203,8 +205,6 @@ const styles = ScaledSheet.create({
   },
   noteWrapper: {
     marginTop: hp(35),
-    // position: 'absolute',
-    // bottom: windowHeight > 680 ? hp(20) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {
@@ -258,7 +258,6 @@ const styles = ScaledSheet.create({
     letterSpacing: 0.6,
   },
   ctaBtnWrapper: {
-    // marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },

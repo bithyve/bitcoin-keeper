@@ -1,20 +1,18 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, HStack, VStack, View } from 'native-base';
+import { Box, HStack, VStack, View, useColorMode } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
-  calculateCustomFee,
   calculateSendMaxFee,
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import ArrowIcon from 'src/assets/images/icon_arrow.svg';
 import BTC from 'src/assets/images/btc_grey.svg';
 import BitcoinUnit from 'src/models/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import RadioButton from 'src/components/RadioButton';
@@ -41,7 +39,6 @@ import CurrencyKind from 'src/models/enums/CurrencyKind';
 import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
-import CustomPriorityModal from './CustomPriorityModal';
 import Fonts from 'src/constants/Fonts';
 
 const customFeeOptionTransfers = [
@@ -55,7 +52,335 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
+function Card({ title, subTitle, isVault = false }) {
+  const { colorMode } = useColorMode();
+  return (
+    <Box
+      borderRadius={10}
+      backgroundColor={`${colorMode}.seashellWhite`}
+      flexDirection="row"
+      padding={windowHeight * 0.019}
+    >
+      <Box
+        backgroundColor="light.accent"
+        height={10}
+        width={10}
+        borderRadius={20}
+        justifyContent="center"
+        alignItems="center"
+      >
+        {isVault ? <VaultIcon /> : <WalletIcon />}
+      </Box>
+      <Box marginLeft={3}>
+        <Text
+          color={`${colorMode}.headerText`}
+          fontSize={14}
+          letterSpacing={1.12}
+          numberOfLines={1}
+          maxWidth={200}
+        >
+          {title}
+        </Text>
+        <Box flexDirection="row">{subTitle}</Box>
+      </Box>
+    </Box>
+  );
+}
+
+function SendingCard({
+  isSend,
+  currentCurrency,
+  currencyCode,
+  sender,
+  recipient,
+  address,
+  amount,
+  transferType,
+  getBalance,
+  getSatUnit,
+  sourceWallet,
+}) {
+  const { colorMode } = useColorMode();
+  const getCurrencyIcon = () => {
+    if (currentCurrency === CurrencyKind.BITCOIN) {
+      return '₿';
+    }
+    return currencyCode;
+  };
+
+  const getCardDetails = () => {
+    switch (transferType) {
+      case TransferType.VAULT_TO_VAULT:
+        return isSend ? (
+          <Card title="Old Vault" subTitle="Moving all funds" isVault />
+        ) : (
+          <Card
+            title="New Vault"
+            subTitle={`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
+            isVault
+          />
+        );
+      case TransferType.VAULT_TO_WALLET:
+        return isSend ? (
+          <Card
+            title={sender.presentationData.name}
+            subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
+              sender.specs.balances.confirmed
+            )} ${getSatUnit()}`}
+            isVault
+          />
+        ) : (
+          <Card
+            title={recipient?.presentationData.name}
+            subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+          />
+        );
+      case TransferType.VAULT_TO_ADDRESS:
+        return isSend ? (
+          <Card
+            title="Vault"
+            subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            isVault
+          />
+        ) : (
+          <Card
+            title={address}
+            subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+          />
+        );
+      case TransferType.WALLET_TO_WALLET:
+        return isSend ? (
+          <Card
+            title={sender?.presentationData.name}
+            subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
+              sender?.specs.balances.confirmed
+            )} ${getSatUnit()}`}
+          />
+        ) : (
+          <Card
+            title={recipient?.presentationData.name}
+            subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+          />
+        );
+      case TransferType.WALLET_TO_VAULT:
+        return isSend ? (
+          <Card
+            title={sourceWallet.presentationData.name}
+            subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
+              sourceWallet.specs.balances.confirmed
+            )}${getSatUnit()}`}
+          />
+        ) : (
+          <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
+        );
+      case TransferType.WALLET_TO_ADDRESS:
+        return isSend ? (
+          <Card
+            title={sender?.presentationData.name}
+            subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
+              sender.specs.balances.confirmed
+            )} ${getSatUnit()}`}
+          />
+        ) : (
+          <Card
+            title={address}
+            subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+          />
+        );
+    }
+  };
+  return (
+    <Box marginY={windowHeight * 0.01}>
+      <Text
+        color={`${colorMode}.primaryText`}
+        fontSize={14}
+        letterSpacing={1.12}
+        marginY={windowHeight * 0.011}
+      >
+        {isSend ? 'Sending From' : 'Sending To'}
+      </Text>
+      {getCardDetails()}
+    </Box>
+  );
+}
+
+function Transaction({ txFeeInfo, transactionPriority }) {
+  const { colorMode } = useColorMode();
+  return (
+    <Box flexDirection="row" justifyContent="space-between" marginY={3}>
+      <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
+        Transaction Priority
+      </Text>
+      <Text color={`${colorMode}.GreyText`} fontSize={14} letterSpacing={0.28}>
+        {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
+      </Text>
+    </Box>
+  );
+}
+
+function TextValue({ amt, unit }) {
+  return (
+    <Text
+      style={{
+        ...styles.priorityTableText,
+        flex: 1,
+      }}
+    >
+      {amt} sats
+    </Text>
+  );
+}
+
+function SendingPriority({
+  txFeeInfo,
+  transactionPriority,
+  setTransactionPriority,
+  availableTransactionPriorities,
+}) {
+  return (
+    <Box flexDirection="column">
+      <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} />
+      <Box flexDirection="row" justifyContent="space-between">
+        <Box
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingVertical: 10,
+            flex: 1,
+          }}
+        >
+          <Text style={styles.headingLabelText} ml={wp(13)}>
+            Priority
+          </Text>
+          <Text style={styles.headingLabelText}>Arrival Time</Text>
+          <Text style={styles.headingLabelText}>Fees</Text>
+        </Box>
+      </Box>
+
+      <Box mt={hp(1)}>
+        {availableTransactionPriorities?.map((priority) => (
+          <TouchableOpacity
+            style={styles.priorityRowContainer}
+            key={priority}
+            onPress={() => {
+              setTransactionPriority(priority);
+            }}
+          >
+            <Box style={styles.priorityBox}>
+              <RadioButton
+                size={20}
+                isChecked={transactionPriority === priority}
+                borderColor="#E3E3E3"
+                onpress={() => {
+                  setTransactionPriority(priority);
+                }}
+              />
+              <Text
+                style={{
+                  ...styles.priorityTableText,
+                  marginLeft: 12,
+                  fontStyle: 'normal',
+                }}
+              >
+                {String(priority)}
+              </Text>
+            </Box>
+            <Text
+              style={{
+                ...styles.priorityTableText,
+                flex: 1,
+              }}
+            >
+              ~
+              {timeConvertNear30(
+                (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
+              )}
+            </Text>
+            <TextValue
+              amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+              unit={{
+                bitcoinUnit: BitcoinUnit.SATS,
+              }}
+            />
+          </TouchableOpacity>
+        ))}
+      </Box>
+    </Box>
+  );
+}
+
+function FeeInfo({ txFeeInfo, transactionPriority, transferType, sendMaxFee }) {
+  return (
+    <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
+      <VStack>
+        <Text
+          color="light.primaryText"
+          fontSize={14}
+          letterSpacing={1.12}
+          marginTop={windowHeight * 0.011}
+        >
+          Fees
+        </Text>
+        <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} light>
+          ~ 10 - 30 mins
+        </Text>
+      </VStack>
+      <Text
+        color="light.primaryText"
+        fontSize={14}
+        letterSpacing={1.12}
+        marginTop={windowHeight * 0.011}
+      >
+        <BTC />
+        &nbsp;
+        {transferType === TransferType.WALLET_TO_VAULT
+          ? sendMaxFee
+          : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
+      </Text>
+    </HStack>
+  );
+}
+
+function SendSuccessfulContent() {
+  return (
+    <View>
+      <Box alignSelf="center">
+        <SuccessIcon />
+      </Box>
+      <Text color="light.greenText" fontSize={13} padding={2}>
+        You can view the confirmation status of the transaction on any block explorer or when the
+        vault transaction list is refreshed
+      </Text>
+    </View>
+  );
+}
+
+function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) {
+  return (
+    <>
+      <View style={{ marginVertical: 25 }}>
+        <Text color="light.greenText" fontSize={13} py={3}>
+          Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
+        </Text>
+        <Text color="light.greenText" fontSize={13} py={3}>
+          You can change the policy that triggers auto-transfer to suit your needs
+        </Text>
+      </View>
+      <Buttons
+        secondaryText="Remind me Later"
+        secondaryCallback={() => {
+          setVisibleTransVaultModal(false);
+        }}
+        primaryText="Transfer Now"
+        primaryCallback={() => onTransferNow()}
+        paddingHorizontal={wp(20)}
+      />
+    </>
+  );
+}
+
 function SendConfirmation({ route }) {
+  const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const {
@@ -97,7 +422,6 @@ function SendConfirmation({ route }) {
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
   const walletTransactions = translations.wallet;
 
   const currencyCode = useCurrencyCode();
@@ -111,51 +435,14 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
-      setTitle('Sending to Vault');
+      setTitle('Sending to vault');
     } else if (walletTransfers.includes(transferType)) {
       setTitle('Sending to wallet');
     } else if (internalTransfers.includes(transferType)) {
-      setTitle('Transfer Funds to the new Vault');
+      setTitle('Transfer Funds to the new vault');
       setSubTitle('On-chain transaction incurs fees');
     }
   }, []);
-
-  function SendSuccessfulContent() {
-    return (
-      <View>
-        <Box alignSelf="center">
-          <SuccessIcon />
-        </Box>
-        <Text color="light.greenText" fontSize={13} padding={2}>
-          You can view the confirmation status of the transaction on any block explorer or when the
-          vault transaction list is refreshed
-        </Text>
-      </View>
-    );
-  }
-  function ApproveTransVaultContent() {
-    return (
-      <>
-        <View style={{ marginVertical: 25 }}>
-          <Text color="light.greenText" fontSize={13} py={3}>
-            Once approved, bitcoin will be transferred from the wallets to the vault for safekeeping
-          </Text>
-          <Text color="light.greenText" fontSize={13} py={3}>
-            You can change the policy that triggers auto-transfer to suit your needs
-          </Text>
-        </View>
-        <Buttons
-          secondaryText="Remind me Later"
-          secondaryCallback={() => {
-            setVisibleTransVaultModal(false);
-          }}
-          primaryText="Transfer Now"
-          primaryCallback={() => onTransferNow()}
-          paddingHorizontal={wp(20)}
-        />
-      </>
-    );
-  }
 
   useEffect(() => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
@@ -176,6 +463,24 @@ function SendConfirmation({ route }) {
 
   const [inProgress, setProgress] = useState(false);
 
+  useEffect(() => {
+    if (inProgress) {
+      // TODO: Remove this timeout until we optimise the crypto
+      setTimeout(() => {
+        dispatch(sendPhaseTwoReset());
+        dispatch(
+          sendPhaseTwo({
+            wallet: sender,
+            txnPriority: transactionPriority,
+            note,
+            label,
+            transferType,
+          })
+        );
+      }, 200);
+    }
+  }, [inProgress]);
+
   const onProceed = () => {
     if (transferType === TransferType.WALLET_TO_VAULT) {
       if (sourceWallet.specs.balances.confirmed < sourceWallet.transferPolicy.threshold) {
@@ -186,17 +491,7 @@ function SendConfirmation({ route }) {
         setVisibleTransVaultModal(true);
       }
     } else {
-      dispatch(sendPhaseTwoReset());
       setProgress(true);
-      dispatch(
-        sendPhaseTwo({
-          wallet: sender,
-          txnPriority: transactionPriority,
-          note,
-          label,
-          transferType,
-        })
-      );
     }
   };
 
@@ -216,10 +511,12 @@ function SendConfirmation({ route }) {
     (state) => state.sendAndReceive.sendPhaseTwo
   );
   const navigation = useNavigation();
-  const collaborativeWalletId =
+  let collaborativeWalletId;
+  if (transferType !== TransferType.WALLET_TO_VAULT) {
     sender.entityKind === EntityKind.VAULT && sender.type === VaultType.COLLABORATIVE
       ? sender.collaborativeWalletId
       : '';
+  }
 
   useEffect(() => {
     if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -280,417 +577,76 @@ function SendConfirmation({ route }) {
     }
   }, [crossTransferSuccess]);
 
-  function Card({ title, subTitle, isVault = false }) {
-    return (
-      <Box
-        borderRadius={10}
-        backgroundColor="light.primaryBackground"
-        flexDirection="row"
-        padding={windowHeight * 0.019}
-      >
-        <Box
-          backgroundColor="light.accent"
-          height={10}
-          width={10}
-          borderRadius={20}
-          justifyContent="center"
-          alignItems="center"
-        >
-          {isVault ? <VaultIcon /> : <WalletIcon />}
-        </Box>
-        <Box marginLeft={3}>
-          <Text
-            color="light.sendCardHeading"
-            fontSize={14}
-            letterSpacing={1.12}
-            numberOfLines={1}
-            maxWidth={200}
-          >
-            {title}
-          </Text>
-          <Box flexDirection="row">{subTitle}</Box>
-        </Box>
-      </Box>
-    );
-  }
-
-  function SendingCard({ isSend }) {
-    const getCurrencyIcon = () => {
-      if (currentCurrency === CurrencyKind.BITCOIN) {
-        return '₿';
-      }
-      return currencyCode;
-    };
-
-    const getCardDetails = () => {
-      switch (transferType) {
-        case TransferType.VAULT_TO_VAULT:
-          return isSend ? (
-            <Card title="Old Vault" subTitle="Moving all funds" isVault />
-          ) : (
-            <Card
-              title="New Vault"
-              subTitle={`Created on ${moment(new Date()).format('DD MMM YYYY')}`}
-              isVault
-            />
-          );
-        case TransferType.VAULT_TO_WALLET:
-          return isSend ? (
-            <Card
-              title={sender.presentationData.name}
-              subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-                sender.specs.balances.confirmed
-              )} ${getSatUnit()}`}
-              isVault
-            />
-          ) : (
-            <Card
-              title={recipient?.presentationData.name}
-              subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
-            />
-          );
-        case TransferType.VAULT_TO_ADDRESS:
-          return isSend ? (
-            <Card
-              title="Vault"
-              subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
-              isVault
-            />
-          ) : (
-            <Card
-              title={address}
-              subTitle={`${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
-            />
-          );
-        case TransferType.WALLET_TO_WALLET:
-          return isSend ? (
-            <Card
-              title={sender?.presentationData.name}
-              subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-                sender?.specs.balances.confirmed
-              )} ${getSatUnit()}`}
-            />
-          ) : (
-            <Card
-              title={recipient?.presentationData.name}
-              subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
-            />
-          );
-        case TransferType.WALLET_TO_VAULT:
-          return isSend ? (
-            <Card
-              title={sourceWallet.presentationData.name}
-              subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-                sourceWallet.specs.balances.confirmed
-              )}${getSatUnit()}`}
-            />
-          ) : (
-            <Card title="Vault" subTitle="Transferrings all avaiable funds" isVault />
-          );
-        case TransferType.WALLET_TO_ADDRESS:
-          return isSend ? (
-            <Card
-              title={sender?.presentationData.name}
-              subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-                sender.specs.balances.confirmed
-              )} ${getSatUnit()}`}
-            />
-          ) : (
-            <Card
-              title={address}
-              subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
-            />
-          );
-      }
-    };
-    return (
-      <Box marginY={windowHeight * 0.01}>
-        <Text
-          color="light.primaryText"
-          fontSize={14}
-          letterSpacing={1.12}
-          marginY={windowHeight * 0.011}
-        >
-          {isSend ? 'Sending From' : 'Sending To'}
-        </Text>
-        {getCardDetails()}
-      </Box>
-    );
-  }
-
-  function Transaction() {
-    return (
-      <Box flexDirection="row" justifyContent="space-between" marginY={3}>
-        <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
-          Transaction Priority
-        </Text>
-        <Text color="light.GreyText" fontSize={14} letterSpacing={0.28}>
-          {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
-        </Text>
-      </Box>
-    );
-  }
-
-  function TextValue({ amt, unit }) {
-    return (
-      <Text
-        style={{
-          ...styles.priorityTableText,
-          flex: 1,
-        }}
-      >
-        {/* {`${useFormattedAmountText(amt)} ${useFormattedUnitText(unit)}`} */}
-        {amt} sats
-      </Text>
-    );
-  }
-
-  function SendingPriority() {
-    return (
-      <Box flexDirection="column">
-        <Transaction />
-        <Box flexDirection="row" justifyContent="space-between">
-          <Box
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              paddingVertical: 10,
-              flex: 1,
-            }}
-          >
-            <Text style={styles.headingLabelText} ml={wp(13)}>
-              Priority
-            </Text>
-            <Text style={styles.headingLabelText}>Arrival Time</Text>
-            <Text style={styles.headingLabelText}>Fees</Text>
-          </Box>
-        </Box>
-
-        {/* taken from hexa --> TransactionPriorityScreen.tsx - Line */}
-        <Box mt={hp(1)}>
-          {availableTransactionPriorities?.map((priority) => (
-            <TouchableOpacity
-              style={styles.priorityRowContainer}
-              key={priority}
-              onPress={() => {
-                setTransactionPriority(priority);
-                // onTransactionPriorityChanged(priority)
-              }}
-            >
-              <Box style={styles.priorityBox}>
-                <RadioButton
-                  size={20}
-                  isChecked={transactionPriority === priority}
-                  borderColor="#E3E3E3"
-                  onpress={() => {
-                    setTransactionPriority(priority);
-                    // onTransactionPriorityChanged(priority)
-                  }}
-                />
-
-                <Text
-                  style={{
-                    ...styles.priorityTableText,
-                    marginLeft: 12,
-                    fontStyle: 'normal',
-                  }}
-                >
-                  {String(priority)}
-                </Text>
-              </Box>
-              <Text
-                style={{
-                  ...styles.priorityTableText,
-                  flex: 1,
-                }}
-              >
-                ~
-                {timeConvertNear30(
-                  (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
-                )}
-              </Text>
-              <TextValue
-                amt={txFeeInfo[priority?.toLowerCase()]?.amount}
-                unit={{
-                  bitcoinUnit: BitcoinUnit.SATS,
-                }}
-              />
-            </TouchableOpacity>
-          ))}
-          {/* {Disable custom priority for now } */}
-
-          {/* <TouchableOpacity
-            style={styles.customPriorityRowContainer}
-            onPress={() => {
-              setTransactionPriority(TxPriority.CUSTOM)
-              //  onTransactionPriorityChanged( priority )
-            }}
-          >
-            <Box style={styles.priorityBox}>
-              <RadioButton
-                size={20}
-                borderColor={'#E3E3E3'}
-                onpress={() => {
-                  setTransactionPriority(TxPriority.CUSTOM)
-                  //  onTransactionPriorityChanged( priority )
-                }}
-                isChecked={transactionPriority===TxPriority.CUSTOM} />
-
-              <Text
-                style={{
-                  ...styles.priorityTableText,
-                  marginLeft: 12,
-                  fontStyle: 'normal',
-                }}
-              >
-                Custom Priority
-              </Text>
-            </Box>
-            <Text style={{
-              ...styles.priorityTableText,
-              flex: 1,
-            }}>
-              ~
-              {timeConvertNear30(
-                (txFeeInfo[TxPriority?.CUSTOM?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1)
-                * 10
-              )}
-            </Text>
-            <TextValue amt={txFeeInfo[TxPriority?.CUSTOM?.toLowerCase()]?.amount} unit={{
-              bitcoinUnit: BitcoinUnit.SATS,
-            }} />
-          </TouchableOpacity> */}
-        </Box>
-      </Box>
-    );
-  }
-
-  function CustomPriorityBox() {
-    const [visible, setModalVisible] = useState(false);
-
-    const open = () => {
-      setModalVisible(true);
-    };
-    const close = () => setModalVisible(false);
-
-    return (
-      <Box>
-        <TouchableOpacity onPress={open}>
-          <Box
-            flexDirection="row"
-            rounded="lg"
-            background="light.primaryBackground"
-            justifyContent="space-between"
-            alignItems="center"
-            marginTop={hp(10)}
-            mx={wp(29)}
-            textAlign="center"
-            px="2"
-            py="2"
-          >
-            <Text
-              style={styles.customPriority}
-              color="light.greenText2"
-              fontSize={12}
-              bold
-              padding={2}
-            >
-              Custom Priority
-            </Text>
-            <ArrowIcon />
-          </Box>
-        </TouchableOpacity>
-        <CustomPriorityModal
-          visible={visible}
-          close={close}
-          title="Custom Priority"
-          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-          info="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et "
-          buttonText="Confirm"
-          buttonCallback={(customFeePerByte, customEstimatedBlocks) => {
-            dispatch(
-              calculateCustomFee({
-                wallet: sender,
-                recipients: [recipient],
-                feePerByte: customFeePerByte,
-                customEstimatedBlocks,
-              })
-            );
-          }}
-          network={(sender as Wallet).networkType}
-        />
-      </Box>
-    );
-  }
-
-  function FeeInfo() {
-    return (
-      <HStack width={windowWidth * 0.75} justifyContent="space-between" alignItems="center">
-        <VStack>
-          <Text
-            color="light.primaryText"
-            fontSize={14}
-            letterSpacing={1.12}
-            marginTop={windowHeight * 0.011}
-          >
-            Fees
-          </Text>
-          <Text color="light.primaryText" fontSize={12} letterSpacing={1.12} light>
-            ~ 10 - 30 mins
-          </Text>
-        </VStack>
-        <Text
-          color="light.primaryText"
-          fontSize={14}
-          letterSpacing={1.12}
-          marginTop={windowHeight * 0.011}
-        >
-          <BTC />
-          &nbsp;
-          {transferType === TransferType.WALLET_TO_VAULT
-            ? sendMaxFee
-            : txFeeInfo[transactionPriority?.toLowerCase()]?.amount}
-        </Text>
-      </HStack>
-    );
-  }
-
   return (
-    <ScreenWrapper>
-      <HeaderTitle title={title} subtitle={subTitle} paddingTop={hp(5)} paddingLeft={hp(25)} />
-      <Box marginTop={windowHeight * 0.01} marginX={7}>
-        <SendingCard isSend />
-        <SendingCard isSend={false} />
-        <Box marginTop={windowHeight * 0.01}>
-          {customFeeOptionTransfers.includes(transferType) ? <SendingPriority /> : <FeeInfo />}
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader title={title} subtitle={subTitle} />
+      <Box marginX={7} flex={1}>
+        <SendingCard
+          isSend
+          currentCurrency={currentCurrency}
+          currencyCode={currencyCode}
+          sender={sender}
+          recipient={recipient}
+          address={address}
+          amount={amount}
+          transferType={transferType}
+          getBalance={getBalance}
+          getSatUnit={getSatUnit}
+          sourceWallet={sourceWallet}
+        />
+        <SendingCard
+          isSend={false}
+          currentCurrency={currentCurrency}
+          currencyCode={currencyCode}
+          sender={sender}
+          recipient={recipient}
+          address={address}
+          amount={amount}
+          transferType={transferType}
+          getBalance={getBalance}
+          getSatUnit={getSatUnit}
+          sourceWallet={sourceWallet}
+        />
+        <Box>
+          {customFeeOptionTransfers.includes(transferType) ? (
+            <SendingPriority
+              txFeeInfo={txFeeInfo}
+              transactionPriority={transactionPriority}
+              setTransactionPriority={setTransactionPriority}
+              availableTransactionPriorities={availableTransactionPriorities}
+            />
+          ) : (
+            <FeeInfo
+              txFeeInfo={txFeeInfo}
+              transactionPriority={transactionPriority}
+              transferType={transferType}
+              sendMaxFee={sendMaxFee}
+            />
+          )}
         </Box>
       </Box>
-      <Box style={styles.noteBox}>
-        {transferType === TransferType.VAULT_TO_VAULT ? (
-          <Note
-            title="Note"
-            subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
-          />
-        ) : null}
-      </Box>
-      <Box position="absolute" bottom={windowHeight > 800 ? windowHeight * 0.025 : 2} right={10}>
-        <Buttons
-          primaryText="Proceed"
-          secondaryText="Cancel"
-          secondaryCallback={() => {
-            navigation.goBack();
-          }}
-          primaryCallback={onProceed}
-          primaryLoading={inProgress}
+      {transferType === TransferType.VAULT_TO_VAULT ? (
+        <Note
+          title="Note"
+          subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
         />
-      </Box>
+      ) : null}
+      <Buttons
+        primaryText="Proceed"
+        secondaryText="Cancel"
+        secondaryCallback={() => {
+          navigation.goBack();
+        }}
+        primaryCallback={onProceed}
+        primaryLoading={inProgress}
+      />
       <KeeperModal
         visible={visibleModal}
-        close={() => viewDetails()}
+        close={viewDetails}
         title={walletTransactions.SendSuccess}
         subTitle="The transaction has been successfully broadcasted"
         buttonText={walletTransactions.ViewDetails}
-        buttonCallback={() => viewDetails()}
+        buttonCallback={viewDetails}
         textcolor="light.greenText"
         buttonTextColor="light.white"
         Content={SendSuccessfulContent}
@@ -701,7 +657,12 @@ function SendConfirmation({ route }) {
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
         textcolor="light.greenText"
-        Content={ApproveTransVaultContent}
+        Content={() => (
+          <ApproveTransVaultContent
+            setVisibleTransVaultModal={setVisibleTransVaultModal}
+            onTransferNow={onTransferNow}
+          />
+        )}
       />
     </ScreenWrapper>
   );

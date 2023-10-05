@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import DeleteCross from 'src/assets/images/deletelabel.svg';
 import Text from 'src/components/KeeperText';
 
@@ -19,18 +19,20 @@ function LabelItem({
   editingIndex?: number;
   editable?: boolean;
 }) {
+  const { colorMode } = useColorMode();
   return (
-    <View
+    <Box
       style={[
         styles.labelView,
         {
-          backgroundColor: item.isSystem
-            ? '#23A289'
-            : editingIndex !== index
-            ? '#E0B486'
-            : '#A88763',
+
         },
       ]}
+      backgroundColor={item.isSystem
+        ? `${colorMode}.forestGreen`
+        : editingIndex !== index
+          ? `${colorMode}.accent`
+          : `${colorMode}.coffeeBackground`}
     >
       <TouchableOpacity
         style={styles.labelEditContainer}
@@ -49,7 +51,7 @@ function LabelItem({
           </TouchableOpacity>
         ) : null}
       </TouchableOpacity>
-    </View>
+    </Box >
   );
 }
 

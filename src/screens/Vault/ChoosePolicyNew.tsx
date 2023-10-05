@@ -14,8 +14,7 @@ import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
-import Fonts from 'src/constants/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import idx from 'idx';
 import { numberWithCommas } from 'src/utils/utilities';
@@ -112,47 +111,32 @@ function ChoosePolicyNew({ navigation, route }) {
       </Box>
     );
   }
-  console.log('windowHeight', windowHeight);
+
   return (
-    <Box flex={1} position="relative">
-      <ScreenWrapper barStyle="dark-content">
-        <Box
-          style={{
-            paddingLeft: wp(10),
-          }}
-        >
-          <HeaderTitle
-            title="Choose Policy"
-            subtitle="For the signing server"
-            paddingTop={hp(20)}
-            paddingLeft={wp(25)}
-          />
-
-          <Box
-            style={{
-              paddingHorizontal: wp(15),
-            }}
-          >
-            <Field
-              title="Max no-check amount"
-              subTitle="The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code"
-              onPress={() => setSelectedPolicy('min')}
-              value={numberWithCommas(minTransaction)}
-            />
-            <Field
-              title="Max allowed amount"
-              subTitle="If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
-              onPress={() => setSelectedPolicy('max')}
-              value={numberWithCommas(maxTransaction)}
-            />
-          </Box>
-
-          <Box style={styles.btnWrapper}>
-            <Buttons primaryText="Next" primaryCallback={onNext} />
-          </Box>
-        </Box>
-      </ScreenWrapper>
-
+    <ScreenWrapper>
+      <KeeperHeader title="Choose Policy" subtitle="For the signing server" />
+      <Box
+        style={{
+          paddingHorizontal: wp(15),
+          flex: 1,
+        }}
+      >
+        <Field
+          title="Max no-check amount"
+          subTitle="The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code"
+          onPress={() => setSelectedPolicy('min')}
+          value={numberWithCommas(minTransaction)}
+        />
+        <Field
+          title="Max allowed amount"
+          subTitle="If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
+          onPress={() => setSelectedPolicy('max')}
+          value={numberWithCommas(maxTransaction)}
+        />
+      </Box>
+      <Box style={styles.btnWrapper}>
+        <Buttons primaryText="Next" primaryCallback={onNext} />
+      </Box>
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
@@ -162,7 +146,7 @@ function ChoosePolicyNew({ navigation, route }) {
           darkDeleteIcon
         />
       </Box>
-    </Box>
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({

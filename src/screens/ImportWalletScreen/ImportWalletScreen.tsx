@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, useColorMode, View } from 'native-base';
 import React, { useContext } from 'react';
 import { launchImageLibrary, ImageLibraryOptions } from 'react-native-image-picker';
@@ -6,12 +6,10 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import { QRreader } from 'react-native-qr-decode-image-camera';
 
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/constants/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import { RNCamera } from 'react-native-camera';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
 import UploadImage from 'src/components/UploadImage';
@@ -86,13 +84,7 @@ function ImportWalletScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <HeaderTitle
-          title={home.ImportWallet}
-          subtitle="Scan your seed words/Backup Phrase"
-          headerTitleColor={Colors.TropicalRainForest}
-          paddingTop={hp(5)}
-          paddingLeft={25}
-        />
+        <KeeperHeader title={home.ImportWallet} subtitle="Scan your seed words/Backup Phrase" />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
@@ -133,7 +125,7 @@ function ImportWalletScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     paddingHorizontal: wp(5),
@@ -143,11 +135,11 @@ const styles = ScaledSheet.create({
   },
   title: {
     fontSize: 12,
-    letterSpacing: '0.24@s',
+    letterSpacing: 0.24,
   },
   subtitle: {
     fontSize: 10,
-    letterSpacing: '0.20@s',
+    letterSpacing: 0.2,
   },
   qrContainer: {
     alignSelf: 'center',
@@ -204,8 +196,6 @@ const styles = ScaledSheet.create({
   },
   noteWrapper: {
     marginTop: hp(35),
-    // position: 'absolute',
-    // bottom: windowHeight > 680 ? hp(20) : hp(8),
     width: '100%',
   },
   sendToWalletWrapper: {

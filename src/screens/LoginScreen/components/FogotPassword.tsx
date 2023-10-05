@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import { useAppSelector } from 'src/store/hooks';
@@ -56,8 +56,10 @@ function FogotPassword(props) {
     }
   }
 
+  const { colorMode } = useColorMode();
+
   return (
-    <Box backgroundColor="light.mainBackground" padding={5}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} padding={5}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box
           backgroundColor="light.lightAccent"

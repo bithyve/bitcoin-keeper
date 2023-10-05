@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -76,11 +76,9 @@ function IKSAddEmailPhone() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        onPressHandler={() => navigtaion.goBack()}
+      <KeeperHeader
         title="Add email"
         subtitle="If notification is not declined continuously for 30 days, the Key would be activated"
-        paddingLeft={22}
       />
       <Box style={styles.inputWrapper}>
         <Input

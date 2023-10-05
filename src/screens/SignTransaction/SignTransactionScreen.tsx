@@ -8,7 +8,7 @@ import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
@@ -62,7 +62,9 @@ function SignTransactionScreen() {
   const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
   let parentCollaborativeWallet: Wallet;
   if (collaborativeWalletId) {
-    parentCollaborativeWallet = wallets.find((wallet) => wallet.id === collaborativeWalletId);
+    parentCollaborativeWallet = wallets.find(
+      (wallet) => wallet && wallet.id === collaborativeWalletId
+    );
   }
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
@@ -365,17 +367,14 @@ function SignTransactionScreen() {
         break;
     }
   };
-
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Sign Transaction"
         subtitle={`Chose any ${scheme.m} to sign the transaction`}
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
       />
       <FlatList
-        contentContainerStyle={{ paddingTop: '10%' }}
+        contentContainerStyle={{ paddingTop: '5%' }}
         data={signers}
         keyExtractor={(item) => item.signerId}
         renderItem={({ item }) => (
@@ -385,11 +384,6 @@ function SignTransactionScreen() {
             envelops={serializedPSBTEnvelops}
           />
         )}
-      />
-      <Note
-        title="Note"
-        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
-        subtitleColor="GreyText"
       />
       <Box alignItems="flex-end" marginY={5}>
         <Buttons
@@ -413,6 +407,11 @@ function SignTransactionScreen() {
           }}
         />
       </Box>
+      <Note
+        title="Note"
+        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
+        subtitleColor="GreyText"
+      />
       <SignerModals
         signers={signers}
         activeSignerId={activeSignerId}

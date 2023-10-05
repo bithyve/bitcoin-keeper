@@ -19,6 +19,9 @@ function CurrentPlanView({ plan }) {
         <Text style={styles.currentPlanText} color={`${colorMode}.greenText2`}>
           {plan}
         </Text>
+        <Text style={styles.titleTxet} color={`${colorMode}.secondaryText`}>
+          View subscription details
+        </Text>
       </TouchableOpacity>
     </Box>
   );

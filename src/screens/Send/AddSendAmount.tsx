@@ -8,7 +8,7 @@ import {
   useColorMode,
   VStack,
 } from 'native-base';
-import { Platform, ScrollView } from 'react-native';
+import { Platform, ScrollView, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
@@ -17,8 +17,7 @@ import Buttons from 'src/components/Buttons';
 import Colors from 'src/theme/Colors';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
 
-import HeaderTitle from 'src/components/HeaderTitle';
-import { ScaledSheet } from 'react-native-size-matters';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { sendPhaseOneReset } from 'src/store/reducers/send_and_receive';
@@ -119,9 +118,9 @@ function AddSendAmount({ route }) {
     } else if (availableToSpend < Number(amountToSend))
       setErrorMessage('Amount entered is more than available to spend');
     else setErrorMessage('');
-  }, [amountToSend, selectedUTXOs]);
+  }, [amountToSend, selectedUTXOs.length]);
 
-  useEffect(() => {
+  const onSendMax = (sendMaxFee, selectedUTXOs) => {
     // send max handler
     if (!sendMaxFee) return;
 
@@ -136,7 +135,11 @@ function AddSendAmount({ route }) {
         else setAmount(`${SatsToBtc(sendMaxBalance)}`);
       } else setAmount(convertSatsToFiat(sendMaxBalance).toString());
     }
-  }, [sendMaxFee, selectedUTXOs]);
+  };
+
+  useEffect(() => {
+    onSendMax(sendMaxFee, selectedUTXOs.length);
+  }, [sendMaxFee, selectedUTXOs.length]);
 
   const navigateToNext = () => {
     navigation.dispatch(
@@ -230,13 +233,12 @@ function AddSendAmount({ route }) {
       >
         <Box style={styles.HeaderContainer}>
           <Box style={styles.headerWrapper}>
-            <HeaderTitle
+            <KeeperHeader
               title={
                 transferType === TransferType.WALLET_TO_WALLET
                   ? `Sending to Wallet`
                   : `Enter the Amount`
               }
-              paddingLeft={25}
             />
           </Box>
           <Box style={styles.currentTypeSwitchWrapper}>
@@ -321,7 +323,11 @@ function AddSendAmount({ route }) {
               <Pressable
                 onPress={() => {
                   const confirmBalance = sender.specs.balances.confirmed;
-                  if (confirmBalance)
+                  if (confirmBalance) {
+                    if (sendMaxFee) {
+                      onSendMax(sendMaxFee, selectedUTXOs);
+                      return;
+                    }
                     dispatch(
                       calculateSendMaxFee({
                         numberOfRecipients: recipientCount,
@@ -329,6 +335,7 @@ function AddSendAmount({ route }) {
                         selectedUTXOs,
                       })
                     );
+                  }
                 }}
                 backgroundColor={`${colorMode}.accent`}
                 style={styles.sendMaxWrapper}
@@ -433,7 +440,7 @@ function AddSendAmount({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
   },

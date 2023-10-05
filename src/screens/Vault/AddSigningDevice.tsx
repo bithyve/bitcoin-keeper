@@ -1,4 +1,4 @@
-import { Dimensions, Pressable } from 'react-native';
+import { Dimensions, Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
@@ -13,14 +13,13 @@ import {
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import Relay from 'src/services/operations/Relay';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
@@ -34,7 +33,8 @@ import { globalStyles } from 'src/constants/globalStyles';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
-import AddIKS from '../SigningDeveices/AddIKS';
+import AddIKS from '../SigningDevices/AddIKS';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const { width } = Dimensions.get('screen');
 
@@ -206,6 +206,7 @@ function AddSigningDevice() {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [inheritanceInit, setInheritanceInit] = useState(false);
+  const { showToast } = useToastMessage();
 
   const signers = activeVault?.signers || [];
   const isInheritance =
@@ -254,9 +255,8 @@ function AddSigningDevice() {
   }
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${
-          subscriptionScheme.n + (isInheritance ? 1 : 0)
-        } setup will be created${isInheritance ? ' for Inheritance' : ''}`
+      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
+      } setup will be created${isInheritance ? ' for Inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   const trezorNotInPleb =
@@ -265,12 +265,10 @@ function AddSigningDevice() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title={`${preTitle}`}
         subtitle={subtitle}
-        headerTitleColor={`${colorMode}.black`}
         enableBack={planStatus !== VaultMigrationType.DOWNGRADE}
-        paddingLeft={25}
       />
       <VaultMigrationController
         vaultCreating={vaultCreating}
@@ -307,9 +305,8 @@ function AddSigningDevice() {
               title="WARNING"
               subtitle={`A few signers (${invalidSigners
                 .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
-                SubscriptionTier.L3
-              }. Please remove them or upgrade your plan.`}
+                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${SubscriptionTier.L3
+                }. Please remove them or upgrade your plan.`}
               subtitleColor="error"
             />
           </Box>
@@ -317,9 +314,8 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${
-                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
@@ -338,11 +334,17 @@ function AddSigningDevice() {
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
           secondaryText="Cancel"
-          secondaryCallback={
-            planStatus !== VaultMigrationType.DOWNGRADE
-              ? navigation.goBack
-              : () => navigation.replace('App')
-          }
+          secondaryCallback={() => {
+            if (planStatus === VaultMigrationType.DOWNGRADE) {
+              showToast(
+                'Please downgrade your vault or uplgrade your plan to continue using the vault',
+                null,
+                3000,
+                true
+              );
+            }
+            navigation.goBack();
+          }}
           paddingHorizontal={wp(30)}
         />
       </Box>
@@ -355,7 +357,7 @@ function AddSigningDevice() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   signerItemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -375,10 +377,7 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
   },
   bottomContainer: {
-    width: windowWidth,
-    bottom: 5,
-    right: 20,
-    padding: 20,
+    paddingHorizontal: 15,
   },
   noteContainer: {
     width: wp(330),

@@ -23,6 +23,7 @@ export const UNVERIFYING_SIGNERS = [
   SignerType.POLICY_SERVER,
   SignerType.SEED_WORDS,
   SignerType.TAPSIGNER,
+  SignerType.INHERITANCEKEY,
 ];
 export const generateSignerFromMetaData = ({
   xpub,
@@ -199,4 +200,99 @@ export const getKeypathFromString = (keypathString: string): number[] => {
     if (hardened) level += HARDENED;
     return level;
   });
+};
+
+const SIGNLE_ALLOWED_SIGNERS = [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY];
+
+const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
+  // Keys Incase of level 1 we have level 1
+  if (isOnL1) {
+    return { disabled: true, message: 'Upgrade tier to use as key' };
+  }
+  // Keys Incase of already added
+  if (vaultSigners.find((s) => s.type === type && SIGNLE_ALLOWED_SIGNERS.includes(type))) {
+    return { disabled: true, message: 'Key already added to the Vault.' };
+  }
+  return { disabled: false, message: '' };
+};
+
+export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, isOnL1) => {
+  switch (type) {
+    case SignerType.COLDCARD:
+    case SignerType.TAPSIGNER:
+      return {
+        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
+        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
+      };
+    case SignerType.MOBILE_KEY:
+    case SignerType.POLICY_SERVER:
+    case SignerType.KEEPER:
+      return {
+        message: getDisabled(type, isOnL1, vaultSigners).message,
+        disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
+      };
+    case SignerType.TREZOR:
+      return !isOnL1
+        ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
+        : {
+            message: '',
+            disabled: false,
+          };
+    case SignerType.SEED_WORDS:
+    case SignerType.JADE:
+    case SignerType.BITBOX02:
+    case SignerType.PASSPORT:
+    case SignerType.SEEDSIGNER:
+    case SignerType.LEDGER:
+    case SignerType.KEYSTONE:
+    default:
+      return {
+        message: '',
+        disabled: false,
+      };
+  }
+};
+
+export const getSDMessage = ({ type }: { type: SignerType }) => {
+  switch (type) {
+    case SignerType.COLDCARD:
+    case SignerType.LEDGER:
+    case SignerType.PASSPORT:
+    case SignerType.BITBOX02:
+    case SignerType.KEYSTONE: {
+      return 'Register for full verification';
+    }
+    case SignerType.JADE: {
+      return 'Optional registration';
+    }
+    case SignerType.KEEPER: {
+      return 'Hot keys on other device';
+    }
+    case SignerType.MOBILE_KEY: {
+      return 'Hot keys on this device';
+    }
+    case SignerType.POLICY_SERVER: {
+      return 'Hot keys on the server';
+    }
+    case SignerType.SEEDSIGNER: {
+      return 'Register during txn signing';
+    }
+    case SignerType.SEED_WORDS: {
+      return 'Blind signer when sending';
+    }
+    case SignerType.TAPSIGNER: {
+      return 'Blind signer, no verification';
+    }
+    case SignerType.TREZOR: {
+      return 'Manually verify addresses';
+    }
+    case SignerType.OTHER_SD: {
+      return 'Varies with different signer';
+    }
+    case SignerType.INHERITANCEKEY: {
+      return '';
+    }
+    default:
+      return null;
+  }
 };

@@ -52,6 +52,24 @@ export const getTapsignerDetails = async (card: CKTapCard, cvc: string, isMultis
   }
 };
 
+export const unlockRateLimit = async (card: CKTapCard) => {
+  const status = await card.first_look();
+  const isLegit = await card.certificate_check();
+  let authDelay = status.auth_delay;
+  if (!authDelay) {
+    return { authDelay };
+  }
+  if (isLegit && status.auth_delay) {
+    while (authDelay !== 0) {
+      const { auth_delay } = await card.wait();
+      if (!auth_delay) {
+        return { authDelay: 0 };
+      }
+      authDelay = auth_delay;
+    }
+  }
+};
+
 export const signWithTapsigner = async (
   card: CKTapCard,
   inputsToSign: {

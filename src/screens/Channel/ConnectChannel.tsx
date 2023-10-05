@@ -1,12 +1,11 @@
-import { StyleSheet } from 'react-native';
-import { Box, useColorMode } from 'native-base';
-import React, { useContext, useEffect } from 'react';
-
-import HeaderTitle from 'src/components/HeaderTitle';
+import { ActivityIndicator, StyleSheet } from 'react-native';
+import { Box, ScrollView, VStack, useColorMode } from 'native-base';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
-import { hp, wp } from 'src/constants/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -23,7 +22,6 @@ import {
 } from 'src/services/channel/constants';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { getBitbox02Details } from 'src/hardware/bitbox';
-import usePlan from 'src/hooks/usePlan';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
@@ -40,28 +38,44 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { useQuery } from '@realm/react';
+import { InteracationMode } from '../Vault/HardwareModalMap';
+import { setSigningDevices } from 'src/store/reducers/bhr';
+import Text from 'src/components/KeeperText';
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
   const route = useRoute();
-  const { title = '', subtitle = '', type: signerType, signer } = route.params as any;
-  const channel = io(config.CHANNEL_URL);
-  let channelCreated = false;
+  const {
+    title = '',
+    subtitle = '',
+    type: signerType,
+    signer,
+    mode,
+    isMultisig,
+  } = route.params as any;
+  const channel = useRef(io(config.CHANNEL_URL)).current;
+  const [channelCreated, setChannelCreated] = useState(false);
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
+  let id;
+  if (mode === InteracationMode.RECOVERY) {
+    const randomId = Math.random();
+    id = randomId;
+  } else {
+    const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+    id = publicId;
+  }
 
   const onBarCodeRead = ({ data }) => {
     if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
-      channelCreated = true;
+      channel.emit(CREATE_CHANNEL, { room: `${id}${data}`, network: config.NETWORK_TYPE });
+      setChannelCreated(true);
     }
   };
 
@@ -78,8 +92,17 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(bitbox02));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(bitbox02));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else {
+          dispatch(addSigningDevice(bitbox02));
+          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        }
+
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(bitbox02.signerId);
         if (exsists)
@@ -104,8 +127,15 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(trezor));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(trezor));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else {
+          dispatch(addSigningDevice(trezor));
+          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(trezor.signerId);
         if (exsists)
@@ -118,7 +148,6 @@ function ConnectChannel() {
         } else captureError(error);
       }
     });
-
     channel.on(LEDGER_SETUP, async (data) => {
       try {
         const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
@@ -134,8 +163,16 @@ function ConnectChannel() {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(ledger));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        if (mode === InteracationMode.RECOVERY) {
+          dispatch(setSigningDevices(ledger));
+          navigation.dispatch(
+            CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
+          );
+        } else {
+          dispatch(addSigningDevice(ledger));
+          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        }
+
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(ledger.signerId);
         if (exsists)
@@ -215,9 +252,9 @@ function ConnectChannel() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <MockWrapper signerType={signerType}>
-        <Box flex={1}>
-          <HeaderTitle title={title} subtitle={subtitle} paddingLeft={wp(25)} />
-          <Box style={styles.qrcontainer}>
+        <KeeperHeader title={title} subtitle={subtitle} />
+        <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
+          {!channelCreated ? (
             <RNCamera
               autoFocus="on"
               style={styles.cameraView}
@@ -225,14 +262,26 @@ function ConnectChannel() {
               onBarCodeRead={onBarCodeRead}
               useNativeZoom
             />
-          </Box>
-          <Box style={styles.noteWrapper}>
-            <Note
-              title={common.note}
-              subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
-              subtitleColor="GreyText"
-            />
-          </Box>
+          ) : (
+            <VStack>
+              <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+                {'\u2022 Please share the xPub from the Keeper web interface...'}
+              </Text>
+              <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+                {
+                  '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+                }
+              </Text>
+              <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+            </VStack>
+          )}
+        </ScrollView>
+        <Box style={styles.noteWrapper}>
+          <Note
+            title={common.note}
+            subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+            subtitleColor="GreyText"
+          />
         </Box>
       </MockWrapper>
     </ScreenWrapper>
@@ -242,20 +291,21 @@ function ConnectChannel() {
 export default ConnectChannel;
 
 const styles = StyleSheet.create({
-  qrcontainer: {
-    borderRadius: 10,
-    overflow: 'hidden',
+  container: {
     marginVertical: 25,
     alignItems: 'center',
   },
   cameraView: {
-    height: hp(280),
-    width: wp(375),
+    height: windowWidth * 0.7,
+    width: windowWidth * 0.8,
   },
   noteWrapper: {
-    width: '100%',
-    bottom: 0,
-    position: 'absolute',
-    padding: 20,
+    marginHorizontal: '5%',
+  },
+  instructions: {
+    width: windowWidth * 0.8,
+    padding: '2%',
+    letterSpacing: 0.65,
+    fontSize: 13,
   },
 });
