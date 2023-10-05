@@ -2,7 +2,6 @@ import { StyleSheet, TouchableOpacity, Animated, Pressable, View } from 'react-n
 import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
-import useBalance from 'src/hooks/useBalance';
 import { Box, useColorMode } from 'native-base';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useNavigation } from '@react-navigation/native';
@@ -120,8 +119,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-            collaborativeWalletId: item.collaborativeWalletId,
-          })
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -162,7 +161,6 @@ function WalletList({
         bounces={false}
         snapToInterval={ITEM_SIZE}
         scrollEventThrottle={16}
-        contentContainerStyle={{ marginTop: '10%' }}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { x: scrollX } } }], {
           useNativeDriver: true,
           listener: (event) => {
@@ -416,9 +414,7 @@ const WalletsScreen = ({ navigation }) => {
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
 
   const { showToast } = useToastMessage();
-  const { recepitVerificationFailed } = useAppSelector(
-    (state) => state.login
-  );
+  const { recepitVerificationFailed } = useAppSelector((state) => state.login);
 
   const electrumClientConnectionStatus = useAppSelector(
     (state) => state.login.electrumClientConnectionStatus
@@ -526,7 +522,7 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -588,12 +584,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   titleWrapper: {
-    marginVertical: windowHeight > 680 ? hp(5) : 0,
     flexDirection: 'row',
     width: '100%',
-    alignSelf: 'center',
     alignItems: 'center',
-    marginTop: hp(20),
+    marginVertical: hp(20),
+    justifyContent: 'space-between',
   },
   titleText: {
     fontSize: 16,
@@ -676,7 +671,7 @@ const styles = StyleSheet.create({
   },
   netBalanceView: {
     width: '40%',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   AddNewWalletIllustrationWrapper: {
     flexDirection: 'row',
