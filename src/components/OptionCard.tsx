@@ -17,7 +17,7 @@ export const OptionCard = ({ title, description, Icon, callback }: OptionProps) 
     <Pressable onPress={callback}>
       <HStack
         padding={3}
-        width={Icon ? windowWidth * 0.9 : windowWidth * 0.85}
+        width={windowWidth * 0.85}
         justifyContent="space-between"
         alignItems={'center'}
         borderRadius={10}
