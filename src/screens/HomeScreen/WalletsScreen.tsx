@@ -119,8 +119,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-              collaborativeWalletId: item.collaborativeWalletId,
-            })
+            collaborativeWalletId: item.collaborativeWalletId,
+          })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -498,7 +498,7 @@ const WalletsScreen = ({ navigation }) => {
               </Box>
               <Box style={styles.addNewWallTextWrapper}>
                 <Text color="light.secondaryText" style={styles.addNewWallText}>
-                  Add a new Wallet or Import one
+                  Add a new wallet, import it, or create a collaborative wallet.
                 </Text>
               </Box>
             </Box>
@@ -522,7 +522,7 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -685,7 +685,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   addNewWallTextWrapper: {
-    width: '30%',
+    width: '50%',
     justifyContent: 'center',
   },
   addNewWallText: {
