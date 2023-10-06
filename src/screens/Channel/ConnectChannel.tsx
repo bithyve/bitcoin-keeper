@@ -265,7 +265,9 @@ function ConnectChannel() {
           ) : (
             <VStack>
               <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-                {'\u2022 Please share the xPub from the Keeper web interface...'}
+                {`\u2022 Please ${
+                  mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
+                } from the Keeper web interface...`}
               </Text>
               <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
                 {

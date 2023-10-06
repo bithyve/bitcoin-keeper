@@ -24,16 +24,19 @@ function CurrencyInfo({
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
-    <HStack style={styles.vaultBalanceContainer} testID='view_currencyView'>
+    <HStack style={styles.vaultBalanceContainer} testID="view_currencyView">
       {getCurrencyIcon(BTC, variation)}
       {!hideAmounts ? (
         <Box style={styles.rowCenter}>
-          <Text color={color} style={{ fontSize }}>
+          <Text color={color} style={{ fontSize }} numberOfLines={1}>
             {` ${getBalance(amount)} ${getSatUnit()}`}
           </Text>
         </Box>
       ) : (
-        <Box style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]} testID='view_hideCurrencyView'>
+        <Box
+          style={[styles.rowCenter, styles.hiddenContainer, { height: fontSize + 1 }]}
+          testID="view_hideCurrencyView"
+        >
           <Hidden style={{ color }} />
         </Box>
       )}

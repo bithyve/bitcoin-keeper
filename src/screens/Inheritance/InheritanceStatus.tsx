@@ -18,7 +18,7 @@ import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import Text from 'src/components/KeeperText';
-import Note from 'src/components/Note/Note';
+// import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
@@ -72,47 +72,9 @@ function InheritanceStatus() {
         subtitle="Keeper provides you with the tips and tools you need to include the Vault in your estate planning"
       />
       <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-        <InheritanceDownloadView
-          icon={<SafeguardingTips />}
-          title="Key Security Tips"
-          subTitle="How to store your keys securely"
-          previewPDF={() => {
-            GenerateSecurityTipsPDF().then((res) => {
-              if (res) {
-                navigtaion.navigate('PreviewPDF', { source: res });
-              }
-            })
-            // if (keySecurityTips) {
-            //   navigtaion.navigate('PreviewPDF', { source: keySecurityTips });
-            // } else {
-            //   showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
-            // }
-          }}
-          // downloadPDF={() => {
-          //   GenerateSecurityTipsPDF().then((res) => {
-          //     if (res) {
-          //       // dispatch(setKeySecurityTipsPath(res));
-          //       Share.open({
-          //         url: res,
-          //         excludedActivityTypes: [
-          //           'copyToPasteBoard',
-          //           'markupAsPDF',
-          //           'addToReadingList',
-          //           'assignToContact',
-          //           'mail',
-          //           'default',
-          //           'message',
-          //           'postToFacebook',
-          //           'print',
-          //           'saveToCameraRoll',
-          //         ],
-          //       });
-          //     }
-          //     // showToast('Document has been downloaded.', <TickIcon />);
-          //   });
-          // }}
-          isDownload
-        />
+        <Box style={styles.sectionTitleWrapper}>
+          <Text style={styles.sectionTitle}>Tools</Text>
+        </Box>
         <InheritanceDownloadView
           icon={<SetupIK />}
           title="Setup Inheritance Key"
@@ -128,6 +90,22 @@ function InheritanceStatus() {
             );
           }}
         />
+        <Box style={styles.sectionTitleWrapper}>
+          <Text style={styles.sectionTitle}>Tips</Text>
+        </Box>
+        <InheritanceDownloadView
+          icon={<SafeguardingTips />}
+          title="Key Security Tips"
+          subTitle="How to store your keys securely"
+          previewPDF={() => {
+            GenerateSecurityTipsPDF().then((res) => {
+              if (res) {
+                navigtaion.navigate('PreviewPDF', { source: res });
+              }
+            })
+          }}
+          isDownload
+        />
         {/* Error view - Need to add condition for this */}
         {visibleErrorView && (
           <Box style={styles.signingDevicesView}>
@@ -135,6 +113,9 @@ function InheritanceStatus() {
             <ToastErrorIcon />
           </Box>
         )}
+        <Box style={styles.sectionTitleWrapper}>
+          <Text style={styles.sectionTitle}>Documents</Text>
+        </Box>
         <InheritanceDownloadView
           icon={<Letter />}
           title="Letter to the Attorney"
@@ -145,17 +126,7 @@ function InheritanceStatus() {
                 navigtaion.navigate('PreviewPDF', { source: res });
               }
             })
-            // navigtaion.navigate('PreviewPDF', { source: letterToAttorny });
           }}
-          // downloadPDF={() => {
-          //   GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
-          //     if (res) {
-          //       // dispatch(setLetterToAttornyPath(res));
-
-          //     }
-          //     // showToast('Document has been downloaded.', <TickIcon />);
-          //   });
-          // }}
           isDownload
         />
         <InheritanceDownloadView
@@ -169,39 +140,14 @@ function InheritanceStatus() {
               }
             })
           }}
-          // downloadPDF={() =>
-          //   GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
-          //     if (res) {
-          //       // dispatch(setRecoveryInstructionPath(res));
-          //       Share.open({
-          //         url: res,
-          //         excludedActivityTypes: [
-          //           'copyToPasteBoard',
-          //           'markupAsPDF',
-          //           'addToReadingList',
-          //           'assignToContact',
-          //           'mail',
-          //           'default',
-          //           'message',
-          //           'postToFacebook',
-          //           'print',
-          //           'saveToCameraRoll',
-          //         ],
-          //       });
-          //     }
-          //     // showToast('Document has been downloaded.', <TickIcon />);
-          //   })
-          // }
           isDownload
         />
       </ScrollView>
-      {/* <Box style={styles.note}> */}
-      <Note
+      {/* <Note
         title="Note"
         subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
         subtitleColor="GreyText"
-      />
-      {/* </Box> */}
+      /> */}
       <IKSetupSuccessModal visible={visibleModal} closeModal={() => setVisibleModal(false)} />
     </ScreenWrapper>
   );
@@ -215,6 +161,13 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     height: windowHeight > 800 ? '50%' : '40%',
+  },
+  sectionTitleWrapper: {
+    marginTop: 10
+  },
+  sectionTitle: {
+    fontSize: 16,
+    letterSpacing: 0.96,
   },
   signingDevicesText: {
     color: '#E07962',

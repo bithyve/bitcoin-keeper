@@ -45,13 +45,13 @@ function VaultScreen() {
           <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_YourVault">
             Your Vault
           </Text>
-          {/* <Text style={styles.subTitleText} color="light.secondaryText">
-            Keys on Signing Devices
-          </Text> */}
         </Box>
         <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
           <Box
-            style={!activeVault ? styles.emptyVaultSignerWrapper : styles.vaultDetailsWrapper}
+            style={[
+              styles.vaultDetailsWrapper,
+              { alignItems: !activeVault ? 'center' : 'flex-start' },
+            ]}
             backgroundColor={`${colorMode}.learnMoreBorder`}
           >
             {!activeVault ? (
@@ -99,7 +99,6 @@ function VaultScreen() {
             )}
           </Box>
         </TouchableOpacity>
-
         <ListItemView
           icon={<InheritanceIcon />}
           title="Inheritance Tools"
@@ -118,8 +117,7 @@ export default VaultScreen;
 
 const styles = StyleSheet.create({
   titleWrapper: {
-    marginVertical: windowHeight > 680 ? hp(5) : 0,
-    marginTop: hp(20),
+    marginVertical: hp(20),
   },
   titleText: {
     fontSize: 16,
@@ -132,18 +130,9 @@ const styles = StyleSheet.create({
   vaultDetailsWrapper: {
     paddingHorizontal: 15,
     borderRadius: 10,
-    marginVertical: hp(20),
     height: hp(210),
     justifyContent: 'center',
-  },
-  emptyVaultSignerWrapper: {
-    // paddingVertical: 45,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    marginVertical: hp(20),
-    height: hp(210),
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginBottom: hp(20),
   },
   emptyVaultIllustration: {
     alignSelf: 'center',
