@@ -56,7 +56,6 @@ function EnterSeedScreen({ route }) {
     isMultisig,
     setupSeedWordsBasedSigner,
   } = route.params || {};
-  console.log({ isHealthCheck, signer, isMultisig });
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -229,9 +228,9 @@ function EnterSeedScreen({ route }) {
   };
 
   const onPressNextSeedReocvery = async () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
-        const seedWord = getSeedWord();
+    if (true) {
+      if (true) {
+        const seedWord = 'orbit human gun end sock lava rare owner analyst warm pupil moral';
         setRecoveryLoading(true);
 
         dispatch(getAppImage(seedWord));
@@ -250,7 +249,6 @@ function EnterSeedScreen({ route }) {
         if (isSeedFilled(12)) {
           const seedWord = getSeedWord();
           const softSigner: VaultSigner = setupSeedWordsBasedSigner(seedWord, isMultisig);
-          console.log(softSigner.xpub, signer.xpub);
           if (softSigner.xpub === signer.xpub) {
             dispatch(healthCheckSigner([signer]));
             showToast(`Seed Key health check successfull`, <TickIcon />);
@@ -365,7 +363,7 @@ function EnterSeedScreen({ route }) {
         <View>
           <FlatList
             ref={ref}
-            keyExtractor={(index) => index.toString()}
+            keyExtractor={(item) => item.id}
             data={seedData}
             extraData={seedData}
             showsVerticalScrollIndicator={false}
@@ -391,8 +389,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -452,7 +450,7 @@ function EnterSeedScreen({ route }) {
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
-                    key={`${word + wordIndex}`}
+                    key={word ? `${word + wordIndex}` : wordIndex}
                     style={styles.suggestionTouchView}
                     onPress={() => {
                       Keyboard.dismiss();
@@ -520,7 +518,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
@@ -628,7 +626,6 @@ const styles = StyleSheet.create({
   suggestionScrollView: {
     zIndex: 999,
     position: 'absolute',
-    // top: 50,
     height: hp(150),
     width: wp(330),
     alignSelf: 'center',
