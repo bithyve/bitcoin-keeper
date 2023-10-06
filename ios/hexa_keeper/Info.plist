@@ -36,7 +36,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>247</string>
+	<string>257</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NFCReaderUsageDescription</key>
@@ -60,12 +60,6 @@
 	<string>Please allow photo library access to campture screenshots and send app feedback</string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>RobotoCondensed-Bold.ttf</string>
-		<string>RobotoCondensed-BoldItalic.ttf</string>
-		<string>RobotoCondensed-Italic.ttf</string>
-		<string>RobotoCondensed-Light.ttf</string>
-		<string>RobotoCondensed-LightItalic.ttf</string>
-		<string>RobotoCondensed-Regular.ttf</string>
 		<string>FiraSansCondensed-Bold.ttf</string>
 		<string>FiraSansCondensed-MediumItalic.ttf</string>
 		<string>FiraSansCondensed-Italic.ttf</string>

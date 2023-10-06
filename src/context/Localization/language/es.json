@@ -289,8 +289,8 @@
     "confirmPassSubTitle": "To show Recovery Phrase for this wallet",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details",
-    "AddWalletCosigner": "Add Wallet as Cosigner",
-    "AddWalletCosignerSubTitle": "You are about to add this wallet as a cosigner for a Keeper app Vault.",
+    "AddWalletCosigner": "Add Wallet as co-signer",
+    "AddWalletCosignerSubTitle": "You are about to add this wallet as a co-signer for a Keeper app Vault.",
     "AddWalletCosignerParagraph": "Please back up this wallet. If you want to delete the app from this phone, please change your signing device on the other Keeper app before deleting this one."
   },
   "vault": {

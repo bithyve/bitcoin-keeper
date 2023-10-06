@@ -6,10 +6,9 @@ import { hp, windowHeight, wp } from 'src/constants/responsive';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import Fonts from 'src/constants/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { Keyboard } from 'react-native';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { Keyboard, StyleSheet } from 'react-native';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { useNavigation } from '@react-navigation/native';
 
@@ -22,8 +21,7 @@ function TimelockScreen() {
       <ScreenWrapper>
         <Box marginX={3}>
           <Box width={wp(320)}>
-            <HeaderTitle
-              onPressHandler={() => navigation.goBack()}
+            <KeeperHeader
               title="Timelock Vault"
               subtitle="Provide number of blocks from the current block"
             />
@@ -79,7 +77,7 @@ function TimelockScreen() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   inputField: {
     color: '#073E39',
     opacity: 0.5,

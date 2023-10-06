@@ -14,13 +14,11 @@ import Text from 'src/components/KeeperText';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/wallets';
 import { useAppSelector } from 'src/store/hooks';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import useWallets from 'src/hooks/useWallets';
 
-import { WalletType } from 'src/core/wallets/enums';
+import { EntityKind, WalletType } from 'src/core/wallets/enums';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import BtcBlack from 'src/assets/images/btc_black.svg';
-import { getAmt, getCurrencyImageByRegion, getUnit } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
@@ -43,8 +41,9 @@ export const allowedMixTypes = [WalletType.DEFAULT, WalletType.IMPORTED];
 function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, wallet }) {
   const { walletSyncing } = useAppSelector((state) => state.wallet);
   const syncing = walletSyncing && wallet ? !!walletSyncing[wallet.id] : false;
+
   return (
-    <Box style={styles.transactionsListContainer}>
+    <>
       <ActivityIndicatorView visible={syncing} showLoader />
       <Transactions
         transactions={transactions}
@@ -52,17 +51,7 @@ function TransactionsAndUTXOs({ transactions, setPullRefresh, pullRefresh, walle
         pullRefresh={pullRefresh}
         currentWallet={wallet}
       />
-    </Box>
-  );
-}
-
-function Footer({ wallet, onPressBuyBitcoin, walletIndex }) {
-  return (
-    <TransactionFooter
-      currentWallet={wallet}
-      onPressBuyBitcoin={onPressBuyBitcoin}
-      walletIndex={walletIndex}
-    />
+    </>
   );
 }
 
@@ -114,61 +103,53 @@ function WalletDetails({ route }) {
   return (
     <Box style={styles.container} backgroundColor={`${colorMode}.greenText2`}>
       <StatusBar barStyle="light-content" />
-      <VStack mr={5}>
-        <HeaderTitle
+      <Box style={{ paddingHorizontal: 20, paddingTop: 15 }}>
+        <KeeperHeader
           learnMore
           learnMorePressed={() => dispatch(setIntroModal(true))}
-          backBtnBlackColor={false}
-          learnBackgroundColor=""
-          learnTextColor="light.white"
+          contrastScreen={true}
         />
-      </VStack>
-      <VStack>
-        <Box style={styles.walletHeaderWrapper}>
-          <Box style={styles.walletIconWrapper}>
-            <Box style={styles.walletIconView} backgroundColor={`${colorMode}.white`}>
-              {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletInsideGreen />}
+        <VStack>
+          <Box style={styles.walletHeaderWrapper}>
+            <Box style={styles.walletIconWrapper}>
+              <Box style={styles.walletIconView} backgroundColor={`${colorMode}.white`}>
+                {isWhirlpoolWallet ? <WhirlpoolAccountIcon /> : <WalletInsideGreen />}
+              </Box>
+            </Box>
+            <Box style={styles.walletNameWrapper}>
+              <Text color={`${colorMode}.white`} style={styles.walletNameText}>
+                {name}
+              </Text>
+              <Text color={`${colorMode}.white`} style={styles.walletDescText}>
+                {description}
+              </Text>
             </Box>
           </Box>
-          <Box style={styles.walletNameWrapper}>
-            <Text color={`${colorMode}.white`} style={styles.walletNameText}>
-              {name}
-            </Text>
-            <Text color={`${colorMode}.white`} style={styles.walletDescText}>
-              {description}
-            </Text>
+          <Box style={styles.balanceWrapper}>
+            <Box style={styles.unconfirmBalanceView}>
+              <Text color={`${colorMode}.white`}>Unconfirmed</Text>
+              <CurrencyInfo
+                hideAmounts={false}
+                amount={unconfirmed}
+                fontSize={14}
+                color={`${colorMode}.white`}
+                variation={colorMode === 'light' ? 'light' : 'dark'}
+              />
+            </Box>
+            <Box style={styles.availableBalanceView}>
+              <Text color={`${colorMode}.white`}>Available Balance</Text>
+              <CurrencyInfo
+                hideAmounts={false}
+                amount={confirmed}
+                fontSize={22}
+                color={`${colorMode}.white`}
+                variation={colorMode === 'light' ? 'light' : 'dark'}
+              />
+            </Box>
           </Box>
-        </Box>
-        <Box style={styles.balanceWrapper}>
-          <Box style={styles.unconfirmBalanceView}>
-            <Text color={`${colorMode}.white`}>Unconfirmed</Text>
-            <CurrencyInfo
-              hideAmounts={false}
-              amount={unconfirmed}
-              fontSize={14}
-              color={`${colorMode}.white`}
-              variation={colorMode === 'light' ? 'light' : 'dark'}
-            />
-          </Box>
-          <Box style={styles.availableBalanceView}>
-            <Text color={`${colorMode}.white`}>Available Balance</Text>
-            <CurrencyInfo
-              hideAmounts={false}
-              amount={confirmed}
-              fontSize={22}
-              color={`${colorMode}.white`}
-              variation={colorMode === 'light' ? 'light' : 'dark'}
-            />
-          </Box>
-        </Box>
-      </VStack>
-      <VStack
-        backgroundColor={`${colorMode}.primaryBackground`}
-        px={wp(28)}
-        borderTopLeftRadius={20}
-        flex={1}
-        justifyContent="space-between"
-      >
+        </VStack>
+      </Box>
+      <VStack backgroundColor={`${colorMode}.primaryBackground`} style={styles.walletContainer}>
         <Pressable
           key={wallet?.id}
           backgroundColor={`${colorMode}.accent`}
@@ -218,9 +199,10 @@ function WalletDetails({ route }) {
               {wallet?.specs.transactions.length ? (
                 <TouchableOpacity
                   onPress={() =>
-                    navigation.navigate('VaultTransactions', {
+                    navigation.navigate('AllTransactions', {
                       title: 'Wallet Transactions',
                       subtitle: 'All incoming and outgoing transactions',
+                      entityKind: EntityKind.WALLET,
                     })
                   }
                 >
@@ -245,8 +227,8 @@ function WalletDetails({ route }) {
               pullRefresh={pullRefresh}
               wallet={wallet}
             />
-            <Footer
-              wallet={wallet}
+            <TransactionFooter
+              currentWallet={wallet}
               onPressBuyBitcoin={onPressBuyBitcoin}
               walletIndex={walletIndex}
             />
@@ -284,15 +266,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   walletContainer: {
-    borderRadius: hp(10),
-    width: wp(310),
-    height: hp(windowHeight > 700 ? 145 : 150),
-    padding: wp(15),
-    position: 'relative',
-    marginLeft: 0,
+    paddingHorizontal: wp(28),
+    paddingTop: wp(28),
+    paddingBottom: 20,
+    borderTopLeftRadius: 20,
+    flex: 1,
+    justifyContent: 'space-between',
   },
   transactionsListContainer: {
-    paddingVertical: hp(10),
     height: windowHeight > 800 ? '66%' : '58%',
     position: 'relative',
   },
@@ -309,7 +290,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   walletHeaderWrapper: {
-    margin: wp(20),
+    margin: wp(15),
     flexDirection: 'row',
     width: '100%',
   },
@@ -349,17 +330,17 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingLeft: 5,
   },
-
   transferPolicyCard: {
     paddingHorizontal: wp(10),
     height: hp(50),
-    width: '100%',
+    width: '95%',
     borderRadius: hp(5),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: hp(15),
+    alignSelf: 'center',
   },
   transferPolicyContent: {
     paddingLeft: wp(10),

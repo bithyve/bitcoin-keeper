@@ -1,15 +1,14 @@
 import React from 'react';
 import { TouchableHighlight, StyleSheet } from 'react-native';
+import { Box, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-
-import LinearGradient from 'src/components/KeeperGradient';
-
 export interface Props {
   value: string;
   onPress?: Function;
   disabled?: boolean;
 }
 function CustomGreenButton(props: Props) {
+  const { colorMode } = useColorMode();
   return (
     <TouchableHighlight
       style={styles.button}
@@ -19,16 +18,11 @@ function CustomGreenButton(props: Props) {
         props.onPress();
       }}
     >
-      <LinearGradient
-        start={[1, 0]}
-        end={[0, 0]}
-        colors={['#073E39', '#00836A']}
-        style={styles.buttonContent}
-      >
-        <Text color="light.white" fontSize={13} bold letterSpacing={0.78}>
+      <Box style={styles.buttonContent} backgroundColor={`${colorMode}.greenButtonBackground`}>
+        <Text color={`${colorMode}.white`} fontSize={13} bold letterSpacing={0.78}>
           {props.value}
         </Text>
-      </LinearGradient>
+      </Box>
     </TouchableHighlight>
   );
 }

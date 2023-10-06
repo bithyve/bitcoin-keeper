@@ -11,6 +11,7 @@ import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import { useDispatch } from 'react-redux';
 import Text from 'src/components/KeeperText';
 import { windowHeight, wp } from 'src/constants/responsive';
+import { EntityKind } from 'src/core/wallets/enums';
 
 function TransactionsAndUTXOs({
   transactions,
@@ -60,9 +61,10 @@ function TransactionsAndUTXOs({
                 <TouchableOpacity
                   onPress={() => {
                     navigation.dispatch(
-                      CommonActions.navigate('VaultTransactions', {
+                      CommonActions.navigate('AllTransactions', {
                         title: 'Vault Transactions',
                         subtitle: 'All incoming and outgoing transactions',
+                        entityKind: EntityKind.VAULT,
                       })
                     );
                   }}

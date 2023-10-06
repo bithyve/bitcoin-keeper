@@ -1,15 +1,14 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/images/addSigner.svg';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
@@ -41,7 +40,7 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
-import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import { setInheritanceRequestId, setRecoveryCreatedApp } from 'src/store/reducers/storage';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
@@ -152,12 +151,15 @@ function VaultRecovery({ navigation }) {
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
+  const [isIKS, setIsIKS] = useState(false);
 
   async function createNewApp() {
     try {
       const fcmToken = await messaging().getToken();
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp());
     }
   }
@@ -222,6 +224,8 @@ function VaultRecovery({ navigation }) {
     if (signersList.length === 1) {
       getMetaData();
     }
+    const hasIKS = signersList.some((signer) => signer.type === SignerType.INHERITANCEKEY);
+    setIsIKS(hasIKS);
   }, [signersList]);
 
   useEffect(() => {
@@ -310,13 +314,7 @@ function VaultRecovery({ navigation }) {
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title="Add signing devices"
-        subtitle="To recover your Vault"
-        headerTitleColor="light.textBlack"
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
-      />
+      <KeeperHeader title="Add signing devices" subtitle="To recover your Vault" />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>
@@ -349,7 +347,7 @@ function VaultRecovery({ navigation }) {
                   showToast(
                     'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
                   );
-                } else navigation.navigate('LoginStack', { screen: 'SignersList' });
+                } else navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' });
               }}
               title="Add Another"
               subTitle="Select signing device"
@@ -358,7 +356,9 @@ function VaultRecovery({ navigation }) {
         ) : (
           <Box flex={1} alignItems="center" justifyContent="center">
             <TouchableOpacity
-              onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
+              onPress={() =>
+                navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' })
+              }
             >
               <Box alignItems="center">
                 <AddSignerIcon />
@@ -374,11 +374,15 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText={inheritanceRequestId ? 'Restore via IKS' : 'Recover Vault'}
+              primaryText={inheritanceRequestId || isIKS ? 'Restore via IKS' : 'Recover Vault'}
               primaryCallback={
-                inheritanceRequestId
+                inheritanceRequestId || isIKS
                   ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
                   : startRecovery
+              }
+              secondaryText={isIKS && 'Recreate via BSMS'}
+              secondaryCallback={() =>
+                navigation.navigate('LoginStack', { screen: 'VaultConfigurationRecovery' })
               }
               primaryLoading={recoveryLoading}
             />
@@ -407,7 +411,7 @@ function VaultRecovery({ navigation }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',

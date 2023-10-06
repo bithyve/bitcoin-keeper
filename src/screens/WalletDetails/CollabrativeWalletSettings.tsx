@@ -1,55 +1,18 @@
 import React from 'react';
-import Text from 'src/components/KeeperText';
-import { Box, Pressable, ScrollView } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
+import { Box, ScrollView } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import HeaderTitle from 'src/components/HeaderTitle';
-import StatusBarComponent from 'src/components/StatusBarComponent';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import Note from 'src/components/Note/Note';
-import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import useWallets from 'src/hooks/useWallets';
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { genrateOutputDescriptors } from 'src/core/utils';
-
-type Props = {
-  title: string;
-  subTitle: string;
-  onPress: () => void;
-};
-
-function Option({ title, subTitle, onPress }: Props) {
-  return (
-    <Pressable
-      style={styles.optionContainer}
-      onPress={onPress}
-      testID={`btn_${title.replace(/ /g, '_')}`}
-    >
-      <Box style={{ width: '96%' }}>
-        <Text
-          color="light.primaryText"
-          style={styles.optionTitle}
-          testID={`text_${title.replace(/ /g, '_')}`}
-        >
-          {title}
-        </Text>
-        <Text
-          color="light.GreyText"
-          style={styles.optionSubtitle}
-          numberOfLines={2}
-          testID={`text_${subTitle.replace(/ /g, '_')}`}
-        >
-          {subTitle}
-        </Text>
-      </Box>
-      <Box style={{ width: '4%' }}>
-        <Arrow />
-      </Box>
-    </Pressable>
-  );
-}
+import { StyleSheet } from 'react-native';
+import useToastMessage from 'src/hooks/useToastMessage';
+import OptionCard from 'src/components/OptionCard';
+import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function CollabrativeWalletSettings() {
   const route = useRoute();
@@ -57,86 +20,74 @@ function CollabrativeWalletSettings() {
   const navigation = useNavigation();
   const wallet = useWallets({ walletIds: [collaborativeWallet.collaborativeWalletId] }).wallets[0];
   const descriptorString = genrateOutputDescriptors(collaborativeWallet);
+  const { showToast } = useToastMessage();
 
-  const signPSBT = (serializedPSBT) => {
-    const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
-    navigation.dispatch(
-      CommonActions.navigate({
-        name: 'ShowQR',
-        params: {
-          data: signedSerialisedPSBT,
-          encodeToBytes: false,
-          title: 'Signed PSBT',
-          subtitle: 'Please scan until all the QR data has been retrieved',
-          type: SignerType.KEEPER,
-        },
-      })
-    );
+  const signPSBT = (serializedPSBT, resetQR) => {
+    try {
+      const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+      navigation.dispatch(
+        CommonActions.navigate({
+          name: 'ShowQR',
+          params: {
+            data: signedSerialisedPSBT,
+            encodeToBytes: false,
+            title: 'Signed PSBT',
+            subtitle: 'Please scan until all the QR data has been retrieved',
+            type: SignerType.KEEPER,
+          },
+        })
+      );
+    } catch (e) {
+      resetQR();
+      showToast('Please scan a valid PSBT', null, 3000, true);
+    }
   };
 
   return (
-    <Box style={styles.Container} background="light.secondaryBackground">
-      <StatusBarComponent padding={50} />
-      <Box>
-        <HeaderTitle
-          title="Collaborative Wallet Settings"
-          subtitle={collaborativeWallet.presentationData.description}
-          onPressHandler={() => navigation.goBack()}
-          headerTitleColor="light.textBlack"
-          titleFontSize={20}
-          paddingTop={hp(5)}
-          paddingLeft={20}
-        />
-      </Box>
-      <Box
-        style={{
-          marginTop: hp(35),
-          marginLeft: wp(25),
-        }}
+    <ScreenWrapper>
+      <KeeperHeader
+        title="Collaborative Wallet Settings"
+        subtitle={collaborativeWallet.presentationData.description}
       />
-      <Box style={styles.optionsListContainer}>
-        <ScrollView
-          style={{
-            marginBottom: hp(40),
+
+      <ScrollView
+        contentContainerStyle={styles.optionsListContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <OptionCard
+          title="View co-signer Details"
+          description="View co-signer Details"
+          callback={() => {
+            navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
           }}
-          showsVerticalScrollIndicator={false}
-        >
-          <Option
-            title="View CoSigner Details"
-            subTitle="View CoSigner Details"
-            onPress={() => {
-              navigation.dispatch(CommonActions.navigate('CosignerDetails', { wallet }));
-            }}
-          />
-          <Option
-            title="Sign a PSBT"
-            subTitle="Sign a transaction"
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'ScanQR',
-                  params: {
-                    title: `Scan PSBT to Sign`,
-                    subtitle: 'Please scan until all the QR data has been retrieved',
-                    onQrScan: signPSBT,
-                    type: SignerType.KEEPER,
-                  },
-                })
-              );
-            }}
-          />
-          <Option
-            title="Exporting Output Descriptor/ BSMS"
-            subTitle="To recreate collaborative wallet"
-            onPress={() => {
-              navigation.dispatch(
-                CommonActions.navigate('GenerateVaultDescriptor', { descriptorString })
-              );
-            }}
-          />
-        </ScrollView>
-      </Box>
-      {/* {Bottom note} */}
+        />
+        <OptionCard
+          title="Sign a PSBT"
+          description="Sign a transaction"
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: 'ScanQR',
+                params: {
+                  title: `Scan PSBT to Sign`,
+                  subtitle: 'Please scan until all the QR data has been retrieved',
+                  onQrScan: signPSBT,
+                  type: SignerType.KEEPER,
+                },
+              })
+            );
+          }}
+        />
+        <OptionCard
+          title="Exporting Output Descriptor/ BSMS"
+          description="To recreate collaborative wallet"
+          callback={() => {
+            navigation.dispatch(
+              CommonActions.navigate('GenerateVaultDescriptor', { descriptorString })
+            );
+          }}
+        />
+      </ScrollView>
       <Box style={styles.note} backgroundColor="light.secondaryBackground">
         <Note
           title="Note"
@@ -144,22 +95,18 @@ function CollabrativeWalletSettings() {
           subtitleColor="GreyText"
         />
       </Box>
-    </Box>
+    </ScreenWrapper>
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
     padding: 20,
     position: 'relative',
   },
   note: {
-    position: 'absolute',
-    bottom: hp(35),
-    marginLeft: 26,
-    width: '90%',
-    paddingTop: hp(10),
+    marginHorizontal: '5%',
   },
   walletCardContainer: {
     borderRadius: hp(20),
@@ -193,8 +140,7 @@ const styles = ScaledSheet.create({
   },
   optionsListContainer: {
     alignItems: 'center',
-    marginLeft: wp(25),
-    marginTop: 10,
+    marginTop: hp(35),
     height: hp(425),
   },
   optionContainer: {

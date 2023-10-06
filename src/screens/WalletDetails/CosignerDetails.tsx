@@ -1,8 +1,8 @@
 import { StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { Box, useColorMode } from 'native-base';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
@@ -36,32 +36,29 @@ function CosignerDetails() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        title="Cosigner Details"
-        subtitle="Scan the cosigner details from another app in order to add this as a signer"
-        paddingLeft={25}
+      <KeeperHeader
+        title="Co-signer Details"
+        subtitle="Scan the co-signer details from another app in order to add this as a signer"
       />
       <Box style={styles.center}>
         <ShowXPub
           data={details}
-          copy={() => showToast('Cosigner Details Copied Successfully', <TickIcon />)}
-          subText="Cosigner Details"
+          copy={() => showToast('Co-signer Details Copied Successfully', <TickIcon />)}
+          subText="Co-signer Details"
           copyable={false}
           keeper={keeper}
         />
       </Box>
+      <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+        {details ? <ShareWithNfc data={details} /> : null}
+      </ScrollView>
       <Box style={styles.bottom}>
-        {details ? (
-          <Box style={{ paddingBottom: '10%' }}>
-            <ShareWithNfc data={details} />
-          </Box>
-        ) : null}
+        <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
         <Note
           title="Note"
-          subtitle="The cosigner details are for the selected wallet only"
+          subtitle="The co-signer details are for the selected wallet only"
           subtitleColor="GreyText"
         />
-        <Buttons primaryText="Done" primaryCallback={navgation.goBack} />
       </Box>
     </ScreenWrapper>
   );
@@ -71,11 +68,10 @@ export default CosignerDetails;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: '15%',
+    marginTop: '10%',
   },
   bottom: {
-    padding: '3%',
+    marginHorizontal: '5%',
   },
 });

@@ -790,8 +790,9 @@ function* refreshWalletsWorker({
         },
       }
     );
+
     for (const synchedWallet of synchedWallets) {
-      if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+      // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
       if (synchedWallet.entityKind === EntityKind.VAULT) {
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
@@ -814,8 +815,10 @@ function* refreshWalletsWorker({
 
     let netBalance = 0;
     existingWallets.forEach((wallet) => {
-      const { confirmed, unconfirmed } = wallet.specs.balances;
-      netBalance = netBalance + confirmed + unconfirmed;
+      if (wallet.presentationData.visibility !== VisibilityType.HIDDEN) {
+        const { confirmed, unconfirmed } = wallet.specs.balances;
+        netBalance = netBalance + confirmed + unconfirmed;
+      }
     });
 
     yield put(uaiChecks([uaiType.VAULT_TRANSFER]));

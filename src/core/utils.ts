@@ -63,9 +63,13 @@ export interface ParsedVauleText {
 }
 
 const allowedScehemes = {
-  1: 1,
-  2: 3,
-  3: 5,
+  1: [1],
+  2: [3],
+  3: [5, 6],
+};
+
+const isAllowedScheme = (m, n) => {
+  return allowedScehemes[m].includes(n);
 };
 
 function removeEmptyLines(data) {
@@ -132,8 +136,7 @@ export const parseTextforVaultConfig = (secret: string) => {
 
     const m = parseInt(keyExpressions.splice(0, 1)[0]);
     const n = keyExpressions.length;
-
-    if (allowedScehemes[m] !== n) {
+    if (!isAllowedScheme(m, n)) {
       throw Error('Unsupported schemes');
     }
     const scheme: VaultScheme = {
@@ -158,7 +161,7 @@ export const parseTextforVaultConfig = (secret: string) => {
       if (line.startsWith('Policy')) {
         const [m, n] = line.split('Policy:')[1].split('of');
         scheme = { m: parseInt(m), n: parseInt(n) };
-        if (allowedScehemes[scheme.m] !== scheme.n) {
+        if (!isAllowedScheme(m, n)) {
           throw Error('Unsupported scheme');
         }
       }

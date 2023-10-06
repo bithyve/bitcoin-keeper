@@ -2,10 +2,9 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
 import { useNavigation } from '@react-navigation/native';
 import { wp, hp, windowHeight } from 'src/constants/responsive';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
@@ -20,9 +19,10 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import usePlan from 'src/hooks/usePlan';
-import { TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();
@@ -127,15 +127,12 @@ function SetupInheritance() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box style={styles.header}>
-        <HeaderTitle
-          onPressHandler={() => navigtaion.goBack()}
-          learnMore
-          learnMorePressed={() => {
-            dispatch(setInheritance(true));
-          }}
-        />
-      </Box>
+      <KeeperHeader
+        learnMore
+        learnMorePressed={() => {
+          dispatch(setInheritance(true));
+        }}
+      />
       <Box style={styles.topContainer}>
         <GradientIcon Icon={Inheritance} height={50} />
         <Text
@@ -154,7 +151,6 @@ function SetupInheritance() {
           planning
         </Text>
       </Box>
-
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
@@ -176,13 +172,11 @@ function SetupInheritance() {
           </TouchableOpacity>
         </Box>
       </Box>
-      <Box style={styles.note} testID="view_ISNote">
-        <Note
-          title="Note"
-          subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
-          subtitleColor="GreyText"
-        />
-      </Box>
+      <Note
+        title="Note"
+        subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+        subtitleColor="GreyText"
+      />
       <KeeperModal
         visible={introModal}
         close={() => {
@@ -199,13 +193,15 @@ function SetupInheritance() {
         Content={InheritanceContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+        learnMoreCallback={() =>
+          openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/how-to-setup-inheritance-in-keeper-app/`)
+        }
       />
     </ScreenWrapper>
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   note: {
     position: 'absolute',
     bottom: hp(20),
@@ -244,9 +240,7 @@ const styles = ScaledSheet.create({
     fontSize: 12,
     letterSpacing: 0.8,
   },
-  header: {
-    // marginBottom: -50,
-  },
+
   modalContainer: {
     // marginBottom: hp(25),
   },

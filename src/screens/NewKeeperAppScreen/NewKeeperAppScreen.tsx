@@ -14,14 +14,12 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
-import ShakingAssetsAnimation from 'src/components/ShakingAssetsAnimation';
-import { isTestnet } from 'src/constants/Bitcoin';
+import KeeperHeader from 'src/components/KeeperHeader';
 import openLink from 'src/utils/OpenLink';
-import WhirlpoolLoader from 'src/components/WhirlpoolLoader';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import Fonts from 'src/constants/Fonts';
+import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -33,7 +31,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
       alignItems="center"
       width="100%"
       testID="btn_startNew"
-      style={{ marginTop: hp(20), height: hp(110) }}
+      style={{ marginTop: hp(20), height: hp(110), borderRadius: hp(10) }}
       paddingX={2}
     >
       {Icon && <Box style={{ marginLeft: wp(20) }}>{Icon}</Box>}
@@ -41,8 +39,7 @@ export function Tile({ title, subTitle, onPress, Icon = null, loading = false })
         style={{
           paddingVertical: hp(20),
           paddingLeft: wp(24),
-          borderRadius: hp(10),
-          width: '80%',
+          width: '75%',
         }}
       >
         <Text color="light.primaryText" fontSize={14} letterSpacing={1.12}>
@@ -161,12 +158,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
-          <HeaderTitle
+          <KeeperHeader
             title="New Keeper App"
             subtitle="Choose this option when you want to start with a fresh app"
-            paddingTop={3}
             enableBack={false}
-            headerTitleColor="black"
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -184,13 +179,10 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
       <Box style={styles.titleWrapper02}>
         <Box style={styles.headerContainer}>
-          <HeaderTitle
+          <KeeperHeader
             title="Restore"
             subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
-            paddingTop={3}
             enableBack={false}
-            headerTitleColor="black"
-            textPadding={0}
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -216,7 +208,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               By proceeding, you agree to our{' '}
             </Text>
             <TouchableOpacity
-              onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
+              onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}terms-of-service/`)}
             >
               <Text color="#2D6759" italic style={styles.termOfServiceText}>
                 Terms of Service
@@ -226,7 +218,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
               {' '}
               and{' '}
             </Text>
-            <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}>
+            <TouchableOpacity onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}>
               <Text color="#2D6759" italic style={styles.termOfServiceText}>
                 {' '}
                 Privacy Policy
@@ -237,7 +229,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -252,7 +244,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={modalVisible}
         title={getSignUpModalContent().title}
         subTitle={getSignUpModalContent().subTitle}
@@ -268,7 +260,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       />
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={appCreationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -290,8 +282,7 @@ const styles = StyleSheet.create({
     marginTop: hp(70),
   },
   iconContainer: {
-    padding: 10,
-    flex: 1,
+    marginRight: 20,
     flexDirection: 'row-reverse',
   },
   tileContainer: {

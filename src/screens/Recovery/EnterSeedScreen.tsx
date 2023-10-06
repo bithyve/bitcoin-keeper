@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
 } from 'react-native';
@@ -18,15 +19,13 @@ import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
 import Buttons from 'src/components/Buttons';
-import Fonts from 'src/constants/Fonts';
 import InvalidSeeds from 'src/assets/images/seedillustration.svg';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { ScaledSheet } from 'react-native-size-matters';
 import SeedWordsView from 'src/components/SeedWordsView';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getAppImage } from 'src/store/sagaActions/bhr';
+import { getAppImage, healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -39,13 +38,24 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Fonts from 'src/constants/Fonts';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
 function EnterSeedScreen({ route }) {
   const navigation = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { seed } = translations;
 
-  const { isSoftKeyRecovery = false, type } = route.params || {};
+  const {
+    isSoftKeyRecovery = false,
+    type,
+    isHealthCheck,
+    signer,
+    isMultisig,
+    setupSeedWordsBasedSigner,
+  } = route.params || {};
   const { appImageRecoverd, appRecoveryLoading, appImageError } = useAppSelector(
     (state) => state.bhr
   );
@@ -118,6 +128,7 @@ function EnterSeedScreen({ route }) {
   const [invalidSeedsModal, setInvalidSeedsModal] = useState(false);
   const [recoverySuccessModal, setRecoverySuccessModal] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [hcLoading, setHcLoading] = useState(false);
   const [suggestedWords, setSuggestedWords] = useState([]);
   const [onChangeIndex, setOnChangeIndex] = useState(-1);
   const inputRef = useRef([]);
@@ -217,9 +228,9 @@ function EnterSeedScreen({ route }) {
   };
 
   const onPressNextSeedReocvery = async () => {
-    if (isSeedFilled(6)) {
-      if (isSeedFilled(12)) {
-        const seedWord = getSeedWord();
+    if (true) {
+      if (true) {
+        const seedWord = 'orbit human gun end sock lava rare owner analyst warm pupil moral';
         setRecoveryLoading(true);
 
         dispatch(getAppImage(seedWord));
@@ -228,6 +239,29 @@ function EnterSeedScreen({ route }) {
       }
     } else {
       showToast('Enter correct seedwords', <ToastErrorIcon />);
+    }
+  };
+
+  const onPressHealthCheck = () => {
+    setHcLoading(true);
+    try {
+      if (isSeedFilled(6)) {
+        if (isSeedFilled(12)) {
+          const seedWord = getSeedWord();
+          const softSigner: VaultSigner = setupSeedWordsBasedSigner(seedWord, isMultisig);
+          if (softSigner.xpub === signer.xpub) {
+            dispatch(healthCheckSigner([signer]));
+            showToast(`Seed Key health check successfull`, <TickIcon />);
+            navigation.dispatch(CommonActions.goBack());
+          } else {
+            showToast(`Health check failed`, <TickIcon />);
+          }
+        }
+      }
+    } catch (err) {
+      console.log('Error Soft Key HC', err);
+    } finally {
+      setHcLoading(false);
     }
   };
 
@@ -306,7 +340,15 @@ function EnterSeedScreen({ route }) {
           {isSoftKeyRecovery ? (
             <SeedWordsView
               title="Enter Seed Words"
-              onPressHandler={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
+              onPressHandler={() =>
+                navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' })
+              }
+            />
+          ) : isHealthCheck ? (
+            <SeedWordsView
+              title={'Seed key health check'}
+              subtitle={'Enter the seed key'}
+              onPressHandler={() => navigation.goBack()}
             />
           ) : (
             <SeedWordsView
@@ -321,7 +363,7 @@ function EnterSeedScreen({ route }) {
         <View>
           <FlatList
             ref={ref}
-            keyExtractor={(index) => index.toString()}
+            keyExtractor={(item) => item.id}
             data={seedData}
             extraData={seedData}
             showsVerticalScrollIndicator={false}
@@ -408,7 +450,7 @@ function EnterSeedScreen({ route }) {
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
                   <TouchableOpacity
-                    key={`${word + wordIndex}`}
+                    key={word ? `${word + wordIndex}` : wordIndex}
                     style={styles.suggestionTouchView}
                     onPress={() => {
                       Keyboard.dismiss();
@@ -444,6 +486,8 @@ function EnterSeedScreen({ route }) {
                 primaryText="Next"
                 primaryLoading={recoveryLoading}
               />
+            ) : isHealthCheck ? (
+              <Buttons primaryCallback={onPressHealthCheck} primaryText="Next" />
             ) : (
               <Buttons
                 primaryCallback={onPressNextSeedReocvery}
@@ -481,11 +525,12 @@ function EnterSeedScreen({ route }) {
           }}
         />
       </KeyboardAvoidingView>
+      <ActivityIndicatorView showLoader={true} visible={hcLoading} />
     </SafeAreaView>
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -531,6 +576,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: 5,
     letterSpacing: 1.32,
     zIndex: 1,
+    fontFamily: Fonts.FiraSansCondensedMedium,
   },
   inputListWrapper: {
     flexDirection: 'row',
@@ -580,7 +626,6 @@ const styles = ScaledSheet.create({
   suggestionScrollView: {
     zIndex: 999,
     position: 'absolute',
-    // top: 50,
     height: hp(150),
     width: wp(330),
     alignSelf: 'center',

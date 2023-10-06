@@ -2,14 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-
-import HeaderTitle from 'src/components/HeaderTitle';
+import Share from 'react-native-share';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import {
   setInheritance,
-  setKeySecurityTipsPath,
-  setLetterToAttornyPath,
-  setRecoveryInstructionPath,
+  // setKeySecurityTipsPath,
+  // setLetterToAttornyPath,
+  // setRecoveryInstructionPath,
 } from 'src/store/reducers/settings';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import SafeguardingTips from 'src/assets/images/SafeguardingTips.svg';
@@ -18,9 +17,8 @@ import Letter from 'src/assets/images/LETTER.svg';
 import Recovery from 'src/assets/images/recovery.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-
 import Text from 'src/components/KeeperText';
-import Note from 'src/components/Note/Note';
+// import Note from 'src/components/Note/Note';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import useVault from 'src/hooks/useVault';
@@ -32,15 +30,16 @@ import GenerateLetterToAtternyPDF from 'src/utils/GenerateLetterToAtternyPDF';
 import IKSetupSuccessModal from './components/IKSetupSuccessModal';
 import InheritanceDownloadView from './components/InheritanceDownloadView';
 import InheritanceSupportView from './components/InheritanceSupportView';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 function InheritanceStatus() {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
-  const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector(
-    (state) => state.settings
-  );
+  // const { keySecurityTips, letterToAttorny, recoveryInstruction } = useAppSelector(
+  //   (state) => state.settings
+  // );
   const [visibleModal, setVisibleModal] = useState(false);
   const [visibleErrorView] = useState(false);
 
@@ -62,8 +61,7 @@ function InheritanceStatus() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        onPressHandler={() => navigtaion.goBack()}
+      <KeeperHeader
         learnMore
         learnMorePressed={() => {
           dispatch(setInheritance(true));
@@ -74,27 +72,9 @@ function InheritanceStatus() {
         subtitle="Keeper provides you with the tips and tools you need to include the Vault in your estate planning"
       />
       <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
-        <InheritanceDownloadView
-          icon={<SafeguardingTips />}
-          title="Key Security Tips"
-          subTitle="How to store your keys securely"
-          previewPDF={() => {
-            if (keySecurityTips) {
-              navigtaion.navigate('PreviewPDF', { source: keySecurityTips });
-            } else {
-              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
-            }
-          }}
-          downloadPDF={() => {
-            GenerateSecurityTipsPDF().then((res) => {
-              if (res) {
-                dispatch(setKeySecurityTipsPath(res));
-              }
-              showToast('Document has been downloaded.', <TickIcon />);
-            });
-          }}
-          isDownload
-        />
+        <Box style={styles.sectionTitleWrapper}>
+          <Text style={styles.sectionTitle}>Tools</Text>
+        </Box>
         <InheritanceDownloadView
           icon={<SetupIK />}
           title="Setup Inheritance Key"
@@ -110,6 +90,22 @@ function InheritanceStatus() {
             );
           }}
         />
+        <Box style={styles.sectionTitleWrapper}>
+          <Text style={styles.sectionTitle}>Tips</Text>
+        </Box>
+        <InheritanceDownloadView
+          icon={<SafeguardingTips />}
+          title="Key Security Tips"
+          subTitle="How to store your keys securely"
+          previewPDF={() => {
+            GenerateSecurityTipsPDF().then((res) => {
+              if (res) {
+                navigtaion.navigate('PreviewPDF', { source: res });
+              }
+            })
+          }}
+          isDownload
+        />
         {/* Error view - Need to add condition for this */}
         {visibleErrorView && (
           <Box style={styles.signingDevicesView}>
@@ -117,24 +113,19 @@ function InheritanceStatus() {
             <ToastErrorIcon />
           </Box>
         )}
+        <Box style={styles.sectionTitleWrapper}>
+          <Text style={styles.sectionTitle}>Documents</Text>
+        </Box>
         <InheritanceDownloadView
           icon={<Letter />}
           title="Letter to the Attorney"
           subTitle="A partly filled pdf template"
           previewPDF={() => {
-            if (letterToAttorny) {
-              navigtaion.navigate('PreviewPDF', { source: letterToAttorny });
-            } else {
-              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
-            }
-          }}
-          downloadPDF={() => {
             GenerateLetterToAtternyPDF(fingerPrints).then((res) => {
               if (res) {
-                dispatch(setLetterToAttornyPath(res));
+                navigtaion.navigate('PreviewPDF', { source: res });
               }
-              showToast('Document has been downloaded.', <TickIcon />);
-            });
+            })
           }}
           isDownload
         />
@@ -143,30 +134,20 @@ function InheritanceStatus() {
           title="Recovery Instructions"
           subTitle="A document for the heir only"
           previewPDF={() => {
-            if (recoveryInstruction) {
-              navigtaion.navigate('PreviewPDF', { source: recoveryInstruction });
-            } else {
-              showToast("Document hasn't downloaded yet.", <ToastErrorIcon />);
-            }
-          }}
-          downloadPDF={() =>
             GenerateRecoveryInstrPDF(activeVault.signers, descriptorString).then((res) => {
               if (res) {
-                dispatch(setRecoveryInstructionPath(res));
+                navigtaion.navigate('PreviewPDF', { source: res });
               }
-              showToast('Document has been downloaded.', <TickIcon />);
             })
-          }
+          }}
           isDownload
         />
       </ScrollView>
-      {/* <Box style={styles.note}> */}
-      <Note
+      {/* <Note
         title="Note"
         subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
         subtitleColor="GreyText"
-      />
-      {/* </Box> */}
+      /> */}
       <IKSetupSuccessModal visible={visibleModal} closeModal={() => setVisibleModal(false)} />
     </ScreenWrapper>
   );
@@ -180,6 +161,13 @@ const styles = StyleSheet.create({
   },
   scrollViewWrapper: {
     height: windowHeight > 800 ? '50%' : '40%',
+  },
+  sectionTitleWrapper: {
+    marginTop: 10
+  },
+  sectionTitle: {
+    fontSize: 16,
+    letterSpacing: 0.96,
   },
   signingDevicesText: {
     color: '#E07962',

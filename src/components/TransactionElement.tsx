@@ -16,7 +16,7 @@ import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
 
 function TransactionElement({
   transaction,
-  onPress = () => {},
+  onPress = () => { },
 }: {
   transaction: Transaction;
   onPress?: () => void;
@@ -63,7 +63,9 @@ function TransactionElement({
             color={`${colorMode}.dateText`}
             variation={colorMode === 'light' ? 'dark' : 'light'}
           />
-          <IconArrow />
+          <Box style={styles.unconfirmIconWrapper}>
+            <IconArrow />
+          </Box>
         </Box>
       </Box>
     </TouchableOpacity>

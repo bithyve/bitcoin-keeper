@@ -2,12 +2,11 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Input, View, Box, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
+import { StyleSheet } from 'react-native';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { ScaledSheet } from 'react-native-size-matters';
 
 import KeeperText from 'src/components/KeeperText';
-import Fonts from 'src/constants/Fonts';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import { windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
@@ -58,13 +57,7 @@ function EditWalletSettings({ route }) {
   return (
     <Box style={styles.Container} background={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle
-        title={walletText.WalletDetails}
-        subtitle={walletText.EditWalletDeatils}
-        onPressHandler={() => navigtaion.goBack()}
-        paddingTop={3}
-        paddingLeft={25}
-      />
+      <KeeperHeader title={walletText.WalletDetails} subtitle={walletText.EditWalletDeatils} />
       <View style={styles.inputWrapper}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input
@@ -117,21 +110,21 @@ function EditWalletSettings({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
   addWalletText: {
     fontSize: 22,
-    lineHeight: '20@s',
-    letterSpacing: '0.7@s',
+    lineHeight: 20,
+    letterSpacing: 0.7,
     marginTop: hp(5),
   },
   addWalletDescription: {
     fontSize: 12,
-    lineHeight: '15@s',
-    letterSpacing: '0.5@s',
+    lineHeight: 15,
+    letterSpacing: 0.5,
   },
   inputField: {
     padding: 30,

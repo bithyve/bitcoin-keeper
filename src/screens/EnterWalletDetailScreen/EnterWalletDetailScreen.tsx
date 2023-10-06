@@ -1,8 +1,7 @@
 import React, { useCallback, useState, useContext, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input, View, Select, useColorMode } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import Buttons from 'src/components/Buttons';
 import { DerivationConfig, NewWalletInfo } from 'src/store/sagas/wallets';
@@ -65,31 +64,30 @@ function EnterWalletDetailScreen({ route }) {
 
   const createNewWallet = useCallback(() => {
     setWalletLoading(true);
-
-    const derivationConfig: DerivationConfig = {
-      path,
-      purpose: Number(purpose),
-    };
-
-    const newWallet: NewWalletInfo = {
-      walletType,
-      walletDetails: {
-        name: walletName,
-        description: walletDescription,
-        derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
-        transferPolicy: {
-          id: uuidv4(),
-          threshold: parseInt(transferPolicy),
+    setTimeout(() => {
+      //TODO: remove this timeout once the crypto is optimised
+      const derivationConfig: DerivationConfig = {
+        path,
+        purpose: Number(purpose),
+      };
+      const newWallet: NewWalletInfo = {
+        walletType,
+        walletDetails: {
+          name: walletName,
+          description: walletDescription,
+          derivationConfig: walletType === WalletType.DEFAULT ? derivationConfig : null,
+          transferPolicy: {
+            id: uuidv4(),
+            threshold: parseInt(transferPolicy),
+          },
         },
-      },
-      importDetails: {
-        derivationConfig,
-        // eslint-disable-next-line react/prop-types
-        mnemonic: importedSeed,
-      },
-    };
-
-    dispatch(addNewWallets([newWallet]));
+        importDetails: {
+          derivationConfig,
+          mnemonic: importedSeed,
+        },
+      };
+      dispatch(addNewWallets([newWallet]));
+    }, 200);
   }, [walletName, walletDescription, transferPolicy]);
 
   useEffect(() => {
@@ -196,12 +194,9 @@ function EnterWalletDetailScreen({ route }) {
   return (
     <Box style={styles.Container} backgroundColor={`${colorMode}.primaryBackground`}>
       <StatusBarComponent padding={50} />
-      <HeaderTitle
+      <KeeperHeader
         title={walletType === WalletType.DEFAULT ? `${wallet.AddNewWallet}` : 'Import'}
         subtitle={wallet.AddNewWalletDescription}
-        onPressHandler={() => navigtaion.goBack()}
-        paddingTop={3}
-        paddingLeft={25}
       />
       <View marginX={4} marginY={4}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
@@ -255,20 +250,22 @@ function EnterWalletDetailScreen({ route }) {
             <KeeperText style={styles.splitter} color={`${colorMode}.divider`}>
               |
             </KeeperText>
-            <Input
-              placeholderTextColor={`${colorMode}.GreyText`}
-              value={formatNumber(transferPolicy)}
-              onChangeText={(value) => setTransferPolicy(value)}
-              autoCorrect={false}
-              fontSize={15}
-              fontWeight="300"
-              style={styles.transferPolicyInput}
-              keyboardType="numeric"
-              borderWidth="0"
-              letterSpacing={3}
-              color={`${colorMode}.greenText`}
-              testID={`input_${formatNumber(transferPolicy)}`}
-            />
+            <Box style={styles.transferPolicyInputWrapper}>
+              <Input
+                placeholderTextColor={`${colorMode}.GreyText`}
+                value={formatNumber(transferPolicy)}
+                onChangeText={(value) => setTransferPolicy(value)}
+                autoCorrect={false}
+                fontSize={15}
+                fontWeight="300"
+                style={styles.transferPolicyInput}
+                keyboardType="numeric"
+                borderWidth="0"
+                // letterSpacing={3}
+                color={`${colorMode}.greenText`}
+                testID={`input_${formatNumber(transferPolicy)}`}
+              />
+            </Box>
             <Box style={styles.sats}>
               <KeeperText type="bold">{common.sats}</KeeperText>
             </Box>
@@ -294,7 +291,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => {}}
+        close={() => { }}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -312,10 +309,10 @@ function EnterWalletDetailScreen({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
   },
   autoTransferText: {
     fontSize: 12,
@@ -324,7 +321,7 @@ const styles = ScaledSheet.create({
   autoTransferTextDesc: {
     fontSize: 10,
     paddingTop: 10,
-    letterSpacing: '0.5@s',
+    letterSpacing: 0.5,
   },
   transferPolicyInput: {
     fontSize: 18,
@@ -332,8 +329,8 @@ const styles = ScaledSheet.create({
   },
   addWalletDescription: {
     fontSize: 12,
-    lineHeight: '15@s',
-    letterSpacing: '0.5@s',
+    lineHeight: 15,
+    letterSpacing: 0.5,
   },
   inputFieldWrapper: {
     flexDirection: 'row',
@@ -351,6 +348,10 @@ const styles = ScaledSheet.create({
     marginRight: 10,
     fontSize: 10,
     alignSelf: 'flex-end',
+  },
+  transferPolicyInputWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   transferPolicyTextArea: {
     flexDirection: 'row',

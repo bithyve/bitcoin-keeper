@@ -12,6 +12,7 @@ import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import messaging from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
+import { setRecoveryCreatedApp } from 'src/store/reducers/storage';
 
 const useConfigRecovery = () => {
   const { appId } = useAppSelector((state) => state.storage);
@@ -25,8 +26,10 @@ const useConfigRecovery = () => {
   async function createNewApp() {
     try {
       const fcmToken = await messaging().getToken();
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp());
     }
   }

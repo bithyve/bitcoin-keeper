@@ -1,22 +1,20 @@
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-
+import { StyleSheet } from 'react-native';
 import RestClient, { TorStatus } from 'src/services/rest/RestClient';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { setTorEnabled } from 'src/store/reducers/settings';
 import { TorContext } from 'src/context/TorContext';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
-import SettingsCard from 'src/components/SettingComponent/SettingsCard';
 import KeeperModal from 'src/components/KeeperModal';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
-import { hp, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import TorStatusTag from 'src/components/TorStatus';
 import TorModalMap from './TorModalMap';
+import OptionCard from 'src/components/OptionCard';
 
 function TorSettings() {
   const { colorMode } = useColorMode();
@@ -63,39 +61,30 @@ function TorSettings() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title="Tor Settings"
         subtitle="Tor improves your network privacy. To learn more visit: https://www.torproject.org/"
-        paddingLeft={wp(25)}
       />
-      <Box paddingTop={10}>
+      <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
         <Box>
           <TorStatusTag />
         </Box>
-        <SettingsCard
+        <OptionCard
           title="Tor via Orbot"
           description="Use the Orbot app. Greater control, quicker connection and advanced options"
-          my={2}
-          loading={orbotTorStatus === TorStatus.CHECKING}
-          value={orbotTorStatus === TorStatus.CONNECTED}
-          onPress={() => setShowOrbotTorModal(true)}
+          callback={() => setShowOrbotTorModal(true)}
         />
-        <SettingsCard
+        <OptionCard
           title="In-app Tor"
           description="Use direct Tor. No need to download a separate app. May be slow and unreliable"
-          my={2}
-          onPress={() => setShowTorModal(true)}
-          loading={inAppTor === TorStatus.CONNECTING}
-          value={inAppTor === TorStatus.CONNECTED}
-          on
+          callback={() => setShowTorModal(true)}
         />
-
-        <Buttons
-          primaryText="Check Status"
-          primaryCallback={() => checkTorConnection()}
-          primaryLoading={torStatus === TorStatus.CONNECTING || torStatus === TorStatus.CHECKING}
-        />
-      </Box>
+      </ScrollView>
+      <Buttons
+        primaryText="Check Status"
+        primaryCallback={() => checkTorConnection()}
+        primaryLoading={torStatus === TorStatus.CONNECTING || torStatus === TorStatus.CHECKING}
+      />
       <Box style={styles.note}>
         <Note
           title="Note"
@@ -103,11 +92,7 @@ function TorSettings() {
           subtitleColor="GreyText"
         />
       </Box>
-      <TorModalMap
-        onPressTryAgain={handleInAppTor}
-        visible={showTorModal}
-        close={() => setShowTorModal(false)}
-      />
+      <TorModalMap visible={showTorModal} close={() => setShowTorModal(false)} />
       <KeeperModal
         visible={showOrbotTorModal}
         close={() => {
@@ -131,13 +116,9 @@ function TorSettings() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   note: {
-    position: 'absolute',
-    bottom: hp(35),
-    marginLeft: 26,
-    width: '90%',
-    paddingTop: hp(10),
+    marginHorizontal: '5%',
   },
 });
 

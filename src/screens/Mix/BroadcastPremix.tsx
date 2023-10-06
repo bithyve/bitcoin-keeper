@@ -3,7 +3,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
@@ -246,8 +246,7 @@ export default function BroadcastPremix({ route, navigation }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-      <HeaderTitle
-        paddingLeft={25}
+      <KeeperHeader
         title="Preview Premix"
         subtitle="Review the parameters of your Tx0."
         learnMore

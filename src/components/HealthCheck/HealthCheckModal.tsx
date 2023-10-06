@@ -2,7 +2,6 @@ import { Box, Modal, Input, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import Close from 'src/assets/images/modal_close.svg';
-import LinearGradient from 'src/components/KeeperGradient';
 import React from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -45,12 +44,7 @@ function HealthCheckModal(props) {
       marginTop="20%"
     >
       <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-        <LinearGradient
-          start={[0, 0]}
-          end={[1, 1]}
-          colors={modalBackground}
-          style={styles.container}
-        >
+        <Box style={styles.container} backgroundColor={`${colorMode}.modalWhiteBackground`}>
           <TouchableOpacity style={styles.close} onPress={closeHealthCheck}>
             <Close />
           </TouchableOpacity>
@@ -91,19 +85,14 @@ function HealthCheckModal(props) {
           />
           <Box alignSelf="flex-end" flexDirection="row" backgroundColor="transparent">
             <TouchableOpacity onPress={onPress}>
-              <LinearGradient
-                start={[0, 0]}
-                end={[1, 1]}
-                colors={buttonBackground}
-                style={styles.cta}
-              >
+              <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                 <Text fontSize={13} bold letterSpacing={1} color={buttonTextColor}>
                   {buttonText}
                 </Text>
-              </LinearGradient>
+              </Box>
             </TouchableOpacity>
           </Box>
-        </LinearGradient>
+        </Box>
       </Modal.Content>
     </Modal>
   );

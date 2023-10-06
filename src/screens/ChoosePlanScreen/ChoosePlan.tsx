@@ -12,7 +12,7 @@ import RNIap, {
 } from 'react-native-iap';
 import React, { useContext, useEffect, useState } from 'react';
 import ChoosePlanCarousel from 'src/components/Carousel/ChoosePlanCarousel';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
@@ -21,7 +21,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { useNavigation } from '@react-navigation/native';
-import { wp, hp } from 'src/constants/responsive';
+import { wp } from 'src/constants/responsive';
 import Relay from 'src/services/operations/Relay';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
 import moment from 'moment';
@@ -320,19 +320,17 @@ function ChoosePlan(props) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <Box justifyContent="space-between" flexDirection="row">
-        <HeaderTitle
-          title={choosePlan.choosePlantitle}
-          subtitle={
-            subscription.name === 'Diamond Hands'
-              ? `You are currently a ${subscription.name}`
-              : `You are currently a ${subscription.name}`
-          }
-          headerTitleColor={`${colorMode}.modalGreenTitle`}
-        />
-        <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
-      </Box>
-
+      <KeeperHeader
+        title={choosePlan.choosePlantitle}
+        subtitle={
+          subscription.name === 'Diamond Hands'
+            ? `You are currently a ${subscription.name}`
+            : `You are currently a ${subscription.name}`
+        }
+        rightComponent={
+          <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
+        }
+      />
       <KeeperModal
         visible={requesting}
         close={() => {}}

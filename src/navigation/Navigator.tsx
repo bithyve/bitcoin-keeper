@@ -11,7 +11,6 @@ import BackupWallet from 'src/screens/BackupWallet/BackupWallet';
 import ChangeLanguage from 'src/screens/AppSettings/ChangeLanguage';
 import ChoosePlan from 'src/screens/ChoosePlanScreen/ChoosePlan';
 import ChoosePolicyNew from 'src/screens/Vault/ChoosePolicyNew';
-import ColdCardReocvery from 'src/screens/VaultRecovery/ColdCardRecovery';
 import CreatePin from 'src/screens/LoginScreen/CreatePin';
 import EditWalletSettings from 'src/screens/WalletDetails/EditWalletDetails';
 import EnterSeedScreen from 'src/screens/Recovery/EnterSeedScreen';
@@ -28,7 +27,7 @@ import ScanQR from 'src/screens/QRScreens/ScanQR';
 import ShowQR from 'src/screens/QRScreens/ShowQR';
 import SendConfirmation from 'src/screens/Send/SendConfirmation';
 import SendScreen from 'src/screens/Send/SendScreen';
-import SetupColdCard from 'src/screens/SigningDeveices/SetupColdCard';
+import SetupColdCard from 'src/screens/SigningDevices/SetupColdCard';
 import SetupInheritance from 'src/screens/Inheritance/SetupInheritance';
 import PreviewPDF from 'src/screens/Inheritance/components/PreviewPDF';
 import InheritanceStatus from 'src/screens/Inheritance/InheritanceStatus';
@@ -40,13 +39,11 @@ import SignWithColdCard from 'src/screens/SignTransaction/SignWithColdCard';
 import SignWithQR from 'src/screens/SignTransaction/SignWithQR';
 import SignWithTapsigner from 'src/screens/SignTransaction/SignWithTapsigner';
 import SignerAdvanceSettings from 'src/screens/Vault/SignerAdvanceSettings';
-import SignersList from 'src/screens/VaultRecovery/SignersList';
 import SigningDeviceDetails from 'src/screens/Vault/SigningDeviceDetails';
 import SigningDeviceList from 'src/screens/Vault/SigningDeviceList';
 import SigningServer from 'src/screens/Vault/SigningServer';
 import SigningServerSettings from 'src/screens/Vault/SigningServerSettings';
 import SplashScreen from 'src/screens/Splash/SplashScreen';
-import TapSignerRecovery from 'src/screens/VaultRecovery/TapsignerRecovery';
 import TimelockScreen from 'src/screens/Vault/TimelockScreen';
 import TorSettings from 'src/screens/AppSettings/TorSettings';
 import ManageWallets from 'src/screens/AppSettings/ManageWallets';
@@ -54,13 +51,12 @@ import TransactionDetails from 'src/screens/ViewTransactions/TransactionDetails'
 import VaultDetails from 'src/screens/Vault/VaultDetails';
 import VaultRecovery from 'src/screens/VaultRecovery/VaultRecovery';
 import VaultSettings from 'src/screens/Vault/VaultSettings';
-import VaultTransactions from 'src/screens/Vault/VaultTransactions';
+import AllTransactions from 'src/screens/Vault/AllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { routingInstrumentation } from 'src/services/sentry';
-import QrRecovery from 'src/screens/VaultRecovery/QrRecovery';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
@@ -80,7 +76,6 @@ import MixProgress from 'src/screens/Mix/MixProgress';
 import ImportWalletScreen from 'src/screens/ImportWalletScreen/ImportWalletScreen';
 import ImportWalletDetailsScreen from 'src/screens/ImportWalletDetailsScreen/ImportWalletDetailsScreen';
 import AddDetailsFinalScreen from 'src/screens/ImportWalletDetailsScreen/AddDetailsFinalScreen';
-import ConnectChannelRecovery from 'src/screens/VaultRecovery/ConnectChannelRecovery';
 import UpdateWalletDetails from 'src/screens/WalletDetails/UpdateWalletDetails';
 import AssignSignerType from 'src/screens/Vault/AssignSignerType';
 import CosignerDetails from 'src/screens/WalletDetails/CosignerDetails';
@@ -90,12 +85,14 @@ import ImportDescriptorScreen from 'src/screens/WalletDetails/ImportDescriptor';
 import GenerateVaultDescriptor from 'src/screens/Vault/GenerateVaultDescriptor';
 import Login from '../screens/LoginScreen/Login';
 import { AppContext } from 'src/context/AppContext';
-import SetupTapsigner from 'src/screens/SigningDeveices/SetupTapsigner';
-import SetupSeedWordSigner from 'src/screens/SigningDeveices/SetupSeedWordSigner';
-import InputSeedWordSigner from 'src/screens/SigningDeveices/InputSeedWordSigner';
-import SetupOtherSDScreen from 'src/screens/SigningDeveices/SetupOtherSDScreen';
-import SetupCollaborativeWallet from 'src/screens/SigningDeveices/SetupCollaborativeWallet';
-import SetupSigningServer from 'src/screens/SigningDeveices/SetupSigningServer';
+import SetupTapsigner from 'src/screens/SigningDevices/SetupTapsigner';
+import SetupSeedWordSigner from 'src/screens/SigningDevices/SetupSeedWordSigner';
+import InputSeedWordSigner from 'src/screens/SigningDevices/InputSeedWordSigner';
+import SetupOtherSDScreen from 'src/screens/SigningDevices/SetupOtherSDScreen';
+import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborativeWallet';
+import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
+import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListRecovery';
+import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -116,27 +113,6 @@ function LoginStack() {
       <Stack.Screen options={{ gestureEnabled: false }} name="ResetPin" component={ResetPin} />
       <Stack.Screen
         options={{ gestureEnabled: false }}
-        name="VaultRecoveryAddSigner"
-        component={VaultRecovery}
-      />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="ColdCardReocvery"
-        component={ColdCardReocvery}
-      />
-      <Stack.Screen options={{ gestureEnabled: false }} name="QrRecovery" component={QrRecovery} />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="SignersList"
-        component={SignersList}
-      />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
-        name="TapSignerRecovery"
-        component={TapSignerRecovery}
-      />
-      <Stack.Screen
-        options={{ gestureEnabled: false }}
         name="OnBoardingSlides"
         component={OnBoardingSlides}
       />
@@ -145,12 +121,31 @@ function LoginStack() {
         options={{ gestureEnabled: false }}
         component={NewKeeperApp}
       />
-      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+
+      <Stack.Screen
+        options={{ gestureEnabled: false }}
+        name="VaultRecoveryAddSigner"
+        component={VaultRecovery}
+      />
       <Stack.Screen name="VaultConfigurationRecovery" component={VaultConfigurationRecovery} />
       <Stack.Screen name="SigningDeviceConfigRecovery" component={SigningDeviceConfigRecovery} />
+      <Stack.Screen name="SigningDeviceListRecovery" component={SigningDeviceListRecovery} />
       <Stack.Screen name="ScanQRFileRecovery" component={ScanQRFileRecovery} />
       <Stack.Screen name="OtherRecoveryMethods" component={OtherRecoveryMethods} />
-      <Stack.Screen name="ConnectChannelRecovery" component={ConnectChannelRecovery} />
+
+      {/* Cold Card */}
+      <Stack.Screen name="AddColdCardRecovery" component={SetupColdCard} />
+      {/* Tap Signer  */}
+      <Stack.Screen name="AddTapsignerRecovery" component={SetupTapsigner} />
+      {/* QR Based SDs */}
+      <Stack.Screen options={{ gestureEnabled: false }} name="ScanQR" component={ScanQR} />
+      {/* Channel Based SDs */}
+      <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
+      {/* Mobile Key, Seed Key */}
+      <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+      <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
+      {/* Other SD */}
+      <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
     </Stack.Navigator>
   );
 }
@@ -213,7 +208,7 @@ function AppStack() {
         <Stack.Screen name="SigningServerSettings" component={SigningServerSettings} />
         <Stack.Screen name="SigningServer" component={SigningServer} />
         <Stack.Screen name="AddDescription" component={AddDescription} />
-        <Stack.Screen name="VaultTransactions" component={VaultTransactions} />
+        <Stack.Screen name="AllTransactions" component={AllTransactions} />
         <Stack.Screen name="TransactionDetails" component={TransactionDetails} />
         <Stack.Screen name="TimelockScreen" component={TimelockScreen} />
         <Stack.Screen name="SignerAdvanceSettings" component={SignerAdvanceSettings} />
@@ -232,6 +227,8 @@ function AppStack() {
         <Stack.Screen name="CosignerDetails" component={CosignerDetails} />
         <Stack.Screen name="GenerateVaultDescriptor" component={GenerateVaultDescriptor} />
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
+        <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
+        <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

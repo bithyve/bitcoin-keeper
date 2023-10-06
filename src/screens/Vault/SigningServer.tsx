@@ -9,7 +9,7 @@ import Change from 'src/assets/images/change.svg';
 import DotView from 'src/components/DotView';
 import Edit from 'src/assets/images/edit.svg';
 import Heathcheck from 'src/assets/images/heathcheck.svg';
-import LinearGradient from 'src/components/KeeperGradient';
+// libraries
 import React from 'react';
 import Server from 'src/assets/images/server.svg';
 import Settings from 'src/assets/images/settings_brown.svg';
@@ -19,10 +19,7 @@ function SigningServer({ navigation }) {
   const { colorMode } = useColorMode();
   function GradientIcon({ height, Icon }) {
     return (
-      <LinearGradient
-        colors={['#694B2E', '#694B2E']}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
         style={{
           height: hp(height),
           width: hp(height),
@@ -30,9 +27,9 @@ function SigningServer({ navigation }) {
           justifyContent: 'center',
           alignItems: 'center',
         }}
-      >
+        backgroundColor={`${colorMode}.coffeeBackground`}>
         <Icon />
-      </LinearGradient>
+      </Box>
     );
   }
   function SimpleIcon({ height, Icon }) {

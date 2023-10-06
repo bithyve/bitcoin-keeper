@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { hp, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -197,13 +197,7 @@ function ManageWallets() {
             <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
               <Box
                 style={[styles.createBtn]}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
+                backgroundColor={`${colorMode}.greenButtonBackground`}
               >
                 <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
                   Move Funds
@@ -218,11 +212,7 @@ function ManageWallets() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        title={settings.ManageWallets}
-        subtitle={settings.ManageWalletsSub}
-        paddingLeft={wp(25)}
-      />
+      <KeeperHeader title={settings.ManageWallets} subtitle={settings.ManageWalletsSub} />
       <FlatList
         data={visibleWallets}
         extraData={[visibleWallets, hiddenWallets]}
@@ -240,7 +230,7 @@ function ManageWallets() {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id}
       />
-      <Box backgroundColor="#BABABA" height={0.4} width="100%" />
+      <Box backgroundColor="#BABABA" height={0.9} width="100%" />
       <FlatList
         data={hiddenWallets}
         extraData={[visibleWallets, hiddenWallets]}
@@ -255,6 +245,7 @@ function ManageWallets() {
             onBtnPress={() => {
               setSelectedWallet(item);
               navigation.navigate('Login', {
+                internalCheck: true,
                 relogin: true,
                 screen: 'ManageWallets',
                 title: 'Enter Passcode to Unhide Wallet',
@@ -276,7 +267,7 @@ function ManageWallets() {
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => {}}
+        closeOnOverlayClick={() => { }}
         showButtons
         showCloseIcon={false}
       />

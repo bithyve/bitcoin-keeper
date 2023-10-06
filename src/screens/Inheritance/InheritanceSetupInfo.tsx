@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Box, FlatList, useColorMode } from 'native-base';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { hp } from 'src/constants/responsive';
 import DotView from 'src/components/DotView';
 import Text from 'src/components/KeeperText';
@@ -24,11 +23,10 @@ const renderItem = ({ item }) => (
 );
 function InheritanceSetupInfo({ route }) {
   const { title, subTitle, infoData, icon } = route.params;
-  const navigtaion = useNavigation();
   const { colorMode } = useColorMode();
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle onPressHandler={() => navigtaion.goBack()} />
+      <KeeperHeader />
       <InheritanceHeaderView icon={icon} title={title && title} subTitle={subTitle && subTitle} />
       <FlatList
         showsVerticalScrollIndicator={false}

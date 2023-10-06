@@ -1,14 +1,13 @@
-import KeeperModal from 'src/components/KeeperModal';
-import { TextInput } from 'react-native';
-import Text from 'src/components/KeeperText';
+
+import { StyleSheet, TextInput } from 'react-native';
 import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useCallback, useRef, useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-
 import moment from 'moment';
 
-import { ScaledSheet } from 'react-native-size-matters';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { windowWidth } from 'src/constants/responsive';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
 import Fonts from 'src/constants/Fonts';
 import { SDIcons } from '../SigningDeviceIcons';
@@ -103,7 +102,7 @@ function DescriptionModal({
 
 export default DescriptionModal;
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   descriptionEdit: {
     height: 45,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',

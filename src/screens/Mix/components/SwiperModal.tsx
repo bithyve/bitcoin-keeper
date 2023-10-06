@@ -5,14 +5,16 @@ import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { hp, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp, windowHeight } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
+  console.log('windowHeight', windowHeight)
   return (
     <Box>
       <Box>
@@ -50,11 +52,7 @@ const renderItem = ({ item }) => (
     />
   </Box>
 );
-const linearGradientBtn = {
-  colors: ['#FFFFFF', '#80A8A1'],
-  start: [0, 0],
-  end: [1, 1],
-};
+
 function List() {
   const { colorMode } = useColorMode();
   const listRef = useRef(null);
@@ -106,7 +104,7 @@ function List() {
         >
           <Pressable
             onPress={() => {
-              openLink('https://www.bitcoinkeeper.app/');
+              openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-whirlpool/`);
             }}
           >
             <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
@@ -153,7 +151,7 @@ function SwiperModal({ enable }) {
 
 const styles = StyleSheet.create({
   contentContaner: {
-    width: wp(286),
+    width: windowHeight < 650 ? wp(286) : wp(294),
   },
   swiperModalIcon: {
     alignSelf: 'center',

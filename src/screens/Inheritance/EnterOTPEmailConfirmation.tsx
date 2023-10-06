@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { useNavigation } from '@react-navigation/native';
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -30,13 +30,7 @@ function EnterOTPEmailConfirmation() {
   };
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        onPressHandler={() => navigtaion.goBack()}
-        title="Add phone or email"
-        subtitle="Check your email for OTP"
-        paddingLeft={22}
-      />
-      {/* pin input view */}
+      <KeeperHeader title="Add phone or email" subtitle="Check your email for OTP" />
       <Box style={styles.passwordContainer}>
         <CVVInputsView
           passCode={emailOrPhoneOTP}

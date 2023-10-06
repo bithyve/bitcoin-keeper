@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
@@ -190,13 +190,10 @@ function SigningDeviceConfigRecovery({ navigation }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Select Signing Device"
         subtitle="To recover your Vault"
-        headerTitleColor="light.textBlack"
         onPressHandler={() => navigation.navigate('LoginStack', { screen: 'OtherRecoveryMethods' })}
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">
