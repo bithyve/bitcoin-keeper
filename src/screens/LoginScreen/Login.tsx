@@ -35,7 +35,7 @@ import { credsAuth } from 'src/store/sagaActions/login';
 import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
-import { increasePinFailAttempts, resetPinFailAttempts } from 'src/store/reducers/storage';
+import { resetPinFailAttempts } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const TIMEOUT = 60;
