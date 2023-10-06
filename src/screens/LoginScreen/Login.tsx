@@ -57,6 +57,7 @@ function LoginScreen({ navigation, route }) {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [incorrectPassword, setIncorrectPassword] = useState(false)
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
@@ -146,12 +147,12 @@ function LoginScreen({ navigation, route }) {
     setPasscode(passcode.slice(0, passcode.length - 1));
   };
 
-  useEffect(() => {
-    if (attempts >= 3) {
-      setAttempts(1);
-      dispatch(increasePinFailAttempts());
-    }
-  }, [attempts]);
+  // useEffect(() => {
+  //   if (attempts >= 3) {
+  //     setAttempts(1);
+  //     dispatch(increasePinFailAttempts());
+  //   }
+  // }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -159,7 +160,8 @@ function LoginScreen({ navigation, route }) {
       setLoginError(true);
       setErrMessage('Incorrect passcode');
       setPasscode('');
-      setAttempts(attempts + 1);
+      // setAttempts(attempts + 1);
+      setIncorrectPassword(true)
       setLogging(false);
     } else {
       setLoginError(false);
@@ -213,7 +215,8 @@ function LoginScreen({ navigation, route }) {
   const onPinChange = () => {
     setLoginError(false);
     setErrMessage('');
-    setAttempts(0);
+    // setAttempts(0);
+    setIncorrectPassword(false)
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
@@ -432,9 +435,7 @@ function LoginScreen({ navigation, route }) {
               defaultIsChecked={torEnbled}
             />
           </HStack> */}
-
-          <Box style={styles.btnContainer}>
-            {attempts >= 1 ? (
+          {/* {attempts >= 1 ? (
               <TouchableOpacity
                 style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}
                 onPress={() => {
@@ -447,22 +448,22 @@ function LoginScreen({ navigation, route }) {
               </TouchableOpacity>
             ) : (
               <Box />
+            )} */}
+          <Box style={styles.btnWrapper}>
+            {passcode.length === 4 && (
+              <Box>
+                <CustomButton
+                  onPress={() => {
+                    setLoginError(false);
+                    setLogging(true);
+                  }}
+                  loading={loggingIn}
+                  value={common.proceed}
+                />
+              </Box>
             )}
-            <Box style={styles.btnWrapper}>
-              {passcode.length === 4 && (
-                <Box>
-                  <CustomButton
-                    onPress={() => {
-                      setLoginError(false);
-                      setLogging(true);
-                    }}
-                    loading={loggingIn}
-                    value={common.proceed}
-                  />
-                </Box>
-              )}
-            </Box>
           </Box>
+          {/* </Box> */}
 
           {/* keyboardview start */}
           <KeyPadView
@@ -508,7 +509,7 @@ function LoginScreen({ navigation, route }) {
       </Box>
       <KeeperModal
         visible={loginModal && !internalCheck}
-        close={() => {}}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -524,7 +525,7 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
@@ -536,7 +537,20 @@ function LoginScreen({ navigation, route }) {
         showCloseIcon={false}
         showButtons
       />
-
+      <KeeperModal
+        visible={incorrectPassword}
+        close={() => { }}
+        title={'Incorrect Password'}
+        subTitle={'You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText={'Retry'}
+        buttonCallback={() => setIncorrectPassword(false)}
+        showButtons
+        subTitleWidth={wp(250)}
+      />
       {/* <KeeperModal
         dismissible
         close={() => { setShowDowngradeModal(false) }}
@@ -601,12 +615,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.65,
   },
-  btnContainer: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    width: '100%',
-  },
   forgotPassWrapper: {
     flex: 0.8,
     margin: 20,
@@ -614,10 +622,10 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   btnWrapper: {
+    flex: 1,
     marginTop: 25,
-    alignSelf: 'flex-start',
-    marginRight: 15,
-    width: '35%',
+    alignItems: 'flex-end',
+    width: '92%',
   },
   createBtn: {
     paddingVertical: hp(15),

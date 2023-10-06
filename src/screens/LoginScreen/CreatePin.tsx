@@ -16,6 +16,7 @@ import PinInputsView from 'src/components/AppPinInput/PinInputsView';
 import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import { storeCreds, switchCredsChanged } from 'src/store/sagaActions/login';
+import KeeperModal from 'src/components/KeeperModal';
 
 const windowHeight = Dimensions.get('window').height;
 
@@ -24,6 +25,7 @@ export default function CreatePin(props) {
   const [passcode, setPasscode] = useState('');
   const [confirmPasscode, setConfirmPasscode] = useState('');
   const [passcodeFlag, setPasscodeFlag] = useState(true);
+  const [createPassword, setCreatePassword] = useState(false)
   const [confirmPasscodeFlag, setConfirmPasscodeFlag] = useState(0);
   const { oldPasscode } = props.route.params || {};
   const dispatch = useAppDispatch();
@@ -143,6 +145,15 @@ export default function CreatePin(props) {
       </Box>
     );
   }
+  function CreatePassModalContent() {
+    return (
+      <Box>
+        <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+          Your app storage is encrypted by the passcode. You will not be able to log in if you forget the passcode and will have to recover your wallet using the recovery flow
+        </Text>
+      </Box>
+    );
+  }
 
   return (
     <Box testID="main" style={styles.container} backgroundColor="light.pantoneGreen">
@@ -167,7 +178,7 @@ export default function CreatePin(props) {
                 borderColor={
                   passcode !== confirmPasscode && confirmPasscode.length === 4
                     ? // ? '#FF8F79'
-                      `light.error`
+                    `light.error`
                     : 'transparent'
                 }
               />
@@ -206,7 +217,7 @@ export default function CreatePin(props) {
                     disabled={isDisabled}
                     testID="button"
                     onPress={() => {
-                      dispatch(storeCreds(passcode));
+                      setCreatePassword(true);
                     }}
                     value={common.create}
                   />
@@ -221,6 +232,24 @@ export default function CreatePin(props) {
           />
         </Box>
       </Box>
+      <KeeperModal
+        visible={createPassword}
+        close={() => { }}
+        title={''}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText={'Continue'}
+        buttonCallback={() => {
+          dispatch(storeCreds(passcode));
+          setCreatePassword(false);
+        }}
+        Content={CreatePassModalContent}
+        showButtons
+        subTitleWidth={wp(250)}
+      />
     </Box>
   );
 }
@@ -257,5 +286,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 13,
     letterSpacing: 1,
+  },
+  modalMessageText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    // width: wp(275),
   },
 });
