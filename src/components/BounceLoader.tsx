@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { StyleSheet, Animated, EasingFunction, Easing } from 'react-native'
+import React from 'react'
+import { StyleSheet, Animated } from 'react-native'
 import { Box } from 'native-base'
 
 const BounceLoader = () => {
