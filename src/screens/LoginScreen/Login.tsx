@@ -37,6 +37,7 @@ import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
 import { resetPinFailAttempts } from 'src/store/reducers/storage';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BounceLoader from 'src/components/BounceLoader';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
@@ -301,12 +302,19 @@ function LoginScreen({ navigation, route }) {
           {modelMessage}
         </Text>
         {modelButtonText === null ? (
-          <Text
-            color={`${colorMode}.greenText`}
-            style={[styles.modalMessageText, { paddingTop: hp(20) }]}
-          >
-            This step will take a few seconds. You would be able to proceed soon
-          </Text>
+          <Box style={styles.modalMessageWrapper}>
+            <Box style={{ width: '80%' }}>
+              <Text
+                color={`${colorMode}.greenText`}
+                style={[styles.modalMessageText, { paddingTop: hp(20) }]}
+              >
+                This step will take a few seconds. You would be able to proceed soon
+              </Text>
+            </Box>
+            <Box style={{ width: '20%' }}>
+              <BounceLoader />
+            </Box>
+          </Box>
         ) : null}
       </Box>
     );
@@ -648,8 +656,13 @@ const styles = StyleSheet.create({
   modalMessageText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    width: wp(275),
+    // width: wp(275),
   },
+  modalMessageWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center'
+  }
 });
 
 export default LoginScreen;
