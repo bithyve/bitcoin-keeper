@@ -214,6 +214,9 @@ function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollab
           )}
 
           <Box style={styles.walletDetailsWrapper}>
+            {wallet?.type === 'IMPORTED' ? <Text color={`${colorMode}.white`} style={styles.walletType}>
+              Imported wallet
+            </Text> : null}
             <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
@@ -627,6 +630,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   walletName: {
+    letterSpacing: 0.2,
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  walletType: {
     letterSpacing: 0.2,
     fontSize: 11,
     fontWeight: '400',
