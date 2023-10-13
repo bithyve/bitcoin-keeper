@@ -70,6 +70,7 @@ function WalletDetails({ route }) {
     },
   } = wallet;
 
+  const walletType = idx(wallet, (_) => _.type) || 'DEFAULT'
   const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
@@ -121,7 +122,7 @@ function WalletDetails({ route }) {
                 {name}
               </Text>
               <Text color={`${colorMode}.white`} style={styles.walletDescText}>
-                {description}
+                {walletType === 'IMPORTED' ? 'Imported wallet' : description}
               </Text>
             </Box>
           </Box>
