@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { Box, ScrollView } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -15,6 +15,7 @@ import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function WalletDetailsSettings({ route }) {
+  const { colorMode } = useColorMode();
   const { wallet, editPolicy = false } = route.params || {};
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
@@ -24,7 +25,7 @@ function WalletDetailsSettings({ route }) {
   const walletTranslation = translations.wallet;
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Wallet Details" subtitle="Name, details and transfer policy" />
 
       <ScrollView
@@ -60,7 +61,7 @@ function WalletDetailsSettings({ route }) {
           }}
         />
       </ScrollView>
-      <Box style={styles.note} backgroundColor="light.secondaryBackground">
+      <Box style={styles.note}>
         <Note
           title="Note"
           subtitle="These settings are for your selected wallet only and does not affect other wallets"
@@ -74,8 +75,10 @@ function WalletDetailsSettings({ route }) {
           title="Wallet xPub"
           subTitleWidth={wp(240)}
           subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           // eslint-disable-next-line react/no-unstable-nested-components
           Content={() => (
             <ShowXPub
@@ -98,8 +101,10 @@ function WalletDetailsSettings({ route }) {
           }}
           title="Edit Transfer Policy"
           subTitle="Threshold amount at which transfer is triggered"
-          subTitleColor="light.secondaryText"
-          textColor="light.primaryText"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           Content={() => (
             <TransferPolicy
               wallet={wallet}
