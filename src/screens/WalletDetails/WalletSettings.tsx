@@ -52,7 +52,7 @@ function WalletSettings({ route }) {
   function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
       <Box
-        backgroundColor={`${colorMode}.primaryGreenBackground`}
+        backgroundColor={`${colorMode}.seashellWhite`}
         style={styles.walletCardContainer}
       >
         <Box style={styles.walletCard}>
@@ -132,7 +132,7 @@ function WalletSettings({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Wallet Settings" subtitle="Setting for the wallet only" />
       <Box
         style={{
