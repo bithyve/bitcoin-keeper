@@ -54,9 +54,9 @@ export default function WhirlpoolConfiguration({ route }) {
   const feesContent = (fees, onFeeSelectionCallback) => (
     <Box style={styles.feeContent}>
       <Box style={styles.feeHeaderItem}>
-        <Text style={styles.feeItemHeader}>Priority</Text>
-        <Text style={styles.feeItemHeader}>Arrival Time</Text>
-        <Text style={styles.feeItemHeader}>Fee</Text>
+        <Text style={styles.feeItemHeader} color={`${colorMode}.secondaryText`}>Priority</Text>
+        <Text style={styles.feeItemHeader} color={`${colorMode}.secondaryText`}>Arrival Time</Text>
+        <Text style={styles.feeItemHeader} color={`${colorMode}.secondaryText`}>Fee</Text>
       </Box>
       {fees &&
         fees.map((fee) => (
@@ -78,12 +78,12 @@ export default function WhirlpoolConfiguration({ route }) {
                     // onTransactionPriorityChanged(priority)
                   }}
                 />
-                <Text style={[styles.feeItemText, { width: 90 }]}>
+                <Text style={[styles.feeItemText, { width: 90 }]} color={`${colorMode}.secondaryText`}>
                   &nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}
                 </Text>
               </Box>
-              <Text style={[styles.feeItemText, { width: 110 }]}>{fee?.time}</Text>
-              <Text style={[styles.feeItemText, { width: 110 }]}>
+              <Text style={[styles.feeItemText, { width: 110 }]} color={`${colorMode}.secondaryText`}>{fee?.time}</Text>
+              <Text style={[styles.feeItemText, { width: 110 }]} color={`${colorMode}.secondaryText`}>
                 {fee?.fee} {fee?.fee > 1 ? 'sats' : 'sat'}/vB
               </Text>
             </Box>
@@ -245,11 +245,10 @@ export default function WhirlpoolConfiguration({ route }) {
           close={closeFeeSelectionModal}
           title="Change Priority"
           subTitle="Select a priority for your transaction"
-          subTitleColor="#5F6965"
-          modalBackground={'#F7F2EC'}
-          buttonBackground={`${colorMode}.gradientStart`}
-          buttonText=""
-          buttonTextColor="#FAFAFA"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={closeFeeSelectionModal}
           closeOnOverlayClick={false}
           Content={() => feesContent(fees, onFeeSelectionCallback)}
@@ -353,7 +352,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   feeItemHeader: {
-    color: '#656565',
     fontSize: 13,
     textAlign: 'left',
     width: 110,
@@ -374,7 +372,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   feeItemText: {
-    color: '#656565',
     fontSize: 13,
     textAlign: 'left',
   },
