@@ -228,11 +228,10 @@ function EnterSeedScreen({ route }) {
   };
 
   const onPressNextSeedReocvery = async () => {
-    if (true) {
-      if (true) {
-        const seedWord = 'orbit human gun end sock lava rare owner analyst warm pupil moral';
+    if (isSeedFilled(6)) {
+      if (isSeedFilled(12)) {
+        const seedWord = getSeedWord();
         setRecoveryLoading(true);
-
         dispatch(getAppImage(seedWord));
       } else {
         ref.current.scrollToIndex({ index: 5, animated: true });

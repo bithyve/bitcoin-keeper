@@ -119,8 +119,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-              collaborativeWalletId: item.collaborativeWalletId,
-            })
+            collaborativeWalletId: item.collaborativeWalletId,
+          })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -214,6 +214,9 @@ function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollab
           )}
 
           <Box style={styles.walletDetailsWrapper}>
+            {wallet?.type === 'IMPORTED' ? <Text color={`${colorMode}.white`} style={styles.walletType}>
+              Imported wallet
+            </Text> : null}
             <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
@@ -498,7 +501,7 @@ const WalletsScreen = ({ navigation }) => {
               </Box>
               <Box style={styles.addNewWallTextWrapper}>
                 <Text color="light.secondaryText" style={styles.addNewWallText}>
-                  Add a new Wallet or Import one
+                  Add a new wallet, import it, or create a collaborative wallet.
                 </Text>
               </Box>
             </Box>
@@ -522,7 +525,7 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
@@ -628,6 +631,11 @@ const styles = StyleSheet.create({
   },
   walletName: {
     letterSpacing: 0.2,
+    fontSize: 14,
+    fontWeight: '400',
+  },
+  walletType: {
+    letterSpacing: 0.2,
     fontSize: 11,
     fontWeight: '400',
   },
@@ -685,7 +693,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   addNewWallTextWrapper: {
-    width: '30%',
+    width: '50%',
     justifyContent: 'center',
   },
   addNewWallText: {
