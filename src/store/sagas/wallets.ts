@@ -52,7 +52,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { generateKey, hash256 } from 'src/services/operations/encryption';
 import { uaiType } from 'src/models/interfaces/Uai';
 import { captureError } from 'src/services/sentry';
-import {
+import ElectrumClient, {
+  ELECTRUM_CLIENT,
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
 } from 'src/services/electrum/client';
@@ -780,6 +781,10 @@ function* refreshWalletsWorker({
 }) {
   const { wallets, options } = payload;
   try {
+    if (!ELECTRUM_CLIENT.isClientConnected) {
+      const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+    }
+
     yield put(setSyncing({ wallets, isSyncing: true }));
     const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(
       syncWalletsWorker,
@@ -825,7 +830,11 @@ function* refreshWalletsWorker({
     yield put(setNetBalance(netBalance));
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
-      yield put(setElectrumNotConnectedErr(err?.message));
+      yield put(
+        setElectrumNotConnectedErr(
+          'Network error: please check your network/ node connection and try again'
+        )
+      );
     else captureError(err);
   } finally {
     yield put(setSyncing({ wallets, isSyncing: false }));

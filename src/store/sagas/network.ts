@@ -19,7 +19,7 @@ import { createWatcher } from '../utilities';
 import { fetchFeeRates } from '../sagaActions/send_and_receive';
 import { CONNECT_TO_NODE } from '../sagaActions/network';
 
-function* connectToNodeWorker() {
+export function* connectToNodeWorker() {
   try {
     console.log('Connecting to node...');
     yield put(electrumClientConnectionInitiated());
@@ -38,9 +38,9 @@ function* connectToNodeWorker() {
       yield put(setDefaultNodesSaved(true));
     }
 
-    const defaultNodes = yield call(dbManager.getCollection, RealmSchema.DefaultNodeConnect);
+    const defaultNodes =
+      config.NETWORK_TYPE === NetworkType.TESTNET ? predefinedTestnetNodes : predefinedMainnetNodes;
     const privateNodes = yield call(dbManager.getCollection, RealmSchema.NodeConnect);
-
     ElectrumClient.setActivePeer(defaultNodes, privateNodes);
     const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
     if (connected) {
