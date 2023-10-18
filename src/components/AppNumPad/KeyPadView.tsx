@@ -36,7 +36,7 @@ const KeyPadView: React.FC<Props> = ({
       <KeyPadButton title="8" onPressNumber={() => onPressNumber('8')} keyColor={keyColor} />
       <KeyPadButton title="9" onPressNumber={() => onPressNumber('9')} keyColor={keyColor} />
     </Box>
-    <Box flexDirection="row" height={hp('8%')}>
+    <Box style={styles.keyWrapperView}>
       <Box style={styles.emptyBtnView}>
         <Text style={{ padding: 15 }} />
       </Box>

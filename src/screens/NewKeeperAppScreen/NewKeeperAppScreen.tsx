@@ -20,6 +20,7 @@ import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import Fonts from 'src/constants/Fonts';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
+import BounceLoader from 'src/components/BounceLoader';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -142,13 +143,20 @@ function NewKeeperApp({ navigation }: { navigation }) {
         <Box style={{ width: windowWidth * 0.7, marginBottom: hp(20) }}>
           <LoadingAnimation />
         </Box>
-        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+        <Text color={`${colorMode}.greenText`} style={styles.contentText}>
           {getSignUpModalContent().message}
         </Text>
         {!appCreated ? (
-          <Text color="light.greenText" fontSize={13} letterSpacing={0.65} pt={5}>
-            This step will take a few seconds. You would be able to proceed soon
-          </Text>
+          <Box style={styles.modalMessageWrapper}>
+            <Box style={{ width: '80%' }}>
+              <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
+                This step will take a few seconds. You would be able to proceed soon
+              </Text>
+            </Box>
+            <Box style={{ width: '20%' }}>
+              <BounceLoader />
+            </Box>
+          </Box>
         ) : null}
       </Box>
     );
@@ -318,6 +326,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
+  modalMessageWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center'
+  },
+  modalMessageText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    paddingTop: 5
+  },
+  contentText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+  }
 });
 
 export default NewKeeperApp;

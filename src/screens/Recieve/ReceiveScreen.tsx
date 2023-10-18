@@ -109,7 +109,7 @@ function ReceiveScreen({ route }: { route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={common.receive} subtitle="Native segwit address" />
-      <Box style={styles.qrWrapper}>
+      <Box style={styles.qrWrapper} borderColor={`${colorMode}.qrBorderColor`}>
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
           logoBackgroundColor="transparent"
@@ -183,10 +183,11 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
   qrWrapper: {
-    marginTop: hp(50),
+    marginTop: hp(35),
     alignItems: 'center',
     alignSelf: 'center',
-    width: hp(200),
+    width: hp(250),
+    borderWidth: 30,
   },
   receiveAddressWrapper: {
     height: 28,
@@ -211,6 +212,8 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-between',
+    borderBottomLeftRadius: 10,
+    borderTopLeftRadius: 10,
   },
   copyIconWrapper: {
     padding: 10,
