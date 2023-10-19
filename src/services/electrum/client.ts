@@ -42,7 +42,7 @@ const ELECTRUM_CLIENT_DEFAULTS = {
   activePeer: null,
 };
 
-let ELECTRUM_CLIENT: {
+export let ELECTRUM_CLIENT: {
   electrumClient: any;
   isClientConnected: boolean;
   currentPeerIndex: number;
