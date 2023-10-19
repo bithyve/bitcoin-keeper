@@ -49,6 +49,7 @@ function TierUpgradeModal({
       textColor={`${colorMode}.primaryText`}
       buttonText={isUpgrade ? 'Add now' : 'Remove now'}
       buttonTextColor="light.white"
+      buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={onPress}
       DarkCloseIcon={colorMode === 'dark'}
       Content={() => <Content isUpgrade={isUpgrade} />}
