@@ -37,7 +37,7 @@ type Props = {
   onValueChange: Function;
 };
 
-const containerBackgroundColorLight = ['#00836A', '#073E39'];
+const containerBackgroundColorLight = ['#2D6759', '#073E39'];
 const containerBackgroundColorDark = ['#89AEA7', '#89AEA7'];
 
 function Element(props) {
