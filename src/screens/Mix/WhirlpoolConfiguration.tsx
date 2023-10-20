@@ -166,6 +166,23 @@ export default function WhirlpoolConfiguration({ route }) {
 
   const { bottom } = useSafeAreaInsets();
 
+  const checkDuplicateFee = (fees) => {
+    let duplicate_fees = []
+    for (let fee in fees) {
+      for (let fee2 in fees) {
+        if (fee === fee2) {
+          continue;
+        }
+        else {
+          if (fees[fee] === fees[fee2]) {
+            duplicate_fees.push(fees[fee]);
+          }
+        }
+      }
+    }
+    return [...new Set(duplicate_fees)];
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -219,14 +236,14 @@ export default function WhirlpoolConfiguration({ route }) {
               </Box>
             </Box>
           </Box>
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.changePriority}>
+          {!checkDuplicateFee(fees) ? <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.changePriority}>
             <TouchableOpacity onPress={() => setShowFee(true)}>
               <Box style={styles.changePriorityDirection}>
                 <Text style={styles.changePriorityText}>Change Priority</Text>
                 <RightArrowIcon />
               </Box>
             </TouchableOpacity>
-          </Box>
+          </Box> : null}
         </ScrollView>
 
         <Box style={[styles.footerContainer, { marginBottom: bottom / 2 }]}>
