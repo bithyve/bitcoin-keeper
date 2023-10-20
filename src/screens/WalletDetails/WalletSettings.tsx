@@ -57,10 +57,10 @@ function WalletSettings({ route }) {
       >
         <Box style={styles.walletCard}>
           <Box style={styles.walletDetailsWrapper}>
-            <Text color="light.white" style={styles.walletName}>
+            <Text color={`${colorMode}.primaryText`} style={styles.walletName}>
               {walletName}
             </Text>
-            <Text color="light.white" style={styles.walletDescription}>
+            <Text color={`${colorMode}.GreyText`} style={styles.walletDescription}>
               {walletDescription}
             </Text>
           </Box>
