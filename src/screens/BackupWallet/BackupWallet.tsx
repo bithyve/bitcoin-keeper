@@ -33,7 +33,7 @@ function BackupWallet() {
   return backupMethod !== null ? (
     <WalletBackHistoryScreen navigation={navigation} />
   ) : (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={BackupWallet.backupWallet}
         subtitle={BackupWallet.backupWalletSubTitle}
