@@ -170,20 +170,12 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={
-                      isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`
-                    }
+                    backgroundColor={`${colorMode}.seashellWhite`}
                     style={[styles.nodeList]}
                   >
                     <Box
-                      style={[
-                        styles.nodeDetail,
-                        {
-                          backgroundColor: isConnected
-                            ? `${colorMode}.seashellWhite`
-                            : `${colorMode}.fadedGray`,
-                        },
-                      ]}
+                      style={styles.nodeDetail}
+                      backgroundColor={`${colorMode}.seashellWhite`}
                     >
                       <Box style={{ width: '60%' }}>
                         <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
@@ -200,7 +192,7 @@ function NodeSettings() {
                         <Text style={styles.nodeTextValue}>{item.port}</Text>
                       </Box>
                     </Box>
-                    <Box style={styles.nodeButtons}>
+                    <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
                       <TouchableOpacity
                         onPress={() => {
                           if (!isConnected) onConnectToNode(item);
