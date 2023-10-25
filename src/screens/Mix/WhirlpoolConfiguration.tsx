@@ -222,7 +222,16 @@ export default function WhirlpoolConfiguration({ route }) {
             <Box style={styles.feeDetail}>
               <Box style={styles.column}>
                 <Text style={styles.feeHeader}>Priority</Text>
-                <Text style={styles.feeValue}>{capitalizeFirstLetter(selectedFee?.priority)}</Text>
+                <Box style={styles.radioWrapper}>
+                  {checkDuplicateFee(fees) && <Box mt={2} mr={1}>
+                    <RadioButton
+                      size={15}
+                      isChecked={checkDuplicateFee(fees)}
+                      borderColor="#E3E3E3"
+                    />
+                  </Box>}
+                  <Text style={styles.feeValue}>{capitalizeFirstLetter(selectedFee?.priority)}</Text>
+                </Box>
               </Box>
               <Box style={styles.column}>
                 <Text style={styles.feeHeader}>Arrival Time</Text>
@@ -396,4 +405,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  radioWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
 });

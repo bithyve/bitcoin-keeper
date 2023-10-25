@@ -6,7 +6,6 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import React, { useContext } from 'react';
 import { hp, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
@@ -14,7 +13,6 @@ import IconSend from 'src/assets/images/icon_send_lg.svg';
 import Link from 'src/assets/images/link.svg';
 import Edit from 'src/assets/images/edit.svg';
 import useBalance from 'src/hooks/useBalance';
-import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import config from 'src/core/config';
 import { NetworkType } from 'src/core/wallets/enums';
@@ -27,7 +25,6 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
   const { getSatUnit, getBalance } = useBalance();
   const { translations } = useContext(LocalizationContext);
   const { transactions } = translations;
@@ -77,11 +74,11 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
       }`
     );
   };
+  console.log('txnLabels', labels)
   return (
     <ScreenWrapper>
       <KeeperHeader
