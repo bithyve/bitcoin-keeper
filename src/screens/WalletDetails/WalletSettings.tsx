@@ -168,7 +168,12 @@ function WalletSettings({ route }) {
           title="Wallet Seed Words"
           description="Use to link external wallets to Keeper"
           callback={() => {
-            setConfirmPassVisible(true);
+            // setConfirmPassVisible(true);
+            navigation.navigate('ExportSeed', {
+              seed: wallet?.derivationDetails?.mnemonic,
+              next: false,
+              wallet,
+            });
           }}
         />
         <OptionCard
