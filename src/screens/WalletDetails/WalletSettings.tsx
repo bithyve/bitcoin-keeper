@@ -4,7 +4,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
+// import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
