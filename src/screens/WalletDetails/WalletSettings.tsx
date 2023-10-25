@@ -36,7 +36,7 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const [xpubVisible, setXPubVisible] = useState(false);
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  // const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
@@ -218,7 +218,7 @@ function WalletSettings({ route }) {
           subtitleColor="GreyText"
         />
       </Box>
-      <KeeperModal
+      {/* <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
         title={walletTranslation?.confirmPassTitle}
@@ -236,7 +236,7 @@ function WalletSettings({ route }) {
             navigation={navigation}
           />
         )}
-      />
+      /> */}
       <KeeperModal
         visible={xpubVisible}
         close={() => setXPubVisible(false)}
