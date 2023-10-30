@@ -4,7 +4,7 @@ import { Box, ScrollView, useColorMode } from 'native-base';
 import { useDispatch } from 'react-redux';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ShowXPub from 'src/components/XPub/ShowXPub';
-import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
+// import SeedConfirmPasscode from 'src/components/XPub/SeedConfirmPasscode';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { wp, hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
@@ -36,7 +36,7 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const [xpubVisible, setXPubVisible] = useState(false);
-  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  // const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
@@ -52,15 +52,15 @@ function WalletSettings({ route }) {
   function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
       <Box
-        backgroundColor={`${colorMode}.primaryGreenBackground`}
+        backgroundColor={`${colorMode}.seashellWhite`}
         style={styles.walletCardContainer}
       >
         <Box style={styles.walletCard}>
           <Box style={styles.walletDetailsWrapper}>
-            <Text color="light.white" style={styles.walletName}>
+            <Text color={`${colorMode}.primaryText`} style={styles.walletName}>
               {walletName}
             </Text>
-            <Text color="light.white" style={styles.walletDescription}>
+            <Text color={`${colorMode}.GreyText`} style={styles.walletDescription}>
               {walletDescription}
             </Text>
           </Box>
@@ -132,7 +132,7 @@ function WalletSettings({ route }) {
   };
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Wallet Settings" subtitle="Setting for the wallet only" />
       <Box
         style={{
@@ -168,7 +168,12 @@ function WalletSettings({ route }) {
           title="Wallet Seed Words"
           description="Use to link external wallets to Keeper"
           callback={() => {
-            setConfirmPassVisible(true);
+            // setConfirmPassVisible(true);
+            navigation.navigate('ExportSeed', {
+              seed: wallet?.derivationDetails?.mnemonic,
+              next: false,
+              wallet,
+            });
           }}
         />
         <OptionCard
@@ -213,7 +218,7 @@ function WalletSettings({ route }) {
           subtitleColor="GreyText"
         />
       </Box>
-      <KeeperModal
+      {/* <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
         title={walletTranslation?.confirmPassTitle}
@@ -231,7 +236,7 @@ function WalletSettings({ route }) {
             navigation={navigation}
           />
         )}
-      />
+      /> */}
       <KeeperModal
         visible={xpubVisible}
         close={() => setXPubVisible(false)}
@@ -241,6 +246,7 @@ function WalletSettings({ route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         Content={() => (
           <ShowXPub
             data={wallet?.specs?.xpub}

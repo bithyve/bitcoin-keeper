@@ -1,5 +1,5 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import { Keyboard, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import {
@@ -21,6 +21,7 @@ import { numberWithCommas } from 'src/utils/utilities';
 import { useDispatch } from 'react-redux';
 
 function ChoosePolicyNew({ navigation, route }) {
+  const { colorMode } = useColorMode();
   const [selectedPolicy, setSelectedPolicy] = useState('max');
 
   const isUpdate = route.params.update;
@@ -113,7 +114,7 @@ function ChoosePolicyNew({ navigation, route }) {
   }
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Choose Policy" subtitle="For the signing server" />
       <Box
         style={{
@@ -140,8 +141,8 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => {}}
-          color="light.greenText"
+          clear={() => { }}
+          color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
         />

@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useMemo } from 'react';
-import { FlatList, Box, ScrollView } from 'native-base';
+import { FlatList, Box, ScrollView, useColorMode } from 'native-base';
 import moment from 'moment';
 import Text from 'src/components/KeeperText';
 
@@ -21,6 +21,7 @@ import Buttons from 'src/components/Buttons';
 import { useQuery } from '@realm/react';
 
 function BackupHealthCheckList() {
+  const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -57,21 +58,21 @@ function BackupHealthCheckList() {
       <ScrollView height={hp(530)}>
         <FlatList
           data={history}
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1, }}
           renderItem={({ item }) => (
             <Box>
               <Box
-                zIndex={99}
+                zIndex={999}
                 position="absolute"
                 left={-8}
-                backgroundColor="light.secondaryBackground"
+                backgroundColor={`${colorMode}.primaryBackground`}
                 padding={2}
                 borderRadius={15}
               >
-                <DotView height={2} width={2} color="light.lightAccent" />
+                <DotView height={2} width={2} color={`${colorMode}.lightAccent`} />
               </Box>
               <Text
-                color="light.GreyText"
+                color={`${colorMode}.GreyText`}
                 fontSize={10}
                 bold
                 ml={5}
@@ -81,30 +82,31 @@ function BackupHealthCheckList() {
                 {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
               </Text>
               <Box
-                backgroundColor="light.primaryBackground"
+                backgroundColor={`${colorMode}.seashellWhite`}
                 padding={5}
                 borderRadius={1}
                 my={2}
-                borderLeftColor="light.lightAccent"
-                borderLeftWidth={1}
+                borderLeftColor={`${colorMode}.lightAccent`}
+                borderLeftWidth={2}
                 width="100%"
                 ml={wp(3.5)}
                 position="relative"
               >
-                <Text color="light.headerText" fontSize={14} letterSpacing={1}>
+                <Text color={`${colorMode}.headerText`} fontSize={14} letterSpacing={1}>
                   {strings[item.title]}
                 </Text>
                 {item.subtitle !== '' && (
-                  <Text color="light.GreyText" fontSize={12} letterSpacing={0.6}>
+                  <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
                     {item.subtitle}
                   </Text>
                 )}
               </Box>
             </Box>
-          )}
+          )
+          }
           keyExtractor={(item) => `${item}`}
         />
-      </ScrollView>
+      </ScrollView >
 
       <Box alignItems="flex-start">
         <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
@@ -152,7 +154,7 @@ function BackupHealthCheckList() {
           }}
         />
       </ModalWrapper>
-    </Box>
+    </Box >
   );
 }
 export default BackupHealthCheckList;

@@ -1,5 +1,5 @@
 import { Box, Input, useColorMode } from 'native-base';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import React, { useContext, useState } from 'react';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -42,7 +42,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: `${colorMode}.mainBackground` }]}>
+    <Box style={[styles.container, { backgroundColor: `${colorMode}.primaryBackground` }]}>
       <Box style={styles.box}>
         <Box style={styles.useSSL}>
           <Text style={styles.useSSLText}>{settings.useSSL}</Text>
@@ -52,10 +52,11 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           <Box
             w="50%"
             style={!isHostValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderRadius={10}
           >
             <Input
               placeholderTextColor="grey"
-              backgroundColor={`${colorMode}.primaryBackground`}
               placeholder={settings.host}
               borderRadius={10}
               borderWidth={0}
@@ -74,10 +75,11 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           <Box
             w="50%"
             style={[!isPortValid ? [styles.error, { borderColor: 'rgba(255,0,51,1)' }] : null]}
+            backgroundColor={`${colorMode}.seashellWhite`}
+            borderRadius={10}
           >
             <Input
               placeholderTextColor="grey"
-              backgroundColor={`${colorMode}.primaryBackground`}
               placeholder={settings.portNumberPlaceholder}
               keyboardType="number-pad"
               borderRadius={10}
@@ -98,7 +100,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
           <Buttons primaryText={common.save} primaryCallback={() => onValidateAndSave()} />
         </Box>
       </Box>
-    </View>
+    </Box>
   );
 }
 
@@ -122,7 +124,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   inputArea: {
-    paddingTop: 5,
+    paddingVertical: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
