@@ -11,6 +11,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import AddIcon from 'src/assets/images/add.svg';
+import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import ConnectIcon from 'src/assets/images/connectNode.svg';
 import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
@@ -169,20 +170,12 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={
-                      isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`
-                    }
+                    backgroundColor={`${colorMode}.seashellWhite`}
                     style={[styles.nodeList]}
                   >
                     <Box
-                      style={[
-                        styles.nodeDetail,
-                        {
-                          backgroundColor: isConnected
-                            ? `${colorMode}.seashellWhite`
-                            : `${colorMode}.fadedGray`,
-                        },
-                      ]}
+                      style={styles.nodeDetail}
+                      backgroundColor={`${colorMode}.seashellWhite`}
                     >
                       <Box style={{ width: '60%' }}>
                         <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
@@ -199,7 +192,7 @@ function NodeSettings() {
                         <Text style={styles.nodeTextValue}>{item.port}</Text>
                       </Box>
                     </Box>
-                    <Box style={styles.nodeButtons}>
+                    <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
                       <TouchableOpacity
                         onPress={() => {
                           if (!isConnected) onConnectToNode(item);
@@ -237,8 +230,8 @@ function NodeSettings() {
       )}
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
-          <AddIcon />
-          <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
+          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
+          <Text style={[styles.addNewNodeText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>{settings.addNewNode}</Text>
         </Box>
       </TouchableOpacity>
       <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
@@ -254,13 +247,14 @@ function NodeSettings() {
         buttonBackground={`${colorMode}.gradientStart`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
         buttonTextColor="#FAFAFA"
         buttonCallback={closeAddNodeModal}
         closeOnOverlayClick={false}
         Content={() => AddNode(Node.getModalParams(currentlySelectedNode), onSaveCallback)}
       />
-      <Modal animationType="none" transparent visible={loading} onRequestClose={() => {}}>
+      <Modal animationType="none" transparent visible={loading} onRequestClose={() => { }}>
         <View style={styles.activityIndicator}>
           <ActivityIndicator color="#017963" size="large" />
         </View>
@@ -395,7 +389,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '400',
     letterSpacing: 0.6,
-    paddingLeft: 10,
   },
 });
 

@@ -523,6 +523,7 @@ function LoginScreen({ navigation, route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}

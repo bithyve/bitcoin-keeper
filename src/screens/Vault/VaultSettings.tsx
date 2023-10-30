@@ -66,7 +66,7 @@ function VaultSettings() {
   } = vault;
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title="Vault Settings" subtitle="Settings specific to the Vault" />
       <Box borderBottomColor={`${colorMode}.divider`} style={styles.vaultCardWrapper}>
         <VaultCard

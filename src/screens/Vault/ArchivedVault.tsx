@@ -1,6 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Pressable, FlatList, Box } from 'native-base';
+import { Pressable, FlatList, Box, useColorMode } from 'native-base';
 // data
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
@@ -14,6 +14,7 @@ import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
 
 function ArchivedVault() {
+  const { colorMode } = useColorMode();
   const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => vault.archived);
@@ -94,7 +95,7 @@ function ArchivedVault() {
   const renderArchiveVaults = ({ item, index }) => <VaultItem vaultItem={item} index={index} />;
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Archived Vaults"
         subtitle="Previously used vaults"

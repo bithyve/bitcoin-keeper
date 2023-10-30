@@ -18,7 +18,7 @@ function InheritanceSupportView({ title = '', subtitle = '' }: Props) {
   function GradientIcon({ height, Icon }) {
     return (
       <Box
-        backgroundColor={`${colorMode}.modalGreenBackground`}
+        backgroundColor={`${colorMode}.pantoneGreen`}
         style={{
           ...styles.gradientIcon,
           height: hp(height),

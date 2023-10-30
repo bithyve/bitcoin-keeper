@@ -25,7 +25,7 @@ function KeeperHeader({
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   learnBackgroundColor = 'light.lightAccent',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
@@ -63,7 +63,7 @@ function KeeperHeader({
             <Text
               numberOfLines={1}
               style={[styles.addWalletText, { fontSize: 16 }]}
-              color={'light.headerText'}
+              color={`${colorMode}.headerText`}
             >
               {title}
             </Text>
