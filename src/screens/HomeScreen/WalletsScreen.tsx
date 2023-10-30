@@ -16,6 +16,7 @@ import AddWallet from 'src/assets/images/addWallet.svg';
 import ImportWallet from 'src/assets/images/importWallet.svg';
 import AddCollaborativeWalletIcon from 'src/assets/images/icon_collab.svg';
 import WhirlpoolWhiteIcon from 'src/assets/images/white_icon_whirlpool.svg';
+import WhirlpoolDarkIcon from 'src/assets/images/icon_whirlpool_dark.svg';
 import AddNewWalletIllustration from 'src/assets/images/addNewWalletIllustration.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import AddSCardIcon from 'src/assets/images/icon_add_white.svg';
@@ -507,7 +508,7 @@ const WalletsScreen = ({ navigation }) => {
             </Box>
           ) : currentWallet.entityKind === EntityKind.VAULT ? null : (
             <ListItemView
-              icon={<WhirlpoolWhiteIcon />}
+              icon={colorMode === 'light' ? <WhirlpoolWhiteIcon /> : <WhirlpoolDarkIcon />}
               title="Whirlpool & UTXOs"
               subTitle="Manage wallet UTXOs and use Whirlpool"
               iconBackColor={`${colorMode}.pantoneGreen`}

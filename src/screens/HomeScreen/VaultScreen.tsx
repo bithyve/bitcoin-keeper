@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
+import InheritanceDarkIcon from 'src/assets/images/icon_inheritance_dark.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
 import { hp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -100,7 +101,7 @@ function VaultScreen() {
           </Box>
         </TouchableOpacity>
         <ListItemView
-          icon={<InheritanceIcon />}
+          icon={colorMode === 'light' ? <InheritanceIcon /> : <InheritanceDarkIcon />}
           title="Inheritance Tools"
           subTitle="Manage Inheritance key or view documents"
           iconBackColor={`${colorMode}.learnMoreBorder`}
