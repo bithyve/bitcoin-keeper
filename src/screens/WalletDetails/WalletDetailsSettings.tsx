@@ -48,7 +48,7 @@ function WalletDetailsSettings({ route }) {
         />
         <OptionCard
           title="Derivation Path"
-          description="Change Derivation path"
+          description="Derivation path"
           callback={() => {
             navigation.navigate('UpdateWalletDetails', { wallet });
           }}
