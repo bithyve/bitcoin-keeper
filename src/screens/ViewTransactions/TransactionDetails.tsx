@@ -80,7 +80,7 @@ function TransactionDetails({ route }) {
   };
   console.log('txnLabels', labels)
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={transactions.TransactionDetails}
         subtitle="Detailed information for this Transaction"
