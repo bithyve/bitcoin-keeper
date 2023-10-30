@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Box, useColorMode, Input } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -18,7 +18,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
-import Buttons from 'src/components/Buttons';
+// import Buttons from 'src/components/Buttons';
 import { DerivationPurpose } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
