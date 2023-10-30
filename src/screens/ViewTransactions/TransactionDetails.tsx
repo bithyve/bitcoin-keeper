@@ -78,7 +78,6 @@ function TransactionDetails({ route }) {
       }`
     );
   };
-  console.log('txnLabels', labels)
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
