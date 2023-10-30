@@ -4,10 +4,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
+  // TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode, Input } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -160,25 +160,29 @@ function UpdateWalletDetails({ route }) {
               </ScrollView>
             )}
             <KeeperText
-              style={[styles.autoTransferText, { marginTop: hp(25) }]}
+              style={[styles.autoTransferText, { marginTop: hp(25), marginBottom: 5 }]}
               color={`${colorMode}.GreyText`}
             >
               Path
             </KeeperText>
             <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <TextInput
+              <Input
                 placeholder="Derivation Path"
-                style={styles.textInput}
-                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+                // style={styles.textInput}
+                placeholderTextColor={`${colorMode}.White`} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
-                editable={!isFromSeed}
+                // editable={!isFromSeed}
+                editable={false}
                 maxLength={20}
                 onFocus={() => {
                   setShowPurpose(false);
                   setArrow(false);
                 }}
+                w={'100%'}
+                h={10}
+                variant="unstyled"
               />
             </Box>
             {isFromSeed ? (
@@ -193,7 +197,7 @@ function UpdateWalletDetails({ route }) {
             ) : null}
           </Box>
         </ScrollView>
-        {!isFromSeed && (
+        {/* {!isFromSeed && (
           <View style={styles.dotContainer}>
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
@@ -209,7 +213,7 @@ function UpdateWalletDetails({ route }) {
               </Box>
             </Box>
           </View>
-        )}
+        )} */}
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
