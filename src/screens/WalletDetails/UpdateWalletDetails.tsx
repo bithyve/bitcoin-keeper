@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Box, useColorMode, Input } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -220,35 +220,10 @@ function UpdateWalletDetails({ route }) {
 }
 
 const styles = StyleSheet.create({
-  titleText: {
-    lineHeight: 23,
-    letterSpacing: 0.8,
-    paddingLeft: 25,
-  },
-  descriptionText: {
-    fontSize: 12,
-    lineHeight: 17,
-    letterSpacing: 0.5,
-    paddingLeft: 25,
-  },
-  backButton: {
-    height: 20,
-    width: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
   autoTransferText: {
     fontSize: 12,
     paddingHorizontal: wp(5),
     letterSpacing: 0.6,
-  },
-  cardContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(3),
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   title: {
     fontSize: 12,
@@ -270,64 +245,15 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 20,
   },
-  dropDownContainer: {
-    backgroundColor: Colors.Isabelline,
-    borderRadius: 10,
-    paddingVertical: 20,
-    flexDirection: 'row',
-  },
-  cameraView: {
-    height: hp(250),
-    width: wp(375),
-  },
   qrcontainer: {
     overflow: 'hidden',
     borderRadius: 10,
     marginVertical: hp(25),
     alignItems: 'center',
   },
-  walletContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: hp(100),
-    width: wp(330),
-    borderRadius: hp(10),
-    marginHorizontal: wp(12),
-    paddingHorizontal: wp(25),
-    marginTop: hp(5),
-  },
-  buttonBackground: {
-    backgroundColor: '#FAC48B',
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noteWrapper: {
-    marginTop: hp(35),
-    width: '100%',
-  },
-  sendToWalletWrapper: {
-    marginTop: windowHeight > 680 ? hp(20) : hp(10),
-  },
   dotContainer: {
     justifyContent: 'space-between',
     marginTop: hp(20),
-  },
-  selectedDot: {
-    width: 25,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: Colors.DimGray,
-    marginEnd: 5,
-  },
-  unSelectedDot: {
-    width: 6,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: Colors.GrayX11,
-    marginEnd: 5,
   },
   textInputWrapper: {
     flexDirection: 'row',
@@ -343,18 +269,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
-  },
-  amountWrapper: {
-    marginHorizontal: 20,
-    marginTop: hp(10),
-  },
-  balanceCrossesText: {
-    color: Colors.Feldgrau,
-    marginHorizontal: 20,
-    fontSize: 12,
-    marginTop: hp(10),
-    letterSpacing: 0.96,
-    flex: 1,
   },
   ctaBtnWrapper: {
     flexDirection: 'row',
@@ -381,11 +295,6 @@ const styles = StyleSheet.create({
     marginLeft: wp(10),
     letterSpacing: 0.6,
     color: 'light.GreyText',
-  },
-  icArrow: {
-    marginLeft: wp(10),
-    marginRight: wp(10),
-    alignSelf: 'center',
   },
 });
 
