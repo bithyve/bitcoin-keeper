@@ -1,6 +1,7 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Text from 'src/components/KeeperText';
+import ScaleSpring from '../Animations/ScaleSpring';
 
 export interface Props {
   title: string;
@@ -9,16 +10,18 @@ export interface Props {
 }
 const KeyPadButton: React.FC<Props> = ({ title, onPressNumber, keyColor }: Props) => {
   return (
-    <TouchableOpacity
-      activeOpacity={1}
-      onPress={() => onPressNumber(title)}
-      style={styles.keyPadElementTouchable}
-      testID={`key_${title}`}
-    >
-      <Text style={styles.keyPadElementText} color={keyColor}>
-        {title}
-      </Text>
-    </TouchableOpacity>
+    <ScaleSpring>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => onPressNumber(title)}
+        style={styles.keyPadElementTouchable}
+        testID={`key_${title}`}
+      >
+        <Text style={styles.keyPadElementText} color={keyColor}>
+          {title}
+        </Text>
+      </TouchableOpacity>
+    </ScaleSpring>
   );
 };
 const styles = StyleSheet.create({

@@ -141,7 +141,7 @@ function UTXOLabeling() {
       <ScrollView
         style={styles.scrollViewWrapper}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps
+        keyboardShouldPersistTaps="always"
       >
         <View style={styles.subHeader} testID="view_utxosLabelSubHeader">
           <View style={{ flex: 1 }}>
