@@ -22,22 +22,19 @@ function LabelItem({
   const { colorMode } = useColorMode();
   return (
     <Box
-      style={[
-        styles.labelView,
-        {
-
-        },
-      ]}
-      backgroundColor={item.isSystem
-        ? `${colorMode}.forestGreen`
-        : editingIndex !== index
+      style={[styles.labelView, {}]}
+      backgroundColor={
+        item.isSystem
+          ? `${colorMode}.forestGreen`
+          : editingIndex !== index
           ? `${colorMode}.accent`
-          : `${colorMode}.coffeeBackground`}
+          : `${colorMode}.coffeeBackground`
+      }
     >
       <TouchableOpacity
         style={styles.labelEditContainer}
-        activeOpacity={!item.isSystem ? 0.5 : 1}
-        onPress={() => (!item.isSystem ? onEditClick(item, index) : null)}
+        activeOpacity={!item.isSystem && editable ? 0.5 : 1}
+        onPress={() => (!item.isSystem && editable ? onEditClick(item, index) : null)}
         testID={`btn_${item.name}`}
       >
         <Text style={styles.itemText} bold testID={`text_${item.name}`}>
@@ -51,7 +48,7 @@ function LabelItem({
           </TouchableOpacity>
         ) : null}
       </TouchableOpacity>
-    </Box >
+    </Box>
   );
 }
 
