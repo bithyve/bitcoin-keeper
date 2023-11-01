@@ -149,17 +149,6 @@ function UpdateWalletDetails({ route }) {
       </Box>
     )
   }
-  const onDropDownClick = () => {
-    if (!isFromSeed) {
-      if (showPurpose) {
-        setShowPurpose(false);
-        setArrow(false);
-      } else {
-        setShowPurpose(true);
-        setArrow(true);
-      }
-    }
-  };
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -290,23 +279,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 0.2,
   },
-  qrContainer: {
-    alignSelf: 'center',
-    marginVertical: hp(40),
-    flex: 1,
-  },
   scrollViewWrapper: {
     flex: 1,
   },
   textInput: {
     width: '100%',
     padding: 20,
-  },
-  qrcontainer: {
-    overflow: 'hidden',
-    borderRadius: 10,
-    marginVertical: hp(25),
-    alignItems: 'center',
   },
   dotContainer: {
     justifyContent: 'space-between',
