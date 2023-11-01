@@ -3,13 +3,12 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   // TextInput,
   TouchableOpacity,
 } from 'react-native';
 import { Box, useColorMode, Input } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -18,7 +17,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
-// import Buttons from 'src/components/Buttons';
+import Buttons from 'src/components/Buttons';
 import { DerivationPurpose } from 'src/core/wallets/enums';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
@@ -31,6 +30,8 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
 import KeeperHeader from 'src/components/KeeperHeader';
+import KeeperModal from 'src/components/KeeperModal';
+import Text from 'src/components/KeeperText';
 
 function UpdateWalletDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -63,6 +64,7 @@ function UpdateWalletDetails({ route }) {
   );
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
+  const [warringsVisible, setWarringsVisible] = useState(false)
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -110,7 +112,43 @@ function UpdateWalletDetails({ route }) {
       showToast('Failed to update', <ToastErrorIcon />);
     }
   };
-
+  function WaringsContent() {
+    return (
+      <Box width={wp(300)}>
+        <Box>
+          <Text color={`${colorMode}.black`} style={styles.contentText}>
+            {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor `}
+          </Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.black`} style={styles.contentText}>
+            {`\u2022  incididunt ut labore et dolore magna aliqua. Ut enim ad`}
+          </Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.black`} style={styles.contentText}>
+            {`\u2022 minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo `}
+          </Text>
+        </Box>
+        <Box style={styles.ctaBtnWrapper} mt={10}>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              secondaryText="Cancel"
+              secondaryCallback={() => {
+                navigtaion.goBack();
+              }}
+              primaryText="I understand, Proceed"
+              // primaryCallback={updateWallet}
+              primaryCallback={() => {
+                setWarringsVisible(false)
+              }}
+              primaryLoading={relayWalletUpdateLoading}
+            />
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
   const onDropDownClick = () => {
     if (!isFromSeed) {
       if (showPurpose) {
@@ -173,8 +211,8 @@ function UpdateWalletDetails({ route }) {
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
-                // editable={!isFromSeed}
-                editable={false}
+                editable={!isFromSeed}
+                // editable={false}
                 maxLength={20}
                 onFocus={() => {
                   setShowPurpose(false);
@@ -197,8 +235,8 @@ function UpdateWalletDetails({ route }) {
             ) : null}
           </Box>
         </ScrollView>
-        {/* {!isFromSeed && (
-          <View style={styles.dotContainer}>
+        {!isFromSeed && (
+          <Box style={styles.dotContainer}>
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
@@ -207,13 +245,32 @@ function UpdateWalletDetails({ route }) {
                     navigtaion.goBack();
                   }}
                   primaryText="Save"
-                  primaryCallback={updateWallet}
+                  // primaryCallback={updateWallet}
+                  primaryCallback={() => {
+                    setWarringsVisible(true)
+                  }}
                   primaryLoading={relayWalletUpdateLoading}
                 />
               </Box>
             </Box>
-          </View>
-        )} */}
+          </Box>
+        )}
+        <KeeperModal
+          visible={warringsVisible}
+          close={() => setWarringsVisible(false)}
+          title="You are changing the derivation path of Default Wallet"
+          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
+          // buttonText="I understand, Proceed"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          // buttonTextColor="light.white"
+          DarkCloseIcon={colorMode === 'dark'}
+          // secondaryButtonText={'Cancel'}
+          // secondaryCallback={() => setWarringsVisible(false)}
+          // buttonCallback={() => setWarringsVisible(false)}
+          Content={WaringsContent}
+        />
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
@@ -296,6 +353,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     color: 'light.GreyText',
   },
+  contentText: {
+    fontSize: 13,
+    paddingHorizontal: 1,
+    paddingVertical: 5,
+    letterSpacing: 0.65
+  }
 });
 
 export default UpdateWalletDetails;
