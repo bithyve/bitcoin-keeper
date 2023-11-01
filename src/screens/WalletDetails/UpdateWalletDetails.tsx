@@ -3,7 +3,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  // TextInput,
   TouchableOpacity,
 } from 'react-native';
 import { Box, useColorMode, Input } from 'native-base';
