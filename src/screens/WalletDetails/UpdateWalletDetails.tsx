@@ -223,7 +223,7 @@ function UpdateWalletDetails({ route }) {
             ) : null}
           </Box>
         </ScrollView>
-        {!isFromSeed && (
+        {/* {!isFromSeed && (
           <Box style={styles.dotContainer}>
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
@@ -242,7 +242,7 @@ function UpdateWalletDetails({ route }) {
               </Box>
             </Box>
           </Box>
-        )}
+        )} */}
         <KeeperModal
           visible={warringsVisible}
           close={() => setWarringsVisible(false)}
