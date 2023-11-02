@@ -199,8 +199,8 @@ function UpdateWalletDetails({ route }) {
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
-                editable={!isFromSeed}
-                // editable={false}
+                // editable={!isFromSeed}
+                editable={false}
                 maxLength={20}
                 onFocus={() => {
                   setShowPurpose(false);
