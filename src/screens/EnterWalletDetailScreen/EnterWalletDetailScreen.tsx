@@ -154,6 +154,7 @@ function EnterWalletDetailScreen({ route }) {
       </KeeperText>
       <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
         <Input
+          backgroundColor={`${colorMode}.seashellWhite`}
           placeholder="Path"
           placeholderTextColor={`${colorMode}.GreyText`}
           value={path}
@@ -201,6 +202,7 @@ function EnterWalletDetailScreen({ route }) {
       <View marginX={4} marginY={4}>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input
+            backgroundColor={`${colorMode}.seashellWhite`}
             placeholder={wallet.WalletNamePlaceHolder}
             placeholderTextColor={`${colorMode}.GreyText`}
             value={walletName}
@@ -219,6 +221,7 @@ function EnterWalletDetailScreen({ route }) {
         </Box>
         <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.inputFieldWrapper}>
           <Input
+            backgroundColor={`${colorMode}.seashellWhite`}
             placeholder={wallet.WalletDescriptionPlaceholder}
             placeholderTextColor={`${colorMode}.GreyText`}
             value={walletDescription}
@@ -252,6 +255,7 @@ function EnterWalletDetailScreen({ route }) {
             </KeeperText>
             <Box style={styles.transferPolicyInputWrapper}>
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholderTextColor={`${colorMode}.GreyText`}
                 value={formatNumber(transferPolicy)}
                 onChangeText={(value) => setTransferPolicy(value)}
@@ -291,7 +295,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => { }}
+        close={() => {}}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -351,7 +355,7 @@ const styles = StyleSheet.create({
   },
   transferPolicyInputWrapper: {
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   transferPolicyTextArea: {
     flexDirection: 'row',

@@ -56,6 +56,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
             borderRadius={10}
           >
             <Input
+              backgroundColor={`${colorMode}.seashellWhite`}
               placeholderTextColor="grey"
               placeholder={settings.host}
               borderRadius={10}
@@ -79,6 +80,7 @@ function AddNode(params: NodeDetail, onSaveCallback: (nodeDetails: NodeDetail) =
             borderRadius={10}
           >
             <Input
+              backgroundColor={`${colorMode}.seashellWhite`}
               placeholderTextColor="grey"
               placeholder={settings.portNumberPlaceholder}
               keyboardType="number-pad"

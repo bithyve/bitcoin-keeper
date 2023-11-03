@@ -36,6 +36,7 @@ function AddAmountScreen({ route }: { route }) {
             </View>
             <View style={[styles.verticalDeviderLine, { backgroundColor: '#BDB7B1' }]} />
             <Input
+              backgroundColor={`${colorMode}.seashellWhite`}
               placeholder={home.ConvertedAmount}
               placeholderTextColor={`${colorMode}.greenText`}
               style={styles.inputField}
