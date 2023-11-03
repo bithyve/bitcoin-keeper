@@ -49,7 +49,7 @@
     "cktap-protocol-react-native": "git+https://github.com/bithyve/cktap-protocol-react-native.git#main",
     "coinselect": "3.1.11",
     "constants": "^0.0.2",
-    "crypto-js": "4.1.1",
+    "crypto-js": "4.2.0",
     "deprecated-react-native-prop-types": "^4.2.1",
     "ecpair": "2.0.1",
     "electrum-client": "git+https://github.com/bithyve/rn-electrum-client.git",
