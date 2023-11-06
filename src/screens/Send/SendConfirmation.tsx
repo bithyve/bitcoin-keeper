@@ -73,7 +73,7 @@ function Card({ title, subTitle, isVault = false }) {
       </Box>
       <Box marginLeft={3}>
         <Text
-          color={`${colorMode}.headerText`}
+          color={`${colorMode}.greenText2`}
           fontSize={14}
           letterSpacing={1.12}
           numberOfLines={1}
