@@ -97,6 +97,7 @@ function ChoosePolicyNew({ navigation, route }) {
             }}
           >
             <Input
+              backgroundColor={`${colorMode}.seashellWhite`}
               onPressIn={onPress}
               style={styles.textInput}
               value={value}
@@ -141,7 +142,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => { }}
+          clear={() => {}}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon

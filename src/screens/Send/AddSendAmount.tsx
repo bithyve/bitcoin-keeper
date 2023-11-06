@@ -297,6 +297,7 @@ function AddSendAmount({ route }) {
                   height={7}
                 />
                 <Input
+                  backgroundColor={`${colorMode}.seashellWhite`}
                   placeholder="Enter Amount"
                   placeholderTextColor={`${colorMode}.greenText`}
                   width="90%"
@@ -352,6 +353,7 @@ function AddSendAmount({ route }) {
               style={styles.inputWrapper}
             >
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholder="Add a note"
                 autoCapitalize="sentences"
                 placeholderTextColor={`${colorMode}.greenText`}
@@ -389,6 +391,7 @@ function AddSendAmount({ route }) {
                 ))}
               </HStack>
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 autoCapitalize="sentences"
                 placeholder="Add a label"
                 placeholderTextColor={`${colorMode}.greenText`}

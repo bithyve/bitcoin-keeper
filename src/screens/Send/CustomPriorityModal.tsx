@@ -103,6 +103,7 @@ function CustomPriorityModal(props) {
             </Modal.Header>
             <Box alignItems="center">
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 mx="3"
                 placeholder="Enter Amount"
                 width="100%"

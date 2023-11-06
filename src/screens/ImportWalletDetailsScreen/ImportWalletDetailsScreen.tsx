@@ -93,6 +93,7 @@ function ImportWalletDetailsScreen({ route }) {
                 height={7}
               />
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholder="Enter Amount"
                 placeholderTextColor="light.GreyText"
                 color="light.greenText"

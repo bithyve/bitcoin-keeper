@@ -201,6 +201,7 @@ function UTXOLabeling() {
                 value={label}
                 autoCorrect={false}
                 autoCapitalize="characters"
+                backgroundColor={`${colorMode}.seashellWhite`}
               />
             </Box>
             <TouchableOpacity
