@@ -520,5 +520,17 @@
     "SEED_BACKUP_CREATED": "Recovery Phrase backup is created",
     "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped"
+  },
+  "importWallet": {
+    "addDetails": "Add details",
+    "derivationPath": "Derivation Path",
+    "enterWalletName": "Enter wallet name",
+    "addDescription": "Add Description",
+    "enterAmount": "Enter Amount",
+    "autoTransfer": "Auto transfer initiated at (optional)",
+    "walletBalance": "When the wallet balance crosses this amount, a transfer to the Vault is initiated for user approval",
+    "IWNoteDescription": "Make sure that the QR is well aligned, focused and visible as a whole",
+    "scanSeedWord": "Scan your seed words/Backup Phrase",
+    "uploadFromGallery": "Upload from gallery"
   }
 }
