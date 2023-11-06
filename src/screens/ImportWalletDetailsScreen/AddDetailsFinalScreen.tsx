@@ -35,7 +35,7 @@ function AddDetailsFinalScreen({ route }) {
   const dispatch = useDispatch();
 
   const { translations } = useContext(LocalizationContext);
-  const { home } = translations;
+  const { home, importWallet } = translations;
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
@@ -137,12 +137,12 @@ function AddDetailsFinalScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
+        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper]}>
               <Input
-                placeholder="Derivation Path"
+                placeholder={importWallet.derivationPath}
                 style={styles.textInput}
                 backgroundColor={`${colorMode}.seashellWhite`}
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
