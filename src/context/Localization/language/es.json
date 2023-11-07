@@ -70,7 +70,12 @@
     "connect": "Connect",
     "disconnect": "Disconnect",
     "sats": "sats",
-    "delete": "Delete"
+    "delete": "Delete",
+    "connectionError": "Connection error",
+    "electrumErrorSubTitle": "Unable to connect to public electrum servers",
+    "changeNetwork": "Please change the network and try again later",
+    "viewSubscription": "View Subscription",
+    "continuePleb": "Continue as Pleb"
   },
   "noInternet": {
     "no": "No Internet",
@@ -291,7 +296,16 @@
     "ViewDetails": "View Details",
     "AddWalletCosigner": "Add Wallet as co-signer",
     "AddWalletCosignerSubTitle": "You are about to add this wallet as a co-signer for a Keeper app Vault.",
-    "AddWalletCosignerParagraph": "Please back up this wallet. If you want to delete the app from this phone, please change your signing device on the other Keeper app before deleting this one."
+    "AddWalletCosignerParagraph": "Please back up this wallet. If you want to delete the app from this phone, please change your signing device on the other Keeper app before deleting this one.",
+    "whirlpoolUtxoTitle": "Whirlpool & UTXOs",
+    "whirlpoolUtxoSubTitle": "Manage wallet UTXOs and use Whirlpool",
+    "addWallet": "Add Wallet",
+    "addWalletSubTitle": "Separate wallets for different purposes",
+    "importWalletTitle": "Import Wallet",
+    "manageWalletSubTitle": "Manage wallets in other apps",
+    "addCollabWalletTitle": "Add Collaborative Wallet",
+    "addCollabWalletSubTitle": "Create, sign and view collaborative wallet",
+    "addCollabWalletParagraph": "Please ensure that Keeper is properly backed up to ensure your bitcoin's security"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -314,7 +328,11 @@
     "VaultInfo": "A signing device can be a hardware wallet or a signing device or an app. Most popular ones are listed above. Want support for more?",
     "CustomPriority": "Custom Priority",
     "EditDescription": "Edit Description",
-    "Description": ""
+    "Description": "",
+    "yourVault": "Your Vault",
+    "toActiveVault": "Add Signing Device to activate your Vault",
+    "inheritanceTools": "Inheritance Tools",
+    "manageInheritance": "Manage Inheritance key or view documents"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -479,7 +497,13 @@
   "choosePlan": {
     "choosePlantitle": "Choose your plan",
     "choosePlanSubTitle": "You are currently on the basic plan",
-    "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise"
+    "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise",
+    "confirming": "Confirming your subscription",
+    "pleaseStay": "Please stay on this screen as it may take a little while...",
+    "youCanChange": "You can change your subscription at anytime from within the app or from your subscription details in your profile",
+    "restorePurchases": "Restore Purchases",
+    "validateSubscriptionTitle": "Failed to validate your subscription",
+    "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup phrase",
@@ -519,6 +543,9 @@
     "walletBalance": "When the wallet balance crosses this amount, a transfer to the Vault is initiated for user approval",
     "IWNoteDescription": "Make sure that the QR is well aligned, focused and visible as a whole",
     "scanSeedWord": "Scan your seed words/Backup Phrase",
-    "uploadFromGallery": "Upload from gallery"
+    "uploadFromGallery": "Upload from gallery",
+    "AddImportModalTitle": "Add or Import Wallet",
+    "AddImportModalSubTitle": "Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them",
+    "importedWalletTitle": "Imported wallet"
   }
 }
