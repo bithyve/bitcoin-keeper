@@ -6,7 +6,7 @@ import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
-import BackIcon from 'src/assets/images/back_white.svg';
+// import BackIcon from 'src/assets/images/back_white.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
@@ -481,7 +481,7 @@ function RampBuyContent({
 function VaultDetails({ navigation }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation } = translations;
+  const { vault: vaultTranslation, ramp, common } = translations;
   const route = useRoute() as {
     params: {
       vaultTransferSuccessful: boolean;
@@ -684,9 +684,9 @@ function VaultDetails({ navigation }) {
       />
       <KeeperModal
         visible={vaultCreated}
-        title="New Vault Created"
+        title={vaultTranslation.newVaultCreated}
         subTitle={subtitle}
-        buttonText="View Vault"
+        buttonText={vaultTranslation.ViewVault}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
@@ -702,10 +702,10 @@ function VaultDetails({ navigation }) {
         close={() => {
           dispatch(setIntroModal(false));
         }}
-        title={collaborativeWalletId ? 'Collaborative Wallet' : 'Keeper Vault'}
+        title={collaborativeWalletId ? vaultTranslation.collaborativeWallet : vaultTranslation.keeperVault}
         subTitle={
           collaborativeWalletId
-            ? 'Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.'
+            ? vaultTranslation.collaborativeWalletMultipleUsers
             : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
@@ -713,7 +713,7 @@ function VaultDetails({ navigation }) {
         Content={VaultContent}
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText="Continue"
+        buttonText={common.continue}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}
@@ -732,8 +732,8 @@ function VaultDetails({ navigation }) {
         close={() => {
           setShowBuyRampModal(false);
         }}
-        title="Buy bitcoin with Ramp"
-        subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+        title={ramp.buyBitcoinRamp}
+        subTitle={ramp.buyBitcoinRampSubTitle}
         subTitleColor="#5F6965"
         textColor="light.primaryText"
         Content={() => (
