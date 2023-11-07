@@ -200,6 +200,8 @@ function WalletList({
 function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollaborativeWallet }) {
   const { colorMode } = useColorMode();
   const { satsEnabled } = useAppSelector((state) => state.settings);
+  const { translations } = useContext(LocalizationContext);
+  const { importWallet } = translations;
   return (
     <Box>
       <Box style={styles.walletCard}>
@@ -216,7 +218,7 @@ function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollab
 
           <Box style={styles.walletDetailsWrapper}>
             {wallet?.type === 'IMPORTED' ? <Text color={`${colorMode}.white`} style={styles.walletType}>
-              Imported wallet
+              {importWallet.importedWalletTitle}
             </Text> : null}
             <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
@@ -261,6 +263,8 @@ function AddImportWallet({
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet } = translations;
 
   const addCollaborativeWallet = () => {
     setAddImportVisible(false);
@@ -290,8 +294,8 @@ function AddImportWallet({
           });
         }}
         icon={<AddWallet />}
-        title="Add Wallet"
-        subTitle="Separate wallets for different purposes"
+        title={wallet.addWallet}
+        subTitle={wallet.addWalletSubTitle}
         height={80}
       />
       <MenuItemButton
@@ -300,20 +304,20 @@ function AddImportWallet({
           navigation.navigate('ImportWallet');
         }}
         icon={<ImportWallet />}
-        title="Import Wallet"
-        subTitle="Manage wallets in other apps"
+        title={wallet.importWalletTitle}
+        subTitle={wallet.manageWalletSubTitle}
         height={80}
       />
       <MenuItemButton
         onPress={addCollaborativeWallet}
         icon={<AddCollaborativeWalletIcon />}
-        title="Add Collaborative Wallet"
-        subTitle="Create, sign and view collaborative wallet"
+        title={wallet.addCollabWalletTitle}
+        subTitle={wallet.addCollabWalletSubTitle}
         height={80}
       />
       <Box>
         <Text color={`${colorMode}.greenText`} style={styles.addImportParaContent}>
-          Please ensure that Keeper is properly backed up to ensure your bitcoin's security
+          {wallet.addCollabWalletParagraph}
         </Text>
       </Box>
     </Box>
@@ -322,6 +326,8 @@ function AddImportWallet({
 
 function ElectrumErrorContent() {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   return (
     <Box width={wp(320)}>
       <Box margin={hp(5)}>
@@ -329,7 +335,7 @@ function ElectrumErrorContent() {
       </Box>
       <Box>
         <Text color={`${colorMode}.greenText`} fontSize={13} padding={1} letterSpacing={0.65}>
-          Please change the network and try again later
+          {common.changeNetwork}
         </Text>
       </Box>
     </Box>
@@ -361,6 +367,8 @@ function DowngradeModalContent() {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   return (
@@ -376,7 +384,7 @@ function DowngradeModalContent() {
           activeOpacity={0.5}
         >
           <Text numberOfLines={1} style={styles.btnText} color={`${colorMode}.greenText`} bold>
-            View Subscription
+            {common.viewSubscription}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -387,7 +395,7 @@ function DowngradeModalContent() {
           <Shadow distance={10} startColor="#073E3926" offset={[3, 4]}>
             <Box style={[styles.createBtn]} backgroundColor={`${colorMode}.greenButtonBackground`}>
               <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
-                Continue as Pleb
+                {common.continuePleb}
               </Text>
             </Box>
           </Shadow>
@@ -400,6 +408,8 @@ function DowngradeModalContent() {
 const WalletsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet, choosePlan, importWallet, common } = translations;
   const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
   const nonHiddenWallets = wallets.filter(
@@ -509,8 +519,8 @@ const WalletsScreen = ({ navigation }) => {
           ) : currentWallet.entityKind === EntityKind.VAULT ? null : (
             <ListItemView
               icon={colorMode === 'light' ? <WhirlpoolWhiteIcon /> : <WhirlpoolDarkIcon />}
-              title="Whirlpool & UTXOs"
-              subTitle="Manage wallet UTXOs and use Whirlpool"
+              title={wallet.whirlpoolUtxoTitle}
+              subTitle={wallet.whirlpoolUtxoSubTitle}
               iconBackColor={`${colorMode}.pantoneGreen`}
               onPress={() => {
                 if (currentWallet)
@@ -528,8 +538,8 @@ const WalletsScreen = ({ navigation }) => {
         dismissible={false}
         close={() => { }}
         visible={recepitVerificationFailed}
-        title="Failed to validate your subscription"
-        subTitle="Do you want to downgrade to Pleb and continue?"
+        title={choosePlan.validateSubscriptionTitle}
+        subTitle={choosePlan.validateSubscriptionSubTitle}
         Content={DowngradeModalContent}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
@@ -541,8 +551,8 @@ const WalletsScreen = ({ navigation }) => {
       <KeeperModal
         visible={addImportVisible}
         close={() => setAddImportVisible(false)}
-        title="Add or Import Wallet"
-        subTitle="Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"
+        title={importWallet.AddImportModalTitle}
+        subTitle={importWallet.AddImportModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -561,9 +571,9 @@ const WalletsScreen = ({ navigation }) => {
       <KeeperModal
         visible={electrumErrorVisible}
         close={() => setElectrumErrorVisible(false)}
-        title="Connection error"
-        subTitle="Unable to connect to public electrum servers"
-        buttonText="Continue"
+        title={common.connectionError}
+        subTitle={common.electrumErrorSubTitle}
+        buttonText={common.continue}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

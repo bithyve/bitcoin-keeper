@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, ScrollView, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import idx from 'idx';
+
 import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
 import InheritanceDarkIcon from 'src/assets/images/icon_inheritance_dark.svg';
 import EmptyVaultIllustration from 'src/assets/images/EmptyVaultIllustration.svg';
 import { hp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import useVault from 'src/hooks/useVault';
-import idx from 'idx';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import ListItemView from './components/ListItemView';
 import CurrencyInfo from './components/CurrencyInfo';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import HomeScreenWrapper from './components/HomeScreenWrapper';
 import Fonts from 'src/constants/Fonts';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function VaultScreen() {
   const { activeVault } = useVault();
@@ -25,6 +27,8 @@ function VaultScreen() {
   const [hideAmounts, setHideAmounts] = useState(true);
 
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
 
   const navigateToHardwareSetup = () => {
     navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
@@ -44,7 +48,7 @@ function VaultScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <Box style={styles.titleWrapper}>
           <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_YourVault">
-            Your Vault
+            {vault.yourVault}
           </Text>
         </Box>
         <TouchableOpacity testID="btn_vault" onPress={onVaultPress} activeOpacity={0.7}>
@@ -60,7 +64,7 @@ function VaultScreen() {
                 <Box style={styles.emptyVaultIllustration}>
                   <EmptyVaultIllustration />
                 </Box>
-                <Text color={`${colorMode}.white`}>Add Signing Device to activate your Vault</Text>
+                <Text color={`${colorMode}.white`}>{vault.toActiveVault}</Text>
               </Box>
             ) : (
               <>
@@ -102,8 +106,8 @@ function VaultScreen() {
         </TouchableOpacity>
         <ListItemView
           icon={colorMode === 'light' ? <InheritanceIcon /> : <InheritanceDarkIcon />}
-          title="Inheritance Tools"
-          subTitle="Manage Inheritance key or view documents"
+          title={vault.inheritanceTools}
+          subTitle={vault.manageInheritance}
           iconBackColor={`${colorMode}.learnMoreBorder`}
           onPress={() => {
             navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
