@@ -119,8 +119,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-            collaborativeWalletId: item.collaborativeWalletId,
-          })
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -214,9 +214,11 @@ function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollab
           )}
 
           <Box style={styles.walletDetailsWrapper}>
-            {wallet?.type === 'IMPORTED' ? <Text color={`${colorMode}.white`} style={styles.walletType}>
-              Imported wallet
-            </Text> : null}
+            {wallet?.type === 'IMPORTED' ? (
+              <Text color={`${colorMode}.white`} style={styles.walletType}>
+                Imported wallet
+              </Text>
+            ) : null}
             <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
@@ -356,11 +358,9 @@ async function downgradeToPleb(dispatch, app) {
   }
 }
 
-function DowngradeModalContent() {
+function DowngradeModalContent(navigation, app) {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
   const dispatch = useDispatch();
-  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   return (
     <Box>
@@ -414,6 +414,8 @@ const WalletsScreen = ({ navigation }) => {
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
 
   const { showToast } = useToastMessage();
@@ -525,11 +527,11 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title="Failed to validate your subscription"
         subTitle="Do you want to downgrade to Pleb and continue?"
-        Content={DowngradeModalContent}
+        Content={() => DowngradeModalContent(navigation, app)}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
