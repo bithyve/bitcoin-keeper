@@ -11,7 +11,7 @@ Affordable and easy-to-use, security for all your sats, BIP-85, Multisig, Own No
 
 ## Prerequisites
 
-Before getting started, make sure you have proper [React Native development environment](https://reactnative.dev/docs/environment-setup) on your machine
+Before getting started, make sure you have a proper [React Native development environment](https://reactnative.dev/docs/environment-setup) on your machine
 
 
 ## Getting Started
@@ -27,7 +27,7 @@ Before getting started, make sure you have proper [React Native development envi
    cd bitcoin-keeper
     ```
 3. Install the project dependencies using Yarn:
-    The prepare scripts will automaticall install pods and nodify crypto related packages for react-netive
+    The prepare scripts will automatically install pods and nodify crypto-related packages for react-native
      ```shell
    yarn install
     ```
@@ -52,7 +52,7 @@ ios/libwhirlpool.a
 ```
 
 ### Varients
-The project has testnet and mainnet varients. The development varient is configured to use testnet and production varient to use mainnet.
+The project has testnet and mainnet variants. The development variant is configured to use testnet and the production variant to use mainnet.
 
 Start metro metro
 ```bash
