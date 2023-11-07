@@ -75,7 +75,18 @@
     "electrumErrorSubTitle": "Unable to connect to public electrum servers",
     "changeNetwork": "Please change the network and try again later",
     "viewSubscription": "View Subscription",
-    "continuePleb": "Continue as Pleb"
+    "continuePleb": "Continue as Pleb",
+    "unconfirmed": "Unconfirmed",
+    "availableBalance": "Available Balance",
+    "transferPolicySet": "Transfer Policy is set at",
+    "transactions": "Transactions",
+    "viewAll": "View All",
+    "addNewWalletOrImport": "Add a new wallet or import one",
+    "noTransYet": "No transactions yet.",
+    "pullDownRefresh": "Pull down to refresh",
+    "securityTips": "Security Tip",
+    "emptyStateModalSubtitle": "Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step.",
+    "addSignDeviceUpgrade": "Add signing device to upgrade"
   },
   "noInternet": {
     "no": "No Internet",
@@ -332,7 +343,13 @@
     "yourVault": "Your Vault",
     "toActiveVault": "Add Signing Device to activate your Vault",
     "inheritanceTools": "Inheritance Tools",
-    "manageInheritance": "Manage Inheritance key or view documents"
+    "manageInheritance": "Manage Inheritance key or view documents",
+    "additionalOptionForSignDevice": "There are also some additional options if you do not have hardware signing devices",
+    "sendVaultSignDevices": "For sending out of the Vault you will need the signing devices. This means no one can steal your bitcoin in the Vault unless they also have the signing devices",
+    "addEmail": "Add Email",
+    "addEmailDetails": "Additionally you can provide an email which will be used to notify you when someone tries to access the Inheritance Key",
+    "walletSetupDetails": "This kind of wallet setup can be used for business partnerships, family funds, or any scenario where joint control of funds is necessary.",
+    "keeperSupportSigningDevice": "Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -547,5 +564,10 @@
     "AddImportModalTitle": "Add or Import Wallet",
     "AddImportModalSubTitle": "Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them",
     "importedWalletTitle": "Imported wallet"
+  },
+  "ramp": {
+    "byProceedRampParagraph": "By proceeding, you understand that Ramp will process the payment and transfer for the purchased bitcoin",
+    "bitcoinTransfer": "Bitcoin will be transferred to",
+    "addressForRamp": "Address for ramp transactions"
   }
 }
