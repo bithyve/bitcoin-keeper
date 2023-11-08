@@ -321,7 +321,11 @@
     "manageWalletSubTitle": "Manage wallets in other apps",
     "addCollabWalletTitle": "Add Collaborative Wallet",
     "addCollabWalletSubTitle": "Create, sign and view collaborative wallet",
-    "addCollabWalletParagraph": "Please ensure that Keeper is properly backed up to ensure your bitcoin's security"
+    "addCollabWalletParagraph": "Please ensure that Keeper is properly backed up to ensure your bitcoin's security",
+    "selectForMix": "Select for Mix",
+    "selectForRemix": "Select for Remix",
+    "remixVault": "Remix to Vault",
+    "selectToSend": "Select to Send"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
