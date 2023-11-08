@@ -6,7 +6,6 @@ import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
-// import BackIcon from 'src/assets/images/back_white.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
@@ -113,33 +112,6 @@ function Footer({
   ];
   return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
-
-// function Header() {
-//   const navigation = useNavigation();
-//   const dispatch = useDispatch();
-//   const styles = getStyles(0);
-//   const { translations } = useContext(LocalizationContext);
-//   const { common } = translations;
-//   return (
-//     <Box flexDirection="row" width="100%" px="3%" pt={'4%'}>
-//       <StatusBar barStyle="light-content" />
-//       <Box width="50%">
-//         <TouchableOpacity onPress={() => navigation.goBack()}>
-//           <BackIcon />
-//         </TouchableOpacity>
-//       </Box>
-//       <Box width="50%">
-//         <TouchableOpacity onPress={() => dispatch(setIntroModal(true))}>
-//           <Box style={styles.knowMore} backgroundColor="rgba(0,0,0,.2)">
-//             <Text color="light.white" style={styles.footerText} light>
-//               {common.learnMore}
-//             </Text>
-//           </Box>
-//         </TouchableOpacity>
-//       </Box>
-//     </Box>
-//   );
-// }
 
 function VaultInfo({
   vault,

@@ -38,6 +38,10 @@ export interface VaultScheme {
 export type XpubDetailsType = {
   [key in XpubTypes as string]: { xpub: string; derivationPath: string };
 };
+
+export type DeviceInfo = {
+  registeredWallet?: string;
+};
 export interface VaultSigner {
   signerId: string;
   type: SignerType;
@@ -56,6 +60,7 @@ export interface VaultSigner {
   xpubDetails: XpubDetailsType;
   signerPolicy?: SignerPolicy;
   inheritanceKeyInfo?: InheritanceKeyInfo;
+  deviceInfo?: DeviceInfo;
 }
 
 export interface Vault {
