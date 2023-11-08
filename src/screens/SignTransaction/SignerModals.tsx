@@ -31,6 +31,8 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from 'src/storage/secure-store';
+import Buttons from 'src/components/Buttons';
+import useAsync from 'src/hooks/useAsync';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -208,6 +210,7 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
   const dispatch = useAppDispatch();
+  const { inProgress, start } = useAsync();
 
   const [password, setPassword] = useState('');
 
@@ -258,6 +261,14 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
 
   const onDeletePressed = () => setPassword(password.slice(0, password.length - 1));
 
+  const primaryCallback = () =>
+    start(async () => {
+      const currentPinHash = hash512(password);
+      if (currentPinHash === pinHash) {
+        await signTransaction();
+      } else Alert.alert('Incorrect password. Try again!');
+    });
+
   return (
     <Box width={hp(280)}>
       <Box>
@@ -276,17 +287,11 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
           marginTop={2}
         />
         <Box mt={10} alignSelf="flex-end" mr={2}>
-          <Box>
-            <CustomGreenButton
-              onPress={() => {
-                const currentPinHash = hash512(password);
-                if (currentPinHash === pinHash) {
-                  signTransaction();
-                } else Alert.alert('Incorrect password. Try again!');
-              }}
-              value="Confirm"
-            />
-          </Box>
+          <Buttons
+            primaryCallback={primaryCallback}
+            primaryText="Confirm"
+            primaryLoading={inProgress}
+          />
         </Box>
       </Box>
       <KeyPadView
