@@ -4,7 +4,6 @@ import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Box, useColorMode } from 'native-base';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import { useNavigation } from '@react-navigation/native';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { EntityKind, VaultType, VisibilityType, WalletType } from 'src/core/wallets/enums';
@@ -363,9 +362,8 @@ async function downgradeToPleb(dispatch, app) {
   }
 }
 
-function DowngradeModalContent() {
+function DowngradeModalContent(navigation, app) {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -425,6 +423,8 @@ const WalletsScreen = ({ navigation }) => {
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
 
   const { showToast } = useToastMessage();
