@@ -3,11 +3,21 @@ import React from 'react';
 import { Input, useColorMode } from 'native-base';
 import KeeperText from './KeeperText';
 
-const KeeperTextInput = ({ placeholder, value, onChangeText, testID, maxLength = null }) => {
+const KeeperTextInput = ({
+  placeholder,
+  onChangeText,
+  testID,
+  value = null,
+  defaultValue = null,
+  maxLength = null,
+  inputRef = null,
+}) => {
   const { colorMode } = useColorMode();
   return (
     <>
       <Input
+        defaultValue={defaultValue}
+        ref={inputRef}
         placeholder={placeholder}
         placeholderTextColor={`${colorMode}.greenText`}
         value={value}

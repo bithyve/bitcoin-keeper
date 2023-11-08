@@ -62,28 +62,32 @@ export function* bulkUpdateLabelsWorker({
       added: { isSystem: boolean; name: string }[];
       deleted: { isSystem: boolean; name: string }[];
     };
-    UTXO: UTXO;
+    UTXO?: UTXO;
+    txId?: string;
     wallet: Wallet;
   };
 }) {
   try {
     yield put(setSyncingUTXOs(true));
-    const { labelChanges, wallet, UTXO } = payload;
+    const { labelChanges, wallet, UTXO, txId } = payload;
     const origin = genrateOutputDescriptors(wallet, false);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
+    const idSuffix = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
     if (labelChanges.added) {
+      const ref = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
+      const type = txId ? LabelRefType.TXN : LabelRefType.OUTPUT;
       addedTags = labelChanges.added.map((label) => ({
-        id: `${UTXO.txId}:${UTXO.vout}${label.name}`,
-        ref: `${UTXO.txId}:${UTXO.vout}`,
-        type: LabelRefType.OUTPUT,
+        id: `${idSuffix}${label.name}`,
+        ref,
+        type,
         label: label.name,
         origin,
         isSystem: label.isSystem,
       }));
     }
     if (labelChanges.deleted) {
-      deletedTagIds = labelChanges.deleted.map((label) => `${UTXO.txId}:${UTXO.vout}${label.name}`);
+      deletedTagIds = labelChanges.deleted.map((label) => `${idSuffix}${label.name}`);
     }
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const updated = yield call(
