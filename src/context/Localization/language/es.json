@@ -501,7 +501,9 @@
     "torSettingTitle": "Tor Settings",
     "torSettingSubTitle": "Configure in-app Tor and Orbot",
     "keeperTelegram": "Keeper Telegram",
-    "keeperTwitter": "Keeper Twitter"
+    "keeperTwitter": "Keeper Twitter",
+    "versionHistoryTitle": "Version History",
+    "versionHistorySubTitle": "You can verify the history of your app upgrades here"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
