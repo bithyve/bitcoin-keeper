@@ -15,6 +15,7 @@ import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
+import IconArrowGray from 'src/assets/images/icon_arrow_grey.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import Relay from 'src/services/operations/Relay';
@@ -103,7 +104,7 @@ function SignerItem({
               </VStack>
             </HStack>
             <Box style={styles.backArrow}>
-              <IconArrowBlack />
+              {colorMode === 'light' ? <IconArrowBlack /> : <IconArrowGray />}
             </Box>
           </HStack>
         </Box>
