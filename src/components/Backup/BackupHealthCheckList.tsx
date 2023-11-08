@@ -55,12 +55,12 @@ function BackupHealthCheckList() {
 
   return (
     <Box>
-      <ScrollView height={hp(530)}>
+      <Box height={hp(530)}>
         <FlatList
           data={history}
-          contentContainerStyle={{ flexGrow: 1, }}
-          renderItem={({ item }) => (
-            <Box>
+          contentContainerStyle={{ flexGrow: 1 }}
+          renderItem={({ item, index }) => (
+            <Box key={index}>
               <Box
                 zIndex={999}
                 position="absolute"
@@ -102,11 +102,9 @@ function BackupHealthCheckList() {
                 )}
               </Box>
             </Box>
-          )
-          }
-          keyExtractor={(item) => `${item}`}
+          )}
         />
-      </ScrollView >
+      </Box>
 
       <Box alignItems="flex-start">
         <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
@@ -154,7 +152,7 @@ function BackupHealthCheckList() {
           }}
         />
       </ModalWrapper>
-    </Box >
+    </Box>
   );
 }
 export default BackupHealthCheckList;
