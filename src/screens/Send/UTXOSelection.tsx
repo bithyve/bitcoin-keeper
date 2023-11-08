@@ -46,7 +46,7 @@ function UTXOSelection({ route }: any) {
     }
     recipients.push({
       address,
-      amount,
+      amount: BtcToSats(amount),
     });
     dispatch(
       sendPhaseOne({
