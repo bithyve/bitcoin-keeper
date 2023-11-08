@@ -59,7 +59,6 @@ function TransactionDetails({ route }) {
   const [updatingLabel, setUpdatingLabel] = React.useState(false);
 
   useEffect(() => {
-    console.log(labels[transaction.txid], noteRef.current);
     if (labels[transaction.txid][0] && noteRef.current) {
       if (labels[transaction.txid][0].name === noteRef.current) setUpdatingLabel(false);
     }
