@@ -493,7 +493,15 @@
     "host": "Host",
     "useSSL": "Use SSL for this node",
     "nodeConnectionSuccess": "Node connected successfully",
-    "nodeConnectionFailure": "Unable to connect to Electrum Server. Invalid node details or, not known"
+    "nodeConnectionFailure": "Unable to connect to Electrum Server. Invalid node details or, not known",
+    "ManageWallets": "Manage Wallets",
+    "ManageWalletsSub": "Hide wallets and unhide them.",
+    "settingsSubTitle": "Configure your app here",
+    "appBackup": "App Backup",
+    "torSettingTitle": "Tor Settings",
+    "torSettingSubTitle": "Configure in-app Tor and Orbot",
+    "keeperTelegram": "Keeper Telegram",
+    "keeperTwitter": "Keeper Twitter"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
