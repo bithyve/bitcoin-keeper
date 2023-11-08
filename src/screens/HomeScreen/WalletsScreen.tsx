@@ -367,7 +367,7 @@ function DowngradeModalContent(navigation, app) {
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  // const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   return (
     <Box>
@@ -540,7 +540,7 @@ const WalletsScreen = ({ navigation }) => {
         visible={recepitVerificationFailed}
         title={choosePlan.validateSubscriptionTitle}
         subTitle={choosePlan.validateSubscriptionSubTitle}
-        Content={DowngradeModalContent}
+        Content={<DowngradeModalContent app={app} navigation />}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
