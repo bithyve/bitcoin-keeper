@@ -83,7 +83,11 @@ function SignWithChannel() {
     });
     channel.on(LEDGER_SIGN, ({ room }) => {
       try {
-        const data = { serializedPSBT, vault: activeVault };
+        const data = {
+          serializedPSBT,
+          vault: activeVault,
+          registeredWallet: activeVault.isMultiSig ? signer.deviceInfo.registeredWallet : undefined,
+        };
         channel.emit(LEDGER_SIGN, { data, room });
       } catch (err) {
         captureError(err);

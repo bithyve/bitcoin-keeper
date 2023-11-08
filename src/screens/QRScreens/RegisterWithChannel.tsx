@@ -12,7 +12,12 @@ import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { BITBOX_REGISTER, CREATE_CHANNEL, LEDGER_REGISTER } from 'src/services/channel/constants';
+import {
+  BITBOX_REGISTER,
+  CREATE_CHANNEL,
+  LEDGER_REGISTER,
+  REGISTRATION_SUCCESS,
+} from 'src/services/channel/constants';
 import { captureError } from 'src/services/sentry';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
@@ -20,6 +25,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
 import { useQuery } from '@realm/react';
 import Text from 'src/components/KeeperText';
+import { SignerType } from 'src/core/wallets/enums';
 
 function RegisterWithChannel() {
   const { params } = useRoute();
@@ -54,10 +60,19 @@ function RegisterWithChannel() {
     channel.on(LEDGER_REGISTER, async ({ room }) => {
       try {
         channel.emit(LEDGER_REGISTER, { data: { vault }, room });
-        dispatch(updateSignerDetails(signer, 'registered', true));
-        navgation.goBack();
       } catch (error) {
         captureError(error);
+      }
+    });
+    channel.on(REGISTRATION_SUCCESS, async ({ data }) => {
+      const { signerType, policy } = data;
+      switch (signerType) {
+        case SignerType.LEDGER:
+          dispatch(
+            updateSignerDetails(signer, 'deviceInfo', { registeredWallet: policy.policyHmac })
+          );
+          dispatch(updateSignerDetails(signer, 'registered', true));
+          navgation.goBack();
       }
     });
     return () => {

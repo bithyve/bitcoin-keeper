@@ -256,8 +256,9 @@ function AddSigningDevice() {
   }
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
-      } setup will be created${isInheritance ? ' for Inheritance' : ''}`
+      ? `Vault with a ${subscriptionScheme.m} of ${
+          subscriptionScheme.n + (isInheritance ? 1 : 0)
+        } setup will be created${isInheritance ? ' for Inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   const trezorNotInPleb =
@@ -306,8 +307,9 @@ function AddSigningDevice() {
               title="WARNING"
               subtitle={`A few signers (${invalidSigners
                 .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${SubscriptionTier.L3
-                }. Please remove them or upgrade your plan.`}
+                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
+                SubscriptionTier.L3
+              }. Please remove them or upgrade your plan.`}
               subtitleColor="error"
             />
           </Box>
@@ -315,8 +317,9 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
