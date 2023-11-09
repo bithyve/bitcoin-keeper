@@ -97,7 +97,6 @@ function ImportWalletDetailsScreen({ route }) {
                 height={8}
               />
               <Input
-                // backgroundColor={`${colorMode}.seashellWhite`}
                 placeholder={importWallet.enterAmount}
                 placeholderTextColor="light.GreyText"
                 color={`${colorMode}.greenText`}
@@ -245,12 +244,14 @@ const styles = StyleSheet.create({
   transferText: {
     width: '100%',
     fontSize: 12,
+    marginHorizontal: 2,
     marginTop: hp(22),
     letterSpacing: 0.6,
   },
   amountWrapper: {
     marginTop: hp(10),
     flexDirection: "row",
+    marginHorizontal: 2,
     alignItems: "center",
     borderRadius: 5
   },
@@ -259,6 +260,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,
+    marginHorizontal: 2,
   },
   ctaBtnWrapper: {
     flexDirection: 'row',
