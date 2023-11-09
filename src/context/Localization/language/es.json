@@ -437,6 +437,14 @@
     "SetupTitle": "Setting up Trezor",
     "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
   },
+  "signingServer": {
+    "choosePolicy": "Choose Policy",
+    "choosePolicySubTitle": "For the signing server",
+    "maxNoCheckAmt": "Max no-check amount",
+    "maxNoCheckAmtSubTitle": "The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code",
+    "maxAllowedAmt": "Max allowed amount",
+    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",

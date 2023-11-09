@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, useColorMode } from 'native-base';
 import { Keyboard, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   SignerException,
   SignerPolicy,
@@ -19,9 +19,13 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import idx from 'idx';
 import { numberWithCommas } from 'src/utils/utilities';
 import { useDispatch } from 'react-redux';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { signingServer, common } = translations;
+
   const [selectedPolicy, setSelectedPolicy] = useState('max');
 
   const isUpdate = route.params.update;
@@ -109,7 +113,7 @@ function ChoosePolicyNew({ navigation, route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Choose Policy" subtitle="For the signing server" />
+      <KeeperHeader title={signingServer.choosePolicy} subtitle={signingServer.choosePolicySubTitle} />
       <Box
         style={{
           paddingHorizontal: wp(15),
@@ -117,20 +121,20 @@ function ChoosePolicyNew({ navigation, route }) {
         }}
       >
         <Field
-          title="Max no-check amount"
-          subTitle="The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code"
+          title={signingServer.maxNoCheckAmt}
+          subTitle={signingServer.maxNoCheckAmtSubTitle}
           onPress={() => setSelectedPolicy('min')}
           value={numberWithCommas(minTransaction)}
         />
         <Field
-          title="Max allowed amount"
-          subTitle="If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
+          title={signingServer.maxAllowedAmt}
+          subTitle={signingServer.maxAllowedAmtSubTitle}
           onPress={() => setSelectedPolicy('max')}
           value={numberWithCommas(maxTransaction)}
         />
       </Box>
       <Box style={styles.btnWrapper}>
-        <Buttons primaryText="Next" primaryCallback={onNext} />
+        <Buttons primaryText={common.next} primaryCallback={onNext} />
       </Box>
       <Box>
         <AppNumPad
