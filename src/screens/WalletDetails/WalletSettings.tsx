@@ -20,7 +20,8 @@ import config from 'src/core/config';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import BtcWallet from 'src/assets/images/btc_walletCard.svg';
+import BtcWallet from 'src/assets/images/btc_black.svg';
+import BitcoinWhite from 'src/assets/images/btc_white.svg';
 import useWallets from 'src/hooks/useWallets';
 import { getAmt, getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import { AppContext } from 'src/context/AppContext';
@@ -66,7 +67,7 @@ function WalletSettings({ route }) {
           </Box>
           <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Box>{Icon}</Box>
-            <Text color="light.white" style={styles.walletBalance}>
+            <Text color={`${colorMode}.black`} style={styles.walletBalance}>
               {walletBalance}
             </Text>
           </Box>
@@ -150,7 +151,7 @@ function WalletSettings({ route }) {
             currentCurrency,
             satsEnabled
           )}
-          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+          Icon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, colorMode === 'light' ? BtcWallet : BitcoinWhite)}
         />
       </Box>
       <ScrollView
