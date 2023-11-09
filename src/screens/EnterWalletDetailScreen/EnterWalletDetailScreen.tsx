@@ -33,8 +33,7 @@ function EnterWalletDetailScreen({ route }) {
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { wallet } = translations;
-  const { common } = translations;
+  const { wallet, choosePlan, common } = translations;
   const [walletType, setWalletType] = useState(route.params?.type);
   const [importedSeed, setImportedSeed] = useState(route.params?.seed?.replace(/,/g, ' '));
   const [walletName, setWalletName] = useState(route.params?.name);
@@ -95,16 +94,16 @@ function EnterWalletDetailScreen({ route }) {
       dispatch(resetRealyWalletState());
       setWalletLoading(false);
       if (walletType === WalletType.DEFAULT) {
-        showToast('New wallet created!', <TickIcon />);
+        showToast(wallet.newWalletCreated, <TickIcon />);
         navigtaion.goBack();
       } else {
-        showToast('Wallet imported', <TickIcon />);
+        showToast(wallet.walletImported, <TickIcon />);
         navigtaion.goBack();
         Linking.openURL(`${route?.params.appId}://backup/true`);
       }
     }
     if (relayWalletError) {
-      showToast(realyWalletErrorMessage || 'Wallet creation failed', <ToastErrorIcon />);
+      showToast(realyWalletErrorMessage || wallet.walletCreationFailed, <ToastErrorIcon />);
       setWalletLoading(false);
       dispatch(resetRealyWalletState());
     }
@@ -123,7 +122,7 @@ function EnterWalletDetailScreen({ route }) {
             navigtaion.replace('ChoosePlan');
             dispatch(resetWalletStateFlags());
           }}
-          primaryText="View Subsciption"
+          primaryText={choosePlan.viewSubscription}
           activeOpacity={0.5}
           secondaryCallback={() => {
             dispatch(resetWalletStateFlags());
@@ -150,12 +149,12 @@ function EnterWalletDetailScreen({ route }) {
   const renderAdvanceOptions = () => (
     <Box>
       <KeeperText style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
-        Path
+        {common.path}
       </KeeperText>
       <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.inputFieldWrapper}>
         <Input
           backgroundColor={`${colorMode}.seashellWhite`}
-          placeholder="Path"
+          placeholder={common.path}
           placeholderTextColor={`${colorMode}.GreyText`}
           value={path}
           onChangeText={(value) => setPath(value)}
@@ -168,24 +167,24 @@ function EnterWalletDetailScreen({ route }) {
         />
       </Box>
       <KeeperText style={[styles.autoTransferText, { color: `${colorMode}.GreyText` }]}>
-        Purpose
+        {common.purpose}
       </KeeperText>
       <Select
         style={{ backgroundColor: 'red' }}
         selectedValue={purpose}
         minWidth="200"
-        accessibilityLabel="Choose Service"
-        placeholder="Choose Purpose"
+        accessibilityLabel={common.chooseService}
+        placeholder={common.choosePurpose}
         mt={1}
         onValueChange={(itemValue) => setPurpose(itemValue)}
       >
-        <Select.Item label="P2PKH: legacy, single-sig" value={`${DerivationPurpose.BIP44}`} />
+        <Select.Item label={wallet.purposelabel01} value={`${DerivationPurpose.BIP44}`} />
         <Select.Item
-          label="P2SH-P2WPKH: wrapped segwit, single-sg"
+          label={wallet.purposelabel02}
           value={`${DerivationPurpose.BIP49}`}
         />
         <Select.Item
-          label="P2WPKH: native segwit, single-sig"
+          label={wallet.purposelabel03}
           value={`${DerivationPurpose.BIP84}`}
         />
       </Select>
@@ -295,7 +294,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => {}}
+        close={() => { }}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
