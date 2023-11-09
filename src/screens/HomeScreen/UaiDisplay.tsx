@@ -15,6 +15,8 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import UAIView from './components/HeaderDetails/components/UAIView';
 
+const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
+
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState<UAI | {}>({});
   const [uaiConfig, setUaiConfig] = useState({});
@@ -152,8 +154,8 @@ function UaiDisplay({ uaiStack }) {
         <UAIView
           title={uai?.title}
           primaryCallbackText="CONTINUE"
-          secondaryCallbackText={uai?.uaiType !== uaiType.DEFAULT ? 'SKIP' : null}
-          secondaryCallback={uai?.uaiType !== uaiType.DEFAULT ? uaiSetActionFalse : null}
+          secondaryCallbackText={!nonSkippableUAIs.includes(uai?.uaiType) && 'SKIP'}
+          secondaryCallback={!nonSkippableUAIs.includes(uai?.uaiType) && uaiSetActionFalse}
           primaryCallback={pressHandler}
         />
         <KeeperModal
