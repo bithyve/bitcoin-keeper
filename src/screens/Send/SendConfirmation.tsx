@@ -98,7 +98,6 @@ function SendingCard({
   transferType,
   getBalance,
   getSatUnit,
-  sourceWallet,
 }) {
   const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
@@ -123,7 +122,7 @@ function SendingCard({
       case TransferType.VAULT_TO_WALLET:
         return isSend ? (
           <Card
-            title={sender.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
             )} ${getSatUnit()}`}
@@ -131,7 +130,7 @@ function SendingCard({
           />
         ) : (
           <Card
-            title={recipient?.presentationData.name}
+            title={recipient?.presentationData?.name || address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
           />
         );
@@ -151,23 +150,23 @@ function SendingCard({
       case TransferType.WALLET_TO_WALLET:
         return isSend ? (
           <Card
-            title={sender?.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )} ${getSatUnit()}`}
           />
         ) : (
           <Card
-            title={recipient?.presentationData.name}
+            title={recipient?.presentationData?.name || address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
           />
         );
       case TransferType.WALLET_TO_VAULT:
         return isSend ? (
           <Card
-            title={sourceWallet.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sourceWallet.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )}${getSatUnit()}`}
           />
         ) : (
@@ -176,9 +175,9 @@ function SendingCard({
       case TransferType.WALLET_TO_ADDRESS:
         return isSend ? (
           <Card
-            title={sender?.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )} ${getSatUnit()}`}
           />
         ) : (
