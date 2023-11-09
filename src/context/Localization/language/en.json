@@ -300,7 +300,9 @@
     "AutoTransferInitiated": "Auto transfer initiated at (optional)",
     "AutoTransferInitiatedDesc": "When the wallet balance crosses this amount, a transfer to the Vault is initiated for user approval",
     "WalletDetails": "Wallet Details",
+    "walletDetailsSubTitle": "Name, details and transfer policy",
     "EditWalletDeatils": "Edit wallet name and description",
+    "changeWalletDetails": "Change wallet name & description",
     "TransferSuccessful": "Transfer Successful!",
     "initiatetransfer": "Are you sure you want to initiate transfer to",
     "XPubTitle": "Wallet xPub",
@@ -339,7 +341,16 @@
     "walletImported": "Wallet imported",
     "purposelabel01": "P2PKH: legacy, single-sig",
     "purposelabel02": "P2SH-P2WPKH: wrapped segwit, single-sg",
-    "purposelabel03": "P2WPKH: native segwit, single-sig"
+    "purposelabel03": "P2WPKH: native segwit, single-sig",
+    "showXPub": "Show xPub",
+    "showXPubSubTitle": "Use to create an external, watch-only wallet",
+    "changeDerivationPath": "Change Derivation path",
+    "walletDetailsNote": "These settings are for your selected wallet only and does not affect other wallets",
+    "walletXPubSubTitle": "Scan or copy the xPub in another app for generating new addresses and fetching balances",
+    "xPubCopyToastMsg": "Xpub Copied Successfully",
+    "editTransPolicy": "Edit Transfer Policy",
+    "editTransPolicySubTitle": "Threshold amount at which transfer is triggered",
+    "TransPolicyChange": "Transfer Policy Changed"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
