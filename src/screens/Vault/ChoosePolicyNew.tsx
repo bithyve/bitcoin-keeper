@@ -82,35 +82,28 @@ function ChoosePolicyNew({ navigation, route }) {
   function Field({ title, subTitle, value, onPress }) {
     return (
       <Box style={styles.fieldWrapper}>
-        <Box width={wp(175)}>
+        <Box width={'60%'}>
           <Text style={styles.titleText}>{title}</Text>
           <Text color="light.GreyText" style={styles.subTitleText}>
             {subTitle}
           </Text>
         </Box>
 
-        <Box>
-          <Box
-            style={{
-              marginLeft: wp(25),
-              width: wp(100),
+        <Box width='40%' ml={3} >
+          <Input
+            backgroundColor={`${colorMode}.seashellWhite`}
+            onPressIn={onPress}
+            style={styles.textInput}
+            value={value}
+            showSoftInputOnFocus={false}
+            onFocus={() => Keyboard.dismiss()}
+            selection={{
+              start: 0,
+              end: 0,
             }}
-          >
-            <Input
-              backgroundColor={`${colorMode}.seashellWhite`}
-              onPressIn={onPress}
-              style={styles.textInput}
-              value={value}
-              showSoftInputOnFocus={false}
-              onFocus={() => Keyboard.dismiss()}
-              selection={{
-                start: 0,
-                end: 0,
-              }}
-            />
-          </Box>
+          />
         </Box>
-      </Box>
+      </Box >
     );
   }
 
@@ -142,7 +135,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => {}}
+          clear={() => { }}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
@@ -153,14 +146,14 @@ function ChoosePolicyNew({ navigation, route }) {
 }
 const styles = StyleSheet.create({
   textInput: {
-    backgroundColor: '#FDF7F0',
     borderRadius: 10,
-    padding: 15,
-    fontSize: 20,
+    // padding: 15,
+    fontSize: 18,
     letterSpacing: 0.23,
   },
   fieldWrapper: {
     flexDirection: 'row',
+    width: '100%',
     alignItems: 'center',
     marginTop: windowHeight > 600 ? hp(25) : hp(40),
   },
@@ -173,7 +166,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   btnWrapper: {
-    marginTop: hp(windowHeight > 700 ? 25 : 0),
+    marginVertical: hp(windowHeight > 700 ? 25 : 0),
   },
   keypadWrapper: {
     position: 'absolute',
