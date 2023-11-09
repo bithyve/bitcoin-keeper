@@ -24,6 +24,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SignerType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import Illustration from 'src/assets/images/illustration.svg';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -51,9 +52,6 @@ function ExportSeedScreen({ route, navigation }) {
   useEffect(() => {
     if (backupMethod !== null && next) {
       setBackupSuccessModal(true);
-      setTimeout(() => {
-        navigation.replace('WalletBackHistory');
-      }, 100);
     }
   }, [backupMethod]);
 
@@ -186,24 +184,27 @@ function ExportSeedScreen({ route, navigation }) {
           />
         </ModalWrapper>
       </Box>
-      <Box>
-        <ModalWrapper
-          visible={backupSuccessModal}
-          onSwipeComplete={() => setBackupSuccessModal(false)}
-        >
-          <BackupSuccessful
-            title={BackupWallet.backupSuccessTitle}
-            subTitle={BackupWallet.backupSuccessSubTitle}
-            paragraph={BackupWallet.backupSuccessParagraph}
-            closeBottomSheet={() => {
-              setBackupSuccessModal(false);
-            }}
-            confirmBtnPress={() => {
-              navigtaion.navigate('Home');
-            }}
-          />
-        </ModalWrapper>
-      </Box>
+      <KeeperModal
+        visible={true}
+        dismissible={false}
+        close={() => {}}
+        title={BackupWallet.backupSuccessTitle}
+        subTitleColor="light.secondaryText"
+        textColor="light.primaryText"
+        buttonText="Done"
+        buttonCallback={() => navigation.replace('WalletBackHistory')}
+        Content={() => (
+          <Box>
+            <Box>
+              <Illustration />
+            </Box>
+            <Box>
+              <Text>{BackupWallet.backupSuccessParagraph}</Text>
+            </Box>
+          </Box>
+        )}
+      />
+
       <KeeperModal
         visible={showQRVisible}
         close={() => setShowQRVisible(false)}

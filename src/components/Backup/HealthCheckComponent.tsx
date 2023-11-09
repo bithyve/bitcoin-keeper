@@ -19,7 +19,6 @@ function HealthCheckComponent(props) {
   const { words } = props;
   const [index] = useState(Math.floor(Math.random() * words.length));
   const [invalid, setInvalid] = useState(false);
-  console.log(props.password);
 
   const getSeedNumber = (seedNumber) => {
     switch (seedNumber + 1) {
@@ -78,10 +77,9 @@ function HealthCheckComponent(props) {
         return 'twelfth';
     }
   };
-
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
-      if (seedWord === words[index]) {
+      if (seedWord.toLocaleLowerCase() === words[index]) {
         props.onConfirmed('');
       } else {
         setInvalid(true);
