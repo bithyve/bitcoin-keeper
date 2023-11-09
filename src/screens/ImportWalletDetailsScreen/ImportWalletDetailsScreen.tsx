@@ -103,6 +103,7 @@ function ImportWalletDetailsScreen({ route }) {
                 color={`${colorMode}.greenText`}
                 opacity={0.5}
                 width="96%"
+                h={10}
                 fontSize={14}
                 fontWeight={300}
                 letterSpacing={1.04}
@@ -243,13 +244,11 @@ const styles = StyleSheet.create({
   },
   transferText: {
     width: '100%',
-    marginHorizontal: 20,
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
   },
   amountWrapper: {
-    marginHorizontal: 20,
     marginTop: hp(10),
     flexDirection: "row",
     alignItems: "center",
@@ -257,7 +256,6 @@ const styles = StyleSheet.create({
   },
   balanceCrossesText: {
     width: '100%',
-    marginHorizontal: 20,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,
