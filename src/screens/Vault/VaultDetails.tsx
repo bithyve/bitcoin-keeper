@@ -694,7 +694,7 @@ function VaultDetails({ navigation }) {
         learnMoreCallback={() =>
           openLink(
             collaborativeWalletId
-              ? `${KEEPER_KNOWLEDGEBASE}features/`
+              ? `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-wallet/`
               : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`
           )
         }
