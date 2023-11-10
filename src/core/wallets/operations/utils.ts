@@ -74,6 +74,10 @@ export default class WalletUtilities {
     return WalletUtilities.getFingerprintFromSeed(seed);
   }
 
+  static getFingerprintForWallet(wallet: Wallet) {
+    return whirlPoolWalletTypes.includes(wallet.type) ? wallet.depositWalletId : wallet.id;
+  }
+
   static getFingerprintFromExtendedKey = (
     extendedKey: string,
     network: bitcoinJS.networks.Network
