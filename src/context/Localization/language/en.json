@@ -90,7 +90,9 @@
     "path": "Path",
     "purpose": "Purpose",
     "choosePurpose": "Choose Purpose",
-    "chooseService": "Choose Service"
+    "chooseService": "Choose Service",
+    "pleaseWait": "Please Wait",
+    "receiveTestSats": "Receiving test sats"
   },
   "noInternet": {
     "no": "No Internet",
@@ -350,7 +352,16 @@
     "xPubCopyToastMsg": "Xpub Copied Successfully",
     "editTransPolicy": "Edit Transfer Policy",
     "editTransPolicySubTitle": "Threshold amount at which transfer is triggered",
-    "TransPolicyChange": "Transfer Policy Changed"
+    "TransPolicyChange": "Transfer Policy Changed",
+    "walletSeedWord": "Wallet Seed Words",
+    "walletSeedWordSubTitle": "Use to link external wallets to Keeper",
+    "showCoSignerDetails": "Show co-signer Details",
+    "showCoSignerDetailsSubTitle": "Use this wallet as a co-signer with other vaults",
+    "actCoSigner": "Act as co-signer",
+    "recieveTestSats": "Receive Test Sats",
+    "recieveTestSatSubTitle": "Receive Test Sats to this address",
+    "walletSettingNote": "These settings are for your selected wallet only and does not affect other wallets",
+    "xpubModalSubTitle": "Scan or copy the xPub in another app for generating new addresses and fetching balances"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -481,6 +492,7 @@
     "nodeSub": "Connect Hexa wallet to your own node",
     "walletSettings": "Wallet Settings",
     "walletSettingsSub": "Your wallet settings & preferences",
+    "walletSettingSubTitle": "Setting for the wallet only",
     "AppInfo": "App Info",
     "AppInfoSub": "Hexa app version number and details",
     "Disconnectyour": "Disconnect your own node and connect to Hexa node",
