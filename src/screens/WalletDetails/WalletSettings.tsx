@@ -27,6 +27,7 @@ import { AppContext } from 'src/context/AppContext';
 import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -36,7 +37,7 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const [xpubVisible, setXPubVisible] = useState(false);
-  // const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
@@ -51,10 +52,7 @@ function WalletSettings({ route }) {
   // eslint-disable-next-line react/no-unstable-nested-components
   function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
-      <Box
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={styles.walletCardContainer}
-      >
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
           <Box style={styles.walletDetailsWrapper}>
             <Text color={`${colorMode}.primaryText`} style={styles.walletName}>
@@ -168,12 +166,7 @@ function WalletSettings({ route }) {
           title="Wallet Seed Words"
           description="Use to link external wallets to Keeper"
           callback={() => {
-            // setConfirmPassVisible(true);
-            navigation.navigate('ExportSeed', {
-              seed: wallet?.derivationDetails?.mnemonic,
-              next: false,
-              wallet,
-            });
+            setConfirmPassVisible(true);
           }}
         />
         <OptionCard
@@ -218,7 +211,7 @@ function WalletSettings({ route }) {
           subtitleColor="GreyText"
         />
       </Box>
-      {/* <KeeperModal
+      <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
         title={walletTranslation?.confirmPassTitle}
@@ -228,15 +221,21 @@ function WalletSettings({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
-          <SeedConfirmPasscode
-            closeBottomSheet={() => {
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
               setConfirmPassVisible(false);
             }}
-            wallet={wallet}
-            navigation={navigation}
+            onSuccess={() => {
+              navigation.navigate('ExportSeed', {
+                seed: wallet?.derivationDetails?.mnemonic,
+                next: false,
+                wallet,
+              });
+            }}
           />
         )}
-      /> */}
+      />
       <KeeperModal
         visible={xpubVisible}
         close={() => setXPubVisible(false)}

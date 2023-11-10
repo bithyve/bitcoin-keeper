@@ -288,7 +288,7 @@
     "AccountXpub": "Wallet xPub",
     "AccountXpubNote": "This xPub is only for the selected wallet and not other wallets in the app",
     "confirmPassTitle": "Confirm Passcode",
-    "confirmPassSubTitle": "To show Recovery Phrase for this wallet",
+    "confirmPassSubTitle": "To show wallet seed words",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details",
     "approveTransVault": "Approve Transfer to Vault",
