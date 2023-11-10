@@ -185,7 +185,7 @@ function ExportSeedScreen({ route, navigation }) {
         </ModalWrapper>
       </Box>
       <KeeperModal
-        visible={true}
+        visible={backupSuccessModal}
         dismissible={false}
         close={() => {}}
         title={BackupWallet.backupSuccessTitle}

@@ -40,6 +40,7 @@ import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import Fonts from 'src/constants/Fonts';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -431,6 +432,7 @@ function SendConfirmation({ route }) {
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -636,7 +638,7 @@ function SendConfirmation({ route }) {
         secondaryCallback={() => {
           navigation.goBack();
         }}
-        primaryCallback={onProceed}
+        primaryCallback={() => setConfirmPassVisible(true)}
         primaryLoading={inProgress}
       />
       <KeeperModal
@@ -660,6 +662,25 @@ function SendConfirmation({ route }) {
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
             onTransferNow={onTransferNow}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        close={() => setConfirmPassVisible(false)}
+        title={'Confirm Passcode'}
+        subTitleWidth={wp(240)}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onProceed}
           />
         )}
       />
