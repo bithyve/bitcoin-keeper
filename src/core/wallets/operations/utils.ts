@@ -449,21 +449,30 @@ export default class WalletUtilities {
     subPath: number[];
     signerPubkeyMap: Map<string, Buffer>;
   } => {
-    const { networkType } = wallet;
     const { nextFreeAddressIndex, nextFreeChangeAddressIndex, xpubs } = wallet.specs;
-    const network = WalletUtilities.getNetworkByType(networkType);
+    const network = WalletUtilities.getNetworkByType(wallet.networkType);
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(xpubs, wallet.scheme.m, network, itr, false);
-
-      if (multiSig.address === address) return multiSig;
+      if (addressCache.external[itr] === address) {
+        const multiSig = WalletUtilities.createMultiSig(
+          xpubs,
+          wallet.scheme.m,
+          network,
+          itr,
+          false
+        );
+        return multiSig;
+      }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      const multiSig = WalletUtilities.createMultiSig(xpubs, wallet.scheme.m, network, itr, true);
-      if (multiSig.address === address) return multiSig;
+      if (addressCache.internal[itr] === address) {
+        const multiSig = WalletUtilities.createMultiSig(xpubs, wallet.scheme.m, network, itr, true);
+        return multiSig;
+      }
     }
 
     throw new Error(`Could not find multisig for: ${address}`);
