@@ -673,7 +673,7 @@ export default class WalletOperations {
         masterFingerprint = mfp;
       } else {
         path = `${(wallet as Wallet).derivationDetails.xDerivationPath}/${subPath.join('/')}`;
-        masterFingerprint = WalletUtilities.getFingerprintForWallet(wallet as Wallet);
+        masterFingerprint = WalletUtilities.getMasterFingerprintForWallet(wallet as Wallet);
       }
 
       const bip32Derivation = [

@@ -70,12 +70,12 @@ export default class WalletUtilities {
     return WalletUtilities.getFingerprintFromNode(root);
   };
 
-  static getFingerprintFromMnemonic(mnemonic: string, passphrase?: string) {
+  static getMasterFingerprintFromMnemonic(mnemonic: string, passphrase?: string) {
     const seed = bip39.mnemonicToSeedSync(mnemonic, passphrase);
     return WalletUtilities.getFingerprintFromSeed(seed);
   }
 
-  static getFingerprintForWallet(wallet: Wallet) {
+  static getMasterFingerprintForWallet(wallet: Wallet) {
     return whirlPoolWalletTypes.includes(wallet.type) ? wallet.depositWalletId : wallet.id;
   }
 
