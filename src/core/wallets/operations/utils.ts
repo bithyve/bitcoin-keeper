@@ -18,7 +18,7 @@ import bip21 from 'bip21';
 import bs58check from 'bs58check';
 import { isTestnet } from 'src/constants/Bitcoin';
 import idx from 'idx';
-import { Wallet } from '../interfaces/wallet';
+import { AddressCache, Wallet } from '../interfaces/wallet';
 import { Vault } from '../interfaces/vault';
 import {
   BIP48ScriptTypes,
@@ -361,26 +361,25 @@ export default class WalletUtilities {
       xpriv = (wallet as Wallet).specs.xpriv;
     }
 
-    let purpose;
-    if (wallet.entityKind === EntityKind.WALLET)
-      purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
-
     const network = WalletUtilities.getNetworkByType(networkType);
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
 
     const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose) === address)
+      if (addressCache.external[itr] === address) {
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, false, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, false, itr, network);
+      }
     }
 
     const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
     for (let itr = 0; itr <= closingIntIndex; itr++) {
-      if (WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose) === address)
+      if (addressCache.internal[itr] === address) {
         return publicKey
           ? WalletUtilities.getPublicKeyByIndex(xpub, true, itr, network)
           : WalletUtilities.getPrivateKeyByIndex(xpriv, true, itr, network);
+      }
     }
 
     throw new Error(`Could not find ${publicKey ? 'public' : 'private'} key for: ${address}`);
