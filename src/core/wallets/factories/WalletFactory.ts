@@ -102,10 +102,10 @@ export const generateWallet = async ({
     xDerivationPath = importDetails.derivationConfig.path;
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
-  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic); // case: wallets(non-whirlpool) have master-fingerprints as their id
 
   if (whirlPoolWalletTypes.includes(type)) {
-    depositWalletId = id;
+    depositWalletId = id; // case: whirlpool wallets have master-fingerprints as their deposit id
     id = hash256(`${id}${type}`);
   }
 

@@ -30,6 +30,7 @@ import {
 } from '../enums';
 import { OutputUTXOs } from '../interfaces';
 import config from 'src/core/config';
+import { whirlPoolWalletTypes } from '../factories/WalletFactory';
 
 const ECPair = ECPairFactory(ecc);
 
