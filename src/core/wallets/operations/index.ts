@@ -285,7 +285,6 @@ export default class WalletOperations {
     synchedWallets: (Wallet | Vault)[];
   }> => {
     for (const wallet of wallets) {
-      const hardGapLimit = 10; // hard refresh gap limit
       const addresses = [];
 
       let purpose;
@@ -296,7 +295,7 @@ export default class WalletOperations {
 
       // collect external(receive) chain addresses
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
+      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT; itr++) {
         let address: string;
 
         if (addressCache.external[itr]) address = addressCache.external[itr]; // cache hit
@@ -327,7 +326,7 @@ export default class WalletOperations {
 
       // collect internal(change) chain addresses
       const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
+      for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT; itr++) {
         let address: string;
 
         if (addressCache.internal[itr]) address = addressCache.internal[itr]; // cache hit
@@ -674,7 +673,7 @@ export default class WalletOperations {
         masterFingerprint = mfp;
       } else {
         path = `${(wallet as Wallet).derivationDetails.xDerivationPath}/${subPath.join('/')}`;
-        masterFingerprint = WalletUtilities.getFingerprintForWallet(wallet as Wallet);
+        masterFingerprint = WalletUtilities.getMasterFingerprintForWallet(wallet as Wallet);
       }
 
       const bip32Derivation = [
