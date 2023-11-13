@@ -930,9 +930,6 @@ export default class WalletOperations {
           const [, j, k] = input.subPath.split('/');
           internal = parseInt(j);
           index = parseInt(k);
-        } else if (wallet.isMultiSig) {
-          const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
-          [internal, index] = subPath;
         } else {
           const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
           [internal, index] = subPath;
@@ -1038,12 +1035,7 @@ export default class WalletOperations {
     ) {
       const childIndexArray = [];
       for (const input of inputs) {
-        let subPath;
-        if (wallet.isMultiSig) {
-          subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
-        } else {
-          subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
-        }
+        const subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
         childIndexArray.push({
           subPath,
           inputIdentifier: {
