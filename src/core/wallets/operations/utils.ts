@@ -478,6 +478,32 @@ export default class WalletUtilities {
     throw new Error(`Could not find multisig for: ${address}`);
   };
 
+  static getSubPathForAddress = (
+    address: string,
+    wallet: Wallet | Vault
+  ): {
+    subPath: number[];
+  } => {
+    const { nextFreeAddressIndex, nextFreeChangeAddressIndex } = wallet.specs;
+    const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+
+    const closingExtIndex = nextFreeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= nextFreeAddressIndex + closingExtIndex; itr++) {
+      if (addressCache.external[itr] === address) {
+        return { subPath: [0, itr] };
+      }
+    }
+
+    const closingIntIndex = nextFreeChangeAddressIndex + config.GAP_LIMIT;
+    for (let itr = 0; itr <= closingIntIndex; itr++) {
+      if (addressCache.internal[itr] === address) {
+        return { subPath: [1, itr] };
+      }
+    }
+
+    throw new Error(`Could not find subpath for multisig: ${address}`);
+  };
+
   static generatePaymentURI = (
     address: string,
     options?: { amount: number; label?: string; message?: string }

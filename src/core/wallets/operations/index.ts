@@ -868,6 +868,7 @@ export default class WalletOperations {
           PSBT.addOutput({ ...output, bip32Derivation });
         } else PSBT.addOutput(output);
       }
+
       return {
         PSBT,
         inputs,
@@ -930,12 +931,13 @@ export default class WalletOperations {
           internal = parseInt(j);
           index = parseInt(k);
         } else if (wallet.isMultiSig) {
-          const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
+          const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
           [internal, index] = subPath;
         } else {
-          const { subPath } = WalletUtilities.addressToKey(input.address, wallet, true);
+          const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
           [internal, index] = subPath;
         }
+
         const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
           xpriv,
           !!internal,
@@ -1038,9 +1040,9 @@ export default class WalletOperations {
       for (const input of inputs) {
         let subPath;
         if (wallet.isMultiSig) {
-          subPath = WalletUtilities.addressToMultiSig(input.address, wallet).subPath;
+          subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
         } else {
-          subPath = WalletUtilities.addressToKey(input.address, wallet, true).subPath;
+          subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
         }
         childIndexArray.push({
           subPath,
@@ -1053,9 +1055,9 @@ export default class WalletOperations {
       }
       signingPayload.push({ payloadTarget, childIndexArray, outgoing });
     }
-    if (isSignerAMF(signer)) {
-      signingPayload.push({ payloadTarget, inputs });
-    }
+
+    if (isSignerAMF(signer)) signingPayload.push({ payloadTarget, inputs });
+
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
       signerId: signer.signerId,
@@ -1173,12 +1175,14 @@ export default class WalletOperations {
     );
 
     if (wallet.entityKind === EntityKind.VAULT) {
+      // case: vault(single/multi-sig)
       const { signers } = wallet as Vault;
       const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = [];
       let outgoing = 0;
       recipients.forEach((recipient) => {
         outgoing += recipient.amount;
       });
+
       for (const signer of signers) {
         const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
           wallet as Vault,
@@ -1191,20 +1195,25 @@ export default class WalletOperations {
         );
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
-      return { serializedPSBTEnvelops };
-    }
-    const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
 
-    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
-    const tx = signedPSBT.finalizeAllInputs();
-    const txHex = tx.extractTransaction().toHex();
-    const finalOutputs = tx.txOutputs;
-    const txid = await this.broadcastTransaction(wallet, txHex, inputs);
-    return {
-      txid,
-      finalOutputs,
-    };
+      return { serializedPSBTEnvelops };
+    } else {
+      // case: wallet(single-sig)
+      const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
+
+      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
+      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+      const tx = signedPSBT.finalizeAllInputs();
+      const txHex = tx.extractTransaction().toHex();
+      const finalOutputs = tx.txOutputs;
+
+      const txid = await this.broadcastTransaction(wallet, txHex, inputs);
+
+      return {
+        txid,
+        finalOutputs,
+      };
+    }
   };
 
   static transferST3 = async (
