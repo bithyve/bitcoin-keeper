@@ -26,7 +26,7 @@ function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
 
   const { translations } = useContext(LocalizationContext);
-  const { home } = translations;
+  const { home, importWallet } = translations;
 
   const name = route?.params?.name;
   const desc = route?.params?.description;
@@ -62,12 +62,12 @@ function ImportWalletDetailsScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
+        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>
               <Input
-                placeholder="Enter wallet name"
+                placeholder={importWallet.enterWalletName}
                 style={styles.textInput}
                 borderWidth="0"
                 backgroundColor={`${colorMode}.seashellWhite`}
@@ -77,7 +77,7 @@ function ImportWalletDetailsScreen({ route }) {
             </Box>
             <Box style={styles.textInputWrapper}>
               <Input
-                placeholder="Add Description"
+                placeholder={importWallet.addDescription}
                 style={styles.textInput}
                 borderWidth="0"
                 backgroundColor={`${colorMode}.seashellWhite`}
@@ -85,7 +85,7 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(text) => setDescription(text)}
               />
             </Box>
-            <Text style={styles.transferText} color={`${colorMode}.primaryText`}>Auto transfer initiated at (optional)</Text>
+            <Text style={styles.transferText} color={`${colorMode}.primaryText`}>{importWallet.autoTransfer}</Text>
             <Box style={styles.amountWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Box mx={3}>
                 {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, colorMode === 'light' ? BitcoinInput : BitcoinWhite)}
@@ -97,12 +97,12 @@ function ImportWalletDetailsScreen({ route }) {
                 height={8}
               />
               <Input
-                // backgroundColor={`${colorMode}.seashellWhite`}
-                placeholder="Enter Amount"
+                placeholder={importWallet.enterAmount}
                 placeholderTextColor="light.GreyText"
                 color={`${colorMode}.greenText`}
                 opacity={0.5}
                 width="96%"
+                h={10}
                 fontSize={14}
                 fontWeight={300}
                 letterSpacing={1.04}
@@ -115,8 +115,7 @@ function ImportWalletDetailsScreen({ route }) {
               />
             </Box>
             <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
-              When the wallet balance crosses this amount, a transfer to the Vault is initiated for
-              user approval
+              {importWallet.walletBalance}
             </Text>
           </Box>
         </ScrollView>
@@ -244,24 +243,24 @@ const styles = StyleSheet.create({
   },
   transferText: {
     width: '100%',
-    marginHorizontal: 20,
     fontSize: 12,
+    marginHorizontal: 2,
     marginTop: hp(22),
     letterSpacing: 0.6,
   },
   amountWrapper: {
-    marginHorizontal: 20,
     marginTop: hp(10),
     flexDirection: "row",
+    marginHorizontal: 2,
     alignItems: "center",
     borderRadius: 5
   },
   balanceCrossesText: {
     width: '100%',
-    marginHorizontal: 20,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,
+    marginHorizontal: 2,
   },
   ctaBtnWrapper: {
     flexDirection: 'row',

@@ -38,7 +38,7 @@ import { useQuery } from '@realm/react';
 function ChoosePlan(props) {
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
-  const { choosePlan } = translations;
+  const { choosePlan, common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
@@ -116,9 +116,8 @@ function ChoosePlan(props) {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${
-                subscription.introductoryPriceNumberOfPeriodsIOS
-              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
+                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -238,7 +237,7 @@ function ChoosePlan(props) {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => {},
+              onPress: () => { },
               style: 'cancel',
             },
             { text: 'Manage', onPress: () => manageSubscription(response.productId) },
@@ -333,7 +332,7 @@ function ChoosePlan(props) {
       />
       <KeeperModal
         visible={requesting}
-        close={() => {}}
+        close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -342,7 +341,7 @@ function ChoosePlan(props) {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => {}}
+        buttonCallback={() => { }}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
@@ -405,7 +404,7 @@ function ChoosePlan(props) {
       <Box style={styles.noteWrapper}>
         <Box width="65%">
           <Note
-            title="Note"
+            title={common.note}
             subtitle={formatString(choosePlan.noteSubTitle)}
             subtitleColor="GreyText"
           />
@@ -422,7 +421,7 @@ function ChoosePlan(props) {
             style={styles.restorePurchaseWrapper}
           >
             <Text fontSize={12} color={colorMode === 'light' ? 'light.learnMoreBorder' : '#24312E'}>
-              Restore Purchases
+              {choosePlan.restorePurchases}
             </Text>
           </Box>
         </Pressable>

@@ -136,6 +136,7 @@ function PasscodeVerifyModal(props: Props) {
             style={{
               textAlign: 'right',
               fontStyle: 'italic',
+              marginRight: 5
             }}
           >
             {errMessage}
