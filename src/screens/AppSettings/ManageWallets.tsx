@@ -22,6 +22,7 @@ import { captureError } from 'src/services/sentry';
 import useWallets from 'src/hooks/useWallets';
 import { useDispatch } from 'react-redux';
 import { setNetBalance } from 'src/store/reducers/wallets';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const styles = StyleSheet.create({
   learnMoreContainer: {
@@ -103,6 +104,7 @@ function ManageWallets() {
     (wallet) => wallet.presentationData.visibility === VisibilityType.HIDDEN
   );
   const [showBalanceAlert, setShowBalanceAlert] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const navigation = useNavigation();
   const route = useRoute();
@@ -126,12 +128,9 @@ function ManageWallets() {
     dispatch(setNetBalance(netBalance));
   };
 
-  useEffect(() => {
-    if (route.params?.isAuthenticated) {
-      unhideWallet(selectedWallet);
-      navigation.setParams({ isAuthenticated: false });
-    }
-  }, [route.params?.isAuthenticated]);
+  const onProceed = () => {
+    unhideWallet(selectedWallet);
+  };
 
   const hideWallet = (wallet: Wallet, checkBalance = true) => {
     if (wallet.specs.balances.confirmed > 0 && checkBalance) {
@@ -244,12 +243,7 @@ function ManageWallets() {
             btnTitle="Unhide"
             onBtnPress={() => {
               setSelectedWallet(item);
-              navigation.navigate('Login', {
-                internalCheck: true,
-                relogin: true,
-                screen: 'ManageWallets',
-                title: 'Enter Passcode to Unhide Wallet',
-              });
+              setConfirmPassVisible(true);
             }}
           />
         )}
@@ -267,9 +261,29 @@ function ManageWallets() {
         Content={BalanceAlertModalContent}
         subTitleColor="light.secondaryText"
         subTitleWidth={wp(210)}
-        closeOnOverlayClick={() => { }}
+        closeOnOverlayClick={() => {}}
         showButtons
         showCloseIcon={false}
+      />
+
+      <KeeperModal
+        visible={confirmPassVisible}
+        close={() => setConfirmPassVisible(false)}
+        title={'Confirm Passcode'}
+        subTitleWidth={wp(240)}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onProceed}
+          />
+        )}
       />
     </ScreenWrapper>
   );
