@@ -132,7 +132,7 @@ export const getSignedSerializedPSBTForBitbox02 = (unsignedPSBT, signatures, sig
     const { inputsToSign } = signingPayload[0];
     for (let inputIndex = 0; inputIndex < inputsToSign.length; inputIndex += 1) {
       const { sighashType, publicKey } = inputsToSign[inputIndex];
-      PSBT.addSignedDisgest(
+      PSBT.addSignedDigest(
         inputIndex,
         Buffer.from(publicKey, 'hex'),
         Buffer.from(signatures[inputIndex]),
