@@ -51,6 +51,8 @@ import { Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 
 const ECPair = ECPairFactory(ecc);
+const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
+  ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 const feeSurcharge = (wallet: Wallet | Vault) =>
   /* !! TESTNET ONLY !!
@@ -1193,8 +1195,11 @@ export default class WalletOperations {
       // case: wallet(single-sig)
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
 
-      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
+      // validating signatures
+      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs(validator);
       if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+
+      // finalise and construct the txHex
       const tx = signedPSBT.finalizeAllInputs();
       const txHex = tx.extractTransaction().toHex();
       const finalOutputs = tx.txOutputs;
@@ -1245,7 +1250,7 @@ export default class WalletOperations {
       }
 
       // validating signatures
-      const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs();
+      const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs(validator);
       if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
 
       // finalise and construct the txHex

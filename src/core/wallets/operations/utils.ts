@@ -727,7 +727,7 @@ export default class WalletUtilities {
   };
 
   static signBitcoinMessage = (message: string, privateKey: string, network: bitcoinJS.Network) => {
-    const keyPair = bitcoinJS.ECPair.fromWIF(privateKey, network);
+    const keyPair = ECPair.fromWIF(privateKey, network);
     const signature = bitcoinMessage.sign(message, keyPair.privateKey, keyPair.compressed);
     return signature.toString('base64');
   };
