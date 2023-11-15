@@ -53,7 +53,7 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle, isVault = false }) {
+function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
     <Box
@@ -77,12 +77,12 @@ function Card({ title, subTitle, isVault = false }) {
           color={`${colorMode}.greenText2`}
           fontSize={14}
           letterSpacing={1.12}
-          numberOfLines={1}
+          numberOfLines={showFullAddress ? 2 : 1}
           maxWidth={200}
         >
           {title}
         </Text>
-        <Box flexDirection="row">{subTitle}</Box>
+        {!showFullAddress && <Box flexDirection="row">{subTitle}</Box>}
       </Box>
     </Box>
   );
@@ -185,6 +185,7 @@ function SendingCard({
           <Card
             title={address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            showFullAddress={true}
           />
         );
     }
