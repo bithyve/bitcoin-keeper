@@ -77,7 +77,7 @@ export interface Wallet {
   transferPolicy?: TransferPolicy;
   whirlpoolConfig?: WhirlpoolConfig;
   depositWalletId?: string; // this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
-  collaborativeWalletDetails: CollaborativeWalletDetails;
+  collaborativeWalletDetails?: CollaborativeWalletDetails;
 }
 
 export interface TriggerPolicy {

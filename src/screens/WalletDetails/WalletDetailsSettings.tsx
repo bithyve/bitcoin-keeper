@@ -23,38 +23,38 @@ function WalletDetailsSettings({ route }) {
   const [transferPolicyVisible, setTransferPolicyVisible] = useState(editPolicy);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
-
+  const { importWallet, common } = translations;
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Wallet Details" subtitle="Name, details and transfer policy" />
+      <KeeperHeader title={walletTranslation.WalletDetails} subtitle={walletTranslation.walletDetailsSubTitle} />
 
       <ScrollView
         contentContainerStyle={styles.optionsListContainer}
         showsVerticalScrollIndicator={false}
       >
         <OptionCard
-          title="Edit Wallet Name & Description"
-          description="Change wallet name & description"
+          title={walletTranslation.EditWalletDeatils}
+          description={walletTranslation.changeWalletDetails}
           callback={() => {
             navigation.navigate('EditWalletDetails', { wallet });
           }}
         />
         <OptionCard
-          title="Show xPub"
-          description="Use to create an external, watch-only wallet"
+          title={walletTranslation.showXPub}
+          description={walletTranslation.showXPubSubTitle}
           callback={() => {
             setXPubVisible(true);
           }}
         />
         <OptionCard
-          title="Derivation Path"
-          description="Change Derivation path"
+          title={importWallet.derivationPath}
+          description={walletTranslation.changeDerivationPath}
           callback={() => {
             navigation.navigate('UpdateWalletDetails', { wallet });
           }}
         />
         <OptionCard
-          title="Transfer Policy"
+          title={walletTranslation.TransferPolicy}
           description={`Transfer to Vault after ${wallet?.transferPolicy?.threshold / 1e9} BTC`}
           callback={() => {
             setTransferPolicyVisible(true);
@@ -63,8 +63,8 @@ function WalletDetailsSettings({ route }) {
       </ScrollView>
       <Box style={styles.note}>
         <Note
-          title="Note"
-          subtitle="These settings are for your selected wallet only and does not affect other wallets"
+          title={common.note}
+          subtitle={walletTranslation.walletDetailsNote}
           subtitleColor="GreyText"
         />
       </Box>
@@ -72,9 +72,9 @@ function WalletDetailsSettings({ route }) {
         <KeeperModal
           visible={xpubVisible}
           close={() => setXPubVisible(false)}
-          title="Wallet xPub"
+          title={walletTranslation.XPubTitle}
           subTitleWidth={wp(240)}
-          subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
+          subTitle={walletTranslation.walletXPubSubTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
@@ -85,7 +85,7 @@ function WalletDetailsSettings({ route }) {
               data={wallet?.specs?.xpub}
               copy={() => {
                 setXPubVisible(false);
-                showToast('Xpub Copied Successfully', <TickIcon />);
+                showToast(walletTranslation.xPubCopyToastMsg, <TickIcon />);
               }}
               copyable
               close={() => setXPubVisible(false)}
@@ -99,8 +99,8 @@ function WalletDetailsSettings({ route }) {
           close={() => {
             setTransferPolicyVisible(false);
           }}
-          title="Edit Transfer Policy"
-          subTitle="Threshold amount at which transfer is triggered"
+          title={walletTranslation.editTransPolicy}
+          subTitle={walletTranslation.editTransPolicySubTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
@@ -109,7 +109,7 @@ function WalletDetailsSettings({ route }) {
             <TransferPolicy
               wallet={wallet}
               close={() => {
-                showToast('Transfer Policy Changed', <TickIcon />);
+                showToast(walletTranslation.TransPolicyChange, <TickIcon />);
                 setTransferPolicyVisible(false);
               }}
               secondaryBtnPress={() => {
