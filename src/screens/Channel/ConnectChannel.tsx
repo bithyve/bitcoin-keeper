@@ -7,14 +7,11 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import Note from 'src/components/Note/Note';
 import { windowWidth } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { io } from 'src/services/channel';
 import {
   BITBOX_HEALTHCHECK,
   BITBOX_SETUP,
-  CREATE_CHANNEL,
+  JOIN_CHANNEL,
   LEDGER_HEALTHCHECK,
   LEDGER_SETUP,
   TREZOR_HEALTHCHECK,
@@ -37,10 +34,44 @@ import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
-import { useQuery } from '@realm/react';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
+import crypto from 'crypto';
+import { createDecipheriv } from 'src/core/utils';
+
+const ScanAndInstruct = ({ onBarCodeRead, mode }) => {
+  const { colorMode } = useColorMode();
+  const [channelCreated, setChannelCreated] = useState(false);
+
+  const callback = (data) => {
+    onBarCodeRead(data);
+    setChannelCreated(true);
+  };
+  return !channelCreated ? (
+    <RNCamera
+      autoFocus="on"
+      style={styles.cameraView}
+      captureAudio={false}
+      onBarCodeRead={callback}
+      useNativeZoom
+    />
+  ) : (
+    <VStack>
+      <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {`\u2022 Please ${
+          mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
+        } from the Keeper web interface...`}
+      </Text>
+      <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {
+          '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+        }
+      </Text>
+      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+    </VStack>
+  );
+};
 
 function ConnectChannel() {
   const { colorMode } = useColorMode();
@@ -53,8 +84,9 @@ function ConnectChannel() {
     mode,
     isMultisig,
   } = route.params as any;
-  const channel = useRef(io(config.CHANNEL_URL)).current;
-  const [channelCreated, setChannelCreated] = useState(false);
+
+  const [channel] = useState(io(config.CHANNEL_URL));
+  const decryptionKey = useRef();
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
@@ -63,26 +95,22 @@ function ConnectChannel() {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
 
-  let id;
-  if (mode === InteracationMode.RECOVERY) {
-    const randomId = Math.random();
-    id = randomId;
-  } else {
-    const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-    id = publicId;
-  }
-
   const onBarCodeRead = ({ data }) => {
-    if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, { room: `${id}${data}`, network: config.NETWORK_TYPE });
-      setChannelCreated(true);
-    }
+    decryptionKey.current = data;
+    let sha = crypto.createHash('sha256');
+    sha.update(data);
+    const room = sha.digest().toString('hex');
+    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
   };
 
   useEffect(() => {
     channel.on(BITBOX_SETUP, async (data) => {
       try {
-        const { xpub, derivationPath, xfp, xpubDetails } = getBitbox02Details(data, isMultisig);
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { xpub, derivationPath, xfp, xpubDetails } = getBitbox02Details(
+          decrypted,
+          isMultisig
+        );
         const bitbox02 = generateSignerFromMetaData({
           xpub,
           derivationPath,
@@ -117,7 +145,8 @@ function ConnectChannel() {
     });
     channel.on(TREZOR_SETUP, async (data) => {
       try {
-        const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(data, isMultisig);
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(decrypted, isMultisig);
         const trezor = generateSignerFromMetaData({
           xpub,
           derivationPath,
@@ -150,8 +179,9 @@ function ConnectChannel() {
     });
     channel.on(LEDGER_SETUP, async (data) => {
       try {
+        const decrypted = createDecipheriv(data, decryptionKey.current);
         const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
-          data,
+          decrypted,
           isMultisig
         );
         const ledger = generateSignerFromMetaData({
@@ -188,7 +218,8 @@ function ConnectChannel() {
 
     channel.on(LEDGER_HEALTHCHECK, async (data) => {
       try {
-        const { xpub } = getLedgerDetailsFromChannel(data, isMultisig);
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { xpub } = getLedgerDetailsFromChannel(decrypted, isMultisig);
         if (signer.xpub === xpub) {
           dispatch(healthCheckSigner([signer]));
           navigation.dispatch(CommonActions.goBack());
@@ -207,7 +238,8 @@ function ConnectChannel() {
     });
     channel.on(TREZOR_HEALTHCHECK, async (data) => {
       try {
-        const { xpub } = getTrezorDetails(data, isMultisig);
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { xpub } = getTrezorDetails(decrypted, isMultisig);
         if (signer.xpub === xpub) {
           dispatch(healthCheckSigner([signer]));
           navigation.dispatch(CommonActions.goBack());
@@ -226,7 +258,8 @@ function ConnectChannel() {
     });
     channel.on(BITBOX_HEALTHCHECK, async (data) => {
       try {
-        const { xpub } = getTrezorDetails(data, isMultisig);
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        const { xpub } = getTrezorDetails(decrypted, isMultisig);
         if (signer.xpub === xpub) {
           dispatch(healthCheckSigner([signer]));
           navigation.dispatch(CommonActions.goBack());
@@ -254,29 +287,7 @@ function ConnectChannel() {
       <MockWrapper signerType={signerType}>
         <KeeperHeader title={title} subtitle={subtitle} />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
-          {!channelCreated ? (
-            <RNCamera
-              autoFocus="on"
-              style={styles.cameraView}
-              captureAudio={false}
-              onBarCodeRead={onBarCodeRead}
-              useNativeZoom
-            />
-          ) : (
-            <VStack>
-              <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-                {`\u2022 Please ${
-                  mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
-                } from the Keeper web interface...`}
-              </Text>
-              <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
-                {
-                  '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
-                }
-              </Text>
-              <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
-            </VStack>
-          )}
+          <ScanAndInstruct onBarCodeRead={onBarCodeRead} mode={mode} />
         </ScrollView>
         <Box style={styles.noteWrapper}>
           <Note

@@ -1,20 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getWalletConfigForBitBox02 } from 'src/hardware/bitbox';
 import config from 'src/core/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import {
   BITBOX_REGISTER,
-  CREATE_CHANNEL,
+  JOIN_CHANNEL,
   LEDGER_REGISTER,
   REGISTRATION_SUCCESS,
 } from 'src/services/channel/constants';
@@ -23,34 +20,70 @@ import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
-import { useQuery } from '@realm/react';
 import Text from 'src/components/KeeperText';
 import { SignerType } from 'src/core/wallets/enums';
+import crypto from 'crypto';
+import { createCipheriv, createDecipheriv } from 'src/core/utils';
+
+const ScanAndInstruct = ({ onBarCodeRead }) => {
+  const { colorMode } = useColorMode();
+  const [channelCreated, setChannelCreated] = useState(false);
+
+  const callback = (data) => {
+    onBarCodeRead(data);
+    setChannelCreated(true);
+  };
+  return !channelCreated ? (
+    <RNCamera
+      autoFocus="on"
+      style={styles.cameraView}
+      captureAudio={false}
+      onBarCodeRead={callback}
+      useNativeZoom
+    />
+  ) : (
+    <VStack>
+      <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {'\u2022 Please resigter the vault from the Keeper web interface...'}
+      </Text>
+      <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {
+          '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+        }
+      </Text>
+      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+    </VStack>
+  );
+};
 
 function RegisterWithChannel() {
   const { params } = useRoute();
-  const { colorMode } = useColorMode();
   const { signer } = params as { signer: VaultSigner };
-  const channel = useRef(io(config.CHANNEL_URL)).current;
-  const [channelCreated, setChannelCreated] = useState(false);
-  const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
+  const [channel] = useState(io(config.CHANNEL_URL));
+  const decryptionKey = useRef();
+
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
   const { activeVault: vault } = useVault();
 
   const onBarCodeRead = ({ data }) => {
-    if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
-      setChannelCreated(true);
-    }
+    decryptionKey.current = data;
+    let sha = crypto.createHash('sha256');
+    sha.update(data);
+    const room = sha.digest().toString('hex');
+    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
   };
 
   useEffect(() => {
     channel.on(BITBOX_REGISTER, async ({ room }) => {
       try {
         const walletConfig = getWalletConfigForBitBox02({ vault });
-        channel.emit(BITBOX_REGISTER, { data: walletConfig, room });
+        channel.emit(BITBOX_REGISTER, {
+          data: createCipheriv(JSON.stringify(walletConfig), decryptionKey.current),
+          room,
+        });
         dispatch(updateSignerDetails(signer, 'registered', true));
         navgation.goBack();
       } catch (error) {
@@ -59,13 +92,17 @@ function RegisterWithChannel() {
     });
     channel.on(LEDGER_REGISTER, async ({ room }) => {
       try {
-        channel.emit(LEDGER_REGISTER, { data: { vault }, room });
+        channel.emit(LEDGER_REGISTER, {
+          data: createCipheriv(JSON.stringify({ vault }), decryptionKey.current),
+          room,
+        });
       } catch (error) {
         captureError(error);
       }
     });
     channel.on(REGISTRATION_SUCCESS, async ({ data }) => {
-      const { signerType, policy } = data;
+      const decrypted = createDecipheriv(data, decryptionKey.current);
+      const { signerType, policy } = decrypted;
       switch (signerType) {
         case SignerType.LEDGER:
           dispatch(
@@ -87,27 +124,7 @@ function RegisterWithChannel() {
         subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to register with the device`}
       />
       <Box style={styles.qrcontainer}>
-        {!channelCreated ? (
-          <RNCamera
-            autoFocus="on"
-            style={styles.cameraView}
-            captureAudio={false}
-            onBarCodeRead={onBarCodeRead}
-            useNativeZoom
-          />
-        ) : (
-          <VStack>
-            <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-              {'\u2022 Please resigter the vault from the Keeper web interface...'}
-            </Text>
-            <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
-              {
-                '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
-              }
-            </Text>
-            <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
-          </VStack>
-        )}
+        <ScanAndInstruct onBarCodeRead={onBarCodeRead} />
       </Box>
     </ScreenWrapper>
   );
