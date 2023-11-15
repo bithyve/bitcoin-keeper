@@ -39,7 +39,7 @@ export const signWithLedgerChannel = (serializedPSBT, signingPayload: SigningPay
     const { sighashType, publicKey } = inputsToSign[inputIndex];
     const { signature: derSignature } = signedData[inputIndex];
     const { signature } = bscript.signature.decode(derSignature); // re-encode from der to 64 byte
-    psbtv0.addSignedDisgest(
+    psbtv0.addSignedDigest(
       signedData[inputIndex].inputIndex,
       Buffer.from(publicKey, 'hex'),
       signature,

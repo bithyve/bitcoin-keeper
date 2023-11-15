@@ -58,7 +58,7 @@ function LoginScreen({ navigation, route }) {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const [incorrectPassword, setIncorrectPassword] = useState(false)
+  const [incorrectPassword, setIncorrectPassword] = useState(false);
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
@@ -162,7 +162,7 @@ function LoginScreen({ navigation, route }) {
       setErrMessage('Incorrect passcode');
       setPasscode('');
       // setAttempts(attempts + 1);
-      setIncorrectPassword(true)
+      setIncorrectPassword(true);
       setLogging(false);
     } else {
       setLoginError(false);
@@ -217,7 +217,7 @@ function LoginScreen({ navigation, route }) {
     setLoginError(false);
     setErrMessage('');
     // setAttempts(0);
-    setIncorrectPassword(false)
+    setIncorrectPassword(false);
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
@@ -523,6 +523,7 @@ function LoginScreen({ navigation, route }) {
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
@@ -549,7 +550,9 @@ function LoginScreen({ navigation, route }) {
         visible={incorrectPassword}
         close={() => { }}
         title={'Incorrect Password'}
-        subTitle={'You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow'}
+        subTitle={
+          'You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow'
+        }
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
@@ -559,19 +562,6 @@ function LoginScreen({ navigation, route }) {
         showButtons
         subTitleWidth={wp(250)}
       />
-      {/* <KeeperModal
-        dismissible
-        close={() => { setShowDowngradeModal(false) }}
-        visible={showDowngradeModal}
-        title="Failed to validate your subscription"
-        subTitle="Do you want to downgrade to pleb and continue?"
-        Content={DowngradeModalContent}
-        subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
-        showCloseIcon
-        closeOnOverlayClick={() => setShowDowngradeModal(false)}
-        showButtons
-      /> */}
     </Box>
   );
 }
@@ -661,8 +651,8 @@ const styles = StyleSheet.create({
   modalMessageWrapper: {
     flexDirection: 'row',
     width: '100%',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
 
 export default LoginScreen;

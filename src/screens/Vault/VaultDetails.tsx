@@ -3,10 +3,9 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, VStack, View, useColorMode, Pressable, StatusBar } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import AddIcon from 'src/assets/images/icon_add_plus.svg';
-import BackIcon from 'src/assets/images/back_white.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
@@ -54,6 +53,7 @@ import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperHeader from 'src/components/KeeperHeader';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Footer({
   vault,
@@ -113,31 +113,6 @@ function Footer({
   return <KeeperFooter items={footerItems} wrappedScreen={false} />;
 }
 
-function Header() {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
-  const styles = getStyles(0);
-  return (
-    <Box flexDirection="row" width="100%" px="3%" pt={'4%'}>
-      <StatusBar barStyle="light-content" />
-      <Box width="50%">
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <BackIcon />
-        </TouchableOpacity>
-      </Box>
-      <Box width="50%">
-        <TouchableOpacity onPress={() => dispatch(setIntroModal(true))}>
-          <Box style={styles.knowMore} backgroundColor="rgba(0,0,0,.2)">
-            <Text color="light.white" style={styles.footerText} light>
-              Learn More
-            </Text>
-          </Box>
-        </TouchableOpacity>
-      </Box>
-    </Box>
-  );
-}
-
 function VaultInfo({
   vault,
   isCollaborativeWallet,
@@ -145,6 +120,8 @@ function VaultInfo({
   vault: Vault;
   isCollaborativeWallet: boolean;
 }) {
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const { colorMode } = useColorMode();
   const {
     presentationData: { name, description } = { name: '', description: '' },
@@ -170,7 +147,7 @@ function VaultInfo({
       <HStack justifyContent="space-between" top={isCollaborativeWallet ? '16' : '0'}>
         <VStack paddingTop="6">
           <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
-            Unconfirmed
+            {common.unconfirmed}
           </Text>
           <CurrencyInfo
             hideAmounts={false}
@@ -182,7 +159,7 @@ function VaultInfo({
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
           <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
-            Available Balance
+            {common.availableBalance}
           </Text>
           <CurrencyInfo
             hideAmounts={false}
@@ -204,6 +181,8 @@ function TransactionList({
   vault,
   collaborativeWalletId,
 }) {
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
   const renderTransactionElement = ({ item }) => (
@@ -224,7 +203,7 @@ function TransactionList({
       <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.1) }}>
         <HStack justifyContent="space-between" alignItems="center">
           <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
-            Transactions
+            {common.transactions}
           </Text>
           {transactions ? (
             <TouchableOpacity
@@ -248,7 +227,7 @@ function TransactionList({
                   bold
                   letterSpacing={0.6}
                 >
-                  View All
+                  {common.viewAll}
                 </Text>
                 <IconArrowBlack />
               </HStack>
@@ -266,14 +245,14 @@ function TransactionList({
           collaborativeWalletId ? (
             <EmptyStateView
               IllustartionImage={NoTransactionIcon}
-              title="No transactions yet."
-              subTitle="Pull down to refresh"
+              title={common.noTransYet}
+              subTitle={common.pullDownRefresh}
             />
           ) : (
             <EmptyStateView
               IllustartionImage={NoVaultTransactionIcon}
-              title="Security Tip"
-              subTitle="Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step."
+              title={common.securityTips}
+              subTitle={common.emptyStateModalSubtitle}
             />
           )
         }
@@ -287,6 +266,8 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
   const { signers: Signers, isMultiSig } = vault;
   const styles = getStyles(0);
   const navigation = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
 
   const AddSigner = useCallback(() => {
     if (upgradeStatus === VaultMigrationType.UPGRADE) {
@@ -318,7 +299,7 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
                 letterSpacing={0.6}
                 textAlign="center"
               >
-                Add signing device to upgrade
+                {common.addSignDeviceUpgrade}
               </Text>
             </VStack>
           </TouchableOpacity>
@@ -413,6 +394,8 @@ function RampBuyContent({
   vault: Vault;
   setShowBuyRampModal: any;
 }) {
+  const { translations } = useContext(LocalizationContext);
+  const { ramp } = translations;
   const [buyAddress, setBuyAddress] = useState('');
   const styles = getStyles(0);
 
@@ -424,14 +407,13 @@ function RampBuyContent({
   return (
     <Box style={styles.rampBuyContentWrapper}>
       <Text style={styles.byProceedingContent}>
-        By proceeding, you understand that Ramp will process the payment and transfer for the
-        purchased bitcoin
+        {ramp.byProceedRampParagraph}
       </Text>
       <Box style={styles.cardWrapper}>
         <VaultIcon />
         <Box mx={4}>
           <Text style={{ fontSize: 12 }} color="#5F6965">
-            Bitcoin will be transferred to
+            {ramp.bitcoinTransfer}
           </Text>
           <Text style={{ fontSize: 19, letterSpacing: 1.28 }} color="#041513">
             {vault.presentationData.name}
@@ -449,7 +431,7 @@ function RampBuyContent({
         </Box>
         <Box mx={4}>
           <Text style={{ fontSize: 12 }} color="#5F6965">
-            Address for ramp transactions
+            {ramp.addressForRamp}
           </Text>
           <Text style={styles.buyAddressText} ellipsizeMode="middle" numberOfLines={1}>
             {buyAddress}
@@ -470,6 +452,8 @@ function RampBuyContent({
 
 function VaultDetails({ navigation }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation, ramp, common } = translations;
   const route = useRoute() as {
     params: {
       vaultTransferSuccessful: boolean;
@@ -543,12 +527,12 @@ function VaultDetails({ navigation }) {
         </Box>
         <Text marginTop={hp(20)} color="white" fontSize={13} letterSpacing={0.65} padding={1}>
           {collaborativeWalletId
-            ? 'This kind of wallet setup can be used for business partnerships, family funds, or any scenario where joint control of funds is necessary.'
-            : 'Keeper supports all the popular bitcoin signing devices (Hardware Wallets) that a user can select'}
+            ? vaultTranslation.walletSetupDetails
+            : vaultTranslation.keeperSupportSigningDevice}
         </Text>
         {!collaborativeWalletId ? (
           <Text color="white" fontSize={13} letterSpacing={0.65} padding={1}>
-            There are also some additional options if you do not have hardware signing devices
+            {vaultTranslation.additionalOptionForSignDevice}
           </Text>
         ) : null}
       </View>
@@ -560,8 +544,7 @@ function VaultDetails({ navigation }) {
     () => (
       <Box>
         <Text fontSize={13} letterSpacing={0.65} color={`${colorMode}.greenText`} marginTop={3}>
-          For sending out of the Vault you will need the signing devices. This means no one can
-          steal your bitcoin in the Vault unless they also have the signing devices
+          {vaultTranslation.sendVaultSignDevices}
         </Text>
         <Box alignItems="center">
           <Success />
@@ -580,11 +563,10 @@ function VaultDetails({ navigation }) {
             </Box>
             <Box style={styles.titleWrapper}>
               <Text style={styles.addPhoneEmailTitle} color={`${colorMode}.primaryText`}>
-                Add Email
+                {vaultTranslation.addEmail}
               </Text>
               <Text style={styles.addPhoneEmailSubTitle} color={`${colorMode}.secondaryText`}>
-                Additionally you can provide an email which will be used to notify you when someone
-                tries to access the Inheritance Key
+                {vaultTranslation.addEmailDetails}
               </Text>
             </Box>
             <Box style={styles.rightIconWrapper}>
@@ -674,9 +656,9 @@ function VaultDetails({ navigation }) {
       />
       <KeeperModal
         visible={vaultCreated}
-        title="New Vault Created"
+        title={vaultTranslation.newVaultCreated}
         subTitle={subtitle}
-        buttonText="View Vault"
+        buttonText={vaultTranslation.ViewVault}
         DarkCloseIcon={colorMode === 'dark'}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         textColor={`${colorMode}.primaryText`}
@@ -692,10 +674,10 @@ function VaultDetails({ navigation }) {
         close={() => {
           dispatch(setIntroModal(false));
         }}
-        title={collaborativeWalletId ? 'Collaborative Wallet' : 'Keeper Vault'}
+        title={collaborativeWalletId ? vaultTranslation.collaborativeWallet : vaultTranslation.keeperVault}
         subTitle={
           collaborativeWalletId
-            ? 'Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.'
+            ? vaultTranslation.collaborativeWalletMultipleUsers
             : `Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the Vault`
         }
         modalBackground={`${colorMode}.modalGreenBackground`}
@@ -703,7 +685,7 @@ function VaultDetails({ navigation }) {
         Content={VaultContent}
         buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
         buttonBackground={`${colorMode}.modalWhiteButton`}
-        buttonText="Continue"
+        buttonText={common.continue}
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}
@@ -712,7 +694,7 @@ function VaultDetails({ navigation }) {
         learnMoreCallback={() =>
           openLink(
             collaborativeWalletId
-              ? `${KEEPER_KNOWLEDGEBASE}features/`
+              ? `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-wallet/`
               : `${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-vault/`
           )
         }
@@ -722,8 +704,8 @@ function VaultDetails({ navigation }) {
         close={() => {
           setShowBuyRampModal(false);
         }}
-        title="Buy bitcoin with Ramp"
-        subTitle="Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+        title={ramp.buyBitcoinRamp}
+        subTitle={ramp.buyBitcoinRampSubTitle}
         subTitleColor="#5F6965"
         textColor="light.primaryText"
         Content={() => (

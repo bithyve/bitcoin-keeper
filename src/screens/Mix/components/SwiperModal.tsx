@@ -119,7 +119,7 @@ function List() {
             }
           >
             <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
-              <Text style={styles.ctaText} color="light.greenText2" bold>
+              <Text style={styles.ctaText} color={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`} bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>
@@ -151,7 +151,7 @@ function SwiperModal({ enable }) {
 
 const styles = StyleSheet.create({
   contentContaner: {
-    width: windowHeight < 650 ? wp(286) : wp(294),
+    width: windowHeight < 650 ? wp(286) : wp(295),
   },
   swiperModalIcon: {
     alignSelf: 'center',

@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import ImageIcon from 'src/assets/images/image.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 type Props = {
   onPress: () => void;
 };
 
-function UploadImage({ onPress = () => {} }: Props) {
+function UploadImage({ onPress = () => { } }: Props) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { importWallet } = translations;
   return (
     <TouchableOpacity
       activeOpacity={0.5}
@@ -23,7 +26,7 @@ function UploadImage({ onPress = () => {} }: Props) {
       <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
         <ImageIcon />
         <Text style={styles.text} color="white">
-          Upload from gallery
+          {importWallet.uploadFromGallery}
         </Text>
       </Box>
     </TouchableOpacity>

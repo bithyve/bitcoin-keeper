@@ -2,7 +2,7 @@ import { StyleSheet, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -21,6 +21,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SetupOtherSDScreen({ route }) {
+  const { colorMode } = useColorMode();
   const [xpub, setXpub] = useState('');
   const [derivationPath, setDerivationPath] = useState('');
   const [masterFingerprint, setMasterFingerprint] = useState('');
@@ -74,12 +75,12 @@ function SetupOtherSDScreen({ route }) {
     }
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={`${
-          mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'
-        } other signing device`}
+        title={`${mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'
+          } other signing device`}
         subtitle="Manually provide the signer details"
+
       />
       <Box style={styles.flex}>
         <TextInput

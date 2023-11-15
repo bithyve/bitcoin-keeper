@@ -2,8 +2,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Text,
-  TextInput,
   StyleSheet,
 } from 'react-native';
 import { Box, Input, View, useColorMode } from 'native-base';
@@ -13,19 +11,22 @@ import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import BitcoinInput from 'src/assets/images/btc_input.svg';
+import BitcoinInput from 'src/assets/images/btc_black.svg';
+import BitcoinWhite from 'src/assets/images/btc_white.svg';
+
 import { useNavigation } from '@react-navigation/native';
 import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
+import Text from 'src/components/KeeperText';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
 
   const { translations } = useContext(LocalizationContext);
-  const { home } = translations;
+  const { home, importWallet } = translations;
 
   const name = route?.params?.name;
   const desc = route?.params?.description;
@@ -61,43 +62,47 @@ function ImportWalletDetailsScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
+        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper, { marginTop: hp(15) }]}>
-              <TextInput
-                placeholder="Enter wallet name"
+              <Input
+                placeholder={importWallet.enterWalletName}
                 style={styles.textInput}
+                borderWidth="0"
+                backgroundColor={`${colorMode}.seashellWhite`}
                 value={walletName}
                 onChangeText={(text) => setWalletName(text)}
               />
             </Box>
             <Box style={styles.textInputWrapper}>
-              <TextInput
-                placeholder="Add Description"
+              <Input
+                placeholder={importWallet.addDescription}
                 style={styles.textInput}
+                borderWidth="0"
+                backgroundColor={`${colorMode}.seashellWhite`}
                 value={description}
                 onChangeText={(text) => setDescription(text)}
               />
             </Box>
-            <Text style={styles.transferText}>Auto transfer initiated at (optional)</Text>
-            <Box flexDirection="row" alignItems="center" style={styles.amountWrapper}>
-              <Box marginRight={2}>
-                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, BitcoinInput)}
+            <Text style={styles.transferText} color={`${colorMode}.primaryText`}>{importWallet.autoTransfer}</Text>
+            <Box style={styles.amountWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+              <Box mx={3}>
+                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, colorMode === 'light' ? BitcoinInput : BitcoinWhite)}
               </Box>
               <Box
-                marginLeft={2}
                 width={0.5}
-                backgroundColor="light.divider"
+                backgroundColor={`${colorMode}.divider`}
                 opacity={0.3}
-                height={7}
+                height={8}
               />
               <Input
-                placeholder="Enter Amount"
+                placeholder={importWallet.enterAmount}
                 placeholderTextColor="light.GreyText"
-                color="light.greenText"
+                color={`${colorMode}.greenText`}
                 opacity={0.5}
-                width="90%"
+                width="96%"
+                h={10}
                 fontSize={14}
                 fontWeight={300}
                 letterSpacing={1.04}
@@ -109,9 +114,8 @@ function ImportWalletDetailsScreen({ route }) {
                 keyboardType="numeric"
               />
             </Box>
-            <Text style={styles.balanceCrossesText}>
-              When the wallet balance crosses this amount, a transfer to the Vault is initiated for
-              user approval
+            <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
+              {importWallet.walletBalance}
             </Text>
           </Box>
         </ScrollView>
@@ -169,8 +173,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   textInput: {
-    width: '100%',
-    backgroundColor: Colors.Isabelline,
+    width: '90%',
+    height: 45,
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
     padding: 20,
@@ -239,23 +243,24 @@ const styles = StyleSheet.create({
   },
   transferText: {
     width: '100%',
-    color: Colors.Feldgrau,
-    marginHorizontal: 20,
     fontSize: 12,
+    marginHorizontal: 2,
     marginTop: hp(22),
     letterSpacing: 0.6,
   },
   amountWrapper: {
-    marginHorizontal: 20,
     marginTop: hp(10),
+    flexDirection: "row",
+    marginHorizontal: 2,
+    alignItems: "center",
+    borderRadius: 5
   },
   balanceCrossesText: {
     width: '100%',
-    color: Colors.Feldgrau,
-    marginHorizontal: 20,
     fontSize: 12,
     marginTop: hp(10),
     letterSpacing: 0.6,
+    marginHorizontal: 2,
   },
   ctaBtnWrapper: {
     flexDirection: 'row',

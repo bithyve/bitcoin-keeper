@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, HStack, Pressable, StatusBar, useColorMode, VStack } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import idx from 'idx';
@@ -27,6 +27,7 @@ import TransactionFooter from './components/TransactionFooter';
 import RampModal from './components/RampModal';
 import LearnMoreModal from './components/LearnMoreModal';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 export const allowedSendTypes = [
   WalletType.DEFAULT,
@@ -59,6 +60,8 @@ function WalletDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { common } = translations;
   const currencyCode = useCurrencyCode();
   const exchangeRates = useExchangeRates();
   const { autoRefresh, walletId, walletIndex } = route?.params || {};
@@ -128,7 +131,7 @@ function WalletDetails({ route }) {
           </Box>
           <Box style={styles.balanceWrapper}>
             <Box style={styles.unconfirmBalanceView}>
-              <Text color={`${colorMode}.white`}>Unconfirmed</Text>
+              <Text color={`${colorMode}.white`}>{common.unconfirmed}</Text>
               <CurrencyInfo
                 hideAmounts={false}
                 amount={unconfirmed}
@@ -138,7 +141,7 @@ function WalletDetails({ route }) {
               />
             </Box>
             <Box style={styles.availableBalanceView}>
-              <Text color={`${colorMode}.white`}>Available Balance</Text>
+              <Text color={`${colorMode}.white`}>{common.availableBalance}</Text>
               <CurrencyInfo
                 hideAmounts={false}
                 amount={confirmed}
@@ -176,7 +179,7 @@ function WalletDetails({ route }) {
                   letterSpacing: 0.6,
                 }}
               >
-                Transfer Policy is set at{'  '}
+                {common.transferPolicySet}{'  '}
               </Text>
               <CurrencyInfo
                 hideAmounts={false}
@@ -195,7 +198,7 @@ function WalletDetails({ route }) {
           <>
             <HStack style={styles.transTitleWrapper}>
               <Text color={`${colorMode}.black`} fontSize={16} letterSpacing={1.28}>
-                Transactions
+                {common.transactions}
               </Text>
               {wallet?.specs.transactions.length ? (
                 <TouchableOpacity
@@ -215,7 +218,7 @@ function WalletDetails({ route }) {
                       bold
                       letterSpacing={0.6}
                     >
-                      View All
+                      {common.viewAll}
                     </Text>
                     <IconArrowBlack />
                   </HStack>
@@ -242,7 +245,7 @@ function WalletDetails({ route }) {
               numberOfLines={2}
               style={styles.addNewWalletText}
             >
-              Add a new wallet or import one
+              {common.addNewWalletOrImport}
             </Text>
           </Box>
         )}

@@ -20,7 +20,7 @@ export enum BITCOIN_NETWORK {
 }
 
 export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/';
-export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/'
+export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/';
 
 // defaults to development environment
 const DEFAULT_CONFIG = {
@@ -77,7 +77,7 @@ class Configuration {
 
   public REQUEST_TIMEOUT: number = 15000;
 
-  public GAP_LIMIT: number = 5;
+  public GAP_LIMIT: number = 10;
 
   public RELAY_AXIOS: AxiosInstance = axios.create({
     baseURL: this.RELAY,

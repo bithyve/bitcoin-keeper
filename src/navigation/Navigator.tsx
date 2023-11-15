@@ -93,6 +93,7 @@ import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborat
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListRecovery';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
+import UTXOSelection from 'src/screens/Send/UTXOSelection';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -229,6 +230,7 @@ function AppStack() {
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
+        <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

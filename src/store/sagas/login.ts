@@ -176,6 +176,7 @@ function* credentialsAuthWorker({ payload }) {
               uaiType.SECURE_VAULT,
               uaiType.VAULT_MIGRATION,
               uaiType.DEFAULT,
+              uaiType.VAULT_TRANSFER,
             ])
           );
           yield put(resetSyncing());

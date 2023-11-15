@@ -40,6 +40,7 @@ import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import Fonts from 'src/constants/Fonts';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -52,7 +53,7 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle, isVault = false }) {
+function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
     <Box
@@ -73,15 +74,15 @@ function Card({ title, subTitle, isVault = false }) {
       </Box>
       <Box marginLeft={3}>
         <Text
-          color={`${colorMode}.headerText`}
+          color={`${colorMode}.greenText2`}
           fontSize={14}
           letterSpacing={1.12}
-          numberOfLines={1}
+          numberOfLines={showFullAddress ? 2 : 1}
           maxWidth={200}
         >
           {title}
         </Text>
-        <Box flexDirection="row">{subTitle}</Box>
+        {!showFullAddress && <Box flexDirection="row">{subTitle}</Box>}
       </Box>
     </Box>
   );
@@ -98,7 +99,6 @@ function SendingCard({
   transferType,
   getBalance,
   getSatUnit,
-  sourceWallet,
 }) {
   const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
@@ -123,7 +123,7 @@ function SendingCard({
       case TransferType.VAULT_TO_WALLET:
         return isSend ? (
           <Card
-            title={sender.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
             )} ${getSatUnit()}`}
@@ -131,7 +131,7 @@ function SendingCard({
           />
         ) : (
           <Card
-            title={recipient?.presentationData.name}
+            title={recipient?.presentationData?.name || address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
           />
         );
@@ -151,23 +151,23 @@ function SendingCard({
       case TransferType.WALLET_TO_WALLET:
         return isSend ? (
           <Card
-            title={sender?.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )} ${getSatUnit()}`}
           />
         ) : (
           <Card
-            title={recipient?.presentationData.name}
+            title={recipient?.presentationData?.name || address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
           />
         );
       case TransferType.WALLET_TO_VAULT:
         return isSend ? (
           <Card
-            title={sourceWallet.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sourceWallet.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )}${getSatUnit()}`}
           />
         ) : (
@@ -176,15 +176,16 @@ function SendingCard({
       case TransferType.WALLET_TO_ADDRESS:
         return isSend ? (
           <Card
-            title={sender?.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )} ${getSatUnit()}`}
           />
         ) : (
           <Card
             title={address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            showFullAddress={true}
           />
         );
     }
@@ -432,6 +433,7 @@ function SendConfirmation({ route }) {
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -637,7 +639,7 @@ function SendConfirmation({ route }) {
         secondaryCallback={() => {
           navigation.goBack();
         }}
-        primaryCallback={onProceed}
+        primaryCallback={() => setConfirmPassVisible(true)}
         primaryLoading={inProgress}
       />
       <KeeperModal
@@ -661,6 +663,25 @@ function SendConfirmation({ route }) {
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
             onTransferNow={onTransferNow}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        close={() => setConfirmPassVisible(false)}
+        title={'Confirm Passcode'}
+        subTitleWidth={wp(240)}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onProceed}
           />
         )}
       />

@@ -15,6 +15,7 @@ import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
 import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
+import IconArrowGray from 'src/assets/images/icon_arrow_grey.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
 import Relay from 'src/services/operations/Relay';
@@ -103,7 +104,7 @@ function SignerItem({
               </VStack>
             </HStack>
             <Box style={styles.backArrow}>
-              <IconArrowBlack />
+              {colorMode === 'light' ? <IconArrowBlack /> : <IconArrowGray />}
             </Box>
           </HStack>
         </Box>
@@ -255,8 +256,9 @@ function AddSigningDevice() {
   }
   const subtitle =
     subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${subscriptionScheme.n + (isInheritance ? 1 : 0)
-      } setup will be created${isInheritance ? ' for Inheritance' : ''}`
+      ? `Vault with a ${subscriptionScheme.m} of ${
+          subscriptionScheme.n + (isInheritance ? 1 : 0)
+        } setup will be created${isInheritance ? ' for Inheritance' : ''}`
       : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
 
   const trezorNotInPleb =
@@ -305,8 +307,9 @@ function AddSigningDevice() {
               title="WARNING"
               subtitle={`A few signers (${invalidSigners
                 .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${SubscriptionTier.L3
-                }. Please remove them or upgrade your plan.`}
+                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
+                SubscriptionTier.L3
+              }. Please remove them or upgrade your plan.`}
               subtitleColor="error"
             />
           </Box>
@@ -314,8 +317,9 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
