@@ -195,7 +195,7 @@ const getSignerContent = (
       return {
         Illustration: <BitboxImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02. `,
+          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02. `,
           `Make sure the device is setup with the Bitbox02 app before using it with the Keeper Hardware Interface.`,
         ],
         title: isHealthcheck ? 'Verify BitBox' : bitbox.SetupTitle,
@@ -205,7 +205,7 @@ const getSignerContent = (
       return {
         Illustration: <TrezorSetup />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor. `,
+          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor. `,
           `Make sure the device is setup with the Trezor Connect app before using it with the Keeper Hardware Interface.`,
         ],
         title: isHealthcheck ? 'Verify Trezor' : trezor.SetupTitle,
@@ -215,7 +215,7 @@ const getSignerContent = (
       return {
         Illustration: <LedgerImage />,
         Instructions: [
-          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Ledger. `,
+          `Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Ledger. `,
           `Please Make sure you have the BTC app downloaded on Ledger before this step.`,
         ],
         title: ledger.SetupTitle,

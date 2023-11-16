@@ -820,7 +820,7 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.BITBOX02}
           close={close}
           title="Keep BitBox02 Ready"
-          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
+          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02.`}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => <BitBox02Content />}
@@ -831,7 +831,7 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.TREZOR}
           close={close}
           title="Keep Trezor Ready"
-          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => <TrezorContent />}
