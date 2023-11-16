@@ -1,19 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, VStack, useColorMode } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import config from 'src/core/config';
 import { RNCamera } from 'react-native-camera';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { io } from 'src/services/channel';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import {
   BITBOX_SIGN,
-  CREATE_CHANNEL,
+  JOIN_CHANNEL,
   LEDGER_SIGN,
   SIGNED_TX,
   TREZOR_SIGN,
@@ -30,12 +27,43 @@ import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
 import { signWithLedgerChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { useQuery } from '@realm/react';
 import Text from 'src/components/KeeperText';
+import crypto from 'crypto';
+import { createCipheriv, createDecipheriv } from 'src/core/utils';
+
+const ScanAndInstruct = ({ onBarCodeRead }) => {
+  const { colorMode } = useColorMode();
+  const [channelCreated, setChannelCreated] = useState(false);
+
+  const callback = (data) => {
+    onBarCodeRead(data);
+    setChannelCreated(true);
+  };
+  return !channelCreated ? (
+    <RNCamera
+      autoFocus="on"
+      style={styles.cameraView}
+      captureAudio={false}
+      onBarCodeRead={callback}
+      useNativeZoom
+    />
+  ) : (
+    <VStack>
+      <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {'\u2022 Please sign the transaction from the Keeper web interface...'}
+      </Text>
+      <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
+        {
+          '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+        }
+      </Text>
+      <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
+    </VStack>
+  );
+};
 
 function SignWithChannel() {
   const { params } = useRoute();
-  const { colorMode } = useColorMode();
   const { signer, collaborativeWalletId = '' } = params as {
     signer: VaultSigner;
     collaborativeWalletId: string;
@@ -48,18 +76,19 @@ function SignWithChannel() {
   const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
     (envelop) => signer.signerId === envelop.signerId
   )[0];
-  const channel = useRef(io(config.CHANNEL_URL)).current;
-  const [channelCreated, setChannelCreated] = useState(false);
 
-  const { publicId }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  const [channel] = useState(io(config.CHANNEL_URL));
+  const decryptionKey = useRef();
+
   const dispatch = useDispatch();
   const navgation = useNavigation();
 
   const onBarCodeRead = ({ data }) => {
-    if (!channelCreated) {
-      channel.emit(CREATE_CHANNEL, { room: `${publicId}${data}`, network: config.NETWORK_TYPE });
-      setChannelCreated(true);
-    }
+    decryptionKey.current = data;
+    let sha = crypto.createHash('sha256');
+    sha.update(data);
+    const room = sha.digest().toString('hex');
+    channel.emit(JOIN_CHANNEL, { room, network: config.NETWORK_TYPE });
   };
 
   useEffect(() => {
@@ -71,12 +100,18 @@ function SignWithChannel() {
         isMultisig,
         activeVault
       );
-      channel.emit(BITBOX_SIGN, { data, room });
+      channel.emit(BITBOX_SIGN, {
+        data: createCipheriv(JSON.stringify(data), decryptionKey.current),
+        room,
+      });
     });
     channel.on(TREZOR_SIGN, ({ room }) => {
       try {
         const data = getTxForTrezor(serializedPSBT, signingPayload, signer, activeVault);
-        channel.emit(TREZOR_SIGN, { data, room });
+        channel.emit(TREZOR_SIGN, {
+          data: createCipheriv(JSON.stringify(data), decryptionKey.current),
+          room,
+        });
       } catch (err) {
         captureError(err);
       }
@@ -88,15 +123,19 @@ function SignWithChannel() {
           vault: activeVault,
           registeredWallet: activeVault.isMultiSig ? signer.deviceInfo.registeredWallet : undefined,
         };
-        channel.emit(LEDGER_SIGN, { data, room });
+        channel.emit(LEDGER_SIGN, {
+          data: createCipheriv(JSON.stringify(data), decryptionKey.current),
+          room,
+        });
       } catch (err) {
         captureError(err);
       }
     });
     channel.on(SIGNED_TX, ({ data }) => {
       try {
+        const decrypted = createDecipheriv(data, decryptionKey.current);
         if (signer.type === SignerType.TREZOR) {
-          const { serializedTx: txHex } = data;
+          const { serializedTx: txHex } = decrypted;
           dispatch(updatePSBTEnvelops({ txHex, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));
           navgation.dispatch(
@@ -105,7 +144,7 @@ function SignWithChannel() {
         } else if (signer.type === SignerType.BITBOX02) {
           const { signedSerializedPSBT } = getSignedSerializedPSBTForBitbox02(
             serializedPSBT,
-            data,
+            decrypted,
             signingPayload
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
@@ -141,27 +180,7 @@ function SignWithChannel() {
         subtitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to sign with the device`}
       />
       <Box style={styles.qrcontainer}>
-        {!channelCreated ? (
-          <RNCamera
-            autoFocus="on"
-            style={styles.cameraView}
-            captureAudio={false}
-            onBarCodeRead={onBarCodeRead}
-            useNativeZoom
-          />
-        ) : (
-          <VStack>
-            <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-              {'\u2022 Please sign the transaction from the Keeper web interface...'}
-            </Text>
-            <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
-              {
-                '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
-              }
-            </Text>
-            <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
-          </VStack>
-        )}
+        <ScanAndInstruct onBarCodeRead={onBarCodeRead} />
       </Box>
     </ScreenWrapper>
   );

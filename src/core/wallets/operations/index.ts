@@ -51,6 +51,8 @@ import { Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
 
 const ECPair = ECPairFactory(ecc);
+const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
+  ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
 const feeSurcharge = (wallet: Wallet | Vault) =>
   /* !! TESTNET ONLY !!
@@ -285,7 +287,6 @@ export default class WalletOperations {
     synchedWallets: (Wallet | Vault)[];
   }> => {
     for (const wallet of wallets) {
-      const hardGapLimit = 10; // hard refresh gap limit
       const addresses = [];
 
       let purpose;
@@ -296,7 +297,7 @@ export default class WalletOperations {
 
       // collect external(receive) chain addresses
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + hardGapLimit; itr++) {
+      for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT; itr++) {
         let address: string;
 
         if (addressCache.external[itr]) address = addressCache.external[itr]; // cache hit
@@ -327,7 +328,7 @@ export default class WalletOperations {
 
       // collect internal(change) chain addresses
       const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
-      for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + hardGapLimit; itr++) {
+      for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT; itr++) {
         let address: string;
 
         if (addressCache.internal[itr]) address = addressCache.internal[itr]; // cache hit
@@ -674,7 +675,7 @@ export default class WalletOperations {
         masterFingerprint = mfp;
       } else {
         path = `${(wallet as Wallet).derivationDetails.xDerivationPath}/${subPath.join('/')}`;
-        masterFingerprint = WalletUtilities.getFingerprintForWallet(wallet as Wallet);
+        masterFingerprint = WalletUtilities.getMasterFingerprintForWallet(wallet as Wallet);
       }
 
       const bip32Derivation = [
@@ -869,6 +870,7 @@ export default class WalletOperations {
           PSBT.addOutput({ ...output, bip32Derivation });
         } else PSBT.addOutput(output);
       }
+
       return {
         PSBT,
         inputs,
@@ -930,13 +932,11 @@ export default class WalletOperations {
           const [, j, k] = input.subPath.split('/');
           internal = parseInt(j);
           index = parseInt(k);
-        } else if (wallet.isMultiSig) {
-          const { subPath } = WalletUtilities.addressToMultiSig(input.address, wallet);
-          [internal, index] = subPath;
         } else {
-          const { subPath } = WalletUtilities.addressToKey(input.address, wallet, true);
+          const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
           [internal, index] = subPath;
         }
+
         const { privateKey } = WalletUtilities.getPrivateKeyByIndex(
           xpriv,
           !!internal,
@@ -1037,12 +1037,7 @@ export default class WalletOperations {
     ) {
       const childIndexArray = [];
       for (const input of inputs) {
-        let subPath;
-        if (wallet.isMultiSig) {
-          subPath = WalletUtilities.addressToMultiSig(input.address, wallet).subPath;
-        } else {
-          subPath = WalletUtilities.addressToKey(input.address, wallet, true).subPath;
-        }
+        const subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
         childIndexArray.push({
           subPath,
           inputIdentifier: {
@@ -1054,9 +1049,9 @@ export default class WalletOperations {
       }
       signingPayload.push({ payloadTarget, childIndexArray, outgoing });
     }
-    if (isSignerAMF(signer)) {
-      signingPayload.push({ payloadTarget, inputs });
-    }
+
+    if (isSignerAMF(signer)) signingPayload.push({ payloadTarget, inputs });
+
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
       signerId: signer.signerId,
@@ -1174,12 +1169,14 @@ export default class WalletOperations {
     );
 
     if (wallet.entityKind === EntityKind.VAULT) {
+      // case: vault(single/multi-sig)
       const { signers } = wallet as Vault;
       const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = [];
       let outgoing = 0;
       recipients.forEach((recipient) => {
         outgoing += recipient.amount;
       });
+
       for (const signer of signers) {
         const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
           wallet as Vault,
@@ -1192,20 +1189,28 @@ export default class WalletOperations {
         );
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
-      return { serializedPSBTEnvelops };
-    }
-    const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
 
-    const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs();
-    if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
-    const tx = signedPSBT.finalizeAllInputs();
-    const txHex = tx.extractTransaction().toHex();
-    const finalOutputs = tx.txOutputs;
-    const txid = await this.broadcastTransaction(wallet, txHex, inputs);
-    return {
-      txid,
-      finalOutputs,
-    };
+      return { serializedPSBTEnvelops };
+    } else {
+      // case: wallet(single-sig)
+      const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
+
+      // validating signatures
+      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs(validator);
+      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+
+      // finalise and construct the txHex
+      const tx = signedPSBT.finalizeAllInputs();
+      const txHex = tx.extractTransaction().toHex();
+      const finalOutputs = tx.txOutputs;
+
+      const txid = await this.broadcastTransaction(wallet, txHex, inputs);
+
+      return {
+        txid,
+        finalOutputs,
+      };
+    }
   };
 
   static transferST3 = async (
@@ -1230,7 +1235,7 @@ export default class WalletOperations {
         if (signerType === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.MAINNET) {
           for (const { inputsToSign } of signingPayload) {
             for (const { inputIndex, publicKey, signature, sighashType } of inputsToSign) {
-              PSBT.addSignedDisgest(
+              PSBT.addSignedDigest(
                 inputIndex,
                 Buffer.from(publicKey, 'hex'),
                 Buffer.from(signature, 'hex'),
@@ -1245,7 +1250,7 @@ export default class WalletOperations {
       }
 
       // validating signatures
-      const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs();
+      const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs(validator);
       if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
 
       // finalise and construct the txHex
