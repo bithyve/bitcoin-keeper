@@ -364,7 +364,7 @@ async function downgradeToPleb(dispatch, app) {
   }
 }
 
-function DowngradeModalContent(navigation, app) {
+function DowngradeModalContent({ navigation, app }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
@@ -542,7 +542,7 @@ const WalletsScreen = ({ navigation }) => {
         visible={recepitVerificationFailed}
         title={choosePlan.validateSubscriptionTitle}
         subTitle={choosePlan.validateSubscriptionSubTitle}
-        Content={() => <DowngradeModalContent app={app} navigation />}
+        Content={() => <DowngradeModalContent app={app} navigation={navigation} />}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
