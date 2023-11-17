@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { XpubTypes } from 'src/core/wallets/enums';
 
 import { useAppSelector } from 'src/store/hooks';
 import useVault from 'src/hooks/useVault';
@@ -8,6 +8,7 @@ import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
+import useSubscription from './useSubscription';
 
 const getPrefillForSignerList = (scheme, vaultSigners) => {
   let fills = [];
@@ -27,16 +28,6 @@ const areSignersSame = ({ activeVault, signersState }) => {
   const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
   const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
   return currentSignerIds.sort().join() === activeSignerIds.sort().join();
-};
-
-const areSignersValidInCurrentScheme = () => {
-  // if (plan !== SubscriptionTier.L1.toUpperCase()) {
-  //   return true;
-  // }
-  // return signersState.every(
-  //   (signer) => signer && ![SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
-  // );
-  return true;
 };
 
 export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
@@ -64,6 +55,7 @@ const useSignerIntel = ({ scheme }) => {
   const { activeVault } = useVault();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
+  const { validSigners } = useSubscription();
 
   useEffect(() => {
     const fills = getPrefillForSignerList(scheme, vaultSigners);
@@ -83,22 +75,15 @@ const useSignerIntel = ({ scheme }) => {
       }
     }
   });
-  const getInvalidSignerForTire = () => {
-    if (scheme.n === 1 && signersState) {
-      return signersState.filter(
-        (signer) =>
-          signer && [SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
-      );
-    }
-    return [];
-  };
-  const invalidSigners = getInvalidSignerForTire();
+
+  const invalidSigners = signersState.filter(
+    (signer) => signer && !validSigners.includes(signer.type)
+  );
 
   const areSignersValid =
     signersState.every((signer) => !signer) ||
     signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit: scheme.n }) ||
-    areSignersSame({ activeVault, signersState }) ||
-    !areSignersValidInCurrentScheme(); //TODO ||
+    areSignersSame({ activeVault, signersState });
   misMatchedSigners.length;
 
   return {
