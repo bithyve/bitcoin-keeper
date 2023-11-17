@@ -16,17 +16,19 @@ import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
 
 function TransactionElement({
   transaction,
-  onPress = () => { },
+  onPress = () => {},
+  index,
 }: {
   transaction: Transaction;
   onPress?: () => void;
+  index?: number;
 }) {
   const { colorMode } = useColorMode();
   const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mmA');
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (
-    <TouchableOpacity onPress={onPress} testID="btn_transaction">
+    <TouchableOpacity onPress={onPress} testID={`btn_transaction_${index}`}>
       <Box style={styles.container}>
         <Box style={styles.rowCenter}>
           {transaction?.transactionType === 'Received' ? <IconRecieve /> : <IconSent />}
@@ -45,7 +47,7 @@ function TransactionElement({
         </Box>
         <Box style={styles.rowCenter}>
           {transaction.confirmations > 0 ? null : (
-            <Box style={styles.unconfirmIconWrapper}>
+            <Box testID={`icon_unconfirmed_${index}`} style={styles.unconfirmIconWrapper}>
               <UnconfirmedIcon />
             </Box>
           )}

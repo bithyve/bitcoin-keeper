@@ -121,7 +121,7 @@ function PasscodeVerifyModal(props: Props) {
   };
 
   return (
-    <Box borderRadius={10}>
+    <Box testID="modal_passcode_verify" borderRadius={10}>
       <Box>
         {/* pin input view */}
         <PinInputsView

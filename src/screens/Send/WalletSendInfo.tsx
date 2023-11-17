@@ -20,7 +20,11 @@ function WalletSendInfo({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Box
+      testID="view_wallet_info"
+      style={styles.container}
+      backgroundColor={`${colorMode}.seashellWhite`}
+    >
       <Box flexDirection="row">
         <TouchableOpacity style={styles.buttonBackground}>
           <IconWallet />

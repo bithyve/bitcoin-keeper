@@ -128,6 +128,7 @@ function ReceiveScreen({ route }: { route }) {
       </Box>
       <TouchableOpacity
         activeOpacity={0.4}
+        testID="btn_copy_address"
         onPress={() => {
           Clipboard.setString(paymentURI || receivingAddress);
           showToast('Address Copied Successfully', <TickIcon />);

@@ -11,8 +11,15 @@ function ActivityIndicatorView({
 }) {
   if (visible) {
     return (
-      <Modal closeOnOverlayClick={false} isOpen={visible} _backdrop={{ bg: '#000', opacity: 0.7 }}>
-        {showLoader ? <ActivityIndicator size="large" animating color="#00836A" /> : null}
+      <Modal
+        testID="modal_loading"
+        closeOnOverlayClick={false}
+        isOpen={visible}
+        _backdrop={{ bg: '#000', opacity: 0.7 }}
+      >
+        {showLoader ? (
+          <ActivityIndicator testID="activityIndicator" size="large" animating color="#00836A" />
+        ) : null}
       </Modal>
     );
   }

@@ -98,6 +98,7 @@ function BackupWallet() {
 
       <KeeperModal
         visible={confirmPassVisible}
+        closeOnOverlayClick={false}
         close={() => setConfirmPassVisible(false)}
         title={'Confirm Passcode'}
         subTitleWidth={wp(240)}

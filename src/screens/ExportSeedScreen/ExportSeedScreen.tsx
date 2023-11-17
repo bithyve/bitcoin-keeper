@@ -58,6 +58,7 @@ function ExportSeedScreen({ route, navigation }) {
   function SeedCard({ item, index }: { item; index }) {
     return (
       <TouchableOpacity
+        testID={`btn_seed_word_${index}`}
         style={styles.seedCardContainer}
         onPress={() => {
           setShowWordIndex((prev) => {
@@ -77,7 +78,11 @@ function ExportSeedScreen({ route, navigation }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text style={styles.seedTextStyle01} color={`${colorMode}.GreyText`}>
+          <Text
+            testID={`text_seed_word_${index}`}
+            style={styles.seedTextStyle01}
+            color={`${colorMode}.GreyText`}
+          >
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
