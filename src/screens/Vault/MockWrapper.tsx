@@ -1,5 +1,5 @@
 import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/native';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 import { SignerType } from 'src/core/wallets/enums';

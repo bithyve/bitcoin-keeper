@@ -29,6 +29,8 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getDeviceStatus, getSDMessage } from 'src/hardware';
+import { useRoute } from '@react-navigation/native';
+import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 
 type HWProps = {
   type: SignerType;
@@ -39,6 +41,8 @@ type HWProps = {
 };
 
 function SigningDeviceList() {
+  const route = useRoute();
+  const { scheme }: { scheme: VaultScheme } = route.params as any;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
@@ -49,8 +53,7 @@ function SigningDeviceList() {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const { subscriptionScheme } = usePlan();
-  const isMultisig = subscriptionScheme.n !== 1;
+  const isMultisig = scheme.n !== 1;
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -206,7 +209,9 @@ function SigningDeviceList() {
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
-          learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)}
+          learnMoreCallback={() =>
+            openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)
+          }
         />
       </Box>
       <Note

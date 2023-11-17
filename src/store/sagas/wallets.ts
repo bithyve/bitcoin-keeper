@@ -6,7 +6,6 @@ import {
   DerivationPurpose,
   EntityKind,
   SignerType,
-  VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
@@ -586,7 +585,7 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* migrateVaultWorker({
   payload,
 }: {
-  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType; vaultShellId: string };
+  payload: { newVaultData: NewVaultInfo; vaultShellId: string };
 }) {
   try {
     const {

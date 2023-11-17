@@ -29,8 +29,6 @@ function SetupOtherSDScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { mode, isMultisig, signer: hcSigner } = route.params;
-  // const { subscriptionScheme } = usePlan();
-  // const isMultisig = subscriptionScheme.n !== 1;
 
   const validateAndAddSigner = async () => {
     try {
@@ -77,10 +75,10 @@ function SetupOtherSDScreen({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={`${mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'
-          } other signing device`}
+        title={`${
+          mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'
+        } other signing device`}
         subtitle="Manually provide the signer details"
-
       />
       <Box style={styles.flex}>
         <TextInput

@@ -5,13 +5,10 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 import { FlatList, Linking, RefreshControl, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
-import AddIcon from 'src/assets/images/icon_add_plus.svg';
 import Buy from 'src/assets/images/icon_buy.svg';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
-import { RealmSchema } from 'src/storage/realm/enum';
 import Recieve from 'src/assets/images/receive.svg';
 import { ScrollView } from 'react-native-gesture-handler';
 import Send from 'src/assets/images/send.svg';
@@ -21,9 +18,8 @@ import TransactionElement from 'src/components/TransactionElement';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault_new.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
-import { EntityKind, SignerType, VaultMigrationType, VaultType } from 'src/core/wallets/enums';
+import { EntityKind, SignerType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import moment from 'moment';
 import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
@@ -31,7 +27,6 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
-import usePlan from 'src/hooks/usePlan';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
@@ -45,9 +40,7 @@ import WalletOperations from 'src/core/wallets/operations';
 import useFeatureMap from 'src/hooks/useFeatureMap';
 import openLink from 'src/utils/OpenLink';
 import { SDIcons } from './SigningDeviceIcons';
-import TierUpgradeModal from '../ChoosePlanScreen/TierUpgradeModal';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
-import { useQuery } from '@realm/react';
 import NoTransactionIcon from 'src/assets/images/noTransaction.svg';
 import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
@@ -130,7 +123,6 @@ function VaultInfo({
     },
   } = vault;
 
-  const styles = getStyles(0);
   return (
     <VStack paddingBottom={10} paddingLeft={5}>
       <HStack alignItems="center">
@@ -261,53 +253,10 @@ function TransactionList({
   );
 }
 
-function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationType; vault: Vault }) {
+function SignerList({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
   const { signers: Signers, isMultiSig } = vault;
-  const styles = getStyles(0);
   const navigation = useNavigation();
-  const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-
-  const AddSigner = useCallback(() => {
-    if (upgradeStatus === VaultMigrationType.UPGRADE) {
-      return (
-        <Box style={[styles.signerCard]} backgroundColor={`${colorMode}.coffeeBackground`}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-            }}
-          >
-            <Box
-              margin="1"
-              marginBottom="3"
-              width="12"
-              height="12"
-              borderRadius={30}
-              justifyContent="center"
-              alignItems="center"
-              marginX={1}
-              alignSelf="center"
-            >
-              <AddIcon />
-            </Box>
-            <VStack pb={2}>
-              <Text
-                color={`${colorMode}.white`}
-                fontSize={10}
-                bold
-                letterSpacing={0.6}
-                textAlign="center"
-              >
-                {common.addSignDeviceUpgrade}
-              </Text>
-            </VStack>
-          </TouchableOpacity>
-        </Box>
-      );
-    }
-    return null;
-  }, [upgradeStatus]);
 
   return (
     <ScrollView
@@ -380,7 +329,6 @@ function SignerList({ upgradeStatus, vault }: { upgradeStatus: VaultMigrationTyp
           </Box>
         );
       })}
-      <AddSigner />
     </ScrollView>
   );
 }
@@ -397,7 +345,6 @@ function RampBuyContent({
   const { translations } = useContext(LocalizationContext);
   const { ramp } = translations;
   const [buyAddress, setBuyAddress] = useState('');
-  const styles = getStyles(0);
 
   useEffect(() => {
     const receivingAddress = WalletOperations.getNextFreeAddress(vault);
@@ -406,9 +353,7 @@ function RampBuyContent({
 
   return (
     <Box style={styles.rampBuyContentWrapper}>
-      <Text style={styles.byProceedingContent}>
-        {ramp.byProceedRampParagraph}
-      </Text>
+      <Text style={styles.byProceedingContent}>{ramp.byProceedRampParagraph}</Text>
       <Box style={styles.cardWrapper}>
         <VaultIcon />
         <Box mx={4}>
@@ -473,33 +418,14 @@ function VaultDetails({ navigation }) {
   const { top } = useSafeAreaInsets();
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { activeVault: vault } = useVault(collaborativeWalletId);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [pullRefresh, setPullRefresh] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
   const inheritanceSigner = vault.signers.filter(
     (signer) => signer.type === SignerType.INHERITANCEKEY
   )[0];
-  const [tireChangeModal, setTireChangeModal] = useState(false);
-  const { subscriptionScheme } = usePlan();
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
-  const recoveryAppCreated = useAppSelector((state) => state.storage.recoveryAppCreated);
-  const onPressModalBtn = () => {
-    setTireChangeModal(false);
-    navigation.navigate('AddSigningDevice');
-  };
-
   const transactions = vault?.specs?.transactions || [];
-  const hasPlanChanged = (): VaultMigrationType => {
-    const currentScheme = vault.scheme;
-    if (currentScheme.m > subscriptionScheme.m) {
-      return VaultMigrationType.DOWNGRADE;
-    }
-    if (currentScheme.m < subscriptionScheme.m) {
-      return VaultMigrationType.UPGRADE;
-    }
-    return VaultMigrationType.CHANGE;
-  };
 
   useEffect(() => {
     if (autoRefresh) syncVault();
@@ -510,14 +436,6 @@ function VaultDetails({ navigation }) {
     dispatch(refreshWallets([vault], { hardRefresh: true }));
     setPullRefresh(false);
   };
-
-  useEffect(() => {
-    if (hasPlanChanged() !== VaultMigrationType.CHANGE) {
-      setTireChangeModal(true);
-    }
-  }, []);
-
-  const styles = getStyles(top);
 
   const VaultContent = useCallback(
     () => (
@@ -588,10 +506,7 @@ function VaultDetails({ navigation }) {
     }
   };
 
-  const subtitle =
-    subscriptionScheme.n > 1
-      ? `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`
-      : `Vault with ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
+  const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
   const identifySigner = vault.signers.find((signer) => signer.type === SignerType.OTHER_SD);
 
@@ -614,9 +529,7 @@ function VaultDetails({ navigation }) {
           />
           <VaultInfo vault={vault} isCollaborativeWallet={!!collaborativeWalletId} />
         </VStack>
-        {collaborativeWalletId ? null : (
-          <SignerList upgradeStatus={hasPlanChanged()} vault={vault} />
-        )}
+        {collaborativeWalletId ? null : <SignerList vault={vault} />}
       </VStack>
       <VStack
         backgroundColor={`${colorMode}.primaryBackground`}
@@ -641,19 +554,6 @@ function VaultDetails({ navigation }) {
           setIdentifySignerModal={setIdentifySignerModal}
         />
       </VStack>
-      <TierUpgradeModal
-        visible={tireChangeModal && vault.type !== VaultType.COLLABORATIVE && !recoveryAppCreated}
-        close={() => {
-          if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
-            return;
-          }
-          setTireChangeModal(false);
-        }}
-        onPress={onPressModalBtn}
-        isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
-        plan={keeper.subscription.name}
-        closeOnOverlayClick={hasPlanChanged() !== VaultMigrationType.DOWNGRADE}
-      />
       <KeeperModal
         visible={vaultCreated}
         title={vaultTranslation.newVaultCreated}
@@ -674,7 +574,11 @@ function VaultDetails({ navigation }) {
         close={() => {
           dispatch(setIntroModal(false));
         }}
-        title={collaborativeWalletId ? vaultTranslation.collaborativeWallet : vaultTranslation.keeperVault}
+        title={
+          collaborativeWalletId
+            ? vaultTranslation.collaborativeWallet
+            : vaultTranslation.keeperVault
+        }
         subTitle={
           collaborativeWalletId
             ? vaultTranslation.collaborativeWalletMultipleUsers
@@ -728,122 +632,121 @@ function VaultDetails({ navigation }) {
   );
 }
 
-const getStyles = (top) =>
-  StyleSheet.create({
-    container: {
-      paddingTop: '10%',
-      justifyContent: 'space-between',
-      flex: 1,
-    },
-    IconText: {
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    signerCard: {
-      elevation: 4,
-      shadowRadius: 4,
-      shadowOpacity: 0.3,
-      shadowOffset: { height: 2, width: 0 },
-      height: 130,
-      width: 70,
-      borderTopLeftRadius: 100,
-      borderTopRightRadius: 100,
-      borderBottomLeftRadius: 30,
-      borderBottomRightRadius: 30,
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: 5,
-    },
-    scrollContainer: {
-      padding: '8%',
-      minWidth: windowWidth,
-    },
-    knowMore: {
-      paddingHorizontal: 5,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: '#FAFCFC',
-      alignSelf: 'flex-end',
-    },
-    footerText: {
-      fontSize: 12,
-      letterSpacing: 0.84,
-    },
-    vaultInfoText: {
-      letterSpacing: 1.28,
-    },
-    indicator: {
-      height: 10,
-      width: 10,
-      borderRadius: 10,
-      position: 'absolute',
-      zIndex: 2,
-      right: '10%',
-      top: '5%',
-      borderWidth: 1,
-      borderColor: 'white',
-      backgroundColor: '#F86B50',
-    },
-    unregistered: {
-      color: '#6E563B',
-      fontSize: 8,
-      letterSpacing: 0.6,
-      textAlign: 'center',
-      lineHeight: 16,
-    },
-    rampBuyContentWrapper: {
-      padding: 1,
-    },
-    byProceedingContent: {
-      color: '#073B36',
-      fontSize: 13,
-      letterSpacing: 0.65,
-      marginVertical: 1,
-    },
-    cardWrapper: {
-      marginVertical: 5,
-      alignItems: 'center',
-      borderRadius: 10,
-      padding: 5,
-      backgroundColor: '#FDF7F0',
-      flexDirection: 'row',
-    },
-    atIconWrapper: {
-      backgroundColor: '#FAC48B',
-      borderRadius: 20,
-      height: 35,
-      width: 35,
-      justifyItems: 'center',
-      alignItems: 'center',
-    },
-    buyAddressText: {
-      fontSize: 19,
-      letterSpacing: 1.28,
-      color: '#041513',
-      width: wp(200),
-    },
-    addPhoneEmailWrapper: {
-      width: '100%',
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginVertical: hp(20),
-      paddingVertical: hp(10),
-      borderRadius: 10,
-    },
-    iconWrapper: {
-      width: '15%',
-    },
-    titleWrapper: {
-      width: '75%',
-    },
-    addPhoneEmailTitle: {
-      fontSize: 14,
-    },
-    addPhoneEmailSubTitle: {
-      fontSize: 12,
-    },
-    rightIconWrapper: {
-      width: '10%',
-    },
-  });
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: '10%',
+    justifyContent: 'space-between',
+    flex: 1,
+  },
+  IconText: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signerCard: {
+    elevation: 4,
+    shadowRadius: 4,
+    shadowOpacity: 0.3,
+    shadowOffset: { height: 2, width: 0 },
+    height: 130,
+    width: 70,
+    borderTopLeftRadius: 100,
+    borderTopRightRadius: 100,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 5,
+  },
+  scrollContainer: {
+    padding: '8%',
+    minWidth: windowWidth,
+  },
+  knowMore: {
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FAFCFC',
+    alignSelf: 'flex-end',
+  },
+  footerText: {
+    fontSize: 12,
+    letterSpacing: 0.84,
+  },
+  vaultInfoText: {
+    letterSpacing: 1.28,
+  },
+  indicator: {
+    height: 10,
+    width: 10,
+    borderRadius: 10,
+    position: 'absolute',
+    zIndex: 2,
+    right: '10%',
+    top: '5%',
+    borderWidth: 1,
+    borderColor: 'white',
+    backgroundColor: '#F86B50',
+  },
+  unregistered: {
+    color: '#6E563B',
+    fontSize: 8,
+    letterSpacing: 0.6,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  rampBuyContentWrapper: {
+    padding: 1,
+  },
+  byProceedingContent: {
+    color: '#073B36',
+    fontSize: 13,
+    letterSpacing: 0.65,
+    marginVertical: 1,
+  },
+  cardWrapper: {
+    marginVertical: 5,
+    alignItems: 'center',
+    borderRadius: 10,
+    padding: 5,
+    backgroundColor: '#FDF7F0',
+    flexDirection: 'row',
+  },
+  atIconWrapper: {
+    backgroundColor: '#FAC48B',
+    borderRadius: 20,
+    height: 35,
+    width: 35,
+    justifyItems: 'center',
+    alignItems: 'center',
+  },
+  buyAddressText: {
+    fontSize: 19,
+    letterSpacing: 1.28,
+    color: '#041513',
+    width: wp(200),
+  },
+  addPhoneEmailWrapper: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: hp(20),
+    paddingVertical: hp(10),
+    borderRadius: 10,
+  },
+  iconWrapper: {
+    width: '15%',
+  },
+  titleWrapper: {
+    width: '75%',
+  },
+  addPhoneEmailTitle: {
+    fontSize: 14,
+  },
+  addPhoneEmailSubTitle: {
+    fontSize: 12,
+  },
+  rightIconWrapper: {
+    width: '10%',
+  },
+});
 export default VaultDetails;

@@ -10,7 +10,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { captureError } from 'src/services/sentry';
-import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
@@ -21,18 +20,11 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
-function VaultMigrationController({
-  vaultCreating,
-  signersState,
-  planStatus,
-  setCreating,
-  isInheritance,
-}: any) {
+function VaultMigrationController({ vaultCreating, signersState, scheme, setCreating }: any) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { activeVault } = useVault();
-  const { subscriptionScheme } = usePlan();
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
     (state) => state.network.averageTxFees
@@ -142,7 +134,7 @@ function VaultMigrationController({
     try {
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: isInheritance ? { m: 3, n: 6 } : scheme,
+        vaultScheme: scheme,
         vaultSigners: signers,
         vaultDetails: {
           name: 'Vault',
@@ -161,7 +153,7 @@ function VaultMigrationController({
     signersState.map((signer: VaultSigner) => {
       if (
         !signer.isMock &&
-        subscriptionScheme.n !== 1 &&
+        scheme.n !== 1 &&
         !UNVERIFYING_SIGNERS.includes(signer.type) &&
         signer.registered
       ) {
@@ -195,16 +187,16 @@ function VaultMigrationController({
       const freshSignersState = sanitizeSigners();
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: isInheritance ? { m: 3, n: 6 } : subscriptionScheme,
+        vaultScheme: scheme,
         vaultSigners: freshSignersState,
         vaultDetails: {
           name: 'Vault',
           description: 'Secure your sats',
         },
       };
-      dispatch(migrateVault(vaultInfo, planStatus, activeVault.shellId));
+      dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(signersState, subscriptionScheme);
+      createVault(signersState, scheme);
     }
   };
   return null;
