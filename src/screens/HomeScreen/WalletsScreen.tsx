@@ -119,8 +119,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-            collaborativeWalletId: item.collaborativeWalletId,
-          })
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -216,9 +216,11 @@ function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollab
           )}
 
           <Box style={styles.walletDetailsWrapper}>
-            {wallet?.type === 'IMPORTED' ? <Text color={`${colorMode}.white`} style={styles.walletType}>
-              {importWallet.importedWalletTitle}
-            </Text> : null}
+            {wallet?.type === 'IMPORTED' ? (
+              <Text color={`${colorMode}.white`} style={styles.walletType}>
+                {importWallet.importedWalletTitle}
+              </Text>
+            ) : null}
             <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
@@ -536,11 +538,11 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title={choosePlan.validateSubscriptionTitle}
         subTitle={choosePlan.validateSubscriptionSubTitle}
-        Content={<DowngradeModalContent app={app} navigation />}
+        Content={() => <DowngradeModalContent app={app} navigation />}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
