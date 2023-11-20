@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
@@ -23,10 +23,13 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritence, vault: vaultTranslation, common } = translations;
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { plan } = usePlan();
@@ -140,22 +143,21 @@ function SetupInheritance() {
           style={styles.title}
           testID="text_InheritanceSupport"
         >
-          Inheritance Support
+          {inheritence.inheritanceSupport}
         </Text>
         <Text
           color={`${colorMode}.textColor2`}
           style={styles.subtitle}
           testID="text_InheritanceSupportSubtitle"
         >
-          Keeper provides you with the tips and tools you need to include the Vault in your estate
-          planning
+          {inheritence.inheritanceSupportSubTitle}
         </Text>
       </Box>
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
           {shouldActivateInheritance()
-            ? `Manage Inheritance key or view documents`
+            ? vaultTranslation.manageInheritance
             : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a Vault`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
@@ -166,15 +168,15 @@ function SetupInheritance() {
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
+                {shouldActivateInheritance() ? common.proceed : common.upgradeNow}
               </Text>
             </Box>
           </TouchableOpacity>
         </Box>
       </Box>
       <Note
-        title="Note"
-        subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+        title={common.note}
+        subtitle={inheritence.consultYourEstate}
         subtitleColor="GreyText"
       />
       <KeeperModal
@@ -182,8 +184,8 @@ function SetupInheritance() {
         close={() => {
           dispatch(setInheritance(false));
         }}
-        title="Inheritance"
-        subTitle="Securely bequeath your bitcoin"
+        title={vaultTranslation.Inheritance}
+        subTitle={inheritence.secureBequeathBitcoin}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"

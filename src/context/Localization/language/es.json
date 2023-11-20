@@ -92,7 +92,8 @@
     "choosePurpose": "Choose Purpose",
     "chooseService": "Choose Service",
     "pleaseWait": "Please Wait",
-    "receiveTestSats": "Receiving test sats"
+    "receiveTestSats": "Receiving test sats",
+    "upgradeNow": "Upgrade Now"
   },
   "noInternet": {
     "no": "No Internet",
@@ -257,7 +258,11 @@
     "IndependentRecovery": "Independent Recovery",
     "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your Vault even without the Keeper app or any service from the company",
     "Practicehealthcheck": "Practice health check",
-    "Makessureyousignersareaccessible": "Make sure you signing devices are accessible. Change them if that is not the case"
+    "Makessureyousignersareaccessible": "Make sure you signing devices are accessible. Change them if that is not the case",
+    "inheritanceSupport": "Inheritance Support",
+    "inheritanceSupportSubTitle": "Keeper provides you with the tips and tools you need to include the Vault in your estate planning",
+    "consultYourEstate": "Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction",
+    "secureBequeathBitcoin": "Securely bequeath your bitcoin"
   },
   "wallet": {
     "Createwallet": "Create a wallet",
