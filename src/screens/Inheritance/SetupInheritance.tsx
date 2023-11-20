@@ -247,21 +247,21 @@ const styles = StyleSheet.create({
     // marginBottom: hp(25),
   },
   modalTitle: {
-    fontSize: 15,
+    fontSize: windowHeight > 600 ? 15 : 10,
   },
   modalSubtitle: {
-    fontSize: 12,
+    fontSize: windowHeight > 600 ? 12 : 10,
     opacity: 0.7,
   },
   modalDesc: {
-    marginVertical: hp(8),
+    marginVertical: windowHeight > 600 ? hp(8) : hp(2),
     letterSpacing: 0.65,
-    width: wp(280),
+    width: windowHeight > 600 ? wp(280) : wp(300),
     alignItems: 'center',
-    fontSize: 14,
+    fontSize: windowHeight > 600 ? 14 : 10,
   },
   modalTopContainer: {
-    width: wp(300),
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
   },
