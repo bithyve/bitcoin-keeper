@@ -19,7 +19,7 @@ function Switch({ value, onValueChange, loading }: Props) {
   const { colorMode } = useColorMode();
   return (
     <TouchableOpacity onPress={() => onValueChange(!value)} disabled={loading}>
-      <Box style={styles.container} backgroundColor={`${colorMode}.greenButtonBackground`}>
+      <Box style={styles.container} backgroundColor={value ? `${colorMode}.greenButtonBackground` : `${colorMode}.secondaryText`}>
         <Box height={8} width={12} borderRadius={10} justifyContent="center" alignItems="center">
           {value ? (
             <Box
