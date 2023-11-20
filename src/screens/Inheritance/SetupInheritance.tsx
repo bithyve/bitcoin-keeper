@@ -134,7 +134,7 @@ function SetupInheritance() {
         }}
       />
       <Box style={styles.topContainer}>
-        <GradientIcon Icon={Inheritance} height={50} />
+        <GradientIcon Icon={Inheritance} height={windowHeight > 600 ? 50 : 20} />
         <Text
           color={`${colorMode}.primaryText`}
           style={styles.title}
@@ -213,30 +213,30 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     fontSize: 12,
     letterSpacing: 0.6,
-    marginTop: hp(36),
-    width: '95%',
+    marginTop: windowHeight > 600 ? hp(36) : 0,
+    width: windowHeight > 600 ? '95%' : '100%',
     textAlign: 'center',
   },
   bottomContainer: {
-    marginTop: hp(30),
+    marginTop: windowHeight > 600 ? hp(30) : hp(5),
     alignItems: 'center',
     flex: 1,
   },
   topContainer: {
-    marginTop: hp(25),
+    marginTop: windowHeight > 600 ? hp(25) : 0,
     alignItems: 'center',
     paddingHorizontal: 1,
   },
   title: {
     fontSize: 16,
     letterSpacing: 0.96,
-    marginTop: hp(10),
+    marginTop: windowHeight > 600 ? hp(10) : hp(20),
     fontWeight: 'bold',
   },
   subtitle: {
     textAlign: 'center',
-    width: wp(270),
-    marginTop: hp(4),
+    width: windowHeight > 600 ? wp(270) : wp(300),
+    marginTop: windowHeight > 600 ? hp(4) : 0,
     fontSize: 12,
     letterSpacing: 0.8,
   },

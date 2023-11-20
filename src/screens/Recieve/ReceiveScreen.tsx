@@ -19,7 +19,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { hp } from 'src/constants/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
   qrWrapper: {
-    marginTop: hp(35),
+    marginTop: windowHeight > 600 ? hp(35) : 0,
     alignItems: 'center',
     alignSelf: 'center',
     width: hp(250),
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomLeftRadius: 10,
     borderTopLeftRadius: 10,
-    marginTop: hp(40),
+    marginTop: windowHeight > 600 ? hp(40) : 0,
   },
   inputWrapper: {
     flexDirection: 'row',
