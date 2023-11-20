@@ -1026,7 +1026,7 @@ export default class WalletOperations {
     ) {
       const childIndexArray = [];
       for (const input of inputs) {
-        const subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
+        const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
         childIndexArray.push({
           subPath,
           inputIdentifier: {
