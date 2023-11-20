@@ -54,7 +54,7 @@ function PasscodeVerifyModal(props: Props) {
             cancelButtonText: 'Use PIN',
           });
           if (success) {
-            dispatch(credsAuth(signature, LoginMethod.BIOMETRIC));
+            dispatch(credsAuth(signature, LoginMethod.BIOMETRIC, true));
           }
         }, 200);
       } catch (error) {
@@ -136,7 +136,7 @@ function PasscodeVerifyModal(props: Props) {
             style={{
               textAlign: 'right',
               fontStyle: 'italic',
-              marginRight: 5
+              marginRight: 5,
             }}
           >
             {errMessage}

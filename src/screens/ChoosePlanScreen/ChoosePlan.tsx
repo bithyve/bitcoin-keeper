@@ -116,8 +116,9 @@ function ChoosePlan(props) {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
-                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${
+                subscription.introductoryPriceNumberOfPeriodsIOS
+              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -237,7 +238,7 @@ function ChoosePlan(props) {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => { },
+              onPress: () => {},
               style: 'cancel',
             },
             { text: 'Manage', onPress: () => manageSubscription(response.productId) },
@@ -273,6 +274,28 @@ function ChoosePlan(props) {
       return `${name}`;
     }
     return `A ${name}`;
+  };
+
+  const getPlanNote = (plan) => {
+    if (plan.name === 'Pleb') return '';
+    let trial = '';
+    let amount = '';
+    if (plan.monthlyPlanDetails || plan.yearlyPlanDetails) {
+      if (isMonthly) {
+        trial = plan.monthlyPlanDetails.trailPeriod;
+        amount = plan.monthlyPlanDetails.price;
+      } else {
+        trial = plan.yearlyPlanDetails.trailPeriod;
+        amount = plan.yearlyPlanDetails.price;
+      }
+    }
+    if (trial) {
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${
+        isMonthly ? 'month' : 'year'
+      }, cancel anytime`;
+    } else {
+      return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
+    }
   };
 
   const restorePurchases = async () => {
@@ -332,7 +355,7 @@ function ChoosePlan(props) {
       />
       <KeeperModal
         visible={requesting}
-        close={() => { }}
+        close={() => {}}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -341,7 +364,7 @@ function ChoosePlan(props) {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => { }}
+        buttonCallback={() => {}}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
@@ -397,6 +420,9 @@ function ChoosePlan(props) {
                 </Box>
               ))}
             </Box>
+            <Text fontSize={11} color={`${colorMode}.GreyText`} my={2} ml={2} letterSpacing={0.65}>
+              {getPlanNote(items[currentPosition])}
+            </Text>
           </Box>
         </ScrollView>
       )}
