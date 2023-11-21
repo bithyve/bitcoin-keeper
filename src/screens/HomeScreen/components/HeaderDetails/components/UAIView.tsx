@@ -20,7 +20,12 @@ function UAIView({
           {title}
         </Text>
       </Box>
-      <TouchableOpacity style={styles.skipWrapper} onPress={secondaryCallback} testID="btn_uaiSkip">
+      <TouchableOpacity
+        style={styles.skipWrapper}
+        onPress={secondaryCallback}
+        testID="btn_uaiSkip"
+        disabled={!secondaryCallbackText}
+      >
         <Text style={styles.skipText} color={`${colorMode}.learnMoreBorder`}>
           {secondaryCallbackText}
         </Text>
