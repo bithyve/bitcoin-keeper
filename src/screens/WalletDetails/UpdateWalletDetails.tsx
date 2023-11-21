@@ -37,7 +37,6 @@ function UpdateWalletDetails({ route }) {
   const navigtaion = useNavigation();
   const dispatch = useDispatch();
   const { wallet, isFromSeed, words } = route.params;
-  console.log('wallet', wallet?.specs?.balances)
 
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTranslation, seed, importWallet, common } = translations
