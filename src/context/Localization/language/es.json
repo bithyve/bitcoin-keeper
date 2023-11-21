@@ -326,6 +326,8 @@
     "confirmPassSubTitle": "To show wallet seed words",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details",
+    "approveTransVault": "Approve Transfer to Vault",
+    "approveTransVaultSubtitle": "Your auto-transfer policy has triggered a transaction attransaction, at 100,000 sats that needs your approval",
     "AddWalletCosigner": "Add Wallet as co-signer",
     "AddWalletCosignerSubTitle": "You are about to add this wallet as a co-signer for a Keeper app Vault.",
     "AddWalletCosignerParagraph": "Please back up this wallet. If you want to delete the app from this phone, please change your signing device on the other Keeper app before deleting this one.",
@@ -385,7 +387,8 @@
     "changePathOfDefaultWalletPara02": "If you have given out addresses from this wallet before changing the dervation, they will not appear once the change takes effect.",
     "walletDetailsUpdate": "Wallet details updated",
     "failToUpdate": "Failed to update",
-    "walletBalanceMsg": "Wallet has balance: changes not allowed"
+    "walletBalanceMsg": "Wallet has balance: changes not allowed",
+    "transactionBroadcasted": "The transaction has been successfully broadcasted"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -422,7 +425,8 @@
     "newVaultCreated": "New Vault Created",
     "collaborativeWallet": "Collaborative Wallet",
     "keeperVault": "Keeper Vault",
-    "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management."
+    "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.",
+    "signingOldVault": "Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
