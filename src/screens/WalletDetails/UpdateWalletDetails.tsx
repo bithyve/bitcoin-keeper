@@ -128,11 +128,6 @@ function UpdateWalletDetails({ route }) {
             {`\u2022  ${walletTranslation.changePathOfDefaultWalletPara02}`}
           </Text>
         </Box>
-        {/* <Box>
-          <Text color={`${colorMode}.black`} style={styles.contentText}>
-            {`\u2022 ${walletTranslation.changePathOfDefaultWalletPara03} `}
-          </Text>
-        </Box> */}
         <Box style={styles.ctaBtnWrapper} mt={10}>
           <Box ml={windowWidth * -0.09}>
             <Buttons
