@@ -229,7 +229,7 @@ function UpdateWalletDetails({ route }) {
                     navigtaion.goBack();
                   }}
                   primaryText="Save"
-                  // primaryCallback={updateWallet}
+                  primaryDisable={path === wallet?.derivationDetails.xDerivationPath && wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0}
                   primaryCallback={() => {
                     if (wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0) {
                       setWarringsVisible(true)
