@@ -370,7 +370,16 @@
     "addSpecificInvoiceAmt": "Add a specific invoice amount",
     "addressReceiveDirectly": "You can get a receive address directly from a signing device and do not have to trust the Keeper app",
     "editTransPolicyInfo": " This will trigger a transfer request which you need to approve",
-    "transPolicyCantZero": "Transfer Policy cannot be zero"
+    "transPolicyCantZero": "Transfer Policy cannot be zero",
+    "updateWalletPath": "Update Wallet Path",
+    "qrofRecoveryPhrase": "The QR below comprises of your 12 word Recovery Phrase",
+    "changePathOfDefaultWallet": "You are changing the derivation path of Default Wallet",
+    "changePathOfDefaultWalletSubTitle": "Derivation path changes should only be done by advanced users.",
+    "changePathOfDefaultWalletPara01": "Changing the derivation path will mean that you will be using a completely new wallet. All the addresses and transactions will be reset to the new configuration",
+    "changePathOfDefaultWalletPara02": "If you have given out addresses from this wallet before changing the dervation, they will not appear once the change takes effect.",
+    "walletDetailsUpdate": "Wallet details updated",
+    "failToUpdate": "Failed to update",
+    "walletBalanceMsg": "Wallet has balance: changes not allowed"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -421,7 +430,9 @@
     "walletRecoverySuccessful": "Wallet Recovery Successful",
     "desc": "Use these to create any other wallet and that wallet will be linked to Keeper (will show along with other wallets)",
     "recoveryPhrase": "Backup Phrase",
-    "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase"
+    "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase",
+    "walletRecoveryPhrase": "Wallet Recovery Phrase",
+    "showXPubNoteSubText": "Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signing device",
