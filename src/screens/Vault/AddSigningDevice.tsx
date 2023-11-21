@@ -1,9 +1,9 @@
-import { Dimensions, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
+import { Dimensions, Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
@@ -195,9 +195,10 @@ function AddSigningDevice() {
   const [vaultCreating, setCreating] = useState(false);
   const { activeVault } = useVault();
   const navigation = useNavigation();
-  const route = useRoute() as { params: { isInheritance: boolean } };
+  const route = useRoute() as {
+    params: { isInheritance: boolean; scheme: VaultScheme; name: string; description: string };
+  };
   const dispatch = useDispatch();
-  const [scheme, setScheme] = useState({ m: 2, n: 3 });
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
@@ -208,6 +209,7 @@ function AddSigningDevice() {
   const isInheritance =
     route?.params?.isInheritance ||
     signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
+  const { scheme, name = 'Vault', description = 'Secure your sats' } = route.params;
 
   const { signersState, areSignersValid, amfSigners, misMatchedSigners, invalidSigners } =
     useSignerIntel({ scheme });
@@ -257,6 +259,8 @@ function AddSigningDevice() {
         signersState={signersState}
         isInheritance={isInheritance}
         scheme={scheme}
+        name={name}
+        description={description}
       />
       <FlatList
         keyboardShouldPersistTaps="always"
@@ -311,46 +315,6 @@ function AddSigningDevice() {
             />
           </Box>
         ) : null}
-        <HStack>
-          <TouchableOpacity
-            style={{ padding: 10 }}
-            onPress={() => {
-              if (scheme.m > 1) setScheme({ m: scheme.m - 1, n: scheme.n });
-            }}
-          >
-            <Text bold>-</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ padding: 10 }}
-            onPress={() => {
-              if (scheme.m < scheme.n) {
-                setScheme({ m: scheme.m + 1, n: scheme.n });
-              }
-            }}
-          >
-            <Text bold>+</Text>
-          </TouchableOpacity>
-          <Text style={{ padding: 10 }} bold>
-            {scheme.m}
-          </Text>
-          <Text style={{ padding: 10 }} bold>
-            {scheme.n}
-          </Text>
-          <TouchableOpacity
-            style={{ padding: 10 }}
-            onPress={() => setScheme({ m: scheme.m, n: scheme.n + 1 })}
-          >
-            <Text bold>+</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{ padding: 10 }}
-            onPress={() => {
-              if (scheme.m < scheme.n) setScheme({ m: scheme.m, n: scheme.n - 1 });
-            }}
-          >
-            <Text bold>-</Text>
-          </TouchableOpacity>
-        </HStack>
         <Buttons
           primaryDisable={areSignersValid || trezorIncompatible}
           primaryLoading={relayVaultUpdateLoading}

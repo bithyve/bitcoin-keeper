@@ -163,7 +163,9 @@ function ConnectChannel() {
           );
         } else {
           dispatch(addSigningDevice(trezor));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(trezor.signerId);
@@ -200,7 +202,9 @@ function ConnectChannel() {
           );
         } else {
           dispatch(addSigningDevice(ledger));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
 
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);

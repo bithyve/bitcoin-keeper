@@ -39,7 +39,9 @@ function MockWrapper({
       if (signer) {
         if (!isRecovery) {
           dispatch(addSigningDevice(signer));
-          nav.dispatch(CommonActions.navigate('AddSigningDevice'));
+          nav.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
         if (isRecovery) {
           dispatch(setSigningDevices(signer));

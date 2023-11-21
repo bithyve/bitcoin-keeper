@@ -59,7 +59,9 @@ function VaultModals({
   );
   const onPressModalBtn = () => {
     setTireChangeModal(false);
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    navigation.dispatch(
+      CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+    );
   };
   const closeVaultCreatedDialog = () => {
     setVaultCreated(false);

@@ -273,7 +273,10 @@ function SigningDeviceDetails({ route }) {
     {
       text: 'Change signing device',
       Icon: () => <FooterIcon Icon={Change} />,
-      onPress: () => navigation.dispatch(CommonActions.navigate('AddSigningDevice')),
+      onPress: () =>
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        ),
     },
     {
       text: 'Health Check',

@@ -20,7 +20,14 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import { sendPhasesReset } from 'src/store/reducers/send_and_receive';
 import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 
-function VaultMigrationController({ vaultCreating, signersState, scheme, setCreating }: any) {
+function VaultMigrationController({
+  vaultCreating,
+  signersState,
+  scheme,
+  setCreating,
+  name,
+  description,
+}: any) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -137,8 +144,8 @@ function VaultMigrationController({ vaultCreating, signersState, scheme, setCrea
         vaultScheme: scheme,
         vaultSigners: signers,
         vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
+          name,
+          description,
         },
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));

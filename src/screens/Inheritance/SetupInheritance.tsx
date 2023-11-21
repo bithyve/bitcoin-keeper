@@ -2,7 +2,7 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { wp, hp, windowHeight } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
@@ -122,7 +122,10 @@ function SetupInheritance() {
   const toSetupInheritance = () => {
     if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
     else if (plan !== SubscriptionTier.L3.toUpperCase()) navigtaion.navigate('ChoosePlan');
-    else if (!activeVault) navigtaion.navigate('AddSigningDevice');
+    else if (!activeVault)
+      navigtaion.dispatch(
+        CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+      );
   };
 
   return (

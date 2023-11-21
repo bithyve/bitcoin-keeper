@@ -50,7 +50,9 @@ function SetupOtherSDScreen({ route }) {
         );
       } else if (mode === InteracationMode.SIGNING) {
         dispatch(addSigningDevice(signer));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(signer.signerId);
         if (exsists)
