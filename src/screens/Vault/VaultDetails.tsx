@@ -25,7 +25,6 @@ import { refreshWallets } from 'src/store/sagaActions/wallets';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
@@ -415,8 +414,6 @@ function VaultDetails({ navigation }) {
 
   const dispatch = useDispatch();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { top } = useSafeAreaInsets();
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { activeVault: vault } = useVault(collaborativeWalletId);
   const [pullRefresh, setPullRefresh] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);

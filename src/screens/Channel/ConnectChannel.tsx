@@ -128,7 +128,9 @@ function ConnectChannel() {
           );
         } else {
           dispatch(addSigningDevice(bitbox02));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
 
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);

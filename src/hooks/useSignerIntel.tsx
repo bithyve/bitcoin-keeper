@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { XpubTypes } from 'src/core/wallets/enums';
+import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 
 import { useAppSelector } from 'src/store/hooks';
 import useVault from 'src/hooks/useVault';
@@ -80,6 +80,17 @@ const useSignerIntel = ({ scheme }) => {
     (signer) => signer && !validSigners.includes(signer.type)
   );
 
+  let invalidIKS = false;
+  let invalidSS = false;
+  invalidSigners.forEach((signer) => {
+    if (signer.type === SignerType.INHERITANCEKEY) {
+      invalidIKS = true;
+    }
+    if (signer.type === SignerType.POLICY_SERVER) {
+      invalidSS = true;
+    }
+  });
+
   const areSignersValid =
     signersState.every((signer) => !signer) ||
     signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit: scheme.n }) ||
@@ -92,6 +103,8 @@ const useSignerIntel = ({ scheme }) => {
     amfSigners,
     misMatchedSigners,
     invalidSigners,
+    invalidSS,
+    invalidIKS,
   };
 };
 

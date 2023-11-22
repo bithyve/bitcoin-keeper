@@ -211,12 +211,22 @@ function AddSigningDevice() {
     signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
   const { name = 'Vault', description = 'Secure your sats' } = route.params;
   let { scheme } = route.params;
-  if (!scheme && activeVault) {
+  if (!scheme && activeVault && !isInheritance) {
     scheme = activeVault.scheme;
+    // added temporarily until we support multiple vaults
+  } else if (!scheme && activeVault && isInheritance) {
+    scheme = { m: 3, n: 6 };
   }
 
-  const { signersState, areSignersValid, amfSigners, misMatchedSigners, invalidSigners } =
-    useSignerIntel({ scheme });
+  const {
+    signersState,
+    areSignersValid,
+    amfSigners,
+    misMatchedSigners,
+    invalidSigners,
+    invalidSS,
+    invalidIKS,
+  } = useSignerIntel({ scheme });
 
   const inheritanceSigner: VaultSigner = signersState.filter(
     (signer) => signer?.type === SignerType.INHERITANCEKEY
@@ -290,15 +300,25 @@ function AddSigningDevice() {
         ) : null}
         {invalidSigners.length ? (
           <Box style={styles.noteContainer}>
-            <Note
-              title="WARNING"
-              subtitle={`A few signers (${invalidSigners
-                .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
-                SubscriptionTier.L3
-              }. Please remove them or upgrade your plan.`}
-              subtitleColor="error"
-            />
+            {invalidSS || invalidIKS ? (
+              <Note
+                title="WARNING"
+                subtitle={`A few signers (${invalidSigners
+                  .map((signer) => getSignerNameFromType(signer.type))
+                  .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
+                  SubscriptionTier.L3
+                }. Please remove them or upgrade your plan.`}
+                subtitleColor="error"
+              />
+            ) : invalidIKS ? (
+              <Note
+                title="WARNING"
+                subtitle={`${getSignerNameFromType(SignerType.INHERITANCEKEY)} is only valid at ${
+                  SubscriptionTier.L3
+                }. Please remove them or upgrade your plan.`}
+                subtitleColor="error"
+              />
+            ) : null}
           </Box>
         ) : misMatchedSigners.length ? (
           <Box style={styles.noteContainer}>

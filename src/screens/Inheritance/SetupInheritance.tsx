@@ -32,7 +32,11 @@ function SetupInheritance() {
   const { plan } = usePlan();
   const { activeVault } = useVault();
 
-  const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
+  const shouldActivateInheritance = () =>
+    plan === SubscriptionTier.L3.toUpperCase() &&
+    activeVault &&
+    activeVault.scheme.m === 3 &&
+    (activeVault.scheme.n === 5 || activeVault.scheme.n === 6);
 
   const inheritanceData = [
     {
@@ -126,6 +130,8 @@ function SetupInheritance() {
       navigtaion.dispatch(
         CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
       );
+    else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5)
+      navigtaion.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
   };
 
   return (
@@ -159,7 +165,7 @@ function SetupInheritance() {
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
           {shouldActivateInheritance()
             ? `Manage Inheritance key or view documents`
-            : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a Vault`}
+            : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a 3 of 5 Vault`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
