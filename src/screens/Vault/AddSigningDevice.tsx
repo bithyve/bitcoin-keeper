@@ -209,7 +209,11 @@ function AddSigningDevice() {
   const isInheritance =
     route?.params?.isInheritance ||
     signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
-  const { scheme, name = 'Vault', description = 'Secure your sats' } = route.params;
+  const { name = 'Vault', description = 'Secure your sats' } = route.params;
+  let { scheme } = route.params;
+  if (!scheme && activeVault) {
+    scheme = activeVault.scheme;
+  }
 
   const { signersState, areSignersValid, amfSigners, misMatchedSigners, invalidSigners } =
     useSignerIntel({ scheme });

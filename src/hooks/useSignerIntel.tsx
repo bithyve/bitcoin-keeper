@@ -62,7 +62,7 @@ const useSignerIntel = ({ scheme }) => {
     setSignersState(
       vaultSigners.map((signer) => updateSignerForScheme(signer, scheme.n)).concat(fills)
     );
-  }, [vaultSigners, scheme]);
+  }, [vaultSigners]);
 
   const amfSigners = [];
   const misMatchedSigners = [];
