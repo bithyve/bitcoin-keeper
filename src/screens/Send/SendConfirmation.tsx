@@ -53,9 +53,6 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-const { translations } = useContext(LocalizationContext);
-const { wallet: walletTransactions } = translations;
-
 function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
@@ -347,6 +344,8 @@ function FeeInfo({ txFeeInfo, transactionPriority, transferType, sendMaxFee }) {
 
 function SendSuccessfulContent() {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTransactions } = translations;
   return (
     <View>
       <Box alignSelf="center">
