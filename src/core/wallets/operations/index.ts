@@ -49,6 +49,7 @@ import { Vault, VaultScheme, VaultSigner, VaultSpecs } from '../interfaces/vault
 
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
+import RestClient from 'src/services/rest/RestClient';
 
 const ECPair = ECPairFactory(ecc);
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
@@ -420,30 +421,106 @@ export default class WalletOperations {
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
   };
 
-  static fetchFeeRatesByPriority = async () => {
-    // high fee: 30 minutes
-    const highFeeBlockEstimate = 3;
+  static mockFeeRatesForTestnet = () => {
+    // high fee: 10 minutes
+    const highFeeBlockEstimate = 1;
     const high = {
-      feePerByte: Math.round(await ElectrumClient.estimateFee(highFeeBlockEstimate)),
+      feePerByte: 3,
       estimatedBlocks: highFeeBlockEstimate,
-    }; // high: within 3 blocks
+    };
 
-    // medium fee: 2 hours
-    const mediumFeeBlockEstimate = 12;
+    // medium fee: 30 mins
+    const mediumFeeBlockEstimate = 3;
     const medium = {
-      feePerByte: Math.round(await ElectrumClient.estimateFee(mediumFeeBlockEstimate)),
+      feePerByte: 2,
       estimatedBlocks: mediumFeeBlockEstimate,
-    }; // medium: within 12 blocks
+    };
 
-    // low fee: 6 hours
-    const lowFeeBlockEstimate = 36;
+    // low fee: 60 mins
+    const lowFeeBlockEstimate = 6;
     const low = {
-      feePerByte: Math.round(await ElectrumClient.estimateFee(lowFeeBlockEstimate)),
+      feePerByte: 1,
       estimatedBlocks: lowFeeBlockEstimate,
-    }; // low: within 36 blocks
+    };
+    const feeRatesByPriority = { high, medium, low };
+
+    return feeRatesByPriority;
+  };
+
+  static estimateFeeRatesViaElectrum = async () => {
+    try {
+      // high fee: 10 minutes
+      const highFeeBlockEstimate = 1;
+      const high = {
+        feePerByte: Math.round(await ElectrumClient.estimateFee(highFeeBlockEstimate)),
+        estimatedBlocks: highFeeBlockEstimate,
+      };
+
+      // medium fee: 30 mins
+      const mediumFeeBlockEstimate = 3;
+      const medium = {
+        feePerByte: Math.round(await ElectrumClient.estimateFee(mediumFeeBlockEstimate)),
+        estimatedBlocks: mediumFeeBlockEstimate,
+      };
+
+      // low fee: 60 mins
+      const lowFeeBlockEstimate = 6;
+      const low = {
+        feePerByte: Math.round(await ElectrumClient.estimateFee(lowFeeBlockEstimate)),
+        estimatedBlocks: lowFeeBlockEstimate,
+      };
 
     const feeRatesByPriority = { high, medium, low };
     return feeRatesByPriority;
+    } catch (err) {
+      console.log('Failed to fetch fee via Fulcrum', { err });
+      throw new Error('Failed to fetch fee');
+    }
+  };
+
+  static fetchFeeRatesByPriority = async () => {
+    // main: mempool.space, fallback: fulcrum target block based fee estimator
+
+    if (config.NETWORK_TYPE === NetworkType.TESTNET)
+      return WalletOperations.mockFeeRatesForTestnet();
+
+    try {
+      const res = await RestClient.get(`https://mempool.space/api/v1/fees/recommended`);
+      const mempoolFee: {
+        economyFee: number;
+        fastestFee: number;
+        halfHourFee: number;
+        hourFee: number;
+        minimumFee: number;
+      } = res.data;
+
+      // high fee: 10 minutes
+      const highFeeBlockEstimate = 1;
+      const high = {
+        feePerByte: mempoolFee.fastestFee,
+        estimatedBlocks: highFeeBlockEstimate,
+      };
+
+      // medium fee: 30 minutes
+      const mediumFeeBlockEstimate = 3;
+      const medium = {
+        feePerByte: mempoolFee.halfHourFee,
+        estimatedBlocks: mediumFeeBlockEstimate,
+      };
+
+      // low fee: 60 minutes
+      const lowFeeBlockEstimate = 6;
+      const low = {
+        feePerByte: mempoolFee.hourFee,
+        estimatedBlocks: lowFeeBlockEstimate,
+      };
+
+      const feeRatesByPriority = { high, medium, low };
+      return feeRatesByPriority;
+    } catch (err) {
+      console.log('Failed to fetch fee via mempool.space', { err });
+      return WalletOperations.estimateFeeRatesViaElectrum();
+    }
   };
 
   static calculateAverageTxFee = async () => {
