@@ -158,7 +158,7 @@ function SetupInheritance() {
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
           {shouldActivateInheritance()
             ? vaultTranslation.manageInheritance
-            : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a Vault`}
+            : `This can be activated once you are on ${SubscriptionTier.L3}`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>
@@ -174,11 +174,7 @@ function SetupInheritance() {
           </TouchableOpacity>
         </Box>
       </Box>
-      <Note
-        title={common.note}
-        subtitle={inheritence.consultYourEstate}
-        subtitleColor="GreyText"
-      />
+      <Note title={common.note} subtitle={inheritence.consultYourEstate} subtitleColor="GreyText" />
       <KeeperModal
         visible={introModal}
         close={() => {
