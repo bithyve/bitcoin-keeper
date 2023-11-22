@@ -370,7 +370,7 @@ function SignTransactionScreen() {
     <ScreenWrapper>
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Chose any ${scheme.m} to sign the transaction`}
+        subtitle={`Chose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
