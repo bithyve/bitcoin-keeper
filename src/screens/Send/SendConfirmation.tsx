@@ -292,10 +292,7 @@ function SendingPriority({
                 flex: 1,
               }}
             >
-              ~
-              {timeConvertNear30(
-                (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
-              )}
+              ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10} mins
             </Text>
             <TextValue
               amt={txFeeInfo[priority?.toLowerCase()]?.amount}
