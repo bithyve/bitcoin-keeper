@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
@@ -23,10 +23,13 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import useVault from 'src/hooks/useVault';
 import GradientIcon from 'src/screens/WalletDetails/components/GradientIcon';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupInheritance() {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { inheritence, vault: vaultTranslation, common } = translations;
   const dispatch = useAppDispatch();
   const introModal = useAppSelector((state) => state.settings.inheritanceModal);
   const { plan } = usePlan();
@@ -134,28 +137,27 @@ function SetupInheritance() {
         }}
       />
       <Box style={styles.topContainer}>
-        <GradientIcon Icon={Inheritance} height={50} />
+        <GradientIcon Icon={Inheritance} height={windowHeight > 600 ? 50 : 20} />
         <Text
           color={`${colorMode}.primaryText`}
           style={styles.title}
           testID="text_InheritanceSupport"
         >
-          Inheritance Support
+          {inheritence.inheritanceSupport}
         </Text>
         <Text
           color={`${colorMode}.textColor2`}
           style={styles.subtitle}
           testID="text_InheritanceSupportSubtitle"
         >
-          Keeper provides you with the tips and tools you need to include the Vault in your estate
-          planning
+          {inheritence.inheritanceSupportSubTitle}
         </Text>
       </Box>
       <Box style={styles.bottomContainer} testID="view_InheritanceSupportAssert">
         <Assert />
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
           {shouldActivateInheritance()
-            ? `Manage Inheritance key or view documents`
+            ? vaultTranslation.manageInheritance
             : `This can be activated once you are at the ${SubscriptionTier.L3} level and have a Vault`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
@@ -166,15 +168,15 @@ function SetupInheritance() {
               style={styles.upgradeNowContainer}
             >
               <Text color="light.learnMoreBorder" style={styles.upgradeNowText}>
-                {shouldActivateInheritance() ? 'Proceed' : `Upgrade Now`}
+                {shouldActivateInheritance() ? common.proceed : common.upgradeNow}
               </Text>
             </Box>
           </TouchableOpacity>
         </Box>
       </Box>
       <Note
-        title="Note"
-        subtitle="Consult your estate planning company to ensure the documents provided here are suitable for your needs and are as per your jurisdiction"
+        title={common.note}
+        subtitle={inheritence.consultYourEstate}
         subtitleColor="GreyText"
       />
       <KeeperModal
@@ -182,8 +184,8 @@ function SetupInheritance() {
         close={() => {
           dispatch(setInheritance(false));
         }}
-        title="Inheritance"
-        subTitle="Securely bequeath your bitcoin"
+        title={vaultTranslation.Inheritance}
+        subTitle={inheritence.secureBequeathBitcoin}
         modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         buttonText="Proceed"
@@ -213,30 +215,30 @@ const styles = StyleSheet.create({
     opacity: 0.85,
     fontSize: 12,
     letterSpacing: 0.6,
-    marginTop: hp(36),
-    width: '95%',
+    marginTop: windowHeight > 600 ? hp(36) : 0,
+    width: windowHeight > 600 ? '95%' : '100%',
     textAlign: 'center',
   },
   bottomContainer: {
-    marginTop: hp(30),
+    marginTop: windowHeight > 600 ? hp(30) : hp(5),
     alignItems: 'center',
     flex: 1,
   },
   topContainer: {
-    marginTop: hp(25),
+    marginTop: windowHeight > 600 ? hp(25) : 0,
     alignItems: 'center',
     paddingHorizontal: 1,
   },
   title: {
     fontSize: 16,
     letterSpacing: 0.96,
-    marginTop: hp(10),
+    marginTop: windowHeight > 600 ? hp(10) : hp(20),
     fontWeight: 'bold',
   },
   subtitle: {
     textAlign: 'center',
-    width: wp(270),
-    marginTop: hp(4),
+    width: windowHeight > 600 ? wp(270) : wp(300),
+    marginTop: windowHeight > 600 ? hp(4) : 0,
     fontSize: 12,
     letterSpacing: 0.8,
   },
@@ -245,21 +247,21 @@ const styles = StyleSheet.create({
     // marginBottom: hp(25),
   },
   modalTitle: {
-    fontSize: 15,
+    fontSize: windowHeight > 600 ? 15 : 10,
   },
   modalSubtitle: {
-    fontSize: 12,
+    fontSize: windowHeight > 600 ? 12 : 10,
     opacity: 0.7,
   },
   modalDesc: {
-    marginVertical: hp(8),
+    marginVertical: windowHeight > 600 ? hp(8) : hp(2),
     letterSpacing: 0.65,
-    width: wp(280),
+    width: windowHeight > 600 ? wp(280) : wp(300),
     alignItems: 'center',
-    fontSize: 14,
+    fontSize: windowHeight > 600 ? 14 : 10,
   },
   modalTopContainer: {
-    width: wp(300),
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
   },

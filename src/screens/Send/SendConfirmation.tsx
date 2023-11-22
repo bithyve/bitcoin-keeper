@@ -340,14 +340,16 @@ function FeeInfo({ txFeeInfo, transactionPriority, transferType, sendMaxFee }) {
 }
 
 function SendSuccessfulContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTransactions } = translations;
   return (
     <View>
       <Box alignSelf="center">
         <SuccessIcon />
       </Box>
-      <Text color="light.greenText" fontSize={13} padding={2}>
-        You can view the confirmation status of the transaction on any block explorer or when the
-        vault transaction list is refreshed
+      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
+        {walletTransactions.sendTransSuccessMsg}
       </Text>
     </View>
   );
@@ -420,7 +422,7 @@ function SendConfirmation({ route }) {
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
-  const walletTransactions = translations.wallet;
+  const { wallet: walletTransactions, common, vault } = translations;
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -626,13 +628,13 @@ function SendConfirmation({ route }) {
       </Box>
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note
-          title="Note"
-          subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
+          title={common.note}
+          subtitle={vault.signingOldVault}
         />
       ) : null}
       <Buttons
-        primaryText="Proceed"
-        secondaryText="Cancel"
+        primaryText={common.proceed}
+        secondaryText={common.cancel}
         secondaryCallback={() => {
           navigation.goBack();
         }}
@@ -643,11 +645,11 @@ function SendConfirmation({ route }) {
         visible={visibleModal}
         close={viewDetails}
         title={walletTransactions.SendSuccess}
-        subTitle="The transaction has been successfully broadcasted"
+        subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewDetails}
         buttonCallback={viewDetails}
-        textcolor="light.greenText"
-        buttonTextColor="light.white"
+        textcolor={`${colorMode}.greenText`}
+        buttonTextColor={`${colorMode}.white`}
         Content={SendSuccessfulContent}
       />
       <KeeperModal
@@ -655,7 +657,7 @@ function SendConfirmation({ route }) {
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
-        textcolor="light.greenText"
+        textcolor={`${colorMode}.greenText`}
         Content={() => (
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
@@ -666,7 +668,7 @@ function SendConfirmation({ route }) {
       <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
-        title={'Confirm Passcode'}
+        title={walletTransactions.confirmPassTitle}
         subTitleWidth={wp(240)}
         subTitle={''}
         modalBackground={`${colorMode}.modalWhiteBackground`}

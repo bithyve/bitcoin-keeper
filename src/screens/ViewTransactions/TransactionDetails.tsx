@@ -48,7 +48,7 @@ function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
   const { getSatUnit, getBalance } = useBalance();
   const { translations } = useContext(LocalizationContext);
-  const { transactions } = translations;
+  const { transactions, common } = translations;
   const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
   const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
   const { labels: txnLabels } = useTransactionLabels({ txid: transaction.txid, wallet });
@@ -133,8 +133,7 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
       }`
     );
   };
@@ -164,7 +163,7 @@ function TransactionDetails({ route }) {
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={transactions.TransactionDetails}
-        subtitle="Detailed information for this Transaction"
+        subtitle={transactions.TransactionDetailsSubTitle}
       />
       <Box style={styles.transViewWrapper}>
         <Box flexDirection="row">
@@ -191,7 +190,7 @@ function TransactionDetails({ route }) {
         <Box style={styles.infoCardsWrapper}>
           {txnLabels.length ? (
             <InfoCard
-              title="Tags"
+              title={transactions.labels}
               Content={() => (
                 <View style={styles.listSubContainer}>
                   {txnLabels.map((item, index) => (
@@ -208,15 +207,24 @@ function TransactionDetails({ route }) {
               letterSpacing={2.4}
             />
           ) : null}
+          <TouchableOpacity onPress={() => setVisible(true)}>
+            <InfoCard
+              title={common.note}
+              describtion={labels[transaction.txid][0]?.name || 'Add a note'}
+              showIcon
+              letterSpacing={2.4}
+              Icon={updatingLabel ? <ActivityIndicator /> : <Edit />}
+            />
+          </TouchableOpacity>
           <InfoCard
-            title="Confirmations"
+            title={transactions.confirmations}
             describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
             showIcon={false}
             letterSpacing={2.4}
           />
           <TouchableOpacity onPress={redirectToBlockExplorer}>
             <InfoCard
-              title="Transaction ID"
+              title={transactions.transactionID}
               describtion={transaction.txid}
               showIcon
               letterSpacing={2.4}
@@ -224,32 +232,23 @@ function TransactionDetails({ route }) {
             />
           </TouchableOpacity>
           <InfoCard
-            title="Fees"
+            title={transactions.Fees}
             describtion={`${transaction.fee} sats`}
             showIcon={false}
             letterSpacing={2.4}
           />
           <InfoCard
-            title="Inputs"
+            title={transactions.inputs}
             describtion={transaction.senderAddresses.toString().replace(/,/g, '\n')}
             showIcon={false}
             numberOfLines={transaction.senderAddresses.length}
           />
           <InfoCard
-            title="Outputs"
+            title={transactions.outputs}
             describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
             showIcon={false}
             numberOfLines={transaction.recipientAddresses.length}
           />
-          <TouchableOpacity onPress={() => setVisible(true)}>
-            <InfoCard
-              title="Note"
-              describtion={labels[transaction.txid][0]?.name || 'Add a note'}
-              showIcon
-              letterSpacing={2.4}
-              Icon={updatingLabel ? <ActivityIndicator /> : <Edit />}
-            />
-          </TouchableOpacity>
         </Box>
         <KeeperModal
           visible={visible}
@@ -258,9 +257,9 @@ function TransactionDetails({ route }) {
           subTitleColor={`${colorMode}.secondaryText`}
           DarkCloseIcon={colorMode === 'dark'}
           close={close}
-          title="Add a Note"
-          subTitle="Optionally you can add a short note to the transactions"
-          buttonText="Save"
+          title={common.addNote}
+          subTitle={transactions.updateLabelSubTitle}
+          buttonText={common.save}
           justifyContent="center"
           Content={MemoisedContent}
           buttonCallback={() => {
