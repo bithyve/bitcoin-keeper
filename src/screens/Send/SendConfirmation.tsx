@@ -53,6 +53,9 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
+const { translations } = useContext(LocalizationContext);
+const { wallet: walletTransactions } = translations;
+
 function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
@@ -343,14 +346,14 @@ function FeeInfo({ txFeeInfo, transactionPriority, transferType, sendMaxFee }) {
 }
 
 function SendSuccessfulContent() {
+  const { colorMode } = useColorMode();
   return (
     <View>
       <Box alignSelf="center">
         <SuccessIcon />
       </Box>
-      <Text color="light.greenText" fontSize={13} padding={2}>
-        You can view the confirmation status of the transaction on any block explorer or when the
-        vault transaction list is refreshed
+      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
+        {walletTransactions.sendTransSuccessMsg}
       </Text>
     </View>
   );
