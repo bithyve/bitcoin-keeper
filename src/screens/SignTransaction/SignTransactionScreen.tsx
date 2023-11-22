@@ -436,7 +436,6 @@ function SignTransactionScreen() {
                   label,
                 })
               );
-              // setVisibleModal(true)
             } else {
               showToast(`Sorry there aren't enough signatures!`);
             }
