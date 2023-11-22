@@ -144,7 +144,7 @@ function VaultRecovery({ navigation }) {
     useAppSelector((state) => state.bhr);
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
-  const [signersList, setsignersList] = useState(signingDevices);
+  const [signersList, setsignersList] = useState<VaultSigner[]>(signingDevices);
   const [error, setError] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
@@ -278,8 +278,8 @@ function VaultRecovery({ navigation }) {
     try {
       setError(false);
       const xfpHash = hash256(signersList[0].masterFingerprint);
-
-      const response = await Relay.getVaultMetaData(xfpHash);
+      const multisigSignerId = updateSignerForScheme(signersList[0], 2).signerId;
+      const response = await Relay.getVaultMetaData(xfpHash, multisigSignerId);
       if (response?.vaultShellId) {
         dispatch(setRelayVaultRecoveryShellId(response.vaultShellId));
         dispatch(setTempShellId(response.vaultShellId));
