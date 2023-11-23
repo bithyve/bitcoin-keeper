@@ -4,11 +4,12 @@ import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 
 import { useAppSelector } from 'src/store/hooks';
 import useVault from 'src/hooks/useVault';
-import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
+import { getSignerNameFromType, getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import useSubscription from './useSubscription';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 
 const getPrefillForSignerList = (scheme, vaultSigners) => {
   let fills = [];
@@ -76,35 +77,57 @@ const useSignerIntel = ({ scheme }) => {
     }
   });
 
-  const invalidSigners = signersState.filter(
-    (signer) => signer && !validSigners.includes(signer.type)
-  );
-
   let invalidIKS = false;
   let invalidSS = false;
-  invalidSigners.forEach((signer) => {
-    if (signer.type === SignerType.INHERITANCEKEY) {
-      invalidIKS = true;
-    }
-    if (signer.type === SignerType.POLICY_SERVER) {
-      invalidSS = true;
+  let invalidMessage = '';
+
+  signersState.forEach((signer) => {
+    if (signer) {
+      if (signer.type === SignerType.INHERITANCEKEY) {
+        if (!validSigners.includes(signer.type)) {
+          invalidIKS = true;
+          invalidMessage = `${getSignerNameFromType(signer.type)} is not allowed in ${
+            SubscriptionTier.L2
+          } Please upgrade your plan or remove them`;
+        } else if (vaultSigners.length < 5) {
+          invalidIKS = true;
+          invalidMessage = `You need at least 5 signers to use ${getSignerNameFromType(
+            signer.type
+          )}. Please add more signers`;
+        }
+      }
+      if (signer.type === SignerType.POLICY_SERVER) {
+        if (!validSigners.includes(signer.type)) {
+          invalidSS = true;
+          invalidMessage = `${getSignerNameFromType(signer.type)} is not allowed in ${
+            SubscriptionTier.L1
+          } Please upgrade your plan or remove them`;
+        } else if (vaultSigners.length < 3) {
+          invalidSS = true;
+          invalidMessage = `You need at least 3 signers to use ${getSignerNameFromType(
+            signer.type
+          )}. Please add more signers`;
+        }
+      }
     }
   });
 
   const areSignersValid =
     signersState.every((signer) => !signer) ||
     signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit: scheme.n }) ||
-    areSignersSame({ activeVault, signersState });
-  misMatchedSigners.length;
+    areSignersSame({ activeVault, signersState }) ||
+    misMatchedSigners.length ||
+    invalidIKS ||
+    invalidSS;
 
   return {
     signersState,
     areSignersValid,
     amfSigners,
     misMatchedSigners,
-    invalidSigners,
     invalidSS,
     invalidIKS,
+    invalidMessage,
   };
 };
 
