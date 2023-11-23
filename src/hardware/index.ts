@@ -210,9 +210,14 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
     return { disabled: true, message: 'Upgrade tier to use as key' };
   }
   // Keys Incase of already added
-  if (vaultSigners.find((s) => s.type === type && SIGNLE_ALLOWED_SIGNERS.includes(type))) {
-    return { disabled: true, message: 'Key already added to the Vault.' };
+  if (vaultSigners.find((s) => s.type === type)) {
+    if (SIGNLE_ALLOWED_SIGNERS.includes(type)) {
+      return { disabled: true, message: 'Key already added to the Vault.' };
+    } else if (type === SignerType.POLICY_SERVER && vaultSigners.length < 3) {
+      return { disabled: true, message: 'Please add at least 2 keys to access' };
+    }
   }
+
   return { disabled: false, message: '' };
 };
 
@@ -224,9 +229,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, 
         message: !isNfcSupported ? 'NFC is not supported in your device' : '',
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
-    case SignerType.MOBILE_KEY:
     case SignerType.POLICY_SERVER:
-    case SignerType.KEEPER:
       return {
         message: getDisabled(type, isOnL1, vaultSigners).message,
         disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
@@ -238,6 +241,8 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, 
             message: '',
             disabled: false,
           };
+    case SignerType.KEEPER:
+    case SignerType.MOBILE_KEY:
     case SignerType.SEED_WORDS:
     case SignerType.JADE:
     case SignerType.BITBOX02:
