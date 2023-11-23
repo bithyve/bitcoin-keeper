@@ -110,6 +110,7 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(value) => {
                   setTransferPolicy(value);
                 }}
+                variant="unstyled"
                 keyboardType="numeric"
               />
             </Box>

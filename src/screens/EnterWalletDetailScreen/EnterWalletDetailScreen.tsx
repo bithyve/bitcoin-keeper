@@ -309,6 +309,7 @@ function EnterWalletDetailScreen({ route }) {
             onChangeText={(value) => {
               setTransferPolicy(value);
             }}
+            variant="unstyled"
             keyboardType="numeric"
             InputRightElement={
               <Box style={styles.sats}>
