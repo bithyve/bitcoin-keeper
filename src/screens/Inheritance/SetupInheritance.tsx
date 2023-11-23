@@ -2,7 +2,7 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { wp, hp, windowHeight } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
@@ -35,7 +35,11 @@ function SetupInheritance() {
   const { plan } = usePlan();
   const { activeVault } = useVault();
 
-  const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
+  const shouldActivateInheritance = () =>
+    plan === SubscriptionTier.L3.toUpperCase() &&
+    activeVault &&
+    activeVault.scheme.m === 3 &&
+    (activeVault.scheme.n === 5 || activeVault.scheme.n === 6);
 
   const inheritanceData = [
     {
@@ -125,7 +129,12 @@ function SetupInheritance() {
   const toSetupInheritance = () => {
     if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
     else if (plan !== SubscriptionTier.L3.toUpperCase()) navigtaion.navigate('ChoosePlan');
-    else if (!activeVault) navigtaion.navigate('AddSigningDevice');
+    else if (!activeVault)
+      navigtaion.dispatch(
+        CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+      );
+    else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5)
+      navigtaion.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
   };
 
   return (
@@ -158,7 +167,7 @@ function SetupInheritance() {
         <Text numberOfLines={2} light style={styles.message} color={`${colorMode}.textColor2`}>
           {shouldActivateInheritance()
             ? vaultTranslation.manageInheritance
-            : `This can be activated once you are on ${SubscriptionTier.L3}`}
+            : `This can be activated once you are on ${SubscriptionTier.L3} and create a 3 of 5 Vault to add this key`}
         </Text>
         <Box style={{ marginTop: windowHeight > 700 ? hp(50) : hp(20) }} testID="btn_ISContinue">
           <TouchableOpacity testID="btn_inheritanceBtn" onPress={() => toSetupInheritance()}>

@@ -263,7 +263,7 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const vaultCheck = async () => {
-    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE);
+    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE, scheme);
     const response = await Relay.vaultCheck(vaultId);
     if (response.isVault) {
       setScheme(response.scheme);
