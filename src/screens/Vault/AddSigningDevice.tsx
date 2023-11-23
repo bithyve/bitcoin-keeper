@@ -211,7 +211,9 @@ function AddSigningDevice() {
     signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
   const { name = 'Vault', description = 'Secure your sats' } = route.params;
   let { scheme } = route.params;
-  if (!scheme && activeVault && !isInheritance) {
+  if (scheme && isInheritance) {
+    scheme = { m: scheme.m, n: scheme.n + 1 };
+  } else if (!scheme && activeVault && !isInheritance) {
     scheme = activeVault.scheme;
     // added temporarily until we support multiple vaults
   } else if (!scheme && activeVault && isInheritance) {
@@ -256,7 +258,7 @@ function AddSigningDevice() {
 
   const subtitle =
     scheme.n > 1
-      ? `Vault with a ${scheme.m} of ${scheme.n + (isInheritance ? 1 : 0)} setup will be created${
+      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
           isInheritance ? ' for Inheritance' : ''
         }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
@@ -271,7 +273,6 @@ function AddSigningDevice() {
         vaultCreating={vaultCreating}
         setCreating={setCreating}
         signersState={signersState}
-        isInheritance={isInheritance}
         scheme={scheme}
         name={name}
         description={description}
