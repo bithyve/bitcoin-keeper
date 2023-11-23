@@ -45,8 +45,6 @@ import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
-const allowedSignerLength = [1, 3, 5];
-
 export function formatDuration(ms) {
   const duration = moment.duration(ms);
   return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
@@ -303,12 +301,8 @@ function VaultRecovery({ navigation }) {
   };
 
   const startRecovery = () => {
-    if (allowedSignerLength.includes(signersList.length)) {
-      setRecoveryLoading(true);
-      vaultCheck();
-    } else {
-      showToast("Vault can't be recreated in this scheme", <ToastErrorIcon />);
-    }
+    setRecoveryLoading(true);
+    vaultCheck();
   };
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
