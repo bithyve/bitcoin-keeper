@@ -26,7 +26,6 @@ import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { getSignerNameFromType, isSignerAMF, UNVERIFYING_SIGNERS } from 'src/hardware';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import NoVaultTransactionIcon from 'src/assets/images/emptystate.svg';
 import AddPhoneEmailIcon from 'src/assets/images/AddPhoneEmail.svg';
@@ -36,7 +35,6 @@ import useVault from 'src/hooks/useVault';
 import Buttons from 'src/components/Buttons';
 import { fetchRampReservation } from 'src/services/ramp';
 import WalletOperations from 'src/core/wallets/operations';
-import useFeatureMap from 'src/hooks/useFeatureMap';
 import openLink from 'src/utils/OpenLink';
 import { SDIcons } from './SigningDeviceIcons';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
@@ -61,8 +59,6 @@ function Footer({
   setIdentifySignerModal: any;
 }) {
   const navigation = useNavigation();
-  const { showToast } = useToastMessage();
-  const featureMap = useFeatureMap({ scheme: vault.scheme, isCollaborativeWallet });
   const footerItems = [
     {
       Icon: Send,
@@ -85,9 +81,7 @@ function Footer({
     {
       Icon: Buy,
       text: 'Buy',
-      onPress: () => {
-        featureMap.vaultBuy ? onPressBuy() : showToast('Please Upgrade');
-      },
+      onPress: onPressBuy,
     },
     {
       Icon: IconSettings,
