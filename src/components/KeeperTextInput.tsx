@@ -31,7 +31,7 @@ const KeeperTextInput = ({
       />
       {maxLength ? (
         <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
-          {value && value.length}/{maxLength}
+          {value ? value.length : '0'}/{maxLength}
         </KeeperText>
       ) : null}
     </>
