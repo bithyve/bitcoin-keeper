@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
-import { Input, useColorMode } from 'native-base';
+import { Input, useColorMode, Box } from 'native-base';
 import KeeperText from './KeeperText';
 
 const KeeperTextInput = ({
@@ -14,7 +14,7 @@ const KeeperTextInput = ({
 }) => {
   const { colorMode } = useColorMode();
   return (
-    <>
+    <Box backgroundColor={`${colorMode}.seashellWhite`}>
       <Input
         defaultValue={defaultValue}
         ref={inputRef}
@@ -31,10 +31,10 @@ const KeeperTextInput = ({
       />
       {maxLength ? (
         <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
-          {value && value.length}/{maxLength}
+          {value ? value.length : '0'}/{maxLength}
         </KeeperText>
       ) : null}
-    </>
+    </Box>
   );
 };
 

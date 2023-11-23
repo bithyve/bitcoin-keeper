@@ -3,7 +3,7 @@ import Clipboard from '@react-native-community/clipboard';
 import { Box, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -32,11 +32,14 @@ import { setTempShellId } from 'src/store/reducers/vaults';
 import { generateKey } from 'src/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation } = translations
   const [validationModal, showValidationModal] = useState(false);
   const { activeVault } = useVault();
   const { tempShellId } = useAppSelector((state) => state.vault);
@@ -150,8 +153,7 @@ function SetupSigningServer({ route }: { route }) {
             color="light.greenText"
 
           >
-            If you lose your authenticator app, use the other Signing Devices to reset the Signing
-            Server
+            {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>

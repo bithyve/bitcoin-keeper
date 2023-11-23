@@ -98,7 +98,7 @@ function ImportWalletDetailsScreen({ route }) {
               />
               <Input
                 placeholder={importWallet.enterAmount}
-                placeholderTextColor="light.GreyText"
+                placeholderTextColor={`${colorMode}.GreyText"`}
                 color={`${colorMode}.greenText`}
                 width="96%"
                 h={10}
@@ -110,6 +110,7 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(value) => {
                   setTransferPolicy(value);
                 }}
+                variant="unstyled"
                 keyboardType="numeric"
               />
             </Box>
