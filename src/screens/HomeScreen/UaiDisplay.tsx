@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
@@ -64,7 +64,9 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.SECURE_VAULT:
         return {
           cta: () => {
-            navigtaion.navigate('AddSigningDevice');
+            navigtaion.dispatch(
+              CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+            );
           },
         };
       case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
@@ -76,7 +78,9 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.VAULT_MIGRATION:
         return {
           cta: () => {
-            navigtaion.navigate('AddSigningDevice');
+            navigtaion.dispatch(
+              CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+            );
           },
         };
       case uaiType.IKS_REQUEST:

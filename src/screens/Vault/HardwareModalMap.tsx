@@ -492,7 +492,9 @@ function PasswordEnter({
       if (currentPinHash === pinHash) {
         const mobileKey = await setupMobileKey({ primaryMnemonic });
         dispatch(addSigningDevice(mobileKey));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
         showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
         setInProgress(false);
         close();
@@ -738,7 +740,9 @@ function HardwareModalMap({
             onSuccess: (mnemonic) => {
               const softSigner = setupSeedWordsBasedKey(mnemonic, isMultisig);
               dispatch(addSigningDevice(softSigner));
-              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+              );
               showToast(`${softSigner.signerName} added successfully`, <TickIcon />);
             },
           },
@@ -787,7 +791,9 @@ function HardwareModalMap({
         navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       } else {
         dispatch(addSigningDevice(hw));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
       }
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
       const exsists = await checkSigningDevice(hw.signerId);
@@ -803,7 +809,9 @@ function HardwareModalMap({
           `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
           <ToastErrorIcon />
         );
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
       }
     }
   };
@@ -855,6 +863,8 @@ function HardwareModalMap({
   };
 
   const addSigningServerVaultShellId = () => {
+    const { translations } = useContext(LocalizationContext);
+    const { vault: vaultTranslation, common } = translations
     const verifySigningServer = async (otp) => {
       try {
         setInProgress(true);
@@ -915,14 +925,11 @@ function HardwareModalMap({
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
           <Text
-            fontSize={13}
-            letterSpacing={0.65}
-            width={wp(290)}
+            style={styles.cvvInputInfoText}
             color="light.greenText"
-            marginTop={2}
+
           >
-            If you lose your authenticator app, use the other Signing Devices to reset the Signing
-            Server
+            {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
@@ -930,7 +937,7 @@ function HardwareModalMap({
                 onPress={() => {
                   verifySigningServer(otp);
                 }}
-                value="Confirm"
+                value={common.confirm}
               />
             </Box>
           </Box>
@@ -984,7 +991,9 @@ function HardwareModalMap({
             if (res.success) {
               const mobileKey = await setupMobileKey({ primaryMnemonic });
               dispatch(addSigningDevice(mobileKey));
-              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+              );
               showToast(`${mobileKey.signerName} added successfully`, <TickIcon />);
             } else {
               showToast('Incorrect password. Try again!', <ToastErrorIcon />);
@@ -1145,5 +1154,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     width: wp(285),
   },
+  cvvInputInfoText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: '100%',
+    marginTop: 2,
+  }
 });
 export default HardwareModalMap;

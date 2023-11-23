@@ -156,7 +156,7 @@ function SignWithChannel() {
           const { signedSerializedPSBT } = signWithLedgerChannel(
             serializedPSBT,
             signingPayload,
-            data
+            decrypted
           );
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
           dispatch(healthCheckSigner([signer]));

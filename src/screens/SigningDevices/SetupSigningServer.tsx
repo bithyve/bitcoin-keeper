@@ -3,7 +3,7 @@ import Clipboard from '@react-native-community/clipboard';
 import { Box, View } from 'native-base';
 import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
@@ -32,11 +32,14 @@ import { setTempShellId } from 'src/store/reducers/vaults';
 import { generateKey } from 'src/services/operations/encryption';
 import { useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupSigningServer({ route }: { route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation } = translations
   const [validationModal, showValidationModal] = useState(false);
   const { activeVault } = useVault();
   const { tempShellId } = useAppSelector((state) => state.vault);
@@ -96,7 +99,9 @@ function SetupSigningServer({ route }: { route }) {
       signerPolicy: policy,
     });
     dispatch(addSigningDevice(signingServerKey));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    navigation.dispatch(
+      CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+    );
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 
@@ -144,14 +149,11 @@ function SetupSigningServer({ route }: { route }) {
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
           <Text
-            fontSize={13}
-            letterSpacing={0.65}
-            width={wp(290)}
+            style={styles.cvvInputInfoText}
             color="light.greenText"
-            marginTop={2}
+
           >
-            If you lose your authenticator app, use the other Signing Devices to reset the Signing
-            Server
+            {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
@@ -296,5 +298,11 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     padding: 20,
   },
+  cvvInputInfoText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: '100%',
+    marginTop: 2,
+  }
 });
 export default SetupSigningServer;

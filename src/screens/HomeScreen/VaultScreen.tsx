@@ -31,7 +31,7 @@ function VaultScreen() {
   const { vault } = translations;
 
   const navigateToHardwareSetup = () => {
-    navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
+    navigation.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));
   };
 
   const onVaultPress = () => {

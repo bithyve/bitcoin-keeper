@@ -86,7 +86,11 @@ function InheritanceStatus() {
               return;
             }
             navigtaion.dispatch(
-              CommonActions.navigate('AddSigningDevice', { isInheritance: true })
+              CommonActions.navigate({
+                name: 'AddSigningDevice',
+                merge: true,
+                params: { isInheritance: true },
+              })
             );
           }}
         />
@@ -102,7 +106,7 @@ function InheritanceStatus() {
               if (res) {
                 navigtaion.navigate('PreviewPDF', { source: res });
               }
-            })
+            });
           }}
           isDownload
         />
@@ -125,7 +129,7 @@ function InheritanceStatus() {
               if (res) {
                 navigtaion.navigate('PreviewPDF', { source: res });
               }
-            })
+            });
           }}
           isDownload
         />
@@ -138,7 +142,7 @@ function InheritanceStatus() {
               if (res) {
                 navigtaion.navigate('PreviewPDF', { source: res });
               }
-            })
+            });
           }}
           isDownload
         />
@@ -163,7 +167,7 @@ const styles = StyleSheet.create({
     height: windowHeight > 800 ? '50%' : '40%',
   },
   sectionTitleWrapper: {
-    marginTop: 10
+    marginTop: 10,
   },
   sectionTitle: {
     fontSize: 16,

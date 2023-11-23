@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
 import { Box, useColorMode } from 'native-base';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { windowHeight } from 'src/constants/responsive';
 
 const styles = StyleSheet.create({
   container: {
@@ -20,12 +21,21 @@ function Switch({ value, onValueChange, loading, testID }: Props) {
   const { colorMode } = useColorMode();
   return (
     <TouchableOpacity testID={testID} onPress={() => onValueChange(!value)} disabled={loading}>
-      <Box style={styles.container} backgroundColor={`${colorMode}.greenButtonBackground`}>
-        <Box height={8} width={12} borderRadius={10} justifyContent="center" alignItems="center">
+      <Box
+        style={styles.container}
+        backgroundColor={value ? `${colorMode}.greenButtonBackground` : `${colorMode}.textColor2`}
+      >
+        <Box
+          height={windowHeight > 600 ? 8 : 6}
+          width={windowHeight > 600 ? 12 : 10}
+          borderRadius={10}
+          justifyContent="center"
+          alignItems="center"
+        >
           {value ? (
             <Box
-              height={6}
-              width={6}
+              height={windowHeight > 600 ? 6 : 5}
+              width={windowHeight > 600 ? 6 : 5}
               borderRadius={15}
               backgroundColor={`${colorMode}.fadedGray`}
               alignSelf="flex-end"
@@ -33,8 +43,8 @@ function Switch({ value, onValueChange, loading, testID }: Props) {
             />
           ) : (
             <Box
-              height={6}
-              width={6}
+              height={windowHeight > 600 ? 6 : 5}
+              width={windowHeight > 600 ? 6 : 5}
               borderRadius={15}
               backgroundColor={`${colorMode}.fadedGray`}
               alignSelf="flex-start"
