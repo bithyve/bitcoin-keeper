@@ -93,6 +93,13 @@ function VaultSettings() {
             navigation.dispatch(CommonActions.navigate('ArchivedVault'));
           }}
         />
+        <OptionCard
+          title="Update scheme"
+          description="Update your vault configuration and transfer funds"
+          callback={() => {
+            navigation.dispatch(CommonActions.navigate('VaultSetup'));
+          }}
+        />
       </ScrollView>
       <Box style={styles.bottomNoteWrapper}>
         <Note

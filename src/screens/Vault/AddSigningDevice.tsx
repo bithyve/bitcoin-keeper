@@ -300,7 +300,7 @@ function AddSigningDevice() {
         ) : null}
         {invalidSigners.length ? (
           <Box style={styles.noteContainer}>
-            {invalidSS || invalidIKS ? (
+            {invalidSS ? (
               <Note
                 title="WARNING"
                 subtitle={`A few signers (${invalidSigners
