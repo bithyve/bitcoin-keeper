@@ -70,6 +70,7 @@ const VaultSetup = () => {
           value={vaultName}
           onChangeText={setVaultName}
           testID={'vault_name'}
+          maxLength={20}
         />
         <View style={{ height: 20 }} />
         <KeeperTextInput
@@ -77,6 +78,7 @@ const VaultSetup = () => {
           value={vaultDescription}
           onChangeText={setVaultDescription}
           testID={'vault_description'}
+          maxLength={40}
         />
         <View style={{ marginVertical: 30, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
         <Text style={{ fontSize: 14 }}>Total Keys for Vault Configuration</Text>
