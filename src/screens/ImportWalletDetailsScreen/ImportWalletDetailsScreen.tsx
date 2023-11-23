@@ -98,7 +98,7 @@ function ImportWalletDetailsScreen({ route }) {
               />
               <Input
                 placeholder={importWallet.enterAmount}
-                placeholderTextColor="light.GreyText"
+                placeholderTextColor={`${colorMode}.GreyText"`}
                 color={`${colorMode}.greenText`}
                 width="96%"
                 h={10}
