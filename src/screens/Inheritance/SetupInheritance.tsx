@@ -131,7 +131,11 @@ function SetupInheritance() {
     else if (plan !== SubscriptionTier.L3.toUpperCase()) navigtaion.navigate('ChoosePlan');
     else if (!activeVault)
       navigtaion.dispatch(
-        CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        CommonActions.navigate({
+          name: 'AddSigningDevice',
+          merge: true,
+          params: { scheme: { m: 3, n: 5 } },
+        })
       );
     else if (activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5)
       navigtaion.dispatch(CommonActions.navigate({ name: 'VaultSetup' }));

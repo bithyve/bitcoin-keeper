@@ -25,8 +25,7 @@ import moment from 'moment';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { getPlaceholder } from 'src/utils/utilities';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
-import { getSignerNameFromType, getSignerSigTypeInfo } from 'src/hardware';
+import { getSignerSigTypeInfo } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import useSignerIntel from 'src/hooks/useSignerIntel';
 import { globalStyles } from 'src/constants/globalStyles';
@@ -51,13 +50,13 @@ function SignerItem({
   signer,
   index,
   setInheritanceInit,
-  inheritanceSigner,
+  isInheritance,
   scheme,
 }: {
   signer: VaultSigner | undefined;
   index: number;
   setInheritanceInit: any;
-  inheritanceSigner: VaultSigner;
+  isInheritance: boolean;
   scheme: { m: number; n: number };
 }) {
   const { colorMode } = useColorMode();
@@ -70,7 +69,7 @@ function SignerItem({
     navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }));
 
   const callback = () => {
-    if (index === 5 && !inheritanceSigner) {
+    if (index === 5 && isInheritance) {
       setInheritanceInit(true);
     } else {
       navigateToSignerList();
@@ -205,11 +204,7 @@ function AddSigningDevice() {
   const { common } = translations;
   const [inheritanceInit, setInheritanceInit] = useState(false);
 
-  const signers = activeVault?.signers || [];
-  const isInheritance =
-    route?.params?.isInheritance ||
-    signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
-  const { name = 'Vault', description = 'Secure your sats' } = route.params;
+  const { name = 'Vault', description = 'Secure your sats', isInheritance = false } = route.params;
   let { scheme } = route.params;
   if (scheme && isInheritance) {
     scheme = { m: scheme.m, n: scheme.n + 1 };
@@ -225,14 +220,10 @@ function AddSigningDevice() {
     areSignersValid,
     amfSigners,
     misMatchedSigners,
-    invalidSigners,
     invalidSS,
     invalidIKS,
+    invalidMessage,
   } = useSignerIntel({ scheme });
-
-  const inheritanceSigner: VaultSigner = signersState.filter(
-    (signer) => signer?.type === SignerType.INHERITANCEKEY
-  )[0];
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {
@@ -249,8 +240,8 @@ function AddSigningDevice() {
       signer={item}
       index={index}
       setInheritanceInit={setInheritanceInit}
-      inheritanceSigner={inheritanceSigner}
       scheme={scheme}
+      isInheritance={isInheritance}
     />
   );
 
@@ -299,27 +290,9 @@ function AddSigningDevice() {
             />
           </Box>
         ) : null}
-        {invalidSigners.length ? (
+        {invalidSS || invalidIKS ? (
           <Box style={styles.noteContainer}>
-            {invalidSS ? (
-              <Note
-                title="WARNING"
-                subtitle={`A few signers (${invalidSigners
-                  .map((signer) => getSignerNameFromType(signer.type))
-                  .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
-                  SubscriptionTier.L3
-                }. Please remove them or upgrade your plan.`}
-                subtitleColor="error"
-              />
-            ) : invalidIKS ? (
-              <Note
-                title="WARNING"
-                subtitle={`${getSignerNameFromType(SignerType.INHERITANCEKEY)} is only valid at ${
-                  SubscriptionTier.L3
-                }. Please remove them or upgrade your plan.`}
-                subtitleColor="error"
-              />
-            ) : null}
+            <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
           </Box>
         ) : misMatchedSigners.length ? (
           <Box style={styles.noteContainer}>
