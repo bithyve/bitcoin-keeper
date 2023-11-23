@@ -51,13 +51,13 @@ function SignerItem({
   signer,
   index,
   setInheritanceInit,
-  inheritanceSigner,
+  isInheritance,
   scheme,
 }: {
   signer: VaultSigner | undefined;
   index: number;
   setInheritanceInit: any;
-  inheritanceSigner: VaultSigner;
+  isInheritance: boolean;
   scheme: { m: number; n: number };
 }) {
   const { colorMode } = useColorMode();
@@ -70,7 +70,7 @@ function SignerItem({
     navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }));
 
   const callback = () => {
-    if (index === 5 && !inheritanceSigner) {
+    if (index === 5 && isInheritance) {
       setInheritanceInit(true);
     } else {
       navigateToSignerList();
@@ -205,11 +205,7 @@ function AddSigningDevice() {
   const { common } = translations;
   const [inheritanceInit, setInheritanceInit] = useState(false);
 
-  const signers = activeVault?.signers || [];
-  const isInheritance =
-    route?.params?.isInheritance ||
-    signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
-  const { name = 'Vault', description = 'Secure your sats' } = route.params;
+  const { name = 'Vault', description = 'Secure your sats', isInheritance = false } = route.params;
   let { scheme } = route.params;
   if (scheme && isInheritance) {
     scheme = { m: scheme.m, n: scheme.n + 1 };
@@ -249,8 +245,8 @@ function AddSigningDevice() {
       signer={item}
       index={index}
       setInheritanceInit={setInheritanceInit}
-      inheritanceSigner={inheritanceSigner}
       scheme={scheme}
+      isInheritance={isInheritance}
     />
   );
 
