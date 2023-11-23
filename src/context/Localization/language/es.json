@@ -427,7 +427,8 @@
     "collaborativeWallet": "Collaborative Wallet",
     "keeperVault": "Keeper Vault",
     "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.",
-    "signingOldVault": "Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
+    "signingOldVault": "Old Vaults with the previous signing device configuration will be in the archived list of Vaults",
+    "cvvSigningServerInfo": "If you lose your authenticator app, use the other Signing Devices to reset the Signing Server"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
