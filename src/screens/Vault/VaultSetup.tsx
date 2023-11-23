@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -72,7 +72,7 @@ const VaultSetup = () => {
           testID={'vault_name'}
           maxLength={20}
         />
-        <View style={{ height: 20 }} />
+        <Box style={{ height: 20 }} />
         <KeeperTextInput
           placeholder="Vault description"
           value={vaultDescription}
@@ -80,7 +80,7 @@ const VaultSetup = () => {
           testID={'vault_description'}
           maxLength={40}
         />
-        <View style={{ marginVertical: 30, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
+        <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
         <Text style={{ fontSize: 14 }}>Total Keys for Vault Configuration</Text>
         <Text style={{ fontSize: 12 }}>Select the total number of keys</Text>
         <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
