@@ -1,6 +1,4 @@
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-
-import { VaultMigrationType } from 'src/core/wallets/enums';
 import { NewVaultInfo } from '../sagas/wallets';
 
 // types and action creators: dispatched by components and sagas
@@ -26,13 +24,9 @@ export const addSigningDevice = (payload: VaultSigner) => ({
   payload,
 });
 
-export const migrateVault = (
-  newVaultInfo: NewVaultInfo,
-  migrationType: VaultMigrationType,
-  vaultShellId: string
-) => ({
+export const migrateVault = (newVaultInfo: NewVaultInfo, vaultShellId: string) => ({
   type: MIGRATE_VAULT,
-  payload: { newVaultData: newVaultInfo, migrationType, vaultShellId },
+  payload: { newVaultData: newVaultInfo, vaultShellId },
 });
 
 export const finaliseVaultMigration = (payload: string) => ({

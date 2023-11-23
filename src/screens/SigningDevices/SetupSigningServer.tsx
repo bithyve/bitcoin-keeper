@@ -96,7 +96,9 @@ function SetupSigningServer({ route }: { route }) {
       signerPolicy: policy,
     });
     dispatch(addSigningDevice(signingServerKey));
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+    navigation.dispatch(
+      CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+    );
     showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
   };
 

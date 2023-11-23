@@ -140,7 +140,7 @@ function SignTransactionScreen() {
         dispatch(finaliseVaultMigration(vaultId));
       }
     } else if (sendSuccessful) {
-      setVisibleModal(true)
+      setVisibleModal(true);
       // navigation.dispatch(
       //   CommonActions.reset({
       //     index: 1,
@@ -401,12 +401,12 @@ function SignTransactionScreen() {
         ],
       })
     );
-  }
+  };
   return (
     <ScreenWrapper>
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Choose any ${scheme.m} to sign the transaction`}
+        subtitle={`Chose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}

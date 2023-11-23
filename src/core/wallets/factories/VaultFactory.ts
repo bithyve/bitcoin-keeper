@@ -24,13 +24,24 @@ import WalletOperations from '../operations';
 
 const crypto = require('crypto');
 
-export const generateVaultId = (signers, networkType) => {
+const STANDARD_VAULT_SCHEME = [
+  { m: 1, n: 1 },
+  { m: 2, n: 3 },
+  { m: 3, n: 5 },
+];
+
+export const generateVaultId = (signers, networkType, scheme) => {
   const network = WalletUtilities.getNetworkByType(networkType);
   const xpubs = signers.map((signer) => signer.xpub).sort();
   const fingerprints = [];
   xpubs.forEach((xpub) =>
     fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
   );
+  STANDARD_VAULT_SCHEME.forEach((s) => {
+    if (s.m !== scheme.m || s.n !== scheme.n) {
+      fingerprints.push(JSON.stringify(scheme));
+    }
+  });
   const hashedFingerprints = hash256(fingerprints.join(''));
   const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
   return id;
@@ -55,7 +66,7 @@ export const generateVault = ({
   vaultShellId?: string;
   collaborativeWalletId?: string;
 }): Vault => {
-  const id = generateVaultId(signers, networkType);
+  const id = generateVaultId(signers, networkType, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;

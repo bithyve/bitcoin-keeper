@@ -94,7 +94,9 @@ function SetupColdCard({ route }) {
         );
       } else {
         dispatch(addSigningDevice(coldcard));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
       }
 
       showToast(`${coldcard.signerName} added successfully`, <TickIcon />);

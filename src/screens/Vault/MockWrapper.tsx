@@ -1,5 +1,5 @@
 import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/native';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 import { SignerType } from 'src/core/wallets/enums';
@@ -39,7 +39,9 @@ function MockWrapper({
       if (signer) {
         if (!isRecovery) {
           dispatch(addSigningDevice(signer));
-          nav.dispatch(CommonActions.navigate('AddSigningDevice'));
+          nav.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
         if (isRecovery) {
           dispatch(setSigningDevices(signer));

@@ -382,10 +382,11 @@ export default class Relay {
     }
   };
 
-  public static getVaultMetaData = async (xfpHash): Promise<any> => {
+  public static getVaultMetaData = async (xfpHash: String, signerId?: String): Promise<any> => {
     try {
       const res: any = await RestClient.post(`${RELAY}getVaultMetaData`, {
         xfpHash,
+        signerId,
       });
       const data = res.data || res.json;
       return data;

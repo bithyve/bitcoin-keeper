@@ -1,6 +1,5 @@
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { useQuery } from '@realm/react';
@@ -23,8 +22,7 @@ export const SUBSCRIPTION_SCHEME_MAP = {
 const usePlan = () => {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const plan = keeper.subscription.name.toUpperCase();
-  const subscriptionScheme: VaultScheme = SUBSCRIPTION_SCHEME_MAP[plan];
-  return { plan, subscriptionScheme };
+  return { plan };
 };
 
 export default usePlan;

@@ -1,42 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, VaultMigrationType, XpubTypes } from 'src/core/wallets/enums';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 
 import { useAppSelector } from 'src/store/hooks';
-import usePlan from 'src/hooks/usePlan';
 import useVault from 'src/hooks/useVault';
-import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import { getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
 import idx from 'idx';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
+import useSubscription from './useSubscription';
 
-const hasPlanChanged = (vault: Vault, subscriptionScheme): VaultMigrationType => {
-  if (vault) {
-    const currentScheme = vault.scheme;
-    if (currentScheme.m > subscriptionScheme.m) {
-      return VaultMigrationType.DOWNGRADE;
-    }
-    if (currentScheme.m < subscriptionScheme.m) {
-      return VaultMigrationType.UPGRADE;
-    }
-    return VaultMigrationType.CHANGE;
-  }
-  return VaultMigrationType.CHANGE;
-};
-
-const getPrefillForSignerList = (planStatus, vaultSigners, currentSignerLimit) => {
-  let fills;
-  if (planStatus === VaultMigrationType.DOWNGRADE) {
-    if (vaultSigners.length < currentSignerLimit) {
-      fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
-    } else {
-      fills = [];
-    }
-  } else if (vaultSigners.length > currentSignerLimit) {
-    fills = []; // if signers are added but no vault is created
-  } else {
-    fills = new Array(currentSignerLimit - vaultSigners.length).fill(null);
+const getPrefillForSignerList = (scheme, vaultSigners) => {
+  let fills = [];
+  if (vaultSigners.length < scheme.n) {
+    fills = new Array(scheme.n - vaultSigners.length).fill(null);
   }
   return fills;
 };
@@ -51,15 +28,6 @@ const areSignersSame = ({ activeVault, signersState }) => {
   const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
   const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
   return currentSignerIds.sort().join() === activeSignerIds.sort().join();
-};
-
-const areSignersValidInCurrentScheme = ({ plan, signersState }) => {
-  if (plan !== SubscriptionTier.L1.toUpperCase()) {
-    return true;
-  }
-  return signersState.every(
-    (signer) => signer && ![SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
-  );
 };
 
 export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
@@ -83,20 +51,16 @@ export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
   return signer;
 };
 
-const useSignerIntel = ({ isInheritance }) => {
+const useSignerIntel = ({ scheme }) => {
   const { activeVault } = useVault();
-  const { subscriptionScheme, plan } = usePlan();
-  const currentSignerLimit = subscriptionScheme.n + (isInheritance ? 1 : 0);
-  const planStatus = hasPlanChanged(activeVault, subscriptionScheme);
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
+  const { validSigners } = useSubscription();
 
   useEffect(() => {
-    const fills = getPrefillForSignerList(planStatus, vaultSigners, currentSignerLimit);
+    const fills = getPrefillForSignerList(scheme, vaultSigners);
     setSignersState(
-      vaultSigners
-        .map((signer) => updateSignerForScheme(signer, subscriptionScheme.n))
-        .concat(fills)
+      vaultSigners.map((signer) => updateSignerForScheme(signer, scheme.n)).concat(fills)
     );
   }, [vaultSigners]);
 
@@ -106,39 +70,41 @@ const useSignerIntel = ({ isInheritance }) => {
     if (signer) {
       if (isSignerAMF(signer)) amfSigners.push(signer.type);
       const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
-      if (
-        (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
-        (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
-      ) {
+      if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
         misMatchedSigners.push(signer.masterFingerprint);
       }
     }
   });
-  const getInvalidSignerForTire = () => {
-    if (plan === SubscriptionTier.L1.toUpperCase() && signersState) {
-      return signersState.filter(
-        (signer) =>
-          signer && [SignerType.MOBILE_KEY, SignerType.POLICY_SERVER].includes(signer.type)
-      );
+
+  const invalidSigners = signersState.filter(
+    (signer) => signer && !validSigners.includes(signer.type)
+  );
+
+  let invalidIKS = false;
+  let invalidSS = false;
+  invalidSigners.forEach((signer) => {
+    if (signer.type === SignerType.INHERITANCEKEY) {
+      invalidIKS = true;
     }
-    return [];
-  };
-  const invalidSigners = getInvalidSignerForTire();
+    if (signer.type === SignerType.POLICY_SERVER) {
+      invalidSS = true;
+    }
+  });
 
   const areSignersValid =
     signersState.every((signer) => !signer) ||
-    signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit }) ||
-    areSignersSame({ activeVault, signersState }) ||
-    !areSignersValidInCurrentScheme({ plan, signersState }) ||
-    misMatchedSigners.length;
+    signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit: scheme.n }) ||
+    areSignersSame({ activeVault, signersState });
+  misMatchedSigners.length;
 
   return {
-    planStatus,
     signersState,
     areSignersValid,
     amfSigners,
     misMatchedSigners,
     invalidSigners,
+    invalidSS,
+    invalidIKS,
   };
 };
 

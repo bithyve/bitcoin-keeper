@@ -63,14 +63,8 @@ export interface ParsedVauleText {
   scheme: VaultScheme;
 }
 
-const allowedScehemes = {
-  1: [1],
-  2: [3],
-  3: [5, 6],
-};
-
 const isAllowedScheme = (m, n) => {
-  return allowedScehemes[m].includes(n);
+  return m <= n;
 };
 
 function removeEmptyLines(data) {

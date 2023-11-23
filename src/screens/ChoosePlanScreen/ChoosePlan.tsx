@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import { ActivityIndicator, Platform, ScrollView, Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, Pressable } from 'native-base';
@@ -20,7 +19,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
-import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
 import Relay from 'src/services/operations/Relay';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
@@ -35,7 +33,7 @@ import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 import { useQuery } from '@realm/react';
 
-function ChoosePlan(props) {
+function ChoosePlan() {
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
   const { choosePlan, common } = translations;
@@ -53,7 +51,6 @@ function ChoosePlan(props) {
   const [isUpgrade, setIsUpgrade] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const navigation = useNavigation();
   const disptach = useDispatch();
 
   useEffect(() => {
@@ -241,7 +238,10 @@ function ChoosePlan(props) {
               onPress: () => {},
               style: 'cancel',
             },
-            { text: 'Manage', onPress: () => manageSubscription(response.productId) },
+            {
+              text: 'Manage',
+              onPress: () => manageSubscription(response.productId),
+            },
           ]);
         }
       } else {
@@ -267,7 +267,6 @@ function ChoosePlan(props) {
 
   const onPressModalBtn = () => {
     setShowUpgradeModal(false);
-    navigation.navigate('AddSigningDevice');
   };
 
   const getBenifitsTitle = (name) => {
