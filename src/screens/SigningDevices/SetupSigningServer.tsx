@@ -144,11 +144,9 @@ function SetupSigningServer({ route }: { route }) {
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
           <Text
-            fontSize={13}
-            letterSpacing={0.65}
-            width={wp(290)}
+            style={styles.cvvInputInfoText}
             color="light.greenText"
-            marginTop={2}
+
           >
             If you lose your authenticator app, use the other Signing Devices to reset the Signing
             Server
@@ -296,5 +294,11 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     padding: 20,
   },
+  cvvInputInfoText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: '100%',
+    marginTop: 2,
+  }
 });
 export default SetupSigningServer;
