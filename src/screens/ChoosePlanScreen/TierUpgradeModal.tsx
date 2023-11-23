@@ -39,7 +39,7 @@ function TierUpgradeModal({
       modalBackground={`${colorMode}.modalWhiteBackground`}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
-      buttonText={'Continue'}
+      buttonText={''}
       buttonTextColor="light.white"
       buttonBackground={`${colorMode}.greenButtonBackground`}
       buttonCallback={onPress}
