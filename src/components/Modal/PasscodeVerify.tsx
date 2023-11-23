@@ -13,6 +13,7 @@ import PinInputsView from '../AppPinInput/PinInputsView';
 import Buttons from 'src/components/Buttons';
 import Text from '../KeeperText';
 import ReactNativeBiometrics from 'react-native-biometrics';
+import { StyleSheet } from 'react-native';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -121,8 +122,8 @@ function PasscodeVerifyModal(props: Props) {
   };
 
   return (
-    <Box borderRadius={10}>
-      <Box>
+    <Box>
+      <Box style={{ width: '100%' }}>
         {/* pin input view */}
         <PinInputsView
           passCode={passcode}
@@ -133,11 +134,7 @@ function PasscodeVerifyModal(props: Props) {
         {loginError && (
           <Text
             color={`${colorMode}.indicator`}
-            style={{
-              textAlign: 'right',
-              fontStyle: 'italic',
-              marginRight: 5,
-            }}
+            style={styles.errorText}
           >
             {errMessage}
           </Text>
@@ -157,7 +154,7 @@ function PasscodeVerifyModal(props: Props) {
         )}
       </Box>
       {/* keyboardview start */}
-      <Box style={{ width: 280 }}>
+      <Box style={{ width: '100%' }}>
         <KeyPadView
           onDeletePressed={onDeletePressed}
           onPressNumber={onPressNumber}
@@ -168,6 +165,12 @@ function PasscodeVerifyModal(props: Props) {
     </Box>
   );
 }
-
+const styles = StyleSheet.create({
+  errorText: {
+    textAlign: 'right',
+    fontStyle: 'italic',
+    marginRight: 10,
+  }
+})
 PasscodeVerifyModal.defaultProps = defaultProps;
 export default PasscodeVerifyModal;

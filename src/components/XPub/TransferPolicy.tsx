@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 
 import BtcInput from 'src/assets/images/btc_input.svg';
 import BtcWhiteInput from 'src/assets/images/btc_white.svg';
@@ -35,7 +35,7 @@ function TransferPolicy({
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
+  const { common, wallet: walletTranslation } = translations;
   const [policyText, setPolicyText] = useState(wallet?.transferPolicy?.threshold?.toString());
   const dispatch = useDispatch();
 
@@ -49,12 +49,12 @@ function TransferPolicy({
 
   useEffect(() => {
     if (relayWalletError) {
-      showToast('Something went wrong');
+      showToast(common.somethingWrong);
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
       close();
-      showToast('Transfer Policy Changed', <TickIcon />);
+      showToast(walletTranslation.TransPolicyChange, <TickIcon />);
       dispatch(resetRealyWalletState());
     }
   }, [relayWalletUpdate, relayWalletError, realyWalletErrorMessage]);
@@ -78,7 +78,7 @@ function TransferPolicy({
         })
       );
     } else {
-      showToast('Transfer Policy cannot be zero');
+      showToast(walletTranslation.transPolicyCantZero);
     }
   };
   return (
@@ -94,8 +94,8 @@ function TransferPolicy({
           backgroundColor={`${colorMode}.seashellWhite`}
           padding={3}
         >
-          <View marginLeft={4}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</View>
-          <View marginLeft={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
+          <Box pl={5}>{colorMode === 'light' ? <BtcInput /> : <BtcWhiteInput />}</Box>
+          <Box ml={2} width={0.5} backgroundColor="#BDB7B1" opacity={0.3} height={5} />
           <Text
             bold
             fontSize={15}
@@ -110,7 +110,7 @@ function TransferPolicy({
       </Box>
       <Box py={5}>
         <Text fontSize={13} color={`${colorMode}.greenText`} letterSpacing={0.65}>
-          This will trigger a transfer request which you need to approve
+          {walletTranslation.editTransPolicyInfo}
         </Text>
       </Box>
       <Buttons

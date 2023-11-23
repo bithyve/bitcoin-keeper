@@ -77,7 +77,7 @@ class Configuration {
 
   public REQUEST_TIMEOUT: number = 15000;
 
-  public GAP_LIMIT: number = 10;
+  public GAP_LIMIT: number = 5;
 
   public RELAY_AXIOS: AxiosInstance = axios.create({
     baseURL: this.RELAY,

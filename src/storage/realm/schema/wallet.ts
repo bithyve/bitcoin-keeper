@@ -142,6 +142,7 @@ export const WalletSpecsSchema: ObjectSchema = {
     nextFreeChangeAddressIndex: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
+    addressPubs: `{}?`,
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,

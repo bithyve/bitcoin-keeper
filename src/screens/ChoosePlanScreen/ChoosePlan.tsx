@@ -249,7 +249,7 @@ function ChoosePlan() {
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
         const sku = plan.productId;
         const { offerToken } = plan;
-        const purchaseTokenAndroid = null;
+        var purchaseTokenAndroid = null;
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
@@ -260,6 +260,7 @@ function ChoosePlan() {
         });
       }
     } catch (err) {
+      setRequesting(false);
       console.log(err);
     }
   }
