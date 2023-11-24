@@ -359,7 +359,7 @@ function SignersList({ navigation }) {
 
   const { navigate } = useNavigation();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation } = translations
+  const { vault: vaultTranslation } = translations;
 
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();

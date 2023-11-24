@@ -44,11 +44,11 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
   ) : (
     <VStack>
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
-        {'\u2022 Please resigter the vault from the Keeper web interface...'}
+        {'\u2022 Please resigter the vault from the Keeper web interface'}
       </Text>
       <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
         {
-          '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+          '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
         }
       </Text>
       <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
