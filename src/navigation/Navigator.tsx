@@ -148,6 +148,7 @@ function LoginStack() {
       <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
       {/* Other SD */}
       <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
+      <Stack.Screen name="VaultSetup" component={VaultSetup} />
     </Stack.Navigator>
   );
 }
