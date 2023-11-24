@@ -114,7 +114,7 @@ const getSignerContent = (type: SignerType) => {
         assert: <MobileKeyIllustration />,
         description:
           '\u2022To back up the Mobile Key, ensure the Wallet Seed (12 words) is backed up.\n\u2022 You will find this in the settings menu from the top left of the Home Screen.\n\u2022 These keys are considered as hot because they are on your connected device.',
-        FAQ: '',
+        FAQ: 'https://help.bitcoinkeeper.app/knowledge-base/how-to-add-signing-devices/',
       };
     case SignerType.SEED_WORDS:
       return {
