@@ -213,15 +213,22 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   if (vaultSigners.find((s) => s.type === type)) {
     if (SIGNLE_ALLOWED_SIGNERS.includes(type)) {
       return { disabled: true, message: 'Key already added to the Vault.' };
-    } else if (type === SignerType.POLICY_SERVER && vaultSigners.length < 3) {
-      return { disabled: true, message: 'Please add at least 2 keys to access' };
     }
+  }
+  if (type === SignerType.POLICY_SERVER && vaultSigners.length < 3) {
+    return { disabled: true, message: 'Please add at least 2 keys to access' };
   }
 
   return { disabled: false, message: '' };
 };
 
-export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, isOnL1) => {
+export const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  vaultSigners,
+  isOnL1,
+  isMultisig = false
+) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
@@ -235,7 +242,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, 
         disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
       };
     case SignerType.TREZOR:
-      return !isOnL1
+      return isMultisig
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
             message: '',
