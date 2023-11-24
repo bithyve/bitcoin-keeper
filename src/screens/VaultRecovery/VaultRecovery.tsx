@@ -140,8 +140,14 @@ function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
   const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultReoveryShellId } =
-    useAppSelector((state) => state.bhr);
+  const {
+    signingDevices,
+    relayVaultError,
+    relayVaultUpdate,
+    relayVaultReoveryShellId,
+    vaultRecoveryDetails,
+  } = useAppSelector((state) => state.bhr);
+
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
   const [signersList, setsignersList] = useState<VaultSigner[]>(signingDevices);
@@ -240,8 +246,8 @@ function VaultRecovery({ navigation }) {
           vaultScheme: scheme,
           vaultSigners: signersList,
           vaultDetails: {
-            name: 'Vault',
-            description: 'Secure your sats',
+            name: vaultRecoveryDetails.name,
+            description: vaultRecoveryDetails.description,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -263,7 +269,7 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const vaultCheck = async () => {
-    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE, scheme);
+    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE, vaultRecoveryDetails.scheme);
     const response = await Relay.vaultCheck(vaultId);
     if (response.isVault) {
       setScheme(response.scheme);

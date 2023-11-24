@@ -20,7 +20,7 @@ function OtherRecoveryMethods() {
           title="All Signing Devices"
           subTitle="If you have all the signing devices that were initially used to create the Vault"
           onPress={() => {
-            navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+            navigate('LoginStack', { screen: 'VaultSetup', params: { isRecreation: true } });
           }}
         />
         <Tile
