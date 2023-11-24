@@ -221,7 +221,13 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   return { disabled: false, message: '' };
 };
 
-export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, isOnL1) => {
+export const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  vaultSigners,
+  isOnL1,
+  isMultisig = false
+) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
@@ -235,7 +241,7 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, 
         disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
       };
     case SignerType.TREZOR:
-      return !isOnL1
+      return isMultisig
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
             message: '',
