@@ -65,7 +65,7 @@ function UaiDisplay({ uaiStack }) {
         return {
           cta: () => {
             navigtaion.dispatch(
-              CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+              CommonActions.navigate({ name: 'VaultSetup', merge: true, params: {} })
             );
           },
         };
