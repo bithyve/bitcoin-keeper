@@ -22,7 +22,7 @@ function SignerData({ signer }: { signer: VaultSigner }) {
           {signer.signerName}
         </Text>
         <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
-          {`Added ${moment(signer.lastHealthCheck).calendar()}`}
+          {`Added ${moment(signer.lastHealthCheck).calendar().toLocaleLowerCase()}`}
         </Text>
       </VStack>
     </HStack>

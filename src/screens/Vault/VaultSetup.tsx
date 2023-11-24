@@ -79,6 +79,7 @@ const VaultSetup = () => {
           onChangeText={setVaultDescription}
           testID={'vault_description'}
           maxLength={40}
+          height={20}
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
         <Text style={{ fontSize: 14 }}>Total Keys for Vault Configuration</Text>
