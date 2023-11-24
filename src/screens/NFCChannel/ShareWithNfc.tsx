@@ -32,7 +32,7 @@ function ShareWithNfc({ data }: { data: string }) {
       cleanUp();
     });
     const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {
-      showToast('Cosiigner details shared successfully', <TickIcon />);
+      showToast('Cosigner details shared successfully', <TickIcon />);
     });
     return () => {
       cleanUp();
