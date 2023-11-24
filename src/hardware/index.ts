@@ -213,9 +213,10 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   if (vaultSigners.find((s) => s.type === type)) {
     if (SIGNLE_ALLOWED_SIGNERS.includes(type)) {
       return { disabled: true, message: 'Key already added to the Vault.' };
-    } else if (type === SignerType.POLICY_SERVER && vaultSigners.length < 3) {
-      return { disabled: true, message: 'Please add at least 2 keys to access' };
     }
+  }
+  if (type === SignerType.POLICY_SERVER && vaultSigners.length < 3) {
+    return { disabled: true, message: 'Please add at least 2 keys to access' };
   }
 
   return { disabled: false, message: '' };
