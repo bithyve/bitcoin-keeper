@@ -19,6 +19,7 @@ import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
+import KeeperTextInput from 'src/components/KeeperTextInput';
 
 function SetupOtherSDScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -83,29 +84,18 @@ function SetupOtherSDScreen({ route }) {
         subtitle="Manually provide the signer details"
       />
       <Box style={styles.flex}>
-        <TextInput
-          style={styles.input}
-          value={xpub}
-          onChangeText={setXpub}
-          placeholder="xPub"
-          autoCapitalize="none"
-          placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
-        />
-        <TextInput
-          style={styles.input}
+        <KeeperTextInput placeholder="xPub" value={xpub} onChangeText={setXpub} testID={'xPub'} />
+        <KeeperTextInput
+          placeholder="Derivation path (m/84h/0h/0h)"
           value={derivationPath}
           onChangeText={setDerivationPath}
-          placeholder="Derivation path (m/84h/0h/0h)"
-          autoCapitalize="none"
-          placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+          testID={'derivationPath'}
         />
-        <TextInput
-          style={styles.input}
+        <KeeperTextInput
+          placeholder="Master fingerprint"
           value={masterFingerprint}
           onChangeText={setMasterFingerprint}
-          placeholder="Master fingerprint"
-          autoCapitalize="none"
-          placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+          testID={'masterFingerprint'}
         />
       </Box>
       <Buttons
@@ -122,6 +112,7 @@ export default SetupOtherSDScreen;
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+    marginHorizontal: '5%',
   },
   input: {
     margin: '5%',
