@@ -348,6 +348,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 12,
     letterSpacing: 0.6,
+    width: '95%',
   },
   currentTypeSwitchWrapper: {
     alignItems: 'center',
