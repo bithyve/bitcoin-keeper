@@ -35,11 +35,7 @@ function SetupInheritance() {
   const { plan } = usePlan();
   const { activeVault } = useVault();
 
-  const shouldActivateInheritance = () =>
-    plan === SubscriptionTier.L3.toUpperCase() &&
-    activeVault &&
-    activeVault.scheme.m === 3 &&
-    (activeVault.scheme.n === 5 || activeVault.scheme.n === 6);
+  const shouldActivateInheritance = () => plan === SubscriptionTier.L3.toUpperCase() && activeVault;
 
   const inheritanceData = [
     {
