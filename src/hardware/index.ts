@@ -1,4 +1,9 @@
-import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import {
+  Vault,
+  VaultScheme,
+  VaultSigner,
+  XpubDetailsType,
+} from 'src/core/wallets/interfaces/vault';
 
 import {
   DerivationPurpose,
@@ -204,7 +209,7 @@ export const getKeypathFromString = (keypathString: string): number[] => {
 
 const SIGNLE_ALLOWED_SIGNERS = [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY];
 
-const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
+const getDisabled = (type: SignerType, isOnL1, vaultSigners, scheme) => {
   // Keys Incase of level 1 we have level 1
   if (isOnL1) {
     return { disabled: true, message: 'Upgrade tier to use as key' };
@@ -212,11 +217,15 @@ const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
   // Keys Incase of already added
   if (vaultSigners.find((s) => s.type === type)) {
     if (SIGNLE_ALLOWED_SIGNERS.includes(type)) {
-      return { disabled: true, message: 'Key already added to the Vault.' };
+      return { disabled: true, message: 'Key already added to the Vault' };
     }
   }
-  if (type === SignerType.POLICY_SERVER && vaultSigners.length < 3) {
-    return { disabled: true, message: 'Please add at least 2 keys to access' };
+
+  if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
+    return {
+      disabled: true,
+      message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
+    };
   }
 
   return { disabled: false, message: '' };
@@ -227,7 +236,7 @@ export const getDeviceStatus = (
   isNfcSupported,
   vaultSigners,
   isOnL1,
-  isMultisig = false
+  scheme: VaultScheme
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
@@ -238,11 +247,11 @@ export const getDeviceStatus = (
       };
     case SignerType.POLICY_SERVER:
       return {
-        message: getDisabled(type, isOnL1, vaultSigners).message,
-        disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
+        message: getDisabled(type, isOnL1, vaultSigners, scheme).message,
+        disabled: getDisabled(type, isOnL1, vaultSigners, scheme).disabled,
       };
     case SignerType.TREZOR:
-      return isMultisig
+      return scheme.n > 2
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
             message: '',

@@ -171,7 +171,7 @@ function SigningDeviceList() {
                   isNfcSupported,
                   vaultSigners,
                   isOnL1,
-                  isMultisig
+                  scheme
                 );
                 let message = connectivityStatus;
                 if (!connectivityStatus) {

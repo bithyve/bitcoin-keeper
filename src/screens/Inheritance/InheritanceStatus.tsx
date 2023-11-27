@@ -59,6 +59,8 @@ function InheritanceStatus() {
     }
   }, [activeVault]);
 
+  const disableInheritance = activeVault.scheme.m !== 3 || activeVault.scheme.n !== 5;
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
@@ -78,7 +80,11 @@ function InheritanceStatus() {
         <InheritanceDownloadView
           icon={<SetupIK />}
           title="Setup Inheritance Key"
-          subTitle="Add an assisted key to create a 3 of 6 Vault"
+          subTitle={
+            disableInheritance
+              ? 'Please create a 3 of 5 vault to proceed with adding inheritance support'
+              : 'Add an assisted key to create a 3 of 6 Vault'
+          }
           isSetupDone={isSetupDone}
           onPress={() => {
             if (isSetupDone) {
@@ -93,6 +99,7 @@ function InheritanceStatus() {
               })
             );
           }}
+          disableCallback={disableInheritance}
         />
         <Box style={styles.sectionTitleWrapper}>
           <Text style={styles.sectionTitle}>Tips</Text>
