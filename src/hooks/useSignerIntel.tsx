@@ -116,7 +116,7 @@ const useSignerIntel = ({ scheme }) => {
     signersState.every((signer) => !signer) ||
     signerLimitMatchesSubscriptionScheme({ vaultSigners, currentSignerLimit: scheme.n }) ||
     areSignersSame({ activeVault, signersState }) ||
-    misMatchedSigners.length ||
+    !!misMatchedSigners.length ||
     invalidIKS ||
     invalidSS;
 
