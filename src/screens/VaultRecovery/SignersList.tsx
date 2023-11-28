@@ -1,6 +1,6 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
@@ -46,6 +46,7 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -357,6 +358,8 @@ function SignersList({ navigation }) {
   }, []);
 
   const { navigate } = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation } = translations;
 
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
@@ -422,8 +425,7 @@ function SignersList({ navigation }) {
             color="light.greenText"
             marginTop={2}
           >
-            If you lose your authenticator app, use the other Signing Devices to reset the Signing
-            Server
+            {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>

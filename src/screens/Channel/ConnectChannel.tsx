@@ -61,11 +61,11 @@ const ScanAndInstruct = ({ onBarCodeRead, mode }) => {
       <Text numberOfLines={2} color={`${colorMode}.greenText`} style={styles.instructions}>
         {`\u2022 Please ${
           mode === InteracationMode.HEALTH_CHECK ? 'do a health check' : 'share the xPub'
-        } from the Keeper web interface...`}
+        } from the Keeper web interface`}
       </Text>
       <Text numberOfLines={3} color={`${colorMode}.greenText`} style={styles.instructions}>
         {
-          '\u2022 If the web interface does not update, please check be sure to stay on the same internet connection and rescan the QR code.'
+          '\u2022 If the web interface does not update, please make sure to stay on the same internet connection and rescan the QR code.'
         }
       </Text>
       <ActivityIndicator style={{ alignSelf: 'flex-start', padding: '2%' }} />
@@ -128,7 +128,9 @@ function ConnectChannel() {
           );
         } else {
           dispatch(addSigningDevice(bitbox02));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
 
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
@@ -163,7 +165,9 @@ function ConnectChannel() {
           );
         } else {
           dispatch(addSigningDevice(trezor));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(trezor.signerId);
@@ -200,7 +204,9 @@ function ConnectChannel() {
           );
         } else {
           dispatch(addSigningDevice(ledger));
-          navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+          navigation.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
 
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);

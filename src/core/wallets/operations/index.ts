@@ -47,8 +47,9 @@ import {
 } from '../enums';
 import { Vault, VaultScheme, VaultSigner, VaultSpecs } from '../interfaces/vault';
 
-import { Wallet, WalletSpecs } from '../interfaces/wallet';
+import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
+import RestClient from 'src/services/rest/RestClient';
 
 const ECPair = ECPairFactory(ecc);
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
@@ -63,43 +64,33 @@ const feeSurcharge = (wallet: Wallet | Vault) =>
   config.NETWORK_TYPE === NetworkType.TESTNET && wallet.entityKind === EntityKind.VAULT ? 1 : 0;
 
 export default class WalletOperations {
-  public static getNextFreeExternalAddress = ({
-    entity,
-    isMultiSig,
-    specs,
-    networkType,
-    scheme,
-    derivationPath,
-  }: {
-    entity: EntityKind;
-    isMultiSig: boolean;
-    specs: VaultSpecs | WalletSpecs;
-    networkType: NetworkType;
-    scheme?: VaultScheme;
-    derivationPath?: string;
-  }): { receivingAddress: string } => {
+  public static getNextFreeExternalAddress = (
+    wallet: Wallet | Vault
+  ): { receivingAddress: string } => {
     let receivingAddress;
+    const { entityKind, specs, networkType } = wallet;
     const network = WalletUtilities.getNetworkByType(networkType);
 
     const cached = idx(specs, (_) => _.addresses.external[specs.nextFreeAddressIndex]); // address cache hit
     if (cached) return { receivingAddress: cached };
 
-    if (isMultiSig) {
+    if ((wallet as Vault).isMultiSig) {
       // case: multi-sig vault
-      const { xpubs } = specs as VaultSpecs;
       receivingAddress = WalletUtilities.createMultiSig(
-        xpubs,
-        scheme.m,
-        network,
+        wallet as Vault,
         specs.nextFreeAddressIndex,
         false
       ).address;
     } else {
       // case: single-sig vault/wallet
       const xpub =
-        entity === EntityKind.VAULT ? (specs as VaultSpecs).xpubs[0] : (specs as WalletSpecs).xpub;
+        entityKind === EntityKind.VAULT
+          ? (specs as VaultSpecs).xpubs[0]
+          : (specs as WalletSpecs).xpub;
+      const derivationPath = (wallet as Wallet)?.derivationDetails?.xDerivationPath;
+
       const purpose =
-        entity === EntityKind.VAULT ? undefined : WalletUtilities.getPurpose(derivationPath);
+        entityKind === EntityKind.VAULT ? undefined : WalletUtilities.getPurpose(derivationPath);
 
       receivingAddress = WalletUtilities.getAddressByIndex(
         xpub,
@@ -117,15 +108,7 @@ export default class WalletOperations {
 
   static getNextFreeAddress = (wallet: Wallet | Vault) => {
     if (wallet.specs.receivingAddress) return wallet.specs.receivingAddress;
-    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress({
-      entity: wallet.entityKind,
-      isMultiSig: (wallet as Vault).isMultiSig,
-      specs: wallet.specs,
-      networkType: wallet.networkType,
-      scheme: (wallet as Vault).scheme,
-      derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
-    });
-
+    const { receivingAddress } = WalletOperations.getNextFreeExternalAddress(wallet);
     return receivingAddress;
   };
 
@@ -293,33 +276,39 @@ export default class WalletOperations {
       if (wallet.entityKind === EntityKind.WALLET)
         purpose = WalletUtilities.getPurpose((wallet as Wallet).derivationDetails.xDerivationPath);
 
-      const addressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressCache: AddressCache = wallet.specs.addresses || { external: {}, internal: {} };
+      const addressPubs: AddressPubs = wallet.specs.addressPubs || {};
 
       // collect external(receive) chain addresses
       const externalAddresses: { [address: string]: number } = {}; // all external addresses(till closingExtIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeAddressIndex + config.GAP_LIMIT; itr++) {
         let address: string;
-
+        let pubsToCache: string[];
         if (addressCache.external[itr]) address = addressCache.external[itr]; // cache hit
         else {
           // cache miss
           if ((wallet as Vault).isMultiSig) {
-            const { xpubs } = (wallet as Vault).specs;
-            address = WalletUtilities.createMultiSig(
-              xpubs,
-              (wallet as Vault).scheme.m,
-              network,
-              itr,
-              false
-            ).address;
+            const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, false);
+            address = multisig.address;
+            pubsToCache = multisig.orderPreservedPubkeys;
           } else {
             let xpub = null;
             if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
             else xpub = (wallet as Wallet).specs.xpub;
 
-            address = WalletUtilities.getAddressByIndex(xpub, false, itr, network, purpose);
+            const singlesig = WalletUtilities.getAddressAndPubByIndex(
+              xpub,
+              false,
+              itr,
+              network,
+              purpose
+            );
+            address = singlesig.address;
+            pubsToCache = [singlesig.pub];
           }
+
           addressCache.external[itr] = address;
+          addressPubs[address] = pubsToCache.join('/');
         }
 
         externalAddresses[address] = itr;
@@ -330,27 +319,33 @@ export default class WalletOperations {
       const internalAddresses: { [address: string]: number } = {}; // all internal addresses(till closingIntIndex)
       for (let itr = 0; itr < wallet.specs.nextFreeChangeAddressIndex + config.GAP_LIMIT; itr++) {
         let address: string;
+        let pubsToCache: string[];
 
         if (addressCache.internal[itr]) address = addressCache.internal[itr]; // cache hit
         else {
           // cache miss
           if ((wallet as Vault).isMultiSig) {
-            const { xpubs } = (wallet as Vault).specs;
-            address = WalletUtilities.createMultiSig(
-              xpubs,
-              (wallet as Vault).scheme.m,
-              network,
-              itr,
-              true
-            ).address;
+            const multisig = WalletUtilities.createMultiSig(wallet as Vault, itr, true);
+            address = multisig.address;
+            pubsToCache = multisig.orderPreservedPubkeys;
           } else {
             let xpub = null;
             if (wallet.entityKind === EntityKind.VAULT) xpub = (wallet as Vault).specs.xpubs[0];
             else xpub = (wallet as Wallet).specs.xpub;
 
-            address = WalletUtilities.getAddressByIndex(xpub, true, itr, network, purpose);
+            const singlesig = WalletUtilities.getAddressAndPubByIndex(
+              xpub,
+              true,
+              itr,
+              network,
+              purpose
+            );
+            address = singlesig.address;
+            pubsToCache = [singlesig.pub];
           }
+
           addressCache.internal[itr] = address;
+          addressPubs[address] = pubsToCache.join('/');
         }
 
         internalAddresses[address] = itr;
@@ -394,14 +389,9 @@ export default class WalletOperations {
       wallet.specs.nextFreeAddressIndex = lastUsedAddressIndex + 1;
       wallet.specs.nextFreeChangeAddressIndex = lastUsedChangeAddressIndex + 1;
       wallet.specs.addresses = addressCache;
-      wallet.specs.receivingAddress = WalletOperations.getNextFreeExternalAddress({
-        entity: wallet.entityKind,
-        isMultiSig: (wallet as Vault).isMultiSig,
-        specs: wallet.specs,
-        networkType: wallet.networkType,
-        scheme: (wallet as Vault).scheme,
-        derivationPath: (wallet as Wallet)?.derivationDetails?.xDerivationPath,
-      }).receivingAddress;
+      wallet.specs.addressPubs = addressPubs;
+      wallet.specs.receivingAddress =
+        WalletOperations.getNextFreeExternalAddress(wallet).receivingAddress;
       wallet.specs.unconfirmedUTXOs = unconfirmedUTXOs;
       wallet.specs.confirmedUTXOs = confirmedUTXOs;
       wallet.specs.balances = balances;
@@ -431,30 +421,106 @@ export default class WalletOperations {
     wallet.specs.confirmedUTXOs = updatedUTXOSet;
   };
 
-  static fetchFeeRatesByPriority = async () => {
-    // high fee: 30 minutes
-    const highFeeBlockEstimate = 3;
+  static mockFeeRatesForTestnet = () => {
+    // high fee: 10 minutes
+    const highFeeBlockEstimate = 1;
     const high = {
-      feePerByte: Math.round(await ElectrumClient.estimateFee(highFeeBlockEstimate)),
+      feePerByte: 3,
       estimatedBlocks: highFeeBlockEstimate,
-    }; // high: within 3 blocks
+    };
 
-    // medium fee: 2 hours
-    const mediumFeeBlockEstimate = 12;
+    // medium fee: 30 mins
+    const mediumFeeBlockEstimate = 3;
     const medium = {
-      feePerByte: Math.round(await ElectrumClient.estimateFee(mediumFeeBlockEstimate)),
+      feePerByte: 2,
       estimatedBlocks: mediumFeeBlockEstimate,
-    }; // medium: within 12 blocks
+    };
 
-    // low fee: 6 hours
-    const lowFeeBlockEstimate = 36;
+    // low fee: 60 mins
+    const lowFeeBlockEstimate = 6;
     const low = {
-      feePerByte: Math.round(await ElectrumClient.estimateFee(lowFeeBlockEstimate)),
+      feePerByte: 1,
       estimatedBlocks: lowFeeBlockEstimate,
-    }; // low: within 36 blocks
+    };
+    const feeRatesByPriority = { high, medium, low };
+
+    return feeRatesByPriority;
+  };
+
+  static estimateFeeRatesViaElectrum = async () => {
+    try {
+      // high fee: 10 minutes
+      const highFeeBlockEstimate = 1;
+      const high = {
+        feePerByte: Math.round(await ElectrumClient.estimateFee(highFeeBlockEstimate)),
+        estimatedBlocks: highFeeBlockEstimate,
+      };
+
+      // medium fee: 30 mins
+      const mediumFeeBlockEstimate = 3;
+      const medium = {
+        feePerByte: Math.round(await ElectrumClient.estimateFee(mediumFeeBlockEstimate)),
+        estimatedBlocks: mediumFeeBlockEstimate,
+      };
+
+      // low fee: 60 mins
+      const lowFeeBlockEstimate = 6;
+      const low = {
+        feePerByte: Math.round(await ElectrumClient.estimateFee(lowFeeBlockEstimate)),
+        estimatedBlocks: lowFeeBlockEstimate,
+      };
 
     const feeRatesByPriority = { high, medium, low };
     return feeRatesByPriority;
+    } catch (err) {
+      console.log('Failed to fetch fee via Fulcrum', { err });
+      throw new Error('Failed to fetch fee');
+    }
+  };
+
+  static fetchFeeRatesByPriority = async () => {
+    // main: mempool.space, fallback: fulcrum target block based fee estimator
+
+    if (config.NETWORK_TYPE === NetworkType.TESTNET)
+      return WalletOperations.mockFeeRatesForTestnet();
+
+    try {
+      const res = await RestClient.get(`https://mempool.space/api/v1/fees/recommended`);
+      const mempoolFee: {
+        economyFee: number;
+        fastestFee: number;
+        halfHourFee: number;
+        hourFee: number;
+        minimumFee: number;
+      } = res.data;
+
+      // high fee: 10 minutes
+      const highFeeBlockEstimate = 1;
+      const high = {
+        feePerByte: mempoolFee.fastestFee,
+        estimatedBlocks: highFeeBlockEstimate,
+      };
+
+      // medium fee: 30 minutes
+      const mediumFeeBlockEstimate = 3;
+      const medium = {
+        feePerByte: mempoolFee.halfHourFee,
+        estimatedBlocks: mediumFeeBlockEstimate,
+      };
+
+      // low fee: 60 minutes
+      const lowFeeBlockEstimate = 6;
+      const low = {
+        feePerByte: mempoolFee.hourFee,
+        estimatedBlocks: lowFeeBlockEstimate,
+      };
+
+      const feeRatesByPriority = { high, medium, low };
+      return feeRatesByPriority;
+    } catch (err) {
+      console.log('Failed to fetch fee via mempool.space', { err });
+      return WalletOperations.estimateFeeRatesViaElectrum();
+    }
   };
 
   static calculateAverageTxFee = async () => {
@@ -1037,7 +1103,7 @@ export default class WalletOperations {
     ) {
       const childIndexArray = [];
       for (const input of inputs) {
-        const subPath = WalletUtilities.getSubPathForAddress(input.address, wallet);
+        const { subPath } = WalletUtilities.getSubPathForAddress(input.address, wallet);
         childIndexArray.push({
           subPath,
           inputIdentifier: {
@@ -1195,9 +1261,9 @@ export default class WalletOperations {
       // case: wallet(single-sig)
       const { signedPSBT } = WalletOperations.signTransaction(wallet as Wallet, inputs, PSBT);
 
-      // validating signatures
-      const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs(validator);
-      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+      // validating signatures; contributes significantly to the transaction time(enable only if necessary)
+      // const areSignaturesValid = signedPSBT.validateSignaturesOfAllInputs(validator);
+      // if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
 
       // finalise and construct the txHex
       const tx = signedPSBT.finalizeAllInputs();
@@ -1249,9 +1315,9 @@ export default class WalletOperations {
         else combinedPSBT.combine(PSBT);
       }
 
-      // validating signatures
-      const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs(validator);
-      if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
+      // validating signatures; contributes significantly to the transaction time(enable only if necessary)
+      // const areSignaturesValid = combinedPSBT.validateSignaturesOfAllInputs(validator);
+      // if (!areSignaturesValid) throw new Error('Failed to broadcast: invalid signatures');
 
       // finalise and construct the txHex
       const tx = combinedPSBT.finalizeAllInputs();
