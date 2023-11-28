@@ -314,7 +314,7 @@ function AddSigningDevice() {
           </Box>
         ) : null}
         <Buttons
-          primaryDisable={areSignersValid || trezorIncompatible}
+          primaryDisable={!!areSignersValid || !!trezorIncompatible}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
