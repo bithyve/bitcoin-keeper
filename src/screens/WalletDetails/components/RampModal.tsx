@@ -95,6 +95,7 @@ function RampModal({ showBuyRampModal, setShowBuyRampModal, balance, receivingAd
       modalBackground={`${colorMode}.modalWhiteBackground`}
       subTitleColor={`${colorMode}.secondaryText`}
       textColor={`${colorMode}.primaryText`}
+      DarkCloseIcon={colorMode === 'dark'}
       Content={Content}
     />
   );

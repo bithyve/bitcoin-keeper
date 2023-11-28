@@ -24,7 +24,7 @@ function GenerateVaultDescriptor() {
     }
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title="Vault Configuration"
         subtitle="A descriptor contains sensitive information. Please use with caution"

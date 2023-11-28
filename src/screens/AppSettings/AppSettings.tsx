@@ -165,7 +165,7 @@ function AppSettings({ navigation }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`App ${common.settings}`}
-        subtitle={'Configure your app here'}
+        subtitle={settings.settingsSubTitle}
         rightComponent={
           <Box style={styles.currentTypeSwitchWrapper}>
             <CurrencyTypeSwitch />
@@ -177,7 +177,7 @@ function AppSettings({ navigation }) {
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
       >
         <Option
-          title="App Backup"
+          title={settings.appBackup}
           subTitle={backupSubTitle}
           onPress={() => {
             navigation.navigate('BackupWallet');
@@ -214,8 +214,8 @@ function AppSettings({ navigation }) {
           callback={() => navigation.navigate('AppVersionHistory')}
         />
         <OptionCard
-          title="Tor Settings"
-          description="Configure in-app Tor and Orbot"
+          title={settings.torSettingTitle}
+          description={settings.torSettingSubTitle}
           callback={() => navigation.navigate('TorSettings')}
         />
         <OptionCard
@@ -245,7 +245,7 @@ function AppSettings({ navigation }) {
                     style={styles.telTweetLinkTitle}
                     testID="text_ KeeperTelegram"
                   >
-                    Keeper Telegram
+                    {settings.keeperTelegram}
                   </Text>
                 </Box>
               </Box>
@@ -271,7 +271,7 @@ function AppSettings({ navigation }) {
                     style={styles.telTweetLinkTitle}
                     testID="text_keeperTwitter"
                   >
-                    Keeper Twitter
+                    {settings.keeperTwitter}
                   </Text>
                 </Box>
               </Box>

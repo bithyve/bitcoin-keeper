@@ -28,8 +28,7 @@ function ImportWalletScreen({ route }) {
   const { showToast } = useToastMessage();
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { home } = translations;
+  const { common, importWallet, home } = translations;
   // const { sender } = route.params as { sender: Wallet | Vault };
   // const network = WalletUtilities.getNetworkByType(sender.networkType);
   const wallets: Wallet[] = useQuery(RealmSchema.Wallet).map(getJSONFromRealmObject) || [];
@@ -84,7 +83,7 @@ function ImportWalletScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle="Scan your seed words/Backup Phrase" />
+        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.scanSeedWord} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={styles.qrcontainer}>
@@ -105,7 +104,7 @@ function ImportWalletScreen({ route }) {
             <Box style={styles.noteWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
               <Note
                 title={common.note}
-                subtitle="Make sure that the QR is well aligned, focused and visible as a whole"
+                subtitle={importWallet.IWNoteDescription}
                 subtitleColor="GreyText"
               />
             </Box>

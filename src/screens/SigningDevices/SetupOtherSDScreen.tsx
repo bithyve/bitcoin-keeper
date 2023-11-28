@@ -2,7 +2,7 @@ import { StyleSheet, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -21,6 +21,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 
 function SetupOtherSDScreen({ route }) {
+  const { colorMode } = useColorMode();
   const [xpub, setXpub] = useState('');
   const [derivationPath, setDerivationPath] = useState('');
   const [masterFingerprint, setMasterFingerprint] = useState('');
@@ -28,8 +29,6 @@ function SetupOtherSDScreen({ route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { mode, isMultisig, signer: hcSigner } = route.params;
-  // const { subscriptionScheme } = usePlan();
-  // const isMultisig = subscriptionScheme.n !== 1;
 
   const validateAndAddSigner = async () => {
     try {
@@ -51,7 +50,9 @@ function SetupOtherSDScreen({ route }) {
         );
       } else if (mode === InteracationMode.SIGNING) {
         dispatch(addSigningDevice(signer));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
         const exsists = await checkSigningDevice(signer.signerId);
         if (exsists)
@@ -74,7 +75,7 @@ function SetupOtherSDScreen({ route }) {
     }
   };
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`${
           mode === InteracationMode.HEALTH_CHECK ? 'Verify' : 'Setup'

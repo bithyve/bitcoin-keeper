@@ -419,20 +419,23 @@ export default class ElectrumClient {
       console.log(ex);
     }; // mute
     let timeoutId = null;
-    try {
-      const rez = await Promise.race([
-        new Promise((resolve) => {
-          timeoutId = setTimeout(() => resolve('timeout'), connectOverTor ? 21000 : 5000);
-        }),
-        client.connect(),
-      ]);
-      if (rez === 'timeout') return false;
 
-      await client.server_version('2.7.11', '1.4');
-      await client.server_ping();
-      return true;
-    } catch (ex) {
-      console.log(ex);
+    try {
+      const ver = await Promise.race([
+        new Promise((resolve) => {
+          timeoutId = setTimeout(() => resolve('timeout'), 4000);
+        }),
+        client.initElectrum({
+          client: 'btc-k',
+          version: '1.4',
+        }), // should resolve within 4 seconds(prior to timeout)
+      ]);
+      if (ver === 'timeout') throw new Error('Connection time-out');
+
+      if (ver && ver[0]) return true;
+      else throw new Error('failed to connect');
+    } catch (err) {
+      console.log({ err });
     } finally {
       if (timeoutId) clearTimeout(timeoutId);
       client.close();

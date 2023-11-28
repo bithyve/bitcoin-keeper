@@ -297,6 +297,7 @@ function AddSendAmount({ route }) {
                   height={7}
                 />
                 <Input
+                  backgroundColor={`${colorMode}.seashellWhite`}
                   placeholder="Enter Amount"
                   placeholderTextColor={`${colorMode}.greenText`}
                   width="90%"
@@ -352,6 +353,7 @@ function AddSendAmount({ route }) {
               style={styles.inputWrapper}
             >
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholder="Add a note"
                 autoCapitalize="sentences"
                 placeholderTextColor={`${colorMode}.greenText`}
@@ -368,14 +370,6 @@ function AddSendAmount({ route }) {
                 }}
               />
             </Box>
-
-            {/* <MenuItemButton
-              // onPress={() => navigation.navigate('UTXOLabeling', { utxo: {}, wallet: sender })}
-              onPress={() => showToast('Comming soon')}
-              icon={<TagsGreen />}
-              title="Add Tags"
-              subTitle="Tags help you remember and identify UTXOs"
-            /> */}
             <VStack
               backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
@@ -397,6 +391,7 @@ function AddSendAmount({ route }) {
                 ))}
               </HStack>
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 autoCapitalize="sentences"
                 placeholder="Add a label"
                 placeholderTextColor={`${colorMode}.greenText`}
@@ -416,9 +411,11 @@ function AddSendAmount({ route }) {
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
-                  secondaryText="Cancel"
+                  secondaryText="Select UTXOs"
                   secondaryCallback={() => {
-                    navigation.goBack();
+                    navigation.dispatch(
+                      CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                    );
                   }}
                   secondaryDisable={Boolean(!amount || errorMessage)}
                   primaryText="Send"
@@ -429,12 +426,6 @@ function AddSendAmount({ route }) {
             </Box>
           </Box>
         </ScrollView>
-        {/* <Box style={styles.infoNoteWrapper}>
-          <Text style={styles.infoNoteText}>
-            <Text style={styles.infoText}>Info : </Text>Contact labels help to keep your future
-            activity private and organised. The information is not shared with anyone
-          </Text>
-        </Box> */}
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );

@@ -93,6 +93,8 @@ import SetupCollaborativeWallet from 'src/screens/SigningDevices/SetupCollaborat
 import SetupSigningServer from 'src/screens/SigningDevices/SetupSigningServer';
 import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListRecovery';
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
+import UTXOSelection from 'src/screens/Send/UTXOSelection';
+import VaultSetup from 'src/screens/Vault/VaultSetup';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -146,6 +148,7 @@ function LoginStack() {
       <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
       {/* Other SD */}
       <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
+      <Stack.Screen name="VaultSetup" component={VaultSetup} />
     </Stack.Navigator>
   );
 }
@@ -229,6 +232,8 @@ function AppStack() {
         <Stack.Screen name="SetupCollaborativeWallet" component={SetupCollaborativeWallet} />
         <Stack.Screen name="EnterSeedScreen" component={EnterSeedScreen} />
         <Stack.Screen name="UnlockTapsigner" component={UnlockTapsigner} />
+        <Stack.Screen name="UTXOSelection" component={UTXOSelection} />
+        <Stack.Screen name="VaultSetup" component={VaultSetup} />
         <Stack.Screen
           name="MixProgress"
           component={MixProgress}

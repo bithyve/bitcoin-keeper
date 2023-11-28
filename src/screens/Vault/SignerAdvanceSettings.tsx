@@ -192,7 +192,7 @@ function SignerAdvanceSettings({ route }: any) {
       <KeeperModal
         visible={waningModal}
         close={() => setWarning(false)}
-        title="Changing signer sype"
+        title="Changing signer Type"
         subTitle="Are you sure you want to change the signer type?"
         subTitleColor="light.secondaryText"
         buttonText="Continue"

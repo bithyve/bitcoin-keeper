@@ -255,7 +255,9 @@ function SigningDeviceListRecovery({ navigation }) {
         Content={VaultSetupContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/recovery-why-keeper/`)}
+        learnMoreCallback={() =>
+          openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/recovery-why-keeper/`)
+        }
       />
     </ScreenWrapper>
   );

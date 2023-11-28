@@ -1,4 +1,9 @@
-import { Vault, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import {
+  Vault,
+  VaultScheme,
+  VaultSigner,
+  XpubDetailsType,
+} from 'src/core/wallets/interfaces/vault';
 
 import {
   DerivationPurpose,
@@ -204,19 +209,43 @@ export const getKeypathFromString = (keypathString: string): number[] => {
 
 const SIGNLE_ALLOWED_SIGNERS = [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY];
 
-const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
+const allowSingleKey = (type, vaultSigners) => {
+  if (vaultSigners.find((s) => s.type === type)) {
+    if (SIGNLE_ALLOWED_SIGNERS.includes(type)) {
+      return true;
+    }
+    return false;
+  }
+  return false;
+};
+
+const getDisabled = (type: SignerType, isOnL1, vaultSigners, scheme) => {
   // Keys Incase of level 1 we have level 1
   if (isOnL1) {
     return { disabled: true, message: 'Upgrade tier to use as key' };
   }
-  // Keys Incase of already added
-  if (vaultSigners.find((s) => s.type === type && SIGNLE_ALLOWED_SIGNERS.includes(type))) {
-    return { disabled: true, message: 'Key already added to the Vault.' };
+
+  if (type === SignerType.POLICY_SERVER && (scheme.n < 3 || scheme.m < 2)) {
+    return {
+      disabled: true,
+      message: 'Please create a vault with a minimum of 3 signers and 2 required signers',
+    };
   }
+  // Keys Incase of already added
+  if (allowSingleKey(type, vaultSigners)) {
+    return { disabled: true, message: 'Key already added to the Vault' };
+  }
+
   return { disabled: false, message: '' };
 };
 
-export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, isOnL1) => {
+export const getDeviceStatus = (
+  type: SignerType,
+  isNfcSupported,
+  vaultSigners,
+  isOnL1,
+  scheme: VaultScheme
+) => {
   switch (type) {
     case SignerType.COLDCARD:
     case SignerType.TAPSIGNER:
@@ -225,19 +254,25 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, vaultSigners, 
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.MOBILE_KEY:
+      return allowSingleKey(type, vaultSigners)
+        ? { disabled: true, message: 'Key already added to the Vault' }
+        : {
+            message: '',
+            disabled: false,
+          };
     case SignerType.POLICY_SERVER:
-    case SignerType.KEEPER:
       return {
-        message: getDisabled(type, isOnL1, vaultSigners).message,
-        disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
+        message: getDisabled(type, isOnL1, vaultSigners, scheme).message,
+        disabled: getDisabled(type, isOnL1, vaultSigners, scheme).disabled,
       };
     case SignerType.TREZOR:
-      return !isOnL1
+      return scheme.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
             message: '',
             disabled: false,
           };
+    case SignerType.KEEPER:
     case SignerType.SEED_WORDS:
     case SignerType.JADE:
     case SignerType.BITBOX02:

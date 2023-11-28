@@ -1,12 +1,10 @@
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { Box, Text, View, useColorMode } from 'native-base';
+import { Box, Text, View, useColorMode, ScrollView, Input } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
@@ -19,6 +17,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
 import RightArrowIcon from 'src/assets/images/icon_arrow.svg';
+import IconArrow from 'src/assets/images/icon_arrow_grey.svg';
 import { DerivationPurpose, EntityKind, WalletType } from 'src/core/wallets/enums';
 import config from 'src/core/config';
 import WalletUtilities from 'src/core/wallets/operations/utils';
@@ -36,7 +35,7 @@ function AddDetailsFinalScreen({ route }) {
   const dispatch = useDispatch();
 
   const { translations } = useContext(LocalizationContext);
-  const { home } = translations;
+  const { home, importWallet } = translations;
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
@@ -138,13 +137,14 @@ function AddDetailsFinalScreen({ route }) {
         keyboardVerticalOffset={Platform.select({ ios: 8, android: 500 })}
         style={styles.scrollViewWrapper}
       >
-        <KeeperHeader title={home.ImportWallet} subtitle="Add details" />
+        <KeeperHeader title={home.ImportWallet} subtitle={importWallet.addDetails} />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
           <Box>
             <Box style={[styles.textInputWrapper]}>
-              <TextInput
-                placeholder="Derivation Path"
+              <Input
+                placeholder={importWallet.derivationPath}
                 style={styles.textInput}
+                backgroundColor={`${colorMode}.seashellWhite`}
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
@@ -152,22 +152,24 @@ function AddDetailsFinalScreen({ route }) {
                 maxLength={20}
               />
             </Box>
-            <TouchableOpacity onPress={onDropDownClick} style={styles.dropDownContainer}>
-              <Text style={styles.balanceCrossesText}>{purposeLbl}</Text>
-              <Box
-                style={[
-                  styles.icArrow,
-                  {
-                    transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
-                  },
-                ]}
-              >
-                <RightArrowIcon />
+            <TouchableOpacity onPress={onDropDownClick}>
+              <Box style={styles.dropDownContainer} backgroundColor={`${colorMode}.seashellWhite`}>
+                <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>{purposeLbl}</Text>
+                <Box
+                  style={[
+                    styles.icArrow,
+                    {
+                      transform: [{ rotate: arrow ? '-90deg' : '90deg' }],
+                    },
+                  ]}
+                >
+                  {colorMode === 'light' ? <RightArrowIcon /> : <IconArrow />}
+                </Box>
               </Box>
             </TouchableOpacity>
           </Box>
           {showPurpose && (
-            <ScrollView style={styles.langScrollViewWrapper}>
+            <ScrollView style={styles.langScrollViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               {purposeList.map((item) => (
                 <TouchableOpacity
                   key={item.value}
@@ -240,12 +242,11 @@ const styles = StyleSheet.create({
   },
   textInput: {
     width: '100%',
-    backgroundColor: Colors.Isabelline,
+    height: 45,
     borderRadius: 10,
     padding: 20,
   },
   dropDownContainer: {
-    backgroundColor: Colors.Isabelline,
     borderRadius: 10,
     paddingVertical: 20,
     marginTop: 10,
@@ -328,15 +329,12 @@ const styles = StyleSheet.create({
     marginTop: hp(10),
   },
   balanceCrossesText: {
-    color: Colors.Feldgrau,
     marginHorizontal: 20,
     fontSize: 12,
-    marginTop: hp(10),
     letterSpacing: 0.96,
     flex: 1,
   },
   ctaBtnWrapper: {
-    // marginBottom: hp(5),
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
@@ -344,10 +342,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.Platinum,
     borderRadius: 10,
-    margin: 15,
-    width: '90%',
+    marginVertical: 15,
+    width: '100%',
     zIndex: 10,
-    backgroundColor: '#FAF4ED',
   },
   flagWrapper1: {
     flexDirection: 'row',

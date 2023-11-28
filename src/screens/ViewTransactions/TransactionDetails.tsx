@@ -1,12 +1,11 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/prop-types */
 import Text from 'src/components/KeeperText';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Box, ScrollView, useColorMode } from 'native-base';
-import React, { useContext } from 'react';
-import { hp, wp } from 'src/constants/responsive';
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Box, ScrollView, VStack, useColorMode } from 'native-base';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import KeeperHeader from 'src/components/KeeperHeader';
-import StatusBarComponent from 'src/components/StatusBarComponent';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import openLink from 'src/utils/OpenLink';
 import IconRecieve from 'src/assets/images/icon_received_lg.svg';
@@ -14,26 +13,83 @@ import IconSend from 'src/assets/images/icon_send_lg.svg';
 import Link from 'src/assets/images/link.svg';
 import Edit from 'src/assets/images/edit.svg';
 import useBalance from 'src/hooks/useBalance';
-import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import config from 'src/core/config';
-import { NetworkType } from 'src/core/wallets/enums';
+import { LabelRefType, LabelType, NetworkType } from 'src/core/wallets/enums';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import useTransactionLabels from 'src/hooks/useTransactionLabels';
 import LabelItem from '../UTXOManagement/components/LabelItem';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import KeeperModal from 'src/components/KeeperModal';
+import KeeperTextInput from 'src/components/KeeperTextInput';
+import { useDispatch } from 'react-redux';
+import { addLabels, bulkUpdateLabels } from 'src/store/sagaActions/utxos';
+
+function EditNoteContent({ existingNote, noteRef }: { existingNote: string; noteRef }) {
+  const updateNote = useCallback((text) => {
+    noteRef.current = text;
+  }, []);
+
+  return (
+    <VStack style={styles.noteContainer}>
+      <KeeperTextInput
+        defaultValue={existingNote}
+        onChangeText={updateNote}
+        placeholder="Add transaction note"
+        testID={'tx_note'}
+      />
+    </VStack>
+  );
+}
 
 function TransactionDetails({ route }) {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
   const { getSatUnit, getBalance } = useBalance();
   const { translations } = useContext(LocalizationContext);
-  const { transactions } = translations;
+  const { transactions, common } = translations;
   const { transaction, wallet }: { transaction: Transaction; wallet: Wallet } = route.params;
   const { labels } = useLabelsNew({ txid: transaction.txid, wallet });
   const { labels: txnLabels } = useTransactionLabels({ txid: transaction.txid, wallet });
+  const [visible, setVisible] = React.useState(false);
+  const close = () => setVisible(false);
+  const noteRef = useRef();
+  const dispatch = useDispatch();
+  const [updatingLabel, setUpdatingLabel] = React.useState(false);
+
+  useEffect(() => {
+    if (labels[transaction.txid][0] && noteRef.current) {
+      if (labels[transaction.txid][0].name === noteRef.current) setUpdatingLabel(false);
+    }
+    if (!labels[transaction.txid][0] && !noteRef.current) setUpdatingLabel(false);
+  }, [labels]);
+
+  useEffect(() => {
+    if (updatingLabel) {
+      if (noteRef.current) {
+        const finalLabels = [{ name: noteRef.current, isSystem: false }];
+        if (labels[transaction.txid][0]?.name) {
+          const labelChanges = getLabelChanges(labels[transaction.txid], finalLabels);
+          dispatch(bulkUpdateLabels({ labelChanges, txId: transaction.txid, wallet }));
+        } else {
+          dispatch(
+            addLabels({
+              labels: finalLabels,
+              txId: transaction.txid,
+              wallet,
+              type: LabelRefType.TXN,
+            })
+          );
+        }
+      } else {
+        if (labels[transaction.txid][0]?.name) {
+          const labelChanges = getLabelChanges(labels[transaction.txid], []);
+          dispatch(bulkUpdateLabels({ labelChanges, txId: transaction.txid, wallet }));
+        }
+      }
+    }
+  }, [updatingLabel]);
 
   function InfoCard({
     title,
@@ -77,16 +133,37 @@ function TransactionDetails({ route }) {
   }
   const redirectToBlockExplorer = () => {
     openLink(
-      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${
-        transaction.txid
+      `https://mempool.space${config.NETWORK_TYPE === NetworkType.TESTNET ? '/testnet' : ''}/tx/${transaction.txid
       }`
     );
   };
+
+  function getLabelChanges(existingLabels, updatedLabels) {
+    const existingNames = new Set(existingLabels.map((label) => label.name));
+    const updatedNames = new Set(updatedLabels.map((label) => label.name));
+
+    const addedLabels = updatedLabels.filter((label) => !existingNames.has(label.name));
+    const deletedLabels = existingLabels.filter((label) => !updatedNames.has(label.name));
+
+    const labelChanges = {
+      added: addedLabels,
+      deleted: deletedLabels,
+    };
+
+    return labelChanges;
+  }
+
+  const MemoisedContent = React.useCallback(
+    () => (
+      <EditNoteContent existingNote={labels[transaction.txid][0]?.name || ''} noteRef={noteRef} />
+    ),
+    [transaction, labels]
+  );
   return (
-    <ScreenWrapper>
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={transactions.TransactionDetails}
-        subtitle="Detailed information for this Transaction"
+        subtitle={transactions.TransactionDetailsSubTitle}
       />
       <Box style={styles.transViewWrapper}>
         <Box flexDirection="row">
@@ -113,7 +190,7 @@ function TransactionDetails({ route }) {
         <Box style={styles.infoCardsWrapper}>
           {txnLabels.length ? (
             <InfoCard
-              title="Tags"
+              title={transactions.labels}
               Content={() => (
                 <View style={styles.listSubContainer}>
                   {txnLabels.map((item, index) => (
@@ -130,15 +207,24 @@ function TransactionDetails({ route }) {
               letterSpacing={2.4}
             />
           ) : null}
+          <TouchableOpacity onPress={() => setVisible(true)}>
+            <InfoCard
+              title={common.note}
+              describtion={labels[transaction.txid][0]?.name || 'Add a note'}
+              showIcon
+              letterSpacing={2.4}
+              Icon={updatingLabel ? <ActivityIndicator /> : <Edit />}
+            />
+          </TouchableOpacity>
           <InfoCard
-            title="Confirmations"
+            title={transactions.confirmations}
             describtion={transaction.confirmations > 3 ? '3+' : transaction.confirmations}
             showIcon={false}
             letterSpacing={2.4}
           />
           <TouchableOpacity onPress={redirectToBlockExplorer}>
             <InfoCard
-              title="Transaction ID"
+              title={transactions.transactionID}
               describtion={transaction.txid}
               showIcon
               letterSpacing={2.4}
@@ -146,33 +232,41 @@ function TransactionDetails({ route }) {
             />
           </TouchableOpacity>
           <InfoCard
-            title="Fees"
+            title={transactions.Fees}
             describtion={`${transaction.fee} sats`}
             showIcon={false}
             letterSpacing={2.4}
           />
           <InfoCard
-            title="Inputs"
+            title={transactions.inputs}
             describtion={transaction.senderAddresses.toString().replace(/,/g, '\n')}
             showIcon={false}
             numberOfLines={transaction.senderAddresses.length}
           />
           <InfoCard
-            title="Outputs"
+            title={transactions.outputs}
             describtion={transaction.recipientAddresses.toString().replace(/,/g, '\n')}
             showIcon={false}
             numberOfLines={transaction.recipientAddresses.length}
           />
-          {labels[transaction.txid].length ? (
-            <InfoCard
-              title="Note"
-              describtion={labels[transaction.txid][0].name}
-              showIcon
-              letterSpacing={2.4}
-              Icon={<Edit />}
-            />
-          ) : null}
         </Box>
+        <KeeperModal
+          visible={visible}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          textColor={`${colorMode}.primaryText`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
+          close={close}
+          title={common.addNote}
+          subTitle={transactions.updateLabelSubTitle}
+          buttonText={common.save}
+          justifyContent="center"
+          Content={MemoisedContent}
+          buttonCallback={() => {
+            setUpdatingLabel(true);
+            close();
+          }}
+        />
       </ScrollView>
     </ScreenWrapper>
   );
@@ -236,6 +330,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginBottom: 20,
     flexDirection: 'row',
+  },
+  noteContainer: {
+    width: windowWidth * 0.8,
   },
 });
 export default TransactionDetails;

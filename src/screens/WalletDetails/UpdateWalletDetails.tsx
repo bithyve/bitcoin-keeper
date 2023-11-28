@@ -3,13 +3,11 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
 } from 'react-native';
-import { Box, useColorMode, View } from 'native-base';
+import { Box, useColorMode, Input } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import Colors from 'src/theme/Colors';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -31,6 +29,8 @@ import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { updateAppImageWorker } from 'src/store/sagas/bhr';
 import KeeperHeader from 'src/components/KeeperHeader';
+import KeeperModal from 'src/components/KeeperModal';
+import Text from 'src/components/KeeperText';
 
 function UpdateWalletDetails({ route }) {
   const { colorMode } = useColorMode();
@@ -39,6 +39,7 @@ function UpdateWalletDetails({ route }) {
   const { wallet, isFromSeed, words } = route.params;
 
   const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation, seed, importWallet, common } = translations
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const purposeList = [
@@ -63,6 +64,7 @@ function UpdateWalletDetails({ route }) {
   );
   const [purposeLbl, setPurposeLbl] = useState(getPupose(wallet?.scriptType));
   const [path, setPath] = useState(`${wallet?.derivationDetails.xDerivationPath}`);
+  const [warringsVisible, setWarringsVisible] = useState(false)
   const { showToast } = useToastMessage();
   const { relayWalletUpdateLoading, relayWalletUpdate, relayWalletError, realyWalletErrorMessage } =
     useAppSelector((state) => state.bhr);
@@ -73,7 +75,7 @@ function UpdateWalletDetails({ route }) {
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
-      showToast('Wallet details updated', <TickIcon />);
+      showToast(walletTranslation.walletDetailsUpdate, <TickIcon />);
       dispatch(resetRealyWalletState());
       navigtaion.goBack();
     }
@@ -101,27 +103,48 @@ function UpdateWalletDetails({ route }) {
         scriptType,
       });
       if (isUpdated) {
+        setWarringsVisible(false)
         updateAppImageWorker({ payload: { wallet } });
         navigtaion.goBack();
-        showToast('Wallet details updated', <TickIcon />);
-      } else showToast('Failed to update', <ToastErrorIcon />);
+        showToast(walletTranslation.walletDetailsUpdate, <TickIcon />);
+      } else showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     } catch (error) {
+      setWarringsVisible(false)
       console.log(error);
-      showToast('Failed to update', <ToastErrorIcon />);
+      showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     }
   };
-
-  const onDropDownClick = () => {
-    if (!isFromSeed) {
-      if (showPurpose) {
-        setShowPurpose(false);
-        setArrow(false);
-      } else {
-        setShowPurpose(true);
-        setArrow(true);
-      }
-    }
-  };
+  function WaringsContent() {
+    return (
+      <Box width={wp(300)}>
+        <Box>
+          <Text color={`${colorMode}.black`} style={styles.contentText}>
+            {`\u2022 ${walletTranslation.changePathOfDefaultWalletPara01} `}
+          </Text>
+        </Box>
+        <Box>
+          <Text color={`${colorMode}.black`} style={styles.contentText}>
+            {`\u2022  ${walletTranslation.changePathOfDefaultWalletPara02}`}
+          </Text>
+        </Box>
+        <Box style={styles.ctaBtnWrapper} mt={10}>
+          <Box ml={windowWidth * -0.09}>
+            <Buttons
+              secondaryText="Cancel"
+              secondaryCallback={() => {
+                setWarringsVisible(false)
+              }}
+              primaryText="I understand, Proceed"
+              primaryCallback={() => {
+                updateWallet()
+              }}
+              primaryLoading={relayWalletUpdateLoading}
+            />
+          </Box>
+        </Box>
+      </Box>
+    )
+  }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -132,11 +155,11 @@ function UpdateWalletDetails({ route }) {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
+          title={isFromSeed ? seed.recoveryPhrase : walletTranslation.WalletDetails}
           subtitle={
             isFromSeed
-              ? 'The QR below comprises of your 12 word Recovery Phrase'
-              : 'Update Wallet Path'
+              ? walletTranslation.qrofRecoveryPhrase
+              : walletTranslation.updateWalletPath
           }
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -160,16 +183,16 @@ function UpdateWalletDetails({ route }) {
               </ScrollView>
             )}
             <KeeperText
-              style={[styles.autoTransferText, { marginTop: hp(25) }]}
+              style={[styles.autoTransferText, { marginTop: hp(25), marginBottom: 5 }]}
               color={`${colorMode}.GreyText`}
             >
-              Path
+              {common.path}
             </KeeperText>
             <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <TextInput
-                placeholder="Derivation Path"
-                style={styles.textInput}
-                placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
+              <Input
+                placeholder={importWallet.derivationPath}
+                // style={styles.textInput}
+                placeholderTextColor={`${colorMode}.White`} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
@@ -179,14 +202,17 @@ function UpdateWalletDetails({ route }) {
                   setShowPurpose(false);
                   setArrow(false);
                 }}
+                w={'100%'}
+                h={10}
+                variant="unstyled"
               />
             </Box>
             {isFromSeed ? (
               <Box style={{ marginTop: wp(20) }}>
                 <ShowXPub
                   data={words.toString().replace(/,/g, ' ')}
-                  subText="Wallet Recovery Phrase"
-                  noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
+                  subText={seed.walletRecoveryPhrase}
+                  noteSubText={seed.showXPubNoteSubText}
                   copyable={false}
                 />
               </Box>
@@ -194,7 +220,7 @@ function UpdateWalletDetails({ route }) {
           </Box>
         </ScrollView>
         {!isFromSeed && (
-          <View style={styles.dotContainer}>
+          <Box style={styles.dotContainer}>
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
@@ -203,48 +229,41 @@ function UpdateWalletDetails({ route }) {
                     navigtaion.goBack();
                   }}
                   primaryText="Save"
-                  primaryCallback={updateWallet}
+                  primaryDisable={path === wallet?.derivationDetails.xDerivationPath && wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0}
+                  primaryCallback={() => {
+                    if (wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0) {
+                      setWarringsVisible(true)
+                    } else {
+                      showToast(walletTranslation.walletBalanceMsg, <ToastErrorIcon />)
+                    }
+                  }}
                   primaryLoading={relayWalletUpdateLoading}
                 />
               </Box>
             </Box>
-          </View>
+          </Box>
         )}
+        <KeeperModal
+          visible={warringsVisible}
+          close={() => setWarringsVisible(false)}
+          title={walletTranslation.changePathOfDefaultWallet}
+          subTitle={walletTranslation.changePathOfDefaultWalletSubTitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
+          Content={WaringsContent}
+        />
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
 }
 
 const styles = StyleSheet.create({
-  titleText: {
-    lineHeight: 23,
-    letterSpacing: 0.8,
-    paddingLeft: 25,
-  },
-  descriptionText: {
-    fontSize: 12,
-    lineHeight: 17,
-    letterSpacing: 0.5,
-    paddingLeft: 25,
-  },
-  backButton: {
-    height: 20,
-    width: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
   autoTransferText: {
     fontSize: 12,
     paddingHorizontal: wp(5),
     letterSpacing: 0.6,
-  },
-  cardContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(3),
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   title: {
     fontSize: 12,
@@ -254,11 +273,6 @@ const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 0.2,
   },
-  qrContainer: {
-    alignSelf: 'center',
-    marginVertical: hp(40),
-    flex: 1,
-  },
   scrollViewWrapper: {
     flex: 1,
   },
@@ -266,64 +280,9 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 20,
   },
-  dropDownContainer: {
-    backgroundColor: Colors.Isabelline,
-    borderRadius: 10,
-    paddingVertical: 20,
-    flexDirection: 'row',
-  },
-  cameraView: {
-    height: hp(250),
-    width: wp(375),
-  },
-  qrcontainer: {
-    overflow: 'hidden',
-    borderRadius: 10,
-    marginVertical: hp(25),
-    alignItems: 'center',
-  },
-  walletContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: hp(100),
-    width: wp(330),
-    borderRadius: hp(10),
-    marginHorizontal: wp(12),
-    paddingHorizontal: wp(25),
-    marginTop: hp(5),
-  },
-  buttonBackground: {
-    backgroundColor: '#FAC48B',
-    width: 40,
-    height: 40,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  noteWrapper: {
-    marginTop: hp(35),
-    width: '100%',
-  },
-  sendToWalletWrapper: {
-    marginTop: windowHeight > 680 ? hp(20) : hp(10),
-  },
   dotContainer: {
     justifyContent: 'space-between',
     marginTop: hp(20),
-  },
-  selectedDot: {
-    width: 25,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: Colors.DimGray,
-    marginEnd: 5,
-  },
-  unSelectedDot: {
-    width: 6,
-    height: 5,
-    borderRadius: 5,
-    backgroundColor: Colors.GrayX11,
-    marginEnd: 5,
   },
   textInputWrapper: {
     flexDirection: 'row',
@@ -339,18 +298,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: hp(22),
     letterSpacing: 0.6,
-  },
-  amountWrapper: {
-    marginHorizontal: 20,
-    marginTop: hp(10),
-  },
-  balanceCrossesText: {
-    color: Colors.Feldgrau,
-    marginHorizontal: 20,
-    fontSize: 12,
-    marginTop: hp(10),
-    letterSpacing: 0.96,
-    flex: 1,
   },
   ctaBtnWrapper: {
     flexDirection: 'row',
@@ -378,11 +325,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     color: 'light.GreyText',
   },
-  icArrow: {
-    marginLeft: wp(10),
-    marginRight: wp(10),
-    alignSelf: 'center',
-  },
+  contentText: {
+    fontSize: 13,
+    paddingHorizontal: 1,
+    paddingVertical: 5,
+    letterSpacing: 0.65
+  }
 });
 
 export default UpdateWalletDetails;

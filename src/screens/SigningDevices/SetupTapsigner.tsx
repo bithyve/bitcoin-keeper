@@ -113,7 +113,9 @@ function SetupTapsigner({ route }) {
       }
       if (mode === InteracationMode.SIGNING) {
         dispatch(addSigningDevice(tapsigner));
-        navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
       } else {
         dispatch(setSigningDevices(tapsigner));
         navigation.dispatch(

@@ -23,11 +23,13 @@ function InheritanceDownloadView(props) {
         {props.isDownload ? (
           <TouchableOpacity onPress={props.previewPDF}>
             <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.yellowButtonBackground`}>
-              <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>View&nbsp;</Text>
+              <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+                View&nbsp;
+              </Text>
               <ViewIcon />
             </Box>
           </TouchableOpacity>
-        ) : (
+        ) : props.disableCallback ? null : (
           <Box>
             {props.isSetupDone ? (
               <Pressable style={styles.successTickBtn} onPress={props.onPress}>
@@ -35,8 +37,13 @@ function InheritanceDownloadView(props) {
               </Pressable>
             ) : (
               <TouchableOpacity onPress={props.onPress}>
-                <Box style={styles.setupBtn} backgroundColor={`${colorMode}.yellowButtonBackground`}>
-                  <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>&nbsp;&nbsp;Setup</Text>
+                <Box
+                  style={styles.setupBtn}
+                  backgroundColor={`${colorMode}.yellowButtonBackground`}
+                >
+                  <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+                    &nbsp;&nbsp;Setup
+                  </Text>
                 </Box>
               </TouchableOpacity>
             )}
@@ -87,6 +94,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     width: '57%',
+    flex: 1,
   },
   btnWrapper: {
     width: '30%',

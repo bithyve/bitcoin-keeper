@@ -15,11 +15,14 @@ import Buttons from 'src/components/Buttons';
 import TorStatusTag from 'src/components/TorStatus';
 import TorModalMap from './TorModalMap';
 import OptionCard from 'src/components/OptionCard';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function TorSettings() {
   const { colorMode } = useColorMode();
   const { torStatus, setTorStatus, orbotTorStatus, inAppTor, openOrbotApp, checkTorConnection } =
     useContext(TorContext);
+  const { translations } = useContext(LocalizationContext);
+  const { settings, common } = translations;
   const dispatch = useDispatch();
   const [showTorModal, setShowTorModal] = useState(false);
   const [showOrbotTorModal, setShowOrbotTorModal] = useState(false);
@@ -62,33 +65,33 @@ function TorSettings() {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title="Tor Settings"
-        subtitle="Tor improves your network privacy. To learn more visit: https://www.torproject.org/"
+        title={settings.torSettingTitle}
+        subtitle={settings.torHeaderSubTitle}
       />
       <ScrollView contentContainerStyle={{ paddingTop: 30, alignItems: 'center' }}>
         <Box>
           <TorStatusTag />
         </Box>
         <OptionCard
-          title="Tor via Orbot"
-          description="Use the Orbot app. Greater control, quicker connection and advanced options"
+          title={settings.torViaOrbot}
+          description={settings.torViaOrbotSubTitle}
           callback={() => setShowOrbotTorModal(true)}
         />
         <OptionCard
-          title="In-app Tor"
-          description="Use direct Tor. No need to download a separate app. May be slow and unreliable"
+          title={settings.inAppTor}
+          description={settings.inAppTorSubTitle}
           callback={() => setShowTorModal(true)}
         />
       </ScrollView>
       <Buttons
-        primaryText="Check Status"
+        primaryText={settings.checkStatus}
         primaryCallback={() => checkTorConnection()}
         primaryLoading={torStatus === TorStatus.CONNECTING || torStatus === TorStatus.CHECKING}
       />
       <Box style={styles.note}>
         <Note
-          title="Note"
-          subtitle="Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings"
+          title={common.note}
+          subtitle={settings.torSettingsNoteSubTitle}
           subtitleColor="GreyText"
         />
       </Box>
@@ -98,9 +101,9 @@ function TorSettings() {
         close={() => {
           setShowOrbotTorModal(false);
         }}
-        title="Orbot Connection"
-        subTitle="To connect to Tor via Orbot, you need to have the Orbot app installed on your device."
-        buttonText="Connect"
+        title={settings.orbotConnection}
+        subTitle={settings.orbotConnectionSubTitle}
+        buttonText={common.connect}
         buttonCallback={handleOrbotTor}
         Content={() => (
           <Box alignItems="center">

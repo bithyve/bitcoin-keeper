@@ -19,7 +19,6 @@ function HealthCheckComponent(props) {
   const { words } = props;
   const [index] = useState(Math.floor(Math.random() * words.length));
   const [invalid, setInvalid] = useState(false);
-  console.log(props.password);
 
   const getSeedNumber = (seedNumber) => {
     switch (seedNumber + 1) {
@@ -78,10 +77,9 @@ function HealthCheckComponent(props) {
         return 'twelfth';
     }
   };
-
   const onPressConfirm = () => {
     if (type === BackupType.SEED) {
-      if (seedWord === words[index]) {
+      if (seedWord.toLocaleLowerCase() === words[index]) {
         props.onConfirmed('');
       } else {
         setInvalid(true);
@@ -97,10 +95,10 @@ function HealthCheckComponent(props) {
   return (
     <Box backgroundColor={`${colorMode}.primaryBackground`} style={styles.wrapper}>
       <Box>
-        <Text fontSize={19} color="light.primaryText">
+        <Text fontSize={19} color={`${colorMode}.primaryText`}>
           {BackupWallet.healthCheck}
         </Text>
-        <Text fontSize={13} color="light.secondaryText" mb={10}>
+        <Text fontSize={13} color={`${colorMode}.secondaryText`} mb={10}>
           For the Recovery Phrase
         </Text>
       </Box>
@@ -112,8 +110,8 @@ function HealthCheckComponent(props) {
         </Text>
         <Input
           placeholder={type === BackupType.SEED ? `Enter ${getHint(index)} word` : 'Enter Password'}
-          placeholderTextColor="light.secondaryText"
-          backgroundColor="light.primaryBackground"
+          placeholderTextColor={`${colorMode}.secondaryText`}
+          backgroundColor={`${colorMode}.seashellWhite`}
           value={type === BackupType.SEED ? seedWord : strongPassword}
           onChangeText={(value) =>
             type === BackupType.SEED ? setSeedWord(value) : setStrongPassword(value)

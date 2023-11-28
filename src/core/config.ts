@@ -20,7 +20,7 @@ export enum BITCOIN_NETWORK {
 }
 
 export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/';
-export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/'
+export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/';
 
 // defaults to development environment
 const DEFAULT_CONFIG = {

@@ -1,11 +1,11 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -18,8 +18,8 @@ import SigningServer from 'src/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp, wp } from 'src/constants/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import SuccessIcon from 'src/assets/images/successSvg.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
@@ -45,9 +45,14 @@ import {
   signTransactionWithTapsigner,
 } from './signWithSD';
 import { useQuery } from '@realm/react';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SignTransactionScreen() {
   const route = useRoute();
+  const { colorMode } = useColorMode();
+
   const { note, label, collaborativeWalletId } = (route.params || {
     note: '',
     label: [],
@@ -67,6 +72,9 @@ function SignTransactionScreen() {
     );
   }
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTransactions, common, vault } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
@@ -98,6 +106,7 @@ function SignTransactionScreen() {
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
   );
   const [broadcasting, setBroadcasting] = useState(false);
+  const [visibleModal, setVisibleModal] = useState(false);
   const textRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -131,15 +140,16 @@ function SignTransactionScreen() {
         dispatch(finaliseVaultMigration(vaultId));
       }
     } else if (sendSuccessful) {
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 1,
-          routes: [
-            { name: 'Home' },
-            { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
-          ],
-        })
-      );
+      setVisibleModal(true);
+      // navigation.dispatch(
+      //   CommonActions.reset({
+      //     index: 1,
+      //     routes: [
+      //       { name: 'Home' },
+      //       { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+      //     ],
+      //   })
+      // );
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
@@ -367,11 +377,36 @@ function SignTransactionScreen() {
         break;
     }
   };
+  function SendSuccessfulContent() {
+    const { colorMode } = useColorMode();
+    return (
+      <Box>
+        <Box alignSelf="center">
+          <SuccessIcon />
+        </Box>
+        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
+          {walletTransactions.sendTransSuccessMsg}
+        </Text>
+      </Box>
+    );
+  }
+  const viewDetails = () => {
+    setVisibleModal(false);
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+        ],
+      })
+    );
+  };
   return (
     <ScreenWrapper>
       <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Chose any ${scheme.m} to sign the transaction`}
+        subtitle={`Chose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
@@ -408,7 +443,7 @@ function SignTransactionScreen() {
         />
       </Box>
       <Note
-        title="Note"
+        title={common.note}
         subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
         subtitleColor="GreyText"
       />
@@ -447,6 +482,17 @@ function SignTransactionScreen() {
         collaborativeWalletId={collaborativeWalletId}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
+      <KeeperModal
+        visible={visibleModal}
+        close={() => setVisibleModal(false)}
+        title={walletTransactions.SendSuccess}
+        subTitle={walletTransactions.transactionBroadcasted}
+        buttonText={walletTransactions.ViewDetails}
+        buttonCallback={viewDetails}
+        textcolor={`${colorMode}.greenText`}
+        buttonTextColor={`${colorMode}.white`}
+        Content={SendSuccessfulContent}
+      />
     </ScreenWrapper>
   );
 }

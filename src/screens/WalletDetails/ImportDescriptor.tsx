@@ -1,8 +1,7 @@
 import { Keyboard, StyleSheet, TextInput, TouchableWithoutFeedback, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Box, useColorMode } from 'native-base';
-import { hp, wp } from 'src/constants/responsive';
-import Fonts from 'src/constants/Fonts';
+import { hp } from 'src/constants/responsive';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import Buttons from 'src/components/Buttons';
@@ -176,8 +175,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 10,
     width: '100%',
-  },
-  tileWrapper: {
-    marginBottom: 15,
   },
 });

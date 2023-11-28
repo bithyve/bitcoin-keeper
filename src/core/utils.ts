@@ -2,6 +2,7 @@ import { EntityKind } from './wallets/enums';
 import { Vault, VaultScheme, VaultSigner } from './wallets/interfaces/vault';
 import { Wallet } from './wallets/interfaces/wallet';
 import WalletOperations from './wallets/operations';
+const cryptoJS = require('crypto');
 
 // GENRATOR
 
@@ -62,14 +63,8 @@ export interface ParsedVauleText {
   scheme: VaultScheme;
 }
 
-const allowedScehemes = {
-  1: [1],
-  2: [3],
-  3: [5, 6],
-};
-
 const isAllowedScheme = (m, n) => {
-  return allowedScehemes[m].includes(n);
+  return m <= n;
 };
 
 function removeEmptyLines(data) {
@@ -196,4 +191,36 @@ export const urlParamsToObj = (url: string): object => {
   } catch (err) {
     return {};
   }
+};
+
+export const createCipheriv = (data: string, password: string) => {
+  const algorithm = 'aes-256-cbc';
+  const iv = cryptoJS.randomBytes(16);
+  // Creating Cipheriv with its parameter
+  const cipher = cryptoJS.createCipheriv(algorithm, Buffer.from(password, 'hex'), iv);
+
+  // Updating text
+  let encrypted = cipher.update(data);
+
+  // Using concatenation
+  encrypted = Buffer.concat([encrypted, cipher.final()]);
+
+  // Returning iv and encrypted data
+  return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+};
+
+export const createDecipheriv = (data: { iv: string; encryptedData: string }, password: string) => {
+  const algorithm = 'aes-256-cbc';
+  const encryptedText = Buffer.from(data.encryptedData, 'hex');
+  // Creating Decipher
+  const decipher = cryptoJS.createDecipheriv(
+    algorithm,
+    Buffer.from(password, 'hex'),
+    Buffer.from(data.iv, 'hex')
+  );
+  // Updating encrypted text
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  // Returning iv and encrypted data
+  return JSON.parse(decrypted.toString());
 };

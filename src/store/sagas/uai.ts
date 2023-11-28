@@ -138,29 +138,31 @@ function* uaiChecksWorker({ payload }) {
         null,
         true
       );
-      for (const wallet of wallets) {
-        const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
-        if (
-          wallet.entityKind === EntityKind.WALLET &&
-          wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
-        ) {
-          if (uai) {
-            if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
-              yield put(uaiActionedEntity(uai.entityId, false));
+      if (vault) {
+        for (const wallet of wallets) {
+          const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
+          if (
+            wallet.entityKind === EntityKind.WALLET &&
+            wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
+          ) {
+            if (uai) {
+              if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
+                yield put(uaiActionedEntity(uai.entityId, false));
+              }
+            } else {
+              yield put(
+                addToUaiStack({
+                  title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
+                  isDisplay: false,
+                  uaiType: uaiType.VAULT_TRANSFER,
+                  prirority: 80,
+                  entityId: wallet.id,
+                })
+              );
             }
-          } else {
-            yield put(
-              addToUaiStack({
-                title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
-                isDisplay: false,
-                uaiType: uaiType.VAULT_TRANSFER,
-                prirority: 80,
-                entityId: wallet.id,
-              })
-            );
+          } else if (uai) {
+            yield put(uaiActionedEntity(uai.entityId, true));
           }
-        } else if (uai) {
-          yield put(uaiActionedEntity(uai.entityId, true));
         }
       }
     }

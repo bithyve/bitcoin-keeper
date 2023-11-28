@@ -45,8 +45,6 @@ import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
-const allowedSignerLength = [1, 3, 5];
-
 export function formatDuration(ms) {
   const duration = moment.duration(ms);
   return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(':mm:ss');
@@ -142,11 +140,17 @@ function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
   const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultReoveryShellId } =
-    useAppSelector((state) => state.bhr);
+  const {
+    signingDevices,
+    relayVaultError,
+    relayVaultUpdate,
+    relayVaultReoveryShellId,
+    vaultRecoveryDetails,
+  } = useAppSelector((state) => state.bhr);
+
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
-  const [signersList, setsignersList] = useState(signingDevices);
+  const [signersList, setsignersList] = useState<VaultSigner[]>(signingDevices);
   const [error, setError] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
@@ -242,8 +246,8 @@ function VaultRecovery({ navigation }) {
           vaultScheme: scheme,
           vaultSigners: signersList,
           vaultDetails: {
-            name: 'Vault',
-            description: 'Secure your sats',
+            name: vaultRecoveryDetails.name,
+            description: vaultRecoveryDetails.description,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -265,7 +269,7 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const vaultCheck = async () => {
-    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE);
+    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE, vaultRecoveryDetails.scheme);
     const response = await Relay.vaultCheck(vaultId);
     if (response.isVault) {
       setScheme(response.scheme);
@@ -280,8 +284,8 @@ function VaultRecovery({ navigation }) {
     try {
       setError(false);
       const xfpHash = hash256(signersList[0].masterFingerprint);
-
-      const response = await Relay.getVaultMetaData(xfpHash);
+      const multisigSignerId = updateSignerForScheme(signersList[0], 2).signerId;
+      const response = await Relay.getVaultMetaData(xfpHash, multisigSignerId);
       if (response?.vaultShellId) {
         dispatch(setRelayVaultRecoveryShellId(response.vaultShellId));
         dispatch(setTempShellId(response.vaultShellId));
@@ -303,12 +307,8 @@ function VaultRecovery({ navigation }) {
   };
 
   const startRecovery = () => {
-    if (allowedSignerLength.includes(signersList.length)) {
-      setRecoveryLoading(true);
-      vaultCheck();
-    } else {
-      showToast("Vault can't be recreated in this scheme", <ToastErrorIcon />);
-    }
+    setRecoveryLoading(true);
+    vaultCheck();
   };
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
