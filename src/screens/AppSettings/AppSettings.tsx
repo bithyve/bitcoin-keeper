@@ -149,7 +149,7 @@ function AppSettings({ navigation }) {
             <BackupIcon />
           </Box>
         )}
-        <Box style={{ marginLeft: wp(20) }}>
+        <Box style={styles.infoWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.appBackupTitle}>
             {title}
           </Text>
@@ -322,13 +322,17 @@ const styles = StyleSheet.create({
   appBackupWrapper: {
     borderRadius: 10,
     height: hp(116),
-    paddingLeft: wp(20),
+    padding: wp(10),
     width: '100%',
+    flexDirection: 'row',
     marginBottom: 10,
   },
   appBackupIconWrapper: {
-    width: wp(40),
+    width: '20%',
     position: 'relative',
+  },
+  infoWrapper: {
+    width: '80%',
   },
   notificationIndicator: {
     height: 10,
@@ -348,7 +352,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 12,
     letterSpacing: 0.6,
-    width: '95%',
+    width: '100%',
   },
   currentTypeSwitchWrapper: {
     alignItems: 'center',
