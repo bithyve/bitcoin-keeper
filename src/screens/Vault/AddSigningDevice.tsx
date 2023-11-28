@@ -249,8 +249,9 @@ function AddSigningDevice() {
 
   const subtitle =
     scheme.n > 1
-      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${isInheritance ? ' for Inheritance' : ''
-      }`
+      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
+          isInheritance ? ' for Inheritance' : ''
+        }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
   const trezorIncompatible =
@@ -297,8 +298,9 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${scheme.n === 1 ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                scheme.n === 1 ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
