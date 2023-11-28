@@ -225,6 +225,7 @@ function TextValue({ amt, unit }) {
       style={{
         ...styles.priorityTableText,
         flex: 1,
+        textAlign: 'right'
       }}
     >
       {amt} sats
@@ -247,12 +248,11 @@ function SendingPriority({
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingVertical: 10,
+            marginHorizontal: 20,
             flex: 1,
           }}
         >
-          <Text style={styles.headingLabelText} ml={wp(13)}>
-            Priority
-          </Text>
+          <Text style={styles.headingLabelText}>Priority</Text>
           <Text style={styles.headingLabelText}>Arrival Time</Text>
           <Text style={styles.headingLabelText}>Fees</Text>
         </Box>
@@ -718,7 +718,7 @@ const styles = StyleSheet.create({
   },
   priorityTableText: {
     fontSize: 10,
-    textAlign: 'right',
+    textAlign: 'center',
     color: '#656565',
   },
   gradient: {
