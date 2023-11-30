@@ -27,7 +27,7 @@ function AppVersionHistory() {
           <VersionHistoryList />
         </Box>
       </ScrollView>
-      <Text selectable style={styles.textAppId}>{`App ID: ${publicId}`}</Text>
+      <Text testID="text_appid" selectable style={styles.textAppId}>{`App ID: ${publicId}`}</Text>
     </ScreenWrapper>
   );
 }

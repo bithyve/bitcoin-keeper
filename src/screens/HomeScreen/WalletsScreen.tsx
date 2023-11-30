@@ -1,4 +1,10 @@
-import { StyleSheet, TouchableOpacity, Animated, Pressable, View } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  View,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -73,7 +79,11 @@ const calculateBalancesForVaults = (vaults) => {
 
 function AddNewWalletTile({ wallet, setAddImportVisible }) {
   return (
-    <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
+    <TouchableOpacity
+      style={styles.addWalletContainer}
+      onPress={() => setAddImportVisible()}
+      testID="btn_add_wallet"
+    >
       <AddSCardIcon />
       <Text color="light.white" style={styles.addWalletText}>
         {wallet.AddImportNewWallet}
@@ -115,7 +125,8 @@ function WalletItem({
     item.entityKind === EntityKind.VAULT && item.type === VaultType.COLLABORATIVE;
 
   return (
-    <Pressable
+    <TouchableWithoutFeedback
+      testID={`view_wallet_${walletIndex}`}
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
@@ -133,7 +144,7 @@ function WalletItem({
           hideAmounts={hideAmounts}
         />
       </Box>
-    </Pressable>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -152,6 +163,7 @@ function WalletList({
   return (
     <Box>
       <Animated.FlatList
+        testID="list_wallets"
         keyExtractor={(item) => item.id || item.key}
         horizontal
         showsHorizontalScrollIndicator={false}

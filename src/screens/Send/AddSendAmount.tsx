@@ -297,6 +297,7 @@ function AddSendAmount({ route }) {
                   height={7}
                 />
                 <Input
+                  testID="input_amount"
                   backgroundColor={`${colorMode}.seashellWhite`}
                   placeholder="Enter Amount"
                   placeholderTextColor={`${colorMode}.greenText`}
@@ -341,7 +342,11 @@ function AddSendAmount({ route }) {
                 backgroundColor={`${colorMode}.accent`}
                 style={styles.sendMaxWrapper}
               >
-                <Text color={`${colorMode}.sendMax`} style={styles.sendMaxText}>
+                <Text
+                  testID="text_sendmax"
+                  color={`${colorMode}.sendMax`}
+                  style={styles.sendMaxText}
+                >
                   Send Max
                 </Text>
               </Pressable>
@@ -353,6 +358,7 @@ function AddSendAmount({ route }) {
               style={styles.inputWrapper}
             >
               <Input
+                testID="input_note"
                 backgroundColor={`${colorMode}.seashellWhite`}
                 placeholder="Add a note"
                 autoCapitalize="sentences"
@@ -391,6 +397,7 @@ function AddSendAmount({ route }) {
                 ))}
               </HStack>
               <Input
+                testID="input_label"
                 backgroundColor={`${colorMode}.seashellWhite`}
                 autoCapitalize="sentences"
                 placeholder="Add a label"

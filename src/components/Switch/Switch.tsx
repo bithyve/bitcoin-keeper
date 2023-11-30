@@ -14,14 +14,24 @@ type Props = {
   value: boolean;
   onValueChange: Function;
   loading?: boolean;
+  testID?: string;
 };
 
-function Switch({ value, onValueChange, loading }: Props) {
+function Switch({ value, onValueChange, loading, testID }: Props) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity onPress={() => onValueChange(!value)} disabled={loading}>
-      <Box style={styles.container} backgroundColor={value ? `${colorMode}.greenButtonBackground` : `${colorMode}.textColor2`}>
-        <Box height={windowHeight > 600 ? 8 : 6} width={windowHeight > 600 ? 12 : 10} borderRadius={10} justifyContent="center" alignItems="center">
+    <TouchableOpacity testID={testID} onPress={() => onValueChange(!value)} disabled={loading}>
+      <Box
+        style={styles.container}
+        backgroundColor={value ? `${colorMode}.greenButtonBackground` : `${colorMode}.textColor2`}
+      >
+        <Box
+          height={windowHeight > 600 ? 8 : 6}
+          width={windowHeight > 600 ? 12 : 10}
+          borderRadius={10}
+          justifyContent="center"
+          alignItems="center"
+        >
           {value ? (
             <Box
               height={windowHeight > 600 ? 6 : 5}
