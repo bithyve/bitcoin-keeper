@@ -30,6 +30,7 @@ function TabButton({
   const styles = getStyles(colorMode);
   return (
     <TouchableOpacity
+      testID={`btn_${label}`}
       onPress={onPress}
       style={[
         styles.container,
@@ -73,12 +74,14 @@ function NewHomeScreen({ navigation }) {
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+            name: `${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-              } `,
+            description: `Imported from ${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -98,13 +101,15 @@ function NewHomeScreen({ navigation }) {
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: `${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-                } `,
+              name: `${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
-                } `,
+              description: `Imported from ${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -129,8 +134,8 @@ function NewHomeScreen({ navigation }) {
             options.tabBarLabel !== undefined
               ? options.tabBarLabel
               : options.title !== undefined
-                ? options.title
-                : route.name;
+              ? options.title
+              : route.name;
 
           const isFocused = state.index === index;
 

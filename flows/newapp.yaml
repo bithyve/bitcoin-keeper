@@ -1,20 +1,44 @@
-appId: io.hexawallet.keeper.development
+appId: ${APPID}
 ---
 - runFlow: setpin.yaml
 - runFlow: login.yaml
 - extendedWaitUntil:
     visible: 'New Keeper App'
-    timeout: 15000
+    timeout: 20000
 - assertVisible:
     id: 'btn_startNew'
 - tapOn:
     id: 'btn_startNew'
 - extendedWaitUntil:
     visible: 'Next'
-    timeout: 15000
+    timeout: 30000
 - tapOn: 'Next'
 - waitForAnimationToEnd:
     timeout: 2000
-- assertVisible: 'Add a signing device to activate your vault'
 - assertVisible:
-    id: 'btn_vault'
+    id: 'text_home_tor_status'
+- assertVisible:
+    id: 'text_home_current_plan'
+- assertVisible: '1 Wallet'
+- assertVisible:
+    id: 'btn_Whirlpool_&_UTXOs'
+- assertVisible:
+    id: 'btn_Wallets'
+- assertVisible:
+    id: 'btn_Vault'
+- tapOn:
+    id: 'btn_Vault'
+- assertVisible:
+    text: 'Add Signing Device to activate your Vault'
+    index: 1
+- assertVisible:
+    id: 'btn_Inheritance_Tools'
+- tapOn:
+    id: 'btn_Wallets'
+- swipe:
+    direction: LEFT
+- assertVisible:
+    id: 'btn_add_wallet'
+- assertVisible: 'Add a new wallet, import it, or create a collaborative wallet.'
+- swipe:
+    direction: RIGHT

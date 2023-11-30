@@ -212,6 +212,7 @@ function SendScreen({ route }) {
           <Box>
             <Box style={styles.qrcontainer}>
               <RNCamera
+                testID="qrscanner"
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
@@ -223,6 +224,7 @@ function SendScreen({ route }) {
             <UploadImage onPress={handleChooseImage} />
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
+                testID="input_address"
                 placeholder="or enter address manually"
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}
