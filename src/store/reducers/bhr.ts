@@ -31,7 +31,7 @@ const initialState: {
   relayVaultUpdate: boolean;
   relayVaultError: boolean;
   realyVaultErrorMessage: string;
-
+  vaultRecoveryDetails: Object;
   relayVaultReoveryShellId: string;
 } = {
   backupMethod: null,
@@ -51,6 +51,7 @@ const initialState: {
   backupWarning: false,
   signingDevices: [],
   vaultMetaData: {},
+  vaultRecoveryDetails: {},
   relayWalletUpdateLoading: false,
   relayWalletUpdate: false,
   relayWalletError: false,
@@ -78,6 +79,9 @@ const bhrSlice = createSlice({
     setBackupError: (state, action: PayloadAction<{ isError: boolean; error: string }>) => {
       state.backupError = action.payload.error;
       state.isBackupError = action.payload.isError;
+    },
+    setVaultRecoveryDetails: (state, action: PayloadAction<Object>) => {
+      state.vaultRecoveryDetails = action.payload;
     },
     setAppImageRecoverd: (state, action: PayloadAction<boolean>) => {
       state.appImageRecoverd = action.payload;
@@ -191,6 +195,7 @@ export const {
   resetRealyVaultState,
 
   setRelayVaultRecoveryShellId,
+  setVaultRecoveryDetails,
 } = bhrSlice.actions;
 
 const bhrPersistConfig = {

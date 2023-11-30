@@ -56,7 +56,7 @@ function AssignSignerType({ navigation, route }: IProps) {
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
   const {
-    activeVault: { signers },
+    activeVault: { signers, scheme },
   } = useVault();
 
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
@@ -96,7 +96,8 @@ function AssignSignerType({ navigation, route }: IProps) {
                 type,
                 isNfcSupported,
                 signers,
-                isOnL1
+                isOnL1,
+                scheme
               );
               let message = connectivityStatus;
               if (!connectivityStatus) {

@@ -7,7 +7,9 @@ import { Box, HStack, VStack, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
-import { CommonActions, useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { setVaultRecoveryDetails } from 'src/store/reducers/bhr';
 
 const NumberInput = ({ value, onDecrease, onIncrease }) => {
   const { colorMode } = useColorMode();
@@ -36,7 +38,9 @@ const NumberInput = ({ value, onDecrease, onIncrease }) => {
 const VaultSetup = () => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
-
+  const { params } = useRoute();
+  const { isRecreation } = (params as { isRecreation: Boolean }) || {};
+  const dispatch = useDispatch();
   const [vaultName, setVaultName] = useState('');
   const [vaultDescription, setVaultDescription] = useState('');
   const [scheme, setScheme] = useState({ m: 2, n: 3 });
@@ -91,14 +95,27 @@ const VaultSetup = () => {
       </VStack>
       <Buttons
         primaryText="Proceed"
-        primaryCallback={() => {
-          navigation.dispatch(
-            CommonActions.navigate({
-              name: 'AddSigningDevice',
-              params: { scheme, name: vaultName, description: vaultDescription },
-            })
-          );
-        }}
+        primaryCallback={
+          isRecreation
+            ? () => {
+                dispatch(
+                  setVaultRecoveryDetails({
+                    scheme,
+                    name: vaultName,
+                    description: vaultDescription,
+                  })
+                );
+                navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+              }
+            : () => {
+                navigation.dispatch(
+                  CommonActions.navigate({
+                    name: 'AddSigningDevice',
+                    params: { scheme, name: vaultName, description: vaultDescription },
+                  })
+                );
+              }
+        }
       />
     </ScreenWrapper>
   );
