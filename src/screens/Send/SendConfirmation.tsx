@@ -191,12 +191,12 @@ function SendingCard({
     }
   };
   return (
-    <Box marginY={windowHeight * 0.01}>
+    <Box marginY={windowHeight > 570 ? windowHeight * 0.01 : 0}>
       <Text
         color={`${colorMode}.primaryText`}
         fontSize={14}
         letterSpacing={1.12}
-        marginY={windowHeight * 0.011}
+        marginY={windowHeight > 570 ? windowHeight * 0.011 : 1}
       >
         {isSend ? 'Sending From' : 'Sending To'}
       </Text>
@@ -208,14 +208,15 @@ function SendingCard({
 function Transaction({ txFeeInfo, transactionPriority }) {
   const { colorMode } = useColorMode();
   return (
-    <Box flexDirection="row" justifyContent="space-between" marginY={3}>
+    <Box flexDirection="row" justifyContent="space-between" marginY={windowHeight > 570 ? 3 : 1
+    }>
       <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
         Transaction Priority
       </Text>
       <Text color={`${colorMode}.GreyText`} fontSize={14} letterSpacing={0.28}>
         {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
       </Text>
-    </Box>
+    </Box >
   );
 }
 
@@ -583,7 +584,7 @@ function SendConfirmation({ route }) {
       }
     }
   }, [crossTransferSuccess]);
-
+  console.log('windowHeight', windowHeight)
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
@@ -708,7 +709,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     borderRadius: 10,
-    marginVertical: 3
+    marginVertical: windowHeight > 570 ? 3 : 1,
   },
   customPriorityRowContainer: {
     flexDirection: 'row',
