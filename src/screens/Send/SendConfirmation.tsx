@@ -584,7 +584,6 @@ function SendConfirmation({ route }) {
       }
     }
   }, [crossTransferSuccess]);
-  console.log('windowHeight', windowHeight)
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
