@@ -191,12 +191,12 @@ function SendingCard({
     }
   };
   return (
-    <Box marginY={windowHeight * 0.01}>
+    <Box marginY={windowHeight > 570 ? windowHeight * 0.01 : 0}>
       <Text
         color={`${colorMode}.primaryText`}
         fontSize={14}
         letterSpacing={1.12}
-        marginY={windowHeight * 0.011}
+        marginY={windowHeight > 570 ? windowHeight * 0.011 : 1}
       >
         {isSend ? 'Sending From' : 'Sending To'}
       </Text>
@@ -208,14 +208,15 @@ function SendingCard({
 function Transaction({ txFeeInfo, transactionPriority }) {
   const { colorMode } = useColorMode();
   return (
-    <Box flexDirection="row" justifyContent="space-between" marginY={3}>
+    <Box flexDirection="row" justifyContent="space-between" marginY={windowHeight > 570 ? 3 : 1
+    }>
       <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
         Transaction Priority
       </Text>
       <Text color={`${colorMode}.GreyText`} fontSize={14} letterSpacing={0.28}>
         {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
       </Text>
-    </Box>
+    </Box >
   );
 }
 
@@ -225,6 +226,7 @@ function TextValue({ amt, unit }) {
       style={{
         ...styles.priorityTableText,
         flex: 1,
+        textAlign: 'right'
       }}
     >
       {amt} sats
@@ -238,6 +240,7 @@ function SendingPriority({
   setTransactionPriority,
   availableTransactionPriorities,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box flexDirection="column">
       <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} />
@@ -247,12 +250,11 @@ function SendingPriority({
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingVertical: 10,
+            marginHorizontal: 20,
             flex: 1,
           }}
         >
-          <Text style={styles.headingLabelText} ml={wp(13)}>
-            Priority
-          </Text>
+          <Text style={styles.headingLabelText}>Priority</Text>
           <Text style={styles.headingLabelText}>Arrival Time</Text>
           <Text style={styles.headingLabelText}>Fees</Text>
         </Box>
@@ -261,45 +263,50 @@ function SendingPriority({
       <Box mt={hp(1)}>
         {availableTransactionPriorities?.map((priority) => (
           <TouchableOpacity
-            style={styles.priorityRowContainer}
             key={priority}
             onPress={() => {
               setTransactionPriority(priority);
             }}
           >
-            <Box style={styles.priorityBox}>
-              <RadioButton
-                size={20}
-                isChecked={transactionPriority === priority}
-                borderColor="#E3E3E3"
-                onpress={() => {
-                  setTransactionPriority(priority);
-                }}
-              />
+            <Box
+              style={styles.priorityRowContainer}
+              opacity={transactionPriority === priority ? 1 : 0.8}
+              backgroundColor={transactionPriority === priority ? `${colorMode}.seashellWhite` : `${colorMode}.mainBackground`}
+            >
+              <Box style={styles.priorityBox}>
+                <RadioButton
+                  size={20}
+                  isChecked={transactionPriority === priority}
+                  borderColor="#E3E3E3"
+                  onpress={() => {
+                    setTransactionPriority(priority);
+                  }}
+                />
+                <Text
+                  style={{
+                    ...styles.priorityTableText,
+                    marginLeft: 12,
+                    fontStyle: 'normal',
+                  }}
+                >
+                  {String(priority)}
+                </Text>
+              </Box>
               <Text
                 style={{
                   ...styles.priorityTableText,
-                  marginLeft: 12,
-                  fontStyle: 'normal',
+                  flex: 1,
                 }}
               >
-                {String(priority)}
+                ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10} mins
               </Text>
+              <TextValue
+                amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+                unit={{
+                  bitcoinUnit: BitcoinUnit.SATS,
+                }}
+              />
             </Box>
-            <Text
-              style={{
-                ...styles.priorityTableText,
-                flex: 1,
-              }}
-            >
-              ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10} mins
-            </Text>
-            <TextValue
-              amt={txFeeInfo[priority?.toLowerCase()]?.amount}
-              unit={{
-                bitcoinUnit: BitcoinUnit.SATS,
-              }}
-            />
           </TouchableOpacity>
         ))}
       </Box>
@@ -577,7 +584,6 @@ function SendConfirmation({ route }) {
       }
     }
   }, [crossTransferSuccess]);
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
@@ -700,9 +706,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 0.5,
     paddingHorizontal: 12,
-    borderBottomColor: 'rgba(0, 85, 69, 0.15)',
+    borderRadius: 10,
+    marginVertical: windowHeight > 570 ? 3 : 1,
   },
   customPriorityRowContainer: {
     flexDirection: 'row',
@@ -718,7 +724,7 @@ const styles = StyleSheet.create({
   },
   priorityTableText: {
     fontSize: 10,
-    textAlign: 'right',
+    textAlign: 'center',
     color: '#656565',
   },
   gradient: {
