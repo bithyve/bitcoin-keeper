@@ -224,11 +224,11 @@ function UpdateWalletDetails({ route }) {
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
-                  secondaryText="Cancel"
+                  secondaryText={common.cancel}
                   secondaryCallback={() => {
                     navigtaion.goBack();
                   }}
-                  primaryText="Save"
+                  primaryText={common.save}
                   primaryDisable={path === wallet?.derivationDetails.xDerivationPath && wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0}
                   primaryCallback={() => {
                     if (wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0) {

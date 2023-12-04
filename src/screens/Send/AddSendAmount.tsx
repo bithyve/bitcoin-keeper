@@ -259,7 +259,7 @@ function AddSendAmount({ route }) {
           />
         </Box>
 
-        <ScrollView style={styles.Container} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.Container} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
           <Box
             style={{
               paddingHorizontal: 5,
