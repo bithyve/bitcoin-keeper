@@ -29,12 +29,11 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
@@ -61,6 +60,7 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { formatDuration } from '../VaultRecovery/VaultRecovery';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
+import Instruction from 'src/components/Instruction';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -68,18 +68,6 @@ export const enum InteracationMode {
   SIGNING = 'SIGNING',
   HEALTH_CHECK = 'HEALTH_CHECK',
   RECOVERY = 'RECOVERY',
-}
-
-export function BulletPoint({ text }: { text: string }) {
-  const { colorMode } = useColorMode();
-  return (
-    <Box style={styles.bulletContainer}>
-      <Box backgroundColor={`${colorMode}.greenText`} style={styles.bulletPoint} />
-      <Text color={`${colorMode}.greenText`} style={styles.infoText}>
-        {text}
-      </Text>
-    </Box>
-  );
 }
 
 const getSignerContent = (
@@ -96,23 +84,24 @@ const getSignerContent = (
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
           ? [
-            ccInstructions,
-            `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-          ]
+              ccInstructions,
+              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+            ]
           : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
-        } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
+        isMultisig ? 'MultiSig' : 'SingleSig'
+      } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-            jadeInstructions,
-            `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-          ]
+              jadeInstructions,
+              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+            ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -144,23 +133,24 @@ const getSignerContent = (
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-            keystoneInstructions,
-            `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-          ]
+              keystoneInstructions,
+              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+            ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-            passportInstructions,
-            `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-          ]
+              passportInstructions,
+              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+            ]
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -171,22 +161,23 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signing server will be made to checks it health']
           : [
-            `A 2FA authenticator will have to be set up to use this option.`,
-            `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
-          ],
+              `A 2FA authenticator will have to be set up to use this option.`,
+              `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
+            ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
         subTitle: 'A Signing Server will hold one of the keys of the Vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
-        } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-            seedSignerInstructions,
-            `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.`,
-          ]
+              seedSignerInstructions,
+              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.`,
+            ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
@@ -286,10 +277,10 @@ function SignerContent({
       <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {mode === InteracationMode.HEALTH_CHECK && (
-          <BulletPoint text="Health Check is initiated if a signing device is not used for the last 180 days" />
+          <Instruction text="Health Check is initiated if a signing device is not used for the last 180 days" />
         )}
         {Instructions.map((instruction) => (
-          <BulletPoint text={instruction} key={instruction} />
+          <Instruction text={instruction} key={instruction} />
         ))}
       </Box>
     </View>
@@ -710,7 +701,6 @@ function HardwareModalMap({
   };
 
   const navigateToSetupWithOtherSD = () => {
-    console.log('gere');
     navigation.dispatch(
       CommonActions.navigate({
         name: 'SetupOtherSDScreen',
@@ -864,7 +854,7 @@ function HardwareModalMap({
 
   const addSigningServerVaultShellId = () => {
     const { translations } = useContext(LocalizationContext);
-    const { vault: vaultTranslation, common } = translations
+    const { vault: vaultTranslation, common } = translations;
     const verifySigningServer = async (otp) => {
       try {
         setInProgress(true);
@@ -924,11 +914,7 @@ function HardwareModalMap({
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text
-            style={styles.cvvInputInfoText}
-            color="light.greenText"
-
-          >
+          <Text style={styles.cvvInputInfoText} color="light.greenText">
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -1137,28 +1123,11 @@ const styles = StyleSheet.create({
     width: wp(280),
     marginLeft: wp(5),
   },
-  bulletContainer: {
-    marginTop: 4,
-    flexDirection: 'row',
-  },
-  bulletPoint: {
-    marginRight: wp(5),
-    height: hp(5),
-    width: hp(5),
-    borderRadius: 10,
-    top: 12,
-  },
-  infoText: {
-    letterSpacing: 0.65,
-    padding: 3,
-    fontSize: 13,
-    width: wp(285),
-  },
   cvvInputInfoText: {
     fontSize: 13,
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
-  }
+  },
 });
 export default HardwareModalMap;

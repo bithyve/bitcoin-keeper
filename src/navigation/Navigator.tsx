@@ -95,6 +95,7 @@ import SigningDeviceListRecovery from 'src/screens/Recovery/SigninDeviceListReco
 import UnlockTapsigner from 'src/screens/SigningDevices/UnlockTapsigner';
 import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
+import NFCScanner from 'src/screens/Vault/NFCScanner';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -240,6 +241,7 @@ function AppStack() {
           options={{ gestureEnabled: false }}
         />
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
+        <Stack.Screen name="NFCScanner" component={NFCScanner} />
       </Stack.Navigator>
     </RealmProvider>
   );
