@@ -633,7 +633,7 @@ function SendConfirmation({ route }) {
         />
       ) : null}
       <Buttons
-        primaryText={common.proceed}
+        primaryText={common.confirmProceed}
         secondaryText={common.cancel}
         secondaryCallback={() => {
           navigation.goBack();
