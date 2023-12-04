@@ -25,7 +25,6 @@ import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import VaultIcon from 'src/assets/images/icon_vault2.svg';
 import moment from 'moment';
 import { crossTransferReset, sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
-import { timeConvertNear30 } from 'src/utils/utilities';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { useDispatch } from 'react-redux';
@@ -41,6 +40,8 @@ import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import Fonts from 'src/constants/Fonts';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import AddIcon from 'src/assets/images/add.svg';
+import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -240,18 +241,20 @@ function SendingPriority({
   setTransactionPriority,
   availableTransactionPriorities,
 }) {
+  const { translations } = useContext(LocalizationContext);
+  const { settings, wallet: walletTranslation } = translations;
   const { colorMode } = useColorMode();
   return (
-    <Box flexDirection="column">
-      <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} />
-      <Box flexDirection="row" justifyContent="space-between">
+    <Box>
+      {/* <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} /> */}
+      <Box flexDirection="row" justifyContent="space-between" width='90%'>
         <Box
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingVertical: 10,
             marginHorizontal: 20,
-            flex: 1,
+            width: '100%'
           }}
         >
           <Text style={styles.headingLabelText}>Priority</Text>
@@ -260,7 +263,7 @@ function SendingPriority({
         </Box>
       </Box>
 
-      <Box mt={hp(1)}>
+      <Box mt={hp(1)} width={'100%'}>
         {availableTransactionPriorities?.map((priority) => (
           <TouchableOpacity
             key={priority}
@@ -270,14 +273,14 @@ function SendingPriority({
           >
             <Box
               style={styles.priorityRowContainer}
-              opacity={transactionPriority === priority ? 1 : 0.8}
-              backgroundColor={transactionPriority === priority ? `${colorMode}.seashellWhite` : `${colorMode}.mainBackground`}
+              opacity={transactionPriority === priority ? 1 : 0.5}
+              backgroundColor={`${colorMode}.seashellWhite`}
             >
               <Box style={styles.priorityBox}>
                 <RadioButton
                   size={20}
                   isChecked={transactionPriority === priority}
-                  borderColor="#E3E3E3"
+                  borderColor="#74837F"
                   onpress={() => {
                     setTransactionPriority(priority);
                   }}
@@ -310,6 +313,12 @@ function SendingPriority({
           </TouchableOpacity>
         ))}
       </Box>
+      <TouchableOpacity onPress={() => console.log('pressed')}>
+        <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addTransPriority}>
+          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
+          <Text style={[styles.addPriorityText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>{walletTranslation.addCustomPriority}</Text>
+        </Box>
+      </TouchableOpacity>
     </Box>
   );
 }
@@ -385,7 +394,58 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
     </>
   );
 }
+function TransactionPriorityDetails({ }) {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTransactions } = translations;
 
+  return (
+    <Box>
+      <Box style={styles.transTitleWrapper}>
+        <Text style={styles.transTitleText} color={`${colorMode}.primaryText`}>{walletTransactions.transactionPriority}</Text>
+      </Box>
+      <Box style={styles.transPriorityWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+        <Box style={{ width: '30%' }}>
+          <Text style={styles.transLabelText}>{walletTransactions.PRIORITY}</Text>
+          <Text style={styles.transLabelText}>{walletTransactions.ARRIVALTIME}</Text>
+          <Text style={styles.transLabelText}>{walletTransactions.FEE}</Text>
+        </Box>
+        <Box style={{ width: '65%' }}>
+          <Text style={styles.transLabelText}>High</Text>
+          <Text style={styles.transLabelText}>10 - 20 min</Text>
+          <Box style={{ flexDirection: 'row', width: '100%' }}>
+            <Box style={{ width: '40%' }}>
+              <Text style={styles.transFiatFeeText}>80000000</Text>
+            </Box>
+            <Box style={styles.transSatsFeeWrapper}>
+              <BTC />
+              &nbsp;
+              <Text style={styles.transSatsFeeText}>0.000013000</Text>
+            </Box>
+          </Box>
+        </Box>
+        <Box style={{ width: '5%' }}>
+          <Text style={{ fontSize: 20 }}>...</Text>
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+function AmountDetails(props) {
+  return (
+    <Box style={styles.amountDetailsWrapper}>
+      <Box style={styles.amtDetailsTitleWrapper}>
+        <Text style={[styles.amtDetailsText, { fontSize: props.fontSize, fontWeight: props.fontWeight }]}>{props.title}</Text>
+      </Box>
+      <Box style={styles.amtFiatSatsTitleWrapper}>
+        <Text style={[styles.amtDetailsText, { fontSize: props.fontSize, fontWeight: props.fontWeight }]}>{props.fiatAmount}</Text>
+      </Box>
+      <Box style={styles.amtFiatSatsTitleWrapper}>
+        <Text style={styles.amtDetailsText}>{props.satsAmount}</Text>
+      </Box>
+    </Box>
+  )
+}
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -440,6 +500,7 @@ function SendConfirmation({ route }) {
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -614,7 +675,14 @@ function SendConfirmation({ route }) {
           getSatUnit={getSatUnit}
           sourceWallet={sourceWallet}
         />
-        <Box>
+        <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+          <TransactionPriorityDetails />
+        </TouchableOpacity>
+        <AmountDetails title={walletTransactions.totalAmount} fiatAmount={'10,000.00'} satsAmount={'0.264075'} />
+        <AmountDetails title={walletTransactions.totalFees} fiatAmount={'80.00'} satsAmount={'0.000013'} />
+        <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
+        <AmountDetails title={walletTransactions.total} fiatAmount={'10,080.00'} satsAmount={'0.264088'} fontSize={17} fontWeight={'400'} />
+        {/* <Box>
           {customFeeOptionTransfers.includes(transferType) ? (
             <SendingPriority
               txFeeInfo={txFeeInfo}
@@ -630,7 +698,7 @@ function SendConfirmation({ route }) {
               sendMaxFee={sendMaxFee}
             />
           )}
-        </Box>
+        </Box> */}
       </Box>
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note
@@ -690,6 +758,31 @@ function SendConfirmation({ route }) {
           />
         )}
       />
+      <KeeperModal
+        visible={transPriorityModalVisible}
+        close={() => setTransPriorityModalVisible(false)}
+        showCloseIcon={false}
+        title={walletTransactions.transactionPriority}
+        subTitleWidth={wp(240)}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonText={common.confirm}
+        buttonCallback={() => { setTransPriorityModalVisible(false), setTransactionPriority }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setTransPriorityModalVisible(false)}
+        Content={() => (
+          <SendingPriority
+            txFeeInfo={txFeeInfo}
+            transactionPriority={transactionPriority}
+            setTransactionPriority={setTransactionPriority}
+            availableTransactionPriorities={availableTransactionPriorities}
+          />
+        )
+        }
+      />
     </ScreenWrapper>
   );
 }
@@ -743,4 +836,70 @@ const styles = StyleSheet.create({
   customPriority: {
     fontStyle: 'italic',
   },
+  transPriorityWrapper: {
+    flexDirection: "row",
+    borderRadius: 10,
+    padding: windowHeight * 0.019,
+    alignItems: 'center'
+  },
+  transTitleWrapper: {
+    marginVertical: 10
+  },
+  transTitleText: {
+    fontSize: 14,
+    letterSpacing: 1.12,
+  },
+  transLabelText: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedRegular,
+  },
+  transFiatFeeText: {
+    fontSize: 16,
+    fontWeight: '300',
+    fontFamily: Fonts.FiraSansCondensedMedium,
+  },
+  transSatsFeeText: {
+    fontSize: 12
+  },
+  transSatsFeeWrapper: {
+    width: '60%',
+    alignItems: 'center',
+    flexDirection: 'row'
+  },
+  addTransPriority: {
+    height: 60,
+    borderRadius: 10,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: hp(30)
+  },
+  addPriorityText: {
+    fontSize: 15,
+    fontWeight: '400',
+    letterSpacing: 0.6,
+  },
+  amountDetailsWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    marginTop: 20
+  },
+  amtDetailsTitleWrapper: {
+    width: '30%',
+    justifyContent: 'flex-start'
+  },
+  amtFiatSatsTitleWrapper: {
+    width: '35%',
+    alignItems: 'flex-end'
+  },
+  amtDetailsText: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedRegular,
+    letterSpacing: 0.55
+  },
+  horizontalLineStyle: {
+    borderBottomWidth: 0.3,
+    marginTop: hp(20),
+    opacity: 0.5
+  }
 });
