@@ -8,7 +8,7 @@ import {
   crossTransfer,
   sendPhaseTwo,
 } from 'src/store/sagaActions/send_and_receive';
-import { hp, windowHeight, wp } from 'src/constants/responsive';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import BTC from 'src/assets/images/btc_grey.svg';
 import BitcoinUnit from 'src/models/enums/BitcoinUnit';
 import Buttons from 'src/components/Buttons';
@@ -700,7 +700,7 @@ function SendConfirmation({ route }) {
           getSatUnit={getSatUnit}
           sourceWallet={sourceWallet}
         />
-        <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
+        <TouchableOpacity onPress={() => setHighFeeAlertVisible(true)}>
           <TransactionPriorityDetails />
         </TouchableOpacity>
         <AmountDetails title={walletTransactions.totalAmount} fiatAmount={'10,000.00'} satsAmount={'0.264075'} />
@@ -959,7 +959,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   highFeeDetailsContainer: {
-    width: windowHeight * 0.8,
+    width: windowWidth * 0.8,
     padding: 10,
     marginVertical: 10
   },
