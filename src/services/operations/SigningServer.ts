@@ -18,7 +18,7 @@ export default class SigningServer {
    */
   static register = async (
     policy: SignerPolicy,
-    cosignersMapUpdates?: CosignersMapUpdate
+    cosignersMapUpdates?: CosignersMapUpdate[]
   ): Promise<{
     setupData: {
       id: string;
@@ -111,6 +111,44 @@ export default class SigningServer {
     };
   };
 
+  static fetchSignerSetupViaCosigners = async (
+    cosignersId: string,
+    verificationToken
+  ): Promise<{
+    valid: boolean;
+    id?: string;
+    xpub?: string;
+    masterFingerprint?: string;
+    derivationPath?: string;
+    policy?: SignerPolicy;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignerSetupViaCosigners`, {
+        HEXA_ID,
+        cosignersId,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { valid } = res.data;
+    if (!valid) throw new Error('Signer validation failed');
+
+    const { id, xpub, masterFingerprint, derivationPath, policy } = res.data;
+
+    return {
+      valid,
+      id,
+      xpub,
+      masterFingerprint,
+      derivationPath,
+      policy,
+    };
+  };
+
   static updatePolicy = async (
     id: string,
     verificationToken,
@@ -136,6 +174,30 @@ export default class SigningServer {
 
     const { updated } = res.data;
     if (!updated) throw new Error('Signer setup failed');
+    return {
+      updated,
+    };
+  };
+
+  static updateCosignersToSignerMap = async (
+    id: string,
+    cosignersMapUpdates: CosignersMapUpdate[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateCosignersToSignerMap`, {
+        HEXA_ID,
+        id,
+        cosignersMapUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
     return {
       updated,
     };
@@ -198,6 +260,40 @@ export default class SigningServer {
     const { isSignerAvailable } = res.data;
     return {
       isSignerAvailable,
+    };
+  };
+
+  static migrateSignersV2ToV3 = async (
+    vaultId: string,
+    appId: string,
+    cosignersMapUpdates: CosignersMapUpdate[]
+  ): Promise<{
+    migrationSuccessful: boolean;
+    setupData: {
+      id: string;
+      bhXpub: string;
+      masterFingerprint: string;
+      derivationPath: string;
+      verification: any;
+    };
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateSignersV2ToV3`, {
+        HEXA_ID,
+        vaultId,
+        appId,
+        cosignersMapUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { migrationSuccessful, setupData } = res.data;
+    return {
+      migrationSuccessful,
+      setupData,
     };
   };
 }
