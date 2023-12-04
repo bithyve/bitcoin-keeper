@@ -400,7 +400,11 @@
     "addCustomPriority": "Add Custom Priority",
     "totalAmount": "Total Amount",
     "totalFees": "Total Fees",
-    "total": "Total"
+    "total": "Total",
+    "highFeeAlert": "High Fee Alert",
+    "highFeeAlertSubTitle": "Network fee is larger than the amount you are sending",
+    "networkFee": "Network Fee",
+    "amtBeingSent": "Amount being sent"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",

@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import { Box, View, useColorMode } from 'native-base';
+import { Box, View, useColorMode, ScrollView } from 'native-base';
 import { CommonActions, StackActions, useNavigation } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import {
@@ -446,6 +446,30 @@ function AmountDetails(props) {
     </Box>
   )
 }
+
+function HighFeeAlert() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTransactions } = translations;
+  return (
+    <>
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
+        <Box style={styles.highFeeDetailsWrapper}>
+          <Text style={styles.highAlertFiatFee} >37,896.80&nbsp;&nbsp;</Text>
+          <Text style={styles.highAlertSatsFee}>0.789036</Text>
+        </Box>
+      </Box>
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
+        <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
+        <Box style={styles.highFeeDetailsWrapper}>
+          <Text style={styles.highAlertFiatFee}>37,896.80&nbsp;&nbsp;</Text>
+          <Text style={styles.highAlertSatsFee}>0.996710</Text>
+        </Box>
+      </Box>
+    </>
+  )
+}
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -501,6 +525,7 @@ function SendConfirmation({ route }) {
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
+  const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -648,7 +673,7 @@ function SendConfirmation({ route }) {
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
-      <Box marginX={7} flex={1}>
+      <ScrollView marginX={7} flex={1} showsVerticalScrollIndicator={false}>
         <SendingCard
           isSend
           currentCurrency={currentCurrency}
@@ -699,7 +724,7 @@ function SendConfirmation({ route }) {
             />
           )}
         </Box> */}
-      </Box>
+      </ScrollView>
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note
           title={common.note}
@@ -758,6 +783,7 @@ function SendConfirmation({ route }) {
           />
         )}
       />
+      {/* Transaction Priority Modal */}
       <KeeperModal
         visible={transPriorityModalVisible}
         close={() => setTransPriorityModalVisible(false)}
@@ -780,6 +806,27 @@ function SendConfirmation({ route }) {
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
           />
+        )
+        }
+      />
+      {/* High fee alert Modal */}
+      <KeeperModal
+        visible={highFeeAlertVisible}
+        close={() => setHighFeeAlertVisible(false)}
+        showCloseIcon={false}
+        title={walletTransactions.highFeeAlert}
+        subTitleWidth={wp(240)}
+        subTitle={walletTransactions.highFeeAlertSubTitle}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        buttonTextColor={`${colorMode}.white`}
+        buttonText={common.proceed}
+        buttonCallback={() => { setHighFeeAlertVisible(false) }}
+        secondaryButtonText={common.cancel}
+        secondaryCallback={() => setHighFeeAlertVisible(false)}
+        Content={() => (
+          <HighFeeAlert />
         )
         }
       />
@@ -901,5 +948,27 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0.3,
     marginTop: hp(20),
     opacity: 0.5
-  }
+  },
+  highFeeTitle: {
+    fontSize: 14,
+    fontFamily: Fonts.FiraSansCondensedRegular,
+    letterSpacing: 0.55
+  },
+  highFeeDetailsWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  highFeeDetailsContainer: {
+    width: windowHeight * 0.8,
+    padding: 10,
+    marginVertical: 10
+  },
+  highAlertFiatFee: {
+    fontSize: 16,
+    fontFamily: Fonts.FiraSansCondensedRegular,
+  },
+  highAlertSatsFee: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedRegular,
+  },
 });
