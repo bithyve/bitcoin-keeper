@@ -186,14 +186,8 @@ function EnterWalletDetailScreen({ route }) {
         onValueChange={(itemValue) => setPurpose(itemValue)}
       >
         <Select.Item label={wallet.purposelabel01} value={`${DerivationPurpose.BIP44}`} />
-        <Select.Item
-          label={wallet.purposelabel02}
-          value={`${DerivationPurpose.BIP49}`}
-        />
-        <Select.Item
-          label={wallet.purposelabel03}
-          value={`${DerivationPurpose.BIP84}`}
-        />
+        <Select.Item label={wallet.purposelabel02} value={`${DerivationPurpose.BIP49}`} />
+        <Select.Item label={wallet.purposelabel03} value={`${DerivationPurpose.BIP84}`} />
       </Select>
     </Box>
   );
@@ -219,7 +213,7 @@ function EnterWalletDetailScreen({ route }) {
             marginY={2}
             borderWidth="0"
             maxLength={20}
-            testID={`input_${walletName.replace(/ /g, '_')}`}
+            testID={`input_wallet_name`}
           />
           <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletName && walletName.length}/20
@@ -238,7 +232,7 @@ function EnterWalletDetailScreen({ route }) {
             borderWidth="0"
             marginY={2}
             maxLength={40}
-            testID={`input_${walletDescription.replace(/ /g, '_')}`}
+            testID={`input_wallet_description`}
           />
           <KeeperText color={`${colorMode}.GreyText`} style={styles.limitText}>
             {walletDescription && walletDescription.length}/40
@@ -284,17 +278,19 @@ function EnterWalletDetailScreen({ route }) {
             {wallet.AutoTransferInitiatedDesc}
           </KeeperText> */}
         {/* </Box> */}
-        <Text style={styles.transferText} color={`${colorMode}.primaryText`}>{importWallet.autoTransfer}</Text>
+        <Text style={styles.transferText} color={`${colorMode}.primaryText`}>
+          {importWallet.autoTransfer}
+        </Text>
         <Box style={styles.amountWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
           <Box mx={3}>
-            {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, colorMode === 'light' ? BitcoinInput : BitcoinWhite)}
+            {getCurrencyImageByRegion(
+              currencyCode,
+              'dark',
+              currentCurrency,
+              colorMode === 'light' ? BitcoinInput : BitcoinWhite
+            )}
           </Box>
-          <Box
-            width={0.5}
-            backgroundColor={`${colorMode}.divider`}
-            opacity={0.3}
-            height={8}
-          />
+          <Box width={0.5} backgroundColor={`${colorMode}.divider`} opacity={0.3} height={8} />
           <Input
             backgroundColor={`${colorMode}.seashellWhite`}
             placeholder={importWallet.enterAmount}
@@ -316,6 +312,7 @@ function EnterWalletDetailScreen({ route }) {
                 <KeeperText type="bold">{common.sats}</KeeperText>
               </Box>
             }
+            testID="input_transfer_policy"
           />
         </Box>
         <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
@@ -338,7 +335,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => { }}
+        close={() => {}}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
@@ -398,7 +395,7 @@ const styles = StyleSheet.create({
   },
   transferPolicyInputWrapper: {
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   transferPolicyTextArea: {
     flexDirection: 'row',
@@ -420,9 +417,9 @@ const styles = StyleSheet.create({
     opacity: 0.25,
   },
   sats: {
-    bottom: -8
+    bottom: -8,
   },
-  // 
+  //
   transferText: {
     width: '100%',
     fontSize: 12,
@@ -432,10 +429,10 @@ const styles = StyleSheet.create({
   },
   amountWrapper: {
     marginTop: hp(10),
-    flexDirection: "row",
+    flexDirection: 'row',
     marginHorizontal: 2,
-    alignItems: "center",
-    borderRadius: 5
+    alignItems: 'center',
+    borderRadius: 5,
   },
   balanceCrossesText: {
     width: '100%',
