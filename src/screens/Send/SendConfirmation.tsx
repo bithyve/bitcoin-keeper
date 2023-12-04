@@ -700,7 +700,7 @@ function SendConfirmation({ route }) {
           getSatUnit={getSatUnit}
           sourceWallet={sourceWallet}
         />
-        <TouchableOpacity onPress={() => setHighFeeAlertVisible(true)}>
+        <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
           <TransactionPriorityDetails />
         </TouchableOpacity>
         <AmountDetails title={walletTransactions.totalAmount} fiatAmount={'10,000.00'} satsAmount={'0.264075'} />
