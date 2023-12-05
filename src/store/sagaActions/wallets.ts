@@ -116,12 +116,14 @@ export const updateSignerPolicy = (
   updates: {
     restrictions?: SignerRestriction;
     exceptions?: SignerException;
-  }
+  },
+  verificationToken
 ) => ({
   type: UPDATE_SIGNER_POLICY,
   payload: {
     signer,
     updates,
+    verificationToken,
   },
 });
 
