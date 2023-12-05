@@ -7,31 +7,26 @@ import Relay from 'src/services/operations/Relay';
 import DeviceInfo from 'react-native-device-info';
 import { getReleaseTopic } from 'src/utils/releaseTopic';
 import messaging from '@react-native-firebase/messaging';
-import { Vault } from 'src/core/wallets/interfaces/vault';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { encrypt, generateEncryptionKey } from 'src/services/operations/encryption';
 import { BIP329Label, UTXOInfo } from 'src/core/wallets/interfaces';
-import { LabelRefType } from 'src/core/wallets/enums';
+import { LabelRefType, SignerType } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { setAppVersion, setPinHash } from '../reducers/storage';
-import { stringToArrayBuffer } from './login';
 import { createWatcher } from '../utilities';
 import {
-  resetReduxStore,
   updateVersionHistory,
   UPDATE_VERSION_HISTORY,
   migrateLabelsToBip329,
   MIGRATE_LABELS_329,
 } from '../sagaActions/upgrade';
-import { RootState } from '../store';
-import { generateSeedHash } from '../sagaActions/login';
-import { setupKeeperAppWorker } from './storage';
+import { Vault } from 'src/core/wallets/interfaces/vault';
+import SigningServer from 'src/services/operations/SigningServer';
+import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
 
-export const SWITCH_TO_MAINNET_VERSION = '0.0.99';
-export const ADDITION_OF_VAULTSHELL_VERSION = '1.0.1';
-export const BIP329_INTRODUCTION_VERSION = '1.0.7';
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
+export const BIP329_INTRODUCTION_VERSION = '1.0.7';
+export const ASSISTED_KEYS_MIGRATION_VERSION = '1.1.9';
 
 export function* applyUpgradeSequence({
   previousVersion,
@@ -41,65 +36,17 @@ export function* applyUpgradeSequence({
   newVersion: string;
 }) {
   console.log(`applying upgrade sequence - from: ${previousVersion} to ${newVersion}`);
-  if (semver.lt(previousVersion, SWITCH_TO_MAINNET_VERSION)) yield call(switchToMainnet);
-  if (semver.lte(previousVersion, ADDITION_OF_VAULTSHELL_VERSION))
-    yield call(additionOfVaultShellId);
+
+  if (
+    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION) &&
+    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION)
+  )
+    yield put(migrateLabelsToBip329());
+
+  if (semver.lt(previousVersion, ASSISTED_KEYS_MIGRATION_VERSION)) yield call(migrateAssistedKeys);
+
   yield put(setAppVersion(newVersion));
   yield put(updateVersionHistory(previousVersion, newVersion));
-  if (
-    semver.lt(previousVersion, BIP329_INTRODUCTION_VERSION) &&
-    semver.gte(previousVersion, LABELS_INTRODUCTION_VERSION)
-  ) {
-    yield put(migrateLabelsToBip329());
-  }
-}
-
-function* switchToMainnet() {
-  const AES_KEY = yield select((state) => state.login.key);
-  const uint8array = yield call(stringToArrayBuffer, AES_KEY);
-
-  // remove existing realm database
-  const deleted = yield call(dbManager.deleteRealm, uint8array);
-  if (!deleted) throw new Error('failed to switch to mainnet');
-
-  // reset redux store
-  const pinHash = yield select((state: RootState) => state.storage.pinHash); // capture pinhash before resetting redux
-  yield put(resetReduxStore());
-
-  // re-initialise a fresh instance of realm
-  yield call(dbManager.initializeRealm, uint8array);
-  // setup the keeper app
-  yield call(setupKeeperAppWorker, { payload: {} });
-
-  // saturate the reducer w/ pin
-  yield put(setPinHash(pinHash));
-  yield put(generateSeedHash());
-}
-
-function* additionOfVaultShellId() {
-  const { id, primarySeed }: KeeperApp = yield call(
-    dbManager.getObjectByIndex,
-    RealmSchema.KeeperApp
-  );
-  const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
-  try {
-    for (const vault of vaults) {
-      vault.shellId = id;
-      const encryptionKey = generateEncryptionKey(primarySeed);
-      const vaultEncrypted = encrypt(encryptionKey, JSON.stringify(vault));
-      // updating the vault image on relay
-      const response = yield call(Relay.updateVaultImage, {
-        vaultShellId: vault.shellId,
-        vaultId: vault.id,
-        vault: vaultEncrypted,
-      });
-      if (response.updated) {
-        yield call(dbManager.updateObjectById, RealmSchema.Vault, vault.id, { shellId: id });
-      }
-    }
-  } catch (err) {
-    console.log(err);
-  }
 }
 
 function* updateVersionHistoryWorker({
@@ -192,3 +139,30 @@ function* migrateLablesWorker() {
 }
 
 export const migrateLablesWatcher = createWatcher(migrateLablesWorker, MIGRATE_LABELS_329);
+
+function* migrateAssistedKeys() {
+  try {
+    const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
+    const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
+    const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+
+    const { signers } = activeVault;
+
+    for (let signer of signers) {
+      if (signer.type === SignerType.POLICY_SERVER) {
+        const cosignersMapUpdates = yield call(generateCosignerMapUpdates, signers, signer);
+        const { migrationSuccessful } = yield call(
+          SigningServer.migrateSignersV2ToV3,
+          activeVault.shellId,
+          app.id,
+          cosignersMapUpdates
+        );
+
+        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys');
+      }
+    }
+    // TODO: write migration for IKS
+  } catch (error) {
+    console.log({ error });
+  }
+}

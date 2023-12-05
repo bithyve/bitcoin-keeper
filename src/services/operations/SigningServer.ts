@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/core/config';
 import {
+  CosignersMapUpdate,
   SignerException,
   SignerPolicy,
   SignerRestriction,
@@ -12,29 +13,24 @@ const { HEXA_ID, SIGNING_SERVER } = config;
 
 export default class SigningServer {
   /**
-   * @param  {string} vaultShellId: for versions > 1.0.1, signer is registered against vaultShellId
-   * @param  {string} appId: for versions <= 1.0.1, signer is registered against appId
    * @param  {SignerPolicy} policy
    * @returns Promise
    */
   static register = async (
-    vaultShellId: string,
-    appId: string,
     policy: SignerPolicy
   ): Promise<{
     setupData: {
-      verification: SingerVerification;
-      bhXpub: string;
+      id: string;
+      bhXpub: any;
+      masterFingerprint: any;
       derivationPath: string;
-      masterFingerprint: string;
+      verification: SingerVerification;
     };
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/setupSigner`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/setupSigner`, {
         HEXA_ID,
-        vaultId: vaultShellId,
-        appId,
         policy,
       });
     } catch (err) {
@@ -50,18 +46,16 @@ export default class SigningServer {
   };
 
   static validate = async (
-    vaultShellId: string,
-    appId: string,
+    id: string,
     verificationToken
   ): Promise<{
     valid: boolean;
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/validateSingerSetup`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/validateSingerSetup`, {
         HEXA_ID,
-        vaultId: vaultShellId,
-        appId,
+        id,
         verificationToken,
       });
     } catch (err) {
@@ -78,22 +72,21 @@ export default class SigningServer {
   };
 
   static fetchSignerSetup = async (
-    vaultShellId: string,
-    appId: string,
+    id: string,
     verificationToken
   ): Promise<{
     valid: boolean;
-    xpub: string;
-    masterFingerprint: string;
-    derivationPath: string;
-    policy: SignerPolicy;
+    id?: string;
+    xpub?: string;
+    masterFingerprint?: string;
+    derivationPath?: string;
+    policy?: SignerPolicy;
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/fetchSignerSetup`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignerSetup`, {
         HEXA_ID,
-        vaultId: vaultShellId,
-        appId,
+        id,
         verificationToken,
       });
     } catch (err) {
@@ -108,6 +101,45 @@ export default class SigningServer {
 
     return {
       valid,
+      id,
+      xpub,
+      masterFingerprint,
+      derivationPath,
+      policy,
+    };
+  };
+
+  static fetchSignerSetupViaCosigners = async (
+    cosignersId: string,
+    verificationToken
+  ): Promise<{
+    valid: boolean;
+    id?: string;
+    xpub?: string;
+    masterFingerprint?: string;
+    derivationPath?: string;
+    policy?: SignerPolicy;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/fetchSignerSetupViaCosigners`, {
+        HEXA_ID,
+        cosignersId,
+        verificationToken,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { valid } = res.data;
+    if (!valid) throw new Error('Signer validation failed');
+
+    const { id, xpub, masterFingerprint, derivationPath, policy } = res.data;
+
+    return {
+      valid,
+      id,
       xpub,
       masterFingerprint,
       derivationPath,
@@ -116,8 +148,8 @@ export default class SigningServer {
   };
 
   static updatePolicy = async (
-    vaultShellId: string,
-    appId: string,
+    id: string,
+    verificationToken,
     updates: {
       restrictions?: SignerRestriction;
       exceptions?: SignerException;
@@ -127,10 +159,10 @@ export default class SigningServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/updateSignerPolicy`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateSignerPolicy`, {
         HEXA_ID,
-        vaultId: vaultShellId,
-        appId,
+        id,
+        verificationToken,
         updates,
       });
     } catch (err) {
@@ -145,9 +177,33 @@ export default class SigningServer {
     };
   };
 
+  static updateCosignersToSignerMap = async (
+    id: string,
+    cosignersMapUpdates: CosignersMapUpdate[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateCosignersToSignerMap`, {
+        HEXA_ID,
+        id,
+        cosignersMapUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Failed to update cosigners to signer map');
+    return {
+      updated,
+    };
+  };
+
   static signPSBT = async (
-    vaultShellId: string,
-    appId: string,
+    id: string,
     verificationToken: number,
     serializedPSBT: string,
     childIndexArray: Array<{
@@ -165,10 +221,9 @@ export default class SigningServer {
     let res: AxiosResponse;
 
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/signTransaction`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/signTransaction`, {
         HEXA_ID,
-        vaultId: vaultShellId,
-        appId,
+        id,
         verificationToken,
         serializedPSBT,
         childIndexArray,
@@ -186,17 +241,15 @@ export default class SigningServer {
   };
 
   static checkSignerHealth = async (
-    vaultShellId: string,
-    appId: string
+    id: string
   ): Promise<{
     isSignerAvailable: boolean;
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/checkSignerHealth`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/checkSignerHealth`, {
         HEXA_ID,
-        vaultId: vaultShellId,
-        appId,
+        id,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -206,6 +259,40 @@ export default class SigningServer {
     const { isSignerAvailable } = res.data;
     return {
       isSignerAvailable,
+    };
+  };
+
+  static migrateSignersV2ToV3 = async (
+    vaultId: string,
+    appId: string,
+    cosignersMapUpdates: CosignersMapUpdate[]
+  ): Promise<{
+    migrationSuccessful: boolean;
+    setupData: {
+      id: string;
+      bhXpub: string;
+      masterFingerprint: string;
+      derivationPath: string;
+      verification: any;
+    };
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateSignersV2ToV3`, {
+        HEXA_ID,
+        vaultId,
+        appId,
+        cosignersMapUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { migrationSuccessful, setupData } = res.data;
+    return {
+      migrationSuccessful,
+      setupData,
     };
   };
 }

@@ -24,7 +24,7 @@ function TransactionElement({
   index?: number;
 }) {
   const { colorMode } = useColorMode();
-  const date = moment(transaction?.date)?.format('DD MMM YY  •  hh:mmA');
+  const date = moment(transaction?.date)?.format('DD MMM YY  •  HH:mm A');
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
 
   return (

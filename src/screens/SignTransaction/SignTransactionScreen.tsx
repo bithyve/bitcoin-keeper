@@ -243,13 +243,11 @@ function SignTransactionScreen() {
           dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
-            showOTPModal,
-            keeper,
+            signerId,
             signingPayload,
             signingServerOTP,
             serializedPSBT,
-            SigningServer,
-            shellId,
+            showOTPModal,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
