@@ -33,12 +33,11 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { VaultScheme, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { getJadeDetails } from 'src/hardware/jade';
 import { getKeystoneDetails } from 'src/hardware/keystone';
 import { getPassportDetails } from 'src/hardware/passport';
@@ -65,6 +64,7 @@ import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { formatDuration } from '../VaultRecovery/VaultRecovery';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
+import Instruction from 'src/components/Instruction';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -72,18 +72,6 @@ export const enum InteracationMode {
   SIGNING = 'SIGNING',
   HEALTH_CHECK = 'HEALTH_CHECK',
   RECOVERY = 'RECOVERY',
-}
-
-export function BulletPoint({ text }: { text: string }) {
-  const { colorMode } = useColorMode();
-  return (
-    <Box style={styles.bulletContainer}>
-      <Box backgroundColor={`${colorMode}.greenText`} style={styles.bulletPoint} />
-      <Text color={`${colorMode}.greenText`} style={styles.infoText}>
-        {text}
-      </Text>
-    </Box>
-  );
 }
 
 const getSignerContent = (
@@ -293,10 +281,10 @@ function SignerContent({
       <Box style={{ alignSelf: 'center', marginRight: 35 }}>{Illustration}</Box>
       <Box marginTop="4">
         {mode === InteracationMode.HEALTH_CHECK && (
-          <BulletPoint text="Health Check is initiated if a signing device is not used for the last 180 days" />
+          <Instruction text="Health Check is initiated if a signing device is not used for the last 180 days" />
         )}
         {Instructions.map((instruction) => (
-          <BulletPoint text={instruction} key={instruction} />
+          <Instruction text={instruction} key={instruction} />
         ))}
       </Box>
     </View>
@@ -717,7 +705,6 @@ function HardwareModalMap({
   };
 
   const navigateToSetupWithOtherSD = () => {
-    console.log('gere');
     navigation.dispatch(
       CommonActions.navigate({
         name: 'SetupOtherSDScreen',
@@ -1141,23 +1128,6 @@ const styles = StyleSheet.create({
   passwordContainer: {
     width: wp(280),
     marginLeft: wp(5),
-  },
-  bulletContainer: {
-    marginTop: 4,
-    flexDirection: 'row',
-  },
-  bulletPoint: {
-    marginRight: wp(5),
-    height: hp(5),
-    width: hp(5),
-    borderRadius: 10,
-    top: 12,
-  },
-  infoText: {
-    letterSpacing: 0.65,
-    padding: 3,
-    fontSize: 13,
-    width: wp(285),
   },
   cvvInputInfoText: {
     fontSize: 13,
