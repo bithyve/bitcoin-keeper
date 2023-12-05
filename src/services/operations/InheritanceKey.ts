@@ -261,4 +261,37 @@ export default class InheritanceKeyServer {
       updated,
     };
   };
+
+  static migrateSignersV2ToV3 = async (
+    vaultId: string,
+    cosignersMapIKSUpdates: IKSCosignersMapUpdate[]
+  ): Promise<{
+    migrationSuccessful: boolean;
+    setupData: {
+      id: string;
+      inheritanceXpub: any;
+      masterFingerprint: any;
+      derivationPath: string;
+      policy;
+      configuration;
+    };
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateIKSSignersV2ToV3`, {
+        HEXA_ID,
+        vaultId,
+        cosignersMapIKSUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { migrationSuccessful, setupData } = res.data;
+    return {
+      migrationSuccessful,
+      setupData,
+    };
+  };
 }

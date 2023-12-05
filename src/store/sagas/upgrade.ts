@@ -23,6 +23,8 @@ import {
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import SigningServer from 'src/services/operations/SigningServer';
 import { generateCosignerMapUpdates } from 'src/core/wallets/factories/VaultFactory';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { CosignersMapUpdate, IKSCosignersMapUpdate } from 'src/services/interfaces';
 
 export const LABELS_INTRODUCTION_VERSION = '1.0.4';
 export const BIP329_INTRODUCTION_VERSION = '1.0.7';
@@ -150,7 +152,11 @@ function* migrateAssistedKeys() {
 
     for (let signer of signers) {
       if (signer.type === SignerType.POLICY_SERVER) {
-        const cosignersMapUpdates = yield call(generateCosignerMapUpdates, signers, signer);
+        const cosignersMapUpdates: CosignersMapUpdate[] = yield call(
+          generateCosignerMapUpdates,
+          signers,
+          signer
+        );
         const { migrationSuccessful } = yield call(
           SigningServer.migrateSignersV2ToV3,
           activeVault.shellId,
@@ -158,10 +164,22 @@ function* migrateAssistedKeys() {
           cosignersMapUpdates
         );
 
-        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys');
+        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(SS)');
+      } else if (signer.type === SignerType.INHERITANCEKEY) {
+        const cosignersMapUpdates: IKSCosignersMapUpdate[] = yield call(
+          generateCosignerMapUpdates,
+          signers,
+          signer
+        );
+        const { migrationSuccessful } = yield call(
+          InheritanceKeyServer.migrateSignersV2ToV3,
+          activeVault.shellId,
+          cosignersMapUpdates
+        );
+
+        if (!migrationSuccessful) throw new Error('Failed to migrate assisted keys(IKS)');
       }
     }
-    // TODO: write migration for IKS
   } catch (error) {
     console.log({ error });
   }
