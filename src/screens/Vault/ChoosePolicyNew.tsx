@@ -86,7 +86,7 @@ function ChoosePolicyNew({ navigation, route }) {
       );
     }
   };
-  const validateSetup = async () => {
+  const confirmChangePolicy = async () => {
     const maxAmount = Number(maxTransaction);
     const restrictions: SignerRestriction = {
       none: maxAmount === 0,
@@ -146,7 +146,7 @@ function ChoosePolicyNew({ navigation, route }) {
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
-              <CustomGreenButton onPress={validateSetup} value="Confirm" />
+              <CustomGreenButton onPress={confirmChangePolicy} value="Confirm" />
             </Box>
           </Box>
         </Box>
