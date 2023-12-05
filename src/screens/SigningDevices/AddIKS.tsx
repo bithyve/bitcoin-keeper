@@ -13,7 +13,7 @@ import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityI
 import { Vault } from 'src/core/wallets/interfaces/vault';
 import { setBackupBSMSForIKS } from 'src/store/reducers/vaults';
 import Text from 'src/components/KeeperText';
-import { BulletPoint } from '../Vault/HardwareModalMap';
+import Instruction from 'src/components/Instruction';
 
 const config = {
   Illustration: <InheritanceKeyIllustration />,
@@ -62,7 +62,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         </Pressable>
         <Box marginTop="4">
           {config.Instructions.map((instruction) => (
-            <BulletPoint text={instruction} key={instruction} />
+            <Instruction text={instruction} key={instruction} />
           ))}
         </Box>
       </View>
