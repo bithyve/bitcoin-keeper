@@ -42,6 +42,7 @@ import Fonts from 'src/constants/Fonts';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import AddIcon from 'src/assets/images/add.svg';
 import AddIconWhite from 'src/assets/images/icon_add_white.svg';
+import CustomPriorityModal from './CustomPriorityModal'
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -240,6 +241,7 @@ function SendingPriority({
   transactionPriority,
   setTransactionPriority,
   availableTransactionPriorities,
+  setVisibleCustomPriorityModal
 }) {
   const { translations } = useContext(LocalizationContext);
   const { settings, wallet: walletTranslation } = translations;
@@ -313,7 +315,7 @@ function SendingPriority({
           </TouchableOpacity>
         ))}
       </Box>
-      <TouchableOpacity onPress={() => console.log('pressed')}>
+      <TouchableOpacity onPress={setVisibleCustomPriorityModal}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addTransPriority}>
           {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
           <Text style={[styles.addPriorityText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>{walletTranslation.addCustomPriority}</Text>
@@ -526,6 +528,7 @@ function SendConfirmation({ route }) {
   const [confirmPassVisible, setConfirmPassVisible] = useState(false);
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
+  const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -805,6 +808,7 @@ function SendConfirmation({ route }) {
             transactionPriority={transactionPriority}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
+            setVisibleCustomPriorityModal={() => { setTransPriorityModalVisible(false); setVisibleCustomPriorityModal(true) }}
           />
         )
         }
@@ -830,6 +834,15 @@ function SendConfirmation({ route }) {
         )
         }
       />
+      {visibleCustomPriorityModal &&
+        <CustomPriorityModal
+          visible={visibleCustomPriorityModal}
+          close={() => setVisibleCustomPriorityModal(false)}
+          title={vault.CustomPriority}
+          secondaryButtonText={common.cancel}
+          secondaryCallback={() => setVisibleCustomPriorityModal(false)}
+          subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do'}
+        />}
     </ScreenWrapper>
   );
 }
