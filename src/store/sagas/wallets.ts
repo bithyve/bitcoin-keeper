@@ -684,7 +684,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
 
     const { updated } = yield call(
       InheritanceKeyServer.updateInheritanceConfig,
-      vault.shellId,
+      ikSigner.signerId,
       existingThresholdDescriptors,
       newIKSConfiguration
     );
@@ -714,7 +714,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
 
     const { setupSuccessful } = yield call(
       InheritanceKeyServer.finalizeIKSetup,
-      vault.shellId,
+      ikSigner.signerId,
       config,
       policy
     );
