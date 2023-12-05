@@ -21,22 +21,35 @@ import {
 import WalletUtilities from '../operations/utils';
 import config from 'src/core/config';
 import WalletOperations from '../operations';
+import { CosignersMapUpdate, CosignersMapUpdateAction } from 'src/services/interfaces';
+import SigningServer from 'src/services/operations/SigningServer';
 
 const crypto = require('crypto');
 
-export const generateVaultId = (signers, networkType) => {
+const STANDARD_VAULT_SCHEME = [
+  { m: 1, n: 1 },
+  { m: 2, n: 3 },
+  { m: 3, n: 5 },
+];
+
+export const generateVaultId = (signers, networkType, scheme) => {
   const network = WalletUtilities.getNetworkByType(networkType);
   const xpubs = signers.map((signer) => signer.xpub).sort();
   const fingerprints = [];
   xpubs.forEach((xpub) =>
     fingerprints.push(WalletUtilities.getFingerprintFromExtendedKey(xpub, network))
   );
+  STANDARD_VAULT_SCHEME.forEach((s) => {
+    if (s.m !== scheme.m || s.n !== scheme.n) {
+      fingerprints.push(JSON.stringify(scheme));
+    }
+  });
   const hashedFingerprints = hash256(fingerprints.join(''));
   const id = hashedFingerprints.slice(hashedFingerprints.length - fingerprints[0].length);
   return id;
 };
 
-export const generateVault = ({
+export const generateVault = async ({
   type,
   vaultName,
   vaultDescription,
@@ -54,8 +67,8 @@ export const generateVault = ({
   networkType: NetworkType;
   vaultShellId?: string;
   collaborativeWalletId?: string;
-}): Vault => {
-  const id = generateVaultId(signers, networkType);
+}): Promise<Vault> => {
+  const id = generateVaultId(signers, networkType, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
   const shellId = vaultShellId || generateKey(12);
   const defaultShell = 1;
@@ -104,6 +117,19 @@ export const generateVault = ({
     collaborativeWalletId,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
+
+  // update cosigners map(if one of the signers is an assisted key) // TODO: implement the same for IKS
+  for (let signer of signers) {
+    if (signer.type === SignerType.POLICY_SERVER) {
+      const cosignersMapUpdates = generateCosignerMapUpdates(signers, signer);
+      const { updated } = await SigningServer.updateCosignersToSignerMap(
+        signer.signerId,
+        cosignersMapUpdates
+      );
+      if (!updated) throw new Error('Failed to update cosigners-map for Assisted Keys');
+    }
+  }
+
   return vault;
 };
 
@@ -201,6 +227,38 @@ export const generateMockExtendedKey = (
     xDerivationPath
   );
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
+};
+
+export const generateCosignerMapIds = (signers: VaultSigner[]) => {
+  const cosignerIds = [];
+  signers.forEach((signer) => {
+    if (signer.type !== SignerType.POLICY_SERVER && signer.type !== SignerType.INHERITANCEKEY)
+      cosignerIds.push(signer.signerId);
+  });
+
+  cosignerIds.sort();
+
+  const cosignersMapIds = [];
+  for (let i = 0; i < cosignerIds.length; i++) {
+    for (let j = i + 1; j < cosignerIds.length; j++) {
+      cosignersMapIds.push(cosignerIds[i] + '-' + cosignerIds[j]);
+    }
+  }
+  return cosignersMapIds;
+};
+
+export const generateCosignerMapUpdates = (signers: VaultSigner[], assistedKey: VaultSigner) => {
+  const cosignersMapUpdates: CosignersMapUpdate[] = [];
+  const cosignersMapIds = generateCosignerMapIds(signers);
+  for (let id of cosignersMapIds) {
+    cosignersMapUpdates.push({
+      cosignersId: id,
+      signerId: assistedKey.signerId,
+      action: CosignersMapUpdateAction.ADD,
+    });
+  }
+
+  return cosignersMapUpdates;
 };
 
 export const MOCK_SD_MNEMONIC_MAP = {

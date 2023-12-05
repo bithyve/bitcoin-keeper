@@ -4,15 +4,10 @@ import Recieve from 'src/assets/images/receive.svg';
 import Send from 'src/assets/images/send.svg';
 import IconSettings from 'src/assets/images/icon_settings.svg';
 import BuyBitcoin from 'src/assets/images/icon_buy.svg';
-import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import useFeatureMap from 'src/hooks/useFeatureMap';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { allowedRecieveTypes, allowedSendTypes } from '../WalletDetails';
 import KeeperFooter from 'src/components/KeeperFooter';
 
-function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
-  const { showToast } = useToastMessage();
-  const featureMap = useFeatureMap({ walletIndex });
+function TransactionFooter({ currentWallet, onPressBuyBitcoin }) {
   const navigation = useNavigation();
 
   const footerItems = [
@@ -26,9 +21,7 @@ function TransactionFooter({ currentWallet, onPressBuyBitcoin, walletIndex }) {
       Icon: Recieve,
       text: 'Receive',
       onPress: () =>
-        featureMap.walletRecieve
-          ? navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet }))
-          : showToast('Please Upgrade', <ToastErrorIcon />),
+        navigation.dispatch(CommonActions.navigate('Receive', { wallet: currentWallet })),
       hideItems: !allowedRecieveTypes.includes(currentWallet.type),
     },
     {

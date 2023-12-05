@@ -19,7 +19,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletUtilities from 'src/core/wallets/operations/utils';
-import { hp } from 'src/constants/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import useToastMessage from 'src/hooks/useToastMessage';
 import Note from 'src/components/Note/Note';
 import KeeperModal from 'src/components/KeeperModal';
@@ -40,8 +40,7 @@ function ReceiveScreen({ route }: { route }) {
   const [paymentURI, setPaymentURI] = useState(null);
 
   const { translations } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { home } = translations;
+  const { common, home, wallet: walletTranslation } = translations;
 
   useEffect(() => {
     const receivingAddress = WalletOperations.getNextFreeAddress(wallet);
@@ -109,7 +108,7 @@ function ReceiveScreen({ route }: { route }) {
   }
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={common.receive} subtitle="Native segwit address" />
+      <KeeperHeader title={common.receive} subtitle={walletTranslation.receiveSubTitle} />
       <Box style={styles.qrWrapper} borderColor={`${colorMode}.qrBorderColor`}>
         <QRCode
           value={paymentURI || receivingAddress || 'address'}
@@ -122,15 +121,16 @@ function ReceiveScreen({ route }: { route }) {
             color={`${colorMode}.recieverAddress`}
             numberOfLines={1}
           >
-            Receive Address
+            {walletTranslation.receiveAddress}
           </Text>
         </Box>
       </Box>
       <TouchableOpacity
         activeOpacity={0.4}
+        testID="btn_copy_address"
         onPress={() => {
           Clipboard.setString(paymentURI || receivingAddress);
-          showToast('Address Copied Successfully', <TickIcon />);
+          showToast(walletTranslation.addressCopied, <TickIcon />);
         }}
         style={styles.inputContainer}
       >
@@ -148,14 +148,14 @@ function ReceiveScreen({ route }: { route }) {
         onPress={() => setModalVisible(true)}
         icon={<BtcGreen />}
         title={home.AddAmount}
-        subTitle="Add a specific invoice amount"
+        subTitle={walletTranslation.addSpecificInvoiceAmt}
       />
       <Box style={styles.Note}>
         <Note
           title={wallet.entityKind === 'VAULT' ? 'Security Tip' : home.AddAmount}
           subtitle={
             wallet.entityKind === 'VAULT'
-              ? 'You can get a receive address directly from a signing device and do not have to trust the Keeper app'
+              ? walletTranslation.addressReceiveDirectly
               : home.reflectSats
           }
           subtitleColor="GreyText"
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
   qrWrapper: {
-    marginTop: hp(35),
+    marginTop: windowHeight > 600 ? hp(35) : 0,
     alignItems: 'center',
     alignSelf: 'center',
     width: hp(250),
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomLeftRadius: 10,
     borderTopLeftRadius: 10,
-    marginTop: hp(40),
+    marginTop: windowHeight > 600 ? hp(40) : 0,
   },
   inputWrapper: {
     flexDirection: 'row',

@@ -74,9 +74,9 @@ function SigningDeviceListRecovery({ navigation }) {
           disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
         };
       case SignerType.POLICY_SERVER:
-        if (signingDevices.length < 1) {
+        if (signingDevices.length < 2) {
           return {
-            message: 'Add another device first to recover',
+            message: 'Add two other devices first to recover',
             disabled: true,
           };
         }
@@ -255,7 +255,9 @@ function SigningDeviceListRecovery({ navigation }) {
         Content={VaultSetupContent}
         DarkCloseIcon
         learnMore
-        learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/recovery-why-keeper/`)}
+        learnMoreCallback={() =>
+          openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/recovery-why-keeper/`)
+        }
       />
     </ScreenWrapper>
   );

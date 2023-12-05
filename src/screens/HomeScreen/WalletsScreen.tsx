@@ -1,4 +1,10 @@
-import { StyleSheet, TouchableOpacity, Animated, Pressable, View } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  View,
+  TouchableWithoutFeedback,
+} from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
@@ -73,7 +79,11 @@ const calculateBalancesForVaults = (vaults) => {
 
 function AddNewWalletTile({ wallet, setAddImportVisible }) {
   return (
-    <TouchableOpacity style={styles.addWalletContainer} onPress={() => setAddImportVisible()}>
+    <TouchableOpacity
+      style={styles.addWalletContainer}
+      onPress={() => setAddImportVisible()}
+      testID="btn_add_wallet"
+    >
       <AddSCardIcon />
       <Text color="light.white" style={styles.addWalletText}>
         {wallet.AddImportNewWallet}
@@ -115,12 +125,13 @@ function WalletItem({
     item.entityKind === EntityKind.VAULT && item.type === VaultType.COLLABORATIVE;
 
   return (
-    <Pressable
+    <TouchableWithoutFeedback
+      testID={`view_wallet_${walletIndex}`}
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-            collaborativeWalletId: item.collaborativeWalletId,
-          })
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -133,7 +144,7 @@ function WalletItem({
           hideAmounts={hideAmounts}
         />
       </Box>
-    </Pressable>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -152,6 +163,7 @@ function WalletList({
   return (
     <Box>
       <Animated.FlatList
+        testID="list_wallets"
         keyExtractor={(item) => item.id || item.key}
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -216,9 +228,11 @@ function WalletTile({ wallet, balances, isWhirlpoolWallet, hideAmounts, isCollab
           )}
 
           <Box style={styles.walletDetailsWrapper}>
-            {wallet?.type === 'IMPORTED' ? <Text color={`${colorMode}.white`} style={styles.walletType}>
-              {importWallet.importedWalletTitle}
-            </Text> : null}
+            {wallet?.type === 'IMPORTED' ? (
+              <Text color={`${colorMode}.white`} style={styles.walletType}>
+                {importWallet.importedWalletTitle}
+              </Text>
+            ) : null}
             <Text color={`${colorMode}.white`} style={styles.walletName}>
               {wallet?.presentationData?.name}
             </Text>
@@ -362,12 +376,12 @@ async function downgradeToPleb(dispatch, app) {
   }
 }
 
-function DowngradeModalContent(navigation, app) {
+function DowngradeModalContent({ navigation, app }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
-  const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+  // const app: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   return (
     <Box>
@@ -536,11 +550,11 @@ const WalletsScreen = ({ navigation }) => {
       </Box>
       <KeeperModal
         dismissible={false}
-        close={() => { }}
+        close={() => {}}
         visible={recepitVerificationFailed}
         title={choosePlan.validateSubscriptionTitle}
         subTitle={choosePlan.validateSubscriptionSubTitle}
-        Content={DowngradeModalContent}
+        Content={() => <DowngradeModalContent app={app} navigation={navigation} />}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}

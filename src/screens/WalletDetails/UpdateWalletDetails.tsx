@@ -39,6 +39,7 @@ function UpdateWalletDetails({ route }) {
   const { wallet, isFromSeed, words } = route.params;
 
   const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation, seed, importWallet, common } = translations
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const purposeList = [
@@ -74,7 +75,7 @@ function UpdateWalletDetails({ route }) {
       dispatch(resetRealyWalletState());
     }
     if (relayWalletUpdate) {
-      showToast('Wallet details updated', <TickIcon />);
+      showToast(walletTranslation.walletDetailsUpdate, <TickIcon />);
       dispatch(resetRealyWalletState());
       navigtaion.goBack();
     }
@@ -102,13 +103,15 @@ function UpdateWalletDetails({ route }) {
         scriptType,
       });
       if (isUpdated) {
+        setWarringsVisible(false)
         updateAppImageWorker({ payload: { wallet } });
         navigtaion.goBack();
-        showToast('Wallet details updated', <TickIcon />);
-      } else showToast('Failed to update', <ToastErrorIcon />);
+        showToast(walletTranslation.walletDetailsUpdate, <TickIcon />);
+      } else showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     } catch (error) {
+      setWarringsVisible(false)
       console.log(error);
-      showToast('Failed to update', <ToastErrorIcon />);
+      showToast(walletTranslation.failToUpdate, <ToastErrorIcon />);
     }
   };
   function WaringsContent() {
@@ -116,17 +119,12 @@ function UpdateWalletDetails({ route }) {
       <Box width={wp(300)}>
         <Box>
           <Text color={`${colorMode}.black`} style={styles.contentText}>
-            {`\u2022 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor `}
+            {`\u2022 ${walletTranslation.changePathOfDefaultWalletPara01} `}
           </Text>
         </Box>
         <Box>
           <Text color={`${colorMode}.black`} style={styles.contentText}>
-            {`\u2022  incididunt ut labore et dolore magna aliqua. Ut enim ad`}
-          </Text>
-        </Box>
-        <Box>
-          <Text color={`${colorMode}.black`} style={styles.contentText}>
-            {`\u2022 minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo `}
+            {`\u2022  ${walletTranslation.changePathOfDefaultWalletPara02}`}
           </Text>
         </Box>
         <Box style={styles.ctaBtnWrapper} mt={10}>
@@ -134,12 +132,11 @@ function UpdateWalletDetails({ route }) {
             <Buttons
               secondaryText="Cancel"
               secondaryCallback={() => {
-                navigtaion.goBack();
+                setWarringsVisible(false)
               }}
               primaryText="I understand, Proceed"
-              // primaryCallback={updateWallet}
               primaryCallback={() => {
-                setWarringsVisible(false)
+                updateWallet()
               }}
               primaryLoading={relayWalletUpdateLoading}
             />
@@ -158,11 +155,11 @@ function UpdateWalletDetails({ route }) {
         style={styles.scrollViewWrapper}
       >
         <KeeperHeader
-          title={isFromSeed ? 'Recovery Phrase' : 'Wallet Details'}
+          title={isFromSeed ? seed.recoveryPhrase : walletTranslation.WalletDetails}
           subtitle={
             isFromSeed
-              ? 'The QR below comprises of your 12 word Recovery Phrase'
-              : 'Update Wallet Path'
+              ? walletTranslation.qrofRecoveryPhrase
+              : walletTranslation.updateWalletPath
           }
         />
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -189,18 +186,17 @@ function UpdateWalletDetails({ route }) {
               style={[styles.autoTransferText, { marginTop: hp(25), marginBottom: 5 }]}
               color={`${colorMode}.GreyText`}
             >
-              Path
+              {common.path}
             </KeeperText>
             <Box style={styles.textInputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <Input
-                placeholder="Derivation Path"
+                placeholder={importWallet.derivationPath}
                 // style={styles.textInput}
                 placeholderTextColor={`${colorMode}.White`} // TODO: change to colorMode and use native base component
                 value={path}
                 onChangeText={(value) => setPath(value)}
                 autoCorrect={false}
-                // editable={!isFromSeed}
-                editable={false}
+                editable={!isFromSeed}
                 maxLength={20}
                 onFocus={() => {
                   setShowPurpose(false);
@@ -215,48 +211,47 @@ function UpdateWalletDetails({ route }) {
               <Box style={{ marginTop: wp(20) }}>
                 <ShowXPub
                   data={words.toString().replace(/,/g, ' ')}
-                  subText="Wallet Recovery Phrase"
-                  noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
+                  subText={seed.walletRecoveryPhrase}
+                  noteSubText={seed.showXPubNoteSubText}
                   copyable={false}
                 />
               </Box>
             ) : null}
           </Box>
         </ScrollView>
-        {/* {!isFromSeed && (
+        {!isFromSeed && (
           <Box style={styles.dotContainer}>
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
-                  secondaryText="Cancel"
+                  secondaryText={common.cancel}
                   secondaryCallback={() => {
                     navigtaion.goBack();
                   }}
-                  primaryText="Save"
-                  // primaryCallback={updateWallet}
+                  primaryText={common.save}
+                  primaryDisable={path === wallet?.derivationDetails.xDerivationPath && wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0}
                   primaryCallback={() => {
-                    setWarringsVisible(true)
+                    if (wallet?.specs?.balances?.confirmed === 0 && wallet?.specs?.balances?.unconfirmed === 0) {
+                      setWarringsVisible(true)
+                    } else {
+                      showToast(walletTranslation.walletBalanceMsg, <ToastErrorIcon />)
+                    }
                   }}
                   primaryLoading={relayWalletUpdateLoading}
                 />
               </Box>
             </Box>
           </Box>
-        )} */}
+        )}
         <KeeperModal
           visible={warringsVisible}
           close={() => setWarringsVisible(false)}
-          title="You are changing the derivation path of Default Wallet"
-          subTitle="Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-          // buttonText="I understand, Proceed"
+          title={walletTranslation.changePathOfDefaultWallet}
+          subTitle={walletTranslation.changePathOfDefaultWalletSubTitle}
           modalBackground={`${colorMode}.modalWhiteBackground`}
           subTitleColor={`${colorMode}.secondaryText`}
           textColor={`${colorMode}.primaryText`}
-          // buttonTextColor="light.white"
           DarkCloseIcon={colorMode === 'dark'}
-          // secondaryButtonText={'Cancel'}
-          // secondaryCallback={() => setWarringsVisible(false)}
-          // buttonCallback={() => setWarringsVisible(false)}
           Content={WaringsContent}
         />
       </KeyboardAvoidingView>

@@ -83,8 +83,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -149,7 +149,7 @@ function AppSettings({ navigation }) {
             <BackupIcon />
           </Box>
         )}
-        <Box style={{ marginLeft: wp(20) }}>
+        <Box style={styles.infoWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.appBackupTitle}>
             {title}
           </Text>
@@ -165,7 +165,7 @@ function AppSettings({ navigation }) {
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
         title={`App ${common.settings}`}
-        subtitle={'Configure your app here'}
+        subtitle={settings.settingsSubTitle}
         rightComponent={
           <Box style={styles.currentTypeSwitchWrapper}>
             <CurrencyTypeSwitch />
@@ -177,7 +177,7 @@ function AppSettings({ navigation }) {
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
       >
         <Option
-          title="App Backup"
+          title={settings.appBackup}
           subTitle={backupSubTitle}
           onPress={() => {
             navigation.navigate('BackupWallet');
@@ -192,6 +192,7 @@ function AppSettings({ navigation }) {
             <Switch
               onValueChange={(value) => onChangeLoginMethod()}
               value={loginMethod === LoginMethod.BIOMETRIC}
+              testID="switch_biometrics"
             />
           }
         />
@@ -200,7 +201,11 @@ function AppSettings({ navigation }) {
           description={settings.DarkModeSubTitle}
           callback={() => changeThemeMode()}
           Icon={
-            <Switch onValueChange={(value) => changeThemeMode()} value={colorMode === 'dark'} />
+            <Switch
+              onValueChange={(value) => changeThemeMode()}
+              value={colorMode === 'dark'}
+              testID="switch_darkmode"
+            />
           }
         />
         <OptionCard
@@ -214,8 +219,8 @@ function AppSettings({ navigation }) {
           callback={() => navigation.navigate('AppVersionHistory')}
         />
         <OptionCard
-          title="Tor Settings"
-          description="Configure in-app Tor and Orbot"
+          title={settings.torSettingTitle}
+          description={settings.torSettingSubTitle}
           callback={() => navigation.navigate('TorSettings')}
         />
         <OptionCard
@@ -245,7 +250,7 @@ function AppSettings({ navigation }) {
                     style={styles.telTweetLinkTitle}
                     testID="text_ KeeperTelegram"
                   >
-                    Keeper Telegram
+                    {settings.keeperTelegram}
                   </Text>
                 </Box>
               </Box>
@@ -271,7 +276,7 @@ function AppSettings({ navigation }) {
                     style={styles.telTweetLinkTitle}
                     testID="text_keeperTwitter"
                   >
-                    Keeper Twitter
+                    {settings.keeperTwitter}
                   </Text>
                 </Box>
               </Box>
@@ -282,7 +287,10 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-          <Pressable onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)} testID="btn_FAQ">
+          <Pressable
+            onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}
+            testID="btn_FAQ"
+          >
             <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
               {common.FAQs}
             </Text>
@@ -322,13 +330,17 @@ const styles = StyleSheet.create({
   appBackupWrapper: {
     borderRadius: 10,
     height: hp(116),
-    paddingLeft: wp(20),
+    padding: wp(10),
     width: '100%',
+    flexDirection: 'row',
     marginBottom: 10,
   },
   appBackupIconWrapper: {
-    width: wp(40),
+    width: '20%',
     position: 'relative',
+  },
+  infoWrapper: {
+    width: '80%',
   },
   notificationIndicator: {
     height: 10,
@@ -348,6 +360,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 12,
     letterSpacing: 0.6,
+    width: '100%',
   },
   currentTypeSwitchWrapper: {
     alignItems: 'center',

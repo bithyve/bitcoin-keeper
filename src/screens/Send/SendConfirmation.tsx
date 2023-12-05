@@ -40,6 +40,7 @@ import useWallets from 'src/hooks/useWallets';
 import { whirlPoolWalletTypes } from 'src/core/wallets/factories/WalletFactory';
 import useVault from 'src/hooks/useVault';
 import Fonts from 'src/constants/Fonts';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -52,7 +53,7 @@ const vaultTransfers = [TransferType.WALLET_TO_VAULT];
 const walletTransfers = [TransferType.VAULT_TO_WALLET, TransferType.WALLET_TO_WALLET];
 const internalTransfers = [TransferType.VAULT_TO_VAULT];
 
-function Card({ title, subTitle, isVault = false }) {
+function Card({ title, subTitle, isVault = false, showFullAddress = false }) {
   const { colorMode } = useColorMode();
   return (
     <Box
@@ -76,12 +77,12 @@ function Card({ title, subTitle, isVault = false }) {
           color={`${colorMode}.greenText2`}
           fontSize={14}
           letterSpacing={1.12}
-          numberOfLines={1}
+          numberOfLines={showFullAddress ? 2 : 1}
           maxWidth={200}
         >
           {title}
         </Text>
-        <Box flexDirection="row">{subTitle}</Box>
+        {!showFullAddress && <Box flexDirection="row">{subTitle}</Box>}
       </Box>
     </Box>
   );
@@ -98,7 +99,6 @@ function SendingCard({
   transferType,
   getBalance,
   getSatUnit,
-  sourceWallet,
 }) {
   const { colorMode } = useColorMode();
   const getCurrencyIcon = () => {
@@ -123,7 +123,7 @@ function SendingCard({
       case TransferType.VAULT_TO_WALLET:
         return isSend ? (
           <Card
-            title={sender.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
               sender.specs.balances.confirmed
             )} ${getSatUnit()}`}
@@ -131,7 +131,7 @@ function SendingCard({
           />
         ) : (
           <Card
-            title={recipient?.presentationData.name}
+            title={recipient?.presentationData?.name || address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
           />
         );
@@ -151,23 +151,23 @@ function SendingCard({
       case TransferType.WALLET_TO_WALLET:
         return isSend ? (
           <Card
-            title={sender?.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available: ${getCurrencyIcon()} ${getBalance(
-              sender?.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )} ${getSatUnit()}`}
           />
         ) : (
           <Card
-            title={recipient?.presentationData.name}
+            title={recipient?.presentationData?.name || address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
           />
         );
       case TransferType.WALLET_TO_VAULT:
         return isSend ? (
           <Card
-            title={sourceWallet.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sourceWallet.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )}${getSatUnit()}`}
           />
         ) : (
@@ -176,26 +176,27 @@ function SendingCard({
       case TransferType.WALLET_TO_ADDRESS:
         return isSend ? (
           <Card
-            title={sender?.presentationData.name}
+            title={sender?.presentationData?.name || address}
             subTitle={`Available balance: ${getCurrencyIcon()} ${getBalance(
-              sender.specs.balances.confirmed
+              sender?.specs?.balances?.confirmed || 0
             )} ${getSatUnit()}`}
           />
         ) : (
           <Card
             title={address}
             subTitle={`Transferring: ${getCurrencyIcon()} ${getBalance(amount)} ${getSatUnit()}`}
+            showFullAddress={true}
           />
         );
     }
   };
   return (
-    <Box marginY={windowHeight * 0.01}>
+    <Box marginY={windowHeight > 570 ? windowHeight * 0.01 : 0}>
       <Text
         color={`${colorMode}.primaryText`}
         fontSize={14}
         letterSpacing={1.12}
-        marginY={windowHeight * 0.011}
+        marginY={windowHeight > 570 ? windowHeight * 0.011 : 1}
       >
         {isSend ? 'Sending From' : 'Sending To'}
       </Text>
@@ -207,14 +208,15 @@ function SendingCard({
 function Transaction({ txFeeInfo, transactionPriority }) {
   const { colorMode } = useColorMode();
   return (
-    <Box flexDirection="row" justifyContent="space-between" marginY={3}>
+    <Box flexDirection="row" justifyContent="space-between" marginY={windowHeight > 570 ? 3 : 1
+    }>
       <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
         Transaction Priority
       </Text>
       <Text color={`${colorMode}.GreyText`} fontSize={14} letterSpacing={0.28}>
         {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
       </Text>
-    </Box>
+    </Box >
   );
 }
 
@@ -224,6 +226,7 @@ function TextValue({ amt, unit }) {
       style={{
         ...styles.priorityTableText,
         flex: 1,
+        textAlign: 'right'
       }}
     >
       {amt} sats
@@ -237,6 +240,7 @@ function SendingPriority({
   setTransactionPriority,
   availableTransactionPriorities,
 }) {
+  const { colorMode } = useColorMode();
   return (
     <Box flexDirection="column">
       <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} />
@@ -246,12 +250,11 @@ function SendingPriority({
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingVertical: 10,
+            marginHorizontal: 20,
             flex: 1,
           }}
         >
-          <Text style={styles.headingLabelText} ml={wp(13)}>
-            Priority
-          </Text>
+          <Text style={styles.headingLabelText}>Priority</Text>
           <Text style={styles.headingLabelText}>Arrival Time</Text>
           <Text style={styles.headingLabelText}>Fees</Text>
         </Box>
@@ -260,48 +263,50 @@ function SendingPriority({
       <Box mt={hp(1)}>
         {availableTransactionPriorities?.map((priority) => (
           <TouchableOpacity
-            style={styles.priorityRowContainer}
             key={priority}
             onPress={() => {
               setTransactionPriority(priority);
             }}
           >
-            <Box style={styles.priorityBox}>
-              <RadioButton
-                size={20}
-                isChecked={transactionPriority === priority}
-                borderColor="#E3E3E3"
-                onpress={() => {
-                  setTransactionPriority(priority);
-                }}
-              />
+            <Box
+              style={styles.priorityRowContainer}
+              opacity={transactionPriority === priority ? 1 : 0.8}
+              backgroundColor={transactionPriority === priority ? `${colorMode}.seashellWhite` : `${colorMode}.mainBackground`}
+            >
+              <Box style={styles.priorityBox}>
+                <RadioButton
+                  size={20}
+                  isChecked={transactionPriority === priority}
+                  borderColor="#E3E3E3"
+                  onpress={() => {
+                    setTransactionPriority(priority);
+                  }}
+                />
+                <Text
+                  style={{
+                    ...styles.priorityTableText,
+                    marginLeft: 12,
+                    fontStyle: 'normal',
+                  }}
+                >
+                  {String(priority)}
+                </Text>
+              </Box>
               <Text
                 style={{
                   ...styles.priorityTableText,
-                  marginLeft: 12,
-                  fontStyle: 'normal',
+                  flex: 1,
                 }}
               >
-                {String(priority)}
+                ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10} mins
               </Text>
+              <TextValue
+                amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+                unit={{
+                  bitcoinUnit: BitcoinUnit.SATS,
+                }}
+              />
             </Box>
-            <Text
-              style={{
-                ...styles.priorityTableText,
-                flex: 1,
-              }}
-            >
-              ~
-              {timeConvertNear30(
-                (txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation + 1) * 10
-              )}
-            </Text>
-            <TextValue
-              amt={txFeeInfo[priority?.toLowerCase()]?.amount}
-              unit={{
-                bitcoinUnit: BitcoinUnit.SATS,
-              }}
-            />
           </TouchableOpacity>
         ))}
       </Box>
@@ -342,14 +347,16 @@ function FeeInfo({ txFeeInfo, transactionPriority, transferType, sendMaxFee }) {
 }
 
 function SendSuccessfulContent() {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTransactions } = translations;
   return (
     <View>
       <Box alignSelf="center">
         <SuccessIcon />
       </Box>
-      <Text color="light.greenText" fontSize={13} padding={2}>
-        You can view the confirmation status of the transaction on any block explorer or when the
-        vault transaction list is refreshed
+      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
+        {walletTransactions.sendTransSuccessMsg}
       </Text>
     </View>
   );
@@ -422,7 +429,7 @@ function SendConfirmation({ route }) {
   const availableTransactionPriorities = useAvailableTransactionPriorities();
 
   const { translations } = useContext(LocalizationContext);
-  const walletTransactions = translations.wallet;
+  const { wallet: walletTransactions, common, vault } = translations;
 
   const currencyCode = useCurrencyCode();
   const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
@@ -432,6 +439,7 @@ function SendConfirmation({ route }) {
   const [visibleTransVaultModal, setVisibleTransVaultModal] = useState(false);
   const [title, setTitle] = useState('Sending to address');
   const [subTitle, setSubTitle] = useState('Choose priority and fee');
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -576,7 +584,6 @@ function SendConfirmation({ route }) {
       }
     }
   }, [crossTransferSuccess]);
-
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
@@ -627,28 +634,28 @@ function SendConfirmation({ route }) {
       </Box>
       {transferType === TransferType.VAULT_TO_VAULT ? (
         <Note
-          title="Note"
-          subtitle="Old Vaults with the previous signing device configuration will be in the archived list of Vaults"
+          title={common.note}
+          subtitle={vault.signingOldVault}
         />
       ) : null}
       <Buttons
-        primaryText="Proceed"
-        secondaryText="Cancel"
+        primaryText={common.proceed}
+        secondaryText={common.cancel}
         secondaryCallback={() => {
           navigation.goBack();
         }}
-        primaryCallback={onProceed}
+        primaryCallback={() => setConfirmPassVisible(true)}
         primaryLoading={inProgress}
       />
       <KeeperModal
         visible={visibleModal}
         close={viewDetails}
         title={walletTransactions.SendSuccess}
-        subTitle="The transaction has been successfully broadcasted"
+        subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewDetails}
         buttonCallback={viewDetails}
-        textcolor="light.greenText"
-        buttonTextColor="light.white"
+        textcolor={`${colorMode}.greenText`}
+        buttonTextColor={`${colorMode}.white`}
         Content={SendSuccessfulContent}
       />
       <KeeperModal
@@ -656,11 +663,30 @@ function SendConfirmation({ route }) {
         close={() => setVisibleTransVaultModal(false)}
         title={walletTransactions.approveTransVault}
         subTitle={walletTransactions.approveTransVaultSubtitle}
-        textcolor="light.greenText"
+        textcolor={`${colorMode}.greenText`}
         Content={() => (
           <ApproveTransVaultContent
             setVisibleTransVaultModal={setVisibleTransVaultModal}
             onTransferNow={onTransferNow}
+          />
+        )}
+      />
+      <KeeperModal
+        visible={confirmPassVisible}
+        close={() => setConfirmPassVisible(false)}
+        title={walletTransactions.confirmPassTitle}
+        subTitleWidth={wp(240)}
+        subTitle={''}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={onProceed}
           />
         )}
       />
@@ -680,9 +706,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderBottomWidth: 0.5,
     paddingHorizontal: 12,
-    borderBottomColor: 'rgba(0, 85, 69, 0.15)',
+    borderRadius: 10,
+    marginVertical: windowHeight > 570 ? 3 : 1,
   },
   customPriorityRowContainer: {
     flexDirection: 'row',
@@ -698,7 +724,7 @@ const styles = StyleSheet.create({
   },
   priorityTableText: {
     fontSize: 10,
-    textAlign: 'right',
+    textAlign: 'center',
     color: '#656565',
   },
   gradient: {

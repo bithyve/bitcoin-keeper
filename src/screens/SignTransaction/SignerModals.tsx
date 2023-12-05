@@ -29,8 +29,10 @@ import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from 'src/storage/secure-store';
+import Buttons from 'src/components/Buttons';
+import useAsync from 'src/hooks/useAsync';
+import Instruction from 'src/components/Instruction';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -197,8 +199,8 @@ function TapsignerContent() {
   return (
     <>
       <TapsignerSetupSVG />
-      <BulletPoint text="TAPSIGNER communicates with the app over NFC" />
-      <BulletPoint text="You will need the CVC/ Pin on the back of the card" />
+      <Instruction text="TAPSIGNER communicates with the app over NFC" />
+      <Instruction text="You will need the CVC/ Pin on the back of the card" />
     </>
   );
 }
@@ -208,6 +210,7 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const appId = useAppSelector((state) => state.storage.appId);
   const dispatch = useAppDispatch();
+  const { inProgress, start } = useAsync();
 
   const [password, setPassword] = useState('');
 
@@ -258,6 +261,14 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
 
   const onDeletePressed = () => setPassword(password.slice(0, password.length - 1));
 
+  const primaryCallback = () =>
+    start(async () => {
+      const currentPinHash = hash512(password);
+      if (currentPinHash === pinHash) {
+        await signTransaction();
+      } else Alert.alert('Incorrect password. Try again!');
+    });
+
   return (
     <Box width={hp(280)}>
       <Box>
@@ -276,17 +287,11 @@ function PasswordEnter({ signTransaction, setPasswordModal }) {
           marginTop={2}
         />
         <Box mt={10} alignSelf="flex-end" mr={2}>
-          <Box>
-            <CustomGreenButton
-              onPress={() => {
-                const currentPinHash = hash512(password);
-                if (currentPinHash === pinHash) {
-                  signTransaction();
-                } else Alert.alert('Incorrect password. Try again!');
-              }}
-              value="Confirm"
-            />
-          </Box>
+          <Buttons
+            primaryCallback={primaryCallback}
+            primaryText="Confirm"
+            primaryLoading={inProgress}
+          />
         </Box>
       </Box>
       <KeyPadView
@@ -495,7 +500,7 @@ function SignerModals({
                 setLedgerModal(false);
               }}
               title="Keep Nano X Ready"
-              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
               textColor="light.primaryText"
               Content={() => <LedgerContent />}
               buttonText="Proceed"
@@ -610,7 +615,7 @@ function SignerModals({
                 setTrezorModal(false);
               }}
               title="Keep Trezor Ready"
-              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
               textColor="light.primaryText"
               Content={() => <TrezorContent />}
               buttonText="Proceed"
@@ -627,7 +632,7 @@ function SignerModals({
                 setBitbox02Modal(false);
               }}
               title="Keep BitBox02 Ready"
-              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
+              subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02.`}
               textColor="light.primaryText"
               Content={() => <BitBox02Content />}
               buttonText="Proceed"

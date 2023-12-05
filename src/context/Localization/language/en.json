@@ -86,7 +86,16 @@
     "pullDownRefresh": "Pull down to refresh",
     "securityTips": "Security Tip",
     "emptyStateModalSubtitle": "Recreate the multisig on more coordinators. Receive a small amount and send a part of it. Check the balances are appropriately reflected across all the coordinators after each step.",
-    "addSignDeviceUpgrade": "Add signing device to upgrade"
+    "addSignDeviceUpgrade": "Add signing device to upgrade",
+    "path": "Path",
+    "purpose": "Purpose",
+    "choosePurpose": "Choose Purpose",
+    "chooseService": "Choose Service",
+    "pleaseWait": "Please Wait",
+    "receiveTestSats": "Receiving test sats",
+    "upgradeNow": "Upgrade Now",
+    "somethingWrong": "Something went wrong",
+    "showAsQR": "Show as QR"
   },
   "noInternet": {
     "no": "No Internet",
@@ -225,10 +234,16 @@
     "amountText2": "0.000004",
     "TransactionConfirmed": "Transaction Confirmed",
     "TransactionDetails": "Transaction Details",
-    "TransactionSubTitle": "Lorem ipsum dolor sit amet,",
+    "TransactionDetailsSubTitle": "Detailed information for this Transaction",
     "UserTags": "User Tags",
     "AddNew": "Add New",
-    "EditTags": "Edit Tags"
+    "EditTags": "Edit Tags",
+    "labels": "Labels",
+    "confirmations": "Confirmations",
+    "transactionID": "Transaction ID",
+    "inputs": "Inputs",
+    "outputs": "Outputs",
+    "updateLabelSubTitle": "Optionally you can add a short note to the transactions"
   },
   "inheritence": {
     "SetupInheritance": "Setup Inheritance",
@@ -251,7 +266,11 @@
     "IndependentRecovery": "Independent Recovery",
     "UnderstandhowyoucanrecoveryourVault": "Understand how you can recover your Vault even without the Keeper app or any service from the company",
     "Practicehealthcheck": "Practice health check",
-    "Makessureyousignersareaccessible": "Make sure you signing devices are accessible. Change them if that is not the case"
+    "Makessureyousignersareaccessible": "Make sure you signing devices are accessible. Change them if that is not the case",
+    "inheritanceSupport": "Inheritance Support",
+    "inheritanceSupportSubTitle": "Keeper provides you with the tips and tools you need to include the Vault in your estate planning",
+    "consultYourEstate": "Contact your estate planning attorney and advisors to ensure the documents provided here are suitable for your needs and are as per your jurisdiction",
+    "secureBequeathBitcoin": "Plan your bitcoin inheritance"
   },
   "wallet": {
     "Createwallet": "Create a wallet",
@@ -296,7 +315,9 @@
     "AutoTransferInitiated": "Auto transfer initiated at (optional)",
     "AutoTransferInitiatedDesc": "When the wallet balance crosses this amount, a transfer to the Vault is initiated for user approval",
     "WalletDetails": "Wallet Details",
+    "walletDetailsSubTitle": "Name, details and transfer policy",
     "EditWalletDeatils": "Edit wallet name and description",
+    "changeWalletDetails": "Change wallet name & description",
     "TransferSuccessful": "Transfer Successful!",
     "initiatetransfer": "Are you sure you want to initiate transfer to",
     "XPubTitle": "Wallet xPub",
@@ -304,7 +325,7 @@
     "AccountXpub": "Wallet xPub",
     "AccountXpubNote": "This xPub is only for the selected wallet and not other wallets in the app",
     "confirmPassTitle": "Confirm Passcode",
-    "confirmPassSubTitle": "To show Recovery Phrase for this wallet",
+    "confirmPassSubTitle": "To show wallet seed words",
     "SendSuccess": "Send Successful",
     "ViewDetails": "View Details",
     "approveTransVault": "Approve Transfer to Vault",
@@ -321,7 +342,57 @@
     "manageWalletSubTitle": "Manage wallets in other apps",
     "addCollabWalletTitle": "Add Collaborative Wallet",
     "addCollabWalletSubTitle": "Create, sign and view collaborative wallet",
-    "addCollabWalletParagraph": "Please ensure that Keeper is properly backed up to ensure your bitcoin's security"
+    "addCollabWalletParagraph": "Please ensure that Keeper is properly backed up to ensure your bitcoin's security",
+    "selectForMix": "Select for Mix",
+    "selectForRemix": "Select for Remix",
+    "remixVault": "Remix to Vault",
+    "selectToSend": "Select to Send",
+    "noUTXOYet": "No UTXOs yet",
+    "noUTXOYetSubTitle": "UTXOs from all your Tx0s land here.",
+    "intiatePremixToastMsg": "Please wait for a confirmation to \"Initiate Premix\". For confirmation ETA, click on the transaction > Transaction ID",
+    "utxoAllowedTime": "Only a single UTXO mix allowed at a time",
+    "newWalletCreated": "New wallet created!",
+    "walletCreationFailed": "Wallet creation failed",
+    "walletImported": "Wallet imported",
+    "purposelabel01": "P2PKH: legacy, single-sig",
+    "purposelabel02": "P2SH-P2WPKH: wrapped segwit, single-sg",
+    "purposelabel03": "P2WPKH: native segwit, single-sig",
+    "showXPub": "Show xPub",
+    "showXPubSubTitle": "Use to create an external, watch-only wallet",
+    "changeDerivationPath": "Change Derivation path",
+    "walletDetailsNote": "These settings are for your selected wallet only and does not affect other wallets",
+    "walletXPubSubTitle": "Scan or copy the xPub in another app for generating new addresses and fetching balances",
+    "xPubCopyToastMsg": "Xpub Copied Successfully",
+    "editTransPolicy": "Edit Transfer Policy",
+    "editTransPolicySubTitle": "Threshold amount at which transfer is triggered",
+    "TransPolicyChange": "Transfer Policy Changed",
+    "walletSeedWord": "Wallet Seed Words",
+    "walletSeedWordSubTitle": "Use to link external wallets to Keeper",
+    "showCoSignerDetails": "Show co-signer Details",
+    "showCoSignerDetailsSubTitle": "Use this wallet as a co-signer with other vaults",
+    "actCoSigner": "Act as co-signer",
+    "recieveTestSats": "Receive Test Sats",
+    "recieveTestSatSubTitle": "Receive Test Sats to this address",
+    "walletSettingNote": "These settings are for your selected wallet only and does not affect other wallets",
+    "xpubModalSubTitle": "Scan or copy the xPub in another app for generating new addresses and fetching balances",
+    "receiveSubTitle": "Native segwit address",
+    "receiveAddress": "Receive Address",
+    "addressCopied": "Address Copied Successfully",
+    "addSpecificInvoiceAmt": "Add a specific invoice amount",
+    "addressReceiveDirectly": "You can get a receive address directly from a signing device and do not have to trust the Keeper app",
+    "editTransPolicyInfo": " This will trigger a transfer request which you need to approve",
+    "transPolicyCantZero": "Transfer Policy cannot be zero",
+    "updateWalletPath": "Update Wallet Path",
+    "qrofRecoveryPhrase": "The QR below comprises of your 12 word Recovery Phrase",
+    "changePathOfDefaultWallet": "You are changing the derivation path of Default Wallet",
+    "changePathOfDefaultWalletSubTitle": "Derivation path changes should only be done by advanced users.",
+    "changePathOfDefaultWalletPara01": "Changing the derivation path will mean that you will be using a completely new wallet. All the addresses and transactions will be reset to the new configuration",
+    "changePathOfDefaultWalletPara02": "If you have given out addresses from this wallet before changing the dervation, they will not appear once the change takes effect.",
+    "walletDetailsUpdate": "Wallet details updated",
+    "failToUpdate": "Failed to update",
+    "walletBalanceMsg": "Wallet has balance: changes not allowed",
+    "transactionBroadcasted": "The transaction has been successfully broadcasted",
+    "sendTransSuccessMsg": " You can view the confirmation status of the transaction on any block explorer or when the Vault transaction list is refreshed"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -358,7 +429,9 @@
     "newVaultCreated": "New Vault Created",
     "collaborativeWallet": "Collaborative Wallet",
     "keeperVault": "Keeper Vault",
-    "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management."
+    "collaborativeWalletMultipleUsers": "Collaborative wallet is designed to enable multiple users to have control over a single wallet, adding a layer of security and efficiency in fund management.",
+    "signingOldVault": "Old Vaults with the previous signing device configuration will be in the archived list of Vaults",
+    "cvvSigningServerInfo": "If you lose your authenticator app, use the other Signing Devices to reset the Signing Server"
   },
   "seed": {
     "EnterSeed": "Enter Seeds",
@@ -374,7 +447,11 @@
     "recoveryPhrase": "Recovery Phrase",
     "enterRecoveryPhrase": "Enter the Wallet Recovery Phrase",
     "recoverYourKeeperApp": "Recovering your Keeper app",
-    "recoverYourKeeperAppSubTitle": "Recovering your wallets and Vault for the Keeper app"
+    "recoverYourKeeperAppSubTitle": "Recovering your wallets and Vault for the Keeper app",
+    "walletRecoveryPhrase": "Wallet Recovery Phrase",
+    "showXPubNoteSubText": "Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully.",
+    "mobileKeyVerified": "Mobile Key verified successfully",
+    "seedWordVerified": "Seed Words verified successfully"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signing device",
@@ -414,6 +491,14 @@
     "SetupTitle": "Setting up Trezor",
     "SetupDescription": "Keep your Trezor connected to the computer before proceeding"
   },
+  "signingServer": {
+    "choosePolicy": "Choose Policy",
+    "choosePolicySubTitle": "For the signing server",
+    "maxNoCheckAmt": "Max no-check amount",
+    "maxNoCheckAmtSubTitle": "The Signing Server will sign a transaction of this amount or lower, even w/o a 2FA verification code",
+    "maxAllowedAmt": "Max allowed amount",
+    "maxAllowedAmtSubTitle": "If the transaction amount is more than this amount, the Signing Server will not sign it. You will have to use other devices for it"
+  },
   "settings": {
     "selectCurrency": "Select currency",
     "UseBiometrics": "Face ID",
@@ -444,6 +529,7 @@
     "nodeSub": "Connect Hexa wallet to your own node",
     "walletSettings": "Wallet Settings",
     "walletSettingsSub": "Your wallet settings & preferences",
+    "walletSettingSubTitle": "Setting for the wallet only",
     "AppInfo": "App Info",
     "AppInfoSub": "Hexa app version number and details",
     "Disconnectyour": "Disconnect your own node and connect to Hexa node",
@@ -502,7 +588,24 @@
     "nodeConnectionSuccess": "Node connected successfully",
     "nodeConnectionFailure": "Unable to connect to Electrum Server. Invalid node details or, not known",
     "ManageWallets": "Manage Wallets",
-    "ManageWalletsSub": "Hide wallets and unhide them."
+    "ManageWalletsSub": "Hide wallets and unhide them.",
+    "settingsSubTitle": "Configure your app here",
+    "appBackup": "App Backup",
+    "torSettingTitle": "Tor Settings",
+    "torSettingSubTitle": "Configure in-app Tor and Orbot",
+    "keeperTelegram": "Keeper Telegram",
+    "keeperTwitter": "Keeper Twitter",
+    "versionHistoryTitle": "Version History",
+    "versionHistorySubTitle": "You can verify the history of your app upgrades here",
+    "torHeaderSubTitle": "Tor improves your network privacy. To learn more visit: https://www.torproject.org/",
+    "torViaOrbot": "Tor via Orbot",
+    "torViaOrbotSubTitle": "Use the Orbot app. Greater control, quicker connection and advanced options",
+    "inAppTor": "In-app Tor",
+    "inAppTorSubTitle": "Use direct Tor. No need to download a separate app. May be slow and unreliable",
+    "checkStatus": "Check Status",
+    "torSettingsNoteSubTitle": "Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings",
+    "orbotConnection": "Orbot Connection",
+    "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device."
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
@@ -533,7 +636,8 @@
     "youCanChange": "You can change your subscription at anytime from within the app or from your subscription details in your profile",
     "restorePurchases": "Restore Purchases",
     "validateSubscriptionTitle": "Failed to validate your subscription",
-    "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?"
+    "validateSubscriptionSubTitle": "Do you want to downgrade to Pleb and continue?",
+    "viewSubscription": "View Subsciption"
   },
   "BackupWallet": {
     "confirmSeedWord": "Confirm Backup phrase",
@@ -561,7 +665,9 @@
     "myWalletBackupTitle": "My Wallet Backup",
     "SEED_BACKUP_CREATED": "Recovery Phrase backup is created",
     "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
-    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped"
+    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
+    "recoveryPhrase": "Recovery Phrase",
+    "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase"
   },
   "importWallet": {
     "addDetails": "Add details",

@@ -20,13 +20,15 @@ import config from 'src/core/config';
 import { NetworkType, SignerType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import BtcWallet from 'src/assets/images/btc_walletCard.svg';
+import BtcWallet from 'src/assets/images/btc_black.svg';
+import BitcoinWhite from 'src/assets/images/btc_white.svg';
 import useWallets from 'src/hooks/useWallets';
 import { getAmt, getCurrencyImageByRegion } from 'src/constants/Bitcoin';
 import { AppContext } from 'src/context/AppContext';
 import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -36,7 +38,7 @@ function WalletSettings({ route }) {
   const { showToast } = useToastMessage();
   const { setAppLoading, setLoadingContent } = useContext(AppContext);
   const [xpubVisible, setXPubVisible] = useState(false);
-  // const [confirmPassVisible, setConfirmPassVisible] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const { wallets } = useWallets();
   const wallet = wallets.find((item) => item.id === walletRoute.id);
@@ -47,14 +49,12 @@ function WalletSettings({ route }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
+  const { settings, common } = translations
 
   // eslint-disable-next-line react/no-unstable-nested-components
   function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
     return (
-      <Box
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={styles.walletCardContainer}
-      >
+      <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.walletCardContainer}>
         <Box style={styles.walletCard}>
           <Box style={styles.walletDetailsWrapper}>
             <Text color={`${colorMode}.primaryText`} style={styles.walletName}>
@@ -66,7 +66,7 @@ function WalletSettings({ route }) {
           </Box>
           <Box style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Box>{Icon}</Box>
-            <Text color="light.white" style={styles.walletBalance}>
+            <Text color={`${colorMode}.black`} style={styles.walletBalance}>
               {walletBalance}
             </Text>
           </Box>
@@ -81,8 +81,8 @@ function WalletSettings({ route }) {
 
   useEffect(() => {
     setLoadingContent({
-      title: 'Please Wait',
-      subtitle: 'Receiving test sats',
+      title: common.pleaseWait,
+      subtitle: common.receiveTestSats,
       message: '',
     });
 
@@ -133,7 +133,7 @@ function WalletSettings({ route }) {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title="Wallet Settings" subtitle="Setting for the wallet only" />
+      <KeeperHeader title={settings.walletSettings} subtitle={settings.walletSettingSubTitle} />
       <Box
         style={{
           marginTop: hp(35),
@@ -150,7 +150,7 @@ function WalletSettings({ route }) {
             currentCurrency,
             satsEnabled
           )}
-          Icon={getCurrencyImageByRegion(currencyCode, 'light', currentCurrency, BtcWallet)}
+          Icon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, colorMode === 'light' ? BtcWallet : BitcoinWhite)}
         />
       </Box>
       <ScrollView
@@ -158,33 +158,28 @@ function WalletSettings({ route }) {
         showsVerticalScrollIndicator={false}
       >
         <OptionCard
-          title="Wallet Details"
-          description="Change wallet name & description"
+          title={walletTranslation.WalletDetails}
+          description={walletTranslation.changeWalletDetails}
           callback={() => {
             navigation.navigate('WalletDetailsSettings', { wallet });
           }}
         />
         <OptionCard
-          title="Wallet Seed Words"
-          description="Use to link external wallets to Keeper"
+          title={walletTranslation.walletSeedWord}
+          description={walletTranslation.walletSeedWordSubTitle}
           callback={() => {
-            // setConfirmPassVisible(true);
-            navigation.navigate('ExportSeed', {
-              seed: wallet?.derivationDetails?.mnemonic,
-              next: false,
-              wallet,
-            });
+            setConfirmPassVisible(true);
           }}
         />
         <OptionCard
-          title="Show co-signer Details"
-          description="Use this wallet as a co-signer with other vaults"
+          title={walletTranslation.showCoSignerDetails}
+          description={walletTranslation.showCoSignerDetailsSubTitle}
           callback={() => {
             navigation.navigate('CosignerDetails', { wallet });
           }}
         />
         <OptionCard
-          title="Act as co-signer"
+          title={walletTranslation.actCoSigner}
           description={`Sign transactions (${wallet.id})`}
           callback={() => {
             navigation.dispatch(
@@ -202,8 +197,8 @@ function WalletSettings({ route }) {
         />
         {config.NETWORK_TYPE === NetworkType.TESTNET && (
           <OptionCard
-            title="Receive Test Sats"
-            description="Receive Test Sats to this address"
+            title={walletTranslation.recieveTestSats}
+            description={walletTranslation.recieveTestSatSubTitle}
             callback={() => {
               setAppLoading(true);
               getTestSats();
@@ -213,12 +208,12 @@ function WalletSettings({ route }) {
       </ScrollView>
       <Box style={styles.note}>
         <Note
-          title="Note"
-          subtitle="These settings are for your selected wallet only and does not affect other wallets"
+          title={common.note}
+          subtitle={walletTranslation.walletSettingNote}
           subtitleColor="GreyText"
         />
       </Box>
-      {/* <KeeperModal
+      <KeeperModal
         visible={confirmPassVisible}
         close={() => setConfirmPassVisible(false)}
         title={walletTranslation?.confirmPassTitle}
@@ -228,21 +223,27 @@ function WalletSettings({ route }) {
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         Content={() => (
-          <SeedConfirmPasscode
-            closeBottomSheet={() => {
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
               setConfirmPassVisible(false);
             }}
-            wallet={wallet}
-            navigation={navigation}
+            onSuccess={() => {
+              navigation.navigate('ExportSeed', {
+                seed: wallet?.derivationDetails?.mnemonic,
+                next: false,
+                wallet,
+              });
+            }}
           />
         )}
-      /> */}
+      />
       <KeeperModal
         visible={xpubVisible}
         close={() => setXPubVisible(false)}
-        title="Wallet xPub"
+        title={walletTranslation.XPubTitle}
         subTitleWidth={wp(240)}
-        subTitle="Scan or copy the xPub in another app for generating new addresses and fetching balances"
+        subTitle={walletTranslation.xpubModalSubTitle}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -252,7 +253,7 @@ function WalletSettings({ route }) {
             data={wallet?.specs?.xpub}
             copy={() => {
               setXPubVisible(false);
-              showToast('Xpub Copied Successfully', <TickIcon />);
+              showToast(walletTranslation.xPubCopyToastMsg, <TickIcon />);
             }}
             copyable
             close={() => setXPubVisible(false)}

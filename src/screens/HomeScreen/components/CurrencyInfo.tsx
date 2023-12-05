@@ -28,7 +28,7 @@ function CurrencyInfo({
       {getCurrencyIcon(BTC, variation)}
       {!hideAmounts ? (
         <Box style={styles.rowCenter}>
-          <Text color={color} style={{ fontSize }} numberOfLines={1}>
+          <Text color={color} style={{ fontSize }} numberOfLines={1} testID="text_balance">
             {` ${getBalance(amount)} ${getSatUnit()}`}
           </Text>
         </Box>

@@ -22,7 +22,7 @@ import KeeperHeader from 'src/components/KeeperHeader';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import { EntityKind, PaymentInfoKind } from 'src/core/wallets/enums';
+import { PaymentInfoKind } from 'src/core/wallets/enums';
 import { RNCamera } from 'react-native-camera';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -40,7 +40,6 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import WalletOperations from 'src/core/wallets/operations';
 import useWallets from 'src/hooks/useWallets';
 import { UTXO } from 'src/core/wallets/interfaces';
-import useVault from 'src/hooks/useVault';
 
 function SendScreen({ route }) {
   const { colorMode } = useColorMode();
@@ -60,7 +59,6 @@ function SendScreen({ route }) {
 
   const network = WalletUtilities.getNetworkByType(sender.networkType);
   const { wallets: allWallets } = useWallets();
-  const { activeVault } = useVault();
   const otherWallets: Wallet[] = allWallets.filter(
     (existingWallet) => existingWallet.id !== sender.id
   );
@@ -144,42 +142,20 @@ function SendScreen({ route }) {
     info = info.trim();
     const { type: paymentInfoKind, address, amount } = WalletUtilities.addressDiff(info, network);
     setPaymentInfo(address);
-    const sendingTo = WalletUtilities.getWalletFromAddress(allWallets.concat(activeVault), address);
-    if (sendingTo) {
-      switch (sendingTo.entityKind) {
-        case EntityKind.VAULT:
-          const type =
-            sender.entityKind === EntityKind.VAULT
-              ? TransferType.VAULT_TO_VAULT
-              : TransferType.VAULT_TO_WALLET;
-          navigateToNext(address, type, amount ? amount.toString() : null, sendingTo);
-          break;
-        case EntityKind.WALLET:
-          const transferType =
-            sender.entityKind === EntityKind.WALLET
-              ? TransferType.WALLET_TO_WALLET
-              : TransferType.WALLET_TO_VAULT;
-          navigateToNext(address, transferType, amount ? amount.toString() : null, sendingTo);
-          break;
-        default:
-          showToast('Invalid bitcoin address', <ToastErrorIcon />);
-      }
-      return;
-    }
     switch (paymentInfoKind) {
       case PaymentInfoKind.ADDRESS:
         const type =
           sender.entityKind === 'VAULT'
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
-        navigateToNext(address, type, amount ? amount.toString() : null, sendingTo);
+        navigateToNext(address, type, amount ? amount.toString() : null, null);
         break;
       case PaymentInfoKind.PAYMENT_URI:
         const transferType =
           sender.entityKind === 'VAULT'
             ? TransferType.VAULT_TO_ADDRESS
             : TransferType.WALLET_TO_ADDRESS;
-        navigateToNext(address, transferType, amount ? amount.toString() : null, sendingTo);
+        navigateToNext(address, transferType, amount ? amount.toString() : null, null);
         break;
       default:
         showToast('Invalid bitcoin address', <ToastErrorIcon />);
@@ -236,6 +212,7 @@ function SendScreen({ route }) {
           <Box>
             <Box style={styles.qrcontainer}>
               <RNCamera
+                testID="qrscanner"
                 style={styles.cameraView}
                 captureAudio={false}
                 onBarCodeRead={(data) => {
@@ -247,6 +224,7 @@ function SendScreen({ route }) {
             <UploadImage onPress={handleChooseImage} />
             <Box style={styles.inputWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
               <TextInput
+                testID="input_address"
                 placeholder="or enter address manually"
                 placeholderTextColor={Colors.Feldgrau} // TODO: change to colorMode and use native base component
                 style={styles.textInput}

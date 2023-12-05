@@ -24,13 +24,14 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { SignerType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import Illustration from 'src/assets/images/illustration.svg';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
   const navigtaion = useNavigation();
   const dispatch = useAppDispatch();
   const { translations } = useContext(LocalizationContext);
-  const { BackupWallet } = translations;
+  const { BackupWallet, common, seed: seedTranslation } = translations;
   const { login } = translations;
   const {
     seed,
@@ -51,15 +52,13 @@ function ExportSeedScreen({ route, navigation }) {
   useEffect(() => {
     if (backupMethod !== null && next) {
       setBackupSuccessModal(true);
-      setTimeout(() => {
-        navigation.replace('WalletBackHistory');
-      }, 100);
     }
   }, [backupMethod]);
 
   function SeedCard({ item, index }: { item; index }) {
     return (
       <TouchableOpacity
+        testID={`btn_seed_word_${index}`}
         style={styles.seedCardContainer}
         onPress={() => {
           setShowWordIndex((prev) => {
@@ -79,7 +78,11 @@ function ExportSeedScreen({ route, navigation }) {
             {index < 9 ? '0' : null}
             {index + 1}
           </Text>
-          <Text style={styles.seedTextStyle01} color={`${colorMode}.GreyText`}>
+          <Text
+            testID={`text_seed_word_${index}`}
+            style={styles.seedTextStyle01}
+            color={`${colorMode}.GreyText`}
+          >
             {showWordIndex === index ? item : '******'}
           </Text>
         </Box>
@@ -122,7 +125,7 @@ function ExportSeedScreen({ route, navigation }) {
                     numberOfLines={2}
                     style={[globalStyles.font14, { letterSpacing: 1.12, alignItems: 'center' }]}
                   >
-                    Show as QR
+                    {common.showAsQR}
                   </Text>
                   {/* <Text color="light.GreyText" style={[globalStyles.font12, { letterSpacing: 0.06 }]}>
               
@@ -149,7 +152,7 @@ function ExportSeedScreen({ route, navigation }) {
         )}
       </Box>
       {!next && (
-        <Text style={styles.seedDescParagraph} color="light.GreyText">
+        <Text style={styles.seedDescParagraph} color={`${colorMode}.GreyText`}>
           {seedText.desc}
         </Text>
       )}
@@ -162,7 +165,6 @@ function ExportSeedScreen({ route, navigation }) {
         >
           <ConfirmSeedWord
             closeBottomSheet={() => {
-              console.log('pressed');
               setConfirmSeedModal(false);
             }}
             words={words}
@@ -172,12 +174,12 @@ function ExportSeedScreen({ route, navigation }) {
                 if (signer.type === SignerType.MOBILE_KEY) {
                   dispatch(healthCheckSigner([signer]));
                   navigation.dispatch(CommonActions.goBack());
-                  showToast(`Mobile Key verified successfully`, <TickIcon />);
+                  showToast(seedTranslation.mobileKeyVerified, <TickIcon />);
                 }
                 if (signer.type === SignerType.SEED_WORDS) {
                   dispatch(healthCheckSigner([signer]));
                   navigation.dispatch(CommonActions.goBack());
-                  showToast(`Seed Words verified successfully`, <TickIcon />);
+                  showToast(seedTranslation.seedWordVerified, <TickIcon />);
                 }
               } else {
                 dispatch(seedBackedUp());
@@ -186,39 +188,42 @@ function ExportSeedScreen({ route, navigation }) {
           />
         </ModalWrapper>
       </Box>
-      <Box>
-        <ModalWrapper
-          visible={backupSuccessModal}
-          onSwipeComplete={() => setBackupSuccessModal(false)}
-        >
-          <BackupSuccessful
-            title={BackupWallet.backupSuccessTitle}
-            subTitle={BackupWallet.backupSuccessSubTitle}
-            paragraph={BackupWallet.backupSuccessParagraph}
-            closeBottomSheet={() => {
-              setBackupSuccessModal(false);
-            }}
-            confirmBtnPress={() => {
-              navigtaion.navigate('Home');
-            }}
-          />
-        </ModalWrapper>
-      </Box>
       <KeeperModal
-        visible={showQRVisible}
-        close={() => setShowQRVisible(false)}
-        title="Recovery Phrase"
-        subTitleWidth={wp(260)}
-        subTitle="The QR below comprises of your 12 word Recovery Phrase"
+        visible={backupSuccessModal}
+        dismissible={false}
+        close={() => { }}
+        title={BackupWallet.backupSuccessTitle}
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
         buttonText="Done"
+        buttonCallback={() => navigation.replace('WalletBackHistory')}
+        Content={() => (
+          <Box>
+            <Box>
+              <Illustration />
+            </Box>
+            <Box>
+              <Text>{BackupWallet.backupSuccessParagraph}</Text>
+            </Box>
+          </Box>
+        )}
+      />
+
+      <KeeperModal
+        visible={showQRVisible}
+        close={() => setShowQRVisible(false)}
+        title={BackupWallet.recoveryPhrase}
+        subTitleWidth={wp(260)}
+        subTitle={BackupWallet.recoveryPhraseSubTitle}
+        subTitleColor="light.secondaryText"
+        textColor="light.primaryText"
+        buttonText={common.done}
         buttonCallback={() => setShowQRVisible(false)}
         Content={() => (
           <ShowXPub
             data={JSON.stringify(words)}
-            subText="wallet Recovery Phrase"
-            noteSubText="Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
+            subText={seedTranslation.walletRecoveryPhrase}
+            noteSubText={seedTranslation.showXPubNoteSubText}
             copyable={false}
           />
         )}

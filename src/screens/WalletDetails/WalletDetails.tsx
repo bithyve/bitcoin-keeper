@@ -73,7 +73,7 @@ function WalletDetails({ route }) {
     },
   } = wallet;
 
-  const walletType = idx(wallet, (_) => _.type) || 'DEFAULT'
+  const walletType = idx(wallet, (_) => _.type) || 'DEFAULT';
   const receivingAddress = idx(wallet, (_) => _.specs.receivingAddress) || '';
   const balance = idx(wallet, (_) => _.specs.balances.confirmed) || 0;
   const presentationName = idx(wallet, (_) => _.presentationData.name) || '';
@@ -179,7 +179,8 @@ function WalletDetails({ route }) {
                   letterSpacing: 0.6,
                 }}
               >
-                {common.transferPolicySet}{'  '}
+                {common.transferPolicySet}
+                {'  '}
               </Text>
               <CurrencyInfo
                 hideAmounts={false}

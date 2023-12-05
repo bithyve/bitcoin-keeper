@@ -1,4 +1,3 @@
-/* eslint-disable prefer-destructuring */
 import { ActivityIndicator, Platform, ScrollView, Alert, Linking, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, Pressable } from 'native-base';
@@ -20,7 +19,6 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SubScription, { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
-import { useNavigation } from '@react-navigation/native';
 import { wp } from 'src/constants/responsive';
 import Relay from 'src/services/operations/Relay';
 import MonthlyYearlySwitch from 'src/components/Switch/MonthlyYearlySwitch';
@@ -35,7 +33,7 @@ import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 import { useQuery } from '@realm/react';
 
-function ChoosePlan(props) {
+function ChoosePlan() {
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
   const { choosePlan, common } = translations;
@@ -53,7 +51,6 @@ function ChoosePlan(props) {
   const [isUpgrade, setIsUpgrade] = useState(false);
   const [isMonthly, setIsMonthly] = useState(true);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
-  const navigation = useNavigation();
   const disptach = useDispatch();
 
   useEffect(() => {
@@ -116,8 +113,9 @@ function ChoosePlan(props) {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
-                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${
+                subscription.introductoryPriceNumberOfPeriodsIOS
+              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -237,10 +235,13 @@ function ChoosePlan(props) {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => { },
+              onPress: () => {},
               style: 'cancel',
             },
-            { text: 'Manage', onPress: () => manageSubscription(response.productId) },
+            {
+              text: 'Manage',
+              onPress: () => manageSubscription(response.productId),
+            },
           ]);
         }
       } else {
@@ -248,7 +249,7 @@ function ChoosePlan(props) {
         const plan = isMonthly ? subscription.monthlyPlanDetails : subscription.yearlyPlanDetails;
         const sku = plan.productId;
         const { offerToken } = plan;
-        const purchaseTokenAndroid = null;
+        var purchaseTokenAndroid = null;
         if (Platform.OS === 'android' && appSubscription.receipt) {
           purchaseTokenAndroid = JSON.parse(appSubscription.receipt).purchaseToken;
         }
@@ -259,13 +260,13 @@ function ChoosePlan(props) {
         });
       }
     } catch (err) {
+      setRequesting(false);
       console.log(err);
     }
   }
 
   const onPressModalBtn = () => {
     setShowUpgradeModal(false);
-    navigation.navigate('AddSigningDevice');
   };
 
   const getBenifitsTitle = (name) => {
@@ -273,6 +274,28 @@ function ChoosePlan(props) {
       return `${name}`;
     }
     return `A ${name}`;
+  };
+
+  const getPlanNote = (plan) => {
+    if (plan.name === 'Pleb') return '';
+    let trial = '';
+    let amount = '';
+    if (plan.monthlyPlanDetails || plan.yearlyPlanDetails) {
+      if (isMonthly) {
+        trial = plan.monthlyPlanDetails.trailPeriod;
+        amount = plan.monthlyPlanDetails.price;
+      } else {
+        trial = plan.yearlyPlanDetails.trailPeriod;
+        amount = plan.yearlyPlanDetails.price;
+      }
+    }
+    if (trial) {
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${
+        isMonthly ? 'month' : 'year'
+      }, cancel anytime`;
+    } else {
+      return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
+    }
   };
 
   const restorePurchases = async () => {
@@ -332,7 +355,7 @@ function ChoosePlan(props) {
       />
       <KeeperModal
         visible={requesting}
-        close={() => { }}
+        close={() => {}}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -341,7 +364,7 @@ function ChoosePlan(props) {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => { }}
+        buttonCallback={() => {}}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />
@@ -397,6 +420,9 @@ function ChoosePlan(props) {
                 </Box>
               ))}
             </Box>
+            <Text fontSize={11} color={`${colorMode}.GreyText`} my={2} ml={2} letterSpacing={0.65}>
+              {getPlanNote(items[currentPosition])}
+            </Text>
           </Box>
         </ScrollView>
       )}

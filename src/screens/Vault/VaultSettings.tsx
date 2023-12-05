@@ -35,14 +35,14 @@ function VaultCard({ vaultName, vaultBalance, vaultDescription, getSatUnit }) {
         }}
       >
         <Box>
-          <Text color="light.white" letterSpacing={0.28} fontSize={14}>
+          <Text color={`${colorMode}.white`} letterSpacing={0.28} fontSize={14}>
             {vaultName}
           </Text>
-          <Text color="light.white" letterSpacing={0.24} fontSize={12}>
+          <Text color={`${colorMode}.white`} letterSpacing={0.24} fontSize={12}>
             {vaultDescription}
           </Text>
         </Box>
-        <Text color="light.white" letterSpacing={1.2} fontSize={hp(24)}>
+        <Text color={`${colorMode}.white`} letterSpacing={1.2} fontSize={hp(24)}>
           {vaultBalance}
           {getSatUnit()}
         </Text>
@@ -91,6 +91,13 @@ function VaultSettings() {
           description="View details of old vaults"
           callback={() => {
             navigation.dispatch(CommonActions.navigate('ArchivedVault'));
+          }}
+        />
+        <OptionCard
+          title="Update scheme"
+          description="Update your vault configuration and transfer funds"
+          callback={() => {
+            navigation.dispatch(CommonActions.navigate('VaultSetup'));
           }}
         />
       </ScrollView>

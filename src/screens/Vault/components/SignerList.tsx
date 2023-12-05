@@ -23,7 +23,9 @@ function SignerList({ vault, upgradeStatus }: { vault: Vault; upgradeStatus: Vau
         <Box style={styles.signerCard} backgroundColor={`${colorMode}.coffeeBackground`}>
           <TouchableOpacity
             onPress={() => {
-              navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
+              navigation.dispatch(
+                CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+              );
             }}
           >
             <Box

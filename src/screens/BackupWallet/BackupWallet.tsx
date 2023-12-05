@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { Box, useColorMode } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { hp } from 'src/constants/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
@@ -16,6 +16,8 @@ import { StyleSheet } from 'react-native';
 import { useQuery } from '@realm/react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import OptionCard from 'src/components/OptionCard';
+import KeeperModal from 'src/components/KeeperModal';
+import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 
 function BackupWallet() {
   const { colorMode } = useColorMode();
@@ -24,6 +26,7 @@ function BackupWallet() {
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const [healthCheckModal, setHealthCheckModal] = useState(false);
   const [healthCheckSuccessModal, setHealthCheckSuccessModal] = useState(false);
+  const [confirmPassVisible, setConfirmPassVisible] = useState(false);
 
   const [skipHealthCheckModal, setSkipHealthCheckModal] = useState(false);
   const navigation = useNavigation();
@@ -43,12 +46,7 @@ function BackupWallet() {
           title={BackupWallet.exportAppSeed}
           description={''}
           callback={() => {
-            navigation.dispatch(
-              CommonActions.navigate('ExportSeed', {
-                seed: primaryMnemonic,
-                next: true,
-              })
-            );
+            setConfirmPassVisible(true);
           }}
         />
       </Box>
@@ -97,6 +95,34 @@ function BackupWallet() {
           />
         </ModalWrapper>
       </Box>
+
+      <KeeperModal
+        visible={confirmPassVisible}
+        closeOnOverlayClick={false}
+        close={() => setConfirmPassVisible(false)}
+        title={'Confirm Passcode'}
+        subTitleWidth={wp(240)}
+        subTitle={'To backup app recovery phrase'}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.primaryText`}
+        Content={() => (
+          <PasscodeVerifyModal
+            useBiometrics
+            close={() => {
+              setConfirmPassVisible(false);
+            }}
+            onSuccess={() => {
+              navigation.dispatch(
+                CommonActions.navigate('ExportSeed', {
+                  seed: primaryMnemonic,
+                  next: true,
+                })
+              );
+            }}
+          />
+        )}
+      />
     </ScreenWrapper>
   );
 }

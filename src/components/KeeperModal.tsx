@@ -113,17 +113,17 @@ function KeeperModal(props: ModalProps) {
         <GestureHandlerRootView>
           <Box backgroundColor={modalBackground} style={styles.container}>
             {showCloseIcon ? (
-              <TouchableOpacity style={styles.close} onPress={close}>
+              <TouchableOpacity testID="btn_close_modal" style={styles.close} onPress={close}>
                 {getCloseIcon()}
               </TouchableOpacity>
             ) : null}
             {title || subTitle ? (
               <Modal.Header style={styles.headerContainer}>
-                <Text style={styles.title} color={textColor}>
+                <Text testID="text_modal_title" style={styles.title} color={textColor}>
                   {title}
                 </Text>
                 {subTitle ? (
-                  <Text style={styles.subTitle} color={subTitleColor}>
+                  <Text testID="text_modal_subtitle" style={styles.subTitle} color={subTitleColor}>
                     {`${subTitle}`}
                   </Text>
                 ) : null}
