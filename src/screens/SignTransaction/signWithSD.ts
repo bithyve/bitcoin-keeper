@@ -156,16 +156,15 @@ export const signTransactionWithSigningServer = async ({
 export const signTransactionWithInheritanceKey = async ({
   signingPayload,
   serializedPSBT,
-  shellId,
+  signerId,
   thresholdDescriptors,
 }) => {
   try {
     const childIndexArray = idx(signingPayload, (_) => _[0].childIndexArray);
     if (!childIndexArray) throw new Error('Invalid signing payload');
 
-    const vaultId = shellId;
     const { signedPSBT } = await InheritanceKeyServer.signPSBT(
-      vaultId,
+      signerId,
       serializedPSBT,
       childIndexArray,
       thresholdDescriptors

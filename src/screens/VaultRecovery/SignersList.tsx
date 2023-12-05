@@ -535,7 +535,7 @@ function SignersList({ navigation }) {
   const verifySigningServer = async (otp) => {
     try {
       if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signingDevices);
+      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
       const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
       if (response.xpub) {
         const signingServerKey = generateSignerFromMetaData({
@@ -560,13 +560,15 @@ function SignersList({ navigation }) {
 
   const requestInheritanceKey = async (signers: VaultSigner[]) => {
     try {
+      if (signers.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+
       const requestId = `request-${generateKey(10)}`;
-      const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
-        vaultId,
+        cosignersMapIds[0],
         thresholdDescriptors
       );
 
