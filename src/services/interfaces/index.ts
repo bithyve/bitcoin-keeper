@@ -36,6 +36,16 @@ export interface SignerPolicy {
   exceptions: SignerException;
 }
 
+export enum CosignersMapUpdateAction {
+  ADD = 'ADD',
+  REMOVE = 'REMOVE',
+}
+export interface CosignersMapUpdate {
+  cosignersId: string;
+  signerId: string;
+  action: CosignersMapUpdateAction;
+}
+
 export interface InheritanceNotification {
   targets: string[];
 }

@@ -17,8 +17,7 @@ export default class SigningServer {
    * @returns Promise
    */
   static register = async (
-    policy: SignerPolicy,
-    cosignersMapUpdates?: CosignersMapUpdate[]
+    policy: SignerPolicy
   ): Promise<{
     setupData: {
       id: string;
@@ -33,7 +32,6 @@ export default class SigningServer {
       res = await RestClient.post(`${SIGNING_SERVER}v3/setupSigner`, {
         HEXA_ID,
         policy,
-        cosignersMapUpdates,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -198,6 +196,7 @@ export default class SigningServer {
     }
 
     const { updated } = res.data;
+    if (!updated) throw new Error('Failed to update cosigners to signer map');
     return {
       updated,
     };

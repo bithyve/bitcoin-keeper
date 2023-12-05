@@ -25,9 +25,9 @@ export const getDeviceStatus = (type: SignerType, isNfcSupported, signingDevices
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.POLICY_SERVER:
-      if (signingDevices.length < 1) {
+      if (signingDevices.length < 2) {
         return {
-          message: 'Add another device first to recover',
+          message: 'Add two other devices first to recover',
           disabled: true,
         };
       }
