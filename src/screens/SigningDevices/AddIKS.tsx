@@ -74,14 +74,15 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
     try {
       close();
       setInProgress(true);
-      const { setupData } = await InheritanceKeyServer.initializeIKSetup(vault.shellId);
-      const { inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
+      const { setupData } = await InheritanceKeyServer.initializeIKSetup();
+      const { id, inheritanceXpub: xpub, derivationPath, masterFingerprint } = setupData;
       const inheritanceKey = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp: masterFingerprint,
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
+        signerId: id,
         isMultisig: true,
       });
       setInProgress(false);
