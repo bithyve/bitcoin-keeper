@@ -29,10 +29,10 @@ import OtherSDImage from 'src/assets/images/illustration_othersd.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
 import LedgerImage from 'src/assets/images/ledger_image.svg';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { BulletPoint } from '../Vault/HardwareModalMap';
 import * as SecureStore from 'src/storage/secure-store';
 import Buttons from 'src/components/Buttons';
 import useAsync from 'src/hooks/useAsync';
+import Instruction from 'src/components/Instruction';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -68,8 +68,9 @@ function PassportContent({ isMultisig }: { isMultisig: boolean }) {
       <PassportSVG />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
-            }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Passport and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the Passport main menu, choose the 'Sign with QR Code' option.`}
@@ -103,12 +104,14 @@ function KeystoneContent({ isMultisig }: { isMultisig: boolean }) {
       <KeystoneSetup />
       <Box marginTop={2}>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 Make sure ${isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
-            }the right bitcoin network is set before signing the transaction`}
+          {`\u2022 Make sure ${
+            isMultisig ? 'the multisig wallet is registered with the Keystone and ' : ''
+          }the right bitcoin network is set before signing the transaction`}
         </Text>
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
-          {`\u2022 On the Keystone ${isMultisig ? 'multisig menu' : 'Generic Wallet section'
-            }, press the scan icon on the top bar and wait for the QR to be scanned.`}
+          {`\u2022 On the Keystone ${
+            isMultisig ? 'multisig menu' : 'Generic Wallet section'
+          }, press the scan icon on the top bar and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -196,8 +199,8 @@ function TapsignerContent() {
   return (
     <>
       <TapsignerSetupSVG />
-      <BulletPoint text="TAPSIGNER communicates with the app over NFC" />
-      <BulletPoint text="You will need the CVC/ Pin on the back of the card" />
+      <Instruction text="TAPSIGNER communicates with the app over NFC" />
+      <Instruction text="You will need the CVC/ Pin on the back of the card" />
     </>
   );
 }
