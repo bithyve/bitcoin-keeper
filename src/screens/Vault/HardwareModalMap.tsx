@@ -5,7 +5,11 @@ import { ActivityIndicator, Alert, Clipboard, StyleSheet, TouchableOpacity } fro
 import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
-import { generateMobileKey, generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
+import {
+  generateCosignerMapIds,
+  generateMobileKey,
+  generateSeedWordsKey,
+} from 'src/core/wallets/factories/VaultFactory';
 import { hp, wp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
@@ -664,7 +668,7 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       try {
         setInProgress(true);
-        const { isSignerAvailable } = await SigningServer.checkSignerHealth(vaultShellId, appId);
+        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signer.signerId);
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
@@ -852,15 +856,16 @@ function HardwareModalMap({
     }
   };
 
-  const addSigningServerVaultShellId = () => {
+  const fetchSigningServerSetup = () => {
     const { translations } = useContext(LocalizationContext);
     const { vault: vaultTranslation, common } = translations;
     const verifySigningServer = async (otp) => {
       try {
         setInProgress(true);
-        const vaultId = relayVaultReoveryShellId;
-        const appId = relayVaultReoveryShellId;
-        const response = await SigningServer.fetchSignerSetup(vaultId, appId, otp);
+
+        if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
+        const cosignersMapIds = generateCosignerMapIds(signingDevices);
+        const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
         if (response.xpub) {
           const signingServerKey = generateSignerFromMetaData({
             xpub: response.xpub,
@@ -869,6 +874,7 @@ function HardwareModalMap({
             signerType: SignerType.POLICY_SERVER,
             storageType: SignerStorage.WARM,
             isMultisig: true,
+            signerId: response.id,
             signerPolicy: response.policy,
           });
           setInProgress(false);
@@ -1111,7 +1117,7 @@ function HardwareModalMap({
         subTitle="To complete setting up the signing server"
         subTitleColor="light.secondaryText"
         textColor="light.primaryText"
-        Content={addSigningServerVaultShellId}
+        Content={fetchSigningServerSetup}
       />
       {inProgress && <ActivityIndicatorView visible={inProgress} />}
     </>

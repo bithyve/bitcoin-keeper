@@ -47,6 +47,7 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { generateCosignerMapIds } from 'src/core/wallets/factories/VaultFactory';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -74,9 +75,9 @@ export const getDeviceStatus = (
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.POLICY_SERVER:
-      if (signingDevices.length < 1) {
+      if (signingDevices.length < 2) {
         return {
-          message: 'Add another device first to recover',
+          message: 'Add two other devices first to recover',
           disabled: true,
         };
       }
@@ -533,9 +534,9 @@ function SignersList({ navigation }) {
 
   const verifySigningServer = async (otp) => {
     try {
-      const vaultId = relayVaultReoveryShellId;
-      const appId = relayVaultReoveryShellId;
-      const response = await SigningServer.fetchSignerSetup(vaultId, appId, otp);
+      if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(signingDevices);
+      const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
       if (response.xpub) {
         const signingServerKey = generateSignerFromMetaData({
           xpub: response.xpub,
@@ -544,8 +545,10 @@ function SignersList({ navigation }) {
           signerType: SignerType.POLICY_SERVER,
           storageType: SignerStorage.WARM,
           isMultisig: true,
+          signerId: response.id,
           signerPolicy: response.policy,
         });
+
         dispatch(setSigningDevices(signingServerKey));
         navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
         showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);

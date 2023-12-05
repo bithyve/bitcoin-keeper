@@ -64,7 +64,9 @@ function ChoosePolicyNew({ navigation, route }) {
         restrictions,
         exceptions,
       };
-      dispatch(updateSignerPolicy(route.params.signer, updates));
+
+      const verificationToken = 10; // TODO: integrate OTP modal to supply verification token
+      dispatch(updateSignerPolicy(route.params.signer, updates, verificationToken));
       navigation.dispatch(
         CommonActions.navigate({ name: 'VaultDetails', params: { vaultTransferSuccessful: null } })
       );
@@ -93,7 +95,7 @@ function ChoosePolicyNew({ navigation, route }) {
           </Text>
         </Box>
 
-        <Box width='40%' ml={3} >
+        <Box width="40%" ml={3}>
           <Input
             backgroundColor={`${colorMode}.seashellWhite`}
             onPressIn={onPress}
@@ -107,13 +109,16 @@ function ChoosePolicyNew({ navigation, route }) {
             }}
           />
         </Box>
-      </Box >
+      </Box>
     );
   }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={signingServer.choosePolicy} subtitle={signingServer.choosePolicySubTitle} />
+      <KeeperHeader
+        title={signingServer.choosePolicy}
+        subtitle={signingServer.choosePolicySubTitle}
+      />
       <Box
         style={{
           paddingHorizontal: wp(15),
@@ -139,7 +144,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => { }}
+          clear={() => {}}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
