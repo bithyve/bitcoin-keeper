@@ -316,7 +316,7 @@ function SendingPriority({
         ))}
       </Box>
       <TouchableOpacity onPress={setVisibleCustomPriorityModal}>
-        <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addTransPriority}>
+        <Box backgroundColor={`${colorMode}.lightAccent`} borderColor={`${colorMode}.coffeeBackground`} style={styles.addTransPriority}>
           {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
           <Text style={[styles.addPriorityText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>{walletTranslation.addCustomPriority}</Text>
         </Box>
@@ -932,7 +932,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    marginVertical: hp(30)
+    marginVertical: hp(30),
+    borderWidth: 0.8
   },
   addPriorityText: {
     fontSize: 15,
