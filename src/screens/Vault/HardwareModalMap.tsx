@@ -614,7 +614,7 @@ function HardwareModalMap({
   const [inProgress, setInProgress] = useState(false);
 
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
-  const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
+  const { signingDevices } = useAppSelector((state) => state.bhr);
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
@@ -864,7 +864,7 @@ function HardwareModalMap({
         setInProgress(true);
 
         if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-        const cosignersMapIds = generateCosignerMapIds(signingDevices);
+        const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
         const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
         if (response.xpub) {
           const signingServerKey = generateSignerFromMetaData({
@@ -1004,13 +1004,15 @@ function HardwareModalMap({
 
   const requestInheritanceKeyRecovery = async (signers: VaultSigner[]) => {
     try {
+      if (signingDevices.length <= 1) throw new Error('Add two others devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+
       const requestId = `request-${generateKey(10)}`;
-      const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
-        vaultId,
+        cosignersMapIds[0],
         thresholdDescriptors
       );
 

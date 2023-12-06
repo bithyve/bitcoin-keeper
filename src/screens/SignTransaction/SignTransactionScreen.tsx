@@ -255,7 +255,7 @@ function SignTransactionScreen() {
           const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
             signingPayload,
             serializedPSBT,
-            shellId,
+            signerId,
             thresholdDescriptors,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
