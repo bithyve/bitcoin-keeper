@@ -1,21 +1,20 @@
 import { Box, Pressable, useColorMode } from 'native-base';
-import React, { MutableRefObject, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-// hooks, components, data
 import KeeperModal from 'src/components/KeeperModal';
 import Text from 'src/components/KeeperText';
 import openLink from 'src/utils/OpenLink';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-import { hp, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp, windowHeight } from 'src/constants/responsive';
 import { setWhirlpoolSwiperModal } from 'src/store/reducers/settings';
-// colors, aserts
-import Colors from 'src/theme/Colors';
 import SwiperModalIcon from 'src/assets/images/swiper_modal_icon.svg';
 import CloseGreen from 'src/assets/images/modal_close_green.svg';
 import { swiperData } from '../swiperModalData';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function SwiperModalContent({ contentTitle, contentSubTitle }) {
   const { colorMode } = useColorMode();
+  console.log('windowHeight', windowHeight)
   return (
     <Box>
       <Box>
@@ -53,11 +52,7 @@ const renderItem = ({ item }) => (
     />
   </Box>
 );
-const linearGradientBtn = {
-  colors: ['#FFFFFF', '#80A8A1'],
-  start: [0, 0],
-  end: [1, 1],
-};
+
 function List() {
   const { colorMode } = useColorMode();
   const listRef = useRef(null);
@@ -102,13 +97,17 @@ function List() {
         viewabilityConfig={viewConfigRef.current}
       />
       <Box style={styles.ctaWrapper}>
-        <Box borderColor="light.lightAccent" style={styles.learnMoreContainer}>
+        <Box
+          borderColor={`${colorMode}.lightAccent`}
+          backgroundColor={`${colorMode}.modalGreenLearnMore`}
+          style={styles.learnMoreContainer}
+        >
           <Pressable
             onPress={() => {
-              openLink('https://www.bitcoinkeeper.app/');
+              openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-whirlpool/`);
             }}
           >
-            <Text color="light.lightAccent" style={styles.seeFAQs} bold>
+            <Text color={`${colorMode}.lightAccent`} style={styles.seeFAQs} bold>
               See FAQs
             </Text>
           </Pressable>
@@ -119,8 +118,8 @@ function List() {
               currentPosition === 0 ? pressNext() : dispatch(setWhirlpoolSwiperModal(false))
             }
           >
-            <Box backgroundColor={{ linearGradient: linearGradientBtn }} style={styles.cta}>
-              <Text style={styles.ctaText} color="light.greenText2" bold>
+            <Box backgroundColor={`${colorMode}.modalWhiteButton`} style={styles.cta}>
+              <Text style={styles.ctaText} color={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`} bold>
                 {currentPosition === 0 ? 'Next' : 'Proceed'}
               </Text>
             </Box>
@@ -142,7 +141,7 @@ function SwiperModal({ enable }) {
         dispatch(setWhirlpoolSwiperModal(false));
       }}
       title=""
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={() => <List />}
       showCloseIcon={false}
@@ -152,7 +151,7 @@ function SwiperModal({ enable }) {
 
 const styles = StyleSheet.create({
   contentContaner: {
-    width: wp(286),
+    width: windowHeight < 650 ? wp(286) : wp(295),
   },
   swiperModalIcon: {
     alignSelf: 'center',
@@ -181,7 +180,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#00433A',
     height: hp(34),
     width: wp(110),
   },

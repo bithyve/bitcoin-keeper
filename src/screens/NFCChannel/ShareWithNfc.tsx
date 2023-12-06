@@ -3,10 +3,10 @@ import React, { useContext, useEffect } from 'react';
 import OptionCTA from 'src/components/OptionCTA';
 import NFCIcon from 'src/assets/images/nfc.svg';
 import AirDropIcon from 'src/assets/images/airdrop.svg';
-import NFC from 'src/core/services/nfc';
+import NFC from 'src/services/nfc';
 import { NfcTech } from 'react-native-nfc-manager';
 import { HCESession, HCESessionContext } from 'react-native-hce';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
@@ -32,7 +32,7 @@ function ShareWithNfc({ data }: { data: string }) {
       cleanUp();
     });
     const unsubRead = session.on(HCESession.Events.HCE_STATE_READ, () => {
-      showToast('Cosiigner details shared successfully', <TickIcon />);
+      showToast('Cosigner details shared successfully', <TickIcon />);
     });
     return () => {
       cleanUp();

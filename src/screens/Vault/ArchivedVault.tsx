@@ -1,21 +1,20 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Pressable, FlatList, Box } from 'native-base';
+import { Pressable, FlatList, Box, useColorMode } from 'native-base';
 // data
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-// components and asserts
-import HeaderTitle from 'src/components/HeaderTitle';
+import { hp, wp } from 'src/constants/responsive';
+import KeeperHeader from 'src/components/KeeperHeader';
 import BTC from 'src/assets/images/btc_black.svg';
 import useBalance from 'src/hooks/useBalance';
 import { StyleSheet } from 'react-native';
+import { useQuery } from '@realm/react';
 
 function ArchivedVault() {
-  const { useQuery } = useContext(RealmWrapperContext);
+  const { colorMode } = useColorMode();
   const vault: Vault[] = useQuery(RealmSchema.Vault)
     .map(getJSONFromRealmObject)
     .filter((vault) => vault.archived);
@@ -68,7 +67,9 @@ function ArchivedVault() {
                 marginLeft: wp(4),
               }}
             >
-              {getBalance(vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed)}
+              {getBalance(
+                vaultItem?.specs?.balances?.confirmed + vaultItem?.specs?.balances?.unconfirmed
+              )}
             </Text>
           </Box>
           <Box flexDirection="row">
@@ -94,15 +95,12 @@ function ArchivedVault() {
   const renderArchiveVaults = ({ item, index }) => <VaultItem vaultItem={item} index={index} />;
 
   return (
-    <ScreenWrapper>
-      <HeaderTitle
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader
         title="Archived Vaults"
         subtitle="Previously used vaults"
         headerTitleColor="light.headerText"
-        paddingLeft={20}
-        paddingTop={5}
       />
-
       <Box alignItems="center">
         <FlatList
           data={vault}

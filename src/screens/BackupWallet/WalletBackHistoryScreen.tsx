@@ -1,22 +1,23 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Box } from 'native-base';
+import React, { useContext } from 'react';
+import { Box, useColorMode } from 'native-base';
 
 import BackupHealthCheckList from 'src/components/Backup/BackupHealthCheckList';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 
-function WalletBackHistoryScreen({ navigation }) {
+function WalletBackHistoryScreen() {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
 
   return (
-    <ScreenWrapper>
-      <HeaderTitle title={BackupWallet.myWalletBackupTitle} paddingTop={5} paddingLeft={25} />
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      <KeeperHeader title={BackupWallet.myWalletBackupTitle} />
       <Box mx={wp(5)}>
         <BackupHealthCheckList />
       </Box>

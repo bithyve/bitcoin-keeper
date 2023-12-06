@@ -1,29 +1,26 @@
 import { StyleSheet } from 'react-native';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { Box } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import useToastMessage from 'src/hooks/useToastMessage';
+import { hp } from 'src/constants/responsive';
 import { Tile } from '../NewKeeperAppScreen/NewKeeperAppScreen';
 
 function OtherRecoveryMethods() {
   const { navigate } = useNavigation();
-  const { showToast } = useToastMessage();
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Other methods for restoring the Vault"
         subtitle="This method can only be used for restoring the Vault"
-        paddingLeft={wp(20)}
       />
       <Box style={{ marginTop: hp(30) }}>
         <Tile
           title="All Signing Devices"
           subTitle="If you have all the signing devices that were initially used to create the Vault"
           onPress={() => {
-            navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+            navigate('LoginStack', { screen: 'VaultSetup', params: { isRecreation: true } });
           }}
         />
         <Tile

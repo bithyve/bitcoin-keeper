@@ -1,21 +1,15 @@
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode, View } from 'native-base';
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { hp } from 'src/common/data/responsiveness/responsive';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import React, { useCallback, useState } from 'react';
+import { hp } from 'src/constants/responsive';
 import KeeperModal from 'src/components/KeeperModal';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { VaultMigrationType } from 'src/core/wallets/enums';
 import VaultSetupIcon from 'src/assets/images/vault_setup.svg';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { setIntroModal } from 'src/store/reducers/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import useVault from 'src/hooks/useVault';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import TierUpgradeModal from 'src/screens/ChoosePlanScreen/TierUpgradeModal';
+import { useRoute } from '@react-navigation/native';
 import openLink from 'src/utils/OpenLink';
 import RampModal from './RampModal';
 import VaultCreatedModal from './VaultCreatedModal';
@@ -23,23 +17,17 @@ import VaultCreatedModal from './VaultCreatedModal';
 function VaultModals({
   showBuyRampModal,
   setShowBuyRampModal,
-  hasPlanChanged,
 }: {
   showBuyRampModal: boolean;
   setShowBuyRampModal: any;
-  hasPlanChanged: any;
 }) {
   const { colorMode } = useColorMode();
   const route = useRoute();
   const { vaultTransferSuccessful } = (route.params as any) || { vaultTransferSuccessful: false };
   const dispatch = useDispatch();
-  const navigation = useNavigation();
   const introModal = useAppSelector((state) => state.vault.introModal);
-  const { useQuery } = useContext(RealmWrapperContext);
   const { activeVault: vault } = useVault();
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [vaultCreated, setVaultCreated] = useState(vaultTransferSuccessful);
-  const [tireChangeModal, setTireChangeModal] = useState(false);
 
   const VaultContent = useCallback(
     () => (
@@ -58,34 +46,12 @@ function VaultModals({
     ),
     []
   );
-  const onPressModalBtn = () => {
-    setTireChangeModal(false);
-    navigation.dispatch(CommonActions.navigate('AddSigningDevice'));
-  };
   const closeVaultCreatedDialog = () => {
     setVaultCreated(false);
   };
 
-  useEffect(() => {
-    if (hasPlanChanged() !== VaultMigrationType.CHANGE) {
-      setTireChangeModal(true);
-    }
-  }, []);
   return (
     <>
-      <TierUpgradeModal
-        visible={tireChangeModal}
-        close={() => {
-          if (hasPlanChanged() === VaultMigrationType.DOWNGRADE) {
-            return;
-          }
-          setTireChangeModal(false);
-        }}
-        onPress={onPressModalBtn}
-        isUpgrade={hasPlanChanged() === VaultMigrationType.UPGRADE}
-        plan={keeper.subscription.name}
-        closeOnOverlayClick={hasPlanChanged() !== VaultMigrationType.DOWNGRADE}
-      />
       <VaultCreatedModal
         vault={vault}
         vaultCreated={vaultCreated}
@@ -98,12 +64,12 @@ function VaultModals({
         }}
         title="Keeper Vault"
         subTitle={`Depending on your tier - ${SubscriptionTier.L1}, ${SubscriptionTier.L2} or ${SubscriptionTier.L3}, you need to add signing devices to the vault`}
-        modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+        modalBackground={`${colorMode}.modalGreenBackground`}
         textColor={`${colorMode}.modalGreenContent`}
         Content={VaultContent}
-        buttonBackground={['#FFFFFF', '#80A8A1']}
+        buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+        buttonBackground={`${colorMode}.modalWhiteButton`}
         buttonText="Continue"
-        buttonTextColor="light.greenText"
         buttonCallback={() => {
           dispatch(setIntroModal(false));
         }}

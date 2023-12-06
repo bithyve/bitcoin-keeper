@@ -1,10 +1,9 @@
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, useColorMode } from 'native-base';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import BtcBlack from 'src/assets/images/btc_black.svg';
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import EmptyStateView from 'src/components/EmptyView/EmptyStateView';
 import { UTXO } from 'src/core/wallets/interfaces';
@@ -18,7 +17,8 @@ import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { useAppSelector } from 'src/store/hooks';
 import useLabelsNew from 'src/hooks/useLabelsNew';
-import CurrencyInfo from 'src/screens/NewHomeScreen/components/CurrencyInfo';
+import CurrencyInfo from 'src/screens/HomeScreen/components/CurrencyInfo';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function Label({
   name,
@@ -29,6 +29,7 @@ function Label({
   extraLabelMap,
   setExtraLabelCount,
 }) {
+  const { colorMode } = useColorMode();
   useEffect(
     () => () => {
       extraLabelMap.delete(`${index}`);
@@ -41,7 +42,8 @@ function Label({
     <Box
       key={name}
       onLayout={(event) => onLayout(event, index)}
-      style={[styles.utxoLabelView, { backgroundColor: isSystem ? '#23A289' : '#E0B486' }]}
+      style={styles.utxoLabelView}
+      backgroundColor={isSystem ? `${colorMode}.forestGreen` : `${colorMode}.accent`}
     >
       <Text style={styles.labelText} bold testID={`text_${name.replace(/ /g, '_')}`}>
         {name.toUpperCase()}
@@ -50,6 +52,7 @@ function Label({
   );
 }
 function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }) {
+  const { colorMode } = useColorMode();
   const { labels } = props;
   const [extraLabelCount, setExtraLabelCount] = useState(0);
   const [extraLabelMap, setExtraLabelMap] = useState(new Map());
@@ -83,7 +86,10 @@ function UTXOLabel(props: { labels: Array<{ name: string; isSystem: boolean }> }
           ))}
       </Box>
       {extraLabelCount > 0 && (
-        <Box style={[styles.utxoLabelView, { backgroundColor: '#E3BE96', maxHeight: 19 }]}>
+        <Box
+          style={[styles.utxoLabelView, { maxHeight: 19 }]}
+          backgroundColor={`${colorMode}.accent`}
+        >
           <Text style={styles.labelText} testID="text_extraLabelCount">
             +{extraLabelCount}
           </Text>
@@ -110,6 +116,8 @@ function UTXOElement({
   const allowSelection = enableSelection && item.confirmed;
   const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
 
   return (
     <TouchableOpacity
@@ -117,7 +125,7 @@ function UTXOElement({
       onPress={() => {
         if (enableSelection && !item.confirmed) {
           showToast(
-            'Please wait for a confirmation to "Initiate Premix". For confirmation ETA, click on the transaction > Transaction ID',
+            walletTranslation.intiatePremixToastMsg,
             <ToastErrorIcon />
           );
           return;
@@ -132,7 +140,7 @@ function UTXOElement({
               Object.keys(selectedUTXOMap).length >= 1 &&
               initateWhirlpoolMix
             ) {
-              showToast('Only a single UTXO mix allowed at a time', null, 3000);
+              showToast(walletTranslation.utxoAllowedTime, null, 3000);
               return;
             }
             mapToUpdate[utxoId] = true;
@@ -213,6 +221,8 @@ function UTXOList({
 }) {
   const navigation = useNavigation();
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
   const { labels } = useLabelsNew({ utxos: utxoState, wallet: currentWallet });
   const dispatch = useDispatch();
   const { walletSyncing } = useAppSelector((state) => state.wallet);
@@ -221,7 +231,6 @@ function UTXOList({
   return (
     <FlatList
       data={utxoState}
-      contentContainerStyle={{ paddingBottom: 70 }}
       refreshing={!!syncing}
       onRefresh={pullDownRefresh}
       renderItem={({ item }) => (
@@ -246,8 +255,8 @@ function UTXOList({
         <Box style={{ paddingTop: windowHeight > 800 ? hp(80) : hp(100) }}>
           <EmptyStateView
             IllustartionImage={emptyIcon}
-            title="No UTXOs yet"
-            subTitle="UTXOs from all your Tx0s land here."
+            title={walletTranslation.noUTXOYet}
+            subTitle={walletTranslation.noUTXOYetSubTitle}
           />
         </Box>
       }

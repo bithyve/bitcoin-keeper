@@ -1,16 +1,15 @@
-import KeeperModal from 'src/components/KeeperModal';
-import { TextInput } from 'react-native';
-import Text from 'src/components/KeeperText';
+
+import { StyleSheet, TextInput } from 'react-native';
 import { Box, HStack, useColorMode, VStack } from 'native-base';
 import React, { useCallback, useRef, useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-
 import moment from 'moment';
 
-import { ScaledSheet } from 'react-native-size-matters';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { windowWidth } from 'src/constants/responsive';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
 import Colors from 'src/theme/Colors';
-import Fonts from 'src/common/Fonts';
+import Fonts from 'src/constants/Fonts';
 import { SDIcons } from '../SigningDeviceIcons';
 
 function SignerData({ signer }: { signer: VaultSigner }) {
@@ -23,7 +22,7 @@ function SignerData({ signer }: { signer: VaultSigner }) {
           {signer.signerName}
         </Text>
         <Text color={`${colorMode}.GreyText`} fontSize={12} letterSpacing={0.6}>
-          {`Added ${moment(signer.lastHealthCheck).calendar()}`}
+          {`Added ${moment(signer.lastHealthCheck).calendar().toLocaleLowerCase()}`}
         </Text>
       </VStack>
     </HStack>
@@ -86,7 +85,7 @@ function DescriptionModal({
   return (
     <KeeperModal
       visible={visible}
-      modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+      modalBackground={`${colorMode}.modalWhiteBackground`}
       textColor={`${colorMode}.primaryText`}
       subTitleColor={`${colorMode}.secondaryText`}
       DarkCloseIcon={colorMode === 'dark'}
@@ -103,7 +102,7 @@ function DescriptionModal({
 
 export default DescriptionModal;
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   descriptionEdit: {
     height: 45,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -113,7 +112,7 @@ const styles = ScaledSheet.create({
     borderRadius: 10,
     width: windowWidth * 0.7,
     fontSize: 13,
-    fontFamily: Fonts.RobotoCondensedBold,
+    fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 1,
     opacity: 0.5,
   },
@@ -142,7 +141,6 @@ const styles = ScaledSheet.create({
   name: {
     fontSize: 15,
     alignItems: 'center',
-    fontWeight: '200',
     letterSpacing: 1.12,
   },
 });

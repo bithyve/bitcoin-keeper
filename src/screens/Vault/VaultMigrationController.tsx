@@ -5,12 +5,11 @@ import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { addNewVault, finaliseVaultMigration, migrateVault } from 'src/store/sagaActions/vaults';
 import { useAppSelector } from 'src/store/hooks';
 import { clearSigningDevice } from 'src/store/reducers/vaults';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
-import { captureError } from 'src/core/services/sentry';
-import usePlan from 'src/hooks/usePlan';
+import { captureError } from 'src/services/sentry';
 import useVault from 'src/hooks/useVault';
 import WalletOperations from 'src/core/wallets/operations';
 import { UNVERIFYING_SIGNERS } from 'src/hardware';
@@ -24,15 +23,15 @@ import { sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 function VaultMigrationController({
   vaultCreating,
   signersState,
-  planStatus,
+  scheme,
   setCreating,
-  isInheritance,
+  name,
+  description,
 }: any) {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
   const { activeVault } = useVault();
-  const { subscriptionScheme } = usePlan();
   const temporaryVault = useAppSelector((state) => state.vault.intrimVault);
   const averageTxFees: AverageTxFeesByNetwork = useAppSelector(
     (state) => state.network.averageTxFees
@@ -55,11 +54,11 @@ function VaultMigrationController({
   }, [vaultCreating]);
 
   useEffect(() => {
-    if (relayVaultUpdate) {
+    if (relayVaultUpdate && activeVault) {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
         ],
       };
@@ -142,11 +141,11 @@ function VaultMigrationController({
     try {
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: isInheritance ? { m: 3, n: 6 } : scheme,
+        vaultScheme: scheme,
         vaultSigners: signers,
         vaultDetails: {
-          name: 'Vault',
-          description: 'Secure your sats',
+          name,
+          description,
         },
       };
       dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -161,7 +160,7 @@ function VaultMigrationController({
     signersState.map((signer: VaultSigner) => {
       if (
         !signer.isMock &&
-        subscriptionScheme.n !== 1 &&
+        scheme.n !== 1 &&
         !UNVERIFYING_SIGNERS.includes(signer.type) &&
         signer.registered
       ) {
@@ -182,7 +181,7 @@ function VaultMigrationController({
           CommonActions.reset({
             index: 1,
             routes: [
-              { name: 'NewHome' },
+              { name: 'Home' },
               {
                 name: 'VaultDetails',
                 params: { autoRefresh: true },
@@ -195,16 +194,16 @@ function VaultMigrationController({
       const freshSignersState = sanitizeSigners();
       const vaultInfo: NewVaultInfo = {
         vaultType: VaultType.DEFAULT,
-        vaultScheme: isInheritance ? { m: 3, n: 6 } : subscriptionScheme,
+        vaultScheme: scheme,
         vaultSigners: freshSignersState,
         vaultDetails: {
           name: 'Vault',
           description: 'Secure your sats',
         },
       };
-      dispatch(migrateVault(vaultInfo, planStatus, activeVault.shellId));
+      dispatch(migrateVault(vaultInfo, activeVault.shellId));
     } else {
-      createVault(signersState, subscriptionScheme);
+      createVault(signersState, scheme);
     }
   };
   return null;

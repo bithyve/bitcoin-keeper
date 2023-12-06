@@ -2,9 +2,8 @@ import React from 'react';
 import { Box, useColorMode, Pressable } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
-import DownloadIcon from 'src/assets/images/download.svg';
 import ViewIcon from 'src/assets/images/icon_show.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 
 function InheritanceDownloadView(props) {
@@ -22,32 +21,36 @@ function InheritanceDownloadView(props) {
       </Box>
       <Box style={styles.btnWrapper}>
         {props.isDownload ? (
-          <Box style={styles.downloadBtnWrapper}>
-            <TouchableOpacity style={styles.downloadBtn} onPress={props.previewPDF}>
+          <TouchableOpacity onPress={props.previewPDF}>
+            <Box style={styles.downloadBtn} backgroundColor={`${colorMode}.yellowButtonBackground`}>
+              <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+                View&nbsp;
+              </Text>
               <ViewIcon />
-              {/* <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text> */}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.downloadBtn} onPress={props.downloadPDF}>
-              <DownloadIcon />
-              {/* <Text style={styles.downloadBtnText}>&nbsp;&nbsp;Download</Text> */}
-            </TouchableOpacity>
-          </Box>
-        ) : (
+            </Box>
+          </TouchableOpacity>
+        ) : props.disableCallback ? null : (
           <Box>
             {props.isSetupDone ? (
               <Pressable style={styles.successTickBtn} onPress={props.onPress}>
                 <TickIcon />
               </Pressable>
-
             ) : (
-              <TouchableOpacity style={styles.setupBtn} onPress={props.onPress}>
-                <Text style={styles.setupBtnText}>&nbsp;&nbsp;Setup</Text>
+              <TouchableOpacity onPress={props.onPress}>
+                <Box
+                  style={styles.setupBtn}
+                  backgroundColor={`${colorMode}.yellowButtonBackground`}
+                >
+                  <Text style={styles.setupBtnText} color={`${colorMode}.yellowButtonTextColor`}>
+                    &nbsp;&nbsp;Setup
+                  </Text>
+                </Box>
               </TouchableOpacity>
             )}
           </Box>
         )}
       </Box>
-    </Box >
+    </Box>
   );
 }
 const styles = StyleSheet.create({
@@ -60,16 +63,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: hp(15),
   },
-  downloadBtnWrapper: {
+  downloadBtn: {
     flexDirection: 'row',
     width: '100%',
-    justifyContent: 'space-between',
-  },
-  downloadBtn: {
-    width: '45%',
     padding: 5,
-    paddingVertical: 10,
-    backgroundColor: '#E3BE96',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
@@ -80,25 +77,24 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   setupBtn: {
     flexDirection: 'row',
-    backgroundColor: '#E3BE96',
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
   },
   setupBtnText: {
-    color: '#725436',
-    fontSize: 12,
+    fontSize: 14,
   },
   iconWrapper: {
     width: '13%',
   },
   titleWrapper: {
     width: '57%',
+    flex: 1,
   },
   btnWrapper: {
     width: '30%',

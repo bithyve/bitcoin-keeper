@@ -1,7 +1,7 @@
 import * as bip39 from 'bip39';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
-import { hash256 } from 'src/core/services/operations/encryption';
+import { hash256 } from 'src/services/operations/encryption';
 import config from 'src/core/config';
 import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
 import {
@@ -102,10 +102,10 @@ export const generateWallet = async ({
     xDerivationPath = importDetails.derivationConfig.path;
   else xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.WALLET, networkType);
 
-  let id = WalletUtilities.getFingerprintFromMnemonic(mnemonic);
+  let id = WalletUtilities.getMasterFingerprintFromMnemonic(mnemonic); // case: wallets(non-whirlpool) have master-fingerprints as their id
 
   if (whirlPoolWalletTypes.includes(type)) {
-    depositWalletId = id;
+    depositWalletId = id; // case: whirlpool wallets have master-fingerprints as their deposit id
     id = hash256(`${id}${type}`);
   }
 

@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import { useNavigation } from '@react-navigation/native';
 import { Box, Input } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { StyleSheet } from 'react-native';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useVault from 'src/hooks/useVault';
 import { SignerType } from 'src/core/wallets/enums';
-import { InheritancePolicy } from 'src/core/services/interfaces';
+import { InheritancePolicy } from 'src/services/interfaces';
 import idx from 'idx';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { RealmSchema } from 'src/storage/realm/enum';
 import dbManager from 'src/storage/realm/dbManager';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -42,7 +42,7 @@ function IKSAddEmailPhone() {
       };
 
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
-        vault.shellId,
+        ikSigner.signerId,
         {
           alert: updatedPolicy.alert,
         },
@@ -76,11 +76,9 @@ function IKSAddEmailPhone() {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        onPressHandler={() => navigtaion.goBack()}
+      <KeeperHeader
         title="Add email"
         subtitle="If notification is not declined continuously for 30 days, the Key would be activated"
-        paddingLeft={22}
       />
       <Box style={styles.inputWrapper}>
         <Input

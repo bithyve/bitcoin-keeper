@@ -15,13 +15,18 @@ function Note({ title = 'Note', subtitle, subtitleColor = 'GreyText', width = '1
 
   return (
     <Box style={styles.container}>
-      <Box opacity={1}>
-        <Text color={`${colorMode}.primaryText`} style={styles.title}>
+      <Box>
+        <Text testID="text_note_title" color={`${colorMode}.primaryText`} style={styles.title}>
           {title}
         </Text>
       </Box>
       <Box>
-        <Text width={width} color={`${colorMode}.${subtitleColor}`} style={styles.subTitle}>
+        <Text
+          testID="text_note_subtitle"
+          width={width}
+          color={`${colorMode}.${subtitleColor}`}
+          style={styles.subTitle}
+        >
           {subtitle}
         </Text>
       </Box>

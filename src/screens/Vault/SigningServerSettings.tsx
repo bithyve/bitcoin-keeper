@@ -1,18 +1,18 @@
 import React from 'react';
-import Text from 'src/components/KeeperText';
-import { Box, Pressable } from 'native-base';
-import { ScaledSheet } from 'react-native-size-matters';
+import { StyleSheet } from 'react-native';
+
+import { Box, Pressable, useColorMode } from 'native-base';
 import { useNavigation } from '@react-navigation/native';
-// components and functions
-import HeaderTitle from 'src/components/HeaderTitle';
+
+import Text from 'src/components/KeeperText';
+import KeeperHeader from 'src/components/KeeperHeader';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import InfoBox from 'src/components/InfoBox';
-import { wp, hp } from 'src/common/data/responsiveness/responsive';
-// icons
+import { wp, hp } from 'src/constants/responsive';
 import Arrow from 'src/assets/images/icon_arrow_Wallet.svg';
 import Server from 'src/assets/images/server.svg';
 import BackupIcon from 'src/assets/images/backupIcon.svg';
-import LinearGradient from 'src/components/KeeperGradient';
+import OptionCard from 'src/components/OptionCard';
 
 type Props = {
   title: string;
@@ -54,11 +54,10 @@ function SigningServerSettings({ route }) {
   const navigtaion = useNavigation();
 
   function GradientIcon({ height, Icon }) {
+    const { colorMode } = useColorMode();
     return (
-      <LinearGradient
-        colors={['#694B2E', '#694B2E']}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
+        backgroundColor={`${colorMode}.coffeeBackground`}
         style={{
           height: hp(height),
           width: hp(height),
@@ -68,16 +67,15 @@ function SigningServerSettings({ route }) {
         }}
       >
         <Icon />
-      </LinearGradient>
+      </Box>
     );
   }
 
   function VaultCard({ signingServerName, addedOn, signingServerDescription }) {
+    const { colorMode } = useColorMode();
     return (
-      <LinearGradient
-        colors={['#B17F44', '#6E4A35']}
-        start={[0, 0]}
-        end={[1, 1]}
+      <Box
+        backgroundColor={`${colorMode}.coffeeBackground`}
         style={{
           borderRadius: hp(20),
           width: wp(320),
@@ -109,21 +107,14 @@ function SigningServerSettings({ route }) {
             </Text>
           </Box>
         </Box>
-      </LinearGradient>
+      </Box>
     );
   }
   return (
     <Box style={styles.Container} background="light.secondaryBackground">
       <StatusBarComponent padding={50} />
       <Box>
-        <HeaderTitle
-          title="Signing Server Settings"
-          subtitle="Lorem Ipsum Dolor"
-          onPressHandler={() => navigtaion.goBack()}
-          headerTitleColor="light.textBlack"
-          titleFontSize={20}
-          paddingTop={hp(5)}
-        />
+        <KeeperHeader title="Signing Server Settings" subtitle="Lorem Ipsum Dolor" />
       </Box>
       <Box borderBottomColor="light.divider" marginTop={hp(40)} paddingX={wp(25)}>
         <VaultCard
@@ -132,30 +123,25 @@ function SigningServerSettings({ route }) {
           addedOn="Added on 12 January 2022"
         />
       </Box>
-      <Box alignItems="center" paddingX={wp(25)}>
-        <Option
+      <Box alignItems="center">
+        <OptionCard
           title="Change Verification & Policy"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {
+          description="Lorem ipsum dolor sit amet, consectetur"
+          callback={() => {
             console.log('Change Verification & Policy');
           }}
-          Icon={false}
         />
-        <Option
+        <OptionCard
           title="Consectetur"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {}}
-          Icon={false}
+          description="Lorem ipsum dolor sit amet, consectetur"
+          callback={() => {}}
         />
-        <Option
+        <OptionCard
           title="Consectetur"
-          subTitle="Lorem ipsum dolor sit amet, consectetur"
-          onPress={() => {}}
-          Icon={false}
+          description="Lorem ipsum dolor sit amet, consectetur"
+          callback={() => {}}
         />
       </Box>
-
-      {/* {Bottom note} */}
       <Box position="absolute" bottom={hp(45)} marginX={5}>
         <InfoBox
           title="Note"
@@ -167,10 +153,10 @@ function SigningServerSettings({ route }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   Container: {
     flex: 1,
-    padding: '20@s',
+    padding: 20,
     position: 'relative',
   },
 });

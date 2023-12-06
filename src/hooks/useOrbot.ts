@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
-import Relay from 'src/core/services/operations/Relay';
-import { TorStatus } from 'src/core/services/rest/RestClient';
+import Relay from 'src/services/operations/Relay';
+import { TorStatus } from 'src/services/rest/RestClient';
 
 const SendIntentAndroid = require('react-native-send-intent');
 

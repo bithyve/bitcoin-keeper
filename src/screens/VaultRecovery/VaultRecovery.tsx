@@ -1,18 +1,17 @@
 import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack } from 'native-base';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import messaging from '@react-native-firebase/messaging';
 import AddIcon from 'src/assets/images/green_add.svg';
 import AddSignerIcon from 'src/assets/images/addSigner.svg';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
 import Note from 'src/components/Note/Note';
-import { ScaledSheet } from 'react-native-size-matters';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SuccessSvg from 'src/assets/images/successSvg.svg';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import {
   removeSigningDeviceBhr,
   setRelayVaultRecoveryShellId,
@@ -22,13 +21,13 @@ import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
-import Relay from 'src/core/services/operations/Relay';
-import { generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import Relay from 'src/services/operations/Relay';
+import { generateCosignerMapIds, generateVaultId } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
-import { hash256 } from 'src/core/services/operations/encryption';
+import { hash256 } from 'src/services/operations/encryption';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
@@ -37,16 +36,14 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import InheritanceIcon from 'src/assets/images/inheritanceBrown.svg';
 import TimeIcon from 'src/assets/images/time.svg';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData } from 'src/hardware';
 import moment from 'moment';
-import { setInheritanceRequestId } from 'src/store/reducers/storage';
+import { setInheritanceRequestId, setRecoveryCreatedApp } from 'src/store/reducers/storage';
 import useConfigRecovery from 'src/hooks/useConfigReocvery';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
-
-const allowedSignerLength = [1, 3, 5];
 
 export function formatDuration(ms) {
   const duration = moment.duration(ms);
@@ -143,32 +140,43 @@ function VaultRecovery({ navigation }) {
   const { showToast } = useToastMessage();
   const { initateRecovery, recoveryLoading: configRecoveryLoading } = useConfigRecovery();
   const dispatch = useDispatch();
-  const { signingDevices, relayVaultError, relayVaultUpdate, relayVaultReoveryShellId } =
-    useAppSelector((state) => state.bhr);
+  const {
+    signingDevices,
+    relayVaultError,
+    relayVaultUpdate,
+    relayVaultReoveryShellId,
+    vaultRecoveryDetails,
+  } = useAppSelector((state) => state.bhr);
+
   const [scheme, setScheme] = useState();
   const { appId } = useAppSelector((state) => state.storage);
-  const [signersList, setsignersList] = useState(signingDevices);
+  const [signersList, setsignersList] = useState<VaultSigner[]>(signingDevices);
   const [error, setError] = useState(false);
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const { inheritanceRequestId } = useAppSelector((state) => state.storage);
+  const [isIKS, setIsIKS] = useState(false);
 
   async function createNewApp() {
     try {
       const fcmToken = await messaging().getToken();
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp());
     }
   }
 
   const checkInheritanceKeyRequest = async (signers: VaultSigner[], requestId: string) => {
     try {
-      const vaultId = relayVaultReoveryShellId;
+      if (signers.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(signers, SignerType.INHERITANCEKEY);
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
+
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
-        vaultId,
+        cosignersMapIds[0],
         thresholdDescriptors
       );
 
@@ -222,6 +230,8 @@ function VaultRecovery({ navigation }) {
     if (signersList.length === 1) {
       getMetaData();
     }
+    const hasIKS = signersList.some((signer) => signer.type === SignerType.INHERITANCEKEY);
+    setIsIKS(hasIKS);
   }, [signersList]);
 
   useEffect(() => {
@@ -238,8 +248,8 @@ function VaultRecovery({ navigation }) {
           vaultScheme: scheme,
           vaultSigners: signersList,
           vaultDetails: {
-            name: 'Vault',
-            description: 'Secure your sats',
+            name: vaultRecoveryDetails.name,
+            description: vaultRecoveryDetails.description,
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
@@ -261,7 +271,7 @@ function VaultRecovery({ navigation }) {
 
   // try catch API error
   const vaultCheck = async () => {
-    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE);
+    const vaultId = generateVaultId(signersList, config.NETWORK_TYPE, vaultRecoveryDetails.scheme);
     const response = await Relay.vaultCheck(vaultId);
     if (response.isVault) {
       setScheme(response.scheme);
@@ -276,8 +286,8 @@ function VaultRecovery({ navigation }) {
     try {
       setError(false);
       const xfpHash = hash256(signersList[0].masterFingerprint);
-
-      const response = await Relay.getVaultMetaData(xfpHash);
+      const multisigSignerId = updateSignerForScheme(signersList[0], 2).signerId;
+      const response = await Relay.getVaultMetaData(xfpHash, multisigSignerId);
       if (response?.vaultShellId) {
         dispatch(setRelayVaultRecoveryShellId(response.vaultShellId));
         dispatch(setTempShellId(response.vaultShellId));
@@ -299,24 +309,14 @@ function VaultRecovery({ navigation }) {
   };
 
   const startRecovery = () => {
-    if (allowedSignerLength.includes(signersList.length)) {
-      setRecoveryLoading(true);
-      vaultCheck();
-    } else {
-      showToast("Vault can't be recreated in this scheme", <ToastErrorIcon />);
-    }
+    setRecoveryLoading(true);
+    vaultCheck();
   };
 
   const renderSigner = ({ item, index }) => <SignerItem signer={item} index={index} />;
   return (
     <ScreenWrapper>
-      <HeaderTitle
-        title="Add signing devices"
-        subtitle="To recover your Vault"
-        headerTitleColor="light.textBlack"
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
-      />
+      <KeeperHeader title="Add signing devices" subtitle="To recover your Vault" />
       <Box style={styles.scrollViewWrapper}>
         {signersList.length > 0 ? (
           <Box>
@@ -327,7 +327,7 @@ function VaultRecovery({ navigation }) {
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),
-                height: windowHeight > 680 ? '66%' : '51%'
+                height: windowHeight > 680 ? '66%' : '51%',
               }}
             />
             {inheritanceRequestId && (
@@ -349,7 +349,7 @@ function VaultRecovery({ navigation }) {
                   showToast(
                     'Warning: No Vault is assocaited with this signer, please reomve and try with another signer'
                   );
-                } else navigation.navigate('LoginStack', { screen: 'SignersList' });
+                } else navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' });
               }}
               title="Add Another"
               subTitle="Select signing device"
@@ -358,7 +358,9 @@ function VaultRecovery({ navigation }) {
         ) : (
           <Box flex={1} alignItems="center" justifyContent="center">
             <TouchableOpacity
-              onPress={() => navigation.navigate('LoginStack', { screen: 'SignersList' })}
+              onPress={() =>
+                navigation.navigate('LoginStack', { screen: 'SigningDeviceListRecovery' })
+              }
             >
               <Box alignItems="center">
                 <AddSignerIcon />
@@ -374,11 +376,15 @@ function VaultRecovery({ navigation }) {
         {signingDevices.length > 0 && (
           <Box width="100%">
             <Buttons
-              primaryText={inheritanceRequestId ? 'Restore via IKS' : 'Recover Vault'}
+              primaryText={inheritanceRequestId || isIKS ? 'Restore via IKS' : 'Recover Vault'}
               primaryCallback={
-                inheritanceRequestId
+                inheritanceRequestId || isIKS
                   ? () => checkInheritanceKeyRequest(signingDevices, inheritanceRequestId)
                   : startRecovery
+              }
+              secondaryText={isIKS && 'Recreate via BSMS'}
+              secondaryCallback={() =>
+                navigation.navigate('LoginStack', { screen: 'VaultConfigurationRecovery' })
               }
               primaryLoading={recoveryLoading}
             />
@@ -395,7 +401,7 @@ function VaultRecovery({ navigation }) {
         subTitle="Your Keeper Vault has successfully been recovered."
         buttonText="Ok"
         Content={SuccessModalContent}
-        close={() => { }}
+        close={() => {}}
         showCloseIcon={false}
         buttonCallback={() => {
           setSuccessModalVisible(false);
@@ -407,7 +413,7 @@ function VaultRecovery({ navigation }) {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   signerItem: {
     alignItems: 'center',
     justifyContent: 'space-between',

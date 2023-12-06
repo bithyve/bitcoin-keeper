@@ -1,5 +1,5 @@
 import Realm from 'realm';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { RealmSchema } from './enum';
 import schema from './schema';
 
@@ -8,7 +8,7 @@ export class RealmDatabase {
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 57;
+  public static schemaVersion = 60;
 
   /**
    * initializes/opens realm w/ appropriate configuration

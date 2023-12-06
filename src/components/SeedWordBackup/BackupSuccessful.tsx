@@ -1,27 +1,28 @@
 import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Illustration from 'src/assets/images/illustration.svg';
 import CustomGreenButton from '../CustomButton/CustomGreenButton';
 
 function BackupSuccessful(props) {
+  const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { BackupWallet } = translations;
 
   return (
-    <Box style={styles.wrapper} backgroundColor="light.secondaryBackground">
+    <Box style={styles.wrapper} backgroundColor={`${colorMode}.primaryBackground`}>
       <TouchableOpacity onPress={() => props.closeBottomSheet()}>
         <Box style={styles.closeBtnWrapper}>
-          <Text style={styles.closeText}>X</Text>
+          <Text color={`${colorMode}.white`} style={styles.closeText}>X</Text>
         </Box>
       </TouchableOpacity>
       <Box style={styles.paragraphWrapper}>
-        <Text fontSize={19} color="light.primaryText">
+        <Text fontSize={19} color={`${colorMode}.primaryText`}>
           {props.title}
         </Text>
-        <Text fontSize={13} color="light.primaryText">
+        <Text fontSize={13} color={`${colorMode}.primaryText`}>
           {props.subTitle}
         </Text>
       </Box>
@@ -58,7 +59,6 @@ const styles = StyleSheet.create({
   },
   closeText: {
     fontSize: 18,
-    color: '#FFF',
   },
   illustrationWrapper: {
     alignItems: 'center',

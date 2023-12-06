@@ -1,6 +1,6 @@
 import { Platform, StyleSheet } from 'react-native';
 import React from 'react';
-import { windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import { Box, useColorMode } from 'native-base';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,18 +21,21 @@ function FinalizeFooter({
   const { bottom } = useSafeAreaInsets();
   const { colorMode } = useColorMode();
   return (
-    <Box style={[styles.footerContainer, { marginBottom: bottom }]} backgroundColor={`${colorMode}.primaryBackground`}>
+    <Box
+      style={[styles.footerContainer, { marginBottom: bottom / 2 }]}
+      backgroundColor={`${colorMode}.primaryBackground`}
+    >
       <Buttons
         primaryText={
           initiateWhirlpool
             ? 'Initiate Premix'
             : initateWhirlpoolMix
-              ? isRemix
-                ? remixingToVault
-                  ? 'Remix to Vault'
-                  : 'Start Remix'
-                : 'Start Mix'
-              : 'Send'
+            ? isRemix
+              ? remixingToVault
+                ? 'Remix to Vault'
+                : 'Start Remix'
+              : 'Start Mix'
+            : 'Send'
         }
         secondaryText={secondaryText}
         secondaryCallback={() => {

@@ -9,10 +9,11 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Transaction } from 'src/core/wallets/interfaces';
 import { useAppSelector } from 'src/store/hooks';
 
-function TransactionItem({ item, wallet, navigation }) {
+function TransactionItem({ item, wallet, navigation, index }) {
   return (
     <TransactionElement
       transaction={item}
+      index={index}
       onPress={() => {
         navigation.dispatch(
           CommonActions.navigate('TransactionDetails', {
@@ -39,10 +40,11 @@ function Transactions({ transactions, setPullRefresh, pullRefresh, currentWallet
   const syncing = walletSyncing && currentWallet ? !!walletSyncing[currentWallet.id] : false;
   return (
     <FlatList
+      testID="list_transactions"
       refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
       data={transactions}
-      renderItem={({ item }) => (
-        <TransactionItem item={item} navigation={navigation} wallet={currentWallet} />
+      renderItem={({ item, index }) => (
+        <TransactionItem item={item} navigation={navigation} wallet={currentWallet} index={index} />
       )}
       refreshing={syncing}
       keyExtractor={(item: Transaction) => `${item.txid}${item.transactionType}`}

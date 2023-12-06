@@ -19,6 +19,9 @@ export enum BITCOIN_NETWORK {
   MAINNET = 'MAINNET',
 }
 
+export const KEEPER_KNOWLEDGEBASE = 'https://help.bitcoinkeeper.app/';
+export const KEEPER_WEBSITE_BASE_URL = 'https://bitcoinkeeper.app/';
+
 // defaults to development environment
 const DEFAULT_CONFIG = {
   BITCOIN_NETWORK: BITCOIN_NETWORK.TESTNET,
@@ -36,7 +39,6 @@ const DEFAULT_CONFIG = {
 
 class Configuration {
   public RELAY = config.RELAY?.trim() ? config.RELAY.trim() : DEFAULT_CONFIG.RELAY;
-
   // RAMP details
   public RAMP_BASE_URL: string = config.RAMP_BASE_URL
     ? config.RAMP_BASE_URL.trim()

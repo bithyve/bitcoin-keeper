@@ -1,27 +1,25 @@
 import { Box } from 'native-base';
 import { FlatList, StyleSheet, Dimensions } from 'react-native';
-import React, { useContext, useState } from 'react';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import React, { useState } from 'react';
+import { hp, wp } from 'src/constants/responsive';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { SubScriptionPlan } from 'src/common/data/models/interfaces/Subscription';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import { SubScriptionPlan } from 'src/models/interfaces/Subscription';
 import ChoosePlanCarouselItem from './ChoosePlanCarouselItem';
+import { useQuery } from '@realm/react';
 
-const { width } = Dimensions.get('window')
-const itemWidth = width / 3.5 - 10
+const { width } = Dimensions.get('window');
+const itemWidth = width / 3.5 - 10;
 interface Props {
-  data: SubScriptionPlan[],
-  onPress?: any,
-  onChange?: any,
-  isMonthly: boolean,
-  requesting: boolean
+  data: SubScriptionPlan[];
+  onPress?: any;
+  onChange?: any;
+  isMonthly: boolean;
+  requesting: boolean;
 }
 
-
 function ChoosePlanCarousel(props: Props) {
-  const { useQuery } = useContext(RealmWrapperContext);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
   const [currentPosition, setCurrentPosition] = useState(subscription.level - 1);

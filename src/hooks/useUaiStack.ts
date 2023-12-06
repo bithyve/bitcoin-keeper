@@ -1,11 +1,10 @@
-import { UAI } from 'src/common/data/models/interfaces/Uai';
-import { useContext, useEffect, useState } from 'react';
+import { UAI } from 'src/models/interfaces/Uai';
+import { useEffect, useState } from 'react';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import { useAppSelector } from 'src/store/hooks';
+import { useQuery } from '@realm/react';
 
 const useUaiStack = () => {
-  const { useQuery } = useContext(RealmWrapperContext);
   const [uaiStack, setUaiStack] = useState([]);
   const UAIcollection: UAI[] = useQuery(RealmSchema.UAI);
   const refreshUai = useAppSelector((state) => state.uai.refreshUai);

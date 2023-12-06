@@ -2,44 +2,40 @@ import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, wp } from 'src/constants/responsive';
 import BackupIcon from 'src/assets/images/backup.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import LinkIcon from 'src/assets/images/link.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
-import ThemeMode from 'src/common/data/enums/ThemeMode';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import LoginMethod from 'src/models/enums/LoginMethod';
+import ThemeMode from 'src/models/enums/ThemeMode';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SettingsCard from 'src/components/SettingComponent/SettingsCard';
-import SettingsSwitchCard from 'src/components/SettingComponent/SettingsSwitchCard';
 import openLink from 'src/utils/OpenLink';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { BackupAction, BackupHistory } from 'src/common/data/enums/BHR';
+import { BackupAction, BackupHistory } from 'src/models/enums/BHR';
 import moment from 'moment';
-
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getBackupDuration } from 'src/common/utilities';
+import { getBackupDuration } from 'src/utils/utilities';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { setThemeMode } from 'src/store/reducers/settings';
-import { changeLoginMethod } from '../../store/sagaActions/login';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { changeLoginMethod } from 'src/store/sagaActions/login';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
+import { useQuery } from '@realm/react';
+import OptionCard from 'src/components/OptionCard';
+import Switch from 'src/components/Switch/Switch';
+import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
 function AppSettings({ navigation }) {
   const { colorMode, toggleColorMode } = useColorMode();
-  // const [darkMode, setDarkMode] = useState(false);
   const { backupMethod } = useAppSelector((state) => state.bhr);
-  const { useQuery } = useContext(RealmWrapperContext);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
-
   const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
-  // const state = useAppSelector((state) => state.settings)
 
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
@@ -69,12 +65,11 @@ function AppSettings({ navigation }) {
 
   useEffect(() => {
     if (colorMode === 'dark') {
-      dispatch(setThemeMode(ThemeMode.DARK))
+      dispatch(setThemeMode(ThemeMode.DARK));
     } else {
-      dispatch(setThemeMode(ThemeMode.LIGHT))
+      dispatch(setThemeMode(ThemeMode.LIGHT));
     }
-
-  }, [colorMode])
+  }, [colorMode]);
 
   useEffect(() => {
     init();
@@ -88,8 +83,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-              ? 'Face ID'
-              : biometryType;
+            ? 'Face ID'
+            : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -128,8 +123,7 @@ function AppSettings({ navigation }) {
   };
 
   const changeThemeMode = () => {
-    // setDarkMode(!darkMode);
-    toggleColorMode()
+    toggleColorMode();
   };
 
   function Option({ title, subTitle, onPress, Icon }) {
@@ -155,7 +149,7 @@ function AppSettings({ navigation }) {
             <BackupIcon />
           </Box>
         )}
-        <Box style={{ marginLeft: wp(20) }}>
+        <Box style={styles.infoWrapper}>
           <Text color={`${colorMode}.primaryText`} style={styles.appBackupTitle}>
             {title}
           </Text>
@@ -169,179 +163,164 @@ function AppSettings({ navigation }) {
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle />
-      <Box style={styles.appSettingTitleWrapper}>
-        <Box width="70%">
-          <Text style={styles.appSettingTitle}>{`App ${common.settings}`}</Text>
-          <Text style={styles.appSettingSubTitle}>For the Vault and wallets</Text>
-        </Box>
-        <Box style={styles.currentTypeSwitchWrapper}>
-          <CurrencyTypeSwitch />
-        </Box>
-      </Box>
-      <Box flex={1} position="relative" py={3}>
-        <ScrollView
-          style={{
-            marginBottom: hp(75),
+      <KeeperHeader
+        title={`App ${common.settings}`}
+        subtitle={settings.settingsSubTitle}
+        rightComponent={
+          <Box style={styles.currentTypeSwitchWrapper}>
+            <CurrencyTypeSwitch />
+          </Box>
+        }
+      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
+      >
+        <Option
+          title={settings.appBackup}
+          subTitle={backupSubTitle}
+          onPress={() => {
+            navigation.navigate('BackupWallet');
           }}
-          showsVerticalScrollIndicator={false}
-        >
-          <Option
-            title="App Backup"
-            subTitle={backupSubTitle}
-            onPress={() => {
-              navigation.navigate('BackupWallet');
-            }}
-            Icon
-          />
-          <SettingsSwitchCard
-            title={sensorType}
-            description={formatString(settings.UseBiometricSubTitle, sensorType)}
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            onSwitchToggle={() => onChangeLoginMethod()}
-            value={loginMethod === LoginMethod.BIOMETRIC}
-          />
-
-          <SettingsSwitchCard
-            title={settings.DarkMode}
-            description={settings.DarkModeSubTitle}
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            onSwitchToggle={() => changeThemeMode()}
-            value={colorMode === 'dark'}
-          />
-          <SettingsCard
-            title={settings.nodeSettings}
-            description={settings.nodeSettingsSubtitle}
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => navigation.navigate('NodeSettings')}
-          />
-          <SettingsCard
-            title={settings.VersionHistory}
-            description={settings.VersionHistorySubTitle}
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => navigation.navigate('AppVersionHistory')}
-          />
-
-          <SettingsCard
-            title="Tor Settings"
-            description="Configure in-app Tor and Orbot"
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => navigation.navigate('TorSettings')}
-          />
-          <SettingsCard
-            title={settings.LanguageCountry}
-            description={settings.LanguageCountrySubTitle}
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => navigation.navigate('ChangeLanguage')}
-          />
-          <SettingsCard
-            title={settings.ManageWallets}
-            description={settings.ManageWalletsSub}
-            my={1}
-            bgColor={`${colorMode}.backgroundColor2`}
-            icon={false}
-            onPress={() => navigation.navigate('ManageWallets')}
-          />
-        </ScrollView>
-
-        <Box style={styles.socialMediaLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-          <Box style={styles.socialMediaLinkWrapper2}>
-            <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
-              <Box
-                style={styles.telTweetLinkWrapper}
-                backgroundColor={`${colorMode}.primaryBackground`}
-                testID="view_ KeeperTelegram"
-              >
-                <Box style={styles.telTweetLinkWrapper2}>
-                  <Telegram />
-                  <Box style={{ marginLeft: wp(10) }}>
-                    <Text
-                      color={`${colorMode}.textColor2`}
-                      style={styles.telTweetLinkTitle}
-                      testID="text_ KeeperTelegram"
-                    >
-                      Keeper Telegram
-                    </Text>
-                  </Box>
-                </Box>
-                <Box style={styles.linkIconWrapper}>
-                  <LinkIcon />
-                </Box>
-              </Box>
-            </Pressable>
-            <Pressable
-              onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}
-              testID="btn_keeperTwitter"
+          Icon
+        />
+        <OptionCard
+          title={sensorType}
+          description={formatString(settings.UseBiometricSubTitle, sensorType)}
+          callback={() => onChangeLoginMethod()}
+          Icon={
+            <Switch
+              onValueChange={(value) => onChangeLoginMethod()}
+              value={loginMethod === LoginMethod.BIOMETRIC}
+              testID="switch_biometrics"
+            />
+          }
+        />
+        <OptionCard
+          title={settings.DarkMode}
+          description={settings.DarkModeSubTitle}
+          callback={() => changeThemeMode()}
+          Icon={
+            <Switch
+              onValueChange={(value) => changeThemeMode()}
+              value={colorMode === 'dark'}
+              testID="switch_darkmode"
+            />
+          }
+        />
+        <OptionCard
+          title={settings.nodeSettings}
+          description={settings.nodeSettingsSubtitle}
+          callback={() => navigation.navigate('NodeSettings')}
+        />
+        <OptionCard
+          title={settings.VersionHistory}
+          description={settings.VersionHistorySubTitle}
+          callback={() => navigation.navigate('AppVersionHistory')}
+        />
+        <OptionCard
+          title={settings.torSettingTitle}
+          description={settings.torSettingSubTitle}
+          callback={() => navigation.navigate('TorSettings')}
+        />
+        <OptionCard
+          title={settings.LanguageCountry}
+          description={settings.LanguageCountrySubTitle}
+          callback={() => navigation.navigate('ChangeLanguage')}
+        />
+        <OptionCard
+          title={settings.ManageWallets}
+          description={settings.ManageWalletsSub}
+          callback={() => navigation.navigate('ManageWallets')}
+        />
+      </ScrollView>
+      <Box backgroundColor={`${colorMode}.primaryBackground`}>
+        <Box style={styles.socialMediaLinkWrapper}>
+          <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
+            <Box
+              style={styles.telTweetLinkWrapper}
+              backgroundColor={`${colorMode}.primaryBackground`}
+              testID="view_ KeeperTelegram"
             >
-              <Box
-                style={styles.telTweetLinkWrapper}
-                backgroundColor={`${colorMode}.primaryBackground`}
-                testID="view_keeperTwitter"
-              >
-                <Box style={styles.telTweetLinkWrapper2}>
-                  <Twitter />
-                  <Box style={{ marginLeft: wp(10) }}>
-                    <Text
-                      color={`${colorMode}.textColor2`}
-                      style={styles.telTweetLinkTitle}
-                      testID="text_keeperTwitter"
-                    >
-                      Keeper Twitter
-                    </Text>
-                  </Box>
-                </Box>
-                <Box style={styles.linkIconWrapper}>
-                  <LinkIcon />
+              <Box style={styles.telTweetLinkWrapper2}>
+                <Telegram />
+                <Box style={{ marginLeft: wp(10) }}>
+                  <Text
+                    color={`${colorMode}.textColor2`}
+                    style={styles.telTweetLinkTitle}
+                    testID="text_ KeeperTelegram"
+                  >
+                    {settings.keeperTelegram}
+                  </Text>
                 </Box>
               </Box>
-            </Pressable>
-          </Box>
-
-          <Box style={{ flex: hp(0.15) }}>
-            <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-              <Pressable onPress={() => openLink('http://www.bitcoinkeeper.app/')} testID="btn_FAQ">
-                <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
-                  {common.FAQs}
-                </Text>
-              </Pressable>
-              <Text color={`${colorMode}.textColor2`}>|</Text>
-              <Pressable
-                onPress={() => openLink('https://bitcoinkeeper.app/terms-of-service/')}
-                testID="btn_termsCondition"
-              >
-                <Text
-                  style={styles.bottomLinkText}
-                  color={`${colorMode}.textColor2`}
-                  testID="text_termsCondition"
-                >
-                  {common.TermsConditions}
-                </Text>
-              </Pressable>
-              <Text color={`${colorMode}.textColor2`}>|</Text>
-              <Pressable
-                onPress={() => openLink('https://bitcoinkeeper.app/privacy-policy/')}
-                testID="btn_privacyPolicy"
-              >
-                <Text
-                  style={styles.bottomLinkText}
-                  color={`${colorMode}.textColor2`}
-                  testID="text_privacyPolicy"
-                >
-                  {common.PrivacyPolicy}
-                </Text>
-              </Pressable>
+              <Box style={styles.linkIconWrapper}>
+                <LinkIcon />
+              </Box>
             </Box>
-          </Box>
+          </Pressable>
+          <Pressable
+            onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}
+            testID="btn_keeperTwitter"
+          >
+            <Box
+              style={styles.telTweetLinkWrapper}
+              backgroundColor={`${colorMode}.primaryBackground`}
+              testID="view_keeperTwitter"
+            >
+              <Box style={styles.telTweetLinkWrapper2}>
+                <Twitter />
+                <Box style={{ marginLeft: wp(10) }}>
+                  <Text
+                    color={`${colorMode}.textColor2`}
+                    style={styles.telTweetLinkTitle}
+                    testID="text_keeperTwitter"
+                  >
+                    {settings.keeperTwitter}
+                  </Text>
+                </Box>
+              </Box>
+              <Box style={styles.linkIconWrapper}>
+                <LinkIcon />
+              </Box>
+            </Box>
+          </Pressable>
+        </Box>
+        <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
+          <Pressable
+            onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}
+            testID="btn_FAQ"
+          >
+            <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
+              {common.FAQs}
+            </Text>
+          </Pressable>
+          <Text color={`${colorMode}.textColor2`}>|</Text>
+          <Pressable
+            onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}terms-of-service/`)}
+            testID="btn_termsCondition"
+          >
+            <Text
+              style={styles.bottomLinkText}
+              color={`${colorMode}.textColor2`}
+              testID="text_termsCondition"
+            >
+              {common.TermsConditions}
+            </Text>
+          </Pressable>
+          <Text color={`${colorMode}.textColor2`}>|</Text>
+          <Pressable
+            onPress={() => openLink(`${KEEPER_WEBSITE_BASE_URL}privacy-policy/`)}
+            testID="btn_privacyPolicy"
+          >
+            <Text
+              style={styles.bottomLinkText}
+              color={`${colorMode}.textColor2`}
+              testID="text_privacyPolicy"
+            >
+              {common.PrivacyPolicy}
+            </Text>
+          </Pressable>
         </Box>
       </Box>
     </ScreenWrapper>
@@ -351,12 +330,17 @@ const styles = StyleSheet.create({
   appBackupWrapper: {
     borderRadius: 10,
     height: hp(116),
-    paddingLeft: wp(20),
+    padding: wp(10),
     width: '100%',
+    flexDirection: 'row',
+    marginBottom: 10,
   },
   appBackupIconWrapper: {
-    width: wp(40),
+    width: '20%',
     position: 'relative',
+  },
+  infoWrapper: {
+    width: '80%',
   },
   notificationIndicator: {
     height: 10,
@@ -376,36 +360,15 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 12,
     letterSpacing: 0.6,
-  },
-  appSettingTitleWrapper: {
-    marginHorizontal: 5,
-    marginBottom: 4,
-    flexDirection: 'row',
     width: '100%',
-    alignItems: 'center',
-  },
-  appSettingTitle: {
-    fontSize: 18,
-    fontWeight: '400',
-    letterSpacing: 1,
-  },
-  appSettingSubTitle: {
-    fontSize: 12,
-    fontWeight: '300',
-    letterSpacing: 0.6,
   },
   currentTypeSwitchWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
     width: '30%',
   },
+
   socialMediaLinkWrapper: {
-    width: wp(340),
-    position: 'absolute',
-    bottom: -hp(10),
-    justifyContent: 'space-evenly',
-  },
-  socialMediaLinkWrapper2: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -430,7 +393,6 @@ const styles = StyleSheet.create({
     marginRight: wp(3),
   },
   linkIconWrapper: {
-    flex: 0.1,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -439,8 +401,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     alignItems: 'center',
     borderRadius: 8,
-    padding: 2,
-    height: hp(45),
   },
   bottomLinkText: {
     fontSize: 13,

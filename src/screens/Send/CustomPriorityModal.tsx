@@ -3,11 +3,10 @@ import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 import Close from 'src/assets/images/modal_close.svg';
-import LinearGradient from 'src/components/KeeperGradient';
 import React, { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
-import { windowHeight, windowWidth } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, windowWidth } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
 
 function CustomPriorityModal(props) {
@@ -104,6 +103,7 @@ function CustomPriorityModal(props) {
             </Modal.Header>
             <Box alignItems="center">
               <Input
+                backgroundColor={`${colorMode}.seashellWhite`}
                 mx="3"
                 placeholder="Enter Amount"
                 width="100%"
@@ -129,7 +129,12 @@ function CustomPriorityModal(props) {
                   setCustomPriorityFee('');
                 }}
               >
-                <Text mr={windowWidth * 0.07} color={`${colorMode}.greenText`} bold letterSpacing={1.6}>
+                <Text
+                  mr={windowWidth * 0.07}
+                  color={`${colorMode}.greenText`}
+                  bold
+                  letterSpacing={1.6}
+                >
                   Start Over
                 </Text>
               </TouchableOpacity>
@@ -138,12 +143,7 @@ function CustomPriorityModal(props) {
                   buttonCallback(customPriorityFee, customEstBlocks);
                 }}
               >
-                <LinearGradient
-                  start={[0, 0]}
-                  end={[1, 1]}
-                  colors={buttonBackground}
-                  style={styles.cta}
-                >
+                <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text
                     fontSize={13}
                     bold
@@ -154,7 +154,7 @@ function CustomPriorityModal(props) {
                   >
                     {buttonText}
                   </Text>
-                </LinearGradient>
+                </Box>
               </TouchableOpacity>
             </Box>
             <KeyPadView

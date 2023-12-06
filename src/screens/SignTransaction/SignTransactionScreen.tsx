@@ -5,22 +5,21 @@ import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import HeaderTitle from 'src/components/HeaderTitle';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import KeeperHeader from 'src/components/KeeperHeader';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import SigningServer from 'src/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
+import SuccessIcon from 'src/assets/images/successSvg.svg';
 import idx from 'idx';
 import { sendPhaseThreeReset, updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
@@ -45,10 +44,15 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
+import { useQuery } from '@realm/react';
+import Text from 'src/components/KeeperText';
+import KeeperModal from 'src/components/KeeperModal';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SignTransactionScreen() {
-  const { useQuery } = useContext(RealmWrapperContext);
   const route = useRoute();
+  const { colorMode } = useColorMode();
+
   const { note, label, collaborativeWalletId } = (route.params || {
     note: '',
     label: [],
@@ -63,9 +67,14 @@ function SignTransactionScreen() {
   const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
   let parentCollaborativeWallet: Wallet;
   if (collaborativeWalletId) {
-    parentCollaborativeWallet = wallets.find((wallet) => wallet.id === collaborativeWalletId);
+    parentCollaborativeWallet = wallets.find(
+      (wallet) => wallet && wallet.id === collaborativeWalletId
+    );
   }
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
+
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTransactions, common, vault } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
@@ -97,6 +106,7 @@ function SignTransactionScreen() {
     (state) => state.sendAndReceive.sendPhaseThree.failedErrorMessage
   );
   const [broadcasting, setBroadcasting] = useState(false);
+  const [visibleModal, setVisibleModal] = useState(false);
   const textRef = useRef(null);
   const dispatch = useDispatch();
 
@@ -107,7 +117,7 @@ function SignTransactionScreen() {
       const navigationState = {
         index: 1,
         routes: [
-          { name: 'NewHome' },
+          { name: 'Home' },
           {
             name: 'VaultDetails',
             params: { vaultTransferSuccessful: true, autoRefresh: true, collaborativeWalletId },
@@ -130,15 +140,16 @@ function SignTransactionScreen() {
         dispatch(finaliseVaultMigration(vaultId));
       }
     } else if (sendSuccessful) {
-      navigation.dispatch(
-        CommonActions.reset({
-          index: 1,
-          routes: [
-            { name: 'NewHome' },
-            { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
-          ],
-        })
-      );
+      setVisibleModal(true);
+      // navigation.dispatch(
+      //   CommonActions.reset({
+      //     index: 1,
+      //     routes: [
+      //       { name: 'Home' },
+      //       { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+      //     ],
+      //   })
+      // );
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
@@ -232,13 +243,11 @@ function SignTransactionScreen() {
           dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
-            showOTPModal,
-            keeper,
+            signerId,
             signingPayload,
             signingServerOTP,
             serializedPSBT,
-            SigningServer,
-            shellId,
+            showOTPModal,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
@@ -246,7 +255,7 @@ function SignTransactionScreen() {
           const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
             signingPayload,
             serializedPSBT,
-            shellId,
+            signerId,
             thresholdDescriptors,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
@@ -366,17 +375,39 @@ function SignTransactionScreen() {
         break;
     }
   };
-
+  function SendSuccessfulContent() {
+    const { colorMode } = useColorMode();
+    return (
+      <Box>
+        <Box alignSelf="center">
+          <SuccessIcon />
+        </Box>
+        <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
+          {walletTransactions.sendTransSuccessMsg}
+        </Text>
+      </Box>
+    );
+  }
+  const viewDetails = () => {
+    setVisibleModal(false);
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
+        ],
+      })
+    );
+  };
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Sign Transaction"
-        subtitle={`Chose any ${scheme.m} to sign the transaction`}
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
+        subtitle={`Chose at least ${scheme.m} to sign the transaction`}
       />
       <FlatList
-        contentContainerStyle={{ paddingTop: '10%' }}
+        contentContainerStyle={{ paddingTop: '5%' }}
         data={signers}
         keyExtractor={(item) => item.signerId}
         renderItem={({ item }) => (
@@ -386,11 +417,6 @@ function SignTransactionScreen() {
             envelops={serializedPSBTEnvelops}
           />
         )}
-      />
-      <Note
-        title="Note"
-        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
-        subtitleColor="GreyText"
       />
       <Box alignItems="flex-end" marginY={5}>
         <Buttons
@@ -414,6 +440,11 @@ function SignTransactionScreen() {
           }}
         />
       </Box>
+      <Note
+        title={common.note}
+        subtitle="Once the signed transaction (PSBT) is signed by a minimum quorum of signing devices, it can be broadcasted."
+        subtitleColor="GreyText"
+      />
       <SignerModals
         signers={signers}
         activeSignerId={activeSignerId}
@@ -449,6 +480,17 @@ function SignTransactionScreen() {
         collaborativeWalletId={collaborativeWalletId}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
+      <KeeperModal
+        visible={visibleModal}
+        close={() => setVisibleModal(false)}
+        title={walletTransactions.SendSuccess}
+        subTitle={walletTransactions.transactionBroadcasted}
+        buttonText={walletTransactions.ViewDetails}
+        buttonCallback={viewDetails}
+        textcolor={`${colorMode}.greenText`}
+        buttonTextColor={`${colorMode}.white`}
+        Content={SendSuccessfulContent}
+      />
     </ScreenWrapper>
   );
 }

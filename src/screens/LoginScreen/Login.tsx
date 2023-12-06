@@ -4,13 +4,12 @@ import { Box, StatusBar, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { widthPercentageToDP } from 'react-native-responsive-screen';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import TorAsset from 'src/components/Loader';
 import CustomButton from 'src/components/CustomButton/CustomButton';
 import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import LoginMethod from 'src/models/enums/LoginMethod';
 import ModalContainer from 'src/components/Modal/ModalContainer';
 import ModalWrapper from 'src/components/Modal/ModalWrapper';
 import PinInputsView from 'src/components/AppPinInput/PinInputsView';
@@ -21,29 +20,31 @@ import DeleteIcon from 'src/assets/images/deleteLight.svg';
 import DowngradeToPleb from 'src/assets/images/downgradetopleb.svg';
 import DowngradeToPlebDark from 'src/assets/images/downgradetoplebDark.svg';
 import TestnetIndicator from 'src/components/TestnetIndicator';
-import { isTestnet } from 'src/common/constants/Bitcoin';
-import { getSecurityTip } from 'src/common/data/defaultData/defaultData';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
+import { isTestnet } from 'src/constants/Bitcoin';
+import { getSecurityTip } from 'src/constants/defaultData';
+import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 import { setTorEnabled } from 'src/store/reducers/settings';
-import { AppSubscriptionLevel, SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import SubScription from 'src/common/data/models/interfaces/Subscription';
+import { AppSubscriptionLevel, SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import SubScription from 'src/models/interfaces/Subscription';
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { Shadow } from 'react-native-shadow-2';
 import ResetPassSuccess from './components/ResetPassSuccess';
-import { credsAuth } from '../../store/sagaActions/login';
-import { credsAuthenticated, setRecepitVerificationError } from '../../store/reducers/login';
-import KeyPadView from '../../components/AppNumPad/KeyPadView';
+import { credsAuth } from 'src/store/sagaActions/login';
+import { credsAuthenticated, setRecepitVerificationError } from 'src/store/reducers/login';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import FogotPassword from './components/FogotPassword';
-import { increasePinFailAttempts, resetPinFailAttempts } from '../../store/reducers/storage';
+import { resetPinFailAttempts } from 'src/store/reducers/storage';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import BounceLoader from 'src/components/BounceLoader';
 
 const TIMEOUT = 60;
 const RNBiometrics = new ReactNativeBiometrics();
 
 function LoginScreen({ navigation, route }) {
   const { colorMode } = useColorMode();
-  const { relogin, title, screen } = route.params;
+  const { relogin, title, screen, internalCheck } = route.params;
   const dispatch = useAppDispatch();
   const [passcode, setPasscode] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -57,6 +58,7 @@ function LoginScreen({ navigation, route }) {
   const { appId, failedAttempts, lastLoginFailedAt } = useAppSelector((state) => state.storage);
   const [loggingIn, setLogging] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [incorrectPassword, setIncorrectPassword] = useState(false);
   const [loginData, setLoginData] = useState(getSecurityTip());
   const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
 
@@ -146,12 +148,12 @@ function LoginScreen({ navigation, route }) {
     setPasscode(passcode.slice(0, passcode.length - 1));
   };
 
-  useEffect(() => {
-    if (attempts >= 3) {
-      setAttempts(1);
-      dispatch(increasePinFailAttempts());
-    }
-  }, [attempts]);
+  // useEffect(() => {
+  //   if (attempts >= 3) {
+  //     setAttempts(1);
+  //     dispatch(increasePinFailAttempts());
+  //   }
+  // }, [attempts]);
 
   useEffect(() => {
     if (authenticationFailed && passcode) {
@@ -159,12 +161,24 @@ function LoginScreen({ navigation, route }) {
       setLoginError(true);
       setErrMessage('Incorrect passcode');
       setPasscode('');
-      setAttempts(attempts + 1);
+      // setAttempts(attempts + 1);
+      setIncorrectPassword(true);
       setLogging(false);
     } else {
       setLoginError(false);
     }
   }, [authenticationFailed]);
+
+  useEffect(() => {
+    if (isAuthenticated && internalCheck) {
+      navigation.navigate({
+        name: screen,
+        params: { isAuthenticated: true },
+        merge: true,
+      });
+      dispatch(credsAuthenticated(false));
+    }
+  }, [isAuthenticated]);
 
   const loginModalAction = () => {
     if (isAuthenticated) {
@@ -195,13 +209,15 @@ function LoginScreen({ navigation, route }) {
 
   const attemptLogin = (passcode: string) => {
     setLoginModal(true);
+
     dispatch(credsAuth(passcode, LoginMethod.PIN, relogin));
   };
 
   const onPinChange = () => {
     setLoginError(false);
     setErrMessage('');
-    setAttempts(0);
+    // setAttempts(0);
+    setIncorrectPassword(false);
     dispatch(resetPinFailAttempts());
     setResetPassSuccessVisible(true);
   };
@@ -286,12 +302,19 @@ function LoginScreen({ navigation, route }) {
           {modelMessage}
         </Text>
         {modelButtonText === null ? (
-          <Text
-            color={`${colorMode}.greenText`}
-            style={[styles.modalMessageText, { paddingTop: hp(20) }]}
-          >
-            This step will take a few seconds. You would be able to proceed soon
-          </Text>
+          <Box style={styles.modalMessageWrapper}>
+            <Box style={{ width: '80%' }}>
+              <Text
+                color={`${colorMode}.greenText`}
+                style={[styles.modalMessageText, { paddingTop: hp(20) }]}
+              >
+                This step will take a few seconds. You would be able to proceed soon
+              </Text>
+            </Box>
+            <Box style={{ width: '20%' }}>
+              <BounceLoader />
+            </Box>
+          </Box>
         ) : null}
       </Box>
     );
@@ -346,13 +369,7 @@ function LoginScreen({ navigation, route }) {
                 style={[styles.createBtn]}
                 paddingLeft={10}
                 paddingRight={10}
-                backgroundColor={{
-                  linearGradient: {
-                    colors: ['light.gradientStart', 'light.gradientEnd'],
-                    start: [0, 0],
-                    end: [1, 1],
-                  },
-                }}
+                backgroundColor={`${colorMode}.greenButtonBackground`}
               >
                 <Text numberOfLines={1} style={styles.btnText} color="light.white" bold>
                   Retry
@@ -366,7 +383,7 @@ function LoginScreen({ navigation, route }) {
   }
 
   return (
-    <Box style={styles.linearGradient} backgroundColor={`${colorMode}.primaryGreenBackground`}>
+    <Box style={styles.content} backgroundColor={`${colorMode}.primaryGreenBackground`}>
       <Box flex={1}>
         <StatusBar />
         <Box flex={1}>
@@ -426,9 +443,7 @@ function LoginScreen({ navigation, route }) {
               defaultIsChecked={torEnbled}
             />
           </HStack> */}
-
-          <Box style={styles.btnContainer}>
-            {attempts >= 1 ? (
+          {/* {attempts >= 1 ? (
               <TouchableOpacity
                 style={[styles.forgotPassWrapper, { elevation: loggingIn ? 0 : 10 }]}
                 onPress={() => {
@@ -441,22 +456,22 @@ function LoginScreen({ navigation, route }) {
               </TouchableOpacity>
             ) : (
               <Box />
+            )} */}
+          <Box style={styles.btnWrapper}>
+            {passcode.length === 4 && (
+              <Box>
+                <CustomButton
+                  onPress={() => {
+                    setLoginError(false);
+                    setLogging(true);
+                  }}
+                  loading={loggingIn}
+                  value={common.proceed}
+                />
+              </Box>
             )}
-            <Box style={styles.btnWrapper}>
-              {passcode.length === 4 && (
-                <Box>
-                  <CustomButton
-                    onPress={() => {
-                      setLoginError(false);
-                      setLogging(true);
-                    }}
-                    loading={loggingIn}
-                    value={common.proceed}
-                  />
-                </Box>
-              )}
-            </Box>
           </Box>
+          {/* </Box> */}
 
           {/* keyboardview start */}
           <KeyPadView
@@ -501,13 +516,14 @@ function LoginScreen({ navigation, route }) {
         </Box>
       </Box>
       <KeeperModal
-        visible={loginModal}
-        close={() => {}}
+        visible={loginModal && !internalCheck}
+        close={() => { }}
         title={modelTitle}
         subTitle={modelSubTitle}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.modalGreenTitle`}
+        buttonBackground={`${colorMode}.greenButtonBackground`}
         showCloseIcon={false}
         buttonText={modelButtonText}
         buttonCallback={loginModalAction}
@@ -518,32 +534,34 @@ function LoginScreen({ navigation, route }) {
 
       <KeeperModal
         dismissible={false}
-        close={() => {}}
+        close={() => { }}
         visible={recepitVerificationError}
         title="Something went wrong"
         subTitle="Please check your internet connection and try again."
         Content={NoInternetModalContent}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
         subTitleWidth={wp(210)}
         showCloseIcon={false}
         showButtons
       />
-
-      {/* <KeeperModal
-        dismissible
-        close={() => { setShowDowngradeModal(false) }}
-        visible={showDowngradeModal}
-        title="Failed to validate your subscription"
-        subTitle="Do you want to downgrade to pleb and continue?"
-        Content={DowngradeModalContent}
-        subTitleColor="light.secondaryText"
-        subTitleWidth={wp(210)}
-        showCloseIcon
-        closeOnOverlayClick={() => setShowDowngradeModal(false)}
+      <KeeperModal
+        visible={incorrectPassword}
+        close={() => { }}
+        title={'Incorrect Password'}
+        subTitle={
+          'You have entered an incorrect passcode. Please, try again. If you don’t remember your passcode, you will have to recover your wallet through the recovery flow'
+        }
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        subTitleColor={`${colorMode}.secondaryText`}
+        textColor={`${colorMode}.modalGreenTitle`}
+        showCloseIcon={false}
+        buttonText={'Retry'}
+        buttonCallback={() => setIncorrectPassword(false)}
         showButtons
-      /> */}
+        subTitleWidth={wp(250)}
+      />
     </Box>
   );
 }
@@ -585,7 +603,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 18,
   },
-  linearGradient: {
+  content: {
     flex: 1,
     padding: 10,
   },
@@ -595,12 +613,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.65,
   },
-  btnContainer: {
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    width: '100%',
-  },
   forgotPassWrapper: {
     flex: 0.8,
     margin: 20,
@@ -608,10 +620,10 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   btnWrapper: {
+    flex: 1,
     marginTop: 25,
-    alignSelf: 'flex-start',
-    marginRight: 15,
-    width: '35%',
+    alignItems: 'flex-end',
+    width: '92%',
   },
   createBtn: {
     paddingVertical: hp(15),
@@ -627,14 +639,19 @@ const styles = StyleSheet.create({
     letterSpacing: 0.84,
   },
   modalAssetsWrapper: {
-    width: '88%',
+    width: windowWidth * 0.8,
     alignItems: 'center',
     paddingVertical: hp(20),
   },
   modalMessageText: {
     fontSize: 13,
     letterSpacing: 0.65,
-    width: wp(275),
+    // width: wp(275),
+  },
+  modalMessageWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
   },
 });
 

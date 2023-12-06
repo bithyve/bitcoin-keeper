@@ -1,8 +1,5 @@
-/* eslint-disable react/function-component-definition */
-/* eslint-disable react/require-default-props */
 import { Box } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-
 import DeleteIcon from 'src/assets/images/delete.svg';
 import React from 'react';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -39,9 +36,9 @@ const KeyPadView: React.FC<Props> = ({
       <KeyPadButton title="8" onPressNumber={() => onPressNumber('8')} keyColor={keyColor} />
       <KeyPadButton title="9" onPressNumber={() => onPressNumber('9')} keyColor={keyColor} />
     </Box>
-    <Box flexDirection="row" height={hp('8%')}>
+    <Box style={styles.keyWrapperView}>
       <Box style={styles.emptyBtnView}>
-        <Text flex={1} padding={15} />
+        <Text style={{ padding: 15 }} />
       </Box>
       <KeyPadButton title="0" onPressNumber={() => onPressNumber('0')} keyColor={keyColor} />
       <TouchableOpacity

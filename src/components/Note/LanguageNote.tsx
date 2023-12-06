@@ -2,7 +2,7 @@ import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box } from 'native-base';
 import ArrowIcon from 'src/assets/images/icon_arrow.svg';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 
 function LanguageNote(props) {
   return (

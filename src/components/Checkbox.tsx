@@ -3,6 +3,7 @@ import React from 'react';
 import Selected from 'src/assets/images/selected.svg';
 import UnSelected from 'src/assets/images/unselected.svg';
 import Text from './KeeperText';
+import Fonts from 'src/constants/Fonts';
 
 function CheckBox(props) {
   const IconName = props.isChecked ? <Selected /> : <UnSelected />;
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: Fonts.FiraSansCondensedMedium,
     color: '#041513',
   },
   subtitle: {

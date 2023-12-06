@@ -1,10 +1,10 @@
-import { Dimensions, Pressable } from 'react-native';
+import { Dimensions, Pressable, StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, VaultMigrationType } from 'src/core/wallets/enums';
+import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { SignerType } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -13,28 +13,26 @@ import {
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import IconArrowGray from 'src/assets/images/icon_arrow_grey.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Note from 'src/components/Note/Note';
-import Relay from 'src/core/services/operations/Relay';
-import { ScaledSheet } from 'react-native-size-matters';
+import Relay from 'src/services/operations/Relay';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import moment from 'moment';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
-import { getPlaceholder } from 'src/common/utilities';
-import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { getSignerNameFromType, getSignerSigTypeInfo } from 'src/hardware';
+import { getPlaceholder } from 'src/utils/utilities';
+import { getSignerSigTypeInfo } from 'src/hardware';
 import useVault from 'src/hooks/useVault';
 import useSignerIntel from 'src/hooks/useSignerIntel';
-import { globalStyles } from 'src/common/globalStyles';
+import { globalStyles } from 'src/constants/globalStyles';
 import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
-import AddIKS from './AddIKS';
+import AddIKS from '../SigningDevices/AddIKS';
 
 const { width } = Dimensions.get('screen');
 
@@ -52,25 +50,26 @@ function SignerItem({
   signer,
   index,
   setInheritanceInit,
-  inheritanceSigner,
+  isInheritance,
+  scheme,
 }: {
   signer: VaultSigner | undefined;
   index: number;
   setInheritanceInit: any;
-  inheritanceSigner: VaultSigner;
+  isInheritance: boolean;
+  scheme: { m: number; n: number };
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const { plan } = usePlan();
   const [visible, setVisible] = useState(false);
 
   const removeSigner = () => dispatch(removeSigningDevice(signer));
   const navigateToSignerList = () =>
-    navigation.dispatch(CommonActions.navigate('SigningDeviceList'));
+    navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }));
 
   const callback = () => {
-    if (index === 5 && !inheritanceSigner) {
+    if (index === 5 && isInheritance) {
       setInheritanceInit(true);
     } else {
       navigateToSignerList();
@@ -103,7 +102,7 @@ function SignerItem({
               </VStack>
             </HStack>
             <Box style={styles.backArrow}>
-              <IconArrowBlack />
+              {colorMode === 'light' ? <IconArrowBlack /> : <IconArrowGray />}
             </Box>
           </HStack>
         </Box>
@@ -112,10 +111,7 @@ function SignerItem({
   }
   const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
   let shouldReconfigure = false;
-  if (
-    (plan === SubscriptionTier.L1.toUpperCase() && !isSingleSig) ||
-    (plan !== SubscriptionTier.L1.toUpperCase() && !isMultiSig)
-  ) {
+  if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
     shouldReconfigure = true;
   }
   return (
@@ -198,32 +194,36 @@ function AddSigningDevice() {
   const [vaultCreating, setCreating] = useState(false);
   const { activeVault } = useVault();
   const navigation = useNavigation();
-  const route = useRoute() as { params: { isInheritance: boolean } };
+  const route = useRoute() as {
+    params: { isInheritance: boolean; scheme: VaultScheme; name: string; description: string };
+  };
   const dispatch = useDispatch();
-  const { subscriptionScheme, plan } = usePlan();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const { relayVaultUpdateLoading } = useAppSelector((state) => state.bhr);
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
   const [inheritanceInit, setInheritanceInit] = useState(false);
 
-  const signers = activeVault?.signers || [];
-  const isInheritance =
-    route?.params?.isInheritance ||
-    signers.filter((signer) => signer.type === SignerType.INHERITANCEKEY)[0];
+  const { name = 'Vault', description = 'Secure your sats', isInheritance = false } = route.params;
+  let { scheme } = route.params;
+  if (scheme && isInheritance) {
+    scheme = { m: scheme.m, n: scheme.n + 1 };
+  } else if (!scheme && activeVault && !isInheritance) {
+    scheme = activeVault.scheme;
+    // added temporarily until we support multiple vaults
+  } else if (!scheme && activeVault && isInheritance) {
+    scheme = { m: 3, n: 6 };
+  }
 
   const {
-    planStatus,
     signersState,
     areSignersValid,
     amfSigners,
     misMatchedSigners,
-    invalidSigners,
-  } = useSignerIntel({ isInheritance });
-
-  const inheritanceSigner: VaultSigner = signersState.filter(
-    (signer) => signer?.type === SignerType.INHERITANCEKEY
-  )[0];
+    invalidSS,
+    invalidIKS,
+    invalidMessage,
+  } = useSignerIntel({ scheme });
 
   useEffect(() => {
     if (activeVault && !vaultSigners.length) {
@@ -240,44 +240,33 @@ function AddSigningDevice() {
       signer={item}
       index={index}
       setInheritanceInit={setInheritanceInit}
-      inheritanceSigner={inheritanceSigner}
+      scheme={scheme}
+      isInheritance={isInheritance}
     />
   );
 
-  let preTitle: string;
-  if (planStatus === VaultMigrationType.DOWNGRADE) {
-    preTitle = 'Remove Signing Devices';
-  } else if (planStatus === VaultMigrationType.UPGRADE) {
-    preTitle = 'Add Signing Devices';
-  } else {
-    preTitle = 'Signing Devices';
-  }
-  const subtitle =
-    subscriptionScheme.n > 1
-      ? `Vault with a ${subscriptionScheme.m} of ${
-          subscriptionScheme.n + (isInheritance ? 1 : 0)
-        } setup will be created${isInheritance ? ' for Inheritance' : ''}`
-      : `Vault with ${subscriptionScheme.m} of ${subscriptionScheme.n} setup will be created`;
+  const preTitle = 'Add Vault Signing Devices';
 
-  const trezorNotInPleb =
-    plan !== SubscriptionTier.L1.toUpperCase() &&
-    signersState.find((signer) => signer && signer.type === SignerType.TREZOR);
+  const subtitle =
+    scheme.n > 1
+      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
+          isInheritance ? ' for Inheritance' : ''
+        }`
+      : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
+
+  const trezorIncompatible =
+    scheme.n > 1 && signersState.find((signer) => signer && signer.type === SignerType.TREZOR);
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
-        title={`${preTitle}`}
-        subtitle={subtitle}
-        headerTitleColor={`${colorMode}.black`}
-        enableBack={planStatus !== VaultMigrationType.DOWNGRADE}
-        paddingLeft={25}
-      />
+      <KeeperHeader title={`${preTitle}`} subtitle={subtitle} />
       <VaultMigrationController
         vaultCreating={vaultCreating}
         setCreating={setCreating}
         signersState={signersState}
-        planStatus={planStatus}
-        isInheritance={isInheritance}
+        scheme={scheme}
+        name={name}
+        description={description}
       />
       <FlatList
         keyboardShouldPersistTaps="always"
@@ -301,29 +290,21 @@ function AddSigningDevice() {
             />
           </Box>
         ) : null}
-        {invalidSigners.length ? (
+        {invalidSS || invalidIKS ? (
           <Box style={styles.noteContainer}>
-            <Note
-              title="WARNING"
-              subtitle={`A few signers (${invalidSigners
-                .map((signer) => getSignerNameFromType(signer.type))
-                .join(', ')}) are only valid at ${SubscriptionTier.L2} and ${
-                SubscriptionTier.L3
-              }. Please remove them or upgrade your plan.`}
-              subtitleColor="error"
-            />
+            <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
           </Box>
         ) : misMatchedSigners.length ? (
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
               subtitle={`Looks like you've added a ${
-                plan === SubscriptionTier.L1.toUpperCase() ? 'multisig' : 'singlesig'
+                scheme.n === 1 ? 'multisig' : 'singlesig'
               } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
-        ) : trezorNotInPleb ? (
+        ) : trezorIncompatible ? (
           <Box style={styles.noteContainer}>
             <Note
               title="WARNING"
@@ -333,16 +314,14 @@ function AddSigningDevice() {
           </Box>
         ) : null}
         <Buttons
-          primaryDisable={areSignersValid || trezorNotInPleb}
+          primaryDisable={!!areSignersValid || !!trezorIncompatible}
           primaryLoading={relayVaultUpdateLoading}
           primaryText="Create Vault"
           primaryCallback={triggerVaultCreation}
           secondaryText="Cancel"
-          secondaryCallback={
-            planStatus !== VaultMigrationType.DOWNGRADE
-              ? navigation.goBack
-              : () => navigation.replace('App')
-          }
+          secondaryCallback={() => {
+            navigation.goBack();
+          }}
           paddingHorizontal={wp(30)}
         />
       </Box>
@@ -355,7 +334,7 @@ function AddSigningDevice() {
   );
 }
 
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   signerItemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -375,10 +354,7 @@ const styles = ScaledSheet.create({
     justifyContent: 'center',
   },
   bottomContainer: {
-    width: windowWidth,
-    bottom: 5,
-    right: 20,
-    padding: 20,
+    paddingHorizontal: 15,
   },
   noteContainer: {
     width: wp(330),

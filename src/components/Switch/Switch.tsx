@@ -1,54 +1,58 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
-import { Box, Text } from 'native-base';
-import LinearGradient from 'src/components/KeeperGradient';
+import { Box, useColorMode } from 'native-base';
 import { widthPercentageToDP as wp } from 'react-native-responsive-screen';
+import { windowHeight } from 'src/constants/responsive';
 
 const styles = StyleSheet.create({
   container: {
     borderRadius: wp(5),
-    // height: wp(8),
-    // with: wp(12),
   },
 });
 
 type Props = {
   value: boolean;
   onValueChange: Function;
-  loading: boolean;
+  loading?: boolean;
+  testID?: string;
 };
 
-function Switch({ value, onValueChange, loading }: Props) {
+function Switch({ value, onValueChange, loading, testID }: Props) {
+  const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity onPress={() => onValueChange(!value)} disabled={loading}>
-      <LinearGradient
-        start={[0, 0]}
-        end={[1, 0]}
+    <TouchableOpacity testID={testID} onPress={() => onValueChange(!value)} disabled={loading}>
+      <Box
         style={styles.container}
-        colors={value ? ['#2C3E50', '#00836A'] : ['#4E5C6A', '#4E5C6A']}
+        backgroundColor={value ? `${colorMode}.greenButtonBackground` : `${colorMode}.textColor2`}
       >
-        <Box height={8} width={12} borderRadius={10} justifyContent="center" alignItems="center">
+        <Box
+          height={windowHeight > 600 ? 8 : 6}
+          width={windowHeight > 600 ? 12 : 10}
+          borderRadius={10}
+          justifyContent="center"
+          alignItems="center"
+        >
           {value ? (
             <Box
-              height={6}
-              width={6}
+              height={windowHeight > 600 ? 6 : 5}
+              width={windowHeight > 600 ? 6 : 5}
               borderRadius={15}
-              backgroundColor="#fcfcfc"
+              backgroundColor={`${colorMode}.fadedGray`}
               alignSelf="flex-end"
               mx={1}
             />
           ) : (
             <Box
-              height={6}
-              width={6}
+              height={windowHeight > 600 ? 6 : 5}
+              width={windowHeight > 600 ? 6 : 5}
               borderRadius={15}
-              backgroundColor="#fbfbfb"
+              backgroundColor={`${colorMode}.fadedGray`}
               alignSelf="flex-start"
               mx={1}
             />
           )}
         </Box>
-      </LinearGradient>
+      </Box>
     </TouchableOpacity>
   );
 }

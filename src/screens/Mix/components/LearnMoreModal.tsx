@@ -2,11 +2,12 @@ import { View, StyleSheet } from 'react-native';
 import React from 'react';
 import KeeperModal from 'src/components/KeeperModal';
 import { Box, useColorMode } from 'native-base';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import openLink from 'src/utils/OpenLink';
 import Text from 'src/components/KeeperText';
 import SomeDefinationIcon from 'src/assets/images/SomeDefination.svg';
-import { modalParams } from 'src/common/data/models/interfaces/UTXOs';
+import { modalParams } from 'src/models/interfaces/UTXOs';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 function MixContent() {
   const { colorMode } = useColorMode();
@@ -52,15 +53,15 @@ function LearnMoreModal({ visible, closeModal }: modalParams) {
       }}
       title="Some Definitions:"
       subTitle=""
-      modalBackground={[`${colorMode}.modalGreenBackground`, `${colorMode}.modalGreenBackground`]}
+      modalBackground={`${colorMode}.modalGreenBackground`}
       textColor={`${colorMode}.modalGreenContent`}
       Content={MixContent}
       DarkCloseIcon
       learnMore
-      learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+      learnMoreCallback={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/what-is-whirlpool/`)}
       buttonText="Proceed"
-      buttonTextColor="light.greenText2"
-      buttonBackground={['#FFFFFF', '#80A8A1']}
+      buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+      buttonBackground={`${colorMode}.modalWhiteButton`}
       buttonCallback={() => closeModal()}
     />
   );

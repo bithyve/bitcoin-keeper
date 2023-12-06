@@ -1,469 +1,62 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import {
-  ImageBackground,
-  InteractionManager,
-  StyleSheet,
-  TouchableOpacity,
-  BackHandler,
-  Linking,
-} from 'react-native';
-import Text from 'src/components/KeeperText';
-import { Box, HStack, Pressable, useColorMode } from 'native-base';
-import { CommonActions, useNavigation } from '@react-navigation/native';
-// Components, Hooks and fonctions
-import KeeperModal from 'src/components/KeeperModal';
-import TestnetIndicator from 'src/components/TestnetIndicator';
-import { useAppSelector } from 'src/store/hooks';
-import useUaiStack from 'src/hooks/useUaiStack';
-import { RealmWrapperContext } from 'src/storage/realm/RealmProvider';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import RestClient, { TorStatus } from 'src/core/services/rest/RestClient';
-import { identifyUser } from 'src/core/services/sentry';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { Vault } from 'src/core/wallets/interfaces/vault';
-import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
-import { getAmt, getCurrencyImageByRegion, getUnit, isTestnet } from 'src/common/constants/Bitcoin';
-import useBalance from 'src/hooks/useBalance';
-// asserts (svgs, pngs)
-import Arrow from 'src/assets/images/arrow.svg';
-import BTC from 'src/assets/images/btc.svg';
-import Chain from 'src/assets/images/illustration_homescreen.svg';
-import DiamondHandsFocused from 'src/assets/images/ic_diamond_hands_focused.svg';
-import Hidden from 'src/assets/images/hidden.svg';
-import HodlerFocused from 'src/assets/images/ic_hodler_focused.svg';
-import Inheritance from 'src/assets/images/inheritance.svg';
-import LinkedWallet from 'src/assets/images/linked_wallet.svg';
-import PlebFocused from 'src/assets/images/ic_pleb_focused.svg';
-import SettingIcon from 'src/assets/images/settings.svg';
-import VaultImage from 'src/assets/images/Vault.png';
-import VaultIcon from 'src/assets/images/vaultSuccess.svg';
-import usePlan from 'src/hooks/usePlan';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
-import { useDispatch } from 'react-redux';
-import { resetRealyWalletState } from 'src/store/reducers/bhr';
+/* eslint-disable react/no-unstable-nested-components */
+import { Linking, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import WalletIcon from 'src/assets/images/walletTab.svg';
+import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
+import walletDark from 'src/assets/images/walletDark.svg';
+import VaultIcon from 'src/assets/images/vaultTab.svg';
+import VaultActiveIcon from 'src/assets/images/white_icon_vault.svg';
+import VaultDark from 'src/assets/images/vaultDark.svg';
 import { urlParamsToObj } from 'src/core/utils';
-import useToastMessage from 'src/hooks/useToastMessage';
 import { WalletType } from 'src/core/wallets/enums';
-import useWallets from 'src/hooks/useWallets';
-import useVault from 'src/hooks/useVault';
-import UaiDisplay from './UaiDisplay';
-import { SDIcons } from '../Vault/SigningDeviceIcons';
+import useToastMessage from 'src/hooks/useToastMessage';
+import { Box, useColorMode } from 'native-base';
+import VaultScreen from './VaultScreen';
+import WalletsScreen from './WalletsScreen';
 
-function InheritanceComponent() {
+function TabButton({
+  label,
+  Icon,
+  IconActive,
+  active,
+  onPress,
+  backgroundColorActive,
+  backgroundColor,
+  textColorActive,
+  textColor,
+}) {
   const { colorMode } = useColorMode();
-  const navigation = useNavigation();
-  const { plan } = usePlan();
-
-  const onPress = () => {
-    navigation.navigate('SetupInheritance');
-  };
-
+  const styles = getStyles(colorMode);
   return (
-    <Box alignItems="center" marginTop={hp(19.96)}>
-      <Pressable onPress={onPress} testID="btn_Inheritance">
-        <Box
-          style={styles.bottomCard}
-          backgroundColor={{
-            linearGradient: {
-              colors: ['light.gradientStart', 'light.gradientEnd'],
-              start: [0, 0],
-              end: [1, 1],
-            },
-          }}
-        >
-          <Box style={styles.bottomCardContent}>
-            <Inheritance />
-            <Box
-              style={{
-                marginLeft: wp(18),
-              }}
-            >
-              <Text color="light.white" style={styles.bottomCardTitle}>
-                Inheritance
-              </Text>
-              <Text color="light.white" style={styles.bottomCardSubtitle}>
-                {plan === SubscriptionTier.L3.toUpperCase()
-                  ? 'Tools, tips and templates'
-                  : 'Upgrade to secure your vault'}
-              </Text>
-            </Box>
-          </Box>
-          <NextIcon pressHandler={() => onPress()} />
-        </Box>
-      </Pressable>
-    </Box>
-  );
-}
-
-function LinkedWallets(props) {
-  const { colorMode } = useColorMode();
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
-  const { wallets } = useWallets();
-  const netBalance = useAppSelector((state) => state.wallet.netBalance);
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
-
-  useEffect(() => {
-    dispatch(resetRealyWalletState());
-  }, []);
-
-  return (
-    <Pressable
-      style={{
-        alignItems: 'center',
-        marginTop: hp(8),
-      }}
-      onPress={() => navigation.dispatch(CommonActions.navigate('WalletDetails'))}
-      testID="btn_LinkedWallet"
+    <TouchableOpacity
+      testID={`btn_${label}`}
+      onPress={onPress}
+      style={[
+        styles.container,
+        { backgroundColor: active ? backgroundColorActive : backgroundColor, borderRadius: 20 },
+      ]}
     >
-      <Box
-        backgroundColor={{
-          linearGradient: {
-            colors: [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
-            start: [0, 0],
-            end: [1, 1],
+      {active ? <IconActive /> : <Icon />}
+      <Text
+        style={[
+          styles.label,
+          {
+            color: active ? textColorActive : textColor,
+            fontWeight: active ? '600' : '300',
           },
-        }}
-        style={styles.bottomCard}
+        ]}
       >
-        <Box style={styles.bottomCardContent}>
-          <LinkedWallet />
-          <Box style={styles.linkedWalletContent}>
-            <Text
-              color={`${colorMode}.white`}
-              fontSize={22}
-              style={{
-                letterSpacing: 1.76,
-              }}
-            >
-              {wallets?.length}
-            </Text>
-            <Text color="light.white" style={styles.LinkedWalletText}>
-              Hot Wallet{wallets?.length > 1 && 's'}
-            </Text>
-          </Box>
-        </Box>
-        <Pressable onPress={() => props.onAmountPress()}>
-          {props.showHideAmounts ? (
-            <Box
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              <Box
-                style={{
-                  padding: 3,
-                  // marginBottom: -3,
-                }}
-              >
-                {getCurrencyIcon(BTC, 'grey')}
-              </Box>
-              <Text
-                color={`${colorMode}.white`}
-                fontSize={hp(21)}
-                style={{
-                  letterSpacing: 0.6,
-                }}
-              >
-                {getBalance(netBalance)}
-              </Text>
-              <Text
-                color={`${colorMode}.white`}
-                style={{
-                  paddingLeft: 3,
-                  letterSpacing: 0.6,
-                  fontSize: hp(12),
-                }}
-              >
-                {getSatUnit()}
-              </Text>
-            </Box>
-          ) : (
-            <Box
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}
-            >
-              {getCurrencyIcon(BTC, 'grey')}
-              &nbsp;
-              <Hidden />
-            </Box>
-          )}
-        </Pressable>
-      </Box>
-    </Pressable>
-  );
-}
-
-function VaultStatus(props) {
-  const { colorMode } = useColorMode();
-  const { translations } = useContext(LocalizationContext);
-  const navigation = useNavigation();
-  const { useQuery } = useContext(RealmWrapperContext);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
-
-  const { activeVault: Vault } = useVault();
-
-  const {
-    specs: { balances: { confirmed, unconfirmed } } = {
-      balances: { confirmed: 0, unconfirmed: 0 },
-    },
-    signers = [],
-  } = Vault;
-  const vaultBalance = confirmed + unconfirmed;
-
-  const open = () => {
-    if (signers.length) {
-      navigation.dispatch(CommonActions.navigate({ name: 'VaultDetails' }));
-    } else {
-      navigateToHardwareSetup();
-    }
-  };
-
-  const navigateToHardwareSetup = () => {
-    navigation.dispatch(CommonActions.navigate({ name: 'AddSigningDevice', params: {} }));
-  };
-
-  const [torStatus, settorStatus] = useState<TorStatus>(RestClient.getTorStatus());
-
-  const onChangeTorStatus = (status: TorStatus) => {
-    settorStatus(status);
-  };
-
-  useEffect(() => {
-    InteractionManager.runAfterInteractions(() => {
-      RestClient.subToTorStatus(onChangeTorStatus);
-      identifyUser(keeper.publicId);
-    });
-    return () => {
-      RestClient.unsubscribe(onChangeTorStatus);
-    };
-  }, []);
-
-  const getTorStatusText = useMemo(() => {
-    switch (torStatus) {
-      case TorStatus.OFF:
-        return 'Tor disabled';
-      case TorStatus.CONNECTING:
-        return 'Connecting to Tor';
-      case TorStatus.CONNECTED:
-        return 'Tor enabled';
-      case TorStatus.ERROR:
-        return 'Tor error';
-      default:
-        return torStatus;
-    }
-  }, [torStatus]);
-
-  const getTorStatusColor = useMemo(() => {
-    switch (torStatus) {
-      case TorStatus.OFF:
-        return `${colorMode}.lightAccent`;
-      case TorStatus.CONNECTING:
-        return `${colorMode}.lightAccent`;
-      case TorStatus.CONNECTED:
-        return '#c6ecae';
-      case TorStatus.ERROR:
-        return 'red.400';
-      default:
-        return `${colorMode}.lightAccent`;
-    }
-  }, [torStatus]);
-
-  return (
-    <Box style={styles.vaultStatusContainder}>
-      <ImageBackground resizeMode="contain" source={VaultImage}>
-        <TouchableOpacity testID="btn_vault" onPress={open} activeOpacity={0.7}>
-          <Box style={styles.vault}>
-            <Box style={styles.torContainer}>
-              {getTorStatusText !== 'Tor disabled' && (
-                <Box backgroundColor={getTorStatusColor} borderRadius={10} px={1}>
-                  <Text color={`${colorMode}.primaryText`} style={styles.torText} bold>
-                    {getTorStatusText}
-                  </Text>
-                </Box>
-              )}
-            </Box>
-            <Box style={styles.vaultBody}>
-              <Text color={`${colorMode}.white`} style={styles.vaultHeading} bold>
-                Your Vault
-              </Text>
-
-              <Text color={`${colorMode}.white`} style={styles.vaultSubHeading} bold>
-                {!signers.length
-                  ? 'Add a signing device to enable '
-                  : `Secured by ${signers.length} signing device${signers.length ? 's' : ''}`}
-              </Text>
-
-              {!signers.length ? (
-                <Box
-                  style={{
-                    marginTop: hp(11.5),
-                  }}
-                >
-                  <Chain />
-                </Box>
-              ) : (
-                <Box style={styles.vaultSignersContainer}>
-                  {signers.map((signer) => (
-                    <Box
-                      backgroundColor="light.lightAccent"
-                      style={styles.vaultSigner}
-                      key={signer.signerId}
-                    >
-                      {SDIcons(signer.type).Icon}
-                    </Box>
-                  ))}
-                </Box>
-              )}
-            </Box>
-
-            <HStack style={styles.vaultBalanceContainer}>
-              {getCurrencyIcon(BTC, 'grey')}
-              <Pressable>
-                {props.showHideAmounts ? (
-                  <Box style={styles.rowCenter}>
-                    <Text color="light.white" fontSize={hp(30)} style={styles.vaultBalanceText}>
-                      {getBalance(vaultBalance)}
-                    </Text>
-                    <Text color="light.white" style={styles.vaultBalanceUnit}>
-                      {getSatUnit()}
-                    </Text>
-                  </Box>
-                ) : (
-                  <Box
-                    style={{
-                      marginVertical: 15,
-                      marginLeft: 3,
-                    }}
-                  >
-                    <Hidden />
-                  </Box>
-                )}
-              </Pressable>
-            </HStack>
-            <Pressable
-              backgroundColor={`${colorMode}.accent`}
-              style={styles.balanceToggleContainer}
-              onPress={() => props.onAmountPress()}
-            >
-              <Text color={`${colorMode}.sendMax`} style={styles.balanceToggleText} bold>
-                {!props.showHideAmounts ? 'Show Balances' : 'Hide Balances'}
-              </Text>
-            </Pressable>
-          </Box>
-        </TouchableOpacity>
-      </ImageBackground>
-    </Box>
-  );
-}
-
-function VaultInfo() {
-  const { colorMode } = useColorMode();
-  const navigation = useNavigation();
-  const { uaiStack } = useUaiStack();
-  const { plan } = usePlan();
-
-  function getPlanIcon() {
-    switch (plan) {
-      case SubscriptionTier.L1.toUpperCase():
-        return <PlebFocused />;
-      case SubscriptionTier.L2.toUpperCase():
-        return <HodlerFocused />;
-      case SubscriptionTier.L3.toUpperCase():
-        return <DiamondHandsFocused />;
-      default:
-        return <PlebFocused />;
-    }
-  }
-
-  return (
-    <Box
-      backgroundColor={{
-        linearGradient: {
-          colors: [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
-          start: [0, 0],
-          end: [1, 1],
-        },
-      }}
-      style={styles.linearGradient}
-    >
-      <Box style={styles.vaultInfoContainer}>
-        <Box style={styles.subscriptionContainer}>
-          <Box style={styles.rowCenter}>
-            <Pressable
-              style={styles.subscriptionIcon}
-              onPress={() => navigation.navigate('ChoosePlan')}
-              testID={`btn_${plan}`}
-            >
-              {getPlanIcon()}
-              <Box
-                backgroundColor="#015A53"
-                borderColor={`${colorMode}.white`}
-                style={styles.subscriptionTextContainer}
-              >
-                <Text color={`${colorMode}.white`} style={styles.subscriptionText}>
-                  {plan}
-                </Text>
-              </Box>
-            </Pressable>
-            {isTestnet() && <TestnetIndicator />}
-          </Box>
-          <Pressable
-            testID="btn_AppSettings"
-            onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
-          >
-            <SettingIcon />
-          </Pressable>
-        </Box>
-        <UaiDisplay uaiStack={uaiStack} />
-      </Box>
-    </Box>
-  );
-}
-
-export function NextIcon({ pressHandler }) {
-  const { colorMode } = useColorMode();
-  return (
-    <Pressable onPress={pressHandler}>
-      <Box
-        backgroundColor={`${colorMode}.accent`}
-        height={hp(37.352)}
-        width={hp(37.352)}
-        borderRadius={20}
-        justifyContent="center"
-        alignItems="center"
-      >
-        <Arrow />
-      </Box>
-    </Pressable>
-  );
-}
-function TransVaultSuccessfulContent() {
-  const { colorMode } = useColorMode();
-  return (
-    <Box>
-      <Box alignSelf="center">
-        <VaultIcon />
-      </Box>
-      <Text color={`${colorMode}.greenText`} fontSize={13} padding={2}>
-        The transaction should be visible in the vault in some time.
+        {label}
       </Text>
-    </Box>
+    </TouchableOpacity>
   );
 }
-function HomeScreen({ navigation }) {
-  const { colorMode } = useColorMode();
-  const [showHideAmounts, setShowHideAmounts] = useState(false);
-  const [visibleModal, setVisibleModal] = useState(false);
-  const { showToast } = useToastMessage();
 
+const Tab = createBottomTabNavigator();
+
+function NewHomeScreen({ navigation }) {
+  const { showToast } = useToastMessage();
   useEffect(() => {
     Linking.addEventListener('url', handleDeepLinkEvent);
     handleDeepLinking();
@@ -481,10 +74,14 @@ function HomeScreen({ navigation }) {
         if (params.seed) {
           navigation.navigate('EnterWalletDetail', {
             seed: params.seed,
-            name: params.name,
+            name: `${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             path: params.path,
             appId: params.appId,
-            description: `Imported from ${params.name}`,
+            description: `Imported from ${
+              params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+            } `,
             type: WalletType.IMPORTED,
           });
         } else {
@@ -504,11 +101,15 @@ function HomeScreen({ navigation }) {
           if (params.seed) {
             navigation.navigate('EnterWalletDetail', {
               seed: params.seed,
-              name: params.name,
+              name: `${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               path: params.path,
               appId: params.appId,
               purpose: params.purpose,
-              description: `Imported from ${params.name}`,
+              description: `Imported from ${
+                params.name.slice(0, 1).toUpperCase() + params.name.slice(1, params.name.length)
+              } `,
               type: WalletType.IMPORTED,
             });
           } else {
@@ -522,203 +123,84 @@ function HomeScreen({ navigation }) {
     }
   }
 
-  return (
-    <Box style={styles.container}>
-      <VaultInfo />
-      <VaultStatus
-        showHideAmounts={showHideAmounts}
-        onAmountPress={() => {
-          setShowHideAmounts(!showHideAmounts);
-        }}
-      />
-      <Box style={styles.bottomContainer}>
-        <Pressable
-          onPress={() => {
-            navigation.navigate('SetupInheritance');
-          }}
-        >
-          <InheritanceComponent />
-        </Pressable>
-        <LinkedWallets onAmountPress={() => {}} showHideAmounts={showHideAmounts} />
+  function TabBarButton({ state, descriptors }) {
+    const { colorMode } = useColorMode();
+    const styles = getStyles(colorMode);
+    return (
+      <Box style={styles.container}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const label =
+            options.tabBarLabel !== undefined
+              ? options.tabBarLabel
+              : options.title !== undefined
+              ? options.title
+              : route.name;
+
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            if (!isFocused) {
+              navigation.navigate({ name: route.name, merge: true });
+            }
+          };
+          const themeWalletActive = colorMode === 'light' ? '#2D6759' : '#89AEA7';
+          const themeVaultActive = colorMode === 'light' ? '#704E2E' : '#96826F';
+          const textWalletColor = colorMode === 'light' ? '#2D6759' : '#89AEA7';
+          const textVaultColor = colorMode === 'light' ? '#704E2E' : '#e3be96';
+          const vaultActiveIcon = colorMode === 'light' ? VaultActiveIcon : VaultDark;
+          const walletActiveIcon = colorMode === 'light' ? WalletActiveIcon : walletDark;
+          return (
+            <TabButton
+              key={label}
+              label={label === 'Wallet' ? 'Wallets' : label}
+              Icon={route.name === 'Vault' ? VaultIcon : WalletIcon}
+              IconActive={route.name === 'Vault' ? vaultActiveIcon : walletActiveIcon}
+              onPress={onPress}
+              active={isFocused}
+              backgroundColorActive={route.name === 'Vault' ? themeVaultActive : themeWalletActive}
+              backgroundColor="transparent"
+              textColorActive={colorMode === 'light' ? '#F7F2EC' : '#24312E'}
+              textColor={route.name === 'Vault' ? textVaultColor : textWalletColor}
+            />
+          );
+        })}
       </Box>
-      {/* Modal */}
-      <KeeperModal
-        visible={visibleModal}
-        close={() => setVisibleModal(false)}
-        title="Transfer to Vault Successfull"
-        subTitle="You have successfully transferred from your wallet to the vault"
-        buttonText="View Vault"
-        textcolor={`${colorMode}.greenText`}
-        buttonTextColor={`${colorMode}.white`}
-        Content={TransVaultSuccessfulContent}
-      />
-    </Box>
+    );
+  }
+  const { colorMode } = useColorMode();
+  const styles = getStyles(colorMode);
+  return (
+    <Tab.Navigator
+      sceneContainerStyle={styles.tabContainer}
+      screenOptions={{
+        headerShown: false,
+      }}
+      tabBar={(props) => <TabBarButton {...props} />}
+    >
+      <Tab.Screen name="Wallet" component={WalletsScreen} />
+      <Tab.Screen name="Vault" component={VaultScreen} />
+    </Tab.Navigator>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'relative',
-  },
-  linearGradient: {
-    justifyContent: 'space-between',
-    paddingTop: hp(57),
-    height: hp(325),
-    borderBottomLeftRadius: 15,
-    borderBottomRightRadius: 15,
-  },
-  vaultInfoContainer: {
-    alignItems: 'center',
-    paddingHorizontal: wp(30),
-  },
-  vault: {
-    width: wp(280),
-    height: hp(350),
-    alignItems: 'center',
-  },
-  subscriptionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  subscriptionIcon: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginRight: wp(35),
-  },
-  subscriptionTextContainer: {
-    borderWidth: 0.8,
-    borderBottomRightRadius: 15,
-    borderTopRightRadius: 15,
-    paddingHorizontal: 10,
-    marginHorizontal: -8,
-    zIndex: -10,
-  },
-  subscriptionText: {
-    fontSize: hp(14),
-    padding: 4,
-  },
-  rowCenter: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bottomContainer: {
-    position: 'absolute',
-    bottom: 15,
-    justifyContent: 'center',
-    width: '100%',
-  },
-  bottomCard: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    height: hp(95),
-    width: wp(335),
-    borderRadius: 10,
-    flexDirection: 'row',
-    paddingHorizontal: wp(10),
-  },
-  dummy: {
-    height: 200,
-    width: '100%',
-    borderRadius: 20,
-    backgroundColor: '#092C27',
-    opacity: 0.15,
-  },
-  vaultStatusContainder: {
-    marginTop: -hp(100),
-    alignItems: 'center',
-  },
-  torContainer: {
-    marginTop: hp(25),
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  torText: {
-    letterSpacing: 0.75,
-    fontSize: 11,
-    textAlign: 'center',
-    textTransform: 'uppercase',
-  },
-  vaultBody: {
-    marginTop: hp(windowHeight > 700 ? 60.5 : 25),
-    alignItems: 'center',
-  },
-  vaultHeading: {
-    letterSpacing: 0.8,
-    fontSize: 16,
-  },
-  vaultSubHeading: {
-    letterSpacing: 0.9,
-    fontSize: 12,
-    opacity: 0.8,
-    paddingBottom: 2,
-  },
-  vaultSignersContainer: {
-    marginTop: hp(10),
-    flexDirection: 'row',
-  },
-  vaultSigner: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 2,
-    width: 30,
-    height: 30,
-    borderRadius: 30,
-  },
-  vaultBalanceContainer: {
-    alignItems: 'center',
-    marginTop: hp(windowHeight > 700 ? 20 : 10),
-  },
-  vaultBalanceText: {
-    letterSpacing: 0.8,
-    padding: 3,
-  },
-  vaultBalanceUnit: {
-    fontSize: hp(12),
-    letterSpacing: 0.6,
-  },
-  balanceToggleContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-  },
-  balanceToggleText: {
-    fontSize: 11,
-    letterSpacing: 0.88,
-  },
+export default NewHomeScreen;
 
-  bottomCardContent: {
-    marginLeft: wp(9.75),
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bottomCardTitle: {
-    letterSpacing: 0.8,
-    fontSize: 16,
-    marginBottom: 3,
-  },
-  bottomCardSubtitle: {
-    letterSpacing: 0.6,
-    fontSize: 12,
-    fontWeight: '300',
-    marginTop: -3,
-  },
-  LinkedWalletText: {
-    marginLeft: wp(5),
-    flexDirection: 'row',
-    alignItems: 'center',
-    fontSize: 14,
-  },
-  linkedWalletContent: {
-    marginLeft: wp(18),
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-});
-
-export default HomeScreen;
+const getStyles = (colorMode) =>
+  StyleSheet.create({
+    container: {
+      backgroundColor: colorMode === 'light' ? '#FDF7F0' : '#48514F',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 27,
+      paddingVertical: 15,
+    },
+    tabContainer: {
+      backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A',
+    },
+    label: {
+      marginLeft: 10,
+      fontSize: 14,
+    },
+  });

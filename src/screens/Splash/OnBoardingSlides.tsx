@@ -12,15 +12,16 @@ import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 
 import openLink from 'src/utils/OpenLink';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Illustration1 from 'src/assets/images/illustration_1.svg';
 import Illustration2 from 'src/assets/images/illustration_2.svg';
 import Illustration7 from 'src/assets/images/illustration_7.svg';
 import Skip from 'src/assets/images/skip.svg';
 import OnboardingBackImage from 'src/assets/images/onboardingBackImage.png';
-import { windowHeight, hp, wp } from 'src/common/data/responsiveness/responsive';
+import { windowHeight, hp, wp } from 'src/constants/responsive';
 
 import OnboardingSlideComponent from 'src/components/onBoarding/OnboardingSlideComponent';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 
 const { width } = Dimensions.get('window');
 
@@ -31,7 +32,6 @@ function OnBoardingSlides({ navigation }) {
   const { onboarding } = translations;
   const { common } = translations;
   const [currentPosition, setCurrentPosition] = useState(0);
-  // console.log('currentPosition', currentPosition)
   const [items] = useState([
     {
       id: 1,
@@ -126,7 +126,7 @@ function OnBoardingSlides({ navigation }) {
           </Box>
           <Box style={styles.bottomBtnWrapper}>
             <Box width="70%">
-              <TouchableOpacity onPress={() => openLink('https://bitcoinkeeper.app/')}>
+              <TouchableOpacity onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}>
                 <Box
                   borderColor="light.lightAccent"
                   backgroundColor="light.gradientEnd"

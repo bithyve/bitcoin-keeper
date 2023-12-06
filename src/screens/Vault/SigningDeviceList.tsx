@@ -3,28 +3,34 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity, View } from 'react-nat
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
-import config, { APP_STAGE } from 'src/core/config';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 import KeeperModal from 'src/components/KeeperModal';
-import { LocalizationContext } from 'src/common/content/LocContext';
-import NFC from 'src/core/services/nfc';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import NFC from 'src/services/nfc';
 
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
 import SigningDevicesIllustration from 'src/assets/images/illustration_SD.svg';
-import { SubscriptionTier } from 'src/common/data/enums/SubscriptionTier';
+import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import openLink from 'src/utils/OpenLink';
 import { setSdIntroModal } from 'src/store/reducers/vaults';
 import usePlan from 'src/hooks/usePlan';
 import Note from 'src/components/Note/Note';
 import { SDIcons } from './SigningDeviceIcons';
-import HardwareModalMap from './HardwareModalMap';
-import { getSDMessage } from './components/SDMessage';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import { useQuery } from '@realm/react';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { getDeviceStatus, getSDMessage } from 'src/hardware';
+import { useRoute } from '@react-navigation/native';
+import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 
 type HWProps = {
   type: SignerType;
@@ -33,78 +39,21 @@ type HWProps = {
   first?: boolean;
   last?: boolean;
 };
-const findKeyInServer = (vaultSigners, type: SignerType) =>
-  vaultSigners.find(
-    (element) =>
-      element.type === type && [SignerType.POLICY_SERVER, SignerType.MOBILE_KEY].includes(type)
-  );
-
-const getDisabled = (type: SignerType, isOnL1, vaultSigners) => {
-  // Keys Incase of level 1 we have level 1
-  if (isOnL1) {
-    return { disabled: true, message: 'Upgrade tier to use as key' };
-  }
-  // Keys Incase of already added
-  if (findKeyInServer(vaultSigners, type)) {
-    return { disabled: true, message: 'Key already added to the Vault.' };
-  }
-  return { disabled: false, message: '' };
-};
-
-const getDeviceStatus = (
-  type: SignerType,
-  isNfcSupported,
-  vaultSigners,
-  isOnL1,
-  isOnL2,
-  isOnL3
-) => {
-  switch (type) {
-    case SignerType.COLDCARD:
-    case SignerType.TAPSIGNER:
-      return {
-        message: !isNfcSupported ? 'NFC is not supported in your device' : '',
-        disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
-      };
-    case SignerType.MOBILE_KEY:
-    case SignerType.POLICY_SERVER:
-      return {
-        message: getDisabled(type, isOnL1, vaultSigners).message,
-        disabled: getDisabled(type, isOnL1, vaultSigners).disabled,
-      };
-    case SignerType.TREZOR:
-      return !isOnL1
-        ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
-        : {
-            message: '',
-            disabled: false,
-          };
-    case SignerType.SEED_WORDS:
-    case SignerType.KEEPER:
-    case SignerType.JADE:
-    case SignerType.BITBOX02:
-    case SignerType.PASSPORT:
-    case SignerType.SEEDSIGNER:
-    case SignerType.LEDGER:
-    case SignerType.KEYSTONE:
-    default:
-      return {
-        message: '',
-        disabled: false,
-      };
-  }
-};
 
 function SigningDeviceList() {
+  const route = useRoute();
+  const { scheme }: { scheme: VaultScheme } = route.params as any;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
   const dispatch = useAppDispatch();
   const isOnL1 = plan === SubscriptionTier.L1.toUpperCase();
-  const isOnL2 = plan === SubscriptionTier.L2.toUpperCase();
-  const isOnL3 = plan === SubscriptionTier.L3.toUpperCase();
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const sdModal = useAppSelector((state) => state.vault.sdIntroModal);
+  const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
+    getJSONFromRealmObject
+  )[0];
+  const isMultisig = scheme.n !== 1;
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -145,10 +94,10 @@ function SigningDeviceList() {
     SignerType.JADE,
     SignerType.KEYSTONE,
     SignerType.OTHER_SD,
+    SignerType.SEED_WORDS,
     SignerType.MOBILE_KEY,
     SignerType.POLICY_SERVER,
     SignerType.KEEPER,
-    SignerType.SEED_WORDS,
   ];
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
@@ -188,22 +137,27 @@ function SigningDeviceList() {
             <Box backgroundColor={`${colorMode}.divider`} style={styles.dividerStyle} />
           </Box>
         </TouchableOpacity>
-        <HardwareModalMap visible={visible} close={close} type={type} />
+        <HardwareModalMap
+          visible={visible}
+          close={close}
+          type={type}
+          mode={InteracationMode.SIGNING}
+          isMultisig={isMultisig}
+          primaryMnemonic={primaryMnemonic}
+        />
       </React.Fragment>
     );
   }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <HeaderTitle
+      <KeeperHeader
         title={vault.SelectSigner}
         subtitle={vault.ForVault}
-        headerTitleColor={`${colorMode}.black`}
         learnMore
         learnMorePressed={() => {
           dispatch(setSdIntroModal(true));
         }}
-        paddingLeft={25}
       />
       <Box style={styles.scrollViewContainer}>
         <ScrollView style={styles.scrollViewWrapper} showsVerticalScrollIndicator={false}>
@@ -217,8 +171,7 @@ function SigningDeviceList() {
                   isNfcSupported,
                   vaultSigners,
                   isOnL1,
-                  isOnL2,
-                  isOnL3
+                  scheme
                 );
                 let message = connectivityStatus;
                 if (!connectivityStatus) {
@@ -246,13 +199,10 @@ function SigningDeviceList() {
           }}
           title="Signing Devices"
           subTitle="A signing device is a hardware or software that stores one of the private keys needed for your Vault"
-          modalBackground={[
-            `${colorMode}.modalGreenBackground`,
-            `${colorMode}.modalGreenBackground`,
-          ]}
-          buttonBackground={['#FFFFFF', '#80A8A1']}
+          modalBackground={`${colorMode}.modalGreenBackground`}
+          buttonTextColor={colorMode === 'light' ? `${colorMode}.greenText2` : `${colorMode}.white`}
+          buttonBackground={`${colorMode}.modalWhiteButton`}
           buttonText="Add Now"
-          buttonTextColor={`${colorMode}.greenText`}
           buttonCallback={() => {
             dispatch(setSdIntroModal(false));
           }}
@@ -260,7 +210,9 @@ function SigningDeviceList() {
           Content={VaultSetupContent}
           DarkCloseIcon
           learnMore
-          learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
+          learnMoreCallback={() =>
+            openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base-category/signing-device-usekeeper/`)
+          }
         />
       </Box>
       <Note
@@ -291,7 +243,6 @@ const styles = StyleSheet.create({
   contactUsText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '200',
     width: wp(300),
     lineHeight: 20,
     marginTop: hp(20),

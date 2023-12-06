@@ -3,11 +3,11 @@ import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
 import { BIP329Label, UTXO } from 'src/core/wallets/interfaces';
 import { LabelRefType } from 'src/core/wallets/enums';
-import Relay from 'src/core/services/operations/Relay';
+import Relay from 'src/services/operations/Relay';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { Vault } from 'src/core/wallets/interfaces/vault';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { createWatcher } from '../utilities';
 
 import { ADD_LABELS, BULK_UPDATE_LABELS, BULK_UPDATE_UTXO_LABELS } from '../sagaActions/utxos';
@@ -62,28 +62,32 @@ export function* bulkUpdateLabelsWorker({
       added: { isSystem: boolean; name: string }[];
       deleted: { isSystem: boolean; name: string }[];
     };
-    UTXO: UTXO;
+    UTXO?: UTXO;
+    txId?: string;
     wallet: Wallet;
   };
 }) {
   try {
     yield put(setSyncingUTXOs(true));
-    const { labelChanges, wallet, UTXO } = payload;
+    const { labelChanges, wallet, UTXO, txId } = payload;
     const origin = genrateOutputDescriptors(wallet, false);
     let addedTags: BIP329Label[] = [];
     let deletedTagIds: string[] = [];
+    const idSuffix = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
     if (labelChanges.added) {
+      const ref = txId ? txId : `${UTXO.txId}:${UTXO.vout}`;
+      const type = txId ? LabelRefType.TXN : LabelRefType.OUTPUT;
       addedTags = labelChanges.added.map((label) => ({
-        id: `${UTXO.txId}:${UTXO.vout}${label.name}`,
-        ref: `${UTXO.txId}:${UTXO.vout}`,
-        type: LabelRefType.OUTPUT,
+        id: `${idSuffix}${label.name}`,
+        ref,
+        type,
         label: label.name,
         origin,
         isSystem: label.isSystem,
       }));
     }
     if (labelChanges.deleted) {
-      deletedTagIds = labelChanges.deleted.map((label) => `${UTXO.txId}:${UTXO.vout}${label.name}`);
+      deletedTagIds = labelChanges.deleted.map((label) => `${idSuffix}${label.name}`);
     }
     const { id }: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
     const updated = yield call(

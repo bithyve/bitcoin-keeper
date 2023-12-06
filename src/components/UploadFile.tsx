@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import DocumentPicker, { types } from 'react-native-document-picker';
 import Text from 'src/components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import RNFS from 'react-native-fs';
 
 function UploadFile({ fileHandler }) {
+  const { colorMode } = useColorMode();
   const handleDocumentSelection = useCallback(async () => {
     try {
       const response = await DocumentPicker.pick({
@@ -28,7 +29,7 @@ function UploadFile({ fileHandler }) {
         alignItems: 'center',
       }}
     >
-      <Box variant="linearGradient" style={styles.container}>
+      <Box backgroundColor={`${colorMode}.primaryGreenBackground`} style={styles.container}>
         <Text style={styles.text} color={'light.white'}>
           Import a BSMS or Output Descriptor File
         </Text>

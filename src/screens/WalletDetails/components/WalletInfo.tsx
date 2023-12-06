@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import useBalance from 'src/hooks/useBalance';
 import { Box } from 'native-base';
 import { useAppSelector } from 'src/store/hooks';
-import { hp } from 'src/common/data/responsiveness/responsive';
+import { hp } from 'src/constants/responsive';
 import BTC from 'src/assets/images/btc_wallet.svg';
 import Text from 'src/components/KeeperText';
 
@@ -17,9 +17,7 @@ function WalletInfo({ wallets }) {
         {wallets?.length} Linked Wallets
       </Text>
       <Box style={styles.headerBalanceContainer}>
-        <Box style={styles.headerBTCIcon}>
-          {getCurrencyIcon(BTC, 'dark')}
-        </Box>
+        <Box style={styles.headerBTCIcon}>{getCurrencyIcon(BTC, 'dark')}</Box>
         <Text color="light.textWallet" fontSize={hp(30)} style={styles.headerBalance}>
           {getBalance(netBalance)}
           <Text color="light.textColorDark" style={styles.balanceUnit}>

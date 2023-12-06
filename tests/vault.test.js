@@ -1,8 +1,8 @@
-import Relay from 'src/core/services/operations/Relay';
-import { getRandomBytes } from 'src/core/services/operations/encryption';
+import Relay from 'src/services/operations/Relay';
+import { getRandomBytes } from 'src/services/operations/encryption';
 import * as bitcoinJS from 'bitcoinjs-lib';
-import { VerificationType } from 'src/core/services/interfaces';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import { VerificationType } from 'src/services/interfaces';
+import SigningServer from 'src/services/operations/SigningServer';
 import idx from 'idx';
 import { authenticator } from 'otplib';
 import WalletOperations from 'src/core/wallets/operations';
@@ -39,12 +39,12 @@ import {
   SEEDSIGNER_SS_EXPORT,
 } from './signingDeviceExportFormats';
 import { getSeedSignerDetails, updateInputsForSeedSigner } from 'src/hardware/seedsigner';
-import { decodeURBytes } from 'src/core/services/qr';
+import { decodeURBytes } from 'src/services/qr';
 import { getKeystoneDetails, getTxHexFromKeystonePSBT } from 'src/hardware/keystone';
-import { URRegistryDecoder } from 'src/core/services/qr/bc-ur-registry';
+import { URRegistryDecoder } from 'src/services/qr/bc-ur-registry';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getJadeDetails } from 'src/hardware/jade';
-import ElectrumClient from 'src/core/services/electrum/client';
+import ElectrumClient from 'src/services/electrum/client';
 
 jest.setTimeout(20000);
 

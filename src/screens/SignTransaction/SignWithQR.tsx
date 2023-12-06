@@ -2,16 +2,16 @@ import { CommonActions, useNavigation, useRoute } from '@react-navigation/native
 
 import { Box } from 'native-base';
 import Buttons from 'src/components/Buttons';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import React from 'react';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { SignerType } from 'src/core/wallets/enums';
-import { Alert, StyleSheet } from 'react-native';
+import { Alert, ScrollView, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { useAppSelector } from 'src/store/hooks';
 import { useDispatch } from 'react-redux';
 import { Psbt } from 'bitcoinjs-lib';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { updateInputsForSeedSigner } from 'src/hardware/seedsigner';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
 import useVault from 'src/hooks/useVault';
@@ -38,7 +38,7 @@ function SignWithQR() {
   const { activeVault } = useVault(collaborativeWalletId);
   const isSingleSig = activeVault.scheme.n === 1;
 
-  const signTransaction = (signedSerializedPSBT) => {
+  const signTransaction = (signedSerializedPSBT, resetQR) => {
     try {
       Psbt.fromBase64(signedSerializedPSBT); // will throw if not a psbt
       if (isSingleSig) {
@@ -63,6 +63,7 @@ function SignWithQR() {
       dispatch(healthCheckSigner([signer]));
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
     } catch (err) {
+      resetQR();
       captureError(err);
       Alert.alert('Invalid QR, please scan the signed PSBT!');
       navigation.dispatch(CommonActions.navigate({ name: 'SignTransactionScreen', merge: true }));
@@ -87,16 +88,16 @@ function SignWithQR() {
     navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
   return (
     <ScreenWrapper>
-      <HeaderTitle title="Sign Transaction" subtitle="Scan the QR with the signing device" />
+      <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signing device" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
       </Box>
+      {signer.type === SignerType.KEEPER ? (
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+          <ShareWithNfc data={serializedPSBT} />
+        </ScrollView>
+      ) : null}
       <Box style={styles.bottom}>
-        {signer.type === SignerType.KEEPER ? (
-          <Box style={{ paddingBottom: '5%' }}>
-            <ShareWithNfc data={serializedPSBT} />
-          </Box>
-        ) : null}
         <Buttons
           primaryText="Scan PSBT"
           primaryCallback={navigateToQrScan}
@@ -112,11 +113,10 @@ export default SignWithQR;
 
 const styles = StyleSheet.create({
   center: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: '20%',
+    marginTop: '10%',
   },
   bottom: {
-    padding: '3%',
+    marginHorizontal: '5%',
   },
 });

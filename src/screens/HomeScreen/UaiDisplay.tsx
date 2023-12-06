@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { hp, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import { useDispatch } from 'react-redux';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { uaiActioned } from 'src/store/sagaActions/uai';
 import KeeperModal from 'src/components/KeeperModal';
 import { Alert, StyleSheet } from 'react-native';
-import { TransferType } from 'src/common/data/enums/TransferType';
+import { TransferType } from 'src/models/enums/TransferType';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import useVault from 'src/hooks/useVault';
 import useToastMessage from 'src/hooks/useToastMessage';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
-import UAIView from '../NewHomeScreen/components/HeaderDetails/components/UAIView';
+import UAIView from './components/HeaderDetails/components/UAIView';
+
+const nonSkippableUAIs = [uaiType.DEFAULT, uaiType.SECURE_VAULT];
 
 function UaiDisplay({ uaiStack }) {
   const [uai, setUai] = useState<UAI | {}>({});
@@ -62,7 +64,9 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.SECURE_VAULT:
         return {
           cta: () => {
-            navigtaion.navigate('AddSigningDevice');
+            navigtaion.dispatch(
+              CommonActions.navigate({ name: 'VaultSetup', merge: true, params: {} })
+            );
           },
         };
       case uaiType.SIGNING_DEVICES_HEALTH_CHECK:
@@ -74,7 +78,9 @@ function UaiDisplay({ uaiStack }) {
       case uaiType.VAULT_MIGRATION:
         return {
           cta: () => {
-            navigtaion.navigate('AddSigningDevice');
+            navigtaion.dispatch(
+              CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+            );
           },
         };
       case uaiType.IKS_REQUEST:
@@ -152,8 +158,8 @@ function UaiDisplay({ uaiStack }) {
         <UAIView
           title={uai?.title}
           primaryCallbackText="CONTINUE"
-          secondaryCallbackText={uai?.uaiType !== uaiType.DEFAULT ? 'SKIP' : null}
-          secondaryCallback={uai?.uaiType !== uaiType.DEFAULT ? uaiSetActionFalse : null}
+          secondaryCallbackText={!nonSkippableUAIs.includes(uai?.uaiType) && 'SKIP'}
+          secondaryCallback={!nonSkippableUAIs.includes(uai?.uaiType) && uaiSetActionFalse}
           primaryCallback={pressHandler}
         />
         <KeeperModal

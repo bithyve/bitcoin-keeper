@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { hp, windowHeight, wp } from 'src/common/data/responsiveness/responsive';
+import { hp, windowHeight, wp } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
@@ -22,20 +22,7 @@ import { AverageTxFees } from 'src/core/wallets/interfaces';
 import UtxoSummary from './UtxoSummary';
 import SCodeLearnMore from './components/SCodeLearnMore';
 import LearnMoreModal from '../UTXOManagement/components/LearnMoreModal';
-
-// function WhirlpoolContent() {
-//   return (
-//     <View>
-//       <Text color='light.white' style={{ letterSpacing: 0.6 }}>
-//         Coinjoin through Whirlpool involves a number of steps, and in addition a number of wallets.
-//         These wallets are all based off the same seed that you used to create the BIP39 software
-//         wallet you are using. They simply use different (but well known) derivation paths to derive
-//         other addresses. That means that you can always recover all your funds so long as you have
-//         the seed.
-//       </Text>
-//     </View>
-//   );
-// }
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function WhirlpoolConfiguration({ route }) {
   const { colorMode } = useColorMode();
@@ -67,9 +54,9 @@ export default function WhirlpoolConfiguration({ route }) {
   const feesContent = (fees, onFeeSelectionCallback) => (
     <Box style={styles.feeContent}>
       <Box style={styles.feeHeaderItem}>
-        <Text style={styles.feeItemHeader}>Priority</Text>
-        <Text style={styles.feeItemHeader}>Arrival Time</Text>
-        <Text style={styles.feeItemHeader}>Fee</Text>
+        <Text style={styles.feeItemHeader} color={`${colorMode}.secondaryText`}>Priority</Text>
+        <Text style={styles.feeItemHeader} color={`${colorMode}.secondaryText`}>Arrival Time</Text>
+        <Text style={styles.feeItemHeader} color={`${colorMode}.secondaryText`}>Fee</Text>
       </Box>
       {fees &&
         fees.map((fee) => (
@@ -91,12 +78,12 @@ export default function WhirlpoolConfiguration({ route }) {
                     // onTransactionPriorityChanged(priority)
                   }}
                 />
-                <Text style={[styles.feeItemText, { width: 90 }]}>
+                <Text style={[styles.feeItemText, { width: 90 }]} color={`${colorMode}.secondaryText`}>
                   &nbsp;&nbsp;{capitalizeFirstLetter(fee?.priority)}
                 </Text>
               </Box>
-              <Text style={[styles.feeItemText, { width: 110 }]}>{fee?.time}</Text>
-              <Text style={[styles.feeItemText, { width: 110 }]}>
+              <Text style={[styles.feeItemText, { width: 110 }]} color={`${colorMode}.secondaryText`}>{fee?.time}</Text>
+              <Text style={[styles.feeItemText, { width: 110 }]} color={`${colorMode}.secondaryText`}>
                 {fee?.fee} {fee?.fee > 1 ? 'sats' : 'sat'}/vB
               </Text>
             </Box>
@@ -177,6 +164,25 @@ export default function WhirlpoolConfiguration({ route }) {
     setShowFee(false);
   };
 
+  const { bottom } = useSafeAreaInsets();
+
+  const checkDuplicateFee = (fees) => {
+    let duplicate_fees = []
+    for (let fee in fees) {
+      for (let fee2 in fees) {
+        if (fee === fee2) {
+          continue;
+        }
+        else {
+          if (fees[fee] === fees[fee2]) {
+            duplicate_fees.push(fees[fee]);
+          }
+        }
+      }
+    }
+    return [...new Set(duplicate_fees)];
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : null}
@@ -185,8 +191,7 @@ export default function WhirlpoolConfiguration({ route }) {
       style={styles.keyBoardAvoidViewWrapper}
     >
       <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-        <HeaderTitle
-          paddingLeft={25}
+        <KeeperHeader
           title="Configure Whirlpool"
           subtitle="Prepare to start a mix"
           learnMore
@@ -217,7 +222,16 @@ export default function WhirlpoolConfiguration({ route }) {
             <Box style={styles.feeDetail}>
               <Box style={styles.column}>
                 <Text style={styles.feeHeader}>Priority</Text>
-                <Text style={styles.feeValue}>{capitalizeFirstLetter(selectedFee?.priority)}</Text>
+                <Box style={styles.radioWrapper}>
+                  {checkDuplicateFee(fees) && <Box mt={2} mr={1}>
+                    <RadioButton
+                      size={15}
+                      isChecked={checkDuplicateFee(fees)}
+                      borderColor="#E3E3E3"
+                    />
+                  </Box>}
+                  <Text style={styles.feeValue}>{capitalizeFirstLetter(selectedFee?.priority)}</Text>
+                </Box>
               </Box>
               <Box style={styles.column}>
                 <Text style={styles.feeHeader}>Arrival Time</Text>
@@ -231,17 +245,17 @@ export default function WhirlpoolConfiguration({ route }) {
               </Box>
             </Box>
           </Box>
-          <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.changePriority}>
+          {!checkDuplicateFee(fees) ? <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.changePriority}>
             <TouchableOpacity onPress={() => setShowFee(true)}>
               <Box style={styles.changePriorityDirection}>
                 <Text style={styles.changePriorityText}>Change Priority</Text>
                 <RightArrowIcon />
               </Box>
             </TouchableOpacity>
-          </Box>
+          </Box> : null}
         </ScrollView>
 
-        <Box style={styles.footerContainer}>
+        <Box style={[styles.footerContainer, { marginBottom: bottom / 2 }]}>
           <Box style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Box style={{ alignSelf: 'center', paddingBottom: 4, paddingLeft: 20 }}>
               <PageIndicator currentPage={0} totalPage={2} />
@@ -257,31 +271,14 @@ export default function WhirlpoolConfiguration({ route }) {
           close={closeFeeSelectionModal}
           title="Change Priority"
           subTitle="Select a priority for your transaction"
-          subTitleColor="#5F6965"
-          modalBackground={['#F7F2EC', '#F7F2EC']}
-          buttonBackground={['#00836A', '#073E39']}
-          buttonText=""
-          buttonTextColor="#FAFAFA"
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
           buttonCallback={closeFeeSelectionModal}
           closeOnOverlayClick={false}
           Content={() => feesContent(fees, onFeeSelectionCallback)}
         />
-
-        {/* <KeeperModal
-        visible={showWhirlpoolModal}
-        close={() => {
-          setShowWhirlpoolModal(false);
-          dispatch(setWhirlpoolModal(false));
-        }}
-        title="Whirlpool"
-        subTitle="Mix transactions to improve privacy and obfuscate your transaction history"
-        modalBackground={['light.gradientStart', 'light.gradientEnd']}
-        textColor="light.white"
-        Content={WhirlpoolContent}
-        DarkCloseIcon
-        learnMore
-        learnMoreCallback={() => openLink('https://www.bitcoinkeeper.app/')}
-      /> */}
         <LearnMoreModal
           visible={showWhirlpoolModal}
           closeModal={() => {
@@ -381,7 +378,6 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   feeItemHeader: {
-    color: '#656565',
     fontSize: 13,
     textAlign: 'left',
     width: 110,
@@ -402,7 +398,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   feeItemText: {
-    color: '#656565',
     fontSize: 13,
     textAlign: 'left',
   },
@@ -410,4 +405,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  radioWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  }
 });

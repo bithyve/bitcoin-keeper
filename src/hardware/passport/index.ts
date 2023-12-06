@@ -1,4 +1,4 @@
-import { HWErrorType } from 'src/common/data/enums/Hardware';
+import { HWErrorType } from 'src/models/enums/Hardware';
 import config from 'src/core/config';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import HWError from '../HWErrorState';

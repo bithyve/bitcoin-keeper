@@ -1,5 +1,5 @@
 import { CommonActions, NavigationProp, useNavigation } from '@react-navigation/native';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 import { SignerType } from 'src/core/wallets/enums';
@@ -7,8 +7,9 @@ import { getMockSigner } from 'src/hardware';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { setSigningDevices } from 'src/store/reducers/bhr';
+import { View } from 'native-base';
 
 MockWrapper.defaultProps = {
   enable: true,
@@ -23,7 +24,7 @@ function MockWrapper({
   isRecovery,
   navigation,
 }: {
-  children: ReactElement;
+  children: any;
   signerType: SignerType;
   enable?: boolean;
   isRecovery?: boolean;
@@ -38,7 +39,9 @@ function MockWrapper({
       if (signer) {
         if (!isRecovery) {
           dispatch(addSigningDevice(signer));
-          nav.dispatch(CommonActions.navigate('AddSigningDevice'));
+          nav.dispatch(
+            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+          );
         }
         if (isRecovery) {
           dispatch(setSigningDevices(signer));
@@ -56,7 +59,7 @@ function MockWrapper({
   }
   return (
     <TapGestureHandler numberOfTaps={3} onActivated={addMockSigner}>
-      {children}
+      <View flex={1}>{children}</View>
     </TapGestureHandler>
   );
 }

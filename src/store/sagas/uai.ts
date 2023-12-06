@@ -1,12 +1,12 @@
 import dbManager from 'src/storage/realm/dbManager';
 import { RealmSchema } from 'src/storage/realm/enum';
 import { call, put } from 'redux-saga/effects';
-import { UAI, uaiType } from 'src/common/data/models/interfaces/Uai';
+import { UAI, uaiType } from 'src/models/interfaces/Uai';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { v4 as uuidv4 } from 'uuid';
 
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { SUBSCRIPTION_SCHEME_MAP } from 'src/hooks/usePlan';
 import { setRefreshUai } from '../reducers/uai';
 import {
@@ -19,7 +19,8 @@ import {
   UAI_CHECKS,
 } from '../sagaActions/uai';
 import { createWatcher } from '../utilities';
-import { isTestnet } from 'src/common/constants/Bitcoin';
+import { isTestnet } from 'src/constants/Bitcoin';
+import { EntityKind, VaultType } from 'src/core/wallets/enums';
 
 const healthCheckRemider = (signer: VaultSigner) => {
   const today = new Date();
@@ -76,7 +77,7 @@ function* uaiChecksWorker({ payload }) {
   const { checkForTypes } = payload;
   const vault: Vault = dbManager
     .getCollection(RealmSchema.Vault)
-    .filter((vault: Vault) => !vault.archived)[0];
+    .filter((vault: Vault) => !vault.archived && vault.type !== VaultType.COLLABORATIVE)[0];
   try {
     if (checkForTypes.includes(uaiType.SIGNING_DEVICES_HEALTH_CHECK)) {
       if (vault) {
@@ -137,26 +138,31 @@ function* uaiChecksWorker({ payload }) {
         null,
         true
       );
-      for (const wallet of wallets) {
-        const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
-        if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
-          if (uai) {
-            if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
-              yield put(uaiActionedEntity(uai.entityId, false));
+      if (vault) {
+        for (const wallet of wallets) {
+          const uai = dbManager.getObjectByField(RealmSchema.UAI, wallet.id, 'entityId')[0];
+          if (
+            wallet.entityKind === EntityKind.WALLET &&
+            wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)
+          ) {
+            if (uai) {
+              if (wallet.specs.balances.confirmed >= Number(wallet?.transferPolicy?.threshold)) {
+                yield put(uaiActionedEntity(uai.entityId, false));
+              }
+            } else {
+              yield put(
+                addToUaiStack({
+                  title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
+                  isDisplay: false,
+                  uaiType: uaiType.VAULT_TRANSFER,
+                  prirority: 80,
+                  entityId: wallet.id,
+                })
+              );
             }
-          } else {
-            yield put(
-              addToUaiStack({
-                title: `Transfer fund to Vault from ${wallet.presentationData.name}`,
-                isDisplay: false,
-                uaiType: uaiType.VAULT_TRANSFER,
-                prirority: 80,
-                entityId: wallet.id,
-              })
-            );
+          } else if (uai) {
+            yield put(uaiActionedEntity(uai.entityId, true));
           }
-        } else if (uai) {
-          yield put(uaiActionedEntity(uai.entityId, true));
         }
       }
     }

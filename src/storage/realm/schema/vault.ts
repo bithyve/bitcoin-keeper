@@ -16,6 +16,13 @@ const propertyType = {
   properties: { xpub: 'string', derivationPath: 'string' },
 };
 
+const deviceInfo = {
+  type: '{}?',
+  properties: {
+    registerdWallet: 'string?',
+  },
+};
+
 export const SignerPolicy: ObjectSchema = {
   name: RealmSchema.SignerPolicy,
   embedded: true,
@@ -123,6 +130,7 @@ export const VaultSignerSchema: ObjectSchema = {
     xpubDetails: RealmSchema.XpubDetails,
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
+    deviceInfo: deviceInfo,
   },
 };
 
@@ -146,6 +154,7 @@ export const VaultSpecsSchema: ObjectSchema = {
     nextFreeChangeAddressIndex: 'int',
     receivingAddress: 'string?',
     addresses: `${RealmSchema.AddressCache}?`,
+    addressPubs: `{}?`,
     confirmedUTXOs: `${RealmSchema.UTXO}[]`,
     unconfirmedUTXOs: `${RealmSchema.UTXO}[]`,
     balances: Balances,

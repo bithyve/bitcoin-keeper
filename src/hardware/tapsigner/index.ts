@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import { Alert } from 'react-native';
 import { CKTapCard } from 'cktap-protocol-react-native';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import { ScriptTypes, XpubTypes } from 'src/core/wallets/enums';
 import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
@@ -49,6 +49,24 @@ export const getTapsignerDetails = async (card: CKTapCard, cvc: string, isMultis
     // reset to original path
     await card.set_derivation(status.path, cvc);
     return { xpub, xfp, derivationPath, xpubDetails };
+  }
+};
+
+export const unlockRateLimit = async (card: CKTapCard) => {
+  const status = await card.first_look();
+  const isLegit = await card.certificate_check();
+  let authDelay = status.auth_delay;
+  if (!authDelay) {
+    return { authDelay };
+  }
+  if (isLegit && status.auth_delay) {
+    while (authDelay !== 0) {
+      const { auth_delay } = await card.wait();
+      if (!auth_delay) {
+        return { authDelay: 0 };
+      }
+      authDelay = auth_delay;
+    }
   }
 };
 

@@ -1,9 +1,9 @@
 import Text from 'src/components/KeeperText';
-import { Box, Input } from 'native-base';
+import { Box, Input, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 
-import { LocalizationContext } from 'src/common/content/LocContext';
-import Buttons from '../Buttons';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Buttons from 'src/components/Buttons';
 
 function ConfirmSeedWord(props) {
   const { translations } = useContext(LocalizationContext);
@@ -71,14 +71,14 @@ function ConfirmSeedWord(props) {
         return 'twelfth';
     }
   };
-
+  const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor="light.mainBackground" padding={10} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.primaryBackground`} padding={10} borderRadius={10}>
       <Box>
-        <Text fontSize={19} color="light.primaryText">
+        <Text fontSize={19} color={`${colorMode}.primaryText`}>
           {BackupWallet.confirmSeedWord}
         </Text>
-        <Text fontSize={13} color="light.secondaryText" mb={10}>
+        <Text fontSize={13} color={`${colorMode}.secondaryText`} mb={10}>
           Exactly as they were displayed
         </Text>
       </Box>
@@ -88,8 +88,8 @@ function ConfirmSeedWord(props) {
         </Text>
         <Input
           placeholder={`Enter ${getHint(index)} word`}
-          placeholderTextColor="light.secondaryText"
-          backgroundColor="light.primaryBackground"
+          placeholderTextColor={`${colorMode}.secondaryText`}
+          backgroundColor={`${colorMode}.seashellWhite`}
           value={seedWord}
           autoCorrect={false}
           autoComplete="off"

@@ -6,7 +6,6 @@ import {
   DerivationPurpose,
   EntityKind,
   SignerType,
-  VaultMigrationType,
   VaultType,
   VisibilityType,
   WalletType,
@@ -16,7 +15,7 @@ import {
   InheritancePolicy,
   SignerException,
   SignerRestriction,
-} from 'src/core/services/interfaces';
+} from 'src/services/interfaces';
 import { Vault, VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import {
   TransferPolicy,
@@ -37,10 +36,10 @@ import {
 } from 'src/store/reducers/wallets';
 
 import { Alert } from 'react-native';
-import { KeeperApp } from 'src/common/data/models/interfaces/KeeperApp';
+import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import { RealmSchema } from 'src/storage/realm/enum';
-import Relay from 'src/core/services/operations/Relay';
-import SigningServer from 'src/core/services/operations/SigningServer';
+import Relay from 'src/services/operations/Relay';
+import SigningServer from 'src/services/operations/SigningServer';
 import WalletOperations from 'src/core/wallets/operations';
 import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
@@ -49,14 +48,15 @@ import dbManager from 'src/storage/realm/dbManager';
 import { generateVault } from 'src/core/wallets/factories/VaultFactory';
 import { generateWallet, generateWalletSpecs } from 'src/core/wallets/factories/WalletFactory';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
-import { generateKey, hash256 } from 'src/core/services/operations/encryption';
-import { uaiType } from 'src/common/data/models/interfaces/Uai';
-import { captureError } from 'src/core/services/sentry';
-import {
+import { generateKey, hash256 } from 'src/services/operations/encryption';
+import { uaiType } from 'src/models/interfaces/Uai';
+import { captureError } from 'src/services/sentry';
+import ElectrumClient, {
+  ELECTRUM_CLIENT,
   ELECTRUM_NOT_CONNECTED_ERR,
   ELECTRUM_NOT_CONNECTED_ERR_TOR,
-} from 'src/core/services/electrum/client';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
+} from 'src/services/electrum/client';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import { RootState } from '../store';
 import {
@@ -493,11 +493,17 @@ export function* addNewVaultWorker({
   try {
     const { newVaultInfo, isMigrated, oldVaultId, isRecreation = false } = payload;
     let { vault } = payload;
-    const { vaultType, vaultScheme, vaultSigners, vaultDetails, collaborativeWalletId } =
-      newVaultInfo;
 
     // When the vault is passed directly during upgrade/downgrade process
     if (!vault) {
+      const {
+        vaultType = VaultType.DEFAULT,
+        vaultScheme,
+        vaultSigners,
+        vaultDetails,
+        collaborativeWalletId,
+      } = newVaultInfo;
+
       if (vaultScheme.n !== vaultSigners.length)
         throw new Error('Vault schema(n) and signers mismatch');
 
@@ -517,11 +523,11 @@ export function* addNewVaultWorker({
       });
     }
 
-    if (collaborativeWalletId && !isRecreation) {
+    if (newVaultInfo && newVaultInfo.collaborativeWalletId && !isRecreation) {
       const hotWallet = yield call(
         dbManager.getObjectById,
         RealmSchema.Wallet,
-        collaborativeWalletId
+        newVaultInfo.collaborativeWalletId
       );
       const descriptor = genrateOutputDescriptors(vault);
       yield call(updateWalletsPropertyWorker, {
@@ -532,10 +538,11 @@ export function* addNewVaultWorker({
         },
       });
     }
+
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
       ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
-      : collaborativeWalletId
+      : newVaultInfo && newVaultInfo.collaborativeWalletId
       ? { updated: true }
       : yield call(updateVaultImageWorker, { payload: { vault } });
 
@@ -579,10 +586,15 @@ export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD
 function* migrateVaultWorker({
   payload,
 }: {
-  payload: { newVaultData: NewVaultInfo; migrationType: VaultMigrationType; vaultShellId: string };
+  payload: { newVaultData: NewVaultInfo; vaultShellId: string };
 }) {
   try {
-    const { vaultType, vaultScheme, vaultSigners, vaultDetails } = payload.newVaultData;
+    const {
+      vaultType = VaultType.DEFAULT,
+      vaultScheme,
+      vaultSigners,
+      vaultDetails,
+    } = payload.newVaultData;
     const { vaultShellId } = payload;
 
     if (vaultScheme.n !== vaultSigners.length)
@@ -672,7 +684,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
 
     const { updated } = yield call(
       InheritanceKeyServer.updateInheritanceConfig,
-      vault.shellId,
+      ikSigner.signerId,
       existingThresholdDescriptors,
       newIKSConfiguration
     );
@@ -702,7 +714,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
 
     const { setupSuccessful } = yield call(
       InheritanceKeyServer.finalizeIKSetup,
-      vault.shellId,
+      ikSigner.signerId,
       config,
       policy
     );
@@ -769,6 +781,10 @@ function* refreshWalletsWorker({
 }) {
   const { wallets, options } = payload;
   try {
+    if (!ELECTRUM_CLIENT.isClientConnected) {
+      const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+    }
+
     yield put(setSyncing({ wallets, isSyncing: true }));
     const { synchedWallets }: { synchedWallets: (Wallet | Vault)[] } = yield call(
       syncWalletsWorker,
@@ -779,8 +795,9 @@ function* refreshWalletsWorker({
         },
       }
     );
+
     for (const synchedWallet of synchedWallets) {
-      if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
+      // if (!synchedWallet.specs.hasNewUpdates) continue; // no new updates found
 
       if (synchedWallet.entityKind === EntityKind.VAULT) {
         yield call(dbManager.updateObjectById, RealmSchema.Vault, synchedWallet.id, {
@@ -803,15 +820,21 @@ function* refreshWalletsWorker({
 
     let netBalance = 0;
     existingWallets.forEach((wallet) => {
-      const { confirmed, unconfirmed } = wallet.specs.balances;
-      netBalance = netBalance + confirmed + unconfirmed;
+      if (wallet.presentationData.visibility !== VisibilityType.HIDDEN) {
+        const { confirmed, unconfirmed } = wallet.specs.balances;
+        netBalance = netBalance + confirmed + unconfirmed;
+      }
     });
 
     yield put(uaiChecks([uaiType.VAULT_TRANSFER]));
     yield put(setNetBalance(netBalance));
   } catch (err) {
     if ([ELECTRUM_NOT_CONNECTED_ERR, ELECTRUM_NOT_CONNECTED_ERR_TOR].includes(err?.message))
-      yield put(setElectrumNotConnectedErr(err?.message));
+      yield put(
+        setElectrumNotConnectedErr(
+          'Network error: please check your network/ node connection and try again'
+        )
+      );
     else captureError(err);
   } finally {
     yield put(setSyncing({ wallets, isSyncing: false }));
@@ -936,24 +959,32 @@ export const updateWalletSettingsWatcher = createWatcher(
   UPDATE_WALLET_SETTINGS
 );
 
-export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+export function* updateSignerPolicyWorker({
+  payload,
+}: {
+  payload: { signer; updates; verificationToken };
+}) {
   const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
   const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
   const {
     signer,
     updates,
+    verificationToken,
   }: {
     signer: VaultSigner;
     updates: {
       restrictions?: SignerRestriction;
       exceptions?: SignerException;
     };
+    verificationToken;
   } = payload;
-  const vaultId = activeVault.shellId;
-  const appId = app.id;
-  const { updated } = yield call(SigningServer.updatePolicy, vaultId, appId, updates);
+  const { updated } = yield call(
+    SigningServer.updatePolicy,
+    signer.signerId,
+    verificationToken,
+    updates
+  );
   if (!updated) {
     Alert.alert('Failed to update signer policy, try again.');
     throw new Error('Failed to update the policy');

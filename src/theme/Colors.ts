@@ -47,10 +47,13 @@ const Colors = {
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
   TropicalRainForestDark: 'rgba(137,174,167,1)',
+  ForestGreenDark: 'rgba(107,155,146,1)',
   RichBlackDark: 'rgba(208,200,190,1)',
   RichGreenDark: 'rgba(137,174,167,1)',
   DeepSpaceSparkleDark: 'rgba(160,160,160,1)',
   pantoneGreenDark: 'rgba(107,155,146,1)',
-  SeashellDark: 'rgba(72,81,79,1)'
+  SeashellDark: 'rgba(72,81,79,1)',
+  CastelGreenDark: 'rgba(0, 67, 58, 1)',
+  CoffeeDark: 'rgba(150,130,111, 1)',
 };
 export default Colors;

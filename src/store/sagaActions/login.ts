@@ -1,4 +1,4 @@
-import LoginMethod from 'src/common/data/enums/LoginMethod';
+import LoginMethod from 'src/models/enums/LoginMethod';
 
 export const STORE_CREDS = 'STORE_CREDS';
 export const CREDS_AUTH = 'CREDS_AUTH';

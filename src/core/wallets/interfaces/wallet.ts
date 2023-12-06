@@ -40,8 +40,12 @@ export interface WhirlpoolConfig {
 }
 
 export interface AddressCache {
-  external: {};
-  internal: {};
+  external: {}; // maps index to external address
+  internal: {}; // maps index to internal address
+}
+
+export interface AddressPubs {
+  [address: string]: string; // address to pub matching
 }
 
 export interface WalletSpecs {
@@ -51,6 +55,7 @@ export interface WalletSpecs {
   nextFreeChangeAddressIndex: number; // internal-chain free address marker
   receivingAddress?: string; // current receiving address(external chain)
   addresses?: AddressCache; // cached addresses
+  addressPubs?: AddressPubs; // cached pubs
   confirmedUTXOs: UTXO[]; // utxo set available for use
   unconfirmedUTXOs: UTXO[]; // utxos to arrive
   balances: Balances; // confirmed/unconfirmed balances
@@ -77,7 +82,7 @@ export interface Wallet {
   transferPolicy?: TransferPolicy;
   whirlpoolConfig?: WhirlpoolConfig;
   depositWalletId?: string; // this for pre-mix,post-mix,bad-bank to point to the deposit wallet.
-  collaborativeWalletDetails: CollaborativeWalletDetails;
+  collaborativeWalletDetails?: CollaborativeWalletDetails;
 }
 
 export interface TriggerPolicy {

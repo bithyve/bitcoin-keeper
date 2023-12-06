@@ -1,18 +1,14 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, useColorMode } from 'native-base';
-import { TouchableOpacity } from 'react-native';
-
-import { ScaledSheet } from 'react-native-size-matters';
-
-// components
-import { hp, wp } from 'src/common/data/responsiveness/responsive';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import { hp, wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
 import BTCIcon from 'src/assets/images/btc_black.svg';
 import BTCWhite from 'src/assets/images/btc_white.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
-import { SatsToBtc } from 'src/common/constants/Bitcoin';
-import CurrencyInfo from '../NewHomeScreen/components/CurrencyInfo';
+import { SatsToBtc } from 'src/constants/Bitcoin';
+import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
 
 function WalletSendInfo({
   availableAmt = '',
@@ -24,7 +20,11 @@ function WalletSendInfo({
 }) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
+    <Box
+      testID="view_wallet_info"
+      style={styles.container}
+      backgroundColor={`${colorMode}.seashellWhite`}
+    >
       <Box flexDirection="row">
         <TouchableOpacity style={styles.buttonBackground}>
           <IconWallet />
@@ -75,7 +75,7 @@ function WalletSendInfo({
     </Box>
   );
 }
-const styles = ScaledSheet.create({
+const styles = StyleSheet.create({
   buttonBackground: {
     backgroundColor: '#FAC48B',
     width: hp(45),
@@ -101,7 +101,7 @@ const styles = ScaledSheet.create({
   },
   balanceWrapper: {
     flexDirection: 'row',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
 export default WalletSendInfo;

@@ -6,7 +6,7 @@
     "react-native/react-native": true,
     "node": true
   },
-  "extends": ["plugin:react/recommended", "airbnb/hooks", "airbnb", "prettier"],
+  "extends": ["plugin:react/recommended", "airbnb/hooks", "airbnb", "prettier", "@react-native"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {

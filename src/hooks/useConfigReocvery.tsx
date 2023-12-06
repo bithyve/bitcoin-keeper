@@ -1,4 +1,3 @@
-// import { Alert, StyleSheet, TextInput } from 'react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
@@ -7,12 +6,13 @@ import { useAppSelector } from 'src/store/hooks';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
 import { addNewVault } from 'src/store/sagaActions/vaults';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
 import messaging from '@react-native-firebase/messaging';
 import { useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
+import { setRecoveryCreatedApp } from 'src/store/reducers/storage';
 
 const useConfigRecovery = () => {
   const { appId } = useAppSelector((state) => state.storage);
@@ -26,8 +26,10 @@ const useConfigRecovery = () => {
   async function createNewApp() {
     try {
       const fcmToken = await messaging().getToken();
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp(fcmToken));
     } catch (error) {
+      dispatch(setRecoveryCreatedApp(true));
       dispatch(setupKeeperApp());
     }
   }

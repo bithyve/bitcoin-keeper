@@ -3,17 +3,15 @@ import { Box, useColorMode } from 'native-base';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, FlatList, ActivityIndicator, View, Modal } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-
-import { hp, windowHeight } from 'src/common/data/responsiveness/responsive';
-import { LocalizationContext } from 'src/common/content/LocContext';
+import { hp, windowHeight } from 'src/constants/responsive';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { useAppDispatch } from 'src/store/hooks';
 import { NodeDetail } from 'src/core/wallets/interfaces';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import Note from 'src/components/Note/Note';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// import Switch from 'src/components/Switch/Switch';
 import AddIcon from 'src/assets/images/add.svg';
-// import EditIcon from 'src/assets/images/edit_yellow.svg';
+import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import ConnectIcon from 'src/assets/images/connectNode.svg';
 import DisconnectIcon from 'src/assets/images/disconnectNode.svg';
 import DeleteIcon from 'src/assets/images/deleteNode.svg';
@@ -26,7 +24,7 @@ import {
   electrumClientConnectionInitiated,
 } from 'src/store/reducers/login';
 import AddNode from './AddNodeModal';
-import Node from '../../../core/services/electrum/node';
+import Node from 'src/services/electrum/node';
 
 function NodeSettings() {
   const { colorMode } = useColorMode();
@@ -158,28 +156,7 @@ function NodeSettings() {
   };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`} barStyle="dark-content">
-      <HeaderTitle
-        paddingLeft={25}
-        title={settings.nodeSettings}
-        subtitle={settings.nodeSettingUsedSoFar}
-      />
-      {/* <Box style={styles.nodeConnectSwitchWrapper}>
-        <Box>
-          <Text color={`${colorMode}.primaryText`} style={styles.connectToMyNodeTitle}>
-            {settings.connectToMyNode}
-          </Text>
-          <Text style={styles.appSettingSubTitle} color={`${colorMode}.secondaryText`}>
-            {settings.connectToMyNodeSubtitle}
-          </Text>
-        </Box>
-        <Box>
-          <Switch value={ConnectToNode} onValueChange={onChangeConnectToMyNode} />
-        </Box>
-      </Box> */}
-      {/* <Box borderColor="light.GreyText" style={styles.splitter} /> */}
-      {/* <Box style={styles.nodeListHeader}>
-        <Text style={styles.nodeListTitle}>{settings.currentlyConnected}</Text>
-      </Box> */}
+      <KeeperHeader title={settings.nodeSettings} subtitle={settings.nodeSettingUsedSoFar} />
       {nodeList.length > 0 && (
         <Box style={styles.nodesListWrapper}>
           <FlatList
@@ -193,18 +170,12 @@ function NodeSettings() {
                   style={item.id === currentlySelectedNode?.id ? styles.selectedItem : null}
                 >
                   <Box
-                    backgroundColor={isConnected ? `${colorMode}.seashellWhite` : `${colorMode}.fadedGray`}
+                    backgroundColor={`${colorMode}.seashellWhite`}
                     style={[styles.nodeList]}
                   >
                     <Box
-                      style={[
-                        styles.nodeDetail,
-                        {
-                          backgroundColor: isConnected
-                            ? `${colorMode}.seashellWhite`
-                            : `${colorMode}.fadedGray`,
-                        },
-                      ]}
+                      style={styles.nodeDetail}
+                      backgroundColor={`${colorMode}.seashellWhite`}
                     >
                       <Box style={{ width: '60%' }}>
                         <Text color={`${colorMode}.secondaryText`} style={[styles.nodeTextHeader]}>
@@ -221,7 +192,7 @@ function NodeSettings() {
                         <Text style={styles.nodeTextValue}>{item.port}</Text>
                       </Box>
                     </Box>
-                    <Box style={styles.nodeButtons}>
+                    <Box style={styles.nodeButtons} backgroundColor={`${colorMode}.seashellWhite`}>
                       <TouchableOpacity
                         onPress={() => {
                           if (!isConnected) onConnectToNode(item);
@@ -256,30 +227,27 @@ function NodeSettings() {
             }}
           />
         </Box>
-      )
-      }
-
+      )}
       <TouchableOpacity onPress={onAdd}>
         <Box backgroundColor={`${colorMode}.lightAccent`} style={styles.addNewNode}>
-          <AddIcon />
-          <Text style={styles.addNewNodeText}>{settings.addNewNode}</Text>
+          {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
+          <Text style={[styles.addNewNodeText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>{settings.addNewNode}</Text>
         </Box>
       </TouchableOpacity>
-
       <Box style={styles.note} backgroundColor={`${colorMode}.primaryBackground`}>
         <Note title={common.note} subtitle={settings.nodeSettingsNote} subtitleColor="GreyText" />
       </Box>
-
       <KeeperModal
         justifyContent="center"
         visible={visible}
         close={closeAddNodeModal}
         title={settings.nodeDetailsTitle}
         subTitle={settings.nodeDetailsSubtitle}
-        modalBackground={[`${colorMode}.modalWhiteBackground`, `${colorMode}.modalWhiteBackground`]}
-        buttonBackground={['#00836A', '#073E39']}
+        modalBackground={`${colorMode}.modalWhiteBackground`}
+        buttonBackground={`${colorMode}.gradientStart`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
+        DarkCloseIcon={colorMode === 'dark'}
         buttonText=""
         buttonTextColor="#FAFAFA"
         buttonCallback={closeAddNodeModal}
@@ -291,7 +259,7 @@ function NodeSettings() {
           <ActivityIndicator color="#017963" size="large" />
         </View>
       </Modal>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
@@ -341,7 +309,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     height: windowHeight > 800 ? '65%' : '56%',
-    // alignItems: 'center',
   },
   nodeListTitle: {
     fontSize: 14,
@@ -417,13 +384,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
-    width: '100%',
   },
   addNewNodeText: {
     fontSize: 15,
     fontWeight: '400',
     letterSpacing: 0.6,
-    paddingLeft: 10,
   },
 });
 

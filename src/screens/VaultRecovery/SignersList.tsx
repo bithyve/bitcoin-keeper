@@ -1,18 +1,18 @@
 import { Box, ScrollView, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { hp, windowHeight, windowWidth, wp } from 'src/common/data/responsiveness/responsive';
+import React, { useContext, useEffect, useState } from 'react';
+import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import Text from 'src/components/KeeperText';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import ColdCardSetupImage from 'src/assets/images/ColdCardSetup.svg';
-import HeaderTitle from 'src/components/HeaderTitle';
+import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
 import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import { Alert, StyleSheet, TouchableOpacity } from 'react-native';
-import { captureError } from 'src/core/services/sentry';
+import { captureError } from 'src/services/sentry';
 import config, { APP_STAGE } from 'src/core/config';
 import { getPassportDetails } from 'src/hardware/passport';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
@@ -25,9 +25,9 @@ import { getJadeDetails } from 'src/hardware/jade';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { generateSignerFromMetaData, getSignerNameFromType } from 'src/hardware';
-import { crossInteractionHandler } from 'src/common/utilities';
-import SigningServer from 'src/core/services/operations/SigningServer';
-import NFC from 'src/core/services/nfc';
+import { crossInteractionHandler } from 'src/utils/utilities';
+import SigningServer from 'src/services/operations/SigningServer';
+import NFC from 'src/services/nfc';
 import { useAppSelector } from 'src/store/hooks';
 import Clipboard from '@react-native-community/clipboard';
 import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
@@ -38,14 +38,16 @@ import LedgerImage from 'src/assets/images/ledger_image.svg';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import BitoxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import InheritanceKeyServer from 'src/core/services/operations/InheritanceKey';
-import { generateKey } from 'src/core/services/operations/encryption';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
+import { generateKey } from 'src/services/operations/encryption';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { close } from '@sentry/react-native';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import { generateCosignerMapIds } from 'src/core/wallets/factories/VaultFactory';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -73,9 +75,9 @@ export const getDeviceStatus = (
         disabled: config.ENVIRONMENT !== APP_STAGE.DEVELOPMENT && !isNfcSupported,
       };
     case SignerType.POLICY_SERVER:
-      if (signingDevices.length < 1) {
+      if (signingDevices.length < 2) {
         return {
-          message: 'Add another device first to recover',
+          message: 'Add two other devices first to recover',
           disabled: true,
         };
       }
@@ -223,7 +225,7 @@ function SeedSignerSetupContent() {
             marginLeft: wp(10),
           }}
         >
-          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Adavnced > Bitcoin network > Testnet and enable it`}
+          {`\u2022 Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it`}
         </Text>
       </Box>
     </View>
@@ -357,10 +359,12 @@ function SignersList({ navigation }) {
   }, []);
 
   const { navigate } = useNavigation();
+  const { translations } = useContext(LocalizationContext);
+  const { vault: vaultTranslation } = translations;
 
   const dispatch = useDispatch();
   const { showToast } = useToastMessage();
-  const verifyPassport = async (qrData) => {
+  const verifyPassport = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
       const passport: VaultSigner = generateSignerFromMetaData({
@@ -374,6 +378,7 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(passport));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from Passport!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
@@ -421,8 +426,7 @@ function SignersList({ navigation }) {
             color="light.greenText"
             marginTop={2}
           >
-            If you lose your authenticator app, use the other Signing Devices to reset the Signing
-            Server
+            {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
             <Box>
@@ -445,7 +449,7 @@ function SignersList({ navigation }) {
     );
   };
 
-  const verifySeedSigner = async (qrData) => {
+  const verifySeedSigner = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
       const seedSigner: VaultSigner = generateSignerFromMetaData({
@@ -459,13 +463,14 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(seedSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from SeedSigner!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
-  const verifyKeystone = async (qrData) => {
+  const verifyKeystone = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
       const keystone: VaultSigner = generateSignerFromMetaData({
@@ -479,13 +484,14 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(keystone));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from Keystone!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
-  const verifyJade = async (qrData) => {
+  const verifyJade = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
       const jade: VaultSigner = generateSignerFromMetaData({
@@ -499,13 +505,14 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(jade));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       showToast('Invalid QR, please scan the QR from Jade!');
       navigation.dispatch(CommonActions.navigate('SignersList'));
       captureError(err);
     }
   };
 
-  const verifyKeeperSigner = (qrData) => {
+  const verifyKeeperSigner = (qrData, resetQR) => {
     try {
       const { mfp, xpub, derivationPath } = JSON.parse(qrData);
       const ksd = generateSignerFromMetaData({
@@ -519,6 +526,7 @@ function SignersList({ navigation }) {
       dispatch(setSigningDevices(ksd));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
     } catch (err) {
+      resetQR();
       const message = crossInteractionHandler(err);
       throw new Error(message);
     }
@@ -526,9 +534,9 @@ function SignersList({ navigation }) {
 
   const verifySigningServer = async (otp) => {
     try {
-      const vaultId = relayVaultReoveryShellId;
-      const appId = relayVaultReoveryShellId;
-      const response = await SigningServer.fetchSignerSetup(vaultId, appId, otp);
+      if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
+      const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
       if (response.xpub) {
         const signingServerKey = generateSignerFromMetaData({
           xpub: response.xpub,
@@ -537,8 +545,10 @@ function SignersList({ navigation }) {
           signerType: SignerType.POLICY_SERVER,
           storageType: SignerStorage.WARM,
           isMultisig: true,
+          signerId: response.id,
           signerPolicy: response.policy,
         });
+
         dispatch(setSigningDevices(signingServerKey));
         navigation.dispatch(CommonActions.navigate('VaultRecoveryAddSigner'));
         showToast(`${signingServerKey.signerName} added successfully`, <TickIcon />);
@@ -550,13 +560,15 @@ function SignersList({ navigation }) {
 
   const requestInheritanceKey = async (signers: VaultSigner[]) => {
     try {
+      if (signers.length <= 1) throw new Error('Add two other devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+
       const requestId = `request-${generateKey(10)}`;
-      const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
-        vaultId,
+        cosignersMapIds[0],
         thresholdDescriptors
       );
 
@@ -583,18 +595,18 @@ function SignersList({ navigation }) {
     const open = () => setVisible(true);
     const close = () => setVisible(false);
 
-    const onQRScan = (qrData) => {
+    const onQRScan = (qrData, resetQR) => {
       switch (type as SignerType) {
         case SignerType.PASSPORT:
-          return verifyPassport(qrData);
+          return verifyPassport(qrData, resetQR);
         case SignerType.SEEDSIGNER:
-          return verifySeedSigner(qrData);
+          return verifySeedSigner(qrData, resetQR);
         case SignerType.KEYSTONE:
-          return verifyKeystone(qrData);
+          return verifyKeystone(qrData, resetQR);
         case SignerType.JADE:
-          return verifyJade(qrData);
+          return verifyJade(qrData, resetQR);
         case SignerType.KEEPER:
-          return verifyKeeperSigner(qrData);
+          return verifyKeeperSigner(qrData, resetQR);
         default:
       }
     };
@@ -815,7 +827,7 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.BITBOX02}
           close={close}
           title="Keep BitBox02 Ready"
-          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with BitBox02.`}
+          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with BitBox02.`}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => <BitBox02Content />}
@@ -826,7 +838,7 @@ function SignersList({ navigation }) {
           visible={visible && type === SignerType.TREZOR}
           close={close}
           title="Keep Trezor Ready"
-          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interfce to connect with Trezor.`}
+          subTitle={`Please visit ${config.KEEPER_HWI} on your Chrome browser to use the Keeper Hardware Interface to connect with Trezor.`}
           subTitleColor="light.secondaryText"
           textColor="light.primaryText"
           Content={() => <TrezorContent />}
@@ -841,15 +853,12 @@ function SignersList({ navigation }) {
 
   return (
     <ScreenWrapper>
-      <HeaderTitle
+      <KeeperHeader
         title="Select Signing Device"
         subtitle="To recover your Vault"
-        headerTitleColor="light.textBlack"
         onPressHandler={() =>
           navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         }
-        paddingTop={hp(5)}
-        paddingLeft={wp(25)}
       />
       <ScrollView style={{ height: hp(520) }} showsVerticalScrollIndicator={false}>
         <Box paddingY="4">
@@ -909,7 +918,6 @@ const styles = StyleSheet.create({
   contactUsText: {
     fontSize: 12,
     letterSpacing: 0.6,
-    fontWeight: '200',
     width: wp(300),
     lineHeight: 20,
     marginTop: hp(20),
