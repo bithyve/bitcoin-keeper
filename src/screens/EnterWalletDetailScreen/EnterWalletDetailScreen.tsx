@@ -164,7 +164,9 @@ function EnterWalletDetailScreen({ route }) {
           placeholder={common.path}
           placeholderTextColor={`${colorMode}.GreyText`}
           value={path}
-          onChangeText={(value) => setPath(value)}
+          onChangeText={(value) => {
+            setPath(value)
+          }}
           style={styles.inputField}
           width={wp(260)}
           autoCorrect={false}
@@ -206,7 +208,14 @@ function EnterWalletDetailScreen({ route }) {
             placeholder={wallet.WalletNamePlaceHolder}
             placeholderTextColor={`${colorMode}.GreyText`}
             value={walletName}
-            onChangeText={(value) => setWalletName(value)}
+            onChangeText={(value) => {
+              if (route.params?.name === walletName) {
+                setWalletName('')
+                return
+              }
+              setWalletName(value)
+            }
+            }
             style={styles.inputField}
             width={wp(260)}
             autoCorrect={false}
@@ -225,7 +234,14 @@ function EnterWalletDetailScreen({ route }) {
             placeholder={wallet.WalletDescriptionPlaceholder}
             placeholderTextColor={`${colorMode}.GreyText`}
             value={walletDescription}
-            onChangeText={(value) => setWalletDescription(value)}
+            onChangeText={(value) => {
+              if (route.params?.description === walletDescription) {
+                setWalletDescription('')
+                return
+              }
+              setWalletDescription(value)
+            }
+            }
             style={styles.inputField}
             width={wp(260)}
             autoCorrect={false}
@@ -335,7 +351,7 @@ function EnterWalletDetailScreen({ route }) {
 
       <KeeperModal
         dismissible
-        close={() => {}}
+        close={() => { }}
         visible={hasNewWalletsGenerationFailed}
         subTitle={err}
         title="Failed"
