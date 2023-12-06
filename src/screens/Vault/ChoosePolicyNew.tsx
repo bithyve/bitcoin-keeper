@@ -58,21 +58,21 @@ function ChoosePolicyNew({ navigation, route }) {
   const dispatch = useDispatch();
 
   const onNext = () => {
-    const maxAmount = Number(maxTransaction);
-    const restrictions: SignerRestriction = {
-      none: maxAmount === 0,
-      maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
-    };
-
-    const minAmount = Number(minTransaction);
-    const exceptions: SignerException = {
-      none: minAmount === 0,
-      transactionAmount: minAmount === 0 ? null : minAmount,
-    };
-
     if (isUpdate) {
       showValidationModal(true);
     } else {
+      const maxAmount = Number(maxTransaction);
+      const restrictions: SignerRestriction = {
+        none: maxAmount === 0,
+        maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
+      };
+
+      const minAmount = Number(minTransaction);
+      const exceptions: SignerException = {
+        none: minAmount === 0,
+        transactionAmount: minAmount === 0 ? null : minAmount,
+      };
+
       const policy: SignerPolicy = {
         verification: {
           method: VerificationType.TWO_FA,
@@ -86,6 +86,7 @@ function ChoosePolicyNew({ navigation, route }) {
       );
     }
   };
+
   const confirmChangePolicy = async () => {
     const maxAmount = Number(maxTransaction);
     const restrictions: SignerRestriction = {
@@ -102,12 +103,13 @@ function ChoosePolicyNew({ navigation, route }) {
       restrictions,
       exceptions,
     };
-    const verificationToken = otp; // TODO: integrate OTP modal to supply verification token
+    const verificationToken = Number(otp);
     dispatch(updateSignerPolicy(route.params.signer, updates, verificationToken));
     navigation.dispatch(
       CommonActions.navigate({ name: 'VaultDetails', params: { vaultTransferSuccessful: null } })
     );
-  }
+  };
+
   const otpContent = useCallback(() => {
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
@@ -218,7 +220,7 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => { }}
+          clear={() => {}}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon

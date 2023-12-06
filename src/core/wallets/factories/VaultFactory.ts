@@ -278,7 +278,6 @@ const updateCosignersMapForAssistedKeys = async (signers) => {
   for (let signer of signers) {
     if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
       const cosignersMapUpdates = generateCosignerMapUpdates(signers, signer);
-      console.log({ cosignersMapUpdates, type: signer.type });
 
       if (signer.type === SignerType.POLICY_SERVER) {
         const { updated } = await SigningServer.updateCosignersToSignerMap(
