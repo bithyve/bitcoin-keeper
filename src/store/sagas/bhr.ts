@@ -57,7 +57,7 @@ import { setAppId } from '../reducers/storage';
 import { applyRestoreSequence } from './restoreUpgrade';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
-import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
 import { getCosignerDetails } from 'src/core/wallets/factories/WalletFactory';
 import { NewVaultInfo, addNewVaultWorker } from './wallets';
 
@@ -376,8 +376,10 @@ function* recoverApp(
             signers.push(signer);
           });
 
-          const { xpub: myXpub } = getCosignerDetails(decrytpedWallet, app.id);
-          const isValidDescriptor = signers.find((signer) => signer.xpub === myXpub);
+          const { xpubDetails } = getCosignerDetails(decrytpedWallet, app.id);
+          const isValidDescriptor = signers.find(
+            (signer) => signer.xpub === xpubDetails[XpubTypes.P2WSH].xpub
+          );
           if (!isValidDescriptor) {
             throw new Error('Descriptor does not contain your key');
           }

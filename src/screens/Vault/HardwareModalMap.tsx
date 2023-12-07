@@ -375,16 +375,19 @@ const verifyJade = (qrData, signer) => {
   return xpub === signer.xpub;
 };
 
-const setupKeeperSigner = (qrData) => {
+const setupKeeperSigner = (qrData, isMultisig) => {
   try {
-    const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+    const { mfp, xpubDetails } = JSON.parse(qrData);
     const ksd = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
+      xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
+      derivationPath: isMultisig
+        ? xpubDetails[XpubTypes.P2WSH].derivationPath
+        : xpubDetails[XpubTypes.P2WPKH].derivationPath,
       xfp: mfp,
       signerType: SignerType.KEEPER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
+      xpubDetails,
     });
     return ksd;
   } catch (err) {
@@ -793,7 +796,7 @@ function HardwareModalMap({
           hw = setupSeedSigner(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
-          hw = setupKeeperSigner(qrData);
+          hw = setupKeeperSigner(qrData, isMultisig);
           break;
         case SignerType.KEYSTONE:
           hw = setupKeystone(qrData, isMultisig);
