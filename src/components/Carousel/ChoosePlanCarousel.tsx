@@ -17,12 +17,15 @@ interface Props {
   onChange?: any;
   isMonthly: boolean;
   requesting: boolean;
+  currentPosition: number;
 }
 
 function ChoosePlanCarousel(props: Props) {
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
 
-  const [currentPosition, setCurrentPosition] = useState(subscription.level - 1);
+  const [currentPosition, setCurrentPosition] = useState(
+    props.currentPosition !== 0 ? props.currentPosition : subscription.level - 1
+  );
 
   const _onSnapToItem = (index) => {
     setCurrentPosition(index);

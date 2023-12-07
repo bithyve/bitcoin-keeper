@@ -41,11 +41,13 @@ export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
   if (shouldSwitchXpub) {
     const switchedXpub = signer.xpubDetails[xPubTypeToSwitch].xpub;
     const switchedDerivation = signer.xpubDetails[xPubTypeToSwitch].derivationPath;
+    const switchedXpriv = signer.xpubDetails[xPubTypeToSwitch].xpriv;
     const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
     return {
       ...signer,
       xpub: switchedXpub,
       derivationPath: switchedDerivation,
+      xpriv: switchedXpriv,
       signerId: WalletUtilities.getFingerprintFromExtendedKey(switchedXpub, network),
     };
   }
