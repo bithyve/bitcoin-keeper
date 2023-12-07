@@ -39,7 +39,7 @@ function VersionHistoryList() {
               letterSpacing={0.3}
             >
               {/* {item.date} */}
-              {moment(item.date).format('ddd DD MMM YYYY hh:mma')}
+              {moment(item.date).format('ddd DD MMM YYYY HH:mma')}
             </Text>
             <Box
               backgroundColor={`${colorMode}.seashellWhite`}
