@@ -103,6 +103,7 @@ import {
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
+import { connectToNodeWorker } from './network';
 
 export interface NewVaultDetails {
   name?: string;
@@ -782,7 +783,7 @@ function* refreshWalletsWorker({
   const { wallets, options } = payload;
   try {
     if (!ELECTRUM_CLIENT.isClientConnected) {
-      const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+      yield call(connectToNodeWorker);
     }
 
     yield put(setSyncing({ wallets, isSyncing: true }));
