@@ -440,6 +440,7 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
     storageType: SignerStorage.WARM,
     isMultisig: true,
     xpriv: isMultisig ? multiSigXpriv : singleSigXpriv,
+    xpubDetails,
   });
   return mobileKey;
 };
@@ -470,6 +471,7 @@ export const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) =>
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
     isMultisig,
+    xpubDetails,
   });
 
   return softSigner;

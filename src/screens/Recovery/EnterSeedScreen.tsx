@@ -33,13 +33,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/utils/utilities';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Fonts from 'src/constants/Fonts';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
@@ -193,6 +193,11 @@ function EnterSeedScreen({ route }) {
         networkType,
         EntityKind.WALLET
       );
+
+      const xpubDetails: XpubDetailsType = {};
+      xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+      xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+
       const softSigner = generateSignerFromMetaData({
         xpub: isMultisig ? multiSigXpub : singleSigXpub,
         derivationPath: isMultisig ? multiSigPath : singleSigPath,
@@ -200,6 +205,7 @@ function EnterSeedScreen({ route }) {
         signerType: SignerType.SEED_WORDS,
         storageType: SignerStorage.WARM,
         isMultisig,
+        xpubDetails,
       });
       dispatch(setSigningDevices(softSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
