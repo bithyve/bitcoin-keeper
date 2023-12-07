@@ -178,21 +178,28 @@ function EnterSeedScreen({ route }) {
     return seedWord.trim();
   };
 
-  const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
+  const setupSeedWordsBasedKey = (mnemonic: string) => {
     try {
       const networkType = config.NETWORK_TYPE;
-      const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
+      // fetched multi-sig seed words based key
+      const {
+        xpub: multiSigXpub,
+        derivationPath: multiSigPath,
+        masterFingerprint,
+      } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
+      // fetched single-sig seed words based key
+      const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
         mnemonic,
         networkType,
-        entity
+        EntityKind.WALLET
       );
       const softSigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
+        xpub: isMultisig ? multiSigXpub : singleSigXpub,
+        derivationPath: isMultisig ? multiSigPath : singleSigPath,
         xfp: masterFingerprint,
         signerType: SignerType.SEED_WORDS,
         storageType: SignerStorage.WARM,
-        isMultisig: entity !== EntityKind.WALLET,
+        isMultisig,
       });
       dispatch(setSigningDevices(softSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });

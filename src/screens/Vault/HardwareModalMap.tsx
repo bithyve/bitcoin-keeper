@@ -33,7 +33,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultScheme, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
@@ -403,20 +403,43 @@ const verifyKeeperSigner = (qrData, signer) => {
   }
 };
 
-const setupMobileKey = async ({ primaryMnemonic }) => {
+const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
   const networkType = config.NETWORK_TYPE;
-  const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
-    primaryMnemonic,
-    networkType
-  );
+
+  // fetched multi-sig mobile key
+  const {
+    xpub: multiSigXpub,
+    xpriv: multiSigXpriv,
+    derivationPath: multiSigPath,
+    masterFingerprint,
+  } = await generateMobileKey(primaryMnemonic, networkType);
+  // fetched single-sig mobile key
+  const {
+    xpub: singleSigXpub,
+    xpriv: singleSigXpriv,
+    derivationPath: singleSigPath,
+  } = await generateMobileKey(primaryMnemonic, networkType, EntityKind.WALLET);
+
+  const xpubDetails: XpubDetailsType = {};
+  xpubDetails[XpubTypes.P2WPKH] = {
+    xpub: singleSigXpub,
+    derivationPath: singleSigPath,
+    xpriv: singleSigXpriv,
+  };
+  xpubDetails[XpubTypes.P2WSH] = {
+    xpub: multiSigXpub,
+    derivationPath: multiSigPath,
+    xpriv: multiSigXpriv,
+  };
+
   const mobileKey = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
+    xpub: isMultisig ? multiSigXpub : singleSigXpub,
+    derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
     signerType: SignerType.MOBILE_KEY,
     storageType: SignerStorage.WARM,
     isMultisig: true,
-    xpriv,
+    xpriv: isMultisig ? multiSigXpriv : singleSigXpriv,
   });
   return mobileKey;
 };
@@ -967,7 +990,6 @@ function HardwareModalMap({
   };
 
   const biometricAuth = async () => {
-    console.log('biometricAuth');
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
         setInProgress(true);

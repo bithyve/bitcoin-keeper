@@ -132,7 +132,8 @@ export const generateVault = async ({
 
 export const generateMobileKey = async (
   primaryMnemonic: string,
-  networkType: NetworkType
+  networkType: NetworkType,
+  entityKind: EntityKind = EntityKind.VAULT
 ): Promise<{
   xpub: string;
   xpriv: string;
@@ -144,7 +145,7 @@ export const generateMobileKey = async (
 
   const DEFAULT_CHILD_PATH = 0;
   const xDerivationPath = WalletUtilities.getDerivationPath(
-    EntityKind.VAULT,
+    entityKind,
     networkType,
     DEFAULT_CHILD_PATH
   );
