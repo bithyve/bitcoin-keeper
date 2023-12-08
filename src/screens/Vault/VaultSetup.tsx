@@ -1,15 +1,18 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { useDispatch } from 'react-redux';
+
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
 import { setVaultRecoveryDetails } from 'src/store/reducers/bhr';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const NumberInput = ({ value, onDecrease, onIncrease }) => {
   const { colorMode } = useColorMode();
@@ -38,6 +41,7 @@ const NumberInput = ({ value, onDecrease, onIncrease }) => {
 const VaultSetup = () => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
   const { params } = useRoute();
   const { isRecreation } = (params as { isRecreation: Boolean }) || {};
   const dispatch = useDispatch();
@@ -64,6 +68,29 @@ const VaultSetup = () => {
       setScheme({ ...scheme, n: scheme.n + 1 });
     }
   };
+  const OnProceed = () => {
+    if (vaultName !== '' && vaultDescription !== '') {
+      if (isRecreation) {
+        dispatch(
+          setVaultRecoveryDetails({
+            scheme,
+            name: vaultName,
+            description: vaultDescription,
+          })
+        );
+        navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      } else {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AddSigningDevice',
+            params: { scheme, name: vaultName, description: vaultDescription },
+          })
+        );
+      }
+    } else {
+      showToast('Please Enter Vault name and description', <ToastErrorIcon />)
+    }
+  }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -95,27 +122,7 @@ const VaultSetup = () => {
       </VStack>
       <Buttons
         primaryText="Proceed"
-        primaryCallback={
-          isRecreation
-            ? () => {
-                dispatch(
-                  setVaultRecoveryDetails({
-                    scheme,
-                    name: vaultName,
-                    description: vaultDescription,
-                  })
-                );
-                navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-              }
-            : () => {
-                navigation.dispatch(
-                  CommonActions.navigate({
-                    name: 'AddSigningDevice',
-                    params: { scheme, name: vaultName, description: vaultDescription },
-                  })
-                );
-              }
-        }
+        primaryCallback={OnProceed}
       />
     </ScreenWrapper>
   );

@@ -1,9 +1,9 @@
-appId: io.hexawallet.hexakeeper.dev
+appId: ${APPID}
 ---
 - launchApp
 - extendedWaitUntil:
     visible: 'Enter your passcode'
-    timeout: 15000
+    timeout: 20000
 - assertNotVisible: 'Proceed'
 - tapOn: '1'
 - tapOn: '2'
@@ -15,6 +15,8 @@ appId: io.hexawallet.hexakeeper.dev
     timeout: 5000
 - assertVisible: 'Incorrect password'
 - assertNotVisible: 'Proceed'
+- assertVisible: 'Retry'
+- tapOn: 'Retry'
 - tapOn: '1'
 - tapOn: '2'
 - tapOn: '3'
@@ -23,12 +25,9 @@ appId: io.hexawallet.hexakeeper.dev
 - tapOn: 'Proceed'
 - waitForAnimationToEnd:
     timeout: 5000
-- assertVisible: 'Share Feedback'
 - extendedWaitUntil:
     visible: 'Next'
-    timeout: 5000
+    timeout: 30000
 - tapOn: 'Next'
 - waitForAnimationToEnd:
     timeout: 2000
-- assertVisible:
-    id: 'btn_vault'

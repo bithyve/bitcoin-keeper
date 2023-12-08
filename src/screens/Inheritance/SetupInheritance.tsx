@@ -124,7 +124,8 @@ function SetupInheritance() {
 
   const toSetupInheritance = () => {
     if (shouldActivateInheritance()) navigtaion.navigate('InheritanceStatus');
-    else if (plan !== SubscriptionTier.L3.toUpperCase()) navigtaion.navigate('ChoosePlan');
+    else if (plan !== SubscriptionTier.L3.toUpperCase())
+      navigtaion.navigate('ChoosePlan', { planPosition: 2 });
     else if (!activeVault)
       navigtaion.dispatch(
         CommonActions.navigate({

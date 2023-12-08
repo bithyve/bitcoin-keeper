@@ -94,7 +94,8 @@
     "pleaseWait": "Please Wait",
     "receiveTestSats": "Receiving test sats",
     "upgradeNow": "Upgrade Now",
-    "somethingWrong": "Something went wrong"
+    "somethingWrong": "Something went wrong",
+    "showAsQR": "Show as QR"
   },
   "noInternet": {
     "no": "No Internet",
@@ -448,7 +449,9 @@
     "recoverYourKeeperApp": "Recovering your Keeper app",
     "recoverYourKeeperAppSubTitle": "Recovering your wallets and Vault for the Keeper app",
     "walletRecoveryPhrase": "Wallet Recovery Phrase",
-    "showXPubNoteSubText": "Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully."
+    "showXPubNoteSubText": "Losing your Recovery Phrase may result in permanent loss of funds. Store them carefully.",
+    "mobileKeyVerified": "Mobile Key verified successfully",
+    "seedWordVerified": "Seed Words verified successfully"
   },
   "healthcheck": {
     "ChangeSigningDevice": "Change signing device",
@@ -662,7 +665,9 @@
     "myWalletBackupTitle": "My Wallet Backup",
     "SEED_BACKUP_CREATED": "Recovery Phrase backup is created",
     "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
-    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped"
+    "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
+    "recoveryPhrase": "Recovery Phrase",
+    "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase"
   },
   "importWallet": {
     "addDetails": "Add details",

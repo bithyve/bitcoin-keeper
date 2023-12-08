@@ -11,11 +11,11 @@ const KeeperTextInput = ({
   defaultValue = null,
   maxLength = null,
   inputRef = null,
-  height = 10
+  height = 10,
 }) => {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.seashellWhite`} borderRadius={10}>
+    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Input
         defaultValue={defaultValue}
         ref={inputRef}
@@ -37,7 +37,6 @@ const KeeperTextInput = ({
         }
         backgroundColor={`${colorMode}.seashellWhite`}
       />
-
     </Box>
   );
 };
@@ -45,6 +44,10 @@ const KeeperTextInput = ({
 export default KeeperTextInput;
 
 const styles = StyleSheet.create({
+  container: {
+    borderRadius: 10,
+    marginVertical: 10,
+  },
   inputField: {
     fontSize: 13,
     letterSpacing: 0.96,

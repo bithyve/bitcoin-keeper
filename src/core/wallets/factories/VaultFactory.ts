@@ -21,6 +21,14 @@ import {
 import WalletUtilities from '../operations/utils';
 import config from 'src/core/config';
 import WalletOperations from '../operations';
+import {
+  CosignersMapUpdate,
+  CosignersMapUpdateAction,
+  IKSCosignersMapUpdate,
+  IKSCosignersMapUpdateAction,
+} from 'src/services/interfaces';
+import SigningServer from 'src/services/operations/SigningServer';
+import InheritanceKeyServer from 'src/services/operations/InheritanceKey';
 
 const crypto = require('crypto');
 
@@ -47,7 +55,7 @@ export const generateVaultId = (signers, networkType, scheme) => {
   return id;
 };
 
-export const generateVault = ({
+export const generateVault = async ({
   type,
   vaultName,
   vaultDescription,
@@ -65,7 +73,7 @@ export const generateVault = ({
   networkType: NetworkType;
   vaultShellId?: string;
   collaborativeWalletId?: string;
-}): Vault => {
+}): Promise<Vault> => {
   const id = generateVaultId(signers, networkType, scheme);
   const xpubs = signers.map((signer) => signer.xpub);
   const shellId = vaultShellId || generateKey(12);
@@ -115,12 +123,17 @@ export const generateVault = ({
     collaborativeWalletId,
   };
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
+
+  // update cosigners map(if one of the signers is an assisted key)
+  await updateCosignersMapForAssistedKeys(signers);
+
   return vault;
 };
 
 export const generateMobileKey = async (
   primaryMnemonic: string,
-  networkType: NetworkType
+  networkType: NetworkType,
+  entityKind: EntityKind = EntityKind.VAULT
 ): Promise<{
   xpub: string;
   xpriv: string;
@@ -132,7 +145,7 @@ export const generateMobileKey = async (
 
   const DEFAULT_CHILD_PATH = 0;
   const xDerivationPath = WalletUtilities.getDerivationPath(
-    EntityKind.VAULT,
+    entityKind,
     networkType,
     DEFAULT_CHILD_PATH
   );
@@ -212,6 +225,76 @@ export const generateMockExtendedKey = (
     xDerivationPath
   );
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
+};
+
+export const generateCosignerMapIds = (signers: VaultSigner[], except: SignerType) => {
+  const cosignerIds = [];
+  signers.forEach((signer) => {
+    if (signer.type !== except) cosignerIds.push(signer.signerId);
+  });
+
+  cosignerIds.sort();
+
+  const cosignersMapIds = [];
+  for (let i = 0; i < cosignerIds.length; i++) {
+    for (let j = i + 1; j < cosignerIds.length; j++) {
+      cosignersMapIds.push(cosignerIds[i] + '-' + cosignerIds[j]);
+    }
+  }
+  return cosignersMapIds;
+};
+
+export const generateCosignerMapUpdates = (
+  signers: VaultSigner[],
+  assistedKey: VaultSigner
+): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
+  const cosignersMapIds = generateCosignerMapIds(signers, assistedKey.type);
+
+  if (assistedKey.type === SignerType.POLICY_SERVER) {
+    const cosignersMapUpdates: CosignersMapUpdate[] = [];
+    for (let id of cosignersMapIds) {
+      cosignersMapUpdates.push({
+        cosignersId: id,
+        signerId: assistedKey.signerId,
+        action: CosignersMapUpdateAction.ADD,
+      });
+    }
+
+    return cosignersMapUpdates;
+  } else if (assistedKey.type === SignerType.INHERITANCEKEY) {
+    const cosignersMapUpdates: IKSCosignersMapUpdate[] = [];
+    for (let id of cosignersMapIds) {
+      cosignersMapUpdates.push({
+        cosignersId: id,
+        inheritanceKeyId: assistedKey.signerId,
+        action: IKSCosignersMapUpdateAction.ADD,
+      });
+    }
+
+    return cosignersMapUpdates;
+  } else throw new Error('Non-supported signer type');
+};
+
+const updateCosignersMapForAssistedKeys = async (signers) => {
+  for (let signer of signers) {
+    if (signer.type === SignerType.POLICY_SERVER || signer.type === SignerType.INHERITANCEKEY) {
+      const cosignersMapUpdates = generateCosignerMapUpdates(signers, signer);
+
+      if (signer.type === SignerType.POLICY_SERVER) {
+        const { updated } = await SigningServer.updateCosignersToSignerMap(
+          signer.signerId,
+          cosignersMapUpdates as CosignersMapUpdate[]
+        );
+        if (!updated) throw new Error('Failed to update cosigners-map for SS Assisted Keys');
+      } else if (signer.type === SignerType.INHERITANCEKEY) {
+        const { updated } = await InheritanceKeyServer.updateCosignersToSignerMapIKS(
+          signer.signerId,
+          cosignersMapUpdates as IKSCosignersMapUpdate[]
+        );
+        if (!updated) throw new Error('Failed to update cosigners-map for IKS Assisted Keys');
+      }
+    }
+  }
 };
 
 export const MOCK_SD_MNEMONIC_MAP = {

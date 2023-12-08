@@ -330,7 +330,6 @@ function UTXOManagement({ route, navigation }) {
               </Box>
               <Box style={styles.batteryModalTextArea}>
                 <Box style={{ flexDirection: 'row' }}>
-                  {/* <Text style={[styles.batteryModalText, styles.bulletPoint]}>{'\u2022'}</Text> */}
                   <Text style={styles.batteryModalText}>
                     You will see the progress of your mix in the next step.
                   </Text>
@@ -411,11 +410,6 @@ const getStyles = () =>
     },
     batteryModalTextArea: {
       marginTop: 40,
-    },
-    bulletPoint: {
-      paddingRight: 10,
-      fontSize: 16,
-      fontWeight: '600',
     },
     batteryModalText: {
       marginTop: 10,

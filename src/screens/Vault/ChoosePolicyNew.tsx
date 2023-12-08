@@ -1,7 +1,7 @@
 import Text from 'src/components/KeeperText';
 import { Box, Input, useColorMode } from 'native-base';
-import { Keyboard, StyleSheet } from 'react-native';
-import React, { useContext, useState } from 'react';
+import { Keyboard, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useCallback, useContext, useState } from 'react';
 import {
   SignerException,
   SignerPolicy,
@@ -14,19 +14,30 @@ import { updateSignerPolicy } from 'src/store/sagaActions/wallets';
 import AppNumPad from 'src/components/AppNumPad';
 import Buttons from 'src/components/Buttons';
 import { CommonActions } from '@react-navigation/native';
+import Clipboard from '@react-native-community/clipboard';
+import idx from 'idx';
+import { useDispatch } from 'react-redux';
+
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import idx from 'idx';
 import { numberWithCommas } from 'src/utils/utilities';
-import { useDispatch } from 'react-redux';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import KeeperModal from 'src/components/KeeperModal';
+import KeyPadView from 'src/components/AppNumPad/KeyPadView';
+import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
+import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
+import useToastMessage from 'src/hooks/useToastMessage';
+import DeleteIcon from 'src/assets/images/deleteBlack.svg';
 
 function ChoosePolicyNew({ navigation, route }) {
   const { colorMode } = useColorMode();
+  const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { signingServer, common } = translations;
+  const { signingServer, common, vault: vaultTranslation } = translations;
 
   const [selectedPolicy, setSelectedPolicy] = useState('max');
+  const [validationModal, showValidationModal] = useState(false);
+  const [otp, setOtp] = useState('');
 
   const isUpdate = route.params.update;
   const existingRestrictions: SignerRestriction = route.params.restrictions;
@@ -47,28 +58,21 @@ function ChoosePolicyNew({ navigation, route }) {
   const dispatch = useDispatch();
 
   const onNext = () => {
-    const maxAmount = Number(maxTransaction);
-    const restrictions: SignerRestriction = {
-      none: maxAmount === 0,
-      maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
-    };
-
-    const minAmount = Number(minTransaction);
-    const exceptions: SignerException = {
-      none: minAmount === 0,
-      transactionAmount: minAmount === 0 ? null : minAmount,
-    };
-
     if (isUpdate) {
-      const updates = {
-        restrictions,
-        exceptions,
-      };
-      dispatch(updateSignerPolicy(route.params.signer, updates));
-      navigation.dispatch(
-        CommonActions.navigate({ name: 'VaultDetails', params: { vaultTransferSuccessful: null } })
-      );
+      showValidationModal(true);
     } else {
+      const maxAmount = Number(maxTransaction);
+      const restrictions: SignerRestriction = {
+        none: maxAmount === 0,
+        maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
+      };
+
+      const minAmount = Number(minTransaction);
+      const exceptions: SignerException = {
+        none: minAmount === 0,
+        transactionAmount: minAmount === 0 ? null : minAmount,
+      };
+
       const policy: SignerPolicy = {
         verification: {
           method: VerificationType.TWO_FA,
@@ -83,6 +87,80 @@ function ChoosePolicyNew({ navigation, route }) {
     }
   };
 
+  const confirmChangePolicy = async () => {
+    const maxAmount = Number(maxTransaction);
+    const restrictions: SignerRestriction = {
+      none: maxAmount === 0,
+      maxTransactionAmount: maxAmount === 0 ? null : maxAmount,
+    };
+
+    const minAmount = Number(minTransaction);
+    const exceptions: SignerException = {
+      none: minAmount === 0,
+      transactionAmount: minAmount === 0 ? null : minAmount,
+    };
+    const updates = {
+      restrictions,
+      exceptions,
+    };
+    const verificationToken = Number(otp);
+    dispatch(updateSignerPolicy(route.params.signer, updates, verificationToken));
+    navigation.dispatch(
+      CommonActions.navigate({ name: 'VaultDetails', params: { vaultTransferSuccessful: null } })
+    );
+  };
+
+  const otpContent = useCallback(() => {
+    const onPressNumber = (text) => {
+      let tmpPasscode = otp;
+      if (otp.length < 6) {
+        if (text !== 'x') {
+          tmpPasscode += text;
+          setOtp(tmpPasscode);
+        }
+      }
+      if (otp && text === 'x') {
+        setOtp(otp.slice(0, -1));
+      }
+    };
+
+    const onDeletePressed = () => {
+      setOtp(otp.slice(0, otp.length - 1));
+    };
+
+    return (
+      <Box width={hp(300)}>
+        <Box>
+          <TouchableOpacity
+            onPress={async () => {
+              const clipBoardData = await Clipboard.getString();
+              if (clipBoardData.match(/^\d{6}$/)) {
+                setOtp(clipBoardData);
+              } else {
+                showToast('Invalid OTP');
+              }
+            }}
+          >
+            <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
+          </TouchableOpacity>
+          <Text style={styles.cvvInputInfoText} color="light.greenText">
+            {vaultTranslation.cvvSigningServerInfo}
+          </Text>
+          <Box mt={10} alignSelf="flex-end" mr={2}>
+            <Box>
+              <CustomGreenButton onPress={confirmChangePolicy} value="Confirm" />
+            </Box>
+          </Box>
+        </Box>
+        <KeyPadView
+          onPressNumber={onPressNumber}
+          onDeletePressed={onDeletePressed}
+          keyColor="light.primaryText"
+          ClearIcon={<DeleteIcon />}
+        />
+      </Box>
+    );
+  }, [otp]);
   function Field({ title, subTitle, value, onPress }) {
     return (
       <Box style={styles.fieldWrapper}>
@@ -93,7 +171,7 @@ function ChoosePolicyNew({ navigation, route }) {
           </Text>
         </Box>
 
-        <Box width='40%' ml={3} >
+        <Box width="40%" ml={3}>
           <Input
             backgroundColor={`${colorMode}.seashellWhite`}
             onPressIn={onPress}
@@ -107,13 +185,16 @@ function ChoosePolicyNew({ navigation, route }) {
             }}
           />
         </Box>
-      </Box >
+      </Box>
     );
   }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader title={signingServer.choosePolicy} subtitle={signingServer.choosePolicySubTitle} />
+      <KeeperHeader
+        title={signingServer.choosePolicy}
+        subtitle={signingServer.choosePolicySubTitle}
+      />
       <Box
         style={{
           paddingHorizontal: wp(15),
@@ -139,12 +220,22 @@ function ChoosePolicyNew({ navigation, route }) {
       <Box>
         <AppNumPad
           setValue={selectedPolicy === 'max' ? setMaxTransaction : setMinTransaction}
-          clear={() => { }}
+          clear={() => {}}
           color={`${colorMode}.greenText`}
           height={windowHeight > 600 ? 50 : 80}
           darkDeleteIcon
         />
       </Box>
+      <KeeperModal
+        visible={validationModal}
+        close={() => {
+          showValidationModal(false);
+        }}
+        title="Confirm OTP to change policy"
+        subTitle="To complete setting up the signing server"
+        textColor="light.primaryText"
+        Content={otpContent}
+      />
     </ScreenWrapper>
   );
 }
@@ -175,6 +266,12 @@ const styles = StyleSheet.create({
   keypadWrapper: {
     position: 'absolute',
     bottom: 0,
+  },
+  cvvInputInfoText: {
+    fontSize: 13,
+    letterSpacing: 0.65,
+    width: '100%',
+    marginTop: 2,
   },
 });
 export default ChoosePolicyNew;

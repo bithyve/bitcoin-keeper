@@ -40,6 +40,7 @@ export const generateSignerFromMetaData = ({
   xpriv = null,
   isMock = false,
   xpubDetails = {} as XpubDetailsType,
+  signerId = null,
   signerPolicy = null,
   inheritanceKeyInfo = null,
 }): VaultSigner => {
@@ -56,8 +57,8 @@ export const generateSignerFromMetaData = ({
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
   xpubDetails = Object.keys(xpubDetails).length
     ? xpubDetails
-    : { [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath } };
-  const signerId = WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+    : { [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath, xpriv } };
+  signerId = signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
   const signer: VaultSigner = {
     signerId,
     type: signerType,

@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -18,7 +18,7 @@ import { getCosignerDetails, signCosignerPSBT } from 'src/core/wallets/factories
 import { RealmSchema } from 'src/storage/realm/enum';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { KeeperApp } from 'src/models/interfaces/KeeperApp';
-import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
+import { SignerStorage, SignerType, VaultType, XpubTypes } from 'src/core/wallets/enums';
 import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import OptionCTA from 'src/components/OptionCTA';
@@ -287,28 +287,36 @@ function SetupCollaborativeWallet() {
     }
   };
 
-  const pushSigner = (coSigner, goBack = true) => {
+  const pushSigner = (
+    coSigner: {
+      deviceId: string;
+      mfp: string;
+      xpubDetails: XpubDetailsType;
+    },
+    goBack = true
+  ) => {
     try {
-      if (!coSigner.xpub) {
-        coSigner = JSON.parse(coSigner);
-        if (!coSigner.xpub) {
+      if (!coSigner.xpubDetails && !coSigner.xpubDetails[XpubTypes.P2WSH].xpub) {
+        coSigner = JSON.parse(coSigner as any);
+        if (!coSigner.xpubDetails && !coSigner.xpubDetails[XpubTypes.P2WSH].xpub) {
           showToast('Please scan a vaild QR', <ToastErrorIcon />, 4000);
           return;
         }
       }
-      const { mfp, xpub, derivationPath } = coSigner;
+      const { mfp, xpubDetails } = coSigner;
       // duplicate check
-      if (coSigners.find((item) => item && item.xpub === xpub)) {
+      if (coSigners.find((item) => item && item.xpub === xpubDetails[XpubTypes.P2WSH].xpub)) {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
         return;
       }
       const ksd = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
+        xpub: xpubDetails[XpubTypes.P2WSH].xpub,
+        derivationPath: xpubDetails[XpubTypes.P2WSH].derivationPath,
         xfp: mfp,
         signerType: SignerType.KEEPER,
         storageType: SignerStorage.WARM,
         isMultisig: true,
+        xpubDetails,
       });
       let addedSigner = false;
       const newSigners = coSigners.map((item) => {

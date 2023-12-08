@@ -12,26 +12,18 @@ import CVVInputsView from 'src/components/HealthCheck/CVVInputsView';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import KeeperModal from 'src/components/KeeperModal';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import Note from 'src/components/Note/Note';
 import QRCode from 'react-native-qrcode-svg';
-import { RealmSchema } from 'src/storage/realm/enum';
 import StatusBarComponent from 'src/components/StatusBarComponent';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { authenticator } from 'otplib';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useDispatch } from 'react-redux';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { generateSignerFromMetaData } from 'src/hardware';
 import SigningServer from 'src/services/operations/SigningServer';
-import useVault from 'src/hooks/useVault';
-import { setTempShellId } from 'src/store/reducers/vaults';
-import { generateKey } from 'src/services/operations/encryption';
-import { useAppSelector } from 'src/store/hooks';
-import { useQuery } from '@realm/react';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function SetupSigningServer({ route }: { route }) {
@@ -39,33 +31,16 @@ function SetupSigningServer({ route }: { route }) {
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
   const { translations } = useContext(LocalizationContext);
-  const { vault: vaultTranslation } = translations
+  const { vault: vaultTranslation } = translations;
   const [validationModal, showValidationModal] = useState(false);
-  const { activeVault } = useVault();
-  const { tempShellId } = useAppSelector((state) => state.vault);
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const [setupData, setSetupData] = useState(null);
   const [validationKey, setValidationKey] = useState('');
   const [isSetupValidated, setIsSetupValidated] = useState(false);
 
-  const getShellId = () => {
-    if (activeVault) {
-      return activeVault.shellId;
-    }
-    if (!tempShellId) {
-      const vaultShellId = generateKey(12);
-      dispatch(setTempShellId(vaultShellId));
-      return vaultShellId;
-    }
-    return tempShellId;
-  };
-
-  const fetchSetupData = async () => {
+  const registerSigningServer = async () => {
     const { policy } = route.params;
-    const vaultId = getShellId();
-    const appId = keeper.id;
     try {
-      const { setupData } = await SigningServer.register(vaultId, appId, policy);
+      const { setupData } = await SigningServer.register(policy);
       setSetupData(setupData);
       setValidationKey(setupData.verification.verifier);
     } catch (err) {
@@ -75,10 +50,8 @@ function SetupSigningServer({ route }: { route }) {
 
   const validateSetup = async () => {
     const verificationToken = Number(otp);
-    const vaultId = getShellId();
-    const appId = keeper.id;
     try {
-      const { valid } = await SigningServer.validate(vaultId, appId, verificationToken);
+      const { valid } = await SigningServer.validate(setupData.id, verificationToken);
       if (valid) setIsSetupValidated(valid);
       else showToast('Invalid OTP. Please try again!');
     } catch (err) {
@@ -88,7 +61,7 @@ function SetupSigningServer({ route }: { route }) {
 
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
-    const { bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
+    const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
     const signingServerKey = generateSignerFromMetaData({
       xpub,
       derivationPath,
@@ -96,8 +69,10 @@ function SetupSigningServer({ route }: { route }) {
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
+      signerId: id,
       signerPolicy: policy,
     });
+
     dispatch(addSigningDevice(signingServerKey));
     navigation.dispatch(
       CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
@@ -106,7 +81,7 @@ function SetupSigningServer({ route }: { route }) {
   };
 
   useEffect(() => {
-    fetchSetupData();
+    registerSigningServer();
   }, []);
 
   useEffect(() => {
@@ -148,11 +123,7 @@ function SetupSigningServer({ route }: { route }) {
           >
             <CVVInputsView passCode={otp} passcodeFlag={false} backgroundColor textColor />
           </TouchableOpacity>
-          <Text
-            style={styles.cvvInputInfoText}
-            color="light.greenText"
-
-          >
+          <Text style={styles.cvvInputInfoText} color="light.greenText">
             {vaultTranslation.cvvSigningServerInfo}
           </Text>
           <Box mt={10} alignSelf="flex-end" mr={2}>
@@ -303,6 +274,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.65,
     width: '100%',
     marginTop: 2,
-  }
+  },
 });
 export default SetupSigningServer;

@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/core/config';
 import {
+  IKSCosignersMapUpdate,
   InheritanceAlert,
   InheritanceConfiguration,
   InheritanceNotification,
@@ -12,14 +13,11 @@ const { HEXA_ID, SIGNING_SERVER } = config;
 
 export default class InheritanceKeyServer {
   /**
-   * @param  {string} vaultShellId
-   * @param  {InheritancePolicy} policy
    * @returns Promise
    */
-  static initializeIKSetup = async (
-    vaultShellId: string
-  ): Promise<{
+  static initializeIKSetup = async (): Promise<{
     setupData: {
+      id: string;
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
@@ -27,9 +25,8 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/initializeIKSetup`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/initializeIKSetup`, {
         HEXA_ID,
-        vaultId: vaultShellId,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -43,13 +40,13 @@ export default class InheritanceKeyServer {
   };
 
   /**
-   * @param  {string} vaultShellId
+   * @param  {string} id
    * @param  {InheritanceConfiguration} configuration
    * @param  {InheritancePolicy} policy
    * @returns Promise
    */
   static finalizeIKSetup = async (
-    vaultShellId: string,
+    id: string,
     configuration: InheritanceConfiguration,
     policy: InheritancePolicy
   ): Promise<{
@@ -57,9 +54,9 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/finalizeIKSetup`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/finalizeIKSetup`, {
         HEXA_ID,
-        vaultId: vaultShellId,
+        id,
         configuration,
         policy,
       });
@@ -75,13 +72,13 @@ export default class InheritanceKeyServer {
   };
 
   /**
-   * @param  {string} vaultShellId
+   * @param  {string} id
    * @param  {string[]} existingThresholdIDescriptors
    * @param  {InheritanceConfiguration} newConfiguration
    * @returns {Promise<boolean>} updated
    */
   static updateInheritanceConfig = async (
-    vaultShellId: string,
+    id: string,
     existingThresholdDescriptors: string[],
     newConfiguration: InheritanceConfiguration
   ): Promise<{
@@ -89,9 +86,9 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritanceConfig`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateInheritanceConfig`, {
         HEXA_ID,
-        vaultId: vaultShellId,
+        id,
         existingThresholdDescriptors,
         newConfiguration,
       });
@@ -108,13 +105,13 @@ export default class InheritanceKeyServer {
   };
 
   /**
-   * @param  {string} vaultShellId
+   * @param  {string} id
    * @param  {any} updates
    * @param {string[]} thresholdDescriptors
    * @returns {Promise<boolean>} updated
    */
   static updateInheritancePolicy = async (
-    vaultShellId: string,
+    id: string,
     updates: {
       notification?: InheritanceNotification;
       alert?: InheritanceAlert;
@@ -125,9 +122,9 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/updateInheritancePolicy`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateInheritancePolicy`, {
         HEXA_ID,
-        vaultId: vaultShellId,
+        id,
         updates,
         thresholdDescriptors,
       });
@@ -144,7 +141,7 @@ export default class InheritanceKeyServer {
   };
 
   static signPSBT = async (
-    vaultShellId: string,
+    id: string,
     serializedPSBT: string,
     childIndexArray: Array<{
       subPath: number[];
@@ -161,9 +158,9 @@ export default class InheritanceKeyServer {
     let res: AxiosResponse;
 
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/signTransactionViaInheritanceKey`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/signTransactionViaInheritanceKey`, {
         HEXA_ID,
-        vaultId: vaultShellId,
+        id,
         serializedPSBT,
         childIndexArray,
         thresholdDescriptors,
@@ -181,7 +178,7 @@ export default class InheritanceKeyServer {
 
   static requestInheritanceKey = async (
     requestId: string,
-    vaultShellId: string,
+    cosignersId: string,
     thresholdDescriptors: string[]
   ): Promise<{
     requestStatus: {
@@ -199,10 +196,10 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/requestInheritanceKey`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/requestInheritanceKey`, {
         HEXA_ID,
         requestId,
-        vaultId: vaultShellId,
+        cosignersId,
         thresholdDescriptors,
       });
     } catch (err) {
@@ -224,7 +221,7 @@ export default class InheritanceKeyServer {
   }> => {
     let res: AxiosResponse;
     try {
-      res = await RestClient.post(`${SIGNING_SERVER}v2/declineInheritanceKeyRequest`, {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/declineInheritanceKeyRequest`, {
         HEXA_ID,
         requestId,
       });
@@ -237,6 +234,64 @@ export default class InheritanceKeyServer {
 
     return {
       declined,
+    };
+  };
+
+  static updateCosignersToSignerMapIKS = async (
+    id: string,
+    cosignersMapIKSUpdates: IKSCosignersMapUpdate[]
+  ): Promise<{
+    updated: boolean;
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/updateCosignersToSignerMapIKS`, {
+        HEXA_ID,
+        id,
+        cosignersMapIKSUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { updated } = res.data;
+    if (!updated) throw new Error('Failed to update cosigners to signer map');
+    return {
+      updated,
+    };
+  };
+
+  static migrateSignersV2ToV3 = async (
+    vaultId: string,
+    cosignersMapIKSUpdates: IKSCosignersMapUpdate[]
+  ): Promise<{
+    migrationSuccessful: boolean;
+    setupData: {
+      id: string;
+      inheritanceXpub: any;
+      masterFingerprint: any;
+      derivationPath: string;
+      policy;
+      configuration;
+    };
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/migrateIKSSignersV2ToV3`, {
+        HEXA_ID,
+        vaultId,
+        cosignersMapIKSUpdates,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { migrationSuccessful, setupData } = res.data;
+    return {
+      migrationSuccessful,
+      setupData,
     };
   };
 }
