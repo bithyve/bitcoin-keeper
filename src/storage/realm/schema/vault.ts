@@ -13,7 +13,7 @@ const Scheme = {
 
 const propertyType = {
   type: '{}?',
-  properties: { xpub: 'string', derivationPath: 'string' },
+  properties: { xpub: 'string', derivationPath: 'string', xpriv: 'string?' },
 };
 
 const deviceInfo = {

@@ -25,7 +25,7 @@ function KeeperHeader({
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => { },
+  learnMorePressed = () => {},
   learnBackgroundColor = 'light.lightAccent',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
@@ -37,7 +37,11 @@ function KeeperHeader({
     <Box style={styles.container}>
       {enableBack && (
         <Box style={[styles.backContainer]}>
-          <TouchableOpacity onPress={onPressHandler || navigation.goBack} style={styles.backButton}>
+          <TouchableOpacity
+            testID="btn_back"
+            onPress={onPressHandler || navigation.goBack}
+            style={styles.backButton}
+          >
             {colorMode === 'light' && !contrastScreen ? <BackBlackButton /> : <BackWhiteButton />}
           </TouchableOpacity>
           {learnMore && (
@@ -64,12 +68,17 @@ function KeeperHeader({
               numberOfLines={1}
               style={[styles.addWalletText, { fontSize: 16 }]}
               color={`${colorMode}.headerText`}
+              testID={`text_header_title`}
             >
               {title}
             </Text>
           )}
           {subtitle && (
-            <Text style={[styles.addWalletDescription]} color={`${colorMode}.black`}>
+            <Text
+              style={[styles.addWalletDescription]}
+              color={`${colorMode}.black`}
+              testID={`text_header_subtitle`}
+            >
               {subtitle}
             </Text>
           )}

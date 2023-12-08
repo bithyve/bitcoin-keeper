@@ -127,6 +127,7 @@ function ReceiveScreen({ route }: { route }) {
       </Box>
       <TouchableOpacity
         activeOpacity={0.4}
+        testID="btn_copy_address"
         onPress={() => {
           Clipboard.setString(paymentURI || receivingAddress);
           showToast(walletTranslation.addressCopied, <TickIcon />);
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     color: '#073E39',
-    opacity: 0.5,
+    opacity: 0.8,
     fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 1.04,
   },

@@ -1,7 +1,7 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { SignerType, TxPriority } from 'src/core/wallets/enums';
+import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 
@@ -243,13 +243,11 @@ function SignTransactionScreen() {
           dispatch(healthCheckSigner([currentSigner]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
-            showOTPModal,
-            keeper,
+            signerId,
             signingPayload,
             signingServerOTP,
             serializedPSBT,
-            SigningServer,
-            shellId,
+            showOTPModal,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));
@@ -257,7 +255,7 @@ function SignTransactionScreen() {
           const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
             signingPayload,
             serializedPSBT,
-            shellId,
+            signerId,
             thresholdDescriptors,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));

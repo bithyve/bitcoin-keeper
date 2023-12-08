@@ -8,7 +8,12 @@ import { hp } from 'src/constants/responsive';
 function MenuItemButton(props) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity activeOpacity={0.5} style={styles.addAmountContainer} onPress={props.onPress}>
+    <TouchableOpacity
+      testID={`btn_${props.title}`}
+      activeOpacity={0.5}
+      style={styles.addAmountContainer}
+      onPress={props.onPress}
+    >
       <Box
         style={[styles.addAmountWrapper01, { height: props.height ? props.height : hp(70) }]}
         backgroundColor={`${colorMode}.seashellWhite`}

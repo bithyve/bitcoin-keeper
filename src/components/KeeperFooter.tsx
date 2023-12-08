@@ -33,6 +33,7 @@ export const KeeperFooter = ({
         {footerItemsToRender.map((item) => {
           return (
             <TouchableOpacity
+              testID={`btn_${item.text}`}
               key={item.text}
               style={styles.IconWrapper}
               onPress={item.onPress}

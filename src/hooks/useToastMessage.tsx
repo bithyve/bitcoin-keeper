@@ -14,7 +14,11 @@ const useToastMessage = () => {
     error = false,
     width = '100%',
     ToastBody = (
-      <Text style={{ marginLeft: image ? 5 : 0, width, paddingRight: 25 }} numberOfLines={3}>
+      <Text
+        testID="text_toast"
+        style={{ marginLeft: image ? 5 : 0, width, paddingRight: 25 }}
+        numberOfLines={3}
+      >
         {title}
       </Text>
     )

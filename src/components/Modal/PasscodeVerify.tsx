@@ -122,7 +122,7 @@ function PasscodeVerifyModal(props: Props) {
   };
 
   return (
-    <Box>
+    <Box testID="modal_passcode_verify" borderRadius={10}>
       <Box style={{ width: '100%' }}>
         {/* pin input view */}
         <PinInputsView
@@ -132,10 +132,7 @@ function PasscodeVerifyModal(props: Props) {
           textColor
         />
         {loginError && (
-          <Text
-            color={`${colorMode}.indicator`}
-            style={styles.errorText}
-          >
+          <Text color={`${colorMode}.indicator`} style={styles.errorText}>
             {errMessage}
           </Text>
         )}
@@ -170,7 +167,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontStyle: 'italic',
     marginRight: 10,
-  }
-})
+  },
+});
 PasscodeVerifyModal.defaultProps = defaultProps;
 export default PasscodeVerifyModal;

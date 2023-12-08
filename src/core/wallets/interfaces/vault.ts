@@ -37,7 +37,7 @@ export interface VaultScheme {
 }
 
 export type XpubDetailsType = {
-  [key in XpubTypes as string]: { xpub: string; derivationPath: string };
+  [key in XpubTypes as string]: { xpub: string; derivationPath: string; xpriv?: string };
 };
 
 export type DeviceInfo = {

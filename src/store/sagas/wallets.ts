@@ -103,6 +103,7 @@ import {
   setRelayWalletUpdateLoading,
 } from '../reducers/bhr';
 import { setElectrumNotConnectedErr } from '../reducers/login';
+import { connectToNodeWorker } from './network';
 
 export interface NewVaultDetails {
   name?: string;
@@ -538,6 +539,7 @@ export function* addNewVaultWorker({
         },
       });
     }
+
     yield put(setRelayVaultUpdateLoading(true));
     const response = isMigrated
       ? yield call(updateVaultImageWorker, { payload: { vault, archiveVaultId: oldVaultId } })
@@ -683,7 +685,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
 
     const { updated } = yield call(
       InheritanceKeyServer.updateInheritanceConfig,
-      vault.shellId,
+      ikSigner.signerId,
       existingThresholdDescriptors,
       newIKSConfiguration
     );
@@ -713,7 +715,7 @@ function* finaliseIKSetupWorker({ payload }: { payload: { vault: Vault } }) {
 
     const { setupSuccessful } = yield call(
       InheritanceKeyServer.finalizeIKSetup,
-      vault.shellId,
+      ikSigner.signerId,
       config,
       policy
     );
@@ -781,7 +783,7 @@ function* refreshWalletsWorker({
   const { wallets, options } = payload;
   try {
     if (!ELECTRUM_CLIENT.isClientConnected) {
-      const { connected, connectedTo, error } = yield call(ElectrumClient.connect);
+      yield call(connectToNodeWorker);
     }
 
     yield put(setSyncing({ wallets, isSyncing: true }));
@@ -958,24 +960,32 @@ export const updateWalletSettingsWatcher = createWatcher(
   UPDATE_WALLET_SETTINGS
 );
 
-export function* updateSignerPolicyWorker({ payload }: { payload: { signer; updates } }) {
-  const app: KeeperApp = yield call(dbManager.getObjectByIndex, RealmSchema.KeeperApp);
+export function* updateSignerPolicyWorker({
+  payload,
+}: {
+  payload: { signer; updates; verificationToken };
+}) {
   const vaults: Vault[] = yield call(dbManager.getCollection, RealmSchema.Vault);
   const activeVault: Vault = vaults.filter((vault) => !vault.archived)[0] || null;
 
   const {
     signer,
     updates,
+    verificationToken,
   }: {
     signer: VaultSigner;
     updates: {
       restrictions?: SignerRestriction;
       exceptions?: SignerException;
     };
+    verificationToken;
   } = payload;
-  const vaultId = activeVault.shellId;
-  const appId = app.id;
-  const { updated } = yield call(SigningServer.updatePolicy, vaultId, appId, updates);
+  const { updated } = yield call(
+    SigningServer.updatePolicy,
+    signer.signerId,
+    verificationToken,
+    updates
+  );
   if (!updated) {
     Alert.alert('Failed to update signer policy, try again.');
     throw new Error('Failed to update the policy');

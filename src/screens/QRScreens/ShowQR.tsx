@@ -25,7 +25,7 @@ function ShowQR() {
         <DisplayQR qrContents={data} toBytes={encodeToBytes} type="base64" />
       </Box>
       {type === SignerType.KEEPER ? (
-        <ScrollView style={{ alignItems: 'center' }}>
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
           <ShareWithNfc data={data} />
         </ScrollView>
       ) : null}

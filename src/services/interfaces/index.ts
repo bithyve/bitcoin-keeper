@@ -36,6 +36,16 @@ export interface SignerPolicy {
   exceptions: SignerException;
 }
 
+export enum CosignersMapUpdateAction {
+  ADD = 'ADD',
+  REMOVE = 'REMOVE',
+}
+export interface CosignersMapUpdate {
+  cosignersId: string;
+  signerId: string;
+  action: CosignersMapUpdateAction;
+}
+
 export interface InheritanceNotification {
   targets: string[];
 }
@@ -69,4 +79,14 @@ export interface InheritanceKeyRequest {
     isDeclined: boolean;
     isApproved: boolean;
   };
+}
+
+export enum IKSCosignersMapUpdateAction {
+  ADD = 'ADD',
+  REMOVE = 'REMOVE',
+}
+export interface IKSCosignersMapUpdate {
+  cosignersId: string;
+  inheritanceKeyId: string;
+  action: IKSCosignersMapUpdateAction;
 }

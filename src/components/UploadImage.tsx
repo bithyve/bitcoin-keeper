@@ -11,13 +11,14 @@ type Props = {
   onPress: () => void;
 };
 
-function UploadImage({ onPress = () => { } }: Props) {
+function UploadImage({ onPress = () => {} }: Props) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { importWallet } = translations;
   return (
     <TouchableOpacity
       activeOpacity={0.5}
+      testID="btn_upload_image"
       onPress={onPress}
       style={{
         alignItems: 'center',

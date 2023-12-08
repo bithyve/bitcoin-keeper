@@ -42,7 +42,7 @@ function IKSAddEmailPhone() {
       };
 
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
-        vault.shellId,
+        ikSigner.signerId,
         {
           alert: updatedPolicy.alert,
         },

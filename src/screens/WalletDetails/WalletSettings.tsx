@@ -17,7 +17,7 @@ import { signCosignerPSBT } from 'src/core/wallets/factories/WalletFactory';
 import Note from 'src/components/Note/Note';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import config from 'src/core/config';
-import { NetworkType, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, NetworkType, SignerType } from 'src/core/wallets/enums';
 import useExchangeRates from 'src/hooks/useExchangeRates';
 import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
 import BtcWallet from 'src/assets/images/btc_black.svg';
@@ -29,6 +29,7 @@ import { StyleSheet } from 'react-native';
 import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
+import { captureError } from 'src/services/sentry';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -49,7 +50,7 @@ function WalletSettings({ route }) {
   const { satsEnabled } = useAppSelector((state) => state.settings);
   const { translations } = useContext(LocalizationContext);
   const walletTranslation = translations.wallet;
-  const { settings, common } = translations
+  const { settings, common } = translations;
 
   // eslint-disable-next-line react/no-unstable-nested-components
   function WalletCard({ walletName, walletBalance, walletDescription, Icon }: any) {
@@ -112,7 +113,16 @@ function WalletSettings({ route }) {
 
   const signPSBT = (serializedPSBT, resetQR) => {
     try {
-      const signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+      let signedSerialisedPSBT;
+      try {
+        signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT);
+      } catch (e) {
+        captureError(e);
+      }
+      // try signing with single sig key
+      if (!signedSerialisedPSBT) {
+        signedSerialisedPSBT = signCosignerPSBT(wallet, serializedPSBT, EntityKind.WALLET);
+      }
       navigation.dispatch(
         CommonActions.navigate({
           name: 'ShowQR',
@@ -150,7 +160,12 @@ function WalletSettings({ route }) {
             currentCurrency,
             satsEnabled
           )}
-          Icon={getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, colorMode === 'light' ? BtcWallet : BitcoinWhite)}
+          Icon={getCurrencyImageByRegion(
+            currencyCode,
+            'dark',
+            currentCurrency,
+            colorMode === 'light' ? BtcWallet : BitcoinWhite
+          )}
         />
       </Box>
       <ScrollView

@@ -1,0 +1,56 @@
+appId: ${APPID}
+---
+# - runFlow: login.yaml
+- assertTrue: ${output.text_HotWallet = "1 Wallet"}
+- swipe:
+    direction: LEFT
+- assertVisible:
+    id: 'btn_add_wallet'
+- assertVisible: 'Add a new wallet, import it, or create a collaborative wallet.'
+- tapOn:
+    id: 'btn_add_wallet'
+- waitForAnimationToEnd:
+    timeout: 1000
+- assertTrue: ${output.text_modal_title = "Add or Import Wallet"}
+- assertTrue: ${output.text_modal_subtitle = "Create purpose specific wallets having dedicated UTXOs. Manage other app wallets by importing them"}
+- assertVisible:
+    id: 'btn_Add Wallet'
+- assertVisible:
+    id: 'btn_Import Wallet'
+- assertVisible:
+    id: 'btn_Add Collaborative Wallet'
+- assertVisible: "Please ensure that Keeper is properly backed up to ensure your bitcoin's security"
+- tapOn:
+    id: btn_Add Wallet
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    id: 'input_wallet_name'
+- 'eraseText'
+- inputRandomPersonName
+- inputText: "'s wallet"
+- tapOn:
+    id: 'input_wallet_description'
+- 'eraseText'
+- inputRandomText
+- inputRandomEmail
+- inputRandomNumber
+- tapOn:
+    id: 'input_transfer_policy'
+- 'eraseText'
+- inputText: '21000'
+- hideKeyboard
+- assertVisible:
+    id: 'btn_secondaryText'
+- assertTrue: ${output.btn_primaryText = "Create"}
+- tapOn:
+    id: 'btn_primaryText'
+- assertVisible:
+    id: modal_loading
+- runFlow:
+    when:
+      notVisible:
+        id: 'modal_loading'
+    commands:
+      - hideKeyboard
+      - assertTrue: ${output.text_HotWallet = "2 Wallet"}
