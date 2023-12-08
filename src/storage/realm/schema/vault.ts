@@ -112,7 +112,7 @@ export const XpubDetailsSchema: ObjectSchema = {
 
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
-  embedded: true,
+  primaryKey: 'signerId',
   properties: {
     signerId: 'string',
     type: 'string',
