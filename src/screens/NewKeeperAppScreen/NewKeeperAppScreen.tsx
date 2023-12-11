@@ -161,15 +161,30 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
     );
   }
-
+  function HeaderView({ title, subtitle }) {
+    return (
+      <Box>
+        <Text
+          numberOfLines={1}
+          style={[styles.addWalletText, { fontSize: 16 }]}
+          color={`${colorMode}.headerText`}
+          testID={`text_start_header_title`}
+        >{title}</Text>
+        <Text
+          style={[styles.addWalletDescription]}
+          color={`${colorMode}.black`}
+          testID={`text_header_subtitle`}
+        >{subtitle}</Text>
+      </Box>
+    )
+  }
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
-          <KeeperHeader
+          <HeaderView
             title="New Keeper App"
             subtitle="Choose this option when you want to start with a fresh app"
-            enableBack={false}
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -187,10 +202,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
       <Box style={styles.titleWrapper02}>
         <Box style={styles.headerContainer}>
-          <KeeperHeader
+          <HeaderView
             title="Restore"
             subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
-            enableBack={false}
           />
         </Box>
         <Box style={styles.tileContainer}>
@@ -294,7 +308,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   tileContainer: {
-    marginTop: hp(20),
+    marginTop: hp(5),
   },
   headerContainer: {
     // width: wp(280),
@@ -339,7 +353,16 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 13,
     letterSpacing: 0.65,
-  }
+  },
+  addWalletText: {
+    lineHeight: 26,
+    letterSpacing: 0.8,
+  },
+  addWalletDescription: {
+    fontSize: 12,
+    lineHeight: 20,
+    letterSpacing: 0.5,
+  },
 });
 
 export default NewKeeperApp;
