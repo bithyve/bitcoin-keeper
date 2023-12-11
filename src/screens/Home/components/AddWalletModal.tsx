@@ -113,8 +113,6 @@ const AddWalletModal = ({
   const { translations } = useContext(LocalizationContext);
   const { importWallet } = translations;
 
-  console.log(visible);
-
   return (
     <KeeperModal
       visible={visible}
