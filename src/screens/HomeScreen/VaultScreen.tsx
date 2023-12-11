@@ -18,7 +18,7 @@ import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function VaultScreen() {
-  const { activeVault } = useVault();
+  const { activeVault, vaults } = useVault();
   const { colorMode } = useColorMode();
   const signers = idx(activeVault, (_) => _.signers) || [];
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;

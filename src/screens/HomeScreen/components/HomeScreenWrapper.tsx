@@ -6,7 +6,9 @@ import HeaderDetails from './HeaderDetails';
 function HomeScreenWrapper({ children }) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={styles.container}>
+    <Box
+      style={[styles.container, { backgroundColor: colorMode === 'light' ? '#F2EDE6' : '#323C3A' }]}
+    >
       <StatusBar barStyle={colorMode === 'light' ? 'dark-content' : 'light-content'} />
       <HeaderDetails />
       <Box style={styles.container}>{children}</Box>
