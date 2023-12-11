@@ -167,12 +167,12 @@ function NewKeeperApp({ navigation }: { navigation }) {
           numberOfLines={1}
           style={[styles.addWalletText, { fontSize: 16 }]}
           color={`${colorMode}.headerText`}
-          testID={`text_start_header_title`}
+          testID={`text_create_header_title`}
         >{title}</Text>
         <Text
           style={[styles.addWalletDescription]}
           color={`${colorMode}.black`}
-          testID={`text_header_subtitle`}
+          testID={`text_ceate_header_subtitle`}
         >{subtitle}</Text>
       </Box>
     )
