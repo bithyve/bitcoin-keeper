@@ -39,6 +39,10 @@ import { CommonActions } from '@react-navigation/native';
 import IconSettings from 'src/assets/images/new_icon_settings.svg';
 import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
 import useVault from 'src/hooks/useVault';
+import KeeperModal from 'src/components/KeeperModal';
+import { DowngradeModal } from './components/DowngradeModal';
+import AddWalletModal from './components/AddWalletModal';
+import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
 
 const ITEM_SIZE = hp(220);
 
@@ -60,7 +64,7 @@ function AddNewWalletTile({ wallet, setAddImportVisible }) {
   return (
     <TouchableOpacity
       style={styles.addWalletContainer}
-      onPress={() => setAddImportVisible()}
+      onPress={() => setAddImportVisible(true)}
       testID="btn_add_wallet"
     >
       <AddSCardIcon />
@@ -163,12 +167,15 @@ function WalletItem({
   const isWhirlpoolWallet = Boolean(item?.whirlpoolConfig?.whirlpoolWalletDetails);
   const isCollaborativeWallet =
     item.entityKind === EntityKind.VAULT && item.type === VaultType.COLLABORATIVE;
+  const isVault = item.entityKind === EntityKind.VAULT && item.type === VaultType.DEFAULT;
 
   return (
     <TouchableWithoutFeedback
       testID={`view_wallet_${walletIndex}`}
       onPress={() => {
-        isCollaborativeWallet
+        isVault
+          ? navigation.navigate('VaultDetails', { vaultId: item.id })
+          : isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
               collaborativeWalletId: item.collaborativeWalletId,
             })
@@ -188,14 +195,10 @@ function WalletItem({
   );
 }
 
-const Wallets = ({ navigation, setAddImportVisible }) => {
-  const { colorMode } = useColorMode();
-  const { wallets } = useWallets({ getAll: true });
-  const { vaults } = useVault();
-  const { translations } = useContext(LocalizationContext);
-
+const Wallets = ({ navigation, setAddImportVisible, wallets }) => {
   const items = [{ key: 'spacer-start' }, ...wallets, { key: 'add-wallet' }, { key: 'spacer-end' }];
   const scrollX = React.useRef(new Animated.Value(0)).current;
+  const { translations } = useContext(LocalizationContext);
 
   return (
     <Box>
@@ -247,28 +250,30 @@ const Inheritance = () => {
 };
 
 const Home = ({ navigation }) => {
+  const { colorMode } = useColorMode();
   const dispatch = useDispatch();
-  const { translations } = useContext(LocalizationContext);
-  const { wallet, choosePlan, importWallet, common } = translations;
   const { wallets } = useWallets({ getAll: true });
   const { collaborativeWallets } = useCollaborativeWallet();
+  const { activeVault } = useVault();
   const nonHiddenWallets = wallets.filter(
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
+  const allVaults = [activeVault, ...collaborativeWallets];
+  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults];
+
   const [addImportVisible, setAddImportVisible] = useState(false);
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
   const { relayWalletUpdate, relayWalletError, realyWalletErrorMessage } = useAppSelector(
     (state) => state.bhr
   );
+  const netBalanceWallets = useAppSelector((state) => state.wallet.netBalance);
+  const netBalanceAllVaults = calculateBalancesForVaults(allVaults);
 
   const [defaultWalletCreation, setDefaultWalletCreation] = useState(false);
-
   const { showToast } = useToastMessage();
-
   const electrumClientConnectionStatus = useAppSelector(
     (state) => state.login.electrumClientConnectionStatus
   );
-  const hideAmounts = false;
 
   useEffect(() => {
     if (electrumClientConnectionStatus.success) {
@@ -313,9 +318,43 @@ const Home = ({ navigation }) => {
     <ScreenWrapper>
       <Header navigation={navigation} />
       <UAIStack navigation={navigation} />
-      <Wallets navigation={navigation} setAddImportVisible={setAddImportVisible} />
+      <Box style={styles.titleWrapper}>
+        <Box style={styles.titleInfoView}>
+          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_HotWallet">
+            {allWallets.length} Wallet
+            {nonHiddenWallets?.length + collaborativeWallets?.length > 1 && 's'}
+          </Text>
+        </Box>
+        <Box style={styles.netBalanceView} testID="view_netBalance">
+          <CurrencyInfo
+            hideAmounts={false}
+            amount={netBalanceWallets + netBalanceAllVaults}
+            fontSize={20}
+            color={`${colorMode}.primaryText`}
+            variation={colorMode === 'light' ? 'dark' : 'light'}
+          />
+        </Box>
+      </Box>
+      <Wallets
+        navigation={navigation}
+        setAddImportVisible={setAddImportVisible}
+        wallets={allWallets}
+      />
       <Keys />
       <Inheritance />
+      <DowngradeModal navigation={navigation} />
+      <AddWalletModal
+        navigation={navigation}
+        visible={addImportVisible}
+        setAddImportVisible={setAddImportVisible}
+        wallets={wallets}
+        collaborativeWallets={collaborativeWallets}
+        setDefaultWalletCreation={setDefaultWalletCreation}
+      />
+      <ElectrumDisconnectModal
+        electrumErrorVisible={electrumErrorVisible}
+        setElectrumErrorVisible={setElectrumErrorVisible}
+      />
     </ScreenWrapper>
   );
 };
@@ -364,5 +403,22 @@ const styles = StyleSheet.create({
   },
   walletInnerView: {
     width: wp(170),
+  },
+  titleWrapper: {
+    flexDirection: 'row',
+    width: '100%',
+    alignItems: 'center',
+    marginVertical: hp(20),
+    justifyContent: 'space-between',
+  },
+  titleText: {
+    fontSize: 16,
+  },
+  titleInfoView: {
+    width: '60%',
+  },
+  netBalanceView: {
+    width: '40%',
+    alignItems: 'flex-end',
   },
 });
