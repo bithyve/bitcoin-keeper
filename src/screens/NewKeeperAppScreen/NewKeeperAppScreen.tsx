@@ -14,7 +14,6 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import openLink from 'src/utils/OpenLink';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
