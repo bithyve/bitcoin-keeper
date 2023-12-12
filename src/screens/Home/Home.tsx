@@ -77,7 +77,9 @@ const Home = ({ navigation }) => {
     (wallet) => wallet.presentationData.visibility !== VisibilityType.HIDDEN
   );
   const allVaults = [activeVault, ...collaborativeWallets];
-  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults];
+  const allWallets: (Wallet | Vault)[] = [...nonHiddenWallets, ...allVaults].filter(
+    (item) => item !== null
+  );
 
   const [addImportVisible, setAddImportVisible] = useState(false);
   const [electrumErrorVisible, setElectrumErrorVisible] = useState(false);
