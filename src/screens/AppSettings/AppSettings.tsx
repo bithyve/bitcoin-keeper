@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
@@ -83,8 +83,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -162,8 +162,8 @@ function AppSettings({ navigation }) {
   }
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
-      <KeeperHeader
+    <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
+      {/* <KeeperHeader
         title={`App ${common.settings}`}
         subtitle={settings.settingsSubTitle}
         rightComponent={
@@ -171,7 +171,10 @@ function AppSettings({ navigation }) {
             <CurrencyTypeSwitch />
           </Box>
         }
-      />
+      /> */}
+      <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
+        <Text>X</Text>
+      </TouchableOpacity>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
@@ -184,7 +187,7 @@ function AppSettings({ navigation }) {
           }}
           Icon
         />
-        <OptionCard
+        {/* <OptionCard
           title={sensorType}
           description={formatString(settings.UseBiometricSubTitle, sensorType)}
           callback={() => onChangeLoginMethod()}
@@ -195,8 +198,8 @@ function AppSettings({ navigation }) {
               testID="switch_biometrics"
             />
           }
-        />
-        <OptionCard
+        /> */}
+        {/* <OptionCard
           title={settings.DarkMode}
           description={settings.DarkModeSubTitle}
           callback={() => changeThemeMode()}
@@ -205,6 +208,18 @@ function AppSettings({ navigation }) {
               onValueChange={(value) => changeThemeMode()}
               value={colorMode === 'dark'}
               testID="switch_darkmode"
+            />
+          }
+        /> */}
+        <OptionCard
+          title={settings.SatsMode}
+          description={settings.SatsModeSubTitle}
+          callback={() => console.log('SatsMode')}
+          Icon={
+            <Switch
+              onValueChange={(value) => console.log('SatsMode')}
+              value={colorMode === 'dark'}
+              testID="switch_satsmode"
             />
           }
         />
@@ -323,7 +338,7 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
       </Box>
-    </ScreenWrapper>
+    </ScreenWrapper >
   );
 }
 const styles = StyleSheet.create({
@@ -333,7 +348,6 @@ const styles = StyleSheet.create({
     padding: wp(10),
     width: '100%',
     flexDirection: 'row',
-    marginBottom: 10,
   },
   appBackupIconWrapper: {
     width: '20%',
@@ -348,7 +362,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0.3,
     position: 'absolute',
-    right: wp(-2),
+    right: wp(10),
     zIndex: 999,
   },
   appBackupTitle: {

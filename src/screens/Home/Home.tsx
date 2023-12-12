@@ -45,7 +45,7 @@ const Header = ({ navigation }) => {
   return (
     <HStack style={styles.headerContainer}>
       <TouchableOpacity
-        onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+        onPress={() => navigation.toggleDrawer()}
         testID="btn_AppSettingsIcon"
       >
         {colorMode === 'light' ? <IconSettings /> : <IconDarkSettings />}
