@@ -117,10 +117,10 @@ function WalletItem({
         isVault
           ? navigation.navigate('VaultDetails', { vaultId: item.id })
           : isCollaborativeWallet
-          ? navigation.navigate('VaultDetails', {
+            ? navigation.navigate('VaultDetails', {
               collaborativeWalletId: item.collaborativeWalletId,
             })
-          : navigation.navigate('WalletDetails', { walletId: item.id });
+            : navigation.navigate('WalletDetails', { walletId: item.id });
       }}
     >
       <Box backgroundColor={`${colorMode}.pantoneGreen`} style={[styles.walletContainer]}>
