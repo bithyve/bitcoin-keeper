@@ -15,9 +15,9 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { CommonActions } from '@react-navigation/native';
-import IconSettings from 'src/assets/images/new_icon_settings.svg';
-import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
+// import { CommonActions } from '@react-navigation/native';
+import MenuIcon from 'src/assets/images/menu-hor.svg';
+// import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
 import useVault from 'src/hooks/useVault';
 import { DowngradeModal } from './components/DowngradeModal';
 import AddWalletModal from './components/AddWalletModal';
@@ -50,7 +50,7 @@ const Header = ({ navigation }) => {
         onPress={() => navigation.toggleDrawer()}
         testID="btn_AppSettingsIcon"
       >
-        {colorMode === 'light' ? <IconSettings /> : <IconDarkSettings />}
+        <MenuIcon />
       </TouchableOpacity>
     </HStack>
   );
