@@ -95,7 +95,8 @@
     "receiveTestSats": "Receiving test sats",
     "upgradeNow": "Upgrade Now",
     "somethingWrong": "Something went wrong",
-    "showAsQR": "Show as QR"
+    "showAsQR": "Show as QR",
+    "addNow": "ADD NOW"
   },
   "noInternet": {
     "no": "No Internet",
