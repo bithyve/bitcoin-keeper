@@ -6,6 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import BackupIcon from 'src/assets/images/backup.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
+import CloseIcon from 'src/assets/images/cross.svg'
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import KeeperHeader from 'src/components/KeeperHeader';
 import LinkIcon from 'src/assets/images/link.svg';
@@ -173,7 +174,7 @@ function AppSettings({ navigation }) {
         }
       /> */}
       <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
-        <Text>X</Text>
+        <CloseIcon />
       </TouchableOpacity>
       <ScrollView
         showsVerticalScrollIndicator={false}
