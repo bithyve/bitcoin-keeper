@@ -52,10 +52,10 @@ function UaiDisplay({ uaiStack }) {
           cta: () => {
             activeVault
               ? navigtaion.navigate('SendConfirmation', {
-                  uaiSetActionFalse,
-                  walletId: uai?.entityId,
-                  transferType: TransferType.WALLET_TO_VAULT,
-                })
+                uaiSetActionFalse,
+                walletId: uai?.entityId,
+                transferType: TransferType.WALLET_TO_VAULT,
+              })
               : showToast('No vaults found', <ToastErrorIcon />);
 
             setShowModal(false);
@@ -156,8 +156,9 @@ function UaiDisplay({ uaiStack }) {
     return (
       <>
         <UAIView
-          title={uai?.title}
-          primaryCallbackText="CONTINUE"
+          title={'Your Vault: Valinor'}
+          subTitle={uai?.title}
+          primaryCallbackText="ADD NOW"
           secondaryCallbackText={!nonSkippableUAIs.includes(uai?.uaiType) && 'SKIP'}
           secondaryCallback={!nonSkippableUAIs.includes(uai?.uaiType) && uaiSetActionFalse}
           primaryCallback={pressHandler}
