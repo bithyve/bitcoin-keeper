@@ -45,7 +45,7 @@ const VaultSetup = () => {
   const { params } = useRoute();
   const { isRecreation } = (params as { isRecreation: Boolean }) || {};
   const dispatch = useDispatch();
-  const [vaultName, setVaultName] = useState('');
+  const [vaultName, setVaultName] = useState('Vault');
   const [vaultDescription, setVaultDescription] = useState('');
   const [scheme, setScheme] = useState({ m: 2, n: 3 });
   const onDecreaseM = () => {
@@ -69,7 +69,7 @@ const VaultSetup = () => {
     }
   };
   const OnProceed = () => {
-    if (vaultName !== '' && vaultDescription !== '') {
+    if (vaultName !== '') {
       if (isRecreation) {
         dispatch(
           setVaultRecoveryDetails({
@@ -88,7 +88,7 @@ const VaultSetup = () => {
         );
       }
     } else {
-      showToast('Please Enter Vault name and description', <ToastErrorIcon />)
+      showToast('Please Enter Vault name', <ToastErrorIcon />)
     }
   }
 
@@ -99,13 +99,19 @@ const VaultSetup = () => {
         <KeeperTextInput
           placeholder="Vault name"
           value={vaultName}
-          onChangeText={setVaultName}
+          onChangeText={(value) => {
+            if (vaultName === 'Vault') {
+              setVaultName('')
+            } else {
+              setVaultName(value)
+            }
+          }}
           testID={'vault_name'}
           maxLength={20}
         />
         <Box style={{ height: 20 }} />
         <KeeperTextInput
-          placeholder="Vault description"
+          placeholder="Vault description (Optional)"
           value={vaultDescription}
           onChangeText={setVaultDescription}
           testID={'vault_description'}
