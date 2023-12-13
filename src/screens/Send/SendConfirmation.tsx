@@ -886,6 +886,7 @@ function SendConfirmation({ route }) {
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do'}
+          network={sender.networkType}
         />
       )}
     </ScreenWrapper>
