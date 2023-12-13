@@ -607,7 +607,12 @@
     "checkStatus": "Check Status",
     "torSettingsNoteSubTitle": "Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings",
     "orbotConnection": "Orbot Connection",
-    "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device."
+    "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device.",
+    "PrivacyDisplay": "Privacy & Display",
+    "PrivacyDisplaySubTitle": "Dark mode and biometrics",
+    "networkSettings": "Network Settings",
+    "networkSettingSubTitle": "Node and Tor in Network Setting",
+    "networkSettingConfigSubTitle": "Configure your node and tor settings"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
