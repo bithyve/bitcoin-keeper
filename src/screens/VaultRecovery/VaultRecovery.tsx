@@ -205,6 +205,7 @@ function VaultRecovery({ navigation }) {
             configuration: setupInfo.configuration,
             policy: setupInfo.policy,
           },
+          signerId: setupInfo.id,
         });
         if (setupInfo.configuration.bsms) {
           initateRecovery(setupInfo.configuration.bsms);
