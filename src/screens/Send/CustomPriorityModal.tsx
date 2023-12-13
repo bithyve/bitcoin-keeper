@@ -2,12 +2,16 @@ import Text from 'src/components/KeeperText';
 import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
-import Close from 'src/assets/images/modal_close.svg';
-import React, { useState } from 'react';
+// import Close from 'src/assets/images/modal_close.svg';
+import React, { useContext, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
 import { useAppSelector } from 'src/store/hooks';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
+import useBalance from 'src/hooks/useBalance';
+import BitcoinInput from 'src/assets/images/btc_input.svg';
 
 function CustomPriorityModal(props) {
   const { colorMode } = useColorMode();
@@ -18,9 +22,11 @@ function CustomPriorityModal(props) {
     subTitle = null,
     info = null,
     buttonBackground = [`${colorMode}.gradientStart`, `${colorMode}.gradientEnd`],
-    buttonText = 'Button text',
+    buttonText = 'Confirm',
     buttonTextColor = 'white',
     buttonCallback,
+    secondaryButtonText,
+    secondaryCallback,
     textColor = '#000',
     network,
   } = props;
@@ -28,6 +34,9 @@ function CustomPriorityModal(props) {
   const [customPriorityFee, setCustomPriorityFee] = useState('');
   const [customEstBlocks, setCustomEstBlock] = useState('');
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
+  const { translations } = useContext(LocalizationContext);
+  const { common, wallet: walletTranslation } = translations;
+  const { getCurrencyIcon } = useBalance();
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
@@ -84,36 +93,57 @@ function CustomPriorityModal(props) {
         justifyContent="flex-end"
       >
         <Modal.Content borderRadius={10} marginBottom={bottomMargin}>
-          <Box style={styles.container} backgroundColor={`${colorMode}.secondaryBackground`}>
-            <TouchableOpacity style={styles.close} onPress={close}>
+          <Box style={styles.container} backgroundColor={`${colorMode}.primaryBackground`}>
+            {/* <TouchableOpacity style={styles.close} onPress={close}>
               <Close />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <Modal.Header
               alignSelf="flex-start"
               borderBottomWidth={0}
               backgroundColor="transparent"
-              width="90%"
+              width="100%"
+              flexDirection={'row'}
             >
-              <Text style={styles.title} color={textColor} paddingBottom={2}>
-                {title}
-              </Text>
-              <Text style={styles.subTitle} light color={textColor}>
-                {subTitle}
-              </Text>
+              <Box w={'80%'}>
+                <Text style={styles.title} color={textColor} paddingBottom={2}>
+                  {title}
+                </Text>
+                <Text style={styles.subTitle} light color={textColor}>
+                  {subTitle}
+                </Text>
+              </Box>
+              <Box w={'20%'}>
+                <CurrencyTypeSwitch />
+              </Box>
             </Modal.Header>
             <Box alignItems="center">
               <Input
+                InputLeftElement={
+                  <Box
+                    borderRightWidth={0.5}
+                    borderRightColor={`${colorMode}.Border`}
+                    px="2"
+                  >
+                    <Box>
+                      {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
+                    </Box>
+                  </Box>
+                }
                 backgroundColor={`${colorMode}.seashellWhite`}
                 mx="3"
                 placeholder="Enter Amount"
+                h={windowHeight * 0.05}
                 width="100%"
                 variant="unstyled"
                 value={customPriorityFee}
               />
             </Box>
-            <Box my={windowHeight * 0.02}>
-              <Text color={`${colorMode}.greenText`} mx={windowWidth * 0.038}>
-                {info}
+            <Box my={windowHeight * 0.03} flexDirection={'row'} justifyContent={'space-between'} mx={1}>
+              <Text color={`${colorMode}.greenText`}>
+                {walletTranslation.estimateArrvlTime}
+              </Text>
+              <Text>
+                5 - 10 minutes
               </Text>
             </Box>
 
@@ -125,9 +155,7 @@ function CustomPriorityModal(props) {
               my={windowWidth * 0.031}
             >
               <TouchableOpacity
-                onPress={() => {
-                  setCustomPriorityFee('');
-                }}
+                onPress={secondaryCallback}
               >
                 <Text
                   mr={windowWidth * 0.07}
@@ -135,7 +163,7 @@ function CustomPriorityModal(props) {
                   bold
                   letterSpacing={1.6}
                 >
-                  Start Over
+                  {secondaryButtonText}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -190,7 +218,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 17,
     borderRadius: 10,
   },
-  close: {
-    alignSelf: 'flex-end',
-  },
+  // close: {
+  //   alignSelf: 'flex-end',
+  // },
 });

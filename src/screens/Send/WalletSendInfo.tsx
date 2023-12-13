@@ -54,7 +54,7 @@ function WalletSendInfo({
               <CurrencyInfo
                 hideAmounts={false}
                 amount={availableAmt}
-                fontSize={14}
+                fontSize={20}
                 color={`${colorMode}.primaryText`}
                 variation={colorMode === 'light' ? 'dark' : 'light'}
               />

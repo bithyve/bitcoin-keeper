@@ -390,7 +390,20 @@
     "failToUpdate": "Failed to update",
     "walletBalanceMsg": "Wallet has balance: changes not allowed",
     "transactionBroadcasted": "The transaction has been successfully broadcasted",
-    "sendTransSuccessMsg": " You can view the confirmation status of the transaction on any block explorer or when the Vault transaction list is refreshed"
+    "sendTransSuccessMsg": " You can view the confirmation status of the transaction on any block explorer or when the Vault transaction list is refreshed",
+    "PRIORITY": "PRIORITY",
+    "ARRIVALTIME": "ARRIVAL TIME",
+    "FEE": "FEE",
+    "transactionPriority": "Transaction Priority",
+    "addCustomPriority": "Add Custom Priority",
+    "totalAmount": "Total Amount",
+    "totalFees": "Total Fees",
+    "total": "Total",
+    "highFeeAlert": "High Fee Alert",
+    "highFeeAlertSubTitle": "Network fee is larger than the amount you are sending",
+    "networkFee": "Network Fee",
+    "amtBeingSent": "Amount being sent",
+    "estimateArrvlTime": "Estimated arrival time"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
