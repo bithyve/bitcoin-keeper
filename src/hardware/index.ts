@@ -57,7 +57,7 @@ export const generateSignerFromMetaData = ({
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
   xpubDetails = Object.keys(xpubDetails).length
     ? xpubDetails
-    : { [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath } };
+    : { [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath, xpriv } };
   signerId = signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
   const signer: VaultSigner = {
     signerId,

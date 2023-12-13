@@ -3,7 +3,14 @@ import * as bitcoinJS from 'bitcoinjs-lib';
 import { DerivationConfig } from 'src/store/sagas/wallets';
 import { hash256 } from 'src/services/operations/encryption';
 import config from 'src/core/config';
-import { EntityKind, NetworkType, ScriptTypes, VisibilityType, WalletType } from '../enums';
+import {
+  EntityKind,
+  NetworkType,
+  ScriptTypes,
+  VisibilityType,
+  WalletType,
+  XpubTypes,
+} from '../enums';
 import {
   TransferPolicy,
   Wallet,
@@ -16,6 +23,7 @@ import BIP85 from '../operations/BIP85';
 import { BIP85Config } from '../interfaces';
 import WalletUtilities from '../operations/utils';
 import WalletOperations from '../operations';
+import { XpubDetailsType } from '../interfaces/vault';
 
 export const whirlPoolWalletTypes = [WalletType.PRE_MIX, WalletType.POST_MIX, WalletType.BAD_BANK];
 
@@ -143,9 +151,12 @@ export const generateWallet = async ({
   return wallet;
 };
 
-const generateExtendedKeysForCosigner = (wallet: Wallet) => {
+const generateExtendedKeysForCosigner = (
+  wallet: Wallet,
+  entityKind: EntityKind = EntityKind.VAULT
+) => {
   const seed = bip39.mnemonicToSeedSync(wallet.derivationDetails.mnemonic).toString('hex');
-  const xDerivationPath = WalletUtilities.getDerivationPath(EntityKind.VAULT, wallet.networkType);
+  const xDerivationPath = WalletUtilities.getDerivationPath(entityKind, wallet.networkType);
 
   const network = WalletUtilities.getNetworkByType(wallet.networkType);
   const extendedKeys = WalletUtilities.generateExtendedKeyPairFromSeed(
@@ -160,18 +171,35 @@ export const getCosignerDetails = (wallet: Wallet, appId: string) => {
   const deviceId = appId;
   const masterFingerprint = wallet.id;
 
-  const { extendedKeys, xDerivationPath } = generateExtendedKeysForCosigner(wallet);
+  const { extendedKeys: multiSigExtendedKeys, xDerivationPath: multiSigXderivationPath } =
+    generateExtendedKeysForCosigner(wallet);
+  const { extendedKeys: singleSigExtendedKeys, xDerivationPath: singleSigXderivationPath } =
+    generateExtendedKeysForCosigner(wallet, EntityKind.WALLET);
+
+  const xpubDetails: XpubDetailsType = {};
+  xpubDetails[XpubTypes.P2WPKH] = {
+    xpub: singleSigExtendedKeys.xpub,
+    derivationPath: singleSigXderivationPath,
+  };
+  xpubDetails[XpubTypes.P2WSH] = {
+    xpub: multiSigExtendedKeys.xpub,
+    derivationPath: multiSigXderivationPath,
+  };
+
   return {
     deviceId,
     mfp: masterFingerprint,
-    xpub: extendedKeys.xpub,
-    derivationPath: xDerivationPath,
+    xpubDetails,
   };
 };
 
-export const signCosignerPSBT = (wallet: Wallet, serializedPSBT: string) => {
+export const signCosignerPSBT = (
+  wallet: Wallet,
+  serializedPSBT: string,
+  entityKind: EntityKind = EntityKind.VAULT
+) => {
   const PSBT = bitcoinJS.Psbt.fromBase64(serializedPSBT, { network: config.NETWORK });
-  const { extendedKeys } = generateExtendedKeysForCosigner(wallet);
+  const { extendedKeys } = generateExtendedKeysForCosigner(wallet, entityKind);
 
   let vin = 0;
   // eslint-disable-next-line consistent-return

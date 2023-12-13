@@ -33,7 +33,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultScheme, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
@@ -375,16 +375,19 @@ const verifyJade = (qrData, signer) => {
   return xpub === signer.xpub;
 };
 
-const setupKeeperSigner = (qrData) => {
+const setupKeeperSigner = (qrData, isMultisig) => {
   try {
-    const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+    const { mfp, xpubDetails } = JSON.parse(qrData);
     const ksd = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
+      xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
+      derivationPath: isMultisig
+        ? xpubDetails[XpubTypes.P2WSH].derivationPath
+        : xpubDetails[XpubTypes.P2WPKH].derivationPath,
       xfp: mfp,
       signerType: SignerType.KEEPER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
+      xpubDetails,
     });
     return ksd;
   } catch (err) {
@@ -403,20 +406,44 @@ const verifyKeeperSigner = (qrData, signer) => {
   }
 };
 
-const setupMobileKey = async ({ primaryMnemonic }) => {
+const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
   const networkType = config.NETWORK_TYPE;
-  const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
-    primaryMnemonic,
-    networkType
-  );
+
+  // fetched multi-sig mobile key
+  const {
+    xpub: multiSigXpub,
+    xpriv: multiSigXpriv,
+    derivationPath: multiSigPath,
+    masterFingerprint,
+  } = await generateMobileKey(primaryMnemonic, networkType);
+  // fetched single-sig mobile key
+  const {
+    xpub: singleSigXpub,
+    xpriv: singleSigXpriv,
+    derivationPath: singleSigPath,
+  } = await generateMobileKey(primaryMnemonic, networkType, EntityKind.WALLET);
+
+  const xpubDetails: XpubDetailsType = {};
+  xpubDetails[XpubTypes.P2WPKH] = {
+    xpub: singleSigXpub,
+    derivationPath: singleSigPath,
+    xpriv: singleSigXpriv,
+  };
+  xpubDetails[XpubTypes.P2WSH] = {
+    xpub: multiSigXpub,
+    derivationPath: multiSigPath,
+    xpriv: multiSigXpriv,
+  };
+
   const mobileKey = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
+    xpub: isMultisig ? multiSigXpub : singleSigXpub,
+    derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
     signerType: SignerType.MOBILE_KEY,
     storageType: SignerStorage.WARM,
     isMultisig: true,
-    xpriv,
+    xpriv: isMultisig ? multiSigXpriv : singleSigXpriv,
+    xpubDetails,
   });
   return mobileKey;
 };
@@ -447,6 +474,7 @@ export const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) =>
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
     isMultisig,
+    xpubDetails,
   });
 
   return softSigner;
@@ -614,7 +642,7 @@ function HardwareModalMap({
   const [inProgress, setInProgress] = useState(false);
 
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
-  const { signingDevices, relayVaultReoveryShellId } = useAppSelector((state) => state.bhr);
+  const { signingDevices } = useAppSelector((state) => state.bhr);
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
@@ -768,7 +796,7 @@ function HardwareModalMap({
           hw = setupSeedSigner(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
-          hw = setupKeeperSigner(qrData);
+          hw = setupKeeperSigner(qrData, isMultisig);
           break;
         case SignerType.KEYSTONE:
           hw = setupKeystone(qrData, isMultisig);
@@ -864,7 +892,7 @@ function HardwareModalMap({
         setInProgress(true);
 
         if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-        const cosignersMapIds = generateCosignerMapIds(signingDevices);
+        const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
         const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
         if (response.xpub) {
           const signingServerKey = generateSignerFromMetaData({
@@ -967,7 +995,6 @@ function HardwareModalMap({
   };
 
   const biometricAuth = async () => {
-    console.log('biometricAuth');
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
         setInProgress(true);
@@ -1004,13 +1031,15 @@ function HardwareModalMap({
 
   const requestInheritanceKeyRecovery = async (signers: VaultSigner[]) => {
     try {
+      if (signingDevices.length <= 1) throw new Error('Add two others devices first to recover');
+      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+
       const requestId = `request-${generateKey(10)}`;
-      const vaultId = relayVaultReoveryShellId;
       const thresholdDescriptors = signers.map((signer) => signer.signerId);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
-        vaultId,
+        cosignersMapIds[0],
         thresholdDescriptors
       );
 

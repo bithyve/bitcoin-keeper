@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Pressable, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
-import { ActivityIndicator, TouchableOpacity } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import Clipboard from '@react-native-community/clipboard';
 
 import { LocalizationContext } from 'src/context/Localization/LocContext';

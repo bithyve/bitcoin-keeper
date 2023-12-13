@@ -32,12 +32,15 @@ import KeeperModal from 'src/components/KeeperModal';
 import LoadingAnimation from 'src/components/Loader';
 import TierUpgradeModal from './TierUpgradeModal';
 import { useQuery } from '@realm/react';
+import { useRoute } from '@react-navigation/native';
 
 function ChoosePlan() {
+  const route = useRoute();
+  const initialPosition = route.params?.planPosition || 0;
   const { colorMode } = useColorMode();
   const { translations, formatString } = useContext(LocalizationContext);
   const { choosePlan, common } = translations;
-  const [currentPosition, setCurrentPosition] = useState(0);
+  const [currentPosition, setCurrentPosition] = useState(initialPosition);
   const [loading, setLoading] = useState(true);
   const [requesting, setRequesting] = useState(false);
   const { showToast } = useToastMessage();
@@ -389,6 +392,7 @@ function ChoosePlan() {
             onChange={(item) => setCurrentPosition(item)}
             isMonthly={isMonthly}
             requesting={requesting}
+            currentPosition={currentPosition}
           />
 
           <Box

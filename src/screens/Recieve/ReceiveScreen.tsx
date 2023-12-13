@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
   },
   inputField: {
     color: '#073E39',
-    opacity: 0.5,
+    opacity: 0.8,
     fontFamily: Fonts.FiraSansCondensedBold,
     letterSpacing: 1.04,
   },
