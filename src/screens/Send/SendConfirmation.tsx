@@ -42,7 +42,7 @@ import Fonts from 'src/constants/Fonts';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import AddIcon from 'src/assets/images/add.svg';
 import AddIconWhite from 'src/assets/images/icon_add_white.svg';
-import CustomPriorityModal from './CustomPriorityModal'
+import CustomPriorityModal from './CustomPriorityModal';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -210,15 +210,14 @@ function SendingCard({
 function Transaction({ txFeeInfo, transactionPriority }) {
   const { colorMode } = useColorMode();
   return (
-    <Box flexDirection="row" justifyContent="space-between" marginY={windowHeight > 570 ? 3 : 1
-    }>
+    <Box flexDirection="row" justifyContent="space-between" marginY={windowHeight > 570 ? 3 : 1}>
       <Text color={`${colorMode}.primaryText`} fontSize={14} letterSpacing={1.12}>
         Transaction Priority
       </Text>
       <Text color={`${colorMode}.GreyText`} fontSize={14} letterSpacing={0.28}>
         {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
       </Text>
-    </Box >
+    </Box>
   );
 }
 
@@ -228,7 +227,7 @@ function TextValue({ amt, unit }) {
       style={{
         ...styles.priorityTableText,
         flex: 1,
-        textAlign: 'right'
+        textAlign: 'right',
       }}
     >
       {amt} sats
@@ -241,7 +240,7 @@ function SendingPriority({
   transactionPriority,
   setTransactionPriority,
   availableTransactionPriorities,
-  setVisibleCustomPriorityModal
+  setVisibleCustomPriorityModal,
 }) {
   const { translations } = useContext(LocalizationContext);
   const { settings, wallet: walletTranslation } = translations;
@@ -249,14 +248,14 @@ function SendingPriority({
   return (
     <Box>
       {/* <Transaction txFeeInfo={txFeeInfo} transactionPriority={transactionPriority} /> */}
-      <Box flexDirection="row" justifyContent="space-between" width='90%'>
+      <Box flexDirection="row" justifyContent="space-between" width="90%">
         <Box
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
             paddingVertical: 10,
             marginHorizontal: 20,
-            width: '100%'
+            width: '100%',
           }}
         >
           <Text style={styles.headingLabelText}>Priority</Text>
@@ -316,9 +315,15 @@ function SendingPriority({
         ))}
       </Box>
       <TouchableOpacity onPress={setVisibleCustomPriorityModal}>
-        <Box backgroundColor={`${colorMode}.lightAccent`} borderColor={`${colorMode}.coffeeBackground`} style={styles.addTransPriority}>
+        <Box
+          backgroundColor={`${colorMode}.lightAccent`}
+          borderColor={`${colorMode}.coffeeBackground`}
+          style={styles.addTransPriority}
+        >
           {colorMode === 'light' ? <AddIcon /> : <AddIconWhite />}
-          <Text style={[styles.addPriorityText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>{walletTranslation.addCustomPriority}</Text>
+          <Text style={[styles.addPriorityText, { paddingLeft: colorMode === 'light' ? 10 : 0 }]}>
+            {walletTranslation.addCustomPriority}
+          </Text>
         </Box>
       </TouchableOpacity>
     </Box>
@@ -396,7 +401,7 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
     </>
   );
 }
-function TransactionPriorityDetails({ }) {
+function TransactionPriorityDetails({ transactionPriority, txFeeInfo }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -404,7 +409,9 @@ function TransactionPriorityDetails({ }) {
   return (
     <Box>
       <Box style={styles.transTitleWrapper}>
-        <Text style={styles.transTitleText} color={`${colorMode}.primaryText`}>{walletTransactions.transactionPriority}</Text>
+        <Text style={styles.transTitleText} color={`${colorMode}.primaryText`}>
+          {walletTransactions.transactionPriority}
+        </Text>
       </Box>
       <Box style={styles.transPriorityWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
         <Box style={{ width: '30%' }}>
@@ -413,8 +420,12 @@ function TransactionPriorityDetails({ }) {
           <Text style={styles.transLabelText}>{walletTransactions.FEE}</Text>
         </Box>
         <Box style={{ width: '65%' }}>
-          <Text style={styles.transLabelText}>High</Text>
-          <Text style={styles.transLabelText}>10 - 20 min</Text>
+          <Text style={styles.transLabelText}>{transactionPriority.toUpperCase()}</Text>
+          <Text style={styles.transLabelText}>
+            ~{' '}
+            {txFeeInfo[transactionPriority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10}{' '}
+            mins
+          </Text>
           <Box style={{ flexDirection: 'row', width: '100%' }}>
             <Box style={{ width: '40%' }}>
               <Text style={styles.transFiatFeeText}>80000000</Text>
@@ -422,7 +433,9 @@ function TransactionPriorityDetails({ }) {
             <Box style={styles.transSatsFeeWrapper}>
               <BTC />
               &nbsp;
-              <Text style={styles.transSatsFeeText}>0.000013000</Text>
+              <Text style={styles.transSatsFeeText}>
+                {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
+              </Text>
             </Box>
           </Box>
         </Box>
@@ -431,22 +444,36 @@ function TransactionPriorityDetails({ }) {
         </Box>
       </Box>
     </Box>
-  )
+  );
 }
 function AmountDetails(props) {
   return (
     <Box style={styles.amountDetailsWrapper}>
       <Box style={styles.amtDetailsTitleWrapper}>
-        <Text style={[styles.amtDetailsText, { fontSize: props.fontSize, fontWeight: props.fontWeight }]}>{props.title}</Text>
+        <Text
+          style={[
+            styles.amtDetailsText,
+            { fontSize: props.fontSize, fontWeight: props.fontWeight },
+          ]}
+        >
+          {props.title}
+        </Text>
       </Box>
       <Box style={styles.amtFiatSatsTitleWrapper}>
-        <Text style={[styles.amtDetailsText, { fontSize: props.fontSize, fontWeight: props.fontWeight }]}>{props.fiatAmount}</Text>
+        <Text
+          style={[
+            styles.amtDetailsText,
+            { fontSize: props.fontSize, fontWeight: props.fontWeight },
+          ]}
+        >
+          {props.fiatAmount}
+        </Text>
       </Box>
       <Box style={styles.amtFiatSatsTitleWrapper}>
         <Text style={styles.amtDetailsText}>{props.satsAmount}</Text>
       </Box>
     </Box>
-  )
+  );
 }
 
 function HighFeeAlert() {
@@ -458,7 +485,7 @@ function HighFeeAlert() {
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee} >37,896.80&nbsp;&nbsp;</Text>
+          <Text style={styles.highAlertFiatFee}>37,896.80&nbsp;&nbsp;</Text>
           <Text style={styles.highAlertSatsFee}>0.789036</Text>
         </Box>
       </Box>
@@ -470,7 +497,7 @@ function HighFeeAlert() {
         </Box>
       </Box>
     </>
-  )
+  );
 }
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
@@ -704,12 +731,29 @@ function SendConfirmation({ route }) {
           sourceWallet={sourceWallet}
         />
         <TouchableOpacity onPress={() => setTransPriorityModalVisible(true)}>
-          <TransactionPriorityDetails />
+          <TransactionPriorityDetails
+            transactionPriority={transactionPriority}
+            txFeeInfo={txFeeInfo}
+          />
         </TouchableOpacity>
-        <AmountDetails title={walletTransactions.totalAmount} fiatAmount={'10,000.00'} satsAmount={'0.264075'} />
-        <AmountDetails title={walletTransactions.totalFees} fiatAmount={'80.00'} satsAmount={'0.000013'} />
+        <AmountDetails
+          title={walletTransactions.totalAmount}
+          fiatAmount={'10,000.00'}
+          satsAmount={getBalance(amount)}
+        />
+        <AmountDetails
+          title={walletTransactions.totalFees}
+          fiatAmount={'80.00'}
+          satsAmount={getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+        />
         <Box style={styles.horizontalLineStyle} borderBottomColor={`${colorMode}.Border`} />
-        <AmountDetails title={walletTransactions.total} fiatAmount={'10,080.00'} satsAmount={'0.264088'} fontSize={17} fontWeight={'400'} />
+        <AmountDetails
+          title={walletTransactions.total}
+          fiatAmount={'10,080.00'}
+          satsAmount={getBalance(amount + txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
+          fontSize={17}
+          fontWeight={'400'}
+        />
         {/* <Box>
           {customFeeOptionTransfers.includes(transferType) ? (
             <SendingPriority
@@ -729,10 +773,7 @@ function SendConfirmation({ route }) {
         </Box> */}
       </ScrollView>
       {transferType === TransferType.VAULT_TO_VAULT ? (
-        <Note
-          title={common.note}
-          subtitle={vault.signingOldVault}
-        />
+        <Note title={common.note} subtitle={vault.signingOldVault} />
       ) : null}
       <Buttons
         primaryText={common.confirmProceed}
@@ -799,7 +840,9 @@ function SendConfirmation({ route }) {
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
         buttonText={common.confirm}
-        buttonCallback={() => { setTransPriorityModalVisible(false), setTransactionPriority }}
+        buttonCallback={() => {
+          setTransPriorityModalVisible(false), setTransactionPriority;
+        }}
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setTransPriorityModalVisible(false)}
         Content={() => (
@@ -808,10 +851,12 @@ function SendConfirmation({ route }) {
             transactionPriority={transactionPriority}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
-            setVisibleCustomPriorityModal={() => { setTransPriorityModalVisible(false); setVisibleCustomPriorityModal(true) }}
+            setVisibleCustomPriorityModal={() => {
+              setTransPriorityModalVisible(false);
+              setVisibleCustomPriorityModal(true);
+            }}
           />
-        )
-        }
+        )}
       />
       {/* High fee alert Modal */}
       <KeeperModal
@@ -826,15 +871,14 @@ function SendConfirmation({ route }) {
         textColor={`${colorMode}.primaryText`}
         buttonTextColor={`${colorMode}.white`}
         buttonText={common.proceed}
-        buttonCallback={() => { setHighFeeAlertVisible(false) }}
+        buttonCallback={() => {
+          setHighFeeAlertVisible(false);
+        }}
         secondaryButtonText={common.cancel}
         secondaryCallback={() => setHighFeeAlertVisible(false)}
-        Content={() => (
-          <HighFeeAlert />
-        )
-        }
+        Content={() => <HighFeeAlert />}
       />
-      {visibleCustomPriorityModal &&
+      {visibleCustomPriorityModal && (
         <CustomPriorityModal
           visible={visibleCustomPriorityModal}
           close={() => setVisibleCustomPriorityModal(false)}
@@ -842,7 +886,8 @@ function SendConfirmation({ route }) {
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do'}
-        />}
+        />
+      )}
     </ScreenWrapper>
   );
 }
@@ -897,13 +942,13 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   transPriorityWrapper: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderRadius: 10,
     padding: windowHeight * 0.019,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   transTitleWrapper: {
-    marginVertical: 10
+    marginVertical: 10,
   },
   transTitleText: {
     fontSize: 14,
@@ -919,12 +964,12 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.FiraSansCondensedMedium,
   },
   transSatsFeeText: {
-    fontSize: 12
+    fontSize: 12,
   },
   transSatsFeeWrapper: {
     width: '60%',
     alignItems: 'center',
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   addTransPriority: {
     height: 60,
@@ -933,7 +978,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginVertical: hp(30),
-    borderWidth: 0.8
+    borderWidth: 0.8,
   },
   addPriorityText: {
     fontSize: 15,
@@ -943,30 +988,30 @@ const styles = StyleSheet.create({
   amountDetailsWrapper: {
     flexDirection: 'row',
     width: '100%',
-    marginTop: 20
+    marginTop: 20,
   },
   amtDetailsTitleWrapper: {
     width: '30%',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
   amtFiatSatsTitleWrapper: {
     width: '35%',
-    alignItems: 'flex-end'
+    alignItems: 'flex-end',
   },
   amtDetailsText: {
     fontSize: 12,
     fontFamily: Fonts.FiraSansCondensedRegular,
-    letterSpacing: 0.55
+    letterSpacing: 0.55,
   },
   horizontalLineStyle: {
     borderBottomWidth: 0.3,
     marginTop: hp(20),
-    opacity: 0.5
+    opacity: 0.5,
   },
   highFeeTitle: {
     fontSize: 14,
     fontFamily: Fonts.FiraSansCondensedRegular,
-    letterSpacing: 0.55
+    letterSpacing: 0.55,
   },
   highFeeDetailsWrapper: {
     flexDirection: 'row',
@@ -975,7 +1020,7 @@ const styles = StyleSheet.create({
   highFeeDetailsContainer: {
     width: windowWidth * 0.8,
     padding: 10,
-    marginVertical: 10
+    marginVertical: 10,
   },
   highAlertFiatFee: {
     fontSize: 16,
