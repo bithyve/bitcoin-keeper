@@ -1,5 +1,9 @@
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import React, { useContext, useRef } from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { routingInstrumentation } from 'src/services/sentry';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+
 import AddAmountScreen from 'src/screens/Recieve/AddAmountScreen';
 import AddDescription from 'src/screens/Vault/AddDescription';
 import AddSendAmount from 'src/screens/Send/AddSendAmount';
@@ -55,8 +59,6 @@ import AllTransactions from 'src/screens/Vault/AllTransactions';
 import WalletBackHistoryScreen from 'src/screens/BackupWallet/WalletBackHistoryScreen';
 import WalletDetails from 'src/screens/WalletDetails/WalletDetails';
 import WalletSettings from 'src/screens/WalletDetails/WalletSettings';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { routingInstrumentation } from 'src/services/sentry';
 import Colors from 'src/theme/Colors';
 import NodeSettings from 'src/screens/AppSettings/Node/NodeSettings';
 import HomeScreen from 'src/screens/HomeScreen/HomeScreen';
@@ -97,6 +99,7 @@ import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
 import Home from 'src/screens/Home/Home';
+import { Dimensions } from 'react-native';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -160,7 +163,8 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Home" component={DrawerStack} />
+        {/* <Stack.Screen name="Home" component={Home} /> */}
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
@@ -265,11 +269,28 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => {}}
+        close={() => { }}
         title="please wait"
         subTitle="loading"
       />
     </NavigationContainer>
+  );
+}
+function DrawerStack() {
+  const Drawer = createDrawerNavigator();
+  return (
+    <Drawer.Navigator
+      drawerContent={(props) => <AppSettings {...props} />}
+      screenOptions={{
+        headerShown: false,
+        drawerStyle: {
+          width: '94%',
+        },
+      }}
+    >
+      <Drawer.Screen name="HomeScreen" component={Home} />
+      {/* <Drawer.Screen name="AppSettings" component={AppSettings} /> */}
+    </Drawer.Navigator>
   );
 }
 

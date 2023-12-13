@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Box, HStack, useColorMode } from 'native-base';
@@ -15,9 +15,9 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { CommonActions } from '@react-navigation/native';
-import IconSettings from 'src/assets/images/new_icon_settings.svg';
-import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
+// import { CommonActions } from '@react-navigation/native';
+import MenuIcon from 'src/assets/images/menu-hor.svg';
+// import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
 import useVault from 'src/hooks/useVault';
 import { DowngradeModal } from './components/DowngradeModal';
 import AddWalletModal from './components/AddWalletModal';
@@ -25,6 +25,8 @@ import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
 import useKeys from 'src/hooks/useKeys';
 import { AppSigners } from './components/AppSigners';
 import Wallets from './components/Wallets';
+import UaiDisplay from '../HomeScreen/UaiDisplay';
+import useUaiStack from 'src/hooks/useUaiStack';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -45,17 +47,21 @@ const Header = ({ navigation }) => {
   return (
     <HStack style={styles.headerContainer}>
       <TouchableOpacity
-        onPress={() => navigation.dispatch(CommonActions.navigate('AppSettings'))}
+        onPress={() => navigation.toggleDrawer()}
         testID="btn_AppSettingsIcon"
       >
-        {colorMode === 'light' ? <IconSettings /> : <IconDarkSettings />}
+        <MenuIcon />
       </TouchableOpacity>
     </HStack>
   );
 };
 
 const UAIStack = ({ navigation }) => {
-  return <Box style={styles.uaiContainer}></Box>;
+  const { uaiStack } = useUaiStack();
+  return (
+    <UaiDisplay uaiStack={uaiStack} />
+  )
+
 };
 
 const Keys = () => {
@@ -172,8 +178,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   uaiContainer: {
-    margin: 10,
+    marginVertical: 10,
+    width: '100%',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
+  uaiMsgWrapper: {
+    width: '60%',
+  },
+  uaiBtnWrapper: {
+    width: '40%',
+  }
 });
