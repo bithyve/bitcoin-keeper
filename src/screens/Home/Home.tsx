@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
 import { Box, HStack, useColorMode } from 'native-base';
@@ -25,6 +25,8 @@ import ElectrumDisconnectModal from './components/ElectrumDisconnectModal';
 import useKeys from 'src/hooks/useKeys';
 import { AppSigners } from './components/AppSigners';
 import Wallets from './components/Wallets';
+import UaiDisplay from '../HomeScreen/UaiDisplay';
+import useUaiStack from 'src/hooks/useUaiStack';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -55,7 +57,11 @@ const Header = ({ navigation }) => {
 };
 
 const UAIStack = ({ navigation }) => {
-  return <Box style={styles.uaiContainer}></Box>;
+  const { uaiStack } = useUaiStack();
+  return (
+    <UaiDisplay uaiStack={uaiStack} />
+  )
+
 };
 
 const Keys = () => {
@@ -172,8 +178,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   uaiContainer: {
-    margin: 10,
+    marginVertical: 10,
+    width: '100%',
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
   },
+  uaiMsgWrapper: {
+    width: '60%',
+  },
+  uaiBtnWrapper: {
+    width: '40%',
+  }
 });
