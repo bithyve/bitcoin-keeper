@@ -24,7 +24,11 @@ import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import WalletIcon from 'src/assets/images/icon_wallet.svg';
 import VaultIcon from 'src/assets/images/icon_vault2.svg';
 import moment from 'moment';
-import { crossTransferReset, sendPhaseTwoReset } from 'src/store/reducers/send_and_receive';
+import {
+  crossTransferReset,
+  customPrioritySendPhaseOneReset,
+  sendPhaseTwoReset,
+} from 'src/store/reducers/send_and_receive';
 import { useAppSelector } from 'src/store/hooks';
 import useAvailableTransactionPriorities from 'src/store/hooks/sending-utils/UseAvailableTransactionPriorities';
 import { useDispatch } from 'react-redux';
@@ -43,6 +47,7 @@ import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import AddIcon from 'src/assets/images/add.svg';
 import AddIconWhite from 'src/assets/images/icon_add_white.svg';
 import CustomPriorityModal from './CustomPriorityModal';
+import { UTXO } from 'src/core/wallets/interfaces';
 
 const customFeeOptionTransfers = [
   TransferType.VAULT_TO_ADDRESS,
@@ -265,54 +270,58 @@ function SendingPriority({
       </Box>
 
       <Box mt={hp(1)} width={'100%'}>
-        {availableTransactionPriorities?.map((priority) => (
-          <TouchableOpacity
-            key={priority}
-            onPress={() => {
-              setTransactionPriority(priority);
-            }}
-          >
-            <Box
-              style={styles.priorityRowContainer}
-              opacity={transactionPriority === priority ? 1 : 0.5}
-              backgroundColor={`${colorMode}.seashellWhite`}
-            >
-              <Box style={styles.priorityBox}>
-                <RadioButton
-                  size={20}
-                  isChecked={transactionPriority === priority}
-                  borderColor="#74837F"
-                  onpress={() => {
-                    setTransactionPriority(priority);
-                  }}
-                />
-                <Text
-                  style={{
-                    ...styles.priorityTableText,
-                    marginLeft: 12,
-                    fontStyle: 'normal',
-                  }}
-                >
-                  {String(priority)}
-                </Text>
-              </Box>
-              <Text
-                style={{
-                  ...styles.priorityTableText,
-                  flex: 1,
+        {availableTransactionPriorities?.map((priority) => {
+          if (txFeeInfo[priority?.toLowerCase()].estimatedBlocksBeforeConfirmation !== 0)
+            return (
+              <TouchableOpacity
+                key={priority}
+                onPress={() => {
+                  setTransactionPriority(priority);
                 }}
               >
-                ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10} mins
-              </Text>
-              <TextValue
-                amt={txFeeInfo[priority?.toLowerCase()]?.amount}
-                unit={{
-                  bitcoinUnit: BitcoinUnit.SATS,
-                }}
-              />
-            </Box>
-          </TouchableOpacity>
-        ))}
+                <Box
+                  style={styles.priorityRowContainer}
+                  opacity={transactionPriority === priority ? 1 : 0.5}
+                  backgroundColor={`${colorMode}.seashellWhite`}
+                >
+                  <Box style={styles.priorityBox}>
+                    <RadioButton
+                      size={20}
+                      isChecked={transactionPriority === priority}
+                      borderColor="#74837F"
+                      onpress={() => {
+                        setTransactionPriority(priority);
+                      }}
+                    />
+                    <Text
+                      style={{
+                        ...styles.priorityTableText,
+                        marginLeft: 12,
+                        fontStyle: 'normal',
+                      }}
+                    >
+                      {String(priority)}
+                    </Text>
+                  </Box>
+                  <Text
+                    style={{
+                      ...styles.priorityTableText,
+                      flex: 1,
+                    }}
+                  >
+                    ~{txFeeInfo[priority?.toLowerCase()]?.estimatedBlocksBeforeConfirmation * 10}{' '}
+                    mins
+                  </Text>
+                  <TextValue
+                    amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+                    unit={{
+                      bitcoinUnit: BitcoinUnit.SATS,
+                    }}
+                  />
+                </Box>
+              </TouchableOpacity>
+            );
+        })}
       </Box>
       <TouchableOpacity onPress={setVisibleCustomPriorityModal}>
         <Box
@@ -513,6 +522,7 @@ function SendConfirmation({ route }) {
     uaiSetActionFalse,
     note,
     label,
+    selectedUTXOs,
   }: {
     sender: Wallet | Vault;
     recipient: Wallet | Vault;
@@ -527,6 +537,7 @@ function SendConfirmation({ route }) {
       name: string;
       isSystem: boolean;
     }[];
+    selectedUTXOs: UTXO[];
   } = route.params;
 
   const txFeeInfo = useAppSelector((state) => state.sendAndReceive.transactionFeeInfo);
@@ -589,7 +600,6 @@ function SendConfirmation({ route }) {
 
   useEffect(() => {
     if (inProgress) {
-      // TODO: Remove this timeout until we optimise the crypto
       setTimeout(() => {
         dispatch(sendPhaseTwoReset());
         dispatch(
@@ -700,6 +710,7 @@ function SendConfirmation({ route }) {
       }
     }
   }, [crossTransferSuccess]);
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader title={title} subtitle={subTitle} />
@@ -853,6 +864,7 @@ function SendConfirmation({ route }) {
             availableTransactionPriorities={availableTransactionPriorities}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
+              dispatch(customPrioritySendPhaseOneReset());
               setVisibleCustomPriorityModal(true);
             }}
           />
@@ -886,6 +898,14 @@ function SendConfirmation({ route }) {
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
           subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do'}
+          network={sender.networkType}
+          recipients={[{ address, amount }]} // TODO: rewire for Batch Send
+          sender={sender}
+          selectedUTXOs={selectedUTXOs}
+          buttonCallback={(setCustomTxPriority) => {
+            setVisibleCustomPriorityModal(false);
+            if (setCustomTxPriority) setTransactionPriority(TxPriority.CUSTOM);
+          }}
         />
       )}
     </ScreenWrapper>

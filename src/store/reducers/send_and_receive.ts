@@ -2,7 +2,6 @@ import {
   SerializedPSBTEnvelop,
   SigningPayload,
   TransactionPrerequisite,
-  TransactionPrerequisiteElements,
 } from 'src/core/wallets/interfaces/';
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
@@ -22,6 +21,19 @@ export interface SendPhaseOneExecutedPayload {
     }[];
   };
   err?: string;
+}
+
+export interface CustomFeeCalculatedPayload {
+  successful: boolean;
+  outputs: {
+    customTxPrerequisites: TransactionPrerequisite;
+    recipients?: {
+      address: string;
+      amount: number;
+      name?: string;
+    }[];
+  };
+  err?: string | null;
 }
 
 export interface SendPhaseTwoExecutedPayload {
@@ -62,7 +74,10 @@ const initialState: {
     hasFailed: boolean;
     failedErrorMessage: string | null;
     isSuccessful: boolean;
-    outputs: { customTxPrerequisites: TransactionPrerequisiteElements } | null;
+    outputs: {
+      customTxPrerequisites: TransactionPrerequisite;
+      recipients: { address: string; amount: number }[];
+    } | null;
   };
   sendPhaseTwo: {
     inProgress: boolean;
@@ -125,15 +140,15 @@ const initialState: {
   transactionFeeInfo: {
     [TxPriority.LOW]: {
       amount: 0,
-      estimatedBlocksBeforeConfirmation: 50,
+      estimatedBlocksBeforeConfirmation: 0,
     },
     [TxPriority.MEDIUM]: {
       amount: 0,
-      estimatedBlocksBeforeConfirmation: 20,
+      estimatedBlocksBeforeConfirmation: 0,
     },
     [TxPriority.HIGH]: {
       amount: 0,
-      estimatedBlocksBeforeConfirmation: 4,
+      estimatedBlocksBeforeConfirmation: 0,
     },
     [TxPriority.CUSTOM]: {
       amount: 0,
@@ -172,6 +187,34 @@ const sendAndReceiveSlice = createSlice({
         isSuccessful: successful,
         outputs: {
           txPrerequisites,
+          recipients,
+        },
+      };
+      state.transactionFeeInfo = transactionFeeInfo;
+    },
+
+    customFeeCalculated: (state, action: PayloadAction<CustomFeeCalculatedPayload>) => {
+      const { transactionFeeInfo } = state;
+      let customTxPrerequisites: TransactionPrerequisite;
+      let recipients;
+      const { successful, outputs, err } = action.payload;
+      if (successful) {
+        customTxPrerequisites = outputs.customTxPrerequisites;
+        Object.keys(customTxPrerequisites).forEach((priority) => {
+          transactionFeeInfo[priority].amount = customTxPrerequisites[priority].fee;
+          transactionFeeInfo[priority].estimatedBlocksBeforeConfirmation =
+            customTxPrerequisites[priority].estimatedBlocks;
+        });
+        recipients = outputs.recipients;
+      }
+      state.customPrioritySendPhaseOne = {
+        ...state.customPrioritySendPhaseOne,
+        inProgress: false,
+        hasFailed: !successful,
+        failedErrorMessage: !successful ? err : null,
+        isSuccessful: successful,
+        outputs: {
+          customTxPrerequisites,
           recipients,
         },
       };
@@ -232,13 +275,29 @@ const sendAndReceiveSlice = createSlice({
     sendPhasesReset: (state) => {
       state.sendMaxFee = 0;
       state.sendPhaseOne = initialState.sendPhaseOne;
+      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
       state.sendPhaseTwo = initialState.sendPhaseTwo;
       state.sendPhaseThree = initialState.sendPhaseThree;
+      state.transactionFeeInfo = initialState.transactionFeeInfo;
     },
     sendPhaseOneReset: (state) => {
       state.sendPhaseOne = initialState.sendPhaseOne;
+      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
       state.sendPhaseTwo = initialState.sendPhaseTwo;
       state.sendPhaseThree = initialState.sendPhaseThree;
+      state.transactionFeeInfo = initialState.transactionFeeInfo;
+    },
+    customPrioritySendPhaseOneReset: (state) => {
+      state.customPrioritySendPhaseOne = initialState.customPrioritySendPhaseOne;
+      state.sendPhaseTwo = initialState.sendPhaseTwo;
+      state.sendPhaseThree = initialState.sendPhaseThree;
+      state.transactionFeeInfo = {
+        ...state.transactionFeeInfo,
+        [TxPriority.CUSTOM]: {
+          amount: 0,
+          estimatedBlocksBeforeConfirmation: 0,
+        },
+      };
     },
     sendPhaseTwoReset: (state) => {
       state.sendPhaseTwo = initialState.sendPhaseTwo;
@@ -259,6 +318,7 @@ const sendAndReceiveSlice = createSlice({
 export const {
   setSendMaxFee,
   sendPhaseOneExecuted,
+  customFeeCalculated,
   sendPhaseTwoExecuted,
   sendPhaseThreeExecuted,
   crossTransferExecuted,
@@ -266,6 +326,7 @@ export const {
   crossTransferReset,
   sendPhasesReset,
   sendPhaseOneReset,
+  customPrioritySendPhaseOneReset,
   sendPhaseTwoReset,
   sendPhaseThreeReset,
   updatePSBTEnvelops,

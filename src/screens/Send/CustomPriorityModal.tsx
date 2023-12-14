@@ -3,7 +3,7 @@ import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 // import Close from 'src/assets/images/modal_close.svg';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
@@ -12,6 +12,9 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useBalance from 'src/hooks/useBalance';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
+import { calculateCustomFee } from 'src/store/sagaActions/send_and_receive';
+import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function CustomPriorityModal(props) {
   const { colorMode } = useColorMode();
@@ -29,14 +32,20 @@ function CustomPriorityModal(props) {
     secondaryCallback,
     textColor = '#000',
     network,
+    recipients,
+    sender,
+    selectedUTXOs,
   } = props;
   const { bottom } = useSafeAreaInsets();
   const [customPriorityFee, setCustomPriorityFee] = useState('');
-  const [customEstBlocks, setCustomEstBlock] = useState('');
+  const [customEstBlocks, setCustomEstBlock] = useState();
+  const [estimationSign, setEstimationSign] = useState('~');
   const averageTxFees = useAppSelector((state) => state.network.averageTxFees);
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletTranslation } = translations;
   const { getCurrencyIcon } = useBalance();
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
@@ -49,30 +58,26 @@ function CustomPriorityModal(props) {
   };
 
   const updateFeeAndBlock = (value) => {
-    if (averageTxFees && averageTxFees[network].feeRates) {
-      const { feeRates } = averageTxFees[network];
+    setEstimationSign('~');
+    if (averageTxFees && averageTxFees[network]) {
+      const { high, medium, low } = averageTxFees[network];
       const customFeeRatePerByte = parseInt(value);
       let customEstimatedBlock = 0;
-      // handling extremes
-      if (customFeeRatePerByte > feeRates['2']) {
-        customEstimatedBlock = 1;
-      } else if (customFeeRatePerByte < feeRates['144']) {
-        customEstimatedBlock = 200;
+      if (customFeeRatePerByte >= high.feePerByte) {
+        customEstimatedBlock = high.estimatedBlocks;
+        if (customFeeRatePerByte > high.feePerByte) setEstimationSign('<');
+      } else if (customFeeRatePerByte <= low.feePerByte) {
+        customEstimatedBlock = low.estimatedBlocks;
+        if (customFeeRatePerByte < low.feePerByte) setEstimationSign('>');
       } else {
-        const closestFeeRatePerByte = Object.values(feeRates).reduce((prev, curr) =>
-          Math.abs(curr - customFeeRatePerByte) < Math.abs(prev - customFeeRatePerByte)
-            ? curr
-            : prev
-        );
-
-        const etimatedBlock = Object.keys(feeRates).find(
-          (key) => feeRates[key] === closestFeeRatePerByte
-        );
-        customEstimatedBlock = parseInt(etimatedBlock);
+        customEstimatedBlock = medium.estimatedBlocks;
       }
 
-      if (parseInt(value) >= 1) setCustomEstBlock(`${customEstimatedBlock}`);
-      else setCustomPriorityFee('');
+      if (parseInt(value) >= 1) setCustomEstBlock(customEstimatedBlock);
+      else {
+        setCustomPriorityFee('');
+        setCustomEstBlock('');
+      }
     }
 
     setCustomPriorityFee(value);
@@ -81,6 +86,31 @@ function CustomPriorityModal(props) {
   const onDeletePressed = () => {
     updateFeeAndBlock(customPriorityFee.slice(0, customPriorityFee.length - 1));
   };
+
+  const handleCustomFee = () => {
+    dispatch(
+      calculateCustomFee({
+        wallet: sender,
+        recipients,
+        feePerByte: customPriorityFee,
+        customEstimatedBlocks: customEstBlocks,
+        selectedUTXOs,
+      })
+    );
+  };
+
+  const customSendPhaseOneResults = useAppSelector(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne
+  );
+
+  useEffect(() => {
+    if (customSendPhaseOneResults.failedErrorMessage) {
+      showToast(customSendPhaseOneResults.failedErrorMessage);
+      buttonCallback(false);
+    } else if (customSendPhaseOneResults.isSuccessful) {
+      buttonCallback(true);
+    }
+  }, [customSendPhaseOneResults]);
 
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
   return (
@@ -119,11 +149,7 @@ function CustomPriorityModal(props) {
             <Box alignItems="center">
               <Input
                 InputLeftElement={
-                  <Box
-                    borderRightWidth={0.5}
-                    borderRightColor={`${colorMode}.Border`}
-                    px="2"
-                  >
+                  <Box borderRightWidth={0.5} borderRightColor={`${colorMode}.Border`} px="2">
                     <Box>
                       {getCurrencyIcon(BitcoinInput, colorMode === 'light' ? 'dark' : 'light')}
                     </Box>
@@ -138,13 +164,14 @@ function CustomPriorityModal(props) {
                 value={customPriorityFee}
               />
             </Box>
-            <Box my={windowHeight * 0.03} flexDirection={'row'} justifyContent={'space-between'} mx={1}>
-              <Text color={`${colorMode}.greenText`}>
-                {walletTranslation.estimateArrvlTime}
-              </Text>
-              <Text>
-                5 - 10 minutes
-              </Text>
+            <Box
+              my={windowHeight * 0.03}
+              flexDirection={'row'}
+              justifyContent={'space-between'}
+              mx={1}
+            >
+              <Text color={`${colorMode}.greenText`}>{walletTranslation.estimateArrvlTime}</Text>
+              <Text>{customEstBlocks ? `${estimationSign} ${customEstBlocks * 10} mins` : ''}</Text>
             </Box>
 
             <Box
@@ -154,9 +181,7 @@ function CustomPriorityModal(props) {
               alignItems="center"
               my={windowWidth * 0.031}
             >
-              <TouchableOpacity
-                onPress={secondaryCallback}
-              >
+              <TouchableOpacity onPress={secondaryCallback}>
                 <Text
                   mr={windowWidth * 0.07}
                   color={`${colorMode}.greenText`}
@@ -166,11 +191,7 @@ function CustomPriorityModal(props) {
                   {secondaryButtonText}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  buttonCallback(customPriorityFee, customEstBlocks);
-                }}
-              >
+              <TouchableOpacity onPress={handleCustomFee}>
                 <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text
                     fontSize={13}

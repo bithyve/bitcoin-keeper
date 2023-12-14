@@ -55,7 +55,7 @@ const ECPair = ECPairFactory(ecc);
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
   ECPair.fromPublicKey(pubkey).verify(msghash, signature);
 
-const feeSurcharge = (wallet: Wallet | Vault) =>
+const testnetFeeSurcharge = (wallet: Wallet | Vault) =>
   /* !! TESTNET ONLY !!
      as the redeem script for vault is heavy(esp. 3-of-5/3-of-6), 
      the nodes reject the tx if the overall fee for the tx is low(which is the case w/ electrum)
@@ -470,8 +470,8 @@ export default class WalletOperations {
         estimatedBlocks: lowFeeBlockEstimate,
       };
 
-    const feeRatesByPriority = { high, medium, low };
-    return feeRatesByPriority;
+      const feeRatesByPriority = { high, medium, low };
+      return feeRatesByPriority;
     } catch (err) {
       console.log('Failed to fetch fee via Fulcrum', { err });
       throw new Error('Failed to fetch fee');
@@ -579,7 +579,11 @@ export default class WalletOperations {
         }).address,
       });
     }
-    const { fee } = coinselectSplit(inputUTXOs, outputUTXOs, feePerByte + feeSurcharge(wallet));
+    const { fee } = coinselectSplit(
+      inputUTXOs,
+      outputUTXOs,
+      feePerByte + testnetFeeSurcharge(wallet)
+    );
 
     return {
       fee,
@@ -593,7 +597,7 @@ export default class WalletOperations {
       amount: number;
     }[],
     averageTxFees: AverageTxFees,
-    selectedUTXOs?: any
+    selectedUTXOs?: UTXO[]
   ):
     | {
         fee: number;
@@ -624,7 +628,11 @@ export default class WalletOperations {
     const defaultFeePerByte = averageTxFees[defaultTxPriority].feePerByte;
     const defaultEstimatedBlocks = averageTxFees[defaultTxPriority].estimatedBlocks;
 
-    const assets = coinselect(inputUTXOs, outputUTXOs, defaultFeePerByte + feeSurcharge(wallet));
+    const assets = coinselect(
+      inputUTXOs,
+      outputUTXOs,
+      defaultFeePerByte + testnetFeeSurcharge(wallet)
+    );
     const defaultPriorityInputs = assets.inputs;
     const defaultPriorityOutputs = assets.outputs;
     const defaultPriorityFee = assets.fee;
@@ -657,7 +665,7 @@ export default class WalletOperations {
         const { inputs, outputs, fee } = coinselect(
           inputUTXOs,
           outputUTXOs,
-          averageTxFees[priority].feePerByte + feeSurcharge(wallet)
+          averageTxFees[priority].feePerByte + testnetFeeSurcharge(wallet)
         );
         const debitedAmount = netAmount + fee;
         if (!inputs || debitedAmount > confirmedBalance) {
@@ -688,21 +696,25 @@ export default class WalletOperations {
       address: string;
       value: number;
     }[],
-    customTxFeePerByte: number
-  ): TransactionPrerequisiteElements => {
-    const inputUTXOs = wallet.specs.confirmedUTXOs;
+    customTxFeePerByte: number,
+    selectedUTXOs?: UTXO[]
+  ): TransactionPrerequisite => {
+    const inputUTXOs =
+      selectedUTXOs && selectedUTXOs.length ? selectedUTXOs : wallet.specs.confirmedUTXOs;
     const { inputs, outputs, fee } = coinselect(
       inputUTXOs,
       outputUTXOs,
-      customTxFeePerByte + feeSurcharge(wallet)
+      customTxFeePerByte + testnetFeeSurcharge(wallet)
     );
 
     if (!inputs) return { fee };
 
     return {
-      inputs,
-      outputs,
-      fee,
+      [TxPriority.CUSTOM]: {
+        inputs,
+        outputs,
+        fee,
+      },
     };
   };
 
@@ -852,7 +864,7 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: string,
-    customTxPrerequisites?: TransactionPrerequisiteElements,
+    customTxPrerequisites?: TransactionPrerequisite,
     derivationPurpose?: DerivationPurpose,
     scriptType?: BIP48ScriptTypes
   ): Promise<{
@@ -864,9 +876,10 @@ export default class WalletOperations {
     try {
       let inputs;
       let outputs;
-      if (txnPriority === TxPriority.CUSTOM && customTxPrerequisites) {
-        inputs = customTxPrerequisites.inputs;
-        outputs = customTxPrerequisites.outputs;
+      if (txnPriority === TxPriority.CUSTOM) {
+        if (!customTxPrerequisites) throw new Error('Tx-prerequisites missing for custom fee');
+        inputs = customTxPrerequisites[txnPriority].inputs;
+        outputs = customTxPrerequisites[txnPriority].outputs;
       } else {
         inputs = txPrerequisites[txnPriority].inputs;
         outputs = txPrerequisites[txnPriority].outputs;
@@ -1209,12 +1222,11 @@ export default class WalletOperations {
     wallet: Wallet | Vault,
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
-    network: bitcoinJS.networks.Network,
     recipients: {
       address: string;
       amount: number;
     }[],
-    customTxPrerequisites?: TransactionPrerequisiteElements
+    customTxPrerequisites?: TransactionPrerequisite
   ): Promise<
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
@@ -1284,12 +1296,18 @@ export default class WalletOperations {
     serializedPSBTEnvelops: SerializedPSBTEnvelop[],
     txPrerequisites: TransactionPrerequisite,
     txnPriority: TxPriority,
+    customTxPrerequisites?: TransactionPrerequisite,
     txHex?: string
   ): Promise<{
     txid: string;
     finalOutputs: bitcoinJS.TxOutput[];
   }> => {
-    const { inputs } = txPrerequisites[txnPriority];
+    let inputs;
+    if (txnPriority === TxPriority.CUSTOM) {
+      if (!customTxPrerequisites) throw new Error('Tx-prerequisites missing for custom fee');
+      inputs = customTxPrerequisites[txnPriority].inputs;
+    } else inputs = txPrerequisites[txnPriority].inputs;
+
     let combinedPSBT: bitcoinJS.Psbt = null;
     let finalOutputs: bitcoinJS.TxOutput[];
 
