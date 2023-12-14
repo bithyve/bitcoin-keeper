@@ -100,6 +100,8 @@ import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
 import Home from 'src/screens/Home/Home';
 import { Dimensions } from 'react-native';
+import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
+import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -226,6 +228,8 @@ function AppStack() {
         <Stack.Screen name="RegisterWithQR" component={RegisterWithQR} />
         <Stack.Screen name="SignWithQR" component={SignWithQR} />
         <Stack.Screen name="NodeSettings" component={NodeSettings} />
+        <Stack.Screen name="PrivacyAndDisplay" component={PrivacyAndDisplay} />
+        <Stack.Screen name="NetworkSetting" component={NetworkSetting} />
         <Stack.Screen name="ConnectChannel" component={ConnectChannel} />
         <Stack.Screen name="RegisterWithChannel" component={RegisterWithChannel} />
         <Stack.Screen name="SetupOtherSDScreen" component={SetupOtherSDScreen} />
