@@ -25,19 +25,24 @@ function UTXOSelection({ route }: any) {
   const { sender, amount, address } = route.params;
   const utxos = _.clone(sender.specs.confirmedUTXOs);
   const { colorMode } = useColorMode();
-  const { getSatUnit, getBalance, getCurrencyIcon } = useBalance();
   const { showToast } = useToastMessage();
   const dispatch = useDispatch();
   const { averageTxFees } = useAppSelector((state) => state.network);
   const [selectionTotal, setSelectionTotal] = useState(0);
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
+  const { satsEnabled } = useAppSelector((state) => state.settings);
 
   const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
   const areEnoughUTXOsSelected =
-    selectionTotal >= Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
+    selectionTotal >=
+    Number(satsEnabled ? amount : BtcToSats(amount)) +
+      Number(satsEnabled ? minimumAvgFeeRequired : BtcToSats(minimumAvgFeeRequired));
   const showFeeErrorMessage =
-    selectionTotal >= Number(BtcToSats(amount)) &&
-    selectionTotal < Number(BtcToSats(amount)) + Number(minimumAvgFeeRequired);
+    selectionTotal >= Number(satsEnabled ? amount : BtcToSats(amount)) &&
+    selectionTotal <
+      Number(satsEnabled ? amount : BtcToSats(amount)) +
+        Number(satsEnabled ? minimumAvgFeeRequired : BtcToSats(minimumAvgFeeRequired));
+
   const executeSendPhaseOne = () => {
     const recipients = [];
     if (!selectionTotal) {
@@ -46,7 +51,7 @@ function UTXOSelection({ route }: any) {
     }
     recipients.push({
       address,
-      amount: BtcToSats(amount),
+      amount: satsEnabled ? amount : BtcToSats(amount),
     });
     dispatch(
       sendPhaseOne({
