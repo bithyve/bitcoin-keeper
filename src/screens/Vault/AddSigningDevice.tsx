@@ -249,9 +249,8 @@ function AddSigningDevice() {
 
   const subtitle =
     scheme.n > 1
-      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
-          isInheritance ? ' for Inheritance' : ''
-        }`
+      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${isInheritance ? ' for Inheritance' : ''
+      }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
   const trezorIncompatible =
@@ -278,6 +277,7 @@ function AddSigningDevice() {
         style={{
           marginTop: hp(52),
         }}
+        testID={'view_signerList'}
       />
       <Box style={styles.bottomContainer} backgroundColor={`${colorMode}.primaryBackground`}>
         {amfSigners.length ? (
@@ -295,17 +295,16 @@ function AddSigningDevice() {
             <Note title="WARNING" subtitle={invalidMessage} subtitleColor="error" />
           </Box>
         ) : misMatchedSigners.length ? (
-          <Box style={styles.noteContainer}>
+          <Box style={styles.noteContainer} testID={'view_warning01'}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${
-                scheme.n === 1 ? 'multisig' : 'singlesig'
-              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${scheme.n === 1 ? 'multisig' : 'singlesig'
+                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
         ) : trezorIncompatible ? (
-          <Box style={styles.noteContainer}>
+          <Box style={styles.noteContainer} testID={'view_warning02'}>
             <Note
               title="WARNING"
               subtitle="Trezor multisig is coming soon. Please replace it for now or use it with a sigle sig vault"

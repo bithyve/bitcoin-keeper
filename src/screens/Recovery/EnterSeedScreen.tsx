@@ -443,6 +443,7 @@ function EnterSeedScreen({ route }) {
                     setSuggestedWords([]);
                     Keyboard.dismiss();
                   }}
+                  testID={`input_seedWord${getPlaceholder(index)}`}
                 />
               </View>
             )}
@@ -458,6 +459,7 @@ function EnterSeedScreen({ route }) {
               ]}
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
+              testID={'view_suggestionView'}
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
@@ -483,7 +485,7 @@ function EnterSeedScreen({ route }) {
           ) : null}
         </View>
         <View style={styles.bottomContainerView}>
-          <Text style={styles.seedDescText} color="light.GreyText">
+          <Text style={styles.seedDescText} color="light.GreyText" testID={'text_enterSeedNote'}>
             {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>

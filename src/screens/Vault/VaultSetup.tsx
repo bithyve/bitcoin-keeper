@@ -119,11 +119,11 @@ const VaultSetup = () => {
           height={20}
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-        <Text style={{ fontSize: 14 }}>Total Keys for Vault Configuration</Text>
-        <Text style={{ fontSize: 12 }}>Select the total number of keys</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_totalKeys'}>Total Keys for Vault Configuration</Text>
+        <Text style={{ fontSize: 12 }} testID={'text_totalKeys_subTitle'}>Select the total number of keys</Text>
         <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-        <Text style={{ fontSize: 14 }}>Required Keys</Text>
-        <Text style={{ fontSize: 12 }}>Select the number of keys required</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_requireKeys'}>Required Keys</Text>
+        <Text style={{ fontSize: 12 }} testID={'text_requireKeys_subTitle'}>Select the number of keys required</Text>
         <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
       </VStack>
       <Buttons

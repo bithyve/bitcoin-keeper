@@ -165,7 +165,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
-        <Box style={styles.headerContainer}>
+        <Box style={styles.headerContainer} testID={'view_newKeeperHeader'}>
           <KeeperHeader
             enableBack={false}
             marginLeft={false}
@@ -173,7 +173,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             subtitle="Choose this option when you want to start with a fresh app"
           />
         </Box>
-        <Box style={styles.tileContainer}>
+        <Box style={styles.tileContainer} testID={'view_startNewTile'}>
           <Tile
             title="Start New"
             subTitle="New wallets and Vault"
@@ -187,7 +187,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
 
       <Box style={styles.titleWrapper02}>
-        <Box style={styles.headerContainer}>
+        <Box style={styles.headerContainer} testID={'view_restore'}>
           <KeeperHeader
             enableBack={false}
             marginLeft={false}
@@ -195,7 +195,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
             subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
           />
         </Box>
-        <Box style={styles.tileContainer}>
+        <Box style={styles.tileContainer} testID={'view_recoverTile'}>
           <Tile
             title="Recover Existing App"
             subTitle="For self or inherited Vault"
@@ -209,7 +209,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.footerContainer}>
         <Box style={styles.noteContainer}>
           <Box opacity={1}>
-            <Text color="light.black" style={styles.title}>
+            <Text color="light.black" style={styles.title} testID={'text_termOfService'}>
               Terms of Service
             </Text>
           </Box>
