@@ -3,7 +3,7 @@ import { Box, Modal, Input, useColorMode } from 'native-base';
 import { Platform, StyleSheet, TouchableOpacity } from 'react-native';
 
 // import Close from 'src/assets/images/modal_close.svg';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import KeyPadView from 'src/components/AppNumPad/KeyPadView';
 import { windowHeight, windowWidth } from 'src/constants/responsive';
@@ -12,7 +12,9 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import useBalance from 'src/hooks/useBalance';
 import BitcoinInput from 'src/assets/images/btc_input.svg';
-import { TxPriority } from 'src/core/wallets/enums';
+import { calculateCustomFee } from 'src/store/sagaActions/send_and_receive';
+import { useDispatch } from 'react-redux';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 function CustomPriorityModal(props) {
   const { colorMode } = useColorMode();
@@ -30,6 +32,9 @@ function CustomPriorityModal(props) {
     secondaryCallback,
     textColor = '#000',
     network,
+    recipients,
+    sender,
+    selectedUTXOs,
   } = props;
   const { bottom } = useSafeAreaInsets();
   const [customPriorityFee, setCustomPriorityFee] = useState('');
@@ -39,6 +44,8 @@ function CustomPriorityModal(props) {
   const { translations } = useContext(LocalizationContext);
   const { common, wallet: walletTranslation } = translations;
   const { getCurrencyIcon } = useBalance();
+  const dispatch = useDispatch();
+  const { showToast } = useToastMessage();
 
   const onPressNumber = (text) => {
     let currentFee = customPriorityFee;
@@ -79,6 +86,31 @@ function CustomPriorityModal(props) {
   const onDeletePressed = () => {
     updateFeeAndBlock(customPriorityFee.slice(0, customPriorityFee.length - 1));
   };
+
+  const handleCustomFee = () => {
+    dispatch(
+      calculateCustomFee({
+        wallet: sender,
+        recipients,
+        feePerByte: customPriorityFee,
+        customEstimatedBlocks: customEstBlocks,
+        selectedUTXOs,
+      })
+    );
+  };
+
+  const customSendPhaseOneResults = useAppSelector(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne
+  );
+
+  useEffect(() => {
+    if (customSendPhaseOneResults.failedErrorMessage) {
+      showToast(customSendPhaseOneResults.failedErrorMessage);
+      buttonCallback(false);
+    } else if (customSendPhaseOneResults.isSuccessful) {
+      buttonCallback(true);
+    }
+  }, [customSendPhaseOneResults]);
 
   const bottomMargin = Platform.select<string | number>({ ios: bottom, android: '5%' });
   return (
@@ -159,17 +191,7 @@ function CustomPriorityModal(props) {
                   {secondaryButtonText}
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  buttonCallback({
-                    [TxPriority.CUSTOM]: {
-                      averageTxFee: 238,
-                      feePerByte: customPriorityFee,
-                      estimatedBlocks: customEstBlocks,
-                    },
-                  });
-                }}
-              >
+              <TouchableOpacity onPress={handleCustomFee}>
                 <Box style={styles.cta} backgroundColor={`${colorMode}.greenButtonBackground`}>
                   <Text
                     fontSize={13}
