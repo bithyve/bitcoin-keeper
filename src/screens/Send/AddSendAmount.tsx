@@ -150,6 +150,7 @@ function AddSendAmount({ route }) {
         amount: parseInt(amountToSend, 10),
         transferType,
         note,
+        selectedUTXOs,
         label: labelsToAdd.filter(
           (item) => !(item.name === idx(recipient, (_) => _.presentationData.name) && item.isSystem) // remove wallet labels are they are internal refrerences
         ),
@@ -259,7 +260,11 @@ function AddSendAmount({ route }) {
           />
         </Box>
 
-        <ScrollView style={styles.Container} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps='handled'>
+        <ScrollView
+          style={styles.Container}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <Box
             style={{
               paddingHorizontal: 5,

@@ -27,6 +27,7 @@ import {
   crossTransferExecuted,
   crossTransferFailed,
   sendPhaseTwoStarted,
+  customFeeCalculated,
 } from '../reducers/send_and_receive';
 import { setAverageTxFee, setExchangeRates } from '../reducers/network';
 import {
@@ -44,7 +45,6 @@ import {
   SendPhaseOneAction,
   SendPhaseThreeAction,
   SendPhaseTwoAction,
-  customFeeCalculated,
   feeIntelMissing,
 } from '../sagaActions/send_and_receive';
 import { addLabelsWorker } from './utxos';
@@ -129,19 +129,25 @@ function* sendPhaseTwoWorker({ payload }: SendPhaseTwoAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
+  const customSendPhaseOneResults = yield select(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne
+  );
+
   const { wallet, txnPriority, note, label, transferType } = payload;
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
+  const customTxPrerequisites = _.cloneDeep(
+    idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
+  );
+
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
-  const network = WalletUtilities.getNetworkByType(wallet.networkType);
   try {
     const { txid, serializedPSBTEnvelops, finalOutputs } = yield call(
       WalletOperations.transferST2,
       wallet,
       txPrerequisites,
       txnPriority,
-      network,
-      recipients
-      // customTxPrerequisites
+      recipients,
+      customTxPrerequisites
     );
 
     switch (wallet.entityKind) {
@@ -220,10 +226,18 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
   const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
     (state) => state.sendAndReceive.sendPhaseOne
   );
+  const customSendPhaseOneResults = yield select(
+    (state) => state.sendAndReceive.customPrioritySendPhaseOne
+  );
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = yield select(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
+
   const txPrerequisites = _.cloneDeep(idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites)); // cloning object(mutable) as reducer states are immutable
+  const customTxPrerequisites = _.cloneDeep(
+    idx(customSendPhaseOneResults, (_) => _.outputs.customTxPrerequisites)
+  );
+
   const recipients = idx(sendPhaseOneResults, (_) => _.outputs.recipients);
   const { wallet, txnPriority, note, label } = payload;
   try {
@@ -249,6 +263,7 @@ function* sendPhaseThreeWorker({ payload }: SendPhaseThreeAction) {
       serializedPSBTEnvelops,
       txPrerequisites,
       txnPriority,
+      customTxPrerequisites,
       txHex
     );
     if (!txid) throw new Error('Send failed: unable to generate txid using the signed PSBT');
@@ -331,13 +346,11 @@ function* corssTransferWorker({ payload }: CrossTransferAction) {
     );
 
     if (txPrerequisites) {
-      const network = WalletUtilities.getNetworkByType(sender.networkType);
       const { txid } = yield call(
         WalletOperations.transferST2,
         sender,
         txPrerequisites,
         TxPriority.LOW,
-        network,
         recipients
       );
 
@@ -385,12 +398,11 @@ export const calculateSendMaxFeeWatcher = createWatcher(
 );
 
 function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
-  // feerate should be > minimum relay feerate(default: 1000 satoshis per kB or 1 sat/byte).
   if (parseInt(payload.feePerByte, 10) < 1) {
     yield put(
       customFeeCalculated({
         successful: false,
-        carryOver: {
+        outputs: {
           customTxPrerequisites: null,
         },
         err: 'Custom fee minimum: 1 sat/byte',
@@ -399,12 +411,14 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
     return;
   }
 
-  const { wallet, recipients, feePerByte, customEstimatedBlocks } = payload;
-  const sending: any = {};
-  const txPrerequisites = idx(sending, (_) => _.sendST1.carryOver.txPrerequisites);
+  const { wallet, recipients, feePerByte, customEstimatedBlocks, selectedUTXOs } = payload;
+  const sendPhaseOneResults: SendPhaseOneExecutedPayload = yield select(
+    (state) => state.sendAndReceive.sendPhaseOne
+  );
+  const txPrerequisites = idx(sendPhaseOneResults, (_) => _.outputs.txPrerequisites);
 
   let outputs;
-  if (sending.feeIntelMissing) {
+  if (!txPrerequisites) {
     // process recipients & generate outputs(normally handled by transfer ST1 saga)
     const outputsArray = [];
     for (const recipient of recipients) {
@@ -414,24 +428,24 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
       });
     }
     outputs = outputsArray;
-  } else {
-    if (!txPrerequisites) throw new Error('ST1 carry-over missing');
-    outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
-  }
+  } else outputs = txPrerequisites[TxPriority.LOW].outputs.filter((output) => output.address);
 
   const customTxPrerequisites = WalletOperations.prepareCustomTransactionPrerequisites(
     wallet,
     outputs,
-    parseInt(feePerByte, 10)
+    parseInt(feePerByte, 10),
+    selectedUTXOs
   );
 
-  if (customTxPrerequisites.inputs) {
-    customTxPrerequisites.estimatedBlocks = parseInt(customEstimatedBlocks, 10);
+  if (customTxPrerequisites[TxPriority.CUSTOM]?.inputs) {
+    customTxPrerequisites[TxPriority.CUSTOM].estimatedBlocks = parseInt(customEstimatedBlocks, 10);
+
     yield put(
       customFeeCalculated({
         successful: true,
-        carryOver: {
+        outputs: {
           customTxPrerequisites,
+          recipients,
         },
         err: null,
       })
@@ -444,7 +458,7 @@ function* calculateCustomFee({ payload }: CalculateCustomFeeAction) {
     yield put(
       customFeeCalculated({
         successful: false,
-        carryOver: {
+        outputs: {
           customTxPrerequisites: null,
         },
         err: `Insufficient balance to pay: amount ${totalAmount} + fee(${customTxPrerequisites.fee}) at ${feePerByte} sats/byte`,
