@@ -365,7 +365,7 @@ function EnterSeedScreen({ route }) {
           ) : (
             <SeedWordsView
               title={seed?.enterRecoveryPhrase}
-              subtitle={seed.recoverWallet}
+              subtitle={seed.enterRecoveryPhraseSubTitle}
               onPressHandler={() =>
                 navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
               }
@@ -401,8 +401,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -484,7 +484,7 @@ function EnterSeedScreen({ route }) {
         </View>
         <View style={styles.bottomContainerView}>
           <Text style={styles.seedDescText} color="light.GreyText">
-            {seed.seedDescription}
+            {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
@@ -530,7 +530,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);
