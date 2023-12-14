@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { Box, Text, useColorMode } from 'native-base';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet } from 'react-native';
-import { BtcToSats } from 'src/constants/Bitcoin';
+import { BtcToSats, SatsToBtc } from 'src/constants/Bitcoin';
 import useBalance from 'src/hooks/useBalance';
 
 import { hp, wp, windowWidth } from 'src/constants/responsive';
@@ -32,16 +32,25 @@ function UTXOSelection({ route }: any) {
   const [selectedUTXOMap, setSelectedUTXOMap] = useState({});
   const { satsEnabled } = useAppSelector((state) => state.settings);
 
-  const minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
-  const areEnoughUTXOsSelected =
-    selectionTotal >=
-    Number(satsEnabled ? amount : BtcToSats(amount)) +
-      Number(satsEnabled ? minimumAvgFeeRequired : BtcToSats(minimumAvgFeeRequired));
-  const showFeeErrorMessage =
-    selectionTotal >= Number(satsEnabled ? amount : BtcToSats(amount)) &&
-    selectionTotal <
-      Number(satsEnabled ? amount : BtcToSats(amount)) +
-        Number(satsEnabled ? minimumAvgFeeRequired : BtcToSats(minimumAvgFeeRequired));
+  const [areEnoughUTXOsSelected, setAreEnoughUTXOsSelected] = useState(false);
+  const [showFeeErrorMessage, setShowFeeErrorMessage] = useState(false);
+
+  useEffect(() => {
+    let minimumAvgFeeRequired = averageTxFees[config.NETWORK_TYPE][TxPriority.LOW].averageTxFee;
+
+    let outgoingAmount = Number(amount);
+    // all comparisons are done in sats
+    if (satsEnabled === false) {
+      outgoingAmount = Number(BtcToSats(amount));
+    }
+    const enoughSelected = selectionTotal >= outgoingAmount + minimumAvgFeeRequired;
+    setAreEnoughUTXOsSelected(enoughSelected);
+
+    const showFeeErr =
+      outgoingAmount <= selectionTotal && selectionTotal < outgoingAmount + minimumAvgFeeRequired;
+
+    setShowFeeErrorMessage(showFeeErr);
+  }, [satsEnabled, selectionTotal, amount]);
 
   const executeSendPhaseOne = () => {
     const recipients = [];
