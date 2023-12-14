@@ -15,7 +15,7 @@ function OtherRecoveryMethods() {
         title="Other methods for restoring the Vault"
         subtitle="This method can only be used for restoring the Vault"
       />
-      <Box style={{ marginTop: hp(30) }}>
+      <Box style={{ marginTop: hp(30) }} testID={'view_allOtherMethods'}>
         <Tile
           title="All Signing Devices"
           subTitle="If you have all the signing devices that were initially used to create the Vault"
