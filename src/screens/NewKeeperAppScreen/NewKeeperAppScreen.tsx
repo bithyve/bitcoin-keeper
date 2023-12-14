@@ -20,6 +20,7 @@ import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import Fonts from 'src/constants/Fonts';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import BounceLoader from 'src/components/BounceLoader';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -160,28 +161,14 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
     );
   }
-  function HeaderView({ title, subtitle }) {
-    return (
-      <Box>
-        <Text
-          numberOfLines={1}
-          style={[styles.addWalletText, { fontSize: 16 }]}
-          color={`${colorMode}.headerText`}
-          testID={`text_create_header_title`}
-        >{title}</Text>
-        <Text
-          style={[styles.addWalletDescription]}
-          color={`${colorMode}.black`}
-          testID={`text_ceate_header_subtitle`}
-        >{subtitle}</Text>
-      </Box>
-    )
-  }
+
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
         <Box style={styles.headerContainer}>
-          <HeaderView
+          <KeeperHeader
+            enableBack={false}
+            marginLeft={false}
             title="New Keeper App"
             subtitle="Choose this option when you want to start with a fresh app"
           />
@@ -201,7 +188,9 @@ function NewKeeperApp({ navigation }: { navigation }) {
 
       <Box style={styles.titleWrapper02}>
         <Box style={styles.headerContainer}>
-          <HeaderView
+          <KeeperHeader
+            enableBack={false}
+            marginLeft={false}
             title="Restore"
             subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
           />
