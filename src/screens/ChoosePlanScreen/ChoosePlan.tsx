@@ -421,10 +421,6 @@ function ChoosePlan() {
                 </Box>
               ))}
             </Box>
-            {/* {items[currentPosition].name !== 'Pleb' ?
-              <Text fontSize={12} color={`${colorMode}.GreyText`} my={2} ml={2} letterSpacing={0.65}>
-                Coming soon
-              </Text> : null} */}
             <Text fontSize={11} color={`${colorMode}.GreyText`} my={2} ml={2} letterSpacing={0.65}>
               {getPlanNote(items[currentPosition])}
             </Text>
