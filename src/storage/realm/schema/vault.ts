@@ -1,5 +1,5 @@
 import { ObjectSchema } from 'realm';
-import { XpubTypes } from 'src/core/wallets/enums';
+// import { XpubTypes } from 'src/core/wallets/enums';
 import { Balances } from './wallet';
 import { RealmSchema } from '../enum';
 
@@ -11,17 +11,17 @@ const Scheme = {
   },
 };
 
-const propertyType = {
-  type: '{}?',
-  properties: { xpub: 'string', derivationPath: 'string', xpriv: 'string?' },
-};
+// const propertyType = {
+//   type: '{}?',
+//   properties: { xpub: 'string', derivationPath: 'string', xpriv: 'string?' },
+// };
 
-const deviceInfo = {
-  type: '{}?',
-  properties: {
-    registerdWallet: 'string?',
-  },
-};
+// const deviceInfo = {
+//   type: '{}?',
+//   properties: {
+//     registerdWallet: 'string?',
+//   },
+// };
 
 export const SignerPolicy: ObjectSchema = {
   name: RealmSchema.SignerPolicy,
@@ -96,41 +96,49 @@ export const InheritanceKeyInfoSchema: ObjectSchema = {
   },
 };
 
-export const XpubDetailsSchema: ObjectSchema = {
-  embedded: true,
-  name: RealmSchema.XpubDetails,
-  properties: {
-    [XpubTypes.AMF]: propertyType,
-    [XpubTypes.P2PKH]: propertyType,
-    [XpubTypes['P2SH-P2WPKH']]: propertyType,
-    [XpubTypes['P2SH-P2WSH']]: propertyType,
-    [XpubTypes.P2TR]: propertyType,
-    [XpubTypes.P2WPKH]: propertyType,
-    [XpubTypes.P2WSH]: propertyType,
-  },
-};
+// export const XpubDetailsSchema: ObjectSchema = {
+//   embedded: true,
+//   name: RealmSchema.XpubDetails,
+//   properties: {
+//     [XpubTypes.AMF]: propertyType,
+//     [XpubTypes.P2PKH]: propertyType,
+//     [XpubTypes['P2SH-P2WPKH']]: propertyType,
+//     [XpubTypes['P2SH-P2WSH']]: propertyType,
+//     [XpubTypes.P2TR]: propertyType,
+//     [XpubTypes.P2WPKH]: propertyType,
+//     [XpubTypes.P2WSH]: propertyType,
+//   },
+// };
 
 export const VaultSignerSchema: ObjectSchema = {
   name: RealmSchema.VaultSigner,
-  primaryKey: 'signerId',
+  primaryKey: 'masterFingerprint',
   properties: {
-    signerId: 'string',
+    masterFingerprint: 'string',
     type: 'string',
-    xpub: 'string',
-    xpriv: 'string?',
+    signerXpubs: `{}`,
     signerName: 'string?',
     signerDescription: 'string?',
     lastHealthCheck: 'date',
     addedOn: 'date',
     isMock: 'bool?',
-    registered: { type: 'bool?', default: false },
     storageType: 'string',
-    derivationPath: 'string',
-    masterFingerprint: 'string',
-    xpubDetails: RealmSchema.XpubDetails,
     signerPolicy: `${RealmSchema.SignerPolicy}?`,
     inheritanceKeyInfo: `${RealmSchema.InheritanceKeyInfo}?`,
-    deviceInfo: deviceInfo,
+    hidden: { type: 'bool', default: false },
+  },
+};
+
+export const KeySchema: ObjectSchema = {
+  name: RealmSchema.Key,
+  primaryKey: 'xpub',
+  properties: {
+    masterFingerprint: 'string',
+    xpub: 'string',
+    xpriv: 'string?',
+    xfp: 'string',
+    derivationPath: 'string',
+    vaultInfo: `{}?`,
   },
 };
 
@@ -176,7 +184,7 @@ export const VaultSchema: ObjectSchema = {
     isUsable: 'bool',
     isMultiSig: 'bool',
     scheme: Scheme,
-    signers: `${RealmSchema.VaultSigner}[]`,
+    signers: `${RealmSchema.Key}[]`,
     presentationData: RealmSchema.VaultPresentationData,
     specs: RealmSchema.VaultSpecs,
     archived: 'bool',

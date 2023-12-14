@@ -51,15 +51,15 @@ export interface VaultSigner {
   type: SignerType;
   storageType: SignerStorage;
   isMock?: boolean;
+  masterFingerprint: string;
+  signerXpubs: signerXpubs;
   signerName?: string;
   signerDescription?: string;
-  bip85Config?: BIP85Config;
   lastHealthCheck: Date;
   addedOn: Date;
-  masterFingerprint: string;
+  bip85Config?: BIP85Config;
   signerPolicy?: SignerPolicy;
   inheritanceKeyInfo?: InheritanceKeyInfo;
-  signerXpubs: signerXpubs;
   hidden: boolean;
 }
 
@@ -73,7 +73,7 @@ export interface Key {
   xpriv?: string;
   xfp: string;
   derivationPath: string;
-  vaultInfo?: RegisteredVaultInfo[];
+  vaultInfo?: RegisteredVaultInfo;
 }
 
 export interface Vault {

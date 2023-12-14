@@ -2,13 +2,14 @@ import Realm from 'realm';
 import { captureError } from 'src/services/sentry';
 import { RealmSchema } from './enum';
 import schema from './schema';
+import { runRealmMigrations } from './migrations';
 
 export class RealmDatabase {
   private realm: Realm;
 
   public static file = 'keeper.realm';
 
-  public static schemaVersion = 62;
+  public static schemaVersion = 63;
 
   /**
    * initializes/opens realm w/ appropriate configuration
@@ -25,7 +26,9 @@ export class RealmDatabase {
         schema,
         schemaVersion: RealmDatabase.schemaVersion,
         encryptionKey: key,
-        migration: () => {},
+        onMigration: (oldRealm, newRealm) => {
+          runRealmMigrations({ oldRealm, newRealm });
+        },
       };
       this.realm = await Realm.open(realmConfig);
       return true;
