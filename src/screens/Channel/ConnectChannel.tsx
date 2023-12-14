@@ -111,7 +111,7 @@ function ConnectChannel() {
           decrypted,
           isMultisig
         );
-        const bitbox02 = generateSignerFromMetaData({
+        const { signer: bitbox02 } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -134,9 +134,9 @@ function ConnectChannel() {
         }
 
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(bitbox02.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        // const exsists = await checkSigningDevice(bitbox02.signerId);
+        // if (exsists)
+        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -149,7 +149,7 @@ function ConnectChannel() {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
         const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(decrypted, isMultisig);
-        const trezor = generateSignerFromMetaData({
+        const { signer: trezor } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -170,9 +170,9 @@ function ConnectChannel() {
           );
         }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(trezor.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        // const exsists = await checkSigningDevice(trezor.signerId);
+        // if (exsists)
+        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -188,7 +188,7 @@ function ConnectChannel() {
           decrypted,
           isMultisig
         );
-        const ledger = generateSignerFromMetaData({
+        const { signer: ledger } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -210,9 +210,9 @@ function ConnectChannel() {
         }
 
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(ledger.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        // const exsists = await checkSigningDevice(ledger.signerId);
+        // if (exsists)
+        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);

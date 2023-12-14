@@ -44,7 +44,7 @@ function SetupOtherSDScreen({ route }) {
       if (!xpub.match(/^([xyYzZtuUvV]pub[1-9A-HJ-NP-Za-km-z]{79,108})$/)) {
         throw new Error('Please check the xPub format');
       }
-      const signer = generateSignerFromMetaData({
+      const { signer } = generateSignerFromMetaData({
         xpub,
         derivationPath: derivationPath.replaceAll('h', "'"),
         xfp: masterFingerprint,
@@ -63,9 +63,9 @@ function SetupOtherSDScreen({ route }) {
           CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
         );
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
-        const exsists = await checkSigningDevice(signer.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
+        // const exsists = await checkSigningDevice(signer.signerId);
+        // if (exsists)
+        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } else if (mode === InteracationMode.HEALTH_CHECK) {
         if (signer.xpub === hcSigner.xpub) {
           dispatch(healthCheckSigner([signer]));
@@ -111,7 +111,7 @@ function SetupOtherSDScreen({ route }) {
       if (hw) {
         const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = hw;
         if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-          const signer = generateSignerFromMetaData({
+          const { signer } = generateSignerFromMetaData({
             xpub,
             derivationPath,
             xfp,
@@ -158,7 +158,7 @@ function SetupOtherSDScreen({ route }) {
       try {
         const ccDetails = extractColdCardExport(data, isMultisig);
         const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-        const coldcard = generateSignerFromMetaData({
+        const { signer: coldcard } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -180,7 +180,7 @@ function SetupOtherSDScreen({ route }) {
         try {
           const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(data);
           if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-            const passport: VaultSigner = generateSignerFromMetaData({
+            const { signer: passport } = generateSignerFromMetaData({
               xpub,
               derivationPath,
               xfp,
@@ -207,7 +207,7 @@ function SetupOtherSDScreen({ route }) {
             const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } =
               getKeystoneDetailsFromFile(data);
             if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-              const keystone: VaultSigner = generateSignerFromMetaData({
+              const { signer: keystone } = generateSignerFromMetaData({
                 xpub,
                 derivationPath,
                 xfp,

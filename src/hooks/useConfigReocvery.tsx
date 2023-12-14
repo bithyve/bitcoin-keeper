@@ -72,7 +72,7 @@ const useConfigRecovery = () => {
       if (parsedText) {
         const signers = [];
         parsedText.signersDetails.forEach((config) => {
-          const signer = generateSignerFromMetaData({
+          const { signer } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,
             xfp: config.masterFingerprint,

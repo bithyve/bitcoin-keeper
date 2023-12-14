@@ -1,12 +1,38 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import React from 'react';
-import { FlatList } from 'react-native';
 import { Box, VStack, useColorMode } from 'native-base';
 import { SDIcons } from 'src/screens/Vault/SigningDeviceIcons';
 import Text from 'src/components/KeeperText';
 import { getSignerNameFromType } from 'src/hardware';
+import AddIcon from 'src/assets/images/icon_add_white.svg';
+import { CommonActions } from '@react-navigation/native';
 
-const AppSigners = ({ keys }) => {
+const AddSignerComponent = ({ navigation }) => {
+  const { colorMode } = useColorMode();
+
+  return (
+    <TouchableOpacity
+      onPress={() => {
+        navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addKeyFlow: true }));
+      }}
+    >
+      <VStack>
+        <Box
+          backgroundColor={`${colorMode}.pantoneGreen`}
+          style={styles.vaultSigner}
+          key={`add-key`}
+        >
+          <AddIcon />
+        </Box>
+        <Text color={`${colorMode}.primaryText`} bold style={styles.signerInfo}>
+          {`Add key`}
+        </Text>
+      </VStack>
+    </TouchableOpacity>
+  );
+};
+
+const AppSigners = ({ keys, navigation }) => {
   const { colorMode } = useColorMode();
   return (
     <VStack style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
@@ -22,6 +48,7 @@ const AppSigners = ({ keys }) => {
         data={keys}
         keyExtractor={(item) => item.signerId}
         horizontal
+        ListFooterComponent={() => <AddSignerComponent navigation={navigation} />}
         renderItem={({ item: signer }) => {
           return (
             <VStack>

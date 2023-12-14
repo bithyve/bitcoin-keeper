@@ -89,7 +89,7 @@ function SetupTapsigner({ route }) {
           SignerType.TAPSIGNER,
           config.NETWORK_TYPE
         );
-        tapsigner = generateSignerFromMetaData({
+        const { signer } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp: masterFingerprint,
@@ -100,8 +100,9 @@ function SetupTapsigner({ route }) {
           isMock: false,
           xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
         });
+        tapsigner = signer;
       } else {
-        tapsigner = generateSignerFromMetaData({
+        const { signer } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -110,6 +111,7 @@ function SetupTapsigner({ route }) {
           isMultisig,
           xpubDetails,
         });
+        tapsigner = signer;
       }
       if (mode === InteracationMode.SIGNING) {
         dispatch(addSigningDevice(tapsigner));
@@ -125,9 +127,9 @@ function SetupTapsigner({ route }) {
 
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
       if (!isSignerAMF(tapsigner)) {
-        const exsists = await checkSigningDevice(tapsigner.signerId);
-        if (exsists)
-          showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
+        // const exsists = await checkSigningDevice(tapsigner.signerId);
+        // if (exsists)
+        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
       }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);

@@ -309,7 +309,7 @@ function SetupCollaborativeWallet() {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
         return;
       }
-      const ksd = generateSignerFromMetaData({
+      const { signer: ksd } = generateSignerFromMetaData({
         xpub: xpubDetails[XpubTypes.P2WSH].xpub,
         derivationPath: xpubDetails[XpubTypes.P2WSH].derivationPath,
         xfp: mfp,

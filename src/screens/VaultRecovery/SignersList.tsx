@@ -367,7 +367,7 @@ function SignersList({ navigation }) {
   const verifyPassport = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
-      const passport: VaultSigner = generateSignerFromMetaData({
+      const { signer: passport } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
@@ -452,7 +452,7 @@ function SignersList({ navigation }) {
   const verifySeedSigner = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
-      const seedSigner: VaultSigner = generateSignerFromMetaData({
+      const { signer: seedSigner } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
@@ -473,7 +473,7 @@ function SignersList({ navigation }) {
   const verifyKeystone = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
-      const keystone: VaultSigner = generateSignerFromMetaData({
+      const { signer: keystone } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
@@ -494,7 +494,7 @@ function SignersList({ navigation }) {
   const verifyJade = async (qrData, resetQR) => {
     try {
       const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
-      const jade: VaultSigner = generateSignerFromMetaData({
+      const { signer: jade } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
@@ -515,7 +515,7 @@ function SignersList({ navigation }) {
   const verifyKeeperSigner = (qrData, resetQR) => {
     try {
       const { mfp, xpub, derivationPath } = JSON.parse(qrData);
-      const ksd = generateSignerFromMetaData({
+      const { signer: ksd } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp: mfp,
@@ -538,7 +538,7 @@ function SignersList({ navigation }) {
       const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
       const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
       if (response.xpub) {
-        const signingServerKey = generateSignerFromMetaData({
+        const { signer: signingServerKey } = generateSignerFromMetaData({
           xpub: response.xpub,
           derivationPath: response.derivationPath,
           xfp: response.masterFingerprint,

@@ -62,7 +62,7 @@ function SetupSigningServer({ route }: { route }) {
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
     const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
-    const signingServerKey = generateSignerFromMetaData({
+    const { signer: signingServerKey } = generateSignerFromMetaData({
       xpub,
       derivationPath,
       xfp: masterFingerprint,

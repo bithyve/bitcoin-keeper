@@ -77,7 +77,7 @@ function SetupColdCard({ route }) {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-      const coldcard = generateSignerFromMetaData({
+      const { signer: coldcard } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
@@ -100,8 +100,8 @@ function SetupColdCard({ route }) {
       }
 
       showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
-      const exists = await checkSigningDevice(coldcard.signerId);
-      if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
+      // const exists = await checkSigningDevice(coldcard.signerId);
+      // if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
     } catch (error) {
       handleNFCError(error);
     }

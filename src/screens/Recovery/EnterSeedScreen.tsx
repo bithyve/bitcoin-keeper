@@ -198,7 +198,7 @@ function EnterSeedScreen({ route }) {
       xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
       xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
 
-      const softSigner = generateSignerFromMetaData({
+      const { signer: softSigner } = generateSignerFromMetaData({
         xpub: isMultisig ? multiSigXpub : singleSigXpub,
         derivationPath: isMultisig ? multiSigPath : singleSigPath,
         xfp: masterFingerprint,

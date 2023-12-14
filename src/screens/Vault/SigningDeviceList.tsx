@@ -6,13 +6,10 @@ import React, { useContext, useEffect, useState } from 'react';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
-
 import KeeperHeader from 'src/components/KeeperHeader';
-
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import NFC from 'src/services/nfc';
-
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import { ScrollView } from 'react-native-gesture-handler';
 import { SignerType } from 'src/core/wallets/enums';
@@ -42,7 +39,8 @@ type HWProps = {
 
 function SigningDeviceList() {
   const route = useRoute();
-  const { scheme }: { scheme: VaultScheme } = route.params as any;
+  const { scheme, addKeyFlow = false }: { scheme: VaultScheme; addKeyFlow: boolean } =
+    route.params as any;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { plan } = usePlan();
@@ -53,7 +51,7 @@ function SigningDeviceList() {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const isMultisig = scheme.n !== 1;
+  const isMultisig = addKeyFlow ? true : scheme.n !== 1;
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -96,9 +94,13 @@ function SigningDeviceList() {
     SignerType.OTHER_SD,
     SignerType.SEED_WORDS,
     SignerType.MOBILE_KEY,
-    SignerType.POLICY_SERVER,
     SignerType.KEEPER,
   ];
+
+  if (!addKeyFlow) {
+    sortedSigners.push(SignerType.POLICY_SERVER);
+  }
+
   function HardWareWallet({ type, disabled, message, first = false, last = false }: HWProps) {
     const [visible, setVisible] = useState(false);
 
@@ -171,7 +173,8 @@ function SigningDeviceList() {
                   isNfcSupported,
                   vaultSigners,
                   isOnL1,
-                  scheme
+                  scheme,
+                  addKeyFlow
                 );
                 let message = connectivityStatus;
                 if (!connectivityStatus) {
@@ -191,7 +194,6 @@ function SigningDeviceList() {
             </Box>
           )}
         </ScrollView>
-
         <KeeperModal
           visible={sdModal}
           close={() => {

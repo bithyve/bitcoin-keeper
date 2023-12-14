@@ -294,7 +294,7 @@ function SignerContent({
 const setupPassport = (qrData, isMultisig) => {
   const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const passport: VaultSigner = generateSignerFromMetaData({
+    const { signer: passport } = generateSignerFromMetaData({
       xpub,
       derivationPath,
       xfp,
@@ -315,7 +315,7 @@ const verifyPassport = (qrData, signer) => {
 const setupSeedSigner = (qrData, isMultisig) => {
   const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSeedSignerDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const seedSigner: VaultSigner = generateSignerFromMetaData({
+    const { signer: seedSigner } = generateSignerFromMetaData({
       xpub,
       derivationPath,
       xfp,
@@ -336,7 +336,7 @@ const verifySeedSigner = (qrData, signer) => {
 const setupKeystone = (qrData, isMultisig) => {
   const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getKeystoneDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const keystone: VaultSigner = generateSignerFromMetaData({
+    const { signer: keystone } = generateSignerFromMetaData({
       xpub,
       derivationPath,
       xfp,
@@ -357,7 +357,7 @@ const verifyKeystone = (qrData, signer) => {
 const setupJade = (qrData, isMultisig) => {
   const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getJadeDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-    const jade: VaultSigner = generateSignerFromMetaData({
+    const { signer: jade } = generateSignerFromMetaData({
       xpub,
       derivationPath,
       xfp,
@@ -378,7 +378,7 @@ const verifyJade = (qrData, signer) => {
 const setupKeeperSigner = (qrData, isMultisig) => {
   try {
     const { mfp, xpubDetails } = JSON.parse(qrData);
-    const ksd = generateSignerFromMetaData({
+    const { signer: ksd } = generateSignerFromMetaData({
       xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
       derivationPath: isMultisig
         ? xpubDetails[XpubTypes.P2WSH].derivationPath
@@ -435,7 +435,7 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
     xpriv: multiSigXpriv,
   };
 
-  const mobileKey = generateSignerFromMetaData({
+  const { signer: mobileKey } = generateSignerFromMetaData({
     xpub: isMultisig ? multiSigXpub : singleSigXpub,
     derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
@@ -467,7 +467,7 @@ export const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) =>
   xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
   xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
 
-  const softSigner = generateSignerFromMetaData({
+  const { signer: softSigner } = generateSignerFromMetaData({
     xpub: isMultisig ? multiSigXpub : singleSigXpub,
     derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
@@ -818,9 +818,9 @@ function HardwareModalMap({
         );
       }
       showToast(`${hw.signerName} added successfully`, <TickIcon />);
-      const exsists = await checkSigningDevice(hw.signerId);
-      if (exsists)
-        showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
+      // const exsists = await checkSigningDevice(hw.signerId);
+      // if (exsists)
+      //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);
@@ -895,7 +895,7 @@ function HardwareModalMap({
         const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
         const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
         if (response.xpub) {
-          const signingServerKey = generateSignerFromMetaData({
+          const { signer: signingServerKey } = generateSignerFromMetaData({
             xpub: response.xpub,
             derivationPath: response.derivationPath,
             xfp: response.masterFingerprint,

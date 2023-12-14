@@ -1,8 +1,10 @@
 import {
+  Key,
   Vault,
   VaultScheme,
   VaultSigner,
   XpubDetailsType,
+  signerXpubs,
 } from 'src/core/wallets/interfaces/vault';
 
 import {
@@ -33,7 +35,7 @@ export const UNVERIFYING_SIGNERS = [
 export const generateSignerFromMetaData = ({
   xpub,
   derivationPath,
-  xfp,
+  xfp: masterFingerprint,
   signerType,
   storageType,
   isMultisig,
@@ -43,7 +45,8 @@ export const generateSignerFromMetaData = ({
   signerId = null,
   signerPolicy = null,
   inheritanceKeyInfo = null,
-}): VaultSigner => {
+  isAmf = false,
+}): { signer: VaultSigner; key: Key } => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   if (
@@ -55,28 +58,47 @@ export const generateSignerFromMetaData = ({
     throw new HWError(HWErrorType.INCORRECT_NETWORK);
   }
   xpub = WalletUtilities.generateXpubFromYpub(xpub, network);
-  xpubDetails = Object.keys(xpubDetails).length
-    ? xpubDetails
-    : { [isMultisig ? XpubTypes.P2WSH : XpubTypes.P2WPKH]: { xpub, derivationPath, xpriv } };
-  signerId = signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network);
+
+  const signerXpubs: signerXpubs = {};
+  if (!xpubDetails) {
+    signerXpubs[derivationPath] = {
+      xpub,
+      xpriv,
+      type: WalletUtilities.getScriptTypeFromDerivationPath(derivationPath),
+    };
+  }
+  Object.keys(xpubDetails).forEach((key: XpubTypes) => {
+    const xpubDetail = xpubDetails[key];
+    signerXpubs[xpubDetail.derivationPath] = {
+      xpub: xpubDetail.xpub,
+      xpriv: xpubDetail.xpriv,
+      type: key,
+    };
+  });
+
   const signer: VaultSigner = {
-    signerId,
     type: signerType,
-    signerName: getSignerNameFromType(signerType, isMock, !!xpubDetails[XpubTypes.AMF]),
-    xpub,
-    xpriv,
-    derivationPath,
-    masterFingerprint: xfp,
+    storageType,
     isMock,
+    signerName: getSignerNameFromType(signerType, isMock, isAmf),
     lastHealthCheck: new Date(),
     addedOn: new Date(),
-    storageType,
-    registered: UNVERIFYING_SIGNERS.includes(signerType) || isMock,
-    xpubDetails,
+    masterFingerprint,
     signerPolicy,
     inheritanceKeyInfo,
+    signerXpubs,
+    hidden: false,
   };
-  return signer;
+
+  const key: Key = {
+    xfp: signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+    derivationPath,
+    xpub,
+    xpriv,
+    masterFingerprint,
+  };
+
+  return { signer, key };
 };
 
 export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = false) => {
@@ -175,7 +197,7 @@ export const getMockSigner = (signerType: SignerType) => {
       signerType,
       networkType
     );
-    const signer: VaultSigner = generateSignerFromMetaData({
+    const { signer, key } = generateSignerFromMetaData({
       xpub,
       xpriv,
       derivationPath,
@@ -185,13 +207,13 @@ export const getMockSigner = (signerType: SignerType) => {
       isMock: true,
       isMultisig: true,
     });
-    return signer;
+    return { signer, key };
   }
   return null;
 };
 
 export const isSignerAMF = (signer: VaultSigner) =>
-  !!idx(signer, (_) => _.xpubDetails[XpubTypes.AMF].xpub);
+  !!idx(signer, (_) => _.signerName.includes('*'));
 
 const HARDENED = 0x80000000;
 export const getKeypathFromString = (keypathString: string): number[] => {
@@ -245,7 +267,8 @@ export const getDeviceStatus = (
   isNfcSupported,
   vaultSigners,
   isOnL1,
-  scheme: VaultScheme
+  scheme: VaultScheme,
+  addKeyFlow: boolean = false
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
@@ -267,7 +290,7 @@ export const getDeviceStatus = (
         disabled: getDisabled(type, isOnL1, vaultSigners, scheme).disabled,
       };
     case SignerType.TREZOR:
-      return scheme.n > 1
+      return addKeyFlow || scheme.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
             message: '',

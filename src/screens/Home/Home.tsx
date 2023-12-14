@@ -15,9 +15,8 @@ import { Vault } from 'src/core/wallets/interfaces/vault';
 import useCollaborativeWallet from 'src/hooks/useCollaborativeWallet';
 import { resetRealyWalletState } from 'src/store/reducers/bhr';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-// import { CommonActions } from '@react-navigation/native';
+import { CommonActions } from '@react-navigation/native';
 import MenuIcon from 'src/assets/images/menu-hor.svg';
-// import IconDarkSettings from 'src/assets/images/dark_new_icon_settings.svg';
 import useVault from 'src/hooks/useVault';
 import { DowngradeModal } from './components/DowngradeModal';
 import AddWalletModal from './components/AddWalletModal';
@@ -27,6 +26,10 @@ import { AppSigners } from './components/AppSigners';
 import Wallets from './components/Wallets';
 import UaiDisplay from '../HomeScreen/UaiDisplay';
 import useUaiStack from 'src/hooks/useUaiStack';
+import ListItemView from '../HomeScreen/components/ListItemView';
+import InheritanceIcon from 'src/assets/images/inheritanceWhite.svg';
+import InheritanceDarkIcon from 'src/assets/images/icon_inheritance_dark.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 const calculateBalancesForVaults = (vaults) => {
   let totalUnconfirmedBalance = 0;
@@ -43,13 +46,9 @@ const calculateBalancesForVaults = (vaults) => {
 };
 
 const Header = ({ navigation }) => {
-  const { colorMode } = useColorMode();
   return (
     <HStack style={styles.headerContainer}>
-      <TouchableOpacity
-        onPress={() => navigation.toggleDrawer()}
-        testID="btn_AppSettingsIcon"
-      >
+      <TouchableOpacity onPress={() => navigation.toggleDrawer()} testID="btn_AppSettingsIcon">
         <MenuIcon />
       </TouchableOpacity>
     </HStack>
@@ -58,19 +57,32 @@ const Header = ({ navigation }) => {
 
 const UAIStack = ({ navigation }) => {
   const { uaiStack } = useUaiStack();
-  return (
-    <UaiDisplay uaiStack={uaiStack} />
-  )
-
+  return <UaiDisplay uaiStack={uaiStack} />;
 };
 
-const Keys = () => {
+const Keys = ({ navigation }) => {
   const { keys } = useKeys();
-  return <AppSigners keys={keys} />;
+  return <AppSigners keys={keys} navigation={navigation} />;
 };
 
-const Inheritance = () => {
-  return <Box />;
+const Inheritance = ({ navigation }) => {
+  const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { vault } = translations;
+
+  return (
+    <Box marginY={5}>
+      <ListItemView
+        icon={colorMode === 'light' ? <InheritanceIcon /> : <InheritanceDarkIcon />}
+        title={vault.inheritanceTools}
+        subTitle={vault.manageInheritance}
+        iconBackColor={`${colorMode}.learnMoreBorder`}
+        onPress={() => {
+          navigation.dispatch(CommonActions.navigate({ name: 'SetupInheritance' }));
+        }}
+      />
+    </Box>
+  );
 };
 
 const Home = ({ navigation }) => {
@@ -150,8 +162,8 @@ const Home = ({ navigation }) => {
         wallets={allWallets}
         allBalance={netBalanceWallets + netBalanceAllVaults}
       />
-      <Keys />
-      <Inheritance />
+      <Keys navigation={navigation} />
+      <Inheritance navigation={navigation} />
       <DowngradeModal navigation={navigation} />
       <AddWalletModal
         navigation={navigation}
@@ -188,5 +200,5 @@ const styles = StyleSheet.create({
   },
   uaiBtnWrapper: {
     width: '40%',
-  }
+  },
 });

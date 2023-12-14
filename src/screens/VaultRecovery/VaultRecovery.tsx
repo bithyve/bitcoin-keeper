@@ -194,7 +194,7 @@ function VaultRecovery({ navigation }) {
       }
 
       if (requestStatus.isApproved && setupInfo) {
-        const inheritanceKey = generateSignerFromMetaData({
+        const { signer: inheritanceKey } = generateSignerFromMetaData({
           xpub: setupInfo.inheritanceXpub,
           derivationPath: setupInfo.derivationPath,
           xfp: setupInfo.masterFingerprint,

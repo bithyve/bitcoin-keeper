@@ -35,8 +35,9 @@ function MockWrapper({
   const { showToast } = useToastMessage();
   const addMockSigner = () => {
     try {
-      const signer = getMockSigner(signerType);
-      if (signer) {
+      const data = getMockSigner(signerType);
+      if (data) {
+        const { signer } = data;
         if (!isRecovery) {
           dispatch(addSigningDevice(signer));
           nav.dispatch(
