@@ -345,9 +345,10 @@ function ChoosePlan() {
       <KeeperHeader
         title={choosePlan.choosePlantitle}
         subtitle={
-          subscription.name === 'Diamond Hands'
-            ? `You are currently a ${subscription.name}`
-            : `You are currently a ${subscription.name}`
+          // subscription.name === 'Diamond Hands'
+          //   ? `You are currently a ${subscription.name}`
+          //   : `You are currently a ${subscription.name}`
+          `The subscription will be \nconfirmed on the ${Platform.OS === 'android' ? 'Play' : 'App'} Store`
         }
         rightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
