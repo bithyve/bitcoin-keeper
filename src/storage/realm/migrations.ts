@@ -7,8 +7,8 @@ export const runRealmMigrations = ({ oldRealm, newRealm }) => {
   if (oldRealm.schemaVersion < 63) {
     const oldVaults = oldRealm.objects(RealmSchema.Vault) as any;
     const newVaults = newRealm.objects(RealmSchema.Vault) as Vault[];
-    const oldVaultSigners = oldRealm.objects(RealmSchema.VaultSigner) as any;
-    const newVaultSigners = oldRealm.objects(RealmSchema.VaultSigner) as any;
+    const oldVaultSigners = oldVaults.map((v) => v.signers).flat();
+    const newVaultSigners = newRealm.objects(RealmSchema.VaultSigner) as any;
     for (const objectIndex in oldVaults) {
       if (
         oldVaults[objectIndex] &&
