@@ -14,13 +14,13 @@ import messaging from '@react-native-firebase/messaging';
 import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { Box, Pressable, useColorMode } from 'native-base';
-import KeeperHeader from 'src/components/KeeperHeader';
 import openLink from 'src/utils/OpenLink';
 import LoadingAnimation from 'src/components/Loader';
 import { updateFCMTokens } from 'src/store/sagaActions/notifications';
 import Fonts from 'src/constants/Fonts';
 import { KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
 import BounceLoader from 'src/components/BounceLoader';
+import KeeperHeader from 'src/components/KeeperHeader';
 
 export function Tile({ title, subTitle, onPress, Icon = null, loading = false }) {
   const { colorMode } = useColorMode();
@@ -165,14 +165,15 @@ function NewKeeperApp({ navigation }: { navigation }) {
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <Box style={{ marginTop: hp(30) }}>
-        <Box style={styles.headerContainer}>
+        <Box style={styles.headerContainer} testID={'view_newKeeperHeader'}>
           <KeeperHeader
+            enableBack={false}
+            marginLeft={false}
             title="New Keeper App"
             subtitle="Choose this option when you want to start with a fresh app"
-            enableBack={false}
           />
         </Box>
-        <Box style={styles.tileContainer}>
+        <Box style={styles.tileContainer} testID={'view_startNewTile'}>
           <Tile
             title="Start New"
             subTitle="New wallets and Vault"
@@ -186,14 +187,15 @@ function NewKeeperApp({ navigation }: { navigation }) {
       </Box>
 
       <Box style={styles.titleWrapper02}>
-        <Box style={styles.headerContainer}>
+        <Box style={styles.headerContainer} testID={'view_restore'}>
           <KeeperHeader
+            enableBack={false}
+            marginLeft={false}
             title="Restore"
             subtitle="Recover the Keeper app with a 12-word Recovery Phrase, or use other methods to restore the Vault"
-            enableBack={false}
           />
         </Box>
-        <Box style={styles.tileContainer}>
+        <Box style={styles.tileContainer} testID={'view_recoverTile'}>
           <Tile
             title="Recover Existing App"
             subTitle="For self or inherited Vault"
@@ -207,7 +209,7 @@ function NewKeeperApp({ navigation }: { navigation }) {
       <Box style={styles.footerContainer}>
         <Box style={styles.noteContainer}>
           <Box opacity={1}>
-            <Text color="light.black" style={styles.title}>
+            <Text color="light.black" style={styles.title} testID={'text_termOfService'}>
               Terms of Service
             </Text>
           </Box>
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
   },
   tileContainer: {
-    marginTop: hp(20),
+    marginTop: hp(5),
   },
   headerContainer: {
     // width: wp(280),
@@ -339,7 +341,16 @@ const styles = StyleSheet.create({
   contentText: {
     fontSize: 13,
     letterSpacing: 0.65,
-  }
+  },
+  addWalletText: {
+    lineHeight: 26,
+    letterSpacing: 0.8,
+  },
+  addWalletDescription: {
+    fontSize: 12,
+    lineHeight: 20,
+    letterSpacing: 0.5,
+  },
 });
 
 export default NewKeeperApp;

@@ -45,7 +45,7 @@ const VaultSetup = () => {
   const { params } = useRoute();
   const { isRecreation } = (params as { isRecreation: Boolean }) || {};
   const dispatch = useDispatch();
-  const [vaultName, setVaultName] = useState('');
+  const [vaultName, setVaultName] = useState('Vault');
   const [vaultDescription, setVaultDescription] = useState('');
   const [scheme, setScheme] = useState({ m: 2, n: 3 });
   const onDecreaseM = () => {
@@ -69,7 +69,7 @@ const VaultSetup = () => {
     }
   };
   const OnProceed = () => {
-    if (vaultName !== '' && vaultDescription !== '') {
+    if (vaultName !== '') {
       if (isRecreation) {
         dispatch(
           setVaultRecoveryDetails({
@@ -88,7 +88,7 @@ const VaultSetup = () => {
         );
       }
     } else {
-      showToast('Please Enter Vault name and description', <ToastErrorIcon />)
+      showToast('Please Enter Vault name', <ToastErrorIcon />)
     }
   }
 
@@ -99,13 +99,19 @@ const VaultSetup = () => {
         <KeeperTextInput
           placeholder="Vault name"
           value={vaultName}
-          onChangeText={setVaultName}
+          onChangeText={(value) => {
+            if (vaultName === 'Vault') {
+              setVaultName('')
+            } else {
+              setVaultName(value)
+            }
+          }}
           testID={'vault_name'}
           maxLength={20}
         />
         <Box style={{ height: 20 }} />
         <KeeperTextInput
-          placeholder="Vault description"
+          placeholder="Vault description (Optional)"
           value={vaultDescription}
           onChangeText={setVaultDescription}
           testID={'vault_description'}
@@ -113,11 +119,11 @@ const VaultSetup = () => {
           height={20}
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-        <Text style={{ fontSize: 14 }}>Total Keys for Vault Configuration</Text>
-        <Text style={{ fontSize: 12 }}>Select the total number of keys</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_totalKeys'}>Total Keys for Vault Configuration</Text>
+        <Text style={{ fontSize: 12 }} testID={'text_totalKeys_subTitle'}>Select the total number of keys</Text>
         <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-        <Text style={{ fontSize: 14 }}>Required Keys</Text>
-        <Text style={{ fontSize: 12 }}>Select the number of keys required</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_requireKeys'}>Required Keys</Text>
+        <Text style={{ fontSize: 12 }} testID={'text_requireKeys_subTitle'}>Select the number of keys required</Text>
         <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
       </VStack>
       <Buttons
