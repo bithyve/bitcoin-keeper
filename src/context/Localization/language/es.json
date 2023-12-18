@@ -404,7 +404,10 @@
     "networkFee": "Network Fee",
     "amtBeingSent": "Amount being sent",
     "estimateArrvlTime": "Estimated arrival time",
-    "sendingFrom": "Sending From"
+    "sendingFrom": "Sending From",
+    "sendingFromUtxo": "Sending from selected UTXOs of",
+    "AvailableToSpend": "Available to spend",
+    "advanced": "Advanced"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",

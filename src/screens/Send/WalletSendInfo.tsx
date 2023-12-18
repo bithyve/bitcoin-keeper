@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -9,6 +9,7 @@ import BTCWhite from 'src/assets/images/btc_white.svg';
 import IconWallet from 'src/assets/images/icon_wallet.svg';
 import { SatsToBtc } from 'src/constants/Bitcoin';
 import CurrencyInfo from '../HomeScreen/components/CurrencyInfo';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 
 function WalletSendInfo({
   availableAmt = '',
@@ -19,6 +20,8 @@ function WalletSendInfo({
   selectedUTXOs = [],
 }) {
   const { colorMode } = useColorMode();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
   return (
     <Box
       testID="view_wallet_info"
@@ -42,7 +45,7 @@ function WalletSendInfo({
           </Text>
           {selectedUTXOs.length ? (
             <Text fontSize={12} numberOfLines={1} color={`${colorMode}.primaryText`}>
-              Sending from selected UTXOs of &nbsp;
+              {walletTranslation.sendingFromUtxo} &nbsp;
               {colorMode === 'light' ? <BTCIcon /> : <BTCWhite />}
               &nbsp;
               <Text bold fontSize={14}>
@@ -52,7 +55,7 @@ function WalletSendInfo({
           ) : (
             <Box>
               <Text fontSize={12} numberOfLines={1}>
-                Available to spend
+                {walletTranslation.AvailableToSpend}
               </Text>
               <CurrencyInfo
                 hideAmounts={false}
@@ -75,7 +78,7 @@ function WalletSendInfo({
               color={`${colorMode}.sendMax`}
               style={styles.advanceText}
             >
-              Advanced
+              {walletTranslation.advanced}
             </Text>
           </Pressable>
         </Box>
