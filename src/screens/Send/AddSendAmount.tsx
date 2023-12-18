@@ -9,7 +9,7 @@ import {
   VStack,
 } from 'native-base';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 
@@ -42,11 +42,15 @@ import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import WalletSendInfo from './WalletSendInfo';
 import LabelItem from '../UTXOManagement/components/LabelItem';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Fonts from 'src/constants/Fonts';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
   const {
     sender,
     recipient,
@@ -251,6 +255,9 @@ function AddSendAmount({ route }) {
             marginVertical: hp(5),
           }}
         >
+          <Box style={styles.sendingFromWrapper}>
+            <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>{walletTranslation.sendingFrom}</Text>
+          </Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
             availableAmt={sender?.specs.balances.confirmed}
@@ -542,5 +549,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '25%',
   },
+  sendingFromWrapper: {
+    marginLeft: wp(20)
+  },
+  sendingFromText: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedRegular,
+    letterSpacing: 0.80,
+  }
 });
 export default AddSendAmount;

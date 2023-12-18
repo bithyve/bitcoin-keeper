@@ -1,6 +1,6 @@
 import React from 'react';
 import Text from 'src/components/KeeperText';
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
 import EditIcon from 'src/assets/images/edit.svg';
@@ -23,15 +23,18 @@ function WalletSendInfo({
     <Box
       testID="view_wallet_info"
       style={styles.container}
-      backgroundColor={`${colorMode}.seashellWhite`}
+    // backgroundColor={`${colorMode}.seashellWhite`}
     >
-      <Box flexDirection="row">
-        <TouchableOpacity style={styles.buttonBackground}>
-          <IconWallet />
-        </TouchableOpacity>
+      <Box style={styles.wrapper}>
+        <Box w={'15%'}>
+          <TouchableOpacity style={styles.buttonBackground}>
+            <IconWallet />
+          </TouchableOpacity>
+        </Box>
         <Box
           style={{
             marginLeft: wp(10),
+            width: '55%'
           }}
         >
           <Text color={`${colorMode}.primaryText`} numberOfLines={1} style={styles.walletNameText}>
@@ -47,19 +50,34 @@ function WalletSendInfo({
               </Text>
             </Text>
           ) : (
-            <Box style={styles.balanceWrapper}>
+            <Box>
               <Text fontSize={12} numberOfLines={1}>
-                Available to spend&nbsp;
+                Available to spend
               </Text>
               <CurrencyInfo
                 hideAmounts={false}
                 amount={availableAmt}
-                fontSize={20}
+                fontSize={14}
                 color={`${colorMode}.primaryText`}
                 variation={colorMode === 'light' ? 'dark' : 'light'}
               />
             </Box>
           )}
+        </Box>
+        <Box w={'22%'}>
+          <Pressable
+            onPress={() => console.log('pressed')}
+            backgroundColor={`${colorMode}.accent`}
+            style={styles.advanceWrapper}
+          >
+            <Text
+              testID="text_sendmax"
+              color={`${colorMode}.sendMax`}
+              style={styles.advanceText}
+            >
+              Advanced
+            </Text>
+          </Pressable>
         </Box>
       </Box>
       {isEditable && (
@@ -78,20 +96,26 @@ function WalletSendInfo({
 const styles = StyleSheet.create({
   buttonBackground: {
     backgroundColor: '#FAC48B',
-    width: hp(45),
-    height: hp(45),
+    width: hp(50),
+    height: hp(50),
     borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: wp(10),
   },
   container: {
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'center',
     flexDirection: 'row',
     width: '97%',
-    height: hp(70),
+    // height: hp(70),
     borderRadius: 10,
+  },
+  wrapper: {
+    flexDirection: "row",
+    alignItems: 'center',
+    margin: 10,
+    width: '100%'
   },
   walletNameText: {
     marginTop: 3,
@@ -99,9 +123,16 @@ const styles = StyleSheet.create({
     letterSpacing: 1.12,
     width: wp(100),
   },
-  balanceWrapper: {
-    flexDirection: 'row',
+  advanceWrapper: {
+    width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 5,
+    paddingVertical: 3
   },
+  advanceText: {
+    fontSize: 12,
+    letterSpacing: 0.6,
+  }
 });
 export default WalletSendInfo;
