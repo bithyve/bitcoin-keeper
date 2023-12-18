@@ -89,7 +89,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.KEEPER:
-      name = 'Keeper Signing Device';
+      name = 'Collaborative Signer';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
