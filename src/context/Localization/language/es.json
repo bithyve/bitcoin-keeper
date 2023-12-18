@@ -403,7 +403,8 @@
     "highFeeAlertSubTitle": "Network fee is larger than the amount you are sending",
     "networkFee": "Network Fee",
     "amtBeingSent": "Amount being sent",
-    "estimateArrvlTime": "Estimated arrival time"
+    "estimateArrvlTime": "Estimated arrival time",
+    "sendingFrom": "Sending From"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
