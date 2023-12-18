@@ -351,6 +351,7 @@ function AddSendAmount({ route }) {
                     );
                   }
                 }}
+                borderColor={`${colorMode}.learnMoreBorder`}
                 backgroundColor={`${colorMode}.accent`}
                 style={styles.sendMaxWrapper}
               >
@@ -491,6 +492,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(10),
     paddingVertical: hp(3),
     borderRadius: 5,
+    borderWidth: 1
   },
   sendMaxText: {
     fontSize: 12,

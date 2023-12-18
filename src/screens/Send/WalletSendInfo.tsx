@@ -67,14 +67,15 @@ function WalletSendInfo({
             </Box>
           )}
         </Box>
-        <Box w={'22%'}>
+        <Box w={'25%'}>
           <Pressable
             onPress={() => console.log('pressed')}
             backgroundColor={`${colorMode}.accent`}
+            borderColor={`${colorMode}.learnMoreBorder`}
             style={styles.advanceWrapper}
           >
             <Text
-              testID="text_sendmax"
+              testID="text_advance"
               color={`${colorMode}.sendMax`}
               style={styles.advanceText}
             >
@@ -130,8 +131,9 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 5,
-    paddingVertical: 3
+    borderRadius: 6,
+    paddingVertical: 3,
+    borderWidth: 1,
   },
   advanceText: {
     fontSize: 12,
