@@ -1,9 +1,4 @@
-import {
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity } from 'react-native';
 import { Box, Text, View, useColorMode, ScrollView, Input } from 'native-base';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -39,12 +34,12 @@ function AddDetailsFinalScreen({ route }) {
   const [arrow, setArrow] = useState(false);
   const [showPurpose, setShowPurpose] = useState(false);
   const [purposeList, setPurposeList] = useState([
-    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
-    { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
     { label: 'P2WPKH: native segwit, single-sig', value: DerivationPurpose.BIP84 },
+    { label: 'P2SH-P2WPKH: wrapped segwit, single-sg', value: DerivationPurpose.BIP49 },
+    { label: 'P2PKH: legacy, single-sig', value: DerivationPurpose.BIP44 },
   ]);
   const [purpose, setPurpose] = useState(`${DerivationPurpose.BIP84}`);
-  const [purposeLbl, setPurposeLbl] = useState('P2PKH: legacy, single-sig');
+  const [purposeLbl, setPurposeLbl] = useState('P2WPKH: native segwit, single-sig');
   const [path, setPath] = useState(
     route.params?.path
       ? route.params?.path
@@ -154,7 +149,9 @@ function AddDetailsFinalScreen({ route }) {
             </Box>
             <TouchableOpacity onPress={onDropDownClick}>
               <Box style={styles.dropDownContainer} backgroundColor={`${colorMode}.seashellWhite`}>
-                <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>{purposeLbl}</Text>
+                <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
+                  {purposeLbl}
+                </Text>
                 <Box
                   style={[
                     styles.icArrow,
@@ -169,7 +166,10 @@ function AddDetailsFinalScreen({ route }) {
             </TouchableOpacity>
           </Box>
           {showPurpose && (
-            <ScrollView style={styles.langScrollViewWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
+            <ScrollView
+              style={styles.langScrollViewWrapper}
+              backgroundColor={`${colorMode}.seashellWhite`}
+            >
               {purposeList.map((item) => (
                 <TouchableOpacity
                   key={item.value}
