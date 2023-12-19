@@ -49,7 +49,7 @@ import { Vault, VaultScheme, VaultSigner, VaultSpecs } from '../interfaces/vault
 
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
-import RestClient from 'src/services/rest/RestClient';
+import RestClient, { TorStatus } from 'src/services/rest/RestClient';
 
 const ECPair = ECPairFactory(ecc);
 const validator = (pubkey: Buffer, msghash: Buffer, signature: Buffer): boolean =>
@@ -485,7 +485,12 @@ export default class WalletOperations {
       return WalletOperations.mockFeeRatesForTestnet();
 
     try {
-      const res = await RestClient.get(`https://mempool.space/api/v1/fees/recommended`);
+      const endpoint =
+        RestClient.getTorStatus() === TorStatus.CONNECTED
+          ? 'http://mempoolhqx4isw62xs7abwphsq7ldayuidyx2v2oethdhhj6mlo2r6ad.onion/api/v1/fees/recommended'
+          : 'https://mempool.space/api/v1/fees/recommended';
+      const res = await RestClient.get(endpoint);
+
       const mempoolFee: {
         economyFee: number;
         fastestFee: number;
