@@ -95,7 +95,8 @@
     "receiveTestSats": "Receiving test sats",
     "upgradeNow": "Upgrade Now",
     "somethingWrong": "Something went wrong",
-    "showAsQR": "Show as QR"
+    "showAsQR": "Show as QR",
+    "runHealthCheck": "Run Health Check"
   },
   "noInternet": {
     "no": "No Internet",
@@ -403,7 +404,11 @@
     "highFeeAlertSubTitle": "Network fee is larger than the amount you are sending",
     "networkFee": "Network Fee",
     "amtBeingSent": "Amount being sent",
-    "estimateArrvlTime": "Estimated arrival time"
+    "estimateArrvlTime": "Estimated arrival time",
+    "sendingFrom": "Sending From",
+    "sendingFromUtxo": "Sending from selected UTXOs of",
+    "AvailableToSpend": "Available to spend",
+    "advanced": "Advanced"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -639,7 +644,7 @@
     "slide07Paragraph": "You can remix your sats for free for enhanced privacy before storing them in your Vault"
   },
   "choosePlan": {
-    "choosePlantitle": "Choose your plan",
+    "choosePlantitle": "Manage Subscription",
     "choosePlanSubTitle": "You are currently on the basic plan",
     "noteSubTitle": "Restore Purchases defaults to your previous plan if issues arise",
     "confirming": "Confirming your subscription",
@@ -651,7 +656,7 @@
     "viewSubscription": "View Subsciption"
   },
   "BackupWallet": {
-    "confirmSeedWord": "Confirm Backup phrase",
+    "confirmSeedWord": "Confirm Backup Phrase",
     "enterSeedWord": "Enter the second(02) word",
     "seedWordNote": "If you don’t have the words written down, you may choose to start over.",
     "startOver": "Start Over",
@@ -678,7 +683,8 @@
     "SEED_BACKUP_CONFIRMED": "Recovery Phrase backup is confirmed",
     "SEED_BACKUP_CONFIRMATION_SKIPPED": "Recovery Phrase health confirmation is skipped",
     "recoveryPhrase": "Recovery Phrase",
-    "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase"
+    "recoveryPhraseSubTitle": "The QR below comprises of your 12 word Recovery Phrase",
+    "recoveryPhraseNote": "Write down and store securely. Never share, they're your wallet's key. Loss of words = loss of wallet access."
   },
   "importWallet": {
     "addDetails": "Add details",

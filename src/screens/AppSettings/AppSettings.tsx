@@ -83,8 +83,8 @@ function AppSettings({ navigation }) {
           biometryType === 'TouchID'
             ? 'Touch ID'
             : biometryType === 'FaceID'
-            ? 'Face ID'
-            : biometryType;
+              ? 'Face ID'
+              : biometryType;
         setSensorType(type);
       }
     } catch (error) {
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0.3,
     position: 'absolute',
-    right: wp(-2),
+    right: 18,
     zIndex: 999,
   },
   appBackupTitle: {
