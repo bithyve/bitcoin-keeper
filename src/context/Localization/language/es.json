@@ -95,7 +95,8 @@
     "receiveTestSats": "Receiving test sats",
     "upgradeNow": "Upgrade Now",
     "somethingWrong": "Something went wrong",
-    "showAsQR": "Show as QR"
+    "showAsQR": "Show as QR",
+    "runHealthCheck": "Run Health Check"
   },
   "noInternet": {
     "no": "No Internet",
@@ -655,7 +656,7 @@
     "viewSubscription": "View Subsciption"
   },
   "BackupWallet": {
-    "confirmSeedWord": "Confirm Backup phrase",
+    "confirmSeedWord": "Confirm Backup Phrase",
     "enterSeedWord": "Enter the second(02) word",
     "seedWordNote": "If you don’t have the words written down, you may choose to start over.",
     "startOver": "Start Over",
