@@ -302,7 +302,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Optional registration';
     }
     case SignerType.KEEPER: {
-      return 'Use another Keeper app as signer';
+      return 'Use Collaborative Signer as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';
