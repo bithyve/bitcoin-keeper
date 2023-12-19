@@ -71,7 +71,7 @@ function ImportWalletScreen({ route }) {
       seed: info,
       type: WalletType.IMPORTED,
       name: `Wallet ${wallets.length + 1}`,
-      description: 'Single-sig Wallet',
+      description: 'Watch Only',
     });
   };
 

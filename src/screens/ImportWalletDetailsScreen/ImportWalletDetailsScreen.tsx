@@ -1,9 +1,4 @@
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
 import { Box, Input, View, useColorMode } from 'native-base';
 import React, { useContext, useState } from 'react';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
@@ -11,16 +6,9 @@ import Colors from 'src/theme/Colors';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import BitcoinInput from 'src/assets/images/btc_black.svg';
-import BitcoinWhite from 'src/assets/images/btc_white.svg';
-
 import { useNavigation } from '@react-navigation/native';
-import { getCurrencyImageByRegion } from 'src/constants/Bitcoin';
-import useCurrencyCode from 'src/store/hooks/state-selectors/useCurrencyCode';
-import { useAppSelector } from 'src/store/hooks';
 import Buttons from 'src/components/Buttons';
-import { defaultTransferPolicyThreshold } from 'src/store/sagas/storage';
-import Text from 'src/components/KeeperText';
+import { maxTransferPolicyThreshold } from 'src/store/sagas/storage';
 
 function ImportWalletDetailsScreen({ route }) {
   const navigation = useNavigation();
@@ -34,10 +22,7 @@ function ImportWalletDetailsScreen({ route }) {
   const [description, setDescription] = useState(desc || '');
   const [walletType, setWalletType] = useState(route?.params?.type);
   const [importedSeed, setImportedSeed] = useState(route?.params?.seed?.replace(/,/g, ' '));
-  const [transferPolicy, setTransferPolicy] = useState(defaultTransferPolicyThreshold.toString());
-
-  const currencyCode = useCurrencyCode();
-  const currentCurrency = useAppSelector((state) => state.settings.currencyKind);
+  const [transferPolicy, setTransferPolicy] = useState(maxTransferPolicyThreshold.toString());
 
   const onNextClick = () => {
     navigation.navigate('AddDetailsFinal', {
@@ -48,9 +33,6 @@ function ImportWalletDetailsScreen({ route }) {
       policy: transferPolicy,
     });
   };
-
-  const formatNumber = (value: string) =>
-    value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   const { colorMode } = useColorMode();
 
@@ -85,38 +67,6 @@ function ImportWalletDetailsScreen({ route }) {
                 onChangeText={(text) => setDescription(text)}
               />
             </Box>
-            <Text style={styles.transferText} color={`${colorMode}.primaryText`}>{importWallet.autoTransfer}</Text>
-            <Box style={styles.amountWrapper} backgroundColor={`${colorMode}.seashellWhite`}>
-              <Box mx={3}>
-                {getCurrencyImageByRegion(currencyCode, 'dark', currentCurrency, colorMode === 'light' ? BitcoinInput : BitcoinWhite)}
-              </Box>
-              <Box
-                width={0.5}
-                backgroundColor={`${colorMode}.divider`}
-                opacity={0.3}
-                height={8}
-              />
-              <Input
-                placeholder={importWallet.enterAmount}
-                placeholderTextColor={`${colorMode}.GreyText"`}
-                color={`${colorMode}.greenText`}
-                width="96%"
-                h={10}
-                fontSize={14}
-                fontWeight={300}
-                letterSpacing={1.04}
-                borderWidth="0"
-                value={formatNumber(transferPolicy)}
-                onChangeText={(value) => {
-                  setTransferPolicy(value);
-                }}
-                variant="unstyled"
-                keyboardType="numeric"
-              />
-            </Box>
-            <Text style={styles.balanceCrossesText} color={`${colorMode}.primaryText`}>
-              {importWallet.walletBalance}
-            </Text>
           </Box>
         </ScrollView>
         <View style={styles.dotContainer}>
@@ -250,10 +200,10 @@ const styles = StyleSheet.create({
   },
   amountWrapper: {
     marginTop: hp(10),
-    flexDirection: "row",
+    flexDirection: 'row',
     marginHorizontal: 2,
-    alignItems: "center",
-    borderRadius: 5
+    alignItems: 'center',
+    borderRadius: 5,
   },
   balanceCrossesText: {
     width: '100%',
