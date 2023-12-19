@@ -1,12 +1,12 @@
 import Text from 'src/components/KeeperText';
 import {
   Box,
-  HStack,
+  // HStack,
   Input,
   KeyboardAvoidingView,
   Pressable,
   useColorMode,
-  VStack,
+  // VStack,
 } from 'native-base';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
@@ -41,7 +41,7 @@ import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import WalletSendInfo from './WalletSendInfo';
-import LabelItem from '../UTXOManagement/components/LabelItem';
+// import LabelItem from '../UTXOManagement/components/LabelItem';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Fonts from 'src/constants/Fonts';
 
@@ -70,7 +70,7 @@ function AddSendAmount({ route }) {
   const [amount, setAmount] = useState(prefillAmount || '');
   const [amountToSend, setAmountToSend] = useState('');
   const [note, setNote] = useState('');
-  const [label, setLabel] = useState('');
+  // const [label, setLabel] = useState('');
   const [labelsToAdd, setLabelsToAdd] = useState([]);
 
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
@@ -217,17 +217,17 @@ function AddSendAmount({ route }) {
     setLabelsToAdd(initialLabels);
   }, []);
 
-  const onAdd = () => {
-    if (label) {
-      labelsToAdd.push({ name: label, isSystem: false });
-      setLabelsToAdd(labelsToAdd);
-      setLabel('');
-    }
-  };
-  const onCloseClick = (index) => {
-    labelsToAdd.splice(index, 1);
-    setLabelsToAdd([...labelsToAdd]);
-  };
+  // const onAdd = () => {
+  //   if (label) {
+  //     labelsToAdd.push({ name: label, isSystem: false });
+  //     setLabelsToAdd(labelsToAdd);
+  //     setLabel('');
+  //   }
+  // };
+  // const onCloseClick = (index) => {
+  //   labelsToAdd.splice(index, 1);
+  //   setLabelsToAdd([...labelsToAdd]);
+  // };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
