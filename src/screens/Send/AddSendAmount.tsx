@@ -389,7 +389,7 @@ function AddSendAmount({ route }) {
                 }}
               />
             </Box>
-            <VStack
+            {/* <VStack
               backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
               style={[
@@ -427,17 +427,17 @@ function AddSendAmount({ route }) {
                 }}
                 onSubmitEditing={onAdd}
               />
-            </VStack>
+            </VStack> */}
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
-                  secondaryText="Select UTXOs"
-                  secondaryCallback={() => {
-                    navigation.dispatch(
-                      CommonActions.navigate('UTXOSelection', { sender, amount, address })
-                    );
-                  }}
-                  secondaryDisable={Boolean(!amount || errorMessage)}
+                  // secondaryText="Select UTXOs"
+                  // secondaryCallback={() => {
+                  //   navigation.dispatch(
+                  //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                  //   );
+                  // }}
+                  // secondaryDisable={Boolean(!amount || errorMessage)}
                   primaryText="Send"
                   primaryDisable={Boolean(!amount || errorMessage)}
                   primaryCallback={executeSendPhaseOne}
