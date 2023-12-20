@@ -147,7 +147,7 @@ function AddSendAmount({ route }) {
         sender,
         recipient,
         address,
-        amount: parseInt(amountToSend, 10),
+        amount: parseInt(amountToSend, 10), // in sats
         transferType,
         note,
         selectedUTXOs,

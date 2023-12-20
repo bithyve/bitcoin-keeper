@@ -485,29 +485,32 @@ function AmountDetails(props) {
   );
 }
 
-function HighFeeAlert() {
+function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
+
+  const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
   return (
     <>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>37,896.80&nbsp;&nbsp;</Text>
-          <Text style={styles.highAlertSatsFee}>0.789036</Text>
+          <Text style={styles.highAlertFiatFee}>{selectedFee}&nbsp;&nbsp;</Text>
+          <Text style={styles.highAlertSatsFee}>{selectedFee}</Text>
         </Box>
       </Box>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
-          <Text style={styles.highAlertFiatFee}>37,896.80&nbsp;&nbsp;</Text>
-          <Text style={styles.highAlertSatsFee}>0.996710</Text>
+          <Text style={styles.highAlertFiatFee}>{amountToSend}&nbsp;&nbsp;</Text>
+          <Text style={styles.highAlertSatsFee}>{amountToSend}</Text>
         </Box>
       </Box>
     </>
   );
 }
+
 function SendConfirmation({ route }) {
   const { colorMode } = useColorMode();
   const { showToast } = useToastMessage();
@@ -567,6 +570,7 @@ function SendConfirmation({ route }) {
   const [transPriorityModalVisible, setTransPriorityModalVisible] = useState(false);
   const [highFeeAlertVisible, setHighFeeAlertVisible] = useState(false);
   const [visibleCustomPriorityModal, setVisibleCustomPriorityModal] = useState(false);
+  const [feePercentage, setFeePercentage] = useState(0);
 
   useEffect(() => {
     if (vaultTransfers.includes(transferType)) {
@@ -584,6 +588,17 @@ function SendConfirmation({ route }) {
       dispatch(calculateSendMaxFee({ numberOfRecipients: 1, wallet: sourceWallet }));
     }
   }, []);
+
+  useEffect(() => {
+    let hasHighFee = false;
+    const selectedFee = txFeeInfo[transactionPriority?.toLowerCase()].amount;
+    if (selectedFee > amount / 10) hasHighFee = true; // if fee is greater than 10% of the amount being sent
+
+    setFeePercentage(Math.trunc((selectedFee / amount) * 100));
+
+    if (hasHighFee) setHighFeeAlertVisible(true);
+    else setHighFeeAlertVisible(false);
+  }, [transactionPriority, amount]);
 
   const onTransferNow = () => {
     setVisibleTransVaultModal(false);
@@ -877,7 +892,7 @@ function SendConfirmation({ route }) {
         showCloseIcon={false}
         title={walletTransactions.highFeeAlert}
         subTitleWidth={wp(240)}
-        subTitle={walletTransactions.highFeeAlertSubTitle}
+        subTitle={`Network fee is greater than ${feePercentage}% of the amount being sent`}
         modalBackground={`${colorMode}.modalWhiteBackground`}
         subTitleColor={`${colorMode}.secondaryText`}
         textColor={`${colorMode}.primaryText`}
@@ -886,9 +901,13 @@ function SendConfirmation({ route }) {
         buttonCallback={() => {
           setHighFeeAlertVisible(false);
         }}
-        secondaryButtonText={common.cancel}
-        secondaryCallback={() => setHighFeeAlertVisible(false)}
-        Content={() => <HighFeeAlert />}
+        Content={() => (
+          <HighFeeAlert
+            transactionPriority={transactionPriority}
+            txFeeInfo={txFeeInfo}
+            amountToSend={amount}
+          />
+        )}
       />
       {visibleCustomPriorityModal && (
         <CustomPriorityModal
@@ -897,7 +916,7 @@ function SendConfirmation({ route }) {
           title={vault.CustomPriority}
           secondaryButtonText={common.cancel}
           secondaryCallback={() => setVisibleCustomPriorityModal(false)}
-          subTitle={'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do'}
+          subTitle={'Enter sats to pay per vbyte'}
           network={sender.networkType}
           recipients={[{ address, amount }]} // TODO: rewire for Batch Send
           sender={sender}
