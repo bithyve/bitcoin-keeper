@@ -246,6 +246,7 @@ function SendingPriority({
   setTransactionPriority,
   availableTransactionPriorities,
   setVisibleCustomPriorityModal,
+  getBalance,
 }) {
   const { translations } = useContext(LocalizationContext);
   const { settings, wallet: walletTranslation } = translations;
@@ -313,7 +314,7 @@ function SendingPriority({
                     mins
                   </Text>
                   <TextValue
-                    amt={txFeeInfo[priority?.toLowerCase()]?.amount}
+                    amt={getBalance(txFeeInfo[priority?.toLowerCase()]?.amount)}
                     unit={{
                       bitcoinUnit: BitcoinUnit.SATS,
                     }}
@@ -410,7 +411,7 @@ function ApproveTransVaultContent({ setVisibleTransVaultModal, onTransferNow }) 
     </>
   );
 }
-function TransactionPriorityDetails({ transactionPriority, txFeeInfo }) {
+function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -443,7 +444,7 @@ function TransactionPriorityDetails({ transactionPriority, txFeeInfo }) {
               <BTC />
               &nbsp;
               <Text style={styles.transSatsFeeText}>
-                {txFeeInfo[transactionPriority?.toLowerCase()]?.amount} sats
+                {getBalance(txFeeInfo[transactionPriority?.toLowerCase()]?.amount)}
               </Text>
             </Box>
           </Box>
@@ -485,7 +486,7 @@ function AmountDetails(props) {
   );
 }
 
-function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend }) {
+function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend, getBalance }) {
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
   const { wallet: walletTransactions } = translations;
@@ -497,14 +498,14 @@ function HighFeeAlert({ transactionPriority, txFeeInfo, amountToSend }) {
         <Text style={styles.highFeeTitle}>{walletTransactions.networkFee}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
           <Text style={styles.highAlertFiatFee}>{selectedFee}&nbsp;&nbsp;</Text>
-          <Text style={styles.highAlertSatsFee}>{selectedFee}</Text>
+          <Text style={styles.highAlertSatsFee}>{getBalance(selectedFee)}</Text>
         </Box>
       </Box>
       <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.highFeeDetailsContainer}>
         <Text style={styles.highFeeTitle}>{walletTransactions.amtBeingSent}</Text>
         <Box style={styles.highFeeDetailsWrapper}>
           <Text style={styles.highAlertFiatFee}>{amountToSend}&nbsp;&nbsp;</Text>
-          <Text style={styles.highAlertSatsFee}>{amountToSend}</Text>
+          <Text style={styles.highAlertSatsFee}>{getBalance(amountToSend)}</Text>
         </Box>
       </Box>
     </>
@@ -760,6 +761,7 @@ function SendConfirmation({ route }) {
           <TransactionPriorityDetails
             transactionPriority={transactionPriority}
             txFeeInfo={txFeeInfo}
+            getBalance={getBalance}
           />
         </TouchableOpacity>
         <AmountDetails
@@ -877,6 +879,7 @@ function SendConfirmation({ route }) {
             transactionPriority={transactionPriority}
             setTransactionPriority={setTransactionPriority}
             availableTransactionPriorities={availableTransactionPriorities}
+            getBalance={getBalance}
             setVisibleCustomPriorityModal={() => {
               setTransPriorityModalVisible(false);
               dispatch(customPrioritySendPhaseOneReset());
@@ -906,6 +909,7 @@ function SendConfirmation({ route }) {
             transactionPriority={transactionPriority}
             txFeeInfo={txFeeInfo}
             amountToSend={amount}
+            getBalance={getBalance}
           />
         )}
       />
