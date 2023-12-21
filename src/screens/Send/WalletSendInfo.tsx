@@ -26,7 +26,7 @@ function WalletSendInfo({
     <Box
       testID="view_wallet_info"
       style={styles.container}
-    // backgroundColor={`${colorMode}.seashellWhite`}
+      // backgroundColor={`${colorMode}.seashellWhite`}
     >
       <Box style={styles.wrapper}>
         <Box w={'15%'}>
@@ -37,7 +37,7 @@ function WalletSendInfo({
         <Box
           style={{
             marginLeft: wp(10),
-            width: '55%'
+            width: '55%',
           }}
         >
           <Text color={`${colorMode}.primaryText`} numberOfLines={1} style={styles.walletNameText}>
@@ -68,20 +68,16 @@ function WalletSendInfo({
           )}
         </Box>
         <Box w={'25%'}>
-          <Pressable
+          {/* <Pressable
             onPress={() => console.log('pressed')}
             backgroundColor={`${colorMode}.accent`}
             borderColor={`${colorMode}.learnMoreBorder`}
             style={styles.advanceWrapper}
           >
-            <Text
-              testID="text_advance"
-              color={`${colorMode}.sendMax`}
-              style={styles.advanceText}
-            >
+            <Text testID="text_advance" color={`${colorMode}.sendMax`} style={styles.advanceText}>
               {walletTranslation.advanced}
             </Text>
-          </Pressable>
+          </Pressable> */}
         </Box>
       </Box>
       {isEditable && (
@@ -116,10 +112,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   wrapper: {
-    flexDirection: "row",
+    flexDirection: 'row',
     alignItems: 'center',
     margin: 10,
-    width: '100%'
+    width: '100%',
   },
   walletNameText: {
     marginTop: 3,
@@ -138,6 +134,6 @@ const styles = StyleSheet.create({
   advanceText: {
     fontSize: 12,
     letterSpacing: 0.6,
-  }
+  },
 });
 export default WalletSendInfo;
