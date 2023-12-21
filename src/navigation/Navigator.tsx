@@ -99,7 +99,6 @@ import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
 import Home from 'src/screens/Home/Home';
-import { Dimensions } from 'react-native';
 import PrivacyAndDisplay from 'src/screens/AppSettings/PrivacyAndDisplay';
 import NetworkSetting from 'src/screens/AppSettings/NetworkSetting';
 
@@ -165,8 +164,8 @@ function AppStack() {
   return (
     <RealmProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={DrawerStack} />
-        {/* <Stack.Screen name="Home" component={Home} /> */}
+        <Stack.Screen name="Home" component={HomeScreen} />
+        {/* <Stack.Screen name="Home" component={DrawerStack} /> */}
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="SigningDeviceList" component={SigningDeviceList} />
         <Stack.Screen name="AddTapsigner" component={SetupTapsigner} />
@@ -273,7 +272,7 @@ function Navigator() {
       <KeeperLoader
         visible={appLoading}
         loadingContent={loadingContent}
-        close={() => { }}
+        close={() => {}}
         title="please wait"
         subTitle="loading"
       />

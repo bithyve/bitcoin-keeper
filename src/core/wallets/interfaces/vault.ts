@@ -41,13 +41,13 @@ export type XpubDetailsType = {
 };
 
 export type signerXpubs = {
-  [derivationPath: string]: { xpub: string; xpriv?: string; type: XpubTypes };
+  [key in XpubTypes as string]: { xpub: string; derivationPath: string; xpriv?: string }[];
 };
 
 export type DeviceInfo = {
   registeredWallet?: string;
 };
-export interface VaultSigner {
+export interface Signer {
   type: SignerType;
   storageType: SignerStorage;
   isMock?: boolean;
@@ -67,7 +67,7 @@ export type RegisteredVaultInfo = {
   [vaultId: string]: { registered: boolean; registrationInfo?: string };
 };
 
-export interface Key {
+export interface VaultSigner {
   masterFingerprint: string;
   xpub: string;
   xpriv?: string;
@@ -85,7 +85,7 @@ export interface Vault {
   isUsable: boolean; // true if vault is usable
   isMultiSig: boolean; // true
   scheme: VaultScheme; // scheme of vault(m of n)
-  signers: Key[]; // signers of the vault
+  signers: VaultSigner[]; // signers of the vault
   presentationData: VaultPresentationData;
   specs: VaultSpecs;
   archived: boolean;
