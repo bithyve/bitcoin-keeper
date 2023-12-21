@@ -1,15 +1,15 @@
 import Text from 'src/components/KeeperText';
 import {
   Box,
-  HStack,
+  // HStack,
   Input,
   KeyboardAvoidingView,
   Pressable,
   useColorMode,
-  VStack,
+  // VStack,
 } from 'native-base';
 import { Platform, ScrollView, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { calculateSendMaxFee, sendPhaseOne } from 'src/store/sagaActions/send_and_receive';
 import { hp, windowWidth, wp } from 'src/constants/responsive';
 
@@ -41,12 +41,16 @@ import idx from 'idx';
 import useLabelsNew from 'src/hooks/useLabelsNew';
 import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import WalletSendInfo from './WalletSendInfo';
-import LabelItem from '../UTXOManagement/components/LabelItem';
+// import LabelItem from '../UTXOManagement/components/LabelItem';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
+import Fonts from 'src/constants/Fonts';
 
 function AddSendAmount({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
   const {
     sender,
     recipient,
@@ -66,7 +70,7 @@ function AddSendAmount({ route }) {
   const [amount, setAmount] = useState(prefillAmount || '');
   const [amountToSend, setAmountToSend] = useState('');
   const [note, setNote] = useState('');
-  const [label, setLabel] = useState('');
+  // const [label, setLabel] = useState('');
   const [labelsToAdd, setLabelsToAdd] = useState([]);
 
   const [errorMessage, setErrorMessage] = useState(''); // this state will handle error
@@ -213,17 +217,17 @@ function AddSendAmount({ route }) {
     setLabelsToAdd(initialLabels);
   }, []);
 
-  const onAdd = () => {
-    if (label) {
-      labelsToAdd.push({ name: label, isSystem: false });
-      setLabelsToAdd(labelsToAdd);
-      setLabel('');
-    }
-  };
-  const onCloseClick = (index) => {
-    labelsToAdd.splice(index, 1);
-    setLabelsToAdd([...labelsToAdd]);
-  };
+  // const onAdd = () => {
+  //   if (label) {
+  //     labelsToAdd.push({ name: label, isSystem: false });
+  //     setLabelsToAdd(labelsToAdd);
+  //     setLabel('');
+  //   }
+  // };
+  // const onCloseClick = (index) => {
+  //   labelsToAdd.splice(index, 1);
+  //   setLabelsToAdd([...labelsToAdd]);
+  // };
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeyboardAvoidingView
@@ -251,6 +255,9 @@ function AddSendAmount({ route }) {
             marginVertical: hp(5),
           }}
         >
+          <Box style={styles.sendingFromWrapper}>
+            <Text color={`${colorMode}.primaryText`} style={styles.sendingFromText}>{walletTranslation.sendingFrom}</Text>
+          </Box>
           <WalletSendInfo
             selectedUTXOs={selectedUTXOs}
             availableAmt={sender?.specs.balances.confirmed}
@@ -344,6 +351,7 @@ function AddSendAmount({ route }) {
                     );
                   }
                 }}
+                borderColor={`${colorMode}.learnMoreBorder`}
                 backgroundColor={`${colorMode}.accent`}
                 style={styles.sendMaxWrapper}
               >
@@ -381,7 +389,7 @@ function AddSendAmount({ route }) {
                 }}
               />
             </Box>
-            <VStack
+            {/* <VStack
               backgroundColor={`${colorMode}.seashellWhite`}
               borderColor={errorMessage ? 'light.indicator' : 'transparent'}
               style={[
@@ -419,17 +427,17 @@ function AddSendAmount({ route }) {
                 }}
                 onSubmitEditing={onAdd}
               />
-            </VStack>
+            </VStack> */}
             <Box style={styles.ctaBtnWrapper}>
               <Box ml={windowWidth * -0.09}>
                 <Buttons
-                  secondaryText="Select UTXOs"
-                  secondaryCallback={() => {
-                    navigation.dispatch(
-                      CommonActions.navigate('UTXOSelection', { sender, amount, address })
-                    );
-                  }}
-                  secondaryDisable={Boolean(!amount || errorMessage)}
+                  // secondaryText="Select UTXOs"
+                  // secondaryCallback={() => {
+                  //   navigation.dispatch(
+                  //     CommonActions.navigate('UTXOSelection', { sender, amount, address })
+                  //   );
+                  // }}
+                  // secondaryDisable={Boolean(!amount || errorMessage)}
                   primaryText="Send"
                   primaryDisable={Boolean(!amount || errorMessage)}
                   primaryCallback={executeSendPhaseOne}
@@ -484,6 +492,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: hp(10),
     paddingVertical: hp(3),
     borderRadius: 5,
+    borderWidth: 1
   },
   sendMaxText: {
     fontSize: 12,
@@ -542,5 +551,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '25%',
   },
+  sendingFromWrapper: {
+    marginLeft: wp(20)
+  },
+  sendingFromText: {
+    fontSize: 12,
+    fontFamily: Fonts.FiraSansCondensedRegular,
+    letterSpacing: 0.80,
+  }
 });
 export default AddSendAmount;

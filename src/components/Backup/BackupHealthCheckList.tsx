@@ -107,7 +107,7 @@ function BackupHealthCheckList() {
       </Box>
 
       <Box alignItems="flex-start">
-        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
+        <Buttons primaryText={common.runHealthCheck} primaryCallback={onPressConfirm} />
       </Box>
 
       <ModalWrapper

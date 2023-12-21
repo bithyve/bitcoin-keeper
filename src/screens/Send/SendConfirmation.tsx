@@ -437,7 +437,7 @@ function TransactionPriorityDetails({ transactionPriority, txFeeInfo, getBalance
             mins
           </Text>
           <Box style={{ flexDirection: 'row', width: '100%' }}>
-            <Box style={{ width: '40%' }}>
+            <Box style={{ width: '50%' }}>
               <Text style={styles.transFiatFeeText}>80000000</Text>
             </Box>
             <Box style={styles.transSatsFeeWrapper}>
