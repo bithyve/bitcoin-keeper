@@ -1,5 +1,5 @@
 import {
-  Key,
+  Signer,
   Vault,
   VaultScheme,
   VaultSigner,
@@ -41,12 +41,12 @@ export const generateSignerFromMetaData = ({
   isMultisig,
   xpriv = null,
   isMock = false,
-  xpubDetails = {} as XpubDetailsType,
+  xpubDetails = null as XpubDetailsType,
   signerId = null,
   signerPolicy = null,
   inheritanceKeyInfo = null,
   isAmf = false,
-}): { signer: VaultSigner; key: Key } => {
+}): { signer: Signer; key: VaultSigner } => {
   const networkType = WalletUtilities.getNetworkFromPrefix(xpub.slice(0, 4));
   const network = WalletUtilities.getNetworkByType(config.NETWORK_TYPE);
   if (
@@ -61,22 +61,17 @@ export const generateSignerFromMetaData = ({
 
   const signerXpubs: signerXpubs = {};
   if (!xpubDetails) {
-    signerXpubs[derivationPath] = {
-      xpub,
-      xpriv,
-      type: WalletUtilities.getScriptTypeFromDerivationPath(derivationPath),
-    };
+    const scriptType = WalletUtilities.getScriptTypeFromDerivationPath(derivationPath);
+    signerXpubs[scriptType] = [{ xpub, xpriv, derivationPath }];
+  } else {
+    Object.entries(xpubDetails).forEach(([key, xpubDetail]) => {
+      const { xpub, xpriv, derivationPath } = xpubDetail;
+      signerXpubs[key] = signerXpubs[key] || [];
+      signerXpubs[key].push({ xpub, xpriv, derivationPath });
+    });
   }
-  Object.keys(xpubDetails).forEach((key: XpubTypes) => {
-    const xpubDetail = xpubDetails[key];
-    signerXpubs[xpubDetail.derivationPath] = {
-      xpub: xpubDetail.xpub,
-      xpriv: xpubDetail.xpriv,
-      type: key,
-    };
-  });
 
-  const signer: VaultSigner = {
+  const signer: Signer = {
     type: signerType,
     storageType,
     isMock,
@@ -90,7 +85,7 @@ export const generateSignerFromMetaData = ({
     hidden: false,
   };
 
-  const key: Key = {
+  const key: VaultSigner = {
     xfp: signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
     derivationPath,
     xpub,
@@ -175,8 +170,8 @@ export const getWalletConfig = ({ vault }: { vault: Vault }) => {
   return line;
 };
 
-export const getSignerSigTypeInfo = (signer: VaultSigner) => {
-  const purpose = WalletUtilities.getSignerPurposeFromPath(signer.derivationPath);
+export const getSignerSigTypeInfo = (key: VaultSigner, signer: Signer) => {
+  const purpose = WalletUtilities.getSignerPurposeFromPath(key.derivationPath);
   if (
     signer.isMock ||
     (signer.type === SignerType.TAPSIGNER && config.NETWORK_TYPE === NetworkType.TESTNET) // amf flow
@@ -212,8 +207,7 @@ export const getMockSigner = (signerType: SignerType) => {
   return null;
 };
 
-export const isSignerAMF = (signer: VaultSigner) =>
-  !!idx(signer, (_) => _.signerName.includes('*'));
+export const isSignerAMF = (signer: Signer) => !!idx(signer, (_) => _.signerName.includes('*'));
 
 const HARDENED = 0x80000000;
 export const getKeypathFromString = (keypathString: string): number[] => {

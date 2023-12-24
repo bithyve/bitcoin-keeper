@@ -111,7 +111,7 @@ function SetupOtherSDScreen({ route }) {
       if (hw) {
         const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = hw;
         if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-          const { signer } = generateSignerFromMetaData({
+          const { signer, key } = generateSignerFromMetaData({
             xpub,
             derivationPath,
             xfp,
@@ -120,7 +120,7 @@ function SetupOtherSDScreen({ route }) {
             storageType: SignerStorage.COLD,
           });
           if (signer) {
-            dispatch(addSigningDevice(signer));
+            dispatch(addSigningDevice(signer, key));
             navigation.dispatch(
               CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
             );
@@ -158,7 +158,7 @@ function SetupOtherSDScreen({ route }) {
       try {
         const ccDetails = extractColdCardExport(data, isMultisig);
         const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-        const { signer: coldcard } = generateSignerFromMetaData({
+        const { signer: coldcard, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -167,7 +167,7 @@ function SetupOtherSDScreen({ route }) {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(coldcard));
+        dispatch(addSigningDevice(coldcard, key));
         navigation.dispatch(
           CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
         );
@@ -180,7 +180,7 @@ function SetupOtherSDScreen({ route }) {
         try {
           const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(data);
           if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-            const { signer: passport } = generateSignerFromMetaData({
+            const { signer: passport, key } = generateSignerFromMetaData({
               xpub,
               derivationPath,
               xfp,
@@ -188,7 +188,7 @@ function SetupOtherSDScreen({ route }) {
               storageType: SignerStorage.COLD,
               isMultisig,
             });
-            dispatch(addSigningDevice(passport));
+            dispatch(addSigningDevice(passport, key));
             navigation.dispatch(
               CommonActions.navigate({
                 name: 'AddSigningDevice',
@@ -207,7 +207,7 @@ function SetupOtherSDScreen({ route }) {
             const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } =
               getKeystoneDetailsFromFile(data);
             if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
-              const { signer: keystone } = generateSignerFromMetaData({
+              const { signer: keystone, key } = generateSignerFromMetaData({
                 xpub,
                 derivationPath,
                 xfp,
@@ -215,7 +215,7 @@ function SetupOtherSDScreen({ route }) {
                 storageType: SignerStorage.COLD,
                 isMultisig,
               });
-              dispatch(addSigningDevice(keystone));
+              dispatch(addSigningDevice(keystone, key));
               navigation.dispatch(
                 CommonActions.navigate({
                   name: 'AddSigningDevice',

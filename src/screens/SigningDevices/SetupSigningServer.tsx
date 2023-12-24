@@ -62,7 +62,7 @@ function SetupSigningServer({ route }: { route }) {
   const setupSigningServerKey = async () => {
     const { policy } = route.params;
     const { id, bhXpub: xpub, derivationPath, masterFingerprint } = setupData;
-    const { signer: signingServerKey } = generateSignerFromMetaData({
+    const { signer: signingServerKey, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
       xfp: masterFingerprint,
@@ -73,7 +73,7 @@ function SetupSigningServer({ route }: { route }) {
       signerPolicy: policy,
     });
 
-    dispatch(addSigningDevice(signingServerKey));
+    dispatch(addSigningDevice(signingServerKey, key));
     navigation.dispatch(
       CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
     );

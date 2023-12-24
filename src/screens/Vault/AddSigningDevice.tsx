@@ -4,7 +4,7 @@ import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType } from 'src/core/wallets/enums';
+import { SignerType, XpubTypes } from 'src/core/wallets/enums';
 import {
   addSigningDevice,
   removeSigningDevice,
@@ -33,6 +33,7 @@ import { SDIcons } from './SigningDeviceIcons';
 import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
 import AddIKS from '../SigningDevices/AddIKS';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 const { width } = Dimensions.get('screen');
 
@@ -47,13 +48,13 @@ export const checkSigningDevice = async (id) => {
 };
 
 function SignerItem({
-  signer,
+  vaultSigner,
   index,
   setInheritanceInit,
   isInheritance,
   scheme,
 }: {
-  signer: VaultSigner | undefined;
+  vaultSigner: VaultSigner | undefined;
   index: number;
   setInheritanceInit: any;
   isInheritance: boolean;
@@ -63,8 +64,9 @@ function SignerItem({
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
+  const { signer } = useSignerFromKey(vaultSigner);
 
-  const removeSigner = () => dispatch(removeSigningDevice(signer));
+  const removeSigner = () => dispatch(removeSigningDevice(vaultSigner));
   const navigateToSignerList = () =>
     navigation.dispatch(CommonActions.navigate('SigningDeviceList', { scheme }));
 
@@ -78,7 +80,7 @@ function SignerItem({
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
-  if (!signer) {
+  if (!vaultSigner || !signer) {
     return (
       <Pressable onPress={callback}>
         <Box style={styles.signerItemContainer}>
@@ -109,7 +111,7 @@ function SignerItem({
       </Pressable>
     );
   }
-  const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
+  const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(vaultSigner, signer);
   let shouldReconfigure = false;
   if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
     shouldReconfigure = true;
@@ -237,7 +239,7 @@ function AddSigningDevice() {
 
   const renderSigner = ({ item, index }) => (
     <SignerItem
-      signer={item}
+      vaultSigner={item}
       index={index}
       setInheritanceInit={setInheritanceInit}
       scheme={scheme}

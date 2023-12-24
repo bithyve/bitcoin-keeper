@@ -24,9 +24,9 @@ const deleteRealm = (key: ArrayBuffer | ArrayBufferView | Int8Array) => realm.de
  * @param  {RealmSchema} schema
  * @param  {any} object
  */
-const createObject = (schema: RealmSchema, object: any) => {
+const createObject = (schema: RealmSchema, object: any, updateMode = Realm.UpdateMode.All) => {
   try {
-    const hasCreated = realm.create(schema, object);
+    const hasCreated = realm.create(schema, object, updateMode);
     return hasCreated;
   } catch (err) {
     console.log(err);

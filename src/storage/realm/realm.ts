@@ -85,12 +85,13 @@ export class RealmDatabase {
    * creates an object corresponding to the provided schema
    * @param  {RealmSchema} schema
    * @param  {any} object
+   * @param  {Realm.UpdateMode} updateMode
    */
-  public create = (schema: RealmSchema, object: any) => {
+  public create = (schema: RealmSchema, object: any, updateMode) => {
     const realm = this.getDatabase();
     try {
       this.writeTransaction(realm, () => {
-        realm.create(schema, object, Realm.UpdateMode.All);
+        realm.create(schema, object, updateMode);
       });
       return true;
     } catch (err) {

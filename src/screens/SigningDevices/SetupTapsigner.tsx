@@ -28,7 +28,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { isTestnet } from 'src/constants/Bitcoin';
 import { generateMockExtendedKeyForSigner } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
@@ -82,14 +82,15 @@ function SetupTapsigner({ route }) {
       const { xpub, derivationPath, xfp, xpubDetails } = await withModal(async () =>
         getTapsignerDetails(card, cvc, isMultisig)
       )();
-      let tapsigner: VaultSigner;
+      let tapsigner: Signer;
+      let vaultKey: VaultSigner;
       if (isAMF) {
         const { xpub, xpriv, derivationPath, masterFingerprint } = generateMockExtendedKeyForSigner(
           EntityKind.VAULT,
           SignerType.TAPSIGNER,
           config.NETWORK_TYPE
         );
-        const { signer } = generateSignerFromMetaData({
+        const { signer, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp: masterFingerprint,
@@ -101,8 +102,9 @@ function SetupTapsigner({ route }) {
           xpubDetails: { [XpubTypes.AMF]: { xpub, derivationPath } },
         });
         tapsigner = signer;
+        vaultKey = key;
       } else {
-        const { signer } = generateSignerFromMetaData({
+        const { signer, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -112,19 +114,19 @@ function SetupTapsigner({ route }) {
           xpubDetails,
         });
         tapsigner = signer;
+        vaultKey = key;
       }
-      if (mode === InteracationMode.SIGNING) {
-        dispatch(addSigningDevice(tapsigner));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
-      } else {
+      if (mode === InteracationMode.RECOVERY) {
         dispatch(setSigningDevices(tapsigner));
         navigation.dispatch(
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
+      } else {
+        dispatch(addSigningDevice(tapsigner, vaultKey));
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
       }
-
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
       if (!isSignerAMF(tapsigner)) {
         // const exsists = await checkSigningDevice(tapsigner.signerId);

@@ -21,7 +21,6 @@ import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
@@ -77,7 +76,7 @@ function SetupColdCard({ route }) {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-      const { signer: coldcard } = generateSignerFromMetaData({
+      const { signer: coldcard, key } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
@@ -93,7 +92,7 @@ function SetupColdCard({ route }) {
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else {
-        dispatch(addSigningDevice(coldcard));
+        dispatch(addSigningDevice(coldcard, key));
         navigation.dispatch(
           CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
         );

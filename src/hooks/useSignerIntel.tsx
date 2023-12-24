@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-
 import { useAppSelector } from 'src/store/hooks';
 import useVault from 'src/hooks/useVault';
 import { getSignerNameFromType, getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
@@ -10,6 +9,7 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 import config from 'src/core/config';
 import useSubscription from './useSubscription';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
+import useSignerMap from './useSignerMap';
 
 const getPrefillForSignerList = (scheme, vaultSigners) => {
   let fills = [];
@@ -59,22 +59,28 @@ const useSignerIntel = ({ scheme }) => {
   const vaultSigners = useAppSelector((state) => state.vault.signers);
   const [signersState, setSignersState] = useState(vaultSigners);
   const { validSigners } = useSubscription();
+  const { signerMap } = useSignerMap();
 
   useEffect(() => {
     const fills = getPrefillForSignerList(scheme, vaultSigners);
     setSignersState(
-      vaultSigners.map((signer) => updateSignerForScheme(signer, scheme.n)).concat(fills)
+      // vaultSigners.map((signer) => updateSignerForScheme(signer, scheme.n)).concat(fills)
+      vaultSigners.concat(fills)
     );
   }, [vaultSigners]);
 
   const amfSigners = [];
   const misMatchedSigners = [];
-  signersState.forEach((signer: VaultSigner) => {
-    if (signer) {
-      if (isSignerAMF(signer)) amfSigners.push(signer.type);
-      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(signer);
+  signersState.forEach((key: VaultSigner) => {
+    if (key) {
+      if (isSignerAMF(signerMap[key.masterFingerprint]))
+        amfSigners.push(signerMap[key.masterFingerprint].type);
+      const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(
+        key,
+        signerMap[key.masterFingerprint]
+      );
       if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {
-        misMatchedSigners.push(signer.masterFingerprint);
+        misMatchedSigners.push(key.masterFingerprint);
       }
     }
   });

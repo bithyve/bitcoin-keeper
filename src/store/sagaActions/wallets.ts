@@ -1,4 +1,4 @@
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { VisibilityType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { SignerException, SignerRestriction } from 'src/services/interfaces';
@@ -314,7 +314,7 @@ export const updateWalletPathAndPurposeDetails = (
   },
 });
 
-export const updateSignerDetails = (signer: VaultSigner, key: string, value: any) => ({
+export const updateSignerDetails = (signer: Signer, key: string, value: any) => ({
   type: UPDATE_SIGNER_DETAILS,
   payload: {
     signer,

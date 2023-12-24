@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 
 import _ from 'lodash';
 import { reduxStorage } from 'src/storage';
@@ -41,7 +41,7 @@ export type VaultState = {
 };
 
 export type SignerUpdatePayload = {
-  signer: VaultSigner;
+  signer: Signer;
   key: string;
   value: any;
 };
@@ -68,42 +68,19 @@ const vaultSlice = createSlice({
   initialState,
   reducers: {
     addSigningDevice: (state, action: PayloadAction<VaultSigner[]>) => {
-      const newSigners = action.payload.filter((signer) => signer && signer.signerId);
+      const newSigners = action.payload.filter((signer) => signer && signer.xfp);
       if (newSigners.length === 0) {
         return state;
       }
       let updatedSigners = [...state.signers];
-      if (newSigners.length === 1) {
-        const newSigner = newSigners[0];
-        const existingSignerIndex = updatedSigners.findIndex(
-          (signer) => signer.masterFingerprint === newSigner.masterFingerprint
-        );
-        if (existingSignerIndex !== -1) {
-          const existingSigner = updatedSigners[existingSignerIndex];
-          const combinedSigner: VaultSigner = {
-            ...newSigner,
-            lastHealthCheck: existingSigner.lastHealthCheck,
-            signerDescription: existingSigner.signerDescription,
-            xpubDetails: { ...existingSigner.xpubDetails, ...newSigner.xpubDetails },
-          };
-
-          updatedSigners[existingSignerIndex] = combinedSigner;
-        } else {
-          updatedSigners.push(newSigner);
-        }
-      } else {
-        updatedSigners.push(...newSigners);
-      }
-      updatedSigners = _.uniqBy(updatedSigners, 'signerId');
+      updatedSigners.push(...newSigners);
+      updatedSigners = _.uniqBy(updatedSigners, 'xfp');
       return { ...state, signers: updatedSigners };
     },
     removeSigningDevice: (state, action: PayloadAction<VaultSigner>) => {
-      const signerToRemove =
-        action.payload && action.payload.masterFingerprint ? action.payload : null;
+      const signerToRemove = action.payload && action.payload.xpub ? action.payload : null;
       if (signerToRemove) {
-        state.signers = state.signers.filter(
-          (signer) => signer.masterFingerprint !== signerToRemove.masterFingerprint
-        );
+        state.signers = state.signers.filter((signer) => signer.xpub !== signerToRemove.xpub);
       }
     },
     clearSigningDevice: (state) => {
@@ -111,13 +88,14 @@ const vaultSlice = createSlice({
     },
     updateSigningDevice: (state, action: PayloadAction<SignerUpdatePayload>) => {
       const { signer, key, value } = action.payload;
-      state.signers = state.signers.map((item) => {
-        if (item && item.signerId === signer.signerId) {
-          item[key] = value;
-          return item;
-        }
-        return item;
-      });
+      signer[key] = value;
+      // state.signers = state.signers.map((item) => {
+      //   if (item && item.signerId === signer.signerId) {
+      //     item[key] = value;
+      //     return item;
+      //   }
+      //   return item;
+      // });
     },
     vaultCreated: (state, action: PayloadAction<VaultCreationPayload>) => {
       const {
