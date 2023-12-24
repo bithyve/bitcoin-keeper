@@ -365,7 +365,7 @@ function EnterSeedScreen({ route }) {
           ) : (
             <SeedWordsView
               title={seed?.enterRecoveryPhrase}
-              subtitle={seed.recoverWallet}
+              subtitle={seed.enterRecoveryPhraseSubTitle}
               onPressHandler={() =>
                 navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
               }
@@ -401,8 +401,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -443,6 +443,7 @@ function EnterSeedScreen({ route }) {
                     setSuggestedWords([]);
                     Keyboard.dismiss();
                   }}
+                  testID={`input_seedWord${getPlaceholder(index)}`}
                 />
               </View>
             )}
@@ -458,6 +459,7 @@ function EnterSeedScreen({ route }) {
               ]}
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
+              testID={'view_suggestionView'}
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
@@ -483,8 +485,8 @@ function EnterSeedScreen({ route }) {
           ) : null}
         </View>
         <View style={styles.bottomContainerView}>
-          <Text style={styles.seedDescText} color="light.GreyText">
-            {seed.seedDescription}
+          <Text style={styles.seedDescText} color="light.GreyText" testID={'text_enterSeedNote'}>
+            {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
@@ -530,7 +532,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);

@@ -123,17 +123,17 @@ function VaultInfo({
       <HStack alignItems="center">
         <Box paddingRight={3}>{isCollaborativeWallet ? <CollaborativeIcon /> : <VaultIcon />}</Box>
         <VStack>
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={16}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={16} testID={'text_vaultName'}>
             {name}
           </Text>
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={12}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={12} testID={'text_vaultDescription'}>
             {description}
           </Text>
         </VStack>
       </HStack>
       <HStack justifyContent="space-between" top={isCollaborativeWallet ? '16' : '0'}>
         <VStack paddingTop="6">
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11} testID={'text_unconfirmed'}>
             {common.unconfirmed}
           </Text>
           <CurrencyInfo
@@ -145,7 +145,7 @@ function VaultInfo({
           />
         </VStack>
         <VStack paddingBottom="16" paddingTop="6">
-          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11}>
+          <Text color={`${colorMode}.white`} style={styles.vaultInfoText} fontSize={11} testID={'text_availableBalance'}>
             {common.availableBalance}
           </Text>
           <CurrencyInfo
@@ -189,7 +189,7 @@ function TransactionList({
     <>
       <VStack style={{ paddingTop: windowHeight * (!!collaborativeWalletId ? 0.03 : 0.1) }}>
         <HStack justifyContent="space-between" alignItems="center">
-          <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28}>
+          <Text color={`${colorMode}.black`} marginLeft={wp(3)} fontSize={16} letterSpacing={1.28} testID={'text_Transaction'}>
             {common.transactions}
           </Text>
           {transactions ? (
@@ -213,6 +213,7 @@ function TransactionList({
                   fontSize={11}
                   bold
                   letterSpacing={0.6}
+                  testID={'text_viewAll'}
                 >
                   {common.viewAll}
                 </Text>
@@ -223,6 +224,7 @@ function TransactionList({
         </HStack>
       </VStack>
       <FlatList
+        testID={'view_TransactionList'}
         refreshControl={<RefreshControl onRefresh={pullDownRefresh} refreshing={pullRefresh} />}
         data={transactions}
         renderItem={renderTransactionElement}

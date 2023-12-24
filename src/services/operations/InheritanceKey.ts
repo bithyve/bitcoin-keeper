@@ -187,6 +187,7 @@ export default class InheritanceKeyServer {
       isDeclined: boolean;
     };
     setupInfo?: {
+      id: string;
       inheritanceXpub: string;
       masterFingerprint: string;
       derivationPath: string;
@@ -259,6 +260,37 @@ export default class InheritanceKeyServer {
     if (!updated) throw new Error('Failed to update cosigners to signer map');
     return {
       updated,
+    };
+  };
+
+  static findIKSSetup = async (
+    ids: string[],
+    thresholdDescriptors: string[]
+  ): Promise<{
+    setupInfo: {
+      id: string;
+      inheritanceXpub: string;
+      masterFingerprint: string;
+      derivationPath: string;
+      configuration: InheritanceConfiguration;
+      policy: InheritancePolicy;
+    };
+  }> => {
+    let res: AxiosResponse;
+    try {
+      res = await RestClient.post(`${SIGNING_SERVER}v3/findIKSSetup`, {
+        HEXA_ID,
+        ids,
+        thresholdDescriptors,
+      });
+    } catch (err) {
+      if (err.response) throw new Error(err.response.data.err);
+      if (err.code) throw new Error(err.code);
+    }
+
+    const { setupInfo } = res.data;
+    return {
+      setupInfo,
     };
   };
 

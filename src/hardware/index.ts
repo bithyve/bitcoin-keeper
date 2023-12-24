@@ -106,7 +106,7 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
       name = 'Jade';
       break;
     case SignerType.KEEPER:
-      name = 'Keeper Signing Device';
+      name = 'Collaborative Signer';
       break;
     case SignerType.KEYSTONE:
       name = 'Keystone';
@@ -275,9 +275,9 @@ export const getDeviceStatus = (
       return allowSingleKey(type, vaultSigners)
         ? { disabled: true, message: 'Key already added to the Vault' }
         : {
-            message: '',
-            disabled: false,
-          };
+          message: '',
+          disabled: false,
+        };
     case SignerType.POLICY_SERVER:
       return {
         message: getDisabled(type, isOnL1, vaultSigners, scheme).message,
@@ -287,9 +287,9 @@ export const getDeviceStatus = (
       return addKeyFlow || scheme.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
-            message: '',
-            disabled: false,
-          };
+          message: '',
+          disabled: false,
+        };
     case SignerType.KEEPER:
     case SignerType.SEED_WORDS:
     case SignerType.JADE:
@@ -319,7 +319,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
       return 'Optional registration';
     }
     case SignerType.KEEPER: {
-      return 'Hot keys on other device';
+      return 'Use Collaborative Signer as signer';
     }
     case SignerType.MOBILE_KEY: {
       return 'Hot keys on this device';

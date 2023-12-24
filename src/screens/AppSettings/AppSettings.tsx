@@ -6,7 +6,7 @@ import { hp, wp } from 'src/constants/responsive';
 import BackupIcon from 'src/assets/images/backup.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
-import CloseIcon from 'src/assets/images/cross.svg'
+import CloseIcon from 'src/assets/images/cross.svg';
 import LinkIcon from 'src/assets/images/link.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -25,7 +25,6 @@ function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
   const { backupMethod } = useAppSelector((state) => state.bhr);
   const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
-
 
   // const dispatch = useAppDispatch();
 
@@ -51,9 +50,6 @@ function AppSettings({ navigation }) {
     }
     return backupWalletStrings[backupHistory[0].title];
   }, [backupHistory, backupMethod]);
-
-
-
 
   function Option({ title, subTitle, onPress, Icon }) {
     return (
@@ -236,7 +232,7 @@ function AppSettings({ navigation }) {
           </Pressable>
         </Box>
       </Box>
-    </ScreenWrapper >
+    </ScreenWrapper>
   );
 }
 const styles = StyleSheet.create({
@@ -260,7 +256,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0.3,
     position: 'absolute',
-    right: wp(10),
+    right: 18,
     zIndex: 999,
   },
   appBackupTitle: {
