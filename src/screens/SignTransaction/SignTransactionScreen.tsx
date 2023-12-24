@@ -248,6 +248,7 @@ function SignTransactionScreen() {
             signingServerOTP,
             serializedPSBT,
             showOTPModal,
+            showToast,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
           dispatch(healthCheckSigner([currentSigner]));

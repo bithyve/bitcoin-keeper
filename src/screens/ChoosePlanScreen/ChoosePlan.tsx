@@ -55,7 +55,6 @@ function ChoosePlan() {
   const [isMonthly, setIsMonthly] = useState(true);
   const { subscription }: KeeperApp = useQuery(RealmSchema.KeeperApp)[0];
   const disptach = useDispatch();
-
   useEffect(() => {
     const purchaseUpdateSubscription = purchaseUpdatedListener(async (purchase) => {
       processPurchase(purchase);
@@ -116,9 +115,8 @@ function ChoosePlan() {
               currency: subscription.currency,
               offerToken: null,
               productId: subscription.productId,
-              trailPeriod: `${
-                subscription.introductoryPriceNumberOfPeriodsIOS
-              } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
+              trailPeriod: `${subscription.introductoryPriceNumberOfPeriodsIOS
+                } ${subscription.introductoryPriceSubscriptionPeriodIOS.toLowerCase()} free`,
             };
             if (subscription.subscriptionPeriodUnitIOS === 'MONTH') {
               data[index].monthlyPlanDetails = planDetails;
@@ -238,7 +236,7 @@ function ChoosePlan() {
           Alert.alert('', response.error, [
             {
               text: 'Cancel',
-              onPress: () => {},
+              onPress: () => { },
               style: 'cancel',
             },
             {
@@ -293,9 +291,8 @@ function ChoosePlan() {
       }
     }
     if (trial) {
-      return `Start your ${trial} FREE trial now! Then ${amount} per ${
-        isMonthly ? 'month' : 'year'
-      }, cancel anytime`;
+      return `Start your ${trial} FREE trial now! Then ${amount} per ${isMonthly ? 'month' : 'year'
+        }, cancel anytime`;
     } else {
       return ` ${amount} per ${isMonthly ? 'month' : 'year'}, cancel anytime`;
     }
@@ -348,9 +345,10 @@ function ChoosePlan() {
       <KeeperHeader
         title={choosePlan.choosePlantitle}
         subtitle={
-          subscription.name === 'Diamond Hands'
-            ? `You are currently a ${subscription.name}`
-            : `You are currently a ${subscription.name}`
+          // subscription.name === 'Diamond Hands'
+          //   ? `You are currently a ${subscription.name}`
+          //   : `You are currently a ${subscription.name}`
+          `The subscription will be \nconfirmed on the ${Platform.OS === 'android' ? 'Play' : 'App'} Store`
         }
         rightComponent={
           <MonthlyYearlySwitch value={isMonthly} onValueChange={() => setIsMonthly(!isMonthly)} />
@@ -358,7 +356,7 @@ function ChoosePlan() {
       />
       <KeeperModal
         visible={requesting}
-        close={() => {}}
+        close={() => { }}
         title={choosePlan.confirming}
         subTitle={choosePlan.pleaseStay}
         modalBackground={`${colorMode}.modalWhiteBackground`}
@@ -367,7 +365,7 @@ function ChoosePlan() {
         DarkCloseIcon={colorMode === 'dark'}
         showCloseIcon={false}
         buttonText={null}
-        buttonCallback={() => {}}
+        buttonCallback={() => { }}
         Content={LoginModalContent}
         subTitleWidth={wp(210)}
       />

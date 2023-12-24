@@ -18,6 +18,7 @@ type Props = {
   learnTextColor?: string;
   rightComponent?: Element;
   contrastScreen?: boolean;
+  marginLeft?: boolean;
 };
 function KeeperHeader({
   title = '',
@@ -25,11 +26,12 @@ function KeeperHeader({
   onPressHandler,
   enableBack = true,
   learnMore = false,
-  learnMorePressed = () => {},
+  learnMorePressed = () => { },
   learnBackgroundColor = 'light.lightAccent',
   learnTextColor = 'light.learnMoreBorder',
   rightComponent = null,
   contrastScreen = false,
+  marginLeft = true
 }: Props) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
@@ -62,7 +64,7 @@ function KeeperHeader({
         </Box>
       )}
       <Box style={styles.headerContainer}>
-        <Box style={{ paddingLeft: '10%' }}>
+        <Box style={{ paddingLeft: marginLeft ? '10%' : 0 }}>
           {title && (
             <Text
               numberOfLines={1}

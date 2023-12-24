@@ -25,6 +25,7 @@ import { SignerType } from 'src/core/wallets/enums';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import Illustration from 'src/assets/images/illustration.svg';
+import Note from 'src/components/Note/Note';
 
 function ExportSeedScreen({ route, navigation }) {
   const { colorMode } = useColorMode();
@@ -107,6 +108,9 @@ function ExportSeedScreen({ route, navigation }) {
           renderItem={renderSeedCard}
           keyExtractor={(item) => item}
         />
+      </Box>
+      <Box m={2}>
+        <Note title={common.note} subtitle={BackupWallet.recoveryPhraseNote} subtitleColor="GreyText" />
       </Box>
       {!next && (
         <Pressable
