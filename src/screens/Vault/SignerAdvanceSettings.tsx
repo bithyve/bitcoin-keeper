@@ -3,7 +3,7 @@ import { Box, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import KeeperHeader from 'src/components/KeeperHeader';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -28,7 +28,7 @@ const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer }: { signer: VaultSigner } = route.params;
+  const { signer }: { signer: Signer } = route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 

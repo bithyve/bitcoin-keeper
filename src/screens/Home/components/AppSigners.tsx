@@ -35,13 +35,12 @@ const AddSignerComponent = ({ navigation }) => {
 const AppSigners = ({ keys, navigation }) => {
   const { colorMode } = useColorMode();
   return (
-    <VStack style={styles.container} backgroundColor={`${colorMode}.seashellWhite`}>
+    <VStack style={styles.container}>
       <Box style={styles.infoContainer}>
-        <Text style={styles.keyInfo} color={`${colorMode}.primaryText`}>
-          <Text color={`${colorMode}.primaryText`} bold>
-            {`${keys.length > 0 && keys.length < 10 ? '0' : ''}${keys.length} `}
-          </Text>
-          {keys.length ? 'Keys' : 'Key'}
+        <Text style={styles.keyInfo} color={`${colorMode}.primaryText`} bold>
+          {`${keys.length > 0 && keys.length < 10 ? '0' : ''}${keys.length} ${
+            keys.length ? 'Keys' : 'Key'
+          }`}
         </Text>
       </Box>
       <FlatList
@@ -92,8 +91,8 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   keyInfo: {
-    fontSize: 22,
-    letterSpacing: 0.22,
+    fontSize: 16,
+    letterSpacing: 1.28,
   },
   signerInfo: {
     fontSize: 11,

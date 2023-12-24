@@ -111,7 +111,7 @@ function ConnectChannel() {
           decrypted,
           isMultisig
         );
-        const { signer: bitbox02 } = generateSignerFromMetaData({
+        const { signer: bitbox02, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -127,7 +127,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(bitbox02));
+          dispatch(addSigningDevice(bitbox02, key));
           navigation.dispatch(
             CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
           );
@@ -149,7 +149,7 @@ function ConnectChannel() {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
         const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(decrypted, isMultisig);
-        const { signer: trezor } = generateSignerFromMetaData({
+        const { signer: trezor, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -164,7 +164,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(trezor));
+          dispatch(addSigningDevice(trezor, key));
           navigation.dispatch(
             CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
           );
@@ -188,7 +188,7 @@ function ConnectChannel() {
           decrypted,
           isMultisig
         );
-        const { signer: ledger } = generateSignerFromMetaData({
+        const { signer: ledger, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
           xfp,
@@ -203,7 +203,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(ledger));
+          dispatch(addSigningDevice(ledger, key));
           navigation.dispatch(
             CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
           );

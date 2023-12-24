@@ -15,7 +15,7 @@ import Send from 'src/assets/images/send.svg';
 import SignerIcon from 'src/assets/images/icon_vault_coldcard.svg';
 import Success from 'src/assets/images/Success.svg';
 import TransactionElement from 'src/components/TransactionElement';
-import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, Vault } from 'src/core/wallets/interfaces/vault';
 import VaultIcon from 'src/assets/images/icon_vault_new.svg';
 import CollaborativeIcon from 'src/assets/images/icon_collaborative.svg';
 import { EntityKind, SignerType } from 'src/core/wallets/enums';
@@ -44,6 +44,8 @@ import KeeperFooter from 'src/components/KeeperFooter';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSigners from 'src/hooks/useSigners';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function Footer({
   vault,
@@ -55,7 +57,7 @@ function Footer({
   vault: Vault;
   onPressBuy: Function;
   isCollaborativeWallet: boolean;
-  identifySigner: VaultSigner;
+  identifySigner: Signer;
   setIdentifySignerModal: any;
 }) {
   const navigation = useNavigation();
@@ -248,25 +250,26 @@ function TransactionList({
 
 function SignerList({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
-  const { signers: Signers, isMultiSig } = vault;
+  const { signers: keys, isMultiSig } = vault;
   const navigation = useNavigation();
 
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: `${70 - Signers.length}%` }}
+      style={{ position: 'absolute', top: `${70 - keys.length}%` }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
-      {Signers.map((signer) => {
+      {keys.map((key) => {
+        const { signer } = useSignerFromKey(key);
         const indicate =
-          !signer.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
+          !key?.vaultInfo?.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
 
         return (
           <Box
             style={styles.signerCard}
             marginRight="3"
-            key={signer.signerId}
+            key={key.xfp}
             backgroundColor={`${colorMode}.seashellWhite`}
           >
             <TouchableOpacity
@@ -274,7 +277,7 @@ function SignerList({ vault }: { vault: Vault }) {
                 navigation.dispatch(
                   CommonActions.navigate('SigningDeviceDetails', {
                     SignerIcon: <SignerIcon />,
-                    signerId: signer.signerId,
+                    key: key,
                     vaultId: vault.id,
                   })
                 );
@@ -412,7 +415,8 @@ function VaultDetails({ navigation }) {
   const [pullRefresh, setPullRefresh] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const [vaultCreated, setVaultCreated] = useState(introModal ? false : vaultTransferSuccessful);
-  const inheritanceSigner = vault.signers.filter(
+  const { signers } = useSigners({ vault });
+  const inheritanceSigner = signers.filter(
     (signer) => signer.type === SignerType.INHERITANCEKEY
   )[0];
   const [showBuyRampModal, setShowBuyRampModal] = useState(false);
@@ -499,7 +503,7 @@ function VaultDetails({ navigation }) {
 
   const subtitle = `Vault with a ${vault.scheme.m} of ${vault.scheme.n} setup is created`;
 
-  const identifySigner = vault.signers.find((signer) => signer.type === SignerType.OTHER_SD);
+  const identifySigner = signers.find((signer) => signer.type === SignerType.OTHER_SD);
 
   return (
     <Box

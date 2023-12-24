@@ -3,9 +3,9 @@ import { Box, useColorMode } from 'native-base';
 import React from 'react';
 import DotView from 'src/components/DotView';
 import moment from 'moment';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer } from 'src/core/wallets/interfaces/vault';
 
-function SigningDeviceChecklist({ signer }: { signer: VaultSigner }) {
+function SigningDeviceChecklist({ signer }: { signer: Signer }) {
   const { colorMode } = useColorMode();
   return (
     <Box padding={1}>

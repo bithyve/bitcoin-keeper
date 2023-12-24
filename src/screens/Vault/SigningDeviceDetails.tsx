@@ -45,6 +45,7 @@ import IdentifySignerModal from './components/IdentifySignerModal';
 import KeeperFooter from 'src/components/KeeperFooter';
 import openLink from 'src/utils/OpenLink';
 import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 const getSignerContent = (type: SignerType) => {
   switch (type) {
@@ -197,16 +198,14 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signerId = null } = route.params;
+  const { key = null } = route.params;
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [identifySignerModal, setIdentifySignerModal] = useState(false);
   const { showToast } = useToastMessage();
   const { activeVault } = useVault();
-  const signer: VaultSigner = activeVault.signers.filter(
-    (signer) => signer?.signerId === signerId
-  )[0];
+  const { signer } = useSignerFromKey(key);
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
