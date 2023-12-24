@@ -68,6 +68,16 @@ const getObjectById = (schema: RealmSchema, id: string) => {
 };
 
 /**
+ * generic :: fetches an object corresponding to provided schema and the supplied id
+ * @param  {RealmSchema} schema
+ * @param  {string} id
+ */
+const getObjectByPrimaryId = (schema: RealmSchema, name: string, primaryId: string) => {
+  const objects = realm.get(schema);
+  return objects.filtered(`${name} == '${primaryId}'`)[0];
+};
+
+/**
  * generic :: updates the object, corresponding to provided schema and id, w/ supplied props
  * @param  {RealmSchema} schema
  * @param  {string} id
@@ -76,6 +86,32 @@ const getObjectById = (schema: RealmSchema, id: string) => {
 const updateObjectById = (schema: RealmSchema, id: string, updateProps: any) => {
   try {
     const object = getObjectById(schema, id);
+    for (const [key, value] of Object.entries(updateProps)) {
+      realm.write(() => {
+        object[key] = value;
+      });
+    }
+    return true;
+  } catch (err) {
+    console.error({ err });
+    return false;
+  }
+};
+
+/**
+ * generic :: updates the object, corresponding to provided schema and id, w/ supplied props
+ * @param  {RealmSchema} schema
+ * @param  {string} id
+ * @param  {any} updateProps
+ */
+const updateObjectByPrimaryId = (
+  schema: RealmSchema,
+  name: string,
+  primaryId: string,
+  updateProps: any
+) => {
+  try {
+    const object = getObjectByPrimaryId(schema, name, primaryId);
     for (const [key, value] of Object.entries(updateProps)) {
       realm.write(() => {
         object[key] = value;
@@ -132,6 +168,7 @@ export default {
   getObjectByIndex,
   getObjectById,
   updateObjectById,
+  updateObjectByPrimaryId,
   getCollection,
   getObjectByField,
 };

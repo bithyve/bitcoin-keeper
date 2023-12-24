@@ -1141,9 +1141,15 @@ function* updateSignerDetailsWorker({ payload }) {
     value: any;
   } = payload;
 
-  yield call(dbManager.updateObjectById, RealmSchema.Signer, signer.masterFingerprint, {
-    [key]: value,
-  });
+  yield call(
+    dbManager.updateObjectByPrimaryId,
+    RealmSchema.Signer,
+    'masterFingerprint',
+    signer.masterFingerprint,
+    {
+      [key]: value,
+    }
+  );
 }
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
