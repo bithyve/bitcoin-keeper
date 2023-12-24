@@ -296,7 +296,7 @@ function SetupCollaborativeWallet() {
     goBack = true
   ) => {
     try {
-      if (!coSigner.xpubDetails && !coSigner.xpubDetails[XpubTypes.P2WSH].xpub) {
+      if (!coSigner.xpubDetails || !coSigner.xpubDetails[XpubTypes.P2WSH].xpub) {
         coSigner = JSON.parse(coSigner as any);
         if (!coSigner.xpubDetails && !coSigner.xpubDetails[XpubTypes.P2WSH].xpub) {
           showToast('Please scan a vaild QR', <ToastErrorIcon />, 4000);
