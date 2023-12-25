@@ -24,7 +24,7 @@ const AddSignerComponent = ({ navigation }) => {
         >
           <AddIcon />
         </Box>
-        <Text color={`${colorMode}.primaryText`} bold style={styles.signerInfo}>
+        <Text color={`${colorMode}.primaryText`} bold style={styles.signerInfo} numberOfLines={2}>
           {`Add key`}
         </Text>
       </VStack>
@@ -50,7 +50,7 @@ const AppSigners = ({ keys, navigation }) => {
         ListFooterComponent={() => <AddSignerComponent navigation={navigation} />}
         renderItem={({ item: signer }) => {
           return (
-            <VStack>
+            <VStack alignItems={'center'}>
               <Box
                 backgroundColor={`${colorMode}.pantoneGreen`}
                 style={styles.vaultSigner}
@@ -98,5 +98,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     letterSpacing: 1,
     textAlign: 'center',
+    width: '90%',
   },
 });

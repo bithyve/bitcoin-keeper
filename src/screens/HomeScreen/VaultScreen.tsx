@@ -17,16 +17,11 @@ import Fonts from 'src/constants/Fonts';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
 import { AppSigners } from '../Home/components/AppSigners';
-import { Signer } from 'src/core/wallets/interfaces/vault';
-import { useQuery } from '@realm/react';
-import { RealmSchema } from 'src/storage/realm/enum';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 
 function VaultScreen() {
   const { activeVault } = useVault();
   const { colorMode } = useColorMode();
-  const { signers: vaultSigners } = useSigners({ vault: activeVault });
-  const signers: Signer[] = useQuery(RealmSchema.Signer).map(getJSONFromRealmObject);
+  const { vaultSigners, signers } = useSigners(activeVault ? activeVault.id : '');
   const unconfirmedBalance = idx(activeVault, (_) => _.specs.balances.unconfirmed) || 0;
   const confirmedBalance = idx(activeVault, (_) => _.specs.balances.confirmed) || 0;
   const scheme = idx(activeVault, (_) => _.scheme) || { m: 0, n: 0 };
