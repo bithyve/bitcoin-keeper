@@ -37,7 +37,7 @@ function SetupOtherSDScreen({ route }) {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const { showToast } = useToastMessage();
-  const { mode, signer: hcSigner, isMultisig } = route.params;
+  const { mode, signer: hcSigner, isMultisig, addSignerFlow = false } = route.params;
 
   const validateAndAddSigner = async () => {
     try {
@@ -120,10 +120,11 @@ function SetupOtherSDScreen({ route }) {
             storageType: SignerStorage.COLD,
           });
           if (signer) {
-            dispatch(addSigningDevice(signer, key));
-            navigation.dispatch(
-              CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-            );
+            dispatch(addSigningDevice(signer, key, addSignerFlow));
+            const navigationState = addSignerFlow
+              ? { name: 'Home' }
+              : { name: 'AddSigningDevice', merge: true, params: {} };
+            navigation.dispatch(CommonActions.navigate(navigationState));
             showToast(`signer added successfully`, <TickIcon />);
             resetQR();
           }
@@ -167,10 +168,11 @@ function SetupOtherSDScreen({ route }) {
           storageType: SignerStorage.COLD,
           xpubDetails,
         });
-        dispatch(addSigningDevice(coldcard, key));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        dispatch(addSigningDevice(coldcard, key, addSignerFlow));
+        const navigationState = addSignerFlow
+          ? { name: 'Home' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
         return;
       } catch (e) {
         error = e;
@@ -188,14 +190,11 @@ function SetupOtherSDScreen({ route }) {
               storageType: SignerStorage.COLD,
               isMultisig,
             });
-            dispatch(addSigningDevice(passport, key));
-            navigation.dispatch(
-              CommonActions.navigate({
-                name: 'AddSigningDevice',
-                merge: true,
-                params: {},
-              })
-            );
+            dispatch(addSigningDevice(passport, key, addSignerFlow));
+            const navigationState = addSignerFlow
+              ? { name: 'Home' }
+              : { name: 'AddSigningDevice', merge: true, params: {} };
+            navigation.dispatch(CommonActions.navigate(navigationState));
             return;
           }
         } catch (e) {
@@ -215,14 +214,11 @@ function SetupOtherSDScreen({ route }) {
                 storageType: SignerStorage.COLD,
                 isMultisig,
               });
-              dispatch(addSigningDevice(keystone, key));
-              navigation.dispatch(
-                CommonActions.navigate({
-                  name: 'AddSigningDevice',
-                  merge: true,
-                  params: {},
-                })
-              );
+              dispatch(addSigningDevice(keystone, key, addSignerFlow));
+              const navigationState = addSignerFlow
+                ? { name: 'Home' }
+                : { name: 'AddSigningDevice', merge: true, params: {} };
+              navigation.dispatch(CommonActions.navigate(navigationState));
               return;
             }
           } catch (e) {

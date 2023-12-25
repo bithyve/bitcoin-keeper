@@ -151,9 +151,10 @@ const vaultSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(ADD_SIGINING_DEVICE, (state) => {
-      state.isGeneratingNewVault = true;
-    });
+    // might not be the case with segregated signer addition flow
+    // builder.addCase(ADD_SIGINING_DEVICE, (state) => {
+    //   state.isGeneratingNewVault = true;
+    // });
     builder.addCase(ADD_NEW_VAULT, (state) => {
       state.isGeneratingNewVault = false;
     });

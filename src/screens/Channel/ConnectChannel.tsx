@@ -83,6 +83,7 @@ function ConnectChannel() {
     signer,
     mode,
     isMultisig,
+    addSignerFlow = false,
   } = route.params as any;
 
   const [channel] = useState(io(config.CHANNEL_URL));
@@ -127,10 +128,11 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(bitbox02, key));
-          navigation.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice(bitbox02, key, addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
@@ -164,10 +166,11 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(trezor, key));
-          navigation.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice(trezor, key, addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
         // const exsists = await checkSigningDevice(trezor.signerId);
@@ -203,10 +206,11 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(ledger, key));
-          navigation.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice(ledger, key, addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          navigation.dispatch(CommonActions.navigate(navigationState));
         }
 
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);
@@ -290,7 +294,7 @@ function ConnectChannel() {
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
-      <MockWrapper signerType={signerType}>
+      <MockWrapper signerType={signerType} addSignerFlow={addSignerFlow}>
         <KeeperHeader title={title} subtitle={subtitle} />
         <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}>
           <ScanAndInstruct onBarCodeRead={onBarCodeRead} mode={mode} />

@@ -39,7 +39,7 @@ type HWProps = {
 
 function SigningDeviceList() {
   const route = useRoute();
-  const { scheme, addKeyFlow = false }: { scheme: VaultScheme; addKeyFlow: boolean } =
+  const { scheme, addSignerFlow = false }: { scheme: VaultScheme; addSignerFlow: boolean } =
     route.params as any;
   const { colorMode } = useColorMode();
   const { translations } = useContext(LocalizationContext);
@@ -51,7 +51,8 @@ function SigningDeviceList() {
   const { primaryMnemonic }: KeeperApp = useQuery(RealmSchema.KeeperApp).map(
     getJSONFromRealmObject
   )[0];
-  const isMultisig = addKeyFlow ? true : scheme.n !== 1;
+  const isMultisig = addSignerFlow ? true : scheme.n !== 1;
+  console.log({ addSignerFlow });
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
@@ -97,7 +98,7 @@ function SigningDeviceList() {
     SignerType.KEEPER,
   ];
 
-  if (!addKeyFlow) {
+  if (!addSignerFlow) {
     sortedSigners.push(SignerType.POLICY_SERVER);
   }
 
@@ -146,6 +147,7 @@ function SigningDeviceList() {
           mode={InteracationMode.SIGNING}
           isMultisig={isMultisig}
           primaryMnemonic={primaryMnemonic}
+          addSignerFlow={addSignerFlow}
         />
       </React.Fragment>
     );
@@ -174,7 +176,7 @@ function SigningDeviceList() {
                   vaultSigners,
                   isOnL1,
                   scheme,
-                  addKeyFlow
+                  addSignerFlow
                 );
                 let message = connectivityStatus;
                 if (!connectivityStatus) {

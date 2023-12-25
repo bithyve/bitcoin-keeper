@@ -13,7 +13,7 @@ const AddSignerComponent = ({ navigation }) => {
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addKeyFlow: true }));
+        navigation.dispatch(CommonActions.navigate('SigningDeviceList', { addSignerFlow: true }));
       }}
     >
       <VStack>
@@ -45,9 +45,10 @@ const AppSigners = ({ keys, navigation }) => {
       </Box>
       <FlatList
         data={keys}
-        keyExtractor={(item) => item.signerId}
+        keyExtractor={(item) => item.masterFingerprint}
         horizontal
         ListFooterComponent={() => <AddSignerComponent navigation={navigation} />}
+        showsHorizontalScrollIndicator={false}
         renderItem={({ item: signer }) => {
           return (
             <VStack alignItems={'center'}>

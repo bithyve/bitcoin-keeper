@@ -262,7 +262,7 @@ export const getDeviceStatus = (
   vaultSigners,
   isOnL1,
   scheme: VaultScheme,
-  addKeyFlow: boolean = false
+  addSignerFlow: boolean = false
 ) => {
   switch (type) {
     case SignerType.COLDCARD:
@@ -275,21 +275,29 @@ export const getDeviceStatus = (
       return allowSingleKey(type, vaultSigners)
         ? { disabled: true, message: 'Key already added to the Vault' }
         : {
-          message: '',
-          disabled: false,
-        };
+            message: '',
+            disabled: false,
+          };
     case SignerType.POLICY_SERVER:
+      if (addSignerFlow) {
+        return {
+          message: `Please add ${getSignerNameFromType(
+            SignerType.POLICY_SERVER
+          )} from the vault creation flow`,
+          disabled: true,
+        };
+      }
       return {
         message: getDisabled(type, isOnL1, vaultSigners, scheme).message,
         disabled: getDisabled(type, isOnL1, vaultSigners, scheme).disabled,
       };
     case SignerType.TREZOR:
-      return addKeyFlow || scheme.n > 1
+      return addSignerFlow || scheme?.n > 1
         ? { disabled: true, message: 'Multisig with trezor is coming soon!' }
         : {
-          message: '',
-          disabled: false,
-        };
+            message: '',
+            disabled: false,
+          };
     case SignerType.KEEPER:
     case SignerType.SEED_WORDS:
     case SignerType.JADE:

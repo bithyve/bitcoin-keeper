@@ -33,7 +33,6 @@ import useAsync from 'src/hooks/useAsync';
 import NfcManager from 'react-native-nfc-manager';
 import DeviceInfo from 'react-native-device-info';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
@@ -44,7 +43,7 @@ function SetupTapsigner({ route }) {
   const navigation = useNavigation();
   const card = React.useRef(new CKTapCard()).current;
   const { withModal, nfcVisible, closeNfc } = useTapsignerModal(card);
-  const { mode, signer, isMultisig } = route.params;
+  const { mode, signer, isMultisig, addSignerFlow = false } = route.params;
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
   const onPressHandler = (digit) => {
     let temp = cvc;
@@ -122,10 +121,11 @@ function SetupTapsigner({ route }) {
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else {
-        dispatch(addSigningDevice(tapsigner, vaultKey));
-        navigation.dispatch(
-          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-        );
+        dispatch(addSigningDevice(tapsigner, vaultKey, addSignerFlow));
+        const navigationState = addSignerFlow
+          ? { name: 'Home' }
+          : { name: 'AddSigningDevice', merge: true, params: {} };
+        navigation.dispatch(CommonActions.navigate(navigationState));
       }
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
       if (!isSignerAMF(tapsigner)) {
@@ -187,7 +187,7 @@ function SetupTapsigner({ route }) {
         title={isHealthcheck ? 'Verify TAPSIGNER' : 'Setting up TAPSIGNER'}
         subtitle="Enter the 6-32 digit pin (default one is printed on the back)"
       />
-      <MockWrapper signerType={SignerType.TAPSIGNER}>
+      <MockWrapper signerType={SignerType.TAPSIGNER} addSignerFlow={addSignerFlow}>
         <ScrollView>
           <Box style={styles.input} backgroundColor={`${colorMode}.seashellWhite`}>
             <TextInput

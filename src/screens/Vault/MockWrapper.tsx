@@ -23,12 +23,14 @@ function MockWrapper({
   enable,
   isRecovery,
   navigation,
+  addSignerFlow = false,
 }: {
   children: any;
   signerType: SignerType;
   enable?: boolean;
   isRecovery?: boolean;
   navigation?: NavigationProp<any>;
+  addSignerFlow?: boolean;
 }) {
   const dispatch = useDispatch();
   const nav = navigation ?? useNavigation();
@@ -39,10 +41,11 @@ function MockWrapper({
       if (data.signer && data.key) {
         const { signer, key } = data;
         if (!isRecovery) {
-          dispatch(addSigningDevice(signer, key));
-          nav.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
+          dispatch(addSigningDevice(signer, key, addSignerFlow));
+          const navigationState = addSignerFlow
+            ? { name: 'Home' }
+            : { name: 'AddSigningDevice', merge: true, params: {} };
+          nav.dispatch(CommonActions.navigate(navigationState));
         }
         if (isRecovery) {
           dispatch(setSigningDevices(signer));

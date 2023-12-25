@@ -583,12 +583,14 @@ export function* addNewVaultWorker({
 export const addNewVaultWatcher = createWatcher(addNewVaultWorker, ADD_NEW_VAULT);
 
 function* addSigningDeviceWorker({
-  payload: { signer, key },
+  payload: { signer, key, addSignerFlow },
 }: {
-  payload: { signer: Signer; key: VaultSigner };
+  payload: { signer: Signer; key: VaultSigner; addSignerFlow: boolean };
 }) {
   yield call(dbManager.createObject, RealmSchema.Signer, signer, Realm.UpdateMode.Modified);
-  yield put(addSigningDevice([key]));
+  if (!addSignerFlow) {
+    yield put(addSigningDevice([key]));
+  }
 }
 
 export const addSigningDeviceWatcher = createWatcher(addSigningDeviceWorker, ADD_SIGINING_DEVICE);

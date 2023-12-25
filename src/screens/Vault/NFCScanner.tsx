@@ -28,13 +28,14 @@ const NFCScanner = ({ route }) => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
-  const { isMultisig }: { isMultisig: boolean } = route.params;
+  const { isMultisig, addSignerFlow = false }: { isMultisig: boolean; addSignerFlow?: boolean } =
+    route.params;
 
   const addColdCard = async () => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
       const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
-      const { signer: coldcard } = generateSignerFromMetaData({
+      const { signer, key } = generateSignerFromMetaData({
         xpub,
         derivationPath,
         xfp,
@@ -44,11 +45,12 @@ const NFCScanner = ({ route }) => {
         xpubDetails,
       });
 
-      dispatch(addSigningDevice(coldcard));
-      navigation.dispatch(
-        CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-      );
-      showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
+      dispatch(addSigningDevice(signer, key, addSignerFlow));
+      const navigationState = addSignerFlow
+        ? { name: 'Home' }
+        : { name: 'AddSigningDevice', merge: true, params: {} };
+      navigation.dispatch(CommonActions.navigate(navigationState));
+      showToast(`${signer.signerName} added successfully`, <TickIcon />);
       // const exists = await checkSigningDevice(coldcard.signerId);
       // if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
     } catch (error) {
