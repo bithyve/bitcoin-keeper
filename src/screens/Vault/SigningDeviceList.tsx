@@ -52,7 +52,6 @@ function SigningDeviceList() {
     getJSONFromRealmObject
   )[0];
   const isMultisig = addSignerFlow ? true : scheme.n !== 1;
-  console.log({ addSignerFlow });
 
   const [isNfcSupported, setNfcSupport] = useState(true);
   const [signersLoaded, setSignersLoaded] = useState(false);
