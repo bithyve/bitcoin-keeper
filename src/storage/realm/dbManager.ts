@@ -38,9 +38,13 @@ const createObject = (schema: RealmSchema, object: any, updateMode = Realm.Updat
  * @param  {RealmSchema} schema
  * @param  {any[]} objects
  */
-const createObjectBulk = (schema: RealmSchema, objects: any[]) => {
+const createObjectBulk = (
+  schema: RealmSchema,
+  objects: any[],
+  updateMode = Realm.UpdateMode.All
+) => {
   try {
-    const hasCreated = realm.createBulk(schema, objects);
+    const hasCreated = realm.createBulk(schema, objects, updateMode);
     return hasCreated;
   } catch (err) {
     console.log(err);

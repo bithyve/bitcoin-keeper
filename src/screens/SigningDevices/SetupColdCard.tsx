@@ -94,7 +94,7 @@ function SetupColdCard({ route }) {
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else {
-        dispatch(addSigningDevice(coldcard, key, addSignerFlow));
+        dispatch(addSigningDevice([coldcard], [key], addSignerFlow));
         const navigationState = addSignerFlow
           ? { name: 'Home' }
           : { name: 'AddSigningDevice', merge: true, params: {} };

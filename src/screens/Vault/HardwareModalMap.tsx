@@ -518,7 +518,7 @@ function PasswordEnter({
       const currentPinHash = hash512(password);
       if (currentPinHash === pinHash) {
         const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-        dispatch(addSigningDevice(signer, key, addSignerFlow));
+        dispatch(addSigningDevice([signer], [key], addSignerFlow));
         const navigationState = addSignerFlow
           ? { name: 'Home' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -779,7 +779,7 @@ function HardwareModalMap({
             isHealthcheck,
             onSuccess: (mnemonic) => {
               const { signer, key } = setupSeedWordsBasedKey(mnemonic, isMultisig);
-              dispatch(addSigningDevice(signer, key, addSignerFlow));
+              dispatch(addSigningDevice([signer], [key], addSignerFlow));
               const navigationState = addSignerFlow
                 ? { name: 'Home' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -833,7 +833,7 @@ function HardwareModalMap({
         dispatch(setSigningDevices(hw.signer));
         navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
       } else {
-        dispatch(addSigningDevice(hw.signer, hw.key, addSignerFlow));
+        dispatch(addSigningDevice([hw.signer], [hw.key], addSignerFlow));
         const navigationState = addSignerFlow
           ? { name: 'Home' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -1033,7 +1033,7 @@ function HardwareModalMap({
             const res = await SecureStore.verifyBiometricAuth(signature, appId);
             if (res.success) {
               const { signer, key } = await setupMobileKey({ primaryMnemonic, isMultisig });
-              dispatch(addSigningDevice(signer, key, addSignerFlow));
+              dispatch(addSigningDevice([signer], [key], addSignerFlow));
               const navigationState = addSignerFlow
                 ? { name: 'Home' }
                 : { name: 'AddSigningDevice', merge: true, params: {} };

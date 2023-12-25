@@ -45,7 +45,7 @@ const NFCScanner = ({ route }) => {
         xpubDetails,
       });
 
-      dispatch(addSigningDevice(signer, key, addSignerFlow));
+      dispatch(addSigningDevice([signer], [key], addSignerFlow));
       const navigationState = addSignerFlow
         ? { name: 'Home' }
         : { name: 'AddSigningDevice', merge: true, params: {} };

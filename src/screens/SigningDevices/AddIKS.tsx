@@ -86,7 +86,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         isMultisig: true,
       });
       setInProgress(false);
-      dispatch(addSigningDevice(inheritanceKey, key));
+      dispatch(addSigningDevice([inheritanceKey], [key]));
       showToast(`${inheritanceKey.signerName} added successfully`, <TickIcon />);
     } catch (err) {
       console.log({ err });

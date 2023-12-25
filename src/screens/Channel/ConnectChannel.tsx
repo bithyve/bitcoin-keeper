@@ -128,7 +128,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(bitbox02, key, addSignerFlow));
+          dispatch(addSigningDevice([bitbox02], [key], addSignerFlow));
           const navigationState = addSignerFlow
             ? { name: 'Home' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -166,7 +166,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(trezor, key, addSignerFlow));
+          dispatch(addSigningDevice([trezor], [key], addSignerFlow));
           const navigationState = addSignerFlow
             ? { name: 'Home' }
             : { name: 'AddSigningDevice', merge: true, params: {} };
@@ -206,7 +206,7 @@ function ConnectChannel() {
             CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
           );
         } else {
-          dispatch(addSigningDevice(ledger, key, addSignerFlow));
+          dispatch(addSigningDevice([ledger], [key], addSignerFlow));
           const navigationState = addSignerFlow
             ? { name: 'Home' }
             : { name: 'AddSigningDevice', merge: true, params: {} };

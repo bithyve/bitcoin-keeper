@@ -41,7 +41,7 @@ function MockWrapper({
       if (data.signer && data.key) {
         const { signer, key } = data;
         if (!isRecovery) {
-          dispatch(addSigningDevice(signer, key, addSignerFlow));
+          dispatch(addSigningDevice([signer], [key], addSignerFlow));
           const navigationState = addSignerFlow
             ? { name: 'Home' }
             : { name: 'AddSigningDevice', merge: true, params: {} };

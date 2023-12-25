@@ -121,7 +121,7 @@ function SetupTapsigner({ route }) {
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
       } else {
-        dispatch(addSigningDevice(tapsigner, vaultKey, addSignerFlow));
+        dispatch(addSigningDevice([tapsigner], [vaultKey], addSignerFlow));
         const navigationState = addSignerFlow
           ? { name: 'Home' }
           : { name: 'AddSigningDevice', merge: true, params: {} };
