@@ -69,7 +69,7 @@ import Instruction from 'src/components/Instruction';
 const RNBiometrics = new ReactNativeBiometrics();
 
 export const enum InteracationMode {
-  SIGNING = 'SIGNING',
+  ADDITION = 'ADDITION',
   HEALTH_CHECK = 'HEALTH_CHECK',
   RECOVERY = 'RECOVERY',
 }
@@ -623,7 +623,7 @@ function HardwareModalMap({
   isMultisig,
   signer,
   skipHealthCheckCallBack,
-  mode,
+  mode = InteracationMode.ADDITION,
   primaryMnemonic,
   vaultShellId,
   addSignerFlow = false,
@@ -633,7 +633,7 @@ function HardwareModalMap({
   close: any;
   signer?: Signer;
   skipHealthCheckCallBack?: any;
-  mode: InteracationMode;
+  mode?: InteracationMode;
   isMultisig: boolean;
   primaryMnemonic?: string;
   vaultShellId?: string;
@@ -767,7 +767,7 @@ function HardwareModalMap({
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.SIGNING) {
+    } else if (mode === InteracationMode.ADDITION) {
       close();
       const mnemonic = bip39.generateMnemonic();
       navigation.dispatch(
@@ -1001,7 +1001,7 @@ function HardwareModalMap({
       const navigationState = getnavigationState(SignerType.MOBILE_KEY);
       navigation.dispatch(CommonActions.reset(navigationState));
       close();
-    } else if (mode === InteracationMode.SIGNING) {
+    } else if (mode === InteracationMode.ADDITION) {
       await biometricAuth(isMultiSig);
     } else if (mode === InteracationMode.HEALTH_CHECK) {
       navigation.dispatch(
@@ -1143,7 +1143,7 @@ function HardwareModalMap({
         secondaryCallback={isHealthcheck ? skipHealthCheckCallBack : null}
       />
       <KeeperModal
-        visible={passwordModal && mode === InteracationMode.SIGNING}
+        visible={passwordModal && mode === InteracationMode.ADDITION}
         close={() => {
           setPasswordModal(false);
         }}

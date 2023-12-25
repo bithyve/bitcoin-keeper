@@ -57,7 +57,7 @@ function SetupOtherSDScreen({ route }) {
         navigation.dispatch(
           CommonActions.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' })
         );
-      } else if (mode === InteracationMode.SIGNING) {
+      } else if (mode === InteracationMode.ADDITION) {
         dispatch(addSigningDevice(signer));
         navigation.dispatch(
           CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })

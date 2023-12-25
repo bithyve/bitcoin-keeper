@@ -143,7 +143,7 @@ function SigningDeviceList() {
           visible={visible}
           close={close}
           type={type}
-          mode={InteracationMode.SIGNING}
+          mode={InteracationMode.ADDITION}
           isMultisig={isMultisig}
           primaryMnemonic={primaryMnemonic}
           addSignerFlow={addSignerFlow}
