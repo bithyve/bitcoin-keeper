@@ -45,7 +45,7 @@ import {
   TransactionType,
   TxPriority,
 } from '../enums';
-import { Vault, VaultScheme, VaultSigner, VaultSpecs } from '../interfaces/vault';
+import { Signer, Vault, VaultSigner, VaultSpecs } from '../interfaces/vault';
 
 import { AddressCache, AddressPubs, Wallet, WalletSpecs } from '../interfaces/wallet';
 import WalletUtilities from './utils';
@@ -1042,10 +1042,11 @@ export default class WalletOperations {
     wallet: Vault,
     inputs: InputUTXOs[],
     PSBT: bitcoinJS.Psbt,
-    signer: VaultSigner,
+    vaultKey: VaultSigner,
     outgoing: number,
     outputs: OutputUTXOs[],
-    change: string
+    change: string,
+    signerMap?: { [key: string]: Signer }
   ):
     | {
         signedPSBT: bitcoinJS.Psbt;
@@ -1056,15 +1057,16 @@ export default class WalletOperations {
         serializedPSBTEnvelop: SerializedPSBTEnvelop;
       } => {
     const signingPayload: SigningPayload[] = [];
+    const signer = signerMap[vaultKey.masterFingerprint];
     const payloadTarget = signer.type;
     let isSigned = false;
-    if (signer.isMock && signer.xpriv) {
+    if (signer.isMock && vaultKey.xpriv) {
       // case: if the signer is mock and has an xpriv attached to it, we'll sign the PSBT right away
       const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
         wallet,
         inputs,
         PSBT.toBase64(),
-        signer.xpriv
+        vaultKey.xpriv
       );
       PSBT = bitcoinJS.Psbt.fromBase64(signedSerializedPSBT, { network: config.NETWORK });
       isSigned = true;
@@ -1083,7 +1085,7 @@ export default class WalletOperations {
             inputs[inputIndex].address,
             wallet
           );
-          publicKey = multisigAddress.signerPubkeyMap.get(signer.xpub);
+          publicKey = multisigAddress.signerPubkeyMap.get(vaultKey.xpub);
           subPath = multisigAddress.subPath;
         } else {
           const singlesigAddress = WalletUtilities.addressToKey(
@@ -1138,7 +1140,7 @@ export default class WalletOperations {
 
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
-      signerId: signer.signerId,
+      signerId: vaultKey.xfp,
       signerType: signer.type,
       serializedPSBT,
       signingPayload,
@@ -1231,7 +1233,8 @@ export default class WalletOperations {
       address: string;
       amount: number;
     }[],
-    customTxPrerequisites?: TransactionPrerequisite
+    customTxPrerequisites?: TransactionPrerequisite,
+    signerMap?: { [key: string]: Signer }
   ): Promise<
     | {
         serializedPSBTEnvelops: SerializedPSBTEnvelop[];
@@ -1253,22 +1256,23 @@ export default class WalletOperations {
 
     if (wallet.entityKind === EntityKind.VAULT) {
       // case: vault(single/multi-sig)
-      const { signers } = wallet as Vault;
+      const { signers: vaultKeys } = wallet as Vault;
       const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = [];
       let outgoing = 0;
       recipients.forEach((recipient) => {
         outgoing += recipient.amount;
       });
 
-      for (const signer of signers) {
+      for (const vaultKey of vaultKeys) {
         const { serializedPSBTEnvelop } = WalletOperations.signVaultTransaction(
           wallet as Vault,
           inputs,
           PSBT,
-          signer,
+          vaultKey,
           outgoing,
           outputs,
-          change
+          change,
+          signerMap
         );
         serializedPSBTEnvelops.push(serializedPSBTEnvelop);
       }
