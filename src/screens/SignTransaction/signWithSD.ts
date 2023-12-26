@@ -76,7 +76,7 @@ export const signTransactionWithMobileKey = async ({
   setPasswordModal(false);
   const inputs = idx(signingPayload, (_) => _[0].inputs);
   if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-  const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+  const [signer] = defaultVault.signers.filter((signer) => signer.xfp === signerId);
   const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
     defaultVault,
     inputs,
@@ -150,7 +150,7 @@ export const signTransactionWithSeedWords = async ({
   try {
     const inputs = idx(signingPayload, (_) => _[0].inputs);
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-    const [signer] = defaultVault.signers.filter((signer) => signer.signerId === signerId);
+    const [signer] = defaultVault.signers.filter((signer) => signer.xfp === signerId);
     const networkType = config.NETWORK_TYPE;
     // we need this to generate xpriv that's not stored
     const { xpub, xpriv } = generateSeedWordsKey(

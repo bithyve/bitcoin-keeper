@@ -67,7 +67,7 @@ function SetupOtherSDScreen({ route }) {
         // if (exsists)
         //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } else if (mode === InteracationMode.HEALTH_CHECK) {
-        if (signer.xpub === hcSigner.xpub) {
+        if (key.xpub === hcSigner.xpub) {
           dispatch(healthCheckSigner([signer]));
           navigation.dispatch(CommonActions.goBack());
           showToast(`Other SD verified successfully`, <TickIcon />);

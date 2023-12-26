@@ -1000,7 +1000,7 @@ export function* updateSignerPolicyWorker({
   } = payload;
   const { updated } = yield call(
     SigningServer.updatePolicy,
-    signer.signerId,
+    signer.xfp,
     verificationToken,
     updates
   );
@@ -1008,12 +1008,16 @@ export function* updateSignerPolicyWorker({
     Alert.alert('Failed to update signer policy, try again.');
     throw new Error('Failed to update the policy');
   }
+  const signerMap = {};
+  dbManager
+    .getCollection(RealmSchema.Signer)
+    .forEach((signer) => (signerMap[signer.masterFingerprint as string] = signer));
 
   const { signers } = activeVault;
   for (const current of signers) {
-    if (current.signerId === signer.signerId) {
-      current.signerPolicy = {
-        ...current.signerPolicy,
+    if (current.xfp === signer.xfp) {
+      signerMap[current.masterFingerprint].signerPolicy = {
+        ...signerMap[current.masterFingerprint].signerPolicy,
         restrictions: updates.restrictions,
         exceptions: updates.exceptions,
       };

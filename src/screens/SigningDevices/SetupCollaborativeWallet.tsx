@@ -3,7 +3,7 @@ import Text from 'src/components/KeeperText';
 import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
@@ -35,27 +35,31 @@ import DescriptionModal from '../Vault/components/EditDescriptionModal';
 import { useQuery } from '@realm/react';
 import { globalStyles } from 'src/constants/globalStyles';
 import FloatingCTA from 'src/components/FloatingCTA';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 const { width } = Dimensions.get('screen');
 
 function SignerItem({
-  signer,
+  vaultKey,
   index,
   onQRScan,
   removeSigner,
   updateSigner,
   coSignerFingerprint,
+  signerMap,
 }: {
-  signer: VaultSigner | undefined;
+  vaultKey: VaultSigner | undefined;
   index: number;
   onQRScan: any;
   removeSigner: any;
   updateSigner: any;
   coSignerFingerprint: string;
+  signerMap: { [key: string]: Signer };
 }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
+  const signer = signerMap[vaultKey.masterFingerprint];
 
   const navigateToAddQrBasedSigner = () => {
     navigation.dispatch(
@@ -250,6 +254,7 @@ function SetupCollaborativeWallet() {
   const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
   const { showToast } = useToastMessage();
   const { collaborativeWallet } = useCollaborativeWallet(walletId);
+  const { signerMap } = useSignerMap();
 
   const removeSigner = (index: number) => {
     const newSigners = coSigners.filter((_, i) => i !== index || index === 0);
@@ -258,7 +263,7 @@ function SetupCollaborativeWallet() {
 
   const updateSigner = ({ signer, key, value }) => {
     const newSigners = coSigners.map((item) => {
-      if (item && item.signerId === signer.signerId) {
+      if (item && item.xfp === signer.xfp) {
         return { ...item, [key]: value };
       }
       return item;
@@ -309,7 +314,7 @@ function SetupCollaborativeWallet() {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
         return;
       }
-      const { signer: ksd } = generateSignerFromMetaData({
+      const { key } = generateSignerFromMetaData({
         xpub: xpubDetails[XpubTypes.P2WSH].xpub,
         derivationPath: xpubDetails[XpubTypes.P2WSH].derivationPath,
         xfp: mfp,
@@ -322,7 +327,7 @@ function SetupCollaborativeWallet() {
       const newSigners = coSigners.map((item) => {
         if (!addedSigner && !item) {
           addedSigner = true;
-          return ksd;
+          return key;
         }
         return item;
       });
@@ -369,12 +374,13 @@ function SetupCollaborativeWallet() {
 
   const renderSigner = ({ item, index }) => (
     <SignerItem
-      signer={item}
+      vaultKey={item}
       index={index}
       onQRScan={pushSigner}
       updateSigner={updateSigner}
       removeSigner={removeSigner}
       coSignerFingerprint={coSigner.id}
+      signerMap={signerMap}
     />
   );
 

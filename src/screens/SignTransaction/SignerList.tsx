@@ -24,7 +24,7 @@ function SignerList({
   signerMap: { [key: string]: Signer };
 }) {
   const hasSignerSigned = !!envelops.filter(
-    (psbt) => psbt.signerId === vaultKey.xfp && psbt.isSigned
+    (envelop) => envelop.signerId === vaultKey.xfp && envelop.isSigned
   ).length;
   const signer = signerMap[vaultKey.masterFingerprint];
   return (

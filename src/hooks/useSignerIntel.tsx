@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
+import { SignerType } from 'src/core/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
 import useVault from 'src/hooks/useVault';
 import { getSignerNameFromType, getSignerSigTypeInfo, isSignerAMF } from 'src/hardware';
@@ -26,8 +26,8 @@ const areSignersSame = ({ activeVault, signersState }) => {
   if (!activeVault) {
     return false;
   }
-  const currentSignerIds = signersState.map((signer) => (signer ? signer.signerId : ''));
-  const activeSignerIds = activeVault.signers.map((signer) => signer.signerId);
+  const currentSignerIds = signersState.map((signer) => (signer ? signer.xfp : ''));
+  const activeSignerIds = activeVault.signers.map((signer) => signer.xfp);
   return currentSignerIds.sort().join() === activeSignerIds.sort().join();
 };
 

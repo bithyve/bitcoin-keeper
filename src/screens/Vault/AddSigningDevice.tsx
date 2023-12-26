@@ -274,7 +274,7 @@ function AddSigningDevice() {
         showsVerticalScrollIndicator={false}
         extraData={vaultSigners}
         data={signersState}
-        keyExtractor={(item, index) => item?.signerId ?? index}
+        keyExtractor={(item, index) => item?.xfp ?? index}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),

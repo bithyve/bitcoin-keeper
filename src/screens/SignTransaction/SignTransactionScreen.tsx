@@ -2,7 +2,7 @@ import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { SignerType, TxPriority } from 'src/core/wallets/enums';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
@@ -269,19 +269,13 @@ function SignTransactionScreen() {
     [activeSignerId, serializedPSBTEnvelops]
   );
 
-  const callbackForSigners = ({
-    type,
-    signerId,
-    signerPolicy,
-    inheritanceKeyInfo,
-    masterFingerprint,
-  }: VaultSigner) => {
-    setActiveSignerId(signerId);
+  const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
+    setActiveSignerId(vaultKey.xfp);
     if (areSignaturesSufficient()) {
       showToast('We already have enough signatures, you can now broadcast.');
       return;
     }
-    switch (type) {
+    switch (signer.type) {
       case SignerType.TAPSIGNER:
         setTapsignerModal(true);
         break;
@@ -295,17 +289,17 @@ function SignTransactionScreen() {
         setPasswordModal(true);
         break;
       case SignerType.POLICY_SERVER:
-        if (signerPolicy) {
+        if (signer.signerPolicy) {
           const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-            (envelop) => envelop.signerId === signerId
+            (envelop) => envelop.signerId === vaultKey.xfp
           )[0];
           const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
           if (
-            !signerPolicy.exceptions.none &&
-            outgoing <= signerPolicy.exceptions.transactionAmount
+            !signer.signerPolicy.exceptions.none &&
+            outgoing <= signer.signerPolicy.exceptions.transactionAmount
           ) {
             showToast('Auto-signing, send amount smaller than max no-check amount');
-            signTransaction({ signerId }); // case: OTP not required
+            signTransaction({ signerId: vaultKey.xfp }); // case: OTP not required
           } else showOTPModal(true);
         } else showOTPModal(true);
         break;
@@ -314,7 +308,7 @@ function SignTransactionScreen() {
           CommonActions.navigate({
             name: 'InputSeedWordSigner',
             params: {
-              signerId,
+              signerId: vaultKey.xfp,
               onSuccess: signTransaction,
             },
           })
@@ -333,8 +327,8 @@ function SignTransactionScreen() {
         setJadeModal(true);
         break;
       case SignerType.KEEPER:
-        if (masterFingerprint === collaborativeWalletId) {
-          signTransaction({ signerId });
+        if (vaultKey.masterFingerprint === collaborativeWalletId) {
+          signTransaction({ signerId: vaultKey.xfp });
           return;
         }
         setKeeperModal(true);
@@ -360,7 +354,7 @@ function SignTransactionScreen() {
         showToast('Signing via Inheritance Key is not available', <ToastErrorIcon />);
         break;
       default:
-        showToast(`action not set for ${type}`);
+        showToast(`action not set for ${signer.type}`);
         break;
     }
   };
@@ -402,7 +396,7 @@ function SignTransactionScreen() {
         renderItem={({ item }) => (
           <SignerList
             vaultKey={item}
-            callback={() => callbackForSigners(item)}
+            callback={() => callbackForSigners(item, signerMap[item.masterFingerprint])}
             envelops={serializedPSBTEnvelops}
             signerMap={signerMap}
           />
