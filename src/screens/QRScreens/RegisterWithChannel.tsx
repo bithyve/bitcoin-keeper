@@ -16,7 +16,7 @@ import {
   REGISTRATION_SUCCESS,
 } from 'src/services/channel/constants';
 import { captureError } from 'src/services/sentry';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { useDispatch } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import useVault from 'src/hooks/useVault';
@@ -84,7 +84,12 @@ function RegisterWithChannel() {
           data: createCipheriv(JSON.stringify(walletConfig), decryptionKey.current),
           room,
         });
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(
+          updateKeyDetails(signer, 'registered', {
+            registered: true,
+            vaultId: vault.id,
+          })
+        );
         navgation.goBack();
       } catch (error) {
         captureError(error);
@@ -106,9 +111,12 @@ function RegisterWithChannel() {
       switch (signerType) {
         case SignerType.LEDGER:
           dispatch(
-            updateSignerDetails(signer, 'deviceInfo', { registeredWallet: policy.policyHmac })
+            updateKeyDetails(signer, 'registered', {
+              registered: true,
+              vaultId: vault.id,
+              registrationInfo: JSON.stringify({ registeredWallet: policy.policyHmac }),
+            })
           );
-          dispatch(updateSignerDetails(signer, 'registered', true));
           navgation.goBack();
       }
     });

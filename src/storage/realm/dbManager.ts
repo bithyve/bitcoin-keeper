@@ -171,6 +171,7 @@ export default {
   createObject,
   getObjectByIndex,
   getObjectById,
+  getObjectByPrimaryId,
   updateObjectById,
   updateObjectByPrimaryId,
   getCollection,

@@ -17,7 +17,7 @@ import {
 } from 'src/hardware/coldcard';
 import { useDispatch } from 'react-redux';
 import { updatePSBTEnvelops } from 'src/store/reducers/send_and_receive';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
@@ -82,7 +82,12 @@ function SignWithColdCard({ route }: { route }) {
       } else {
         const { psbt } = await receivePSBTFromColdCard();
         dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(
+          updateKeyDetails(signer, 'registered', {
+            registered: true,
+            vaultId: Vault.id,
+          })
+        );
         dispatch(healthCheckSigner([signer]));
       }
     });
@@ -90,7 +95,12 @@ function SignWithColdCard({ route }: { route }) {
   const registerCC = async () =>
     withNfcModal(async () => {
       await registerToColcard({ vault: Vault });
-      dispatch(updateSignerDetails(signer, 'registered', true));
+      dispatch(
+        updateKeyDetails(signer, 'registered', {
+          registered: true,
+          vaultId: Vault.id,
+        })
+      );
     });
   const { colorMode } = useColorMode();
   return (

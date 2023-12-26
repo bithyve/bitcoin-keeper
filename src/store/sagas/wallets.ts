@@ -83,6 +83,7 @@ import {
   ADD_WHIRLPOOL_WALLETS_LOCAL,
   UPDATE_WALLET_PATH_PURPOSE_DETAILS,
   INCREMENT_ADDRESS_INDEX,
+  UPDATE_KEY_DETAILS,
 } from '../sagaActions/wallets';
 import {
   ADD_NEW_VAULT,
@@ -1155,6 +1156,34 @@ function* updateSignerDetailsWorker({ payload }) {
 }
 
 export const updateSignerDetails = createWatcher(updateSignerDetailsWorker, UPDATE_SIGNER_DETAILS);
+
+function* updateKeyDetailsWorker({ payload }) {
+  const {
+    signer,
+    key,
+    value,
+  }: {
+    signer: VaultSigner;
+    key: string;
+    value: any;
+  } = payload;
+
+  const vaultSigner = dbManager.getObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', signer.xpub);
+  const vaultSignerJSON: VaultSigner = vaultSigner.toJSON();
+  if (key === 'registered') {
+    const updatedRegsteredVaults = vaultSignerJSON.registeredVaults.map((info) => {
+      return { ...info, ...value };
+    });
+    vaultSigner.registeredVaults = updatedRegsteredVaults;
+    return;
+  }
+
+  yield call(dbManager.updateObjectByPrimaryId, RealmSchema.VaultSigner, 'xpub', signer.xpub, {
+    [key]: value,
+  });
+}
+
+export const updateKeyDetails = createWatcher(updateKeyDetailsWorker, UPDATE_KEY_DETAILS);
 
 function* updateWalletsPropertyWorker({
   payload,

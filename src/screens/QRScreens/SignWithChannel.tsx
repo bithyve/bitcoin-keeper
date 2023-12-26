@@ -30,6 +30,7 @@ import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/core/utils';
+import useToastMessage from 'src/hooks/useToastMessage';
 
 const ScanAndInstruct = ({ onBarCodeRead }) => {
   const { colorMode } = useColorMode();
@@ -76,6 +77,7 @@ function SignWithChannel() {
   const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
     (envelop) => signer.signerId === envelop.signerId
   )[0];
+  const { showToast } = useToastMessage();
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
@@ -118,10 +120,22 @@ function SignWithChannel() {
     });
     channel.on(LEDGER_SIGN, ({ room }) => {
       try {
+        const registerationInfo = signer.registeredVaults.find(
+          (info) => info.vaultId === activeVault.id
+        )?.registrationInfo;
+        if (!registerationInfo) {
+          showToast('Please register the wallet before signing', null, 1000);
+          return;
+        }
+        const hmac = JSON.parse(registerationInfo).registeredWallet;
+        if (!hmac) {
+          showToast('Please register the wallet before signing', null, 1000);
+          return;
+        }
         const data = {
           serializedPSBT,
           vault: activeVault,
-          registeredWallet: activeVault.isMultiSig ? signer.deviceInfo.registeredWallet : undefined,
+          registeredWallet: activeVault.isMultiSig ? hmac : undefined,
         };
         channel.emit(LEDGER_SIGN, {
           data: createCipheriv(JSON.stringify(data), decryptionKey.current),

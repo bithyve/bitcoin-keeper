@@ -291,7 +291,9 @@ function SignerList({ vault }: { vault: Vault }) {
       {keys.map((key) => {
         const { signer } = useSignerFromKey(key);
         const indicate =
-          !key?.vaultInfo?.registered && isMultiSig && !UNVERIFYING_SIGNERS.includes(signer.type);
+          !key?.registeredVaults?.find((info) => info.vaultId === vault.id && info.registered) &&
+          isMultiSig &&
+          !UNVERIFYING_SIGNERS.includes(signer.type);
 
         return (
           <Box

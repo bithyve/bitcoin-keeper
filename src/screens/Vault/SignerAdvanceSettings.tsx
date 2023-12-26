@@ -13,7 +13,7 @@ import moment from 'moment';
 import { registerToColcard } from 'src/hardware/coldcard';
 import idx from 'idx';
 import { useDispatch } from 'react-redux';
-import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+import { updateKeyDetails, updateSignerDetails } from 'src/store/sagaActions/wallets';
 import useToastMessage from 'src/hooks/useToastMessage';
 import { globalStyles } from 'src/constants/globalStyles';
 import useVault from 'src/hooks/useVault';
@@ -28,7 +28,7 @@ const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer }: { signer: Signer } = route.params;
+  const { signer, key }: { signer: Signer; key: VaultSigner } = route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
@@ -51,7 +51,12 @@ function SignerAdvanceSettings({ route }: any) {
     switch (signer.type) {
       case SignerType.COLDCARD:
         await registerColdCard();
-        dispatch(updateSignerDetails(signer, 'registered', true));
+        dispatch(
+          updateKeyDetails(key, 'registered', {
+            registered: true,
+            vaultId: activeVault.id,
+          })
+        );
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:

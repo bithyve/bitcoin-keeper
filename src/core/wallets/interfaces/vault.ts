@@ -44,9 +44,6 @@ export type signerXpubs = {
   [key in XpubTypes as string]: { xpub: string; derivationPath: string; xpriv?: string }[];
 };
 
-export type DeviceInfo = {
-  registeredWallet?: string;
-};
 export interface Signer {
   type: SignerType;
   storageType: SignerStorage;
