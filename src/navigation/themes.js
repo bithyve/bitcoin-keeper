@@ -108,6 +108,7 @@ export const customTheme = extendTheme({
       forestGreen: Colors.ForestGreen,
       pantoneGreen: Colors.pantoneGreen,
       seashellWhite: Colors.Seashell,
+      Champagne: Colors.Champagne,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,

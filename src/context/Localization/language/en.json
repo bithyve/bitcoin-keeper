@@ -410,7 +410,8 @@
     "sendingFrom": "Sending From",
     "sendingFromUtxo": "Sending from selected UTXOs of",
     "AvailableToSpend": "Available to spend",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "chooseFromTemplate": "Choose from a template"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
