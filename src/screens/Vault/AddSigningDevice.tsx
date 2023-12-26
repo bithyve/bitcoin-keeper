@@ -34,6 +34,7 @@ import DescriptionModal from './components/EditDescriptionModal';
 import VaultMigrationController from './VaultMigrationController';
 import AddIKS from '../SigningDevices/AddIKS';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 
 const { width } = Dimensions.get('screen');
 
@@ -183,9 +184,7 @@ function SignerItem({
         visible={visible}
         close={closeDescriptionModal}
         signer={signer}
-        callback={(value: any) =>
-          dispatch(updateSigningDevice({ signer, key: 'signerDescription', value }))
-        }
+        callback={(value: any) => dispatch(updateSignerDetails(signer, 'signerDescription', value))}
       />
     </Box>
   );
@@ -251,8 +250,9 @@ function AddSigningDevice() {
 
   const subtitle =
     scheme.n > 1
-      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${isInheritance ? ' for Inheritance' : ''
-      }`
+      ? `Vault with a ${scheme.m} of ${scheme.n} setup will be created${
+          isInheritance ? ' for Inheritance' : ''
+        }`
       : `Vault with ${scheme.m} of ${scheme.n} setup will be created`;
 
   const trezorIncompatible =
@@ -300,8 +300,9 @@ function AddSigningDevice() {
           <Box style={styles.noteContainer} testID={'view_warning01'}>
             <Note
               title="WARNING"
-              subtitle={`Looks like you've added a ${scheme.n === 1 ? 'multisig' : 'singlesig'
-                } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
+              subtitle={`Looks like you've added a ${
+                scheme.n === 1 ? 'multisig' : 'singlesig'
+              } xPub\nPlease export ${misMatchedSigners.join(', ')}'s xpub from the right section`}
               subtitleColor="error"
             />
           </Box>
