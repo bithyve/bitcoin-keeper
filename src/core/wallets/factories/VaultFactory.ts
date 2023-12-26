@@ -128,7 +128,7 @@ export const generateVault = async ({
   vault.specs.receivingAddress = WalletOperations.getNextFreeAddress(vault);
 
   // update cosigners map(if one of the signers is an assisted key)
-  // await updateCosignersMapForAssistedKeys(signers, signerMap);  // disabling temporarily
+  await updateCosignersMapForAssistedKeys(signers, signerMap); // disabling temporarily
 
   return vault;
 };
@@ -230,10 +230,14 @@ export const generateMockExtendedKey = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateCosignerMapIds = (signers: VaultSigner[], except: SignerType) => {
+export const generateCosignerMapIds = (
+  keys: VaultSigner[],
+  signerMap: { [key: string]: Signer },
+  except: SignerType
+) => {
   const cosignerIds = [];
-  signers.forEach((signer) => {
-    if (signer.type !== except) cosignerIds.push(signer.signerId);
+  keys.forEach((signer) => {
+    if (signerMap[signer.masterFingerprint].type !== except) cosignerIds.push(signer.xfp);
   });
 
   cosignerIds.sort();
@@ -249,9 +253,11 @@ export const generateCosignerMapIds = (signers: VaultSigner[], except: SignerTyp
 
 export const generateCosignerMapUpdates = (
   signerMap: { [key: string]: Signer },
-  assistedKey: VaultSigner
+  assistedKey: VaultSigner,
+  keys: VaultSigner[]
 ): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
   const cosignersMapIds = generateCosignerMapIds(
+    keys,
     signerMap,
     signerMap[assistedKey.masterFingerprint].type
   );
@@ -287,8 +293,10 @@ const updateCosignersMapForAssistedKeys = async (keys: VaultSigner[], signerMap)
       signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER ||
       signerMap[key.masterFingerprint].type === SignerType.INHERITANCEKEY
     ) {
-      const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, key);
+      // creates maps per signer type
+      const cosignersMapUpdates = generateCosignerMapUpdates(signerMap, key, keys);
 
+      // updates our backend with the cosigners map
       if (signerMap[key.masterFingerprint].type === SignerType.POLICY_SERVER) {
         const { updated } = await SigningServer.updateCosignersToSignerMap(
           key.xfp,

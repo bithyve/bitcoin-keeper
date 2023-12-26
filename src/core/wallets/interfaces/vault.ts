@@ -64,7 +64,9 @@ export interface Signer {
 }
 
 export type RegisteredVaultInfo = {
-  [vaultId: string]: { registered: boolean; registrationInfo?: string };
+  vaultId: string;
+  registered: boolean;
+  registrationInfo?: string;
 };
 
 export interface VaultSigner {
@@ -73,7 +75,7 @@ export interface VaultSigner {
   xpriv?: string;
   xfp: string;
   derivationPath: string;
-  vaultInfo?: RegisteredVaultInfo;
+  registeredVaults?: RegisteredVaultInfo[];
 }
 
 export interface Vault {
