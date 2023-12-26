@@ -20,6 +20,7 @@ import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import DisplayQR from '../QRScreens/DisplayQR';
 import ShareWithNfc from '../NFCChannel/ShareWithNfc';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function SignWithQR() {
   const serializedPSBTEnvelops = useAppSelector(
@@ -29,14 +30,15 @@ function SignWithQR() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const {
-    signer,
+    vaultKey,
     collaborativeWalletId = '',
-  }: { signer: VaultSigner; collaborativeWalletId: string } = route.params as any;
+  }: { vaultKey: VaultSigner; collaborativeWalletId: string } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
-    (envelop) => signer.signerId === envelop.signerId
+    (envelop) => vaultKey.xfp === envelop.signerId
   )[0];
   const { activeVault } = useVault(collaborativeWalletId);
   const isSingleSig = activeVault.scheme.n === 1;
+  const { signer } = useSignerFromKey(vaultKey);
 
   const signTransaction = (signedSerializedPSBT, resetQR) => {
     try {
@@ -48,18 +50,18 @@ function SignWithQR() {
             signedSerializedPSBT,
           });
           dispatch(
-            updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: signer.signerId })
+            updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: vaultKey.xfp })
           );
         } else if (signer.type === SignerType.KEYSTONE) {
           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: tx.toHex() }));
+          dispatch(updatePSBTEnvelops({ signerId: vaultKey.xfp, txHex: tx.toHex() }));
         } else {
-          dispatch(updatePSBTEnvelops({ signerId: signer.signerId, signedSerializedPSBT }));
+          dispatch(updatePSBTEnvelops({ signerId: vaultKey.xfp, signedSerializedPSBT }));
         }
       } else {
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: vaultKey.xfp }));
         dispatch(
-          updateKeyDetails(signer, 'registered', {
+          updateKeyDetails(vaultKey, 'registered', {
             registered: true,
             vaultId: activeVault.id,
           })

@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Box } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
@@ -13,14 +12,14 @@ import useVault from 'src/hooks/useVault';
 import DisplayQR from './DisplayQR';
 
 function RegisterWithQR({ route, navigation }: any) {
-  const { signer }: { signer: VaultSigner } = route.params;
+  const { vaultKey }: { vaultKey: VaultSigner } = route.params;
   const dispatch = useDispatch();
   const { activeVault } = useVault();
   const walletConfig = getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
-  const markAsregistered = () => {
+  const markAsRegistered = () => {
     dispatch(
-      updateKeyDetails(signer, 'registered', {
+      updateKeyDetails(vaultKey, 'registered', {
         registered: true,
         vaultId: activeVault.id,
       })
@@ -36,7 +35,7 @@ function RegisterWithQR({ route, navigation }: any) {
       <Box style={styles.center}>
         <DisplayQR qrContents={qrContents} toBytes type="hex" />
       </Box>
-      <Buttons primaryText="Done" primaryCallback={markAsregistered} />
+      <Buttons primaryText="Done" primaryCallback={markAsRegistered} />
     </ScreenWrapper>
   );
 }

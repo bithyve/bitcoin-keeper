@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ParsedVauleText, parseTextforVaultConfig } from 'src/core/utils';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';

@@ -24,6 +24,7 @@ import Text from 'src/components/KeeperText';
 import { SignerType } from 'src/core/wallets/enums';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/core/utils';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 const ScanAndInstruct = ({ onBarCodeRead }) => {
   const { colorMode } = useColorMode();
@@ -58,7 +59,8 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
 
 function RegisterWithChannel() {
   const { params } = useRoute();
-  const { signer } = params as { signer: VaultSigner };
+  const { vaultKey } = params as { vaultKey: VaultSigner };
+  const { signer } = useSignerFromKey(vaultKey);
 
   const [channel] = useState(io(config.CHANNEL_URL));
   const decryptionKey = useRef();
@@ -79,13 +81,13 @@ function RegisterWithChannel() {
   useEffect(() => {
     channel.on(BITBOX_REGISTER, async ({ room }) => {
       try {
-        const walletConfig = getWalletConfigForBitBox02({ vault });
+        const walletConfig = getWalletConfigForBitBox02({ vault, signer });
         channel.emit(BITBOX_REGISTER, {
           data: createCipheriv(JSON.stringify(walletConfig), decryptionKey.current),
           room,
         });
         dispatch(
-          updateKeyDetails(signer, 'registered', {
+          updateKeyDetails(vaultKey, 'registered', {
             registered: true,
             vaultId: vault.id,
           })
@@ -111,7 +113,7 @@ function RegisterWithChannel() {
       switch (signerType) {
         case SignerType.LEDGER:
           dispatch(
-            updateKeyDetails(signer, 'registered', {
+            updateKeyDetails(vaultKey, 'registered', {
               registered: true,
               vaultId: vault.id,
               registrationInfo: JSON.stringify({ registeredWallet: policy.policyHmac }),

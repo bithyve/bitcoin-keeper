@@ -14,19 +14,20 @@ import SigningServer from 'src/services/operations/SigningServer';
 export const signTransactionWithTapsigner = async ({
   setTapsignerModal,
   signingPayload,
-  currentSigner,
+  currentKey,
   withModal,
   defaultVault,
   serializedPSBT,
   card,
   cvc,
+  signer,
 }) => {
   setTapsignerModal(false);
   const { inputsToSign } = signingPayload[0];
   // AMF flow for signing
-  if (isSignerAMF(currentSigner)) {
+  if (isSignerAMF(signer)) {
     await withModal(() => readTapsigner(card, cvc))();
-    const { xpriv } = currentSigner;
+    const { xpriv } = currentKey;
     const inputs = idx(signingPayload, (_) => _[0].inputs);
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
     const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
@@ -38,7 +39,7 @@ export const signTransactionWithTapsigner = async ({
     return { signedSerializedPSBT, signingPayload: null };
   }
   return withModal(async () => {
-    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentSigner);
+    const signedInput = await signWithTapsigner(card, inputsToSign, cvc, currentKey);
     signingPayload.forEach((payload) => {
       payload.inputsToSign = signedInput;
     });
@@ -61,46 +62,6 @@ export const signTransactionWithColdCard = async ({
     } else {
       closeNfc();
       captureError(error);
-    }
-  }
-};
-
-export const signTransactionWithLedger = async ({
-  setLedgerModal,
-  currentSigner,
-  signingPayload,
-  defaultVault,
-  serializedPSBT,
-}) => {
-  try {
-    setLedgerModal(false);
-    if (isSignerAMF(currentSigner)) {
-      const { xpriv } = currentSigner;
-      const inputs = idx(signingPayload, (_) => _[0].inputs);
-      if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-      const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
-        defaultVault,
-        inputs,
-        serializedPSBT,
-        xpriv
-      );
-      return { signedSerializedPSBT };
-    }
-  } catch (error) {
-    switch (error.message) {
-      case 'Ledger device: UNKNOWN_ERROR (0x6b0c)':
-        Alert.alert('Unlock the device to connect.');
-        break;
-      case 'Ledger device: UNKNOWN_ERROR (0x6a15)':
-        Alert.alert('Navigate to the correct app in the Ledger.');
-        break;
-      case 'Ledger device: UNKNOWN_ERROR (0x6511)':
-        Alert.alert('Open up the correct app in the Ledger.'); // no app selected
-        break;
-      // unknown error
-      default:
-        captureError(error);
-        Alert.alert('Something went wrong! Please try again');
     }
   }
 };

@@ -31,6 +31,7 @@ import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
 import { createCipheriv, createDecipheriv } from 'src/core/utils';
 import useToastMessage from 'src/hooks/useToastMessage';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 const ScanAndInstruct = ({ onBarCodeRead }) => {
   const { colorMode } = useColorMode();
@@ -65,17 +66,18 @@ const ScanAndInstruct = ({ onBarCodeRead }) => {
 
 function SignWithChannel() {
   const { params } = useRoute();
-  const { signer, collaborativeWalletId = '' } = params as {
-    signer: VaultSigner;
+  const { vaultKey, collaborativeWalletId = '' } = params as {
+    vaultKey: VaultSigner;
     collaborativeWalletId: string;
   };
+  const { signer } = useSignerFromKey(vaultKey);
   const { activeVault } = useVault(collaborativeWalletId);
   const { isMultiSig: isMultisig } = activeVault;
   const serializedPSBTEnvelops: SerializedPSBTEnvelop[] = useAppSelector(
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
-    (envelop) => signer.signerId === envelop.signerId
+    (envelop) => vaultKey.xfp === envelop.signerId
   )[0];
   const { showToast } = useToastMessage();
 
@@ -98,9 +100,10 @@ function SignWithChannel() {
       const data = await getTxForBitBox02(
         serializedPSBT,
         signingPayload,
-        signer,
+        vaultKey,
         isMultisig,
-        activeVault
+        activeVault,
+        signer
       );
       channel.emit(BITBOX_SIGN, {
         data: createCipheriv(JSON.stringify(data), decryptionKey.current),
@@ -109,7 +112,7 @@ function SignWithChannel() {
     });
     channel.on(TREZOR_SIGN, ({ room }) => {
       try {
-        const data = getTxForTrezor(serializedPSBT, signingPayload, signer, activeVault);
+        const data = getTxForTrezor(serializedPSBT, signingPayload, vaultKey, activeVault);
         channel.emit(TREZOR_SIGN, {
           data: createCipheriv(JSON.stringify(data), decryptionKey.current),
           room,
@@ -120,7 +123,7 @@ function SignWithChannel() {
     });
     channel.on(LEDGER_SIGN, ({ room }) => {
       try {
-        const registerationInfo = signer.registeredVaults.find(
+        const registerationInfo = vaultKey.registeredVaults.find(
           (info) => info.vaultId === activeVault.id
         )?.registrationInfo;
         if (!registerationInfo) {
@@ -150,7 +153,7 @@ function SignWithChannel() {
         const decrypted = createDecipheriv(data, decryptionKey.current);
         if (signer.type === SignerType.TREZOR) {
           const { serializedTx: txHex } = decrypted;
-          dispatch(updatePSBTEnvelops({ txHex, signerId: signer.signerId }));
+          dispatch(updatePSBTEnvelops({ txHex, signerId: vaultKey.xfp }));
           dispatch(healthCheckSigner([signer]));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
@@ -161,7 +164,7 @@ function SignWithChannel() {
             decrypted,
             signingPayload
           );
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: vaultKey.xfp }));
           dispatch(healthCheckSigner([signer]));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
@@ -172,7 +175,7 @@ function SignWithChannel() {
             signingPayload,
             decrypted
           );
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: signer.signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: vaultKey.xfp }));
           dispatch(healthCheckSigner([signer]));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })

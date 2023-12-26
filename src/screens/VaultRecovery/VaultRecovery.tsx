@@ -29,7 +29,7 @@ import { generateCosignerMapIds, generateVaultId } from 'src/core/wallets/factor
 import config from 'src/core/config';
 import { hash256 } from 'src/services/operations/encryption';
 import TickIcon from 'src/assets/images/icon_tick.svg';
-import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
+// import { updateSignerForScheme } from 'src/hooks/useSignerIntel';
 import KeeperModal from 'src/components/KeeperModal';
 import { setTempShellId } from 'src/store/reducers/vaults';
 import useToastMessage from 'src/hooks/useToastMessage';
@@ -221,11 +221,11 @@ function VaultRecovery({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    setsignersList(
-      signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices?.length))
-    );
-  }, [signingDevices]);
+  // useEffect(() => {
+  //   setsignersList(
+  //     signingDevices.map((signer) => updateSignerForScheme(signer, signingDevices?.length))
+  //   );
+  // }, [signingDevices]);
 
   useEffect(() => {
     if (signersList.length === 1) {

@@ -45,7 +45,7 @@ import { KEEPER_KNOWLEDGEBASE } from 'src/core/config';
 import KeeperHeader from 'src/components/KeeperHeader';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import useSigners from 'src/hooks/useSigners';
-import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 function Footer({
   vault,
@@ -280,6 +280,7 @@ function SignerList({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
   const { signers: keys, isMultiSig } = vault;
   const navigation = useNavigation();
+  const { signerMap } = useSignerMap();
 
   return (
     <ScrollView
@@ -289,7 +290,7 @@ function SignerList({ vault }: { vault: Vault }) {
       horizontal
     >
       {keys.map((key) => {
-        const { signer } = useSignerFromKey(key);
+        const signer = signerMap[key.masterFingerprint];
         const indicate =
           !key?.registeredVaults?.find((info) => info.vaultId === vault.id && info.registered) &&
           isMultiSig &&

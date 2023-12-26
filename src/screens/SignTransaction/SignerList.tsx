@@ -6,24 +6,27 @@ import CheckIcon from 'src/assets/images/checked.svg';
 import Next from 'src/assets/images/icon_arrow.svg';
 import React from 'react';
 import { SerializedPSBTEnvelop } from 'src/core/wallets/interfaces';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import moment from 'moment';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 
 const { width } = Dimensions.get('screen');
 
 function SignerList({
-  signer,
+  vaultKey,
   callback,
   envelops,
+  signerMap,
 }: {
-  signer: VaultSigner;
+  vaultKey: VaultSigner;
   callback: any;
   envelops: SerializedPSBTEnvelop[];
+  signerMap: { [key: string]: Signer };
 }) {
   const hasSignerSigned = !!envelops.filter(
-    (psbt) => psbt.signerId === signer.signerId && psbt.isSigned
+    (psbt) => psbt.signerId === vaultKey.xfp && psbt.isSigned
   ).length;
+  const signer = signerMap[vaultKey.masterFingerprint];
   return (
     <TouchableOpacity onPress={callback}>
       <Box margin={5}>

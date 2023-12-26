@@ -2,9 +2,8 @@ import Text from 'src/components/KeeperText';
 import { Box, HStack, Pressable, VStack, useColorMode } from 'native-base';
 import { Linking, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Signer, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { hp, wp } from 'src/constants/responsive';
-
 import Arrow from 'src/assets/images/rightarrow.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperModal from 'src/components/KeeperModal';
@@ -21,6 +20,7 @@ import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import useNfcModal from 'src/hooks/useNfcModal';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import useVault from 'src/hooks/useVault';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
 
 function Card({ message, buttonText, buttonCallBack }) {
   return (
@@ -64,26 +64,29 @@ function SignWithColdCard({ route }: { route }) {
   const { nfcVisible, closeNfc, withNfcModal } = useNfcModal();
   const [mk4Helper, showMk4Helper] = useState(false);
   const { activeVault: Vault } = useVault();
-  const { signer, signTransaction, isMultisig } = route.params as {
-    signer: VaultSigner;
+  const { vaultKey, signTransaction, isMultisig } = route.params as {
+    vaultKey: VaultSigner;
     signTransaction;
     isMultisig: boolean;
   };
-  const { registered } = signer;
+  const { signer } = useSignerFromKey(vaultKey);
 
+  const { registered = false } = vaultKey.registeredVaults.find(
+    (info) => info.vaultId === Vault.id
+  );
   const dispatch = useDispatch();
 
   const receiveFromColdCard = async () =>
     withNfcModal(async () => {
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
-        dispatch(updatePSBTEnvelops({ signerId: signer.signerId, txHex: txn }));
+        dispatch(updatePSBTEnvelops({ signerId: vaultKey.xfp, txHex: txn }));
         dispatch(healthCheckSigner([signer]));
       } else {
         const { psbt } = await receivePSBTFromColdCard();
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: signer.signerId }));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: vaultKey.xfp }));
         dispatch(
-          updateKeyDetails(signer, 'registered', {
+          updateKeyDetails(vaultKey, 'registered', {
             registered: true,
             vaultId: Vault.id,
           })
@@ -96,7 +99,7 @@ function SignWithColdCard({ route }: { route }) {
     withNfcModal(async () => {
       await registerToColcard({ vault: Vault });
       dispatch(
-        updateKeyDetails(signer, 'registered', {
+        updateKeyDetails(vaultKey, 'registered', {
           registered: true,
           vaultId: Vault.id,
         })

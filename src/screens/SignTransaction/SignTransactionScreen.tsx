@@ -1,23 +1,18 @@
 import { FlatList } from 'react-native';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { EntityKind, SignerType, TxPriority } from 'src/core/wallets/enums';
+import { SignerType, TxPriority } from 'src/core/wallets/enums';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { sendPhaseThree } from 'src/store/sagaActions/send_and_receive';
-
 import { Box, useColorMode } from 'native-base';
 import Buttons from 'src/components/Buttons';
 import { CKTapCard } from 'cktap-protocol-react-native';
 import KeeperHeader from 'src/components/KeeperHeader';
-import { KeeperApp } from 'src/models/interfaces/KeeperApp';
 import NfcPrompt from 'src/components/NfcPromptAndroid';
 import Note from 'src/components/Note/Note';
-import { RealmSchema } from 'src/storage/realm/enum';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import SigningServer from 'src/services/operations/SigningServer';
 import { cloneDeep } from 'lodash';
 import { finaliseVaultMigration } from 'src/store/sagaActions/vaults';
-import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import SuccessIcon from 'src/assets/images/successSvg.svg';
 import idx from 'idx';
@@ -44,10 +39,10 @@ import {
   signTransactionWithSigningServer,
   signTransactionWithTapsigner,
 } from './signWithSD';
-import { useQuery } from '@realm/react';
 import Text from 'src/components/KeeperText';
 import KeeperModal from 'src/components/KeeperModal';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
+import useSignerMap from 'src/hooks/useSignerMap';
 
 function SignTransactionScreen() {
   const route = useRoute();
@@ -63,7 +58,8 @@ function SignTransactionScreen() {
     collaborativeWalletId: string;
   };
   const { activeVault: defaultVault } = useVault(collaborativeWalletId);
-  const { signers, id: vaultId, scheme, shellId } = defaultVault;
+  const { signers: vaultKeys, id: vaultId, scheme } = defaultVault;
+  const { signerMap } = useSignerMap();
   const { wallets } = useWallets({ walletIds: [collaborativeWalletId] });
   let parentCollaborativeWallet: Wallet;
   if (collaborativeWalletId) {
@@ -71,10 +67,9 @@ function SignTransactionScreen() {
       (wallet) => wallet && wallet.id === collaborativeWalletId
     );
   }
-  const keeper: KeeperApp = useQuery(RealmSchema.KeeperApp).map(getJSONFromRealmObject)[0];
 
   const { translations } = useContext(LocalizationContext);
-  const { wallet: walletTransactions, common, vault } = translations;
+  const { wallet: walletTransactions, common } = translations;
 
   const [coldCardModal, setColdCardModal] = useState(false);
   const [tapsignerModal, setTapsignerModal] = useState(false);
@@ -141,24 +136,15 @@ function SignTransactionScreen() {
       }
     } else if (sendSuccessful) {
       setVisibleModal(true);
-      // navigation.dispatch(
-      //   CommonActions.reset({
-      //     index: 1,
-      //     routes: [
-      //       { name: 'Home' },
-      //       { name: 'VaultDetails', params: { autoRefresh: true, collaborativeWalletId } },
-      //     ],
-      //   })
-      // );
     }
   }, [sendSuccessful, isMigratingNewVault]);
 
   useEffect(() => {
-    defaultVault.signers.forEach((signer) => {
-      const isCoSignerMyself = signer.masterFingerprint === collaborativeWalletId;
+    defaultVault.signers.forEach((vaultKey) => {
+      const isCoSignerMyself = vaultKey.masterFingerprint === collaborativeWalletId;
       if (isCoSignerMyself) {
         // self sign PSBT
-        signTransaction({ signerId: signer.signerId });
+        signTransaction({ signerId: vaultKey.xfp });
       }
     });
     return () => dispatch(sendPhaseThreeReset());
@@ -201,7 +187,8 @@ function SignTransactionScreen() {
       thresholdDescriptors?: string[];
     } = {}) => {
       const activeId = signerId || activeSignerId;
-      const currentSigner = signers.filter((signer) => signer.signerId === activeId)[0];
+      const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
+      const signer = signerMap[currentKey.masterFingerprint];
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
           (envelop) => envelop.signerId === activeId
@@ -213,17 +200,18 @@ function SignTransactionScreen() {
             await signTransactionWithTapsigner({
               setTapsignerModal,
               signingPayload,
-              currentSigner,
+              currentKey,
               withModal,
               defaultVault,
               serializedPSBT,
               card,
               cvc: textRef.current,
+              signer,
             });
           dispatch(
             updatePSBTEnvelops({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
           );
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(healthCheckSigner([signer]));
         } else if (SignerType.COLDCARD === signerType) {
           await signTransactionWithColdCard({
             setColdCardModal,
@@ -240,7 +228,7 @@ function SignTransactionScreen() {
             signerId,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(healthCheckSigner([signer]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
             signerId,
@@ -251,7 +239,7 @@ function SignTransactionScreen() {
             showToast,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
             signingPayload,
@@ -270,11 +258,11 @@ function SignTransactionScreen() {
             isMultisig: defaultVault.isMultiSig,
           });
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(healthCheckSigner([signer]));
         } else if (SignerType.KEEPER === signerType) {
           const signedSerializedPSBT = signCosignerPSBT(parentCollaborativeWallet, serializedPSBT);
           dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
-          dispatch(healthCheckSigner([currentSigner]));
+          dispatch(healthCheckSigner([signer]));
         }
       }
     },
@@ -409,13 +397,14 @@ function SignTransactionScreen() {
       />
       <FlatList
         contentContainerStyle={{ paddingTop: '5%' }}
-        data={signers}
-        keyExtractor={(item) => item.signerId}
+        data={vaultKeys}
+        keyExtractor={(item) => item.xfp}
         renderItem={({ item }) => (
           <SignerList
-            signer={item}
+            vaultKey={item}
             callback={() => callbackForSigners(item)}
             envelops={serializedPSBTEnvelops}
+            signerMap={signerMap}
           />
         )}
       />
@@ -447,7 +436,8 @@ function SignTransactionScreen() {
         subtitleColor="GreyText"
       />
       <SignerModals
-        signers={signers}
+        vaultId={vaultId}
+        vaultKeys={vaultKeys}
         activeSignerId={activeSignerId}
         coldCardModal={coldCardModal}
         tapsignerModal={tapsignerModal}
@@ -479,6 +469,7 @@ function SignTransactionScreen() {
         textRef={textRef}
         isMultisig={defaultVault.isMultiSig}
         collaborativeWalletId={collaborativeWalletId}
+        signerMap={signerMap}
       />
       <NfcPrompt visible={nfcVisible || TSNfcVisible} close={closeNfc} />
       <KeeperModal
@@ -488,7 +479,7 @@ function SignTransactionScreen() {
         subTitle={walletTransactions.transactionBroadcasted}
         buttonText={walletTransactions.ViewDetails}
         buttonCallback={viewDetails}
-        textcolor={`${colorMode}.greenText`}
+        textColor={`${colorMode}.greenText`}
         buttonTextColor={`${colorMode}.white`}
         Content={SendSuccessfulContent}
       />

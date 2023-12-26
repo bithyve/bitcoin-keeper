@@ -60,14 +60,14 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { signer }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey: key }));
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
       case SignerType.OTHER_SD:
-        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { signer }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey: key }));
         break;
       default:
         showToast('Comming soon', null, 1000);
@@ -75,7 +75,7 @@ function SignerAdvanceSettings({ route }: any) {
     }
   };
 
-  const navigateToPolicyChange = (signer: VaultSigner) => {
+  const navigateToPolicyChange = (signer: Signer) => {
     const restrictions = idx(signer, (_) => _.signerPolicy.restrictions);
     const exceptions = idx(signer, (_) => _.signerPolicy.exceptions);
     navigation.dispatch(
