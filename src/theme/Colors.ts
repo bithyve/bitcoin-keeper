@@ -43,8 +43,8 @@ const Colors = {
   ForestGreen: 'rgba(0,131,105,1)',
   PearlGrey: 'rgba(250,252,252,1)',
   pantoneGreen: 'rgba(45,103,89,1)',
-  Champagne: 'rgba (247,242,236,1)',
-  lightBeige: 'rgba (253,247,240,1)',
+  Champagne: 'rgba(247,242,236,1)',
+  lightBeige: 'rgba(253,247,240,1)',
   // Dark
   LightYellowDark: 'rgba(50,60,58,1)',
   GraniteGrayDark: 'rgba(136,136,136,1)',
