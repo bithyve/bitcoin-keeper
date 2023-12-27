@@ -69,7 +69,7 @@ export const SDIcons = (type: SignerType, light = false) => {
         Icon: getColouredIcon(<KEEPERAPPLIGHT />, <KEEPERAPP />, light),
         Logo: (
           <Text style={styles.text} color="light.secondaryText">
-            Another Keeper App
+            Collaborative Signer
           </Text>
         ),
       };

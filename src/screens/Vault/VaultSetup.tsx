@@ -1,15 +1,18 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
+import { Box, HStack, VStack, useColorMode } from 'native-base';
+import { useDispatch } from 'react-redux';
+
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import KeeperHeader from 'src/components/KeeperHeader';
 import KeeperTextInput from 'src/components/KeeperTextInput';
-import { Box, HStack, VStack, useColorMode } from 'native-base';
 import Text from 'src/components/KeeperText';
 import { windowWidth } from 'src/constants/responsive';
 import Buttons from 'src/components/Buttons';
-import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
 import { setVaultRecoveryDetails } from 'src/store/reducers/bhr';
+import useToastMessage from 'src/hooks/useToastMessage';
+import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 
 const NumberInput = ({ value, onDecrease, onIncrease }) => {
   const { colorMode } = useColorMode();
@@ -38,10 +41,11 @@ const NumberInput = ({ value, onDecrease, onIncrease }) => {
 const VaultSetup = () => {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
+  const { showToast } = useToastMessage();
   const { params } = useRoute();
   const { isRecreation } = (params as { isRecreation: Boolean }) || {};
   const dispatch = useDispatch();
-  const [vaultName, setVaultName] = useState('');
+  const [vaultName, setVaultName] = useState('Vault');
   const [vaultDescription, setVaultDescription] = useState('');
   const [scheme, setScheme] = useState({ m: 2, n: 3 });
   const onDecreaseM = () => {
@@ -64,6 +68,29 @@ const VaultSetup = () => {
       setScheme({ ...scheme, n: scheme.n + 1 });
     }
   };
+  const OnProceed = () => {
+    if (vaultName !== '') {
+      if (isRecreation) {
+        dispatch(
+          setVaultRecoveryDetails({
+            scheme,
+            name: vaultName,
+            description: vaultDescription,
+          })
+        );
+        navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      } else {
+        navigation.dispatch(
+          CommonActions.navigate({
+            name: 'AddSigningDevice',
+            params: { scheme, name: vaultName, description: vaultDescription },
+          })
+        );
+      }
+    } else {
+      showToast('Please Enter Vault name', <ToastErrorIcon />)
+    }
+  }
 
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
@@ -72,13 +99,19 @@ const VaultSetup = () => {
         <KeeperTextInput
           placeholder="Vault name"
           value={vaultName}
-          onChangeText={setVaultName}
+          onChangeText={(value) => {
+            if (vaultName === 'Vault') {
+              setVaultName('')
+            } else {
+              setVaultName(value)
+            }
+          }}
           testID={'vault_name'}
           maxLength={20}
         />
         <Box style={{ height: 20 }} />
         <KeeperTextInput
-          placeholder="Vault description"
+          placeholder="Vault description (Optional)"
           value={vaultDescription}
           onChangeText={setVaultDescription}
           testID={'vault_description'}
@@ -86,36 +119,16 @@ const VaultSetup = () => {
           height={20}
         />
         <Box style={{ marginVertical: 15, borderBottomWidth: 0.17, borderBottomColor: 'grey' }} />
-        <Text style={{ fontSize: 14 }}>Total Keys for Vault Configuration</Text>
-        <Text style={{ fontSize: 12 }}>Select the total number of keys</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_totalKeys'}>Total Keys for Vault Configuration</Text>
+        <Text style={{ fontSize: 12 }} testID={'text_totalKeys_subTitle'}>Select the total number of keys</Text>
         <NumberInput value={scheme.n} onDecrease={onDecreaseN} onIncrease={onIncreaseN} />
-        <Text style={{ fontSize: 14 }}>Required Keys</Text>
-        <Text style={{ fontSize: 12 }}>Select the number of keys required</Text>
+        <Text style={{ fontSize: 14 }} testID={'text_requireKeys'}>Required Keys</Text>
+        <Text style={{ fontSize: 12 }} testID={'text_requireKeys_subTitle'}>Select the number of keys required</Text>
         <NumberInput value={scheme.m} onDecrease={onDecreaseM} onIncrease={onIncreaseM} />
       </VStack>
       <Buttons
         primaryText="Proceed"
-        primaryCallback={
-          isRecreation
-            ? () => {
-                dispatch(
-                  setVaultRecoveryDetails({
-                    scheme,
-                    name: vaultName,
-                    description: vaultDescription,
-                  })
-                );
-                navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
-              }
-            : () => {
-                navigation.dispatch(
-                  CommonActions.navigate({
-                    name: 'AddSigningDevice',
-                    params: { scheme, name: vaultName, description: vaultDescription },
-                  })
-                );
-              }
-        }
+        primaryCallback={OnProceed}
       />
     </ScreenWrapper>
   );

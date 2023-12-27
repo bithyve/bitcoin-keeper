@@ -131,6 +131,7 @@ export const signTransactionWithSigningServer = async ({
   signingServerOTP,
   serializedPSBT,
   showOTPModal,
+  showToast,
 }) => {
   try {
     showOTPModal(false);
@@ -149,7 +150,7 @@ export const signTransactionWithSigningServer = async ({
     return { signedSerializedPSBT: signedPSBT };
   } catch (error) {
     captureError(error);
-    Alert.alert(error.message);
+    showToast(`${error.message}`);
   }
 };
 

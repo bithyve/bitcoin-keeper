@@ -53,9 +53,13 @@ function SetupSigningServer({ route }: { route }) {
     try {
       const { valid } = await SigningServer.validate(setupData.id, verificationToken);
       if (valid) setIsSetupValidated(valid);
-      else showToast('Invalid OTP. Please try again!');
+      else {
+        showValidationModal(false);
+        showToast('Invalid OTP. Please try again!');
+      }
     } catch (err) {
-      showToast('Validation failed. Please try again!');
+      showValidationModal(false);
+      showToast(`${err.message}`);
     }
   };
 

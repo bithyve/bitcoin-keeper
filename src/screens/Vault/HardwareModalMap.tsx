@@ -33,7 +33,7 @@ import TapsignerSetupImage from 'src/assets/images/TapsignerSetup.svg';
 import OtherSDSetup from 'src/assets/images/illustration_othersd.svg';
 import BitboxImage from 'src/assets/images/bitboxSetup.svg';
 import TrezorSetup from 'src/assets/images/trezor_setup.svg';
-import { VaultScheme, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import config from 'src/core/config';
@@ -88,24 +88,23 @@ const getSignerContent = (
         Illustration: <ColdCardSetupImage />,
         Instructions: isTestnet()
           ? [
-              ccInstructions,
-              `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
-            ]
+            ccInstructions,
+            `Make sure you enable Testnet mode on the coldcard if you are running the app in the Testnet mode from Advance option > Danger Zone > Testnet and enable it.`,
+          ]
           : [ccInstructions],
         title: coldcard.SetupTitle,
         subTitle: `${coldcard.SetupDescription}`,
       };
     case SignerType.JADE:
-      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${
-        isMultisig ? 'MultiSig' : 'SingleSig'
-      } and Native Segwit in the options section.`;
+      const jadeInstructions = `Make sure the Jade is setup with a companion app and Unlocked. Then export the xPub by going to Settings > Xpub Export. Also to be sure that the wallet type and script type is set to ${isMultisig ? 'MultiSig' : 'SingleSig'
+        } and Native Segwit in the options section.`;
       return {
         Illustration: <JadeSVG />,
         Instructions: isTestnet()
           ? [
-              jadeInstructions,
-              `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
-            ]
+            jadeInstructions,
+            `Make sure you enable Testnet mode on the Jade while creating the wallet with the companion app if you are running Keeper in the Testnet mode.`,
+          ]
           : [jadeInstructions],
         title: 'Setting up Blockstream Jade',
         subTitle: 'Keep your Jade ready and unlocked before proceeding',
@@ -118,7 +117,7 @@ const getSignerContent = (
           `Within settings choose Show co-signer Details to scan the QR`,
         ],
         title: 'Keep your Device Ready',
-        subTitle: 'Keep your Keeper Signing Device ready before proceeding',
+        subTitle: 'Keep your Collaborative Signer ready before proceeding',
       };
     case SignerType.MOBILE_KEY:
       return {
@@ -137,24 +136,23 @@ const getSignerContent = (
         Illustration: <KeystoneSetupImage />,
         Instructions: isTestnet()
           ? [
-              keystoneInstructions,
-              `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
-            ]
+            keystoneInstructions,
+            `Make sure you enable Testnet mode on the Keystone if you are running the app in the Testnet mode from  Side Menu > Settings > Blockchain > Testnet and confirm`,
+          ]
           : [keystoneInstructions],
         title: isHealthcheck ? 'Verify Keystone' : 'Setting up Keystone',
         subTitle: 'Keep your Keystone ready before proceeding',
       };
     case SignerType.PASSPORT:
-      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > QR Code.\n`;
+      const passportInstructions = `Export the xPub from the Account section > Manage Account > Connect Wallet > Keeper > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > QR Code.\n`;
       return {
         Illustration: <PassportSVG />,
         Instructions: isTestnet()
           ? [
-              passportInstructions,
-              `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
-            ]
+            passportInstructions,
+            `Make sure you enable Testnet mode on the Passport if you are running the app in the Testnet mode from Settings > Bitcoin > Network > Testnet and enable it.`,
+          ]
           : [passportInstructions],
         title: isHealthcheck ? 'Verify Passport (Batch 2)' : 'Setting up Passport (Batch 2)',
         subTitle: 'Keep your Foundation Passport (Batch 2) ready before proceeding',
@@ -165,23 +163,22 @@ const getSignerContent = (
         Instructions: isHealthcheck
           ? ['A request to the signing server will be made to checks it health']
           : [
-              `A 2FA authenticator will have to be set up to use this option.`,
-              `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
-            ],
+            `A 2FA authenticator will have to be set up to use this option.`,
+            `On providing the correct code from the auth app, the Signing Server will sign the transaction.`,
+          ],
         title: isHealthcheck ? 'Verify Signing Server' : 'Setting up a Signing Server',
         subTitle: 'A Signing Server will hold one of the keys of the Vault',
       };
     case SignerType.SEEDSIGNER:
-      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${
-        isMultisig ? 'Multisig' : 'Singlesig'
-      } > Native Segwit > Keeper.\n`;
+      const seedSignerInstructions = `Make sure the seed is loaded and export the xPub by going to Seeds > Select your master fingerprint > Export Xpub > ${isMultisig ? 'Multisig' : 'Singlesig'
+        } > Native Segwit > Keeper.\n`;
       return {
         Illustration: <SeedSignerSetupImage />,
         Instructions: isTestnet()
           ? [
-              seedSignerInstructions,
-              `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.`,
-            ]
+            seedSignerInstructions,
+            `Make sure you enable Testnet mode on the SeedSigner if you are running the app in the Testnet mode from Settings > Advanced > Bitcoin network > Testnet and enable it.`,
+          ]
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
@@ -375,16 +372,19 @@ const verifyJade = (qrData, signer) => {
   return xpub === signer.xpub;
 };
 
-const setupKeeperSigner = (qrData) => {
+const setupKeeperSigner = (qrData, isMultisig) => {
   try {
-    const { mfp, xpub, derivationPath } = JSON.parse(qrData);
+    const { mfp, xpubDetails } = JSON.parse(qrData);
     const ksd = generateSignerFromMetaData({
-      xpub,
-      derivationPath,
+      xpub: isMultisig ? xpubDetails[XpubTypes.P2WSH].xpub : xpubDetails[XpubTypes.P2WPKH].xpub,
+      derivationPath: isMultisig
+        ? xpubDetails[XpubTypes.P2WSH].derivationPath
+        : xpubDetails[XpubTypes.P2WPKH].derivationPath,
       xfp: mfp,
       signerType: SignerType.KEEPER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
+      xpubDetails,
     });
     return ksd;
   } catch (err) {
@@ -403,20 +403,44 @@ const verifyKeeperSigner = (qrData, signer) => {
   }
 };
 
-const setupMobileKey = async ({ primaryMnemonic }) => {
+const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
   const networkType = config.NETWORK_TYPE;
-  const { xpub, xpriv, derivationPath, masterFingerprint } = await generateMobileKey(
-    primaryMnemonic,
-    networkType
-  );
+
+  // fetched multi-sig mobile key
+  const {
+    xpub: multiSigXpub,
+    xpriv: multiSigXpriv,
+    derivationPath: multiSigPath,
+    masterFingerprint,
+  } = await generateMobileKey(primaryMnemonic, networkType);
+  // fetched single-sig mobile key
+  const {
+    xpub: singleSigXpub,
+    xpriv: singleSigXpriv,
+    derivationPath: singleSigPath,
+  } = await generateMobileKey(primaryMnemonic, networkType, EntityKind.WALLET);
+
+  const xpubDetails: XpubDetailsType = {};
+  xpubDetails[XpubTypes.P2WPKH] = {
+    xpub: singleSigXpub,
+    derivationPath: singleSigPath,
+    xpriv: singleSigXpriv,
+  };
+  xpubDetails[XpubTypes.P2WSH] = {
+    xpub: multiSigXpub,
+    derivationPath: multiSigPath,
+    xpriv: multiSigXpriv,
+  };
+
   const mobileKey = generateSignerFromMetaData({
-    xpub,
-    derivationPath,
+    xpub: isMultisig ? multiSigXpub : singleSigXpub,
+    derivationPath: isMultisig ? multiSigPath : singleSigPath,
     xfp: masterFingerprint,
     signerType: SignerType.MOBILE_KEY,
     storageType: SignerStorage.WARM,
     isMultisig: true,
-    xpriv,
+    xpriv: isMultisig ? multiSigXpriv : singleSigXpriv,
+    xpubDetails,
   });
   return mobileKey;
 };
@@ -447,6 +471,7 @@ export const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) =>
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
     isMultisig,
+    xpubDetails,
   });
 
   return softSigner;
@@ -768,7 +793,7 @@ function HardwareModalMap({
           hw = setupSeedSigner(qrData, isMultisig);
           break;
         case SignerType.KEEPER:
-          hw = setupKeeperSigner(qrData);
+          hw = setupKeeperSigner(qrData, isMultisig);
           break;
         case SignerType.KEYSTONE:
           hw = setupKeystone(qrData, isMultisig);
@@ -967,7 +992,6 @@ function HardwareModalMap({
   };
 
   const biometricAuth = async () => {
-    console.log('biometricAuth');
     if (loginMethod === LoginMethod.BIOMETRIC) {
       try {
         setInProgress(true);

@@ -66,6 +66,11 @@ export interface InheritancePolicy {
   alert?: InheritanceAlert;
 }
 
+export interface EncryptedInheritancePolicy {
+  notification: InheritanceNotification;
+  alert?: string;
+}
+
 export interface InheritanceKeyInfo {
   configuration: InheritanceConfiguration;
   policy?: InheritancePolicy;

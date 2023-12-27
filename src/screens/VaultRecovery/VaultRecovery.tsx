@@ -203,8 +203,9 @@ function VaultRecovery({ navigation }) {
           isMultisig: true,
           inheritanceKeyInfo: {
             configuration: setupInfo.configuration,
-            policy: setupInfo.policy,
+            // policy: setupInfo.policy,      // policy doesn't really apply to the heir
           },
+          signerId: setupInfo.id,
         });
         if (setupInfo.configuration.bsms) {
           initateRecovery(setupInfo.configuration.bsms);

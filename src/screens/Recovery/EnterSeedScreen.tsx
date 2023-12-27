@@ -33,13 +33,13 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import { getPlaceholder } from 'src/utils/utilities';
 import config from 'src/core/config';
 import { generateSeedWordsKey } from 'src/core/wallets/factories/VaultFactory';
-import { EntityKind, SignerStorage, SignerType } from 'src/core/wallets/enums';
+import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { captureError } from 'src/services/sentry';
 import { generateSignerFromMetaData } from 'src/hardware';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Fonts from 'src/constants/Fonts';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 
@@ -178,21 +178,34 @@ function EnterSeedScreen({ route }) {
     return seedWord.trim();
   };
 
-  const setupSeedWordsBasedKey = (mnemonic: string, entity: EntityKind = EntityKind.VAULT) => {
+  const setupSeedWordsBasedKey = (mnemonic: string) => {
     try {
       const networkType = config.NETWORK_TYPE;
-      const { xpub, derivationPath, masterFingerprint } = generateSeedWordsKey(
+      // fetched multi-sig seed words based key
+      const {
+        xpub: multiSigXpub,
+        derivationPath: multiSigPath,
+        masterFingerprint,
+      } = generateSeedWordsKey(mnemonic, networkType, EntityKind.VAULT);
+      // fetched single-sig seed words based key
+      const { xpub: singleSigXpub, derivationPath: singleSigPath } = generateSeedWordsKey(
         mnemonic,
         networkType,
-        entity
+        EntityKind.WALLET
       );
+
+      const xpubDetails: XpubDetailsType = {};
+      xpubDetails[XpubTypes.P2WPKH] = { xpub: singleSigXpub, derivationPath: singleSigPath };
+      xpubDetails[XpubTypes.P2WSH] = { xpub: multiSigXpub, derivationPath: multiSigPath };
+
       const softSigner = generateSignerFromMetaData({
-        xpub,
-        derivationPath,
+        xpub: isMultisig ? multiSigXpub : singleSigXpub,
+        derivationPath: isMultisig ? multiSigPath : singleSigPath,
         xfp: masterFingerprint,
         signerType: SignerType.SEED_WORDS,
         storageType: SignerStorage.WARM,
-        isMultisig: entity !== EntityKind.WALLET,
+        isMultisig,
+        xpubDetails,
       });
       dispatch(setSigningDevices(softSigner));
       navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
@@ -352,7 +365,7 @@ function EnterSeedScreen({ route }) {
           ) : (
             <SeedWordsView
               title={seed?.enterRecoveryPhrase}
-              subtitle={seed.recoverWallet}
+              subtitle={seed.enterRecoveryPhraseSubTitle}
               onPressHandler={() =>
                 navigation.reset({ index: 0, routes: [{ name: 'NewKeeperApp' }] })
               }
@@ -388,8 +401,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                          borderColor: '#F58E6F',
-                        }
+                        borderColor: '#F58E6F',
+                      }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -430,6 +443,7 @@ function EnterSeedScreen({ route }) {
                     setSuggestedWords([]);
                     Keyboard.dismiss();
                   }}
+                  testID={`input_seedWord${getPlaceholder(index)}`}
                 />
               </View>
             )}
@@ -445,6 +459,7 @@ function EnterSeedScreen({ route }) {
               ]}
               keyboardShouldPersistTaps="handled"
               nestedScrollEnabled
+              testID={'view_suggestionView'}
             >
               <View style={styles.suggestionWrapper}>
                 {suggestedWords.map((word, wordIndex) => (
@@ -470,8 +485,8 @@ function EnterSeedScreen({ route }) {
           ) : null}
         </View>
         <View style={styles.bottomContainerView}>
-          <Text style={styles.seedDescText} color="light.GreyText">
-            {seed.seedDescription}
+          <Text style={styles.seedDescText} color="light.GreyText" testID={'text_enterSeedNote'}>
+            {seed.enterRecoveryPhraseNote}
           </Text>
           <View style={styles.bottomBtnsWrapper}>
             <Box style={styles.bottomBtnsWrapper02}>
@@ -517,7 +532,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => {}}
+          close={() => { }}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);

@@ -23,6 +23,8 @@ import { resetRealyWalletState } from '../reducers/bhr';
 export const defaultTransferPolicyThreshold =
   config.NETWORK_TYPE === NetworkType.MAINNET ? 1000000 : 5000;
 
+export const maxTransferPolicyThreshold = 1e11;
+
 export function* setupKeeperAppWorker({ payload }) {
   try {
     const { appName, fcmToken }: { appName: string; fcmToken: string } = payload;

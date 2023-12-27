@@ -79,7 +79,7 @@ function BackupHealthCheckList() {
                 opacity={0.7}
                 letterSpacing={0.6}
               >
-                {moment.unix(item.date).format('DD MMM YYYY, hh:mmA')}
+                {moment.unix(item.date).format('DD MMM YYYY, HH:mmA')}
               </Text>
               <Box
                 backgroundColor={`${colorMode}.seashellWhite`}
@@ -107,7 +107,7 @@ function BackupHealthCheckList() {
       </Box>
 
       <Box alignItems="flex-start">
-        <Buttons primaryText={common.confirm} primaryCallback={onPressConfirm} />
+        <Buttons primaryText={common.runHealthCheck} primaryCallback={onPressConfirm} />
       </Box>
 
       <ModalWrapper

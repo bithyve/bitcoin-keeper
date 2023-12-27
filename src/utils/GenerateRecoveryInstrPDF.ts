@@ -19,7 +19,7 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
                 padding: 0 20px;
               }
               p{
-                font-size:35px;
+                font-size:32px;
               }
             </style>
           </head>
@@ -83,7 +83,7 @@ const GenerateRecoveryInstrPDF = async (signers, descriptorString) => {
             <p>----------------------------------------------------------------------------------------------------</p>
             <p>Annexure 1</p>
             <p>Output Descriptor</p>
-            <p>${descriptorString}</p>
+            <p style="font-size: 15px">${descriptorString}</p>
             </body>
         </html>
       `;
