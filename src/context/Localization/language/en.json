@@ -712,5 +712,9 @@
     "addressForRamp": "Address for ramp transactions",
     "buyBitcoinRamp": "Buy bitcoin with Ramp",
     "buyBitcoinRampSubTitle": "Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+  },
+  "signer": {
+    "addSigner": "Add Signer",
+    "addSignerSubTitle": "to Valinor"
   }
 }
