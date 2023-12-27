@@ -5,7 +5,7 @@ import ScreenWrapper from 'src/components/ScreenWrapper';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import WalletDark from 'src/assets/images/walletDark.svg';
-import SignerCard from 'src/components/SignerCard';
+import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { StyleSheet } from 'react-native';
 import AddSignerCard from 'src/components/AddCard';
 
@@ -33,27 +33,7 @@ function AddSigner({ navigation }) {
             selectedCard={selectedCard}
             onCardSelect={onCardSelect}
           />
-          <SignerCard
-            walletName={'Testing'}
-            walletDescription={'Description'}
-            icon={colorMode === 'dark' ? <WalletActiveIcon /> : <WalletDark />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-          />
-          <SignerCard
-            walletName={'Testing'}
-            walletDescription={'Description'}
-            icon={colorMode === 'dark' ? <WalletActiveIcon /> : <WalletDark />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-          />
-          <SignerCard
-            walletName={'Testing'}
-            walletDescription={'Description'}
-            icon={colorMode === 'dark' ? <WalletActiveIcon /> : <WalletDark />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-          />
+
           <AddSignerCard
             name={'Add'}
             walletDescription={'Description'}
