@@ -97,6 +97,7 @@ import UTXOSelection from 'src/screens/Send/UTXOSelection';
 import VaultSetup from 'src/screens/Vault/VaultSetup';
 import NFCScanner from 'src/screens/Vault/NFCScanner';
 import AddWallet from 'src/screens/AddWalletScreen/AddWallet';
+import AddSigner from 'src/screens/AddSigner/AddSigner';
 
 const defaultTheme = {
   ...DefaultTheme,
@@ -244,6 +245,8 @@ function AppStack() {
         <Stack.Screen name="AssignSignerType" component={AssignSignerType} />
         <Stack.Screen name="NFCScanner" component={NFCScanner} />
         <Stack.Screen name="AddWallet" component={AddWallet} />
+        {/* Add Signers Screen for new Flow */}
+        <Stack.Screen name="AddSigner" component={AddSigner} />
       </Stack.Navigator>
     </RealmProvider>
   );

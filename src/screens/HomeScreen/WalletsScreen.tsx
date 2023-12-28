@@ -533,6 +533,11 @@ const WalletsScreen = ({ navigation }) => {
                     Add a new wallet, import it, or create a collaborative wallet.
                   </Text>
                 </TouchableOpacity>
+                {/* <TouchableOpacity onPress={() => navigation.navigate('AddSigner')}>
+                  <Text color="light.secondaryText" style={styles.addNewWallText}>
+                    Add a new wallet, import it, or create a collaborative wallet.
+                  </Text>
+                </TouchableOpacity> */}
               </Box>
             </Box>
           ) : currentWallet.entityKind === EntityKind.VAULT ? null : (

@@ -2,37 +2,36 @@ import { Box } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import Colors from 'src/theme/Colors';
-import CheckmarkIcon from 'src/assets/images/checkmark.svg';
 
-type WalletCardProps = {
+type SignerCardProps = {
   walletName: string;
   walletDescription: string;
   icon: Element;
-  selectedIcon: Element;
   selectedCard: string;
   onCardSelect: (cardName: string) => void;
 };
 
-function WalletCard({
+function SignerCard({
   walletName,
   walletDescription,
   icon,
-  selectedIcon,
   selectedCard,
   onCardSelect,
-}: WalletCardProps) {
+}: SignerCardProps) {
   const isSelected = selectedCard === walletName;
-
   return (
     <TouchableOpacity
       style={[styles.walletContainer, isSelected && styles.selectedCard]}
       onPress={() => onCardSelect(walletName)}
     >
-      <Box style={styles.circle}>{isSelected && <CheckmarkIcon />}</Box>
+      <Box style={styles.circle} />
       <Box style={styles.detailContainer}>
-        <Box>{isSelected ? selectedIcon : icon}</Box>
-        <Text style={isSelected && { color: Colors.White }}>{walletName}</Text>
-        <Text style={[isSelected && { color: Colors.White }]} numberOfLines={1}>
+        <Box style={styles.iconWrapper}>{icon}</Box>
+        <Text style={isSelected ? { color: Colors.White } : styles.walletName}>{walletName}</Text>
+        <Text
+          style={[isSelected ? { color: Colors.White } : styles.walletDescription]}
+          numberOfLines={1}
+        >
           {walletDescription}
         </Text>
       </Box>
@@ -43,32 +42,46 @@ function WalletCard({
 const styles = StyleSheet.create({
   walletContainer: {
     width: 114,
-    marginVertical: 15,
     padding: 10,
     height: 125,
-
+    alignItems: 'flex-start',
     backgroundColor: '#FDF7F0',
     borderRadius: 10,
     borderWidth: 0.5,
     borderColor: '#eee3d8',
   },
+  walletName: {
+    color: 'rgba(36, 49, 46, 1)',
+    fontSize: 12,
+    fontWeight: '400',
+  },
+  walletDescription: {
+    color: 'rgba(62, 82, 77, 1)',
+    fontSize: 11,
+  },
   circle: {
-    width: 22,
-    height: 22,
-    borderRadius: 22 / 2,
-    backgroundColor: 'rgba(237, 227, 216, 1)',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 20,
+    height: 20,
+    borderRadius: 20 / 2,
+    alignSelf: 'flex-end',
+    borderColor: 'rgba(145, 120, 93, 1)',
+    borderWidth: 1,
   },
   detailContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
+    gap: 2,
     marginTop: 15,
   },
   selectedCard: {
-    backgroundColor: 'rgba(45, 103, 89, 1)',
+    backgroundColor: '#2e6759',
+  },
+  iconWrapper: {
+    width: 34,
+    height: 34,
+    backgroundColor: 'rgba(145, 120, 93, 1)',
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
-export default WalletCard;
+export default SignerCard;
