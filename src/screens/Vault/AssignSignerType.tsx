@@ -8,33 +8,40 @@ import { ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { updateSignerDetails } from 'src/store/sagaActions/wallets';
 import { getDeviceStatus, getSDMessage, getSignerNameFromType } from 'src/hardware';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
+import { Vault, VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { SDIcons } from '../Vault/SigningDeviceIcons';
 import usePlan from 'src/hooks/usePlan';
 import NFC from 'src/services/nfc';
 import useVault from 'src/hooks/useVault';
 import { SubscriptionTier } from 'src/models/enums/SubscriptionTier';
 import Text from 'src/components/KeeperText';
+import HardwareModalMap, { InteracationMode } from './HardwareModalMap';
+import useSigners from 'src/hooks/useSigners';
 
 type IProps = {
   navigation: any;
   route: {
     params: {
-      signer: VaultSigner;
-      parentNavigation: any;
+      vault: Vault;
     };
   };
 };
 function AssignSignerType({ navigation, route }: IProps) {
   const dispatch = useDispatch();
-  const { signer, parentNavigation } = route.params;
+  const { vault } = route.params;
+  const { signers: appSigners } = useSigners(vault.id);
+  const unknownSigners = appSigners.filter((signer) => signer.type === SignerType.UNKOWN_SIGNER);
+  const [visible, setVisible] = useState(false);
+  const [signerType, setSignerType] = useState<SignerType>();
   const assignSignerType = (type: SignerType) => {
-    parentNavigation.setParams({
-      signer: { ...signer, type, signerName: getSignerNameFromType(type) },
-    });
-    dispatch(updateSignerDetails(signer, 'type', type));
-    dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type)));
-    navigation.goBack();
+    setSignerType(type);
+    setVisible(true);
+    // parentNavigation.setParams({
+    //   signer: { ...signer, type, signerName: getSignerNameFromType(type) },
+    // });
+    // dispatch(updateSignerDetails(signer, 'type', type));
+    // dispatch(updateSignerDetails(signer, 'signerName', getSignerNameFromType(type)));
+    // navigation.goBack();
   };
   const { plan } = usePlan();
 
@@ -77,11 +84,6 @@ function AssignSignerType({ navigation, route }: IProps) {
         title="Identify your Signing Device"
         subtitle="for better communication and conectivity"
       />
-      <VStack paddingLeft={'10%'} paddingTop={'5%'}>
-        <Text>Master fingerprint: {signer.masterFingerprint}</Text>
-        <Text>Fingerprint: {signer.signerId}</Text>
-        <Text>xPub: {signer.xpub}</Text>
-      </VStack>
       <ScrollView
         contentContainerStyle={{ paddingVertical: '10%' }}
         style={{ height: hp(520) }}
@@ -109,7 +111,9 @@ function AssignSignerType({ navigation, route }: IProps) {
                 <TouchableOpacity
                   disabled={disabled}
                   activeOpacity={0.7}
-                  onPress={() => assignSignerType(type)}
+                  onPress={() => {
+                    assignSignerType(type);
+                  }}
                   key={type}
                 >
                   <Box
@@ -135,6 +139,20 @@ function AssignSignerType({ navigation, route }: IProps) {
             })}
           </Box>
         )}
+        <HardwareModalMap
+          type={signerType}
+          visible={visible}
+          close={() => setVisible(false)}
+          unkownSigners={unknownSigners}
+          skipHealthCheckCallBack={() => {
+            setVisible(false);
+            // setSkipHealthCheckModalVisible(true);
+          }}
+          mode={InteracationMode.HEALTH_CHECK}
+          vaultShellId={vault?.shellId}
+          isMultisig={vault?.isMultiSig}
+          primaryMnemonic={'kokok'}
+        />
       </ScrollView>
     </ScreenWrapper>
   );
