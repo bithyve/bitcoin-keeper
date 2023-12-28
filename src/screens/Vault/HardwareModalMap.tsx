@@ -65,6 +65,7 @@ import { formatDuration } from '../VaultRecovery/VaultRecovery';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import Instruction from 'src/components/Instruction';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -72,6 +73,8 @@ export const enum InteracationMode {
   ADDITION = 'ADDITION',
   HEALTH_CHECK = 'HEALTH_CHECK',
   RECOVERY = 'RECOVERY',
+  CONFIG_RECOVERY = 'CONFIG_RECOVERY',
+  IDENTIFICATION = 'IDENTIFICATION',
 }
 
 const getSignerContent = (
@@ -627,6 +630,7 @@ function HardwareModalMap({
   primaryMnemonic,
   vaultShellId,
   addSignerFlow = false,
+  unkownSigners,
 }: {
   type: SignerType;
   visible: boolean;
@@ -638,6 +642,7 @@ function HardwareModalMap({
   primaryMnemonic?: string;
   vaultShellId?: string;
   addSignerFlow: boolean;
+  unkownSigners?: Signer[];
 }) {
   const { colorMode } = useColorMode();
   const dispatch = useDispatch();
@@ -647,13 +652,14 @@ function HardwareModalMap({
 
   const [passwordModal, setPasswordModal] = useState(false);
   const [inProgress, setInProgress] = useState(false);
-
+  const { mapUnknownSigner } = useUnkownSigners();
   const loginMethod = useAppSelector((state) => state.settings.loginMethod);
   const { signingDevices } = useAppSelector((state) => state.bhr);
   const appId = useAppSelector((state) => state.storage.appId);
   const { pinHash } = useAppSelector((state) => state.storage);
   const isHealthcheck = mode === InteracationMode.HEALTH_CHECK;
 
+  //DONE
   const navigateToTapsignerSetup = () => {
     if (mode === InteracationMode.RECOVERY) {
       navigation.dispatch(
@@ -671,6 +677,7 @@ function HardwareModalMap({
     );
   };
 
+  //DONE
   const navigateToColdCardSetup = () => {
     if (mode === InteracationMode.RECOVERY) {
       navigation.dispatch(
@@ -688,6 +695,7 @@ function HardwareModalMap({
     );
   };
 
+  //DONE
   const navigateToAddQrBasedSigner = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -698,9 +706,8 @@ function HardwareModalMap({
           onQrScan: isHealthcheck ? onQRScanHealthCheck : onQRScan,
           setup: true,
           type,
-          isHealthcheck: true,
+          mode,
           signer,
-          addSignerFlow,
         },
       })
     );
@@ -726,12 +733,11 @@ function HardwareModalMap({
         showToast('Error in Health check', <ToastErrorIcon />, 3000);
       }
     } else {
-      navigation.dispatch(
-        CommonActions.navigate({ name: 'ChoosePolicyNew', params: { signer, addSignerFlow } })
-      );
+      navigation.dispatch(CommonActions.navigate({ name: 'ChoosePolicyNew', params: { signer } }));
     }
   };
 
+  //DONE
   const navigateToSetupWithChannel = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -749,6 +755,7 @@ function HardwareModalMap({
     );
   };
 
+  //DONE
   const navigateToSetupWithOtherSD = () => {
     navigation.dispatch(
       CommonActions.navigate({
@@ -762,6 +769,7 @@ function HardwareModalMap({
     );
   };
 
+  //DONE
   const navigateToSeedWordSetup = () => {
     if (mode === InteracationMode.RECOVERY) {
       const navigationState = getnavigationState(SignerType.SEED_WORDS);
@@ -790,11 +798,12 @@ function HardwareModalMap({
           },
         })
       );
-    } else if (mode === InteracationMode.HEALTH_CHECK) {
+    } else if (mode === InteracationMode.HEALTH_CHECK || mode === InteracationMode.IDENTIFICATION) {
       navigation.dispatch(
         CommonActions.navigate({
           name: 'EnterSeedScreen',
           params: {
+            mode,
             isHealthCheck: true,
             signer,
             isMultisig,
@@ -829,9 +838,23 @@ function HardwareModalMap({
           break;
       }
 
+      const handleSuccess = () => {
+        dispatch(healthCheckSigner([signer]));
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`${signer.signerName} verified successfully`, <TickIcon />);
+      };
+
+      const handleFailure = () => {
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
+      };
+
       if (mode === InteracationMode.RECOVERY) {
         dispatch(setSigningDevices(hw.signer));
         navigation.navigate('LoginStack', { screen: 'VaultRecoveryAddSigner' });
+      } else if (mode === InteracationMode.IDENTIFICATION) {
+        const mapped = mapUnknownSigner({ masterFingerprint: hw.signer.masterFingerprint, type });
+        mapped ? handleSuccess() : handleFailure();
       } else {
         dispatch(addSigningDevice([hw.signer], [hw.key], addSignerFlow));
         const navigationState = addSignerFlow
@@ -853,11 +876,9 @@ function HardwareModalMap({
           `Invalid QR, please scan the QR from a ${getSignerNameFromType(type)}`,
           <ToastErrorIcon />
         );
-        if (!addSignerFlow) {
-          navigation.dispatch(
-            CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
-          );
-        }
+        navigation.dispatch(
+          CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
+        );
       }
     }
   };
@@ -939,6 +960,34 @@ function HardwareModalMap({
         Alert.alert(`${err}`);
       }
     };
+
+    const findSigningServer = async (otp) => {
+      try {
+        setInProgress(true);
+        if (unkownSigners.length <= 1)
+          throw new Error('Add two other devices first to do a health check');
+        //confirm if mfp
+        // if fingerPrint then derive masterFingerprints
+        // f() to derive mfp ?
+        const ids = unkownSigners.map((signer) => signer.masterFingerprint);
+        const response = await SigningServer.findSignerSetup(ids, otp);
+        if (response.valid) {
+          const mapped = mapUnknownSigner({
+            masterFingerprint: response.masterFingerprint,
+            type: SignerType.POLICY_SERVER,
+            signerPolicy: response.policy,
+          });
+          if (mapped) {
+            //handle success
+          } else {
+            //handle error
+          }
+        }
+      } catch (err) {
+        setInProgress(false);
+        Alert.alert(`${err}`);
+      }
+    };
     const [otp, setOtp] = useState('');
     const onPressNumber = (text) => {
       let tmpPasscode = otp;
@@ -979,6 +1028,7 @@ function HardwareModalMap({
             <Box>
               <CustomGreenButton
                 onPress={() => {
+                  if (mode === InteracationMode.IDENTIFICATION) findSigningServer(otp);
                   verifySigningServer(otp);
                 }}
                 value={common.confirm}
@@ -1167,7 +1217,11 @@ function HardwareModalMap({
         }
       />
       <KeeperModal
-        visible={visible && type === SignerType.POLICY_SERVER && mode === InteracationMode.RECOVERY}
+        visible={
+          visible &&
+          type === SignerType.POLICY_SERVER &&
+          (mode === InteracationMode.RECOVERY || mode === InteracationMode.IDENTIFICATION)
+        }
         close={close}
         title="Confirm OTP to setup 2FA"
         subTitle="To complete setting up the signing server"
