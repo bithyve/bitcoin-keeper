@@ -121,7 +121,7 @@ function SignerAdvanceSettings({ route }: any) {
   };
 
   const isPolicyServer = signer.type === SignerType.POLICY_SERVER;
-  const isOtherSD = signer.type === SignerType.OTHER_SD;
+  const isOtherSD = signer.type === SignerType.UNKOWN_SIGNER;
   const isTapsigner = signer.type === SignerType.TAPSIGNER;
 
   const changePolicy = () => {
