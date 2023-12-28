@@ -63,17 +63,14 @@ const useSignerIntel = ({ scheme }) => {
 
   useEffect(() => {
     const fills = getPrefillForSignerList(scheme, vaultSigners);
-    setSignersState(
-      // vaultSigners.map((signer) => updateSignerForScheme(signer, scheme.n)).concat(fills)
-      vaultSigners.concat(fills)
-    );
+    setSignersState(vaultSigners.concat(fills));
   }, [vaultSigners]);
 
   const amfSigners = [];
   const misMatchedSigners = [];
   signersState.forEach((key: VaultSigner) => {
-    const signer = signerMap[key.masterFingerprint];
     if (key) {
+      const signer = signerMap[key.masterFingerprint];
       if (isSignerAMF(signer)) amfSigners.push(signer.type);
       const { isSingleSig, isMultiSig } = getSignerSigTypeInfo(key, signer);
       if ((scheme.n === 1 && !isSingleSig) || (scheme.n !== 1 && !isMultiSig)) {

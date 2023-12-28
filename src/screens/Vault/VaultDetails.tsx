@@ -294,7 +294,8 @@ function SignerList({ vault }: { vault: Vault }) {
         const indicate =
           !key?.registeredVaults?.find((info) => info.vaultId === vault.id && info.registered) &&
           isMultiSig &&
-          !UNVERIFYING_SIGNERS.includes(signer.type);
+          !UNVERIFYING_SIGNERS.includes(signer.type) &&
+          !isSignerAMF(signer);
 
         return (
           <Box

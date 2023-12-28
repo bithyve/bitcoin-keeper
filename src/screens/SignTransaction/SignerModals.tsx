@@ -487,16 +487,14 @@ function SignerModals({
           );
         }
         if (signer.type === SignerType.COLDCARD) {
-          const { registered = false } = vaultKey.registeredVaults.find(
-            (info) => info.vaultId === vaultId
-          );
+          const info = vaultKey.registeredVaults.find((info) => info.vaultId === vaultId);
           const navigateToSignWithColdCard = () => {
             setColdCardModal(false);
             navigation.dispatch(
               CommonActions.navigate('SignWithColdCard', { signTransaction, vaultKey, isMultisig })
             );
           };
-          const shouldRegister = !registered && isMultisig;
+          const shouldRegister = isMultisig && !info?.registered;
           return (
             <KeeperModal
               key={vaultKey.xfp}
