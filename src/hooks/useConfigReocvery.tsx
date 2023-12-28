@@ -5,63 +5,62 @@ import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
 import { useAppSelector } from 'src/store/hooks';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
 import { useDispatch } from 'react-redux';
-import { addNewVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
-import { setupKeeperApp } from 'src/store/sagaActions/storage';
 import { VaultScheme } from 'src/core/wallets/interfaces/vault';
-import messaging from '@react-native-firebase/messaging';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { Alert } from 'react-native';
-import { setRecoveryCreatedApp } from 'src/store/reducers/storage';
 
 const useConfigRecovery = () => {
-  const { appId } = useAppSelector((state) => state.storage);
-  const { relayVaultError, relayVaultUpdate } = useAppSelector((state) => state.bhr);
+  const { relayVaultError, relayVaultUpdate, realyVaultErrorMessage } = useAppSelector(
+    (state) => state.bhr
+  );
 
   const [recoveryLoading, setRecoveryLoading] = useState(false);
   const [scheme, setScheme] = useState<VaultScheme>();
+  const [vaultSignersList, setVaultSignersList] = useState([]);
   const [signersList, setSignersList] = useState([]);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  async function createNewApp() {
-    try {
-      const fcmToken = await messaging().getToken();
-      dispatch(setRecoveryCreatedApp(true));
-      dispatch(setupKeeperApp(fcmToken));
-    } catch (error) {
-      dispatch(setRecoveryCreatedApp(true));
-      dispatch(setupKeeperApp());
-    }
-  }
 
   useEffect(() => {
-    if (appId && scheme) {
+    if (scheme && signersList.length > 1 && vaultSignersList.length > 1) {
       try {
+        dispatch(addSigningDevice(signersList, null, true));
+        console.log(vaultSignersList[0], signersList[0]);
         const vaultInfo: NewVaultInfo = {
           vaultType: VaultType.DEFAULT,
           vaultScheme: scheme,
-          vaultSigners: signersList,
+          vaultSigners: vaultSignersList,
           vaultDetails: {
             name: 'Vault',
             description: 'Secure your sats',
           },
         };
         dispatch(addNewVault({ newVaultInfo: vaultInfo }));
+        setTimeout(() => {}, 3000);
       } catch (err) {
         captureError(err);
       }
       setRecoveryLoading(false);
     }
-  }, [appId, signersList]);
+  }, [scheme, signersList]);
 
   useEffect(() => {
     if (relayVaultUpdate) {
       setRecoveryLoading(false);
-      navigation.replace('App');
+      const navigationState = {
+        index: 1,
+        routes: [
+          { name: 'Home' },
+          { name: 'VaultDetails', params: { vaultTransferSuccessful: true } },
+        ],
+      };
+      navigation.dispatch(CommonActions.reset(navigationState));
     }
     if (relayVaultError) {
       setRecoveryLoading(false);
-      Alert.alert('Something went wrong!');
+      Alert.alert('Something went wrong!', realyVaultErrorMessage);
     }
   }, [relayVaultUpdate, relayVaultError]);
 
@@ -70,23 +69,23 @@ const useConfigRecovery = () => {
     try {
       const parsedText: ParsedVauleText = parseTextforVaultConfig(text);
       if (parsedText) {
+        const vaultSigners = [];
         const signers = [];
         parsedText.signersDetails.forEach((config) => {
-          const { signer } = generateSignerFromMetaData({
+          const { signer, key } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,
             xfp: config.masterFingerprint,
-            signerType: SignerType.OTHER_SD,
+            signerType: SignerType.UNKOWN_SIGNER,
             storageType: SignerStorage.WARM,
             isMultisig: config.isMultisig,
           });
+          vaultSigners.push(key);
           signers.push(signer);
         });
-        setScheme(parsedText.scheme);
         setSignersList(signers);
-        if (!appId) {
-          createNewApp();
-        }
+        setVaultSignersList(vaultSigners);
+        setScheme(parsedText.scheme);
       }
     } catch (err) {
       setRecoveryLoading(false);
