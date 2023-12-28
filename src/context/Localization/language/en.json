@@ -96,7 +96,8 @@
     "upgradeNow": "Upgrade Now",
     "somethingWrong": "Something went wrong",
     "showAsQR": "Show as QR",
-    "runHealthCheck": "Run Health Check"
+    "runHealthCheck": "Run Health Check",
+    "action": "Action"
   },
   "noInternet": {
     "no": "No Internet",

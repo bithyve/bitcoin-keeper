@@ -106,7 +106,8 @@
     "some": "Some of the features will not work as expected in your Hexa app, including:",
     "fetching": "fetching your balance and transactions",
     "sending": "sending sats",
-    "contact": "contact requests"
+    "contact": "contact requests",
+    "action": "Action"
   },
   "login": {
     "login": "Login",
