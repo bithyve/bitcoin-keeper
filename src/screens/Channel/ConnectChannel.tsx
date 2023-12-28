@@ -39,6 +39,7 @@ import { setSigningDevices } from 'src/store/reducers/bhr';
 import Text from 'src/components/KeeperText';
 import crypto from 'crypto';
 import { createDecipheriv } from 'src/core/utils';
+import useUnkownSigners from 'src/hooks/useUnkownSigners';
 
 const ScanAndInstruct = ({ onBarCodeRead, mode }) => {
   const { colorMode } = useColorMode();
@@ -91,6 +92,7 @@ function ConnectChannel() {
 
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { mapUnknownSigner } = useUnkownSigners;
 
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -226,65 +228,74 @@ function ConnectChannel() {
       }
     });
 
+    const handleVerification = async (data, deviceType) => {
+      const handleSuccess = () => {
+        dispatch(healthCheckSigner([signer]));
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`${signer.signerName} verified successfully`, <TickIcon />);
+      };
+
+      const handleFailure = () => {
+        navigation.dispatch(CommonActions.goBack());
+        showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
+      };
+
+      try {
+        const decrypted = createDecipheriv(data, decryptionKey.current);
+        let xfp, signerType;
+
+        switch (deviceType) {
+          case LEDGER_HEALTHCHECK:
+            ({ xfp } = getLedgerDetailsFromChannel(decrypted, isMultisig));
+            signerType = SignerType.LEDGER;
+            break;
+          case TREZOR_HEALTHCHECK:
+            ({ xfp } = getTrezorDetails(decrypted, isMultisig));
+            signerType = SignerType.TREZOR;
+            break;
+          case BITBOX_HEALTHCHECK:
+            ({ xfp } = getTrezorDetails(decrypted, isMultisig));
+            signerType = SignerType.BITBOX02;
+            break;
+          default:
+            break;
+        }
+
+        if (mode === InteracationMode.IDENTIFICATION) {
+          const mapped = mapUnknownSigner({ masterFingerprint: xfp, type: signerType });
+          if (mapped) {
+            handleSuccess();
+          } else {
+            handleFailure();
+          }
+        } else {
+          if (xfp === signer.masterFingerprint) {
+            handleSuccess();
+          } else {
+            handleFailure();
+          }
+        }
+      } catch (error) {
+        if (error instanceof HWError) {
+          showToast(error.message, <ToastErrorIcon />, 3000);
+        } else if (error.toString() === 'Error') {
+          // ignore if user cancels NFC interaction
+        } else {
+          captureError(error);
+        }
+      }
+    };
+
     channel.on(LEDGER_HEALTHCHECK, async (data) => {
-      try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub } = getLedgerDetailsFromChannel(decrypted, isMultisig);
-        if (signer.xpub === xpub) {
-          dispatch(healthCheckSigner([signer]));
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verified successfully`, <TickIcon />);
-        } else {
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
+      await handleVerification(data, LEDGER_HEALTHCHECK);
     });
+
     channel.on(TREZOR_HEALTHCHECK, async (data) => {
-      try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub } = getTrezorDetails(decrypted, isMultisig);
-        if (signer.xpub === xpub) {
-          dispatch(healthCheckSigner([signer]));
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verified successfully`, <TickIcon />);
-        } else {
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
+      await handleVerification(data, TREZOR_HEALTHCHECK);
     });
+
     channel.on(BITBOX_HEALTHCHECK, async (data) => {
-      try {
-        const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub } = getTrezorDetails(decrypted, isMultisig);
-        if (signer.xpub === xpub) {
-          dispatch(healthCheckSigner([signer]));
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verified successfully`, <TickIcon />);
-        } else {
-          navigation.dispatch(CommonActions.goBack());
-          showToast(`${signer.signerName} verification failed`, <ToastErrorIcon />);
-        }
-      } catch (error) {
-        if (error instanceof HWError) {
-          showToast(error.message, <ToastErrorIcon />, 3000);
-        } else if (error.toString() === 'Error') {
-          // ignore if user cancels NFC interaction
-        } else captureError(error);
-      }
+      await handleVerification(data, BITBOX_HEALTHCHECK);
     });
 
     return () => {
