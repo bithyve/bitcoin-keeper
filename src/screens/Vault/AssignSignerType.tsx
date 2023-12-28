@@ -42,6 +42,7 @@ function AssignSignerType({ navigation, route }: IProps) {
     SignerType.TAPSIGNER,
     SignerType.COLDCARD,
     SignerType.SEEDSIGNER,
+    SignerType.SPECTER,
     SignerType.PASSPORT,
     SignerType.JADE,
     SignerType.KEYSTONE,

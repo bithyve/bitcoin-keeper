@@ -26,6 +26,7 @@ import { LocalizationContext } from 'src/context/Localization/LocContext';
 import MobileKeyIllustration from 'src/assets/images/mobileKey_illustration.svg';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import SeedSignerSetupImage from 'src/assets/images/seedsigner_setup.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import KeeperSetupImage from 'src/assets/images/illustration_ksd.svg';
 import SeedWordsIllustration from 'src/assets/images/illustration_seed_words.svg';
 import SigningServerIllustration from 'src/assets/images/signingServer_illustration.svg';
@@ -65,6 +66,7 @@ import { formatDuration } from '../VaultRecovery/VaultRecovery';
 import { setInheritanceRequestId } from 'src/store/reducers/storage';
 import { getnavigationState } from '../Recovery/SigninDeviceListRecovery';
 import Instruction from 'src/components/Instruction';
+import { getSpecterDetails } from 'src/hardware/specter';
 
 const RNBiometrics = new ReactNativeBiometrics();
 
@@ -185,6 +187,21 @@ const getSignerContent = (
           : [seedSignerInstructions],
         title: isHealthcheck ? 'Verify SeedSigner' : 'Setting up SeedSigner',
         subTitle: 'Keep your SeedSigner ready and powered before proceeding',
+      };
+    case SignerType.SPECTER:
+      const specterInstructions = `Make sure the seed is loaded and export the xPub by going to Master Keys > ${
+        isMultisig ? 'Multisig' : 'Singlesig'
+      } > Native Segwit.\n`;
+      return {
+        Illustration: <SpecterSetupImage />,
+        Instructions: isTestnet()
+          ? [
+              specterInstructions,
+              `Make sure you enable Testnet mode on the Specter if you are running the app in the Testnet by selecting Switch network (Testnet) on the home screen.`,
+            ]
+          : [specterInstructions],
+        title: isHealthcheck ? 'Verify Specter' : 'Setting up Specter',
+        subTitle: 'Keep your Specter ready and powered before proceeding',
       };
     case SignerType.BITBOX02:
       return {
@@ -330,6 +347,27 @@ const setupSeedSigner = (qrData, isMultisig) => {
 
 const verifySeedSigner = (qrData, signer) => {
   const { xpub } = getSeedSignerDetails(qrData);
+  return xpub === signer.xpub;
+};
+
+const setupSpecter = (qrData, isMultisig) => {
+  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSpecterDetails(qrData);
+  if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
+    const { signer, key } = generateSignerFromMetaData({
+      xpub,
+      derivationPath,
+      xfp,
+      signerType: SignerType.SPECTER,
+      storageType: SignerStorage.COLD,
+      isMultisig,
+    });
+    return { signer, key };
+  }
+  throw new HWError(HWErrorType.INVALID_SIG);
+};
+
+const verifySpecter = (qrData, signer) => {
+  const { xpub } = getSpecterDetails(qrData);
   return xpub === signer.xpub;
 };
 
@@ -816,6 +854,9 @@ function HardwareModalMap({
         case SignerType.SEEDSIGNER:
           hw = setupSeedSigner(qrData, isMultisig);
           break;
+        case SignerType.SPECTER:
+          hw = setupSpecter(qrData, isMultisig);
+          break;
         case SignerType.KEEPER:
           hw = setupKeeperSigner(qrData, isMultisig);
           break;
@@ -871,6 +912,9 @@ function HardwareModalMap({
           break;
         case SignerType.SEEDSIGNER:
           healthcheckStatus = verifySeedSigner(qrData, signer);
+          break;
+        case SignerType.SPECTER:
+          healthcheckStatus = verifySpecter(qrData, signer);
           break;
         case SignerType.KEEPER:
           healthcheckStatus = verifyKeeperSigner(qrData, signer);
@@ -1111,6 +1155,7 @@ function HardwareModalMap({
         return navigateToSetupWithChannel();
       case SignerType.PASSPORT:
       case SignerType.SEEDSIGNER:
+      case SignerType.SPECTER:
       case SignerType.KEYSTONE:
       case SignerType.JADE:
       case SignerType.KEEPER:

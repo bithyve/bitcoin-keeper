@@ -10,12 +10,21 @@ import { updateKeyDetails } from 'src/store/sagaActions/wallets';
 import Buttons from 'src/components/Buttons';
 import useVault from 'src/hooks/useVault';
 import DisplayQR from './DisplayQR';
+import { SignerType } from 'src/core/wallets/enums';
+import { genrateOutputDescriptors } from 'src/core/utils';
+import useSignerFromKey from 'src/hooks/useSignerFromKey';
+
+const SPECTER_PREFIX = 'addwallet keeper vault&';
 
 function RegisterWithQR({ route, navigation }: any) {
   const { vaultKey }: { vaultKey: VaultSigner } = route.params;
   const dispatch = useDispatch();
   const { activeVault } = useVault();
-  const walletConfig = getWalletConfig({ vault: activeVault });
+  const { signer } = useSignerFromKey(vaultKey);
+  const walletConfig =
+    signer.type === SignerType.SPECTER
+      ? SPECTER_PREFIX + genrateOutputDescriptors(activeVault, false).replaceAll('/**', '') + ')'
+      : getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
   const markAsRegistered = () => {
     dispatch(
@@ -26,6 +35,7 @@ function RegisterWithQR({ route, navigation }: any) {
     );
     navigation.goBack();
   };
+
   return (
     <ScreenWrapper>
       <KeeperHeader

@@ -76,6 +76,7 @@ function SignTransactionScreen() {
   const [ledgerModal, setLedgerModal] = useState(false);
   const [passportModal, setPassportModal] = useState(false);
   const [seedSignerModal, setSeedSignerModal] = useState(false);
+  const [specterModal, setSpecterModal] = useState(false);
   const [keystoneModal, setKeystoneModal] = useState(false);
   const [jadeModal, setJadeModal] = useState(false);
   const [keeperModal, setKeeperModal] = useState(false);
@@ -317,6 +318,9 @@ function SignTransactionScreen() {
       case SignerType.PASSPORT:
         setPassportModal(true);
         break;
+      case SignerType.SPECTER:
+        setSpecterModal(true);
+        break;
       case SignerType.SEEDSIGNER:
         setSeedSignerModal(true);
         break;
@@ -446,6 +450,8 @@ function SignTransactionScreen() {
         trezorModal={trezorModal}
         bitbox02Modal={bitbox02Modal}
         otherSDModal={otherSDModal}
+        specterModal={specterModal}
+        setSpecterModal={setSpecterModal}
         setOtherSDModal={setOtherSDModal}
         setTrezorModal={setTrezorModal}
         setBitbox02Modal={setBitbox02Modal}

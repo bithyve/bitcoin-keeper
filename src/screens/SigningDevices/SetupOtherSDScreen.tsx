@@ -90,17 +90,17 @@ function SetupOtherSDScreen({ route }) {
       try {
         hw = getPassportDetails(qrData);
       } catch (e) {
-        // ignore
+        // ignore and try other type
       }
       try {
         hw = getSeedSignerDetails(qrData);
       } catch (error) {
-        // ignore
+        // ignore and try other type
       }
       try {
         hw = getKeystoneDetails(qrData);
       } catch (error) {
-        // ignore
+        // ignore and try other type
       }
       try {
         hw = getJadeDetails(qrData);

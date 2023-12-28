@@ -392,6 +392,8 @@ function SignerModals({
   isMultisig,
   collaborativeWalletId,
   signerMap,
+  specterModal,
+  setSpecterModal,
 }: {
   vaultId: string;
   activeSignerId: string;
@@ -427,6 +429,8 @@ function SignerModals({
   isMultisig: boolean;
   collaborativeWalletId: string;
   signerMap: { [key: string]: Signer };
+  specterModal: boolean;
+  setSpecterModal: any;
 }) {
   const navigation = useNavigation();
 
@@ -585,6 +589,23 @@ function SignerModals({
               }}
               title="Keep SeedSigner Ready"
               subTitle="Keep your SeedSigner ready before proceeding"
+              textColor="light.primaryText"
+              Content={() => <SeedSignerContent isMultisig={isMultisig} />}
+              buttonText="Proceed"
+              buttonCallback={() => navigateToQrSigning(vaultKey)}
+            />
+          );
+        }
+        if (signer.type === SignerType.SPECTER) {
+          return (
+            <KeeperModal
+              key={vaultKey.xfp}
+              visible={currentSigner && specterModal}
+              close={() => {
+                setSpecterModal(false);
+              }}
+              title="Keep Specter Ready"
+              subTitle="Keep your Specter ready before proceeding"
               textColor="light.primaryText"
               Content={() => <SeedSignerContent isMultisig={isMultisig} />}
               buttonText="Proceed"

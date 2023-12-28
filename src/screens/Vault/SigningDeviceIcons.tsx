@@ -129,6 +129,12 @@ export const SDIcons = (type: SignerType, light = false) => {
         Logo: <SEEDSIGNERLOGO />,
         type: SignerStorage.COLD,
       };
+    case SignerType.SPECTER:
+      return {
+        Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light),
+        Logo: <SEEDSIGNERLOGO />,
+        type: SignerStorage.COLD,
+      };
     case SignerType.BITBOX02:
       return {
         Icon: getColouredIcon(<BITBOXICONLIGHT />, <BITBOXICON />, light),

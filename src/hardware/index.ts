@@ -135,6 +135,9 @@ export const getSignerNameFromType = (type: SignerType, isMock = false, isAmf = 
     case SignerType.SEEDSIGNER:
       name = 'SeedSigner';
       break;
+    case SignerType.SPECTER:
+      name = 'Specter';
+      break;
     case SignerType.BITBOX02:
       name = 'BitBox02';
       break;
@@ -306,6 +309,7 @@ export const getDeviceStatus = (
     case SignerType.SEEDSIGNER:
     case SignerType.LEDGER:
     case SignerType.KEYSTONE:
+    case SignerType.SPECTER:
     default:
       return {
         message: '',
@@ -320,6 +324,7 @@ export const getSDMessage = ({ type }: { type: SignerType }) => {
     case SignerType.LEDGER:
     case SignerType.PASSPORT:
     case SignerType.BITBOX02:
+    case SignerType.SPECTER:
     case SignerType.KEYSTONE: {
       return 'Register for full verification';
     }
