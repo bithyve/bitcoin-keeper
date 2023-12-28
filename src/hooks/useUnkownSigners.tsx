@@ -1,0 +1,50 @@
+import { useQuery } from '@realm/react';
+import { useDispatch } from 'react-redux';
+import { SignerType } from 'src/core/wallets/enums';
+import { Signer } from 'src/core/wallets/interfaces/vault';
+import { InheritanceKeyInfo, SignerPolicy } from 'src/services/interfaces';
+import { RealmSchema } from 'src/storage/realm/enum';
+import { getJSONFromRealmObject } from 'src/storage/realm/utils';
+import { updateSignerDetails } from 'src/store/sagaActions/wallets';
+
+const useUnkownSigners = () => {
+  const signers: Signer[] = useQuery(RealmSchema.Signer).map(getJSONFromRealmObject);
+  const unknowSigners = signers.filter((signer) => signer.type === SignerType.UNKOWN_SIGNER);
+  const dispatch = useDispatch();
+
+  const mapUnknownSigner = ({
+    masterFingerprint,
+    type,
+    signerPolicy,
+    inheritanceKeyInfo,
+  }: {
+    masterFingerprint: string;
+    type: SignerType;
+    signerPolicy?: SignerPolicy;
+    inheritanceKeyInfo?: InheritanceKeyInfo;
+  }): boolean | void => {
+    try {
+      const signer = signers.find((signer) => signer.masterFingerprint === masterFingerprint);
+      if (signer) {
+        dispatch(updateSignerDetails(signer, 'type', type));
+
+        if (signerPolicy) {
+          dispatch(updateSignerDetails(signer, 'signerPolicy', signerPolicy));
+        }
+
+        if (inheritanceKeyInfo) {
+          dispatch(updateSignerDetails(signer, 'inheritanceKeyInfo', inheritanceKeyInfo));
+        }
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error('Error mapping unknown signer to signer:', error);
+      throw new Error('Error mapping unknown signer to signer');
+    }
+  };
+
+  return { unknowSigners, mapUnknownSigner };
+};
+
+export default useUnkownSigners;
