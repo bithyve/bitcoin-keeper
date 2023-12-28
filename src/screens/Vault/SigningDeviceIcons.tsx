@@ -145,6 +145,17 @@ export const SDIcons = (type: SignerType, light = false) => {
         ),
         type: SignerStorage.COLD,
       };
+
+    case SignerType.UNKOWN_SIGNER:
+      return {
+        Icon: getColouredIcon(<OTHERSDICONLIGHT />, <OTHERSDICON />, light),
+        Logo: (
+          <Text style={styles.text} color="light.secondaryText">
+            Unknonw Signer
+          </Text>
+        ),
+        type: SignerStorage.COLD,
+      };
     case SignerType.SEED_WORDS:
       return {
         Icon: getColouredIcon(<SEEDWORDSLIGHT />, <SEEDWORDS />, light),
