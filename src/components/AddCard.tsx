@@ -1,23 +1,22 @@
 import { Box } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import Colors from 'src/theme/Colors';
+import AddCardIcon from 'src/assets/images/addCardIcon.svg';
 
 type AddSignerCardProps = {
   name: string;
   walletDescription: string;
-  icon: Element;
-  selectedCard: string;
   onCardSelect: (cardName: string) => void;
 };
 
-function AddSignerCard({ name, icon, selectedCard, onCardSelect }: AddSignerCardProps) {
-  const isSelected = selectedCard === name;
+function AddCard({ name, onCardSelect }: AddSignerCardProps) {
   return (
     <TouchableOpacity style={styles.AddCardContainer} onPress={() => onCardSelect(name)}>
       <Box style={styles.detailContainer}>
-        <Box style={styles.iconWrapper}>{icon}</Box>
-        <Text style={isSelected ? { color: Colors.White } : styles.nameStyle}>{name}</Text>
+        <Box style={styles.iconWrapper}>
+          <AddCardIcon />
+        </Box>
+        <Text style={styles.nameStyle}>{name}</Text>
       </Box>
     </TouchableOpacity>
   );
@@ -60,4 +59,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddSignerCard;
+export default AddCard;

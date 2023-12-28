@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="34" viewBox="0 0 40 34">
+  <g id="Group_46287" data-name="Group 46287" transform="translate(-165.003 -544.844)">
+    <path id="hexagontile3" d="M27.712,0A4,4,0,0,1,31.16,1.972l7.647,13a4,4,0,0,1,0,4.056l-7.647,13A4,4,0,0,1,27.712,34H12.288A4,4,0,0,1,8.84,32.028l-7.647-13a4,4,0,0,1,0-4.056l7.647-13A4,4,0,0,1,12.288,0Z" transform="translate(165.003 544.844)" fill="#2d6759"/>
+    <path id="add" d="M12.807,12.807V6h2.723v6.807h6.807v2.723H15.529v6.807H12.807V15.529H6V12.807Z" transform="translate(170.835 547.676)" fill="#fdf7f0" fill-rule="evenodd"/>
+  </g>
+</svg>

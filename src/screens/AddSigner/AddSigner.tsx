@@ -7,7 +7,7 @@ import WalletActiveIcon from 'src/assets/images/walleTabFilled.svg';
 import WalletDark from 'src/assets/images/walletDark.svg';
 import SignerCard from 'src/screens/AddSigner/SignerCard';
 import { StyleSheet } from 'react-native';
-import AddSignerCard from 'src/components/AddCard';
+import AddCard from 'src/components/AddCard';
 
 function AddSigner({ navigation }) {
   const { colorMode } = useColorMode();
@@ -22,7 +22,7 @@ function AddSigner({ navigation }) {
   };
 
   return (
-    <ScreenWrapper barStyle="dark-content" backgroundcolor={`rgba(247, 242, 236, 1)`}>
+    <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.Warmbeige`}>
       <KeeperHeader title={signer.addSigner} subtitle={signer.addSignerSubTitle} />
       <ScrollView showsVerticalScrollIndicator={true}>
         <Box style={styles.signerContainer}>
@@ -34,13 +34,7 @@ function AddSigner({ navigation }) {
             onCardSelect={onCardSelect}
           />
 
-          <AddSignerCard
-            name={'Add'}
-            walletDescription={'Description'}
-            icon={colorMode === 'dark' ? <WalletActiveIcon /> : <WalletDark />}
-            selectedCard={selectedCard}
-            onCardSelect={onCardSelect}
-          />
+          <AddCard name={'Add'} walletDescription={'Description'} onCardSelect={onCardSelect} />
         </Box>
       </ScrollView>
     </ScreenWrapper>
