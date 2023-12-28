@@ -308,9 +308,7 @@ function SignerList({ vault }: { vault: Vault }) {
               onPress={() => {
                 navigation.dispatch(
                   CommonActions.navigate('SigningDeviceDetails', {
-                    SignerIcon: <SignerIcon />,
-                    key: key,
-                    vaultId: vault.id,
+                    signer,
                   })
                 );
               }}
