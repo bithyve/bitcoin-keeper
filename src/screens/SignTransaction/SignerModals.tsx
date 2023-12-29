@@ -19,6 +19,7 @@ import LoginMethod from 'src/models/enums/LoginMethod';
 import PassportSVG from 'src/assets/images/illustration_passport.svg';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import SeedSignerSetup from 'src/assets/images/seedsigner_setup.svg';
+import SpecterSetupImage from 'src/assets/images/illustration_spectre.svg';
 import { SignerType } from 'src/core/wallets/enums';
 import TapsignerSetupSVG from 'src/assets/images/TapsignerSetup.svg';
 import { credsAuthenticated } from 'src/store/reducers/login';
@@ -92,6 +93,22 @@ function SeedSignerContent({ isMultisig }: { isMultisig: boolean }) {
         ) : null}
         <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
           {`\u2022 On the SeedSigner main menu, choose the 'Scan' option and wait for the QR to be scanned.`}
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+function SpecterContent({ isMultisig }: { isMultisig: boolean }) {
+  return (
+    <Box alignItems="center">
+      <SpecterSetupImage />
+      <Box marginTop={2}>
+        {`\u2022 Make sure ${
+          isMultisig ? 'the multisig wallet is registered with the Specter and ' : ''
+        }the right bitcoin network is set before signing the transaction`}
+        <Text color="light.greenText" fontSize={13} letterSpacing={0.65}>
+          {`\u2022 On the Specter main menu, choose the 'Scan QR code' option and wait for the QR to be scanned.`}
         </Text>
       </Box>
     </Box>
@@ -440,6 +457,7 @@ function SignerModals({
     setKeeperModal(false);
     setOtherSDModal(false);
     setJadeModal(false);
+    setSpecterModal(false);
     navigation.dispatch(
       CommonActions.navigate('SignWithQR', {
         signTransaction,
@@ -605,7 +623,7 @@ function SignerModals({
               title="Keep Specter Ready"
               subTitle="Keep your Specter ready before proceeding"
               textColor="light.primaryText"
-              Content={() => <SeedSignerContent isMultisig={isMultisig} />}
+              Content={() => <SpecterContent isMultisig={isMultisig} />}
               buttonText="Proceed"
               buttonCallback={() => navigateToQrSigning(vaultKey)}
             />
