@@ -148,19 +148,6 @@ export function* updateVaultImageWorker({
       xfpHash: hash256(signer.masterFingerprint),
     });
   }
-  // updating signerIdXpubMap if the signer was created through automated mock flow
-  // const signerIdsToFilter = [];
-  // for (const signer of vault.signers) {
-  //   if (signer.amfData && signer.amfData.xpub) {
-  //     signerIdXpubMap[signer.amfData.signerId] = signer.amfData.xpub;
-  //     signersData.push({
-  //       signerId: signer.amfData.signerId,
-  //       xfpHash: hash256(signer.xpubInfo.xfp),
-  //     });
-  //     signerIdsToFilter.push(signer.signerId);
-  //   }
-  // }
-  // signersData = signersData.filter((signer) => !signerIdsToFilter.includes(signer.signerId));
 
   // TO-DO to be removed
   const subscriptionStrings = JSON.stringify(subscription);

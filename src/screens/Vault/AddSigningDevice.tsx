@@ -4,12 +4,8 @@ import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useContext, useEffect, useState } from 'react';
 import { VaultScheme, VaultSigner } from 'src/core/wallets/interfaces/vault';
-import { SignerType, XpubTypes } from 'src/core/wallets/enums';
-import {
-  addSigningDevice,
-  removeSigningDevice,
-  updateSigningDevice,
-} from 'src/store/reducers/vaults';
+import { SignerType } from 'src/core/wallets/enums';
+import { addSigningDevice, removeSigningDevice } from 'src/store/reducers/vaults';
 
 import AddIcon from 'src/assets/images/green_add.svg';
 import Buttons from 'src/components/Buttons';
