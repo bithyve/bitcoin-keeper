@@ -34,7 +34,7 @@ function AddSigner({ navigation }) {
             onCardSelect={onCardSelect}
           />
 
-          <AddCard name={'Add'} walletDescription={'Description'} onCardSelect={onCardSelect} />
+          <AddCard name={'Add'} onCardSelect={onCardSelect} />
         </Box>
       </ScrollView>
     </ScreenWrapper>

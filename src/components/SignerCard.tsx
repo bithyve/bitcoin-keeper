@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 20 / 2,
     alignSelf: 'flex-end',
-    borderColor: 'rgba(145, 120, 93, 1)',
+    borderColor: Colors.RussetBrown,
     borderWidth: 1,
   },
   detailContainer: {
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   iconWrapper: {
     width: 34,
     height: 34,
-    backgroundColor: 'rgba(145, 120, 93, 1)',
+    backgroundColor: Colors.RussetBrown,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',

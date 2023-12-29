@@ -18,6 +18,7 @@ import { Box } from 'native-base';
 import { useContext, useState } from 'react';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
+import Colors from 'src/theme/Colors';
 
 const data = [
   { id: 1, title: 'Card 1', content: 'Content for Card 1' },
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
     width: layout.width,
     height: layout.height,
     padding: 10,
-    backgroundColor: 'rgba(253, 247, 240, 1)',
+    backgroundColor: Colors.Ivory,
     shadowColor: 'rgba(93, 110, 106, 0.5)',
     shadowRadius: 10,
     shadowOpacity: 1,
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 12,
     fontWeight: '600',
-    color: 'rgba(145, 120, 93, 1)',
+    color: Colors.RussetBrown,
   },
   content: {
     fontSize: 14,
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
   },
   skip: {
     fontSize: 12,
-    color: 'rgba(145, 120, 93, 1)',
+    color: Colors.RussetBrown,
   },
   buttonContainer: {
     flexDirection: 'row',

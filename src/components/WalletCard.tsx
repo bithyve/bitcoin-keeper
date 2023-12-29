@@ -31,7 +31,9 @@ function WalletCard({
       <Box style={styles.circle}>{isSelected && <CheckmarkIcon />}</Box>
       <Box style={styles.detailContainer}>
         <Box>{isSelected ? selectedIcon : icon}</Box>
-        <Text style={isSelected && { color: Colors.White }}>{walletName}</Text>
+        <Text style={isSelected && { color: Colors.White }} numberOfLines={1}>
+          {walletName}
+        </Text>
         <Text style={[isSelected && { color: Colors.White }]} numberOfLines={1}>
           {walletDescription}
         </Text>
