@@ -196,7 +196,7 @@ function SigningDeviceDetails({ route }) {
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { signer } = route.params;
+  const { signer, vaultKey } = route.params;
   const [detailModal, setDetailModal] = useState(false);
   const [skipHealthCheckModalVisible, setSkipHealthCheckModalVisible] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -289,7 +289,7 @@ function SigningDeviceDetails({ route }) {
       text: 'Advance Options',
       Icon: () => <FooterIcon Icon={AdvnaceOptions} />,
       onPress: () => {
-        navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer }));
+        navigation.dispatch(CommonActions.navigate('SignerAdvanceSettings', { signer, vaultKey }));
       },
     },
   ];

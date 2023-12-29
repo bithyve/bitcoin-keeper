@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from 'native-base';
 import KeeperHeader from 'src/components/KeeperHeader';
 import ScreenWrapper from 'src/components/ScreenWrapper';
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
 import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import { getWalletConfig } from 'src/hardware';
 import { useDispatch } from 'react-redux';
@@ -13,6 +13,8 @@ import DisplayQR from './DisplayQR';
 import { SignerType } from 'src/core/wallets/enums';
 import { genrateOutputDescriptors } from 'src/core/utils';
 import useSignerFromKey from 'src/hooks/useSignerFromKey';
+import QRCode from 'react-native-qrcode-svg';
+const { width } = Dimensions.get('window');
 
 const SPECTER_PREFIX = 'addwallet keeper vault&';
 
@@ -43,7 +45,11 @@ function RegisterWithQR({ route, navigation }: any) {
         subtitle="Register the vault with any of the QR based signing devices"
       />
       <Box style={styles.center}>
-        <DisplayQR qrContents={qrContents} toBytes type="hex" />
+        {signer.type === SignerType.SPECTER ? (
+          <QRCode value={walletConfig} size={width * 0.85} ecl="L" />
+        ) : (
+          <DisplayQR qrContents={qrContents} toBytes type="hex" />
+        )}
       </Box>
       <Buttons primaryText="Done" primaryCallback={markAsRegistered} />
     </ScreenWrapper>
