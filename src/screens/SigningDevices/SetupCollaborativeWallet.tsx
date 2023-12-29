@@ -4,7 +4,6 @@ import { Box, FlatList, HStack, useColorMode, VStack } from 'native-base';
 import { CommonActions, useNavigation, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Signer, VaultSigner, XpubDetailsType } from 'src/core/wallets/interfaces/vault';
-
 import AddIcon from 'src/assets/images/green_add.svg';
 import KeeperHeader from 'src/components/KeeperHeader';
 import IconArrowBlack from 'src/assets/images/icon_arrow_black.svg';
@@ -23,7 +22,7 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import OptionCTA from 'src/components/OptionCTA';
 import { NewVaultInfo } from 'src/store/sagas/wallets';
-import { addNewVault } from 'src/store/sagaActions/vaults';
+import { addNewVault, addSigningDevice } from 'src/store/sagaActions/vaults';
 import { captureError } from 'src/services/sentry';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
 import { useAppSelector } from 'src/store/hooks';
@@ -59,7 +58,7 @@ function SignerItem({
   const { colorMode } = useColorMode();
   const navigation = useNavigation();
   const [visible, setVisible] = useState(false);
-  const signer = signerMap[vaultKey.masterFingerprint];
+  const signer = vaultKey ? signerMap[vaultKey.masterFingerprint] : null;
 
   const navigateToAddQrBasedSigner = () => {
     navigation.dispatch(
@@ -85,7 +84,7 @@ function SignerItem({
   const openDescriptionModal = () => setVisible(true);
   const closeDescriptionModal = () => setVisible(false);
 
-  if (!signer) {
+  if (!signer || !vaultKey) {
     return (
       <Pressable onPress={callback}>
         <Box style={styles.signerItemContainer}>
@@ -314,7 +313,7 @@ function SetupCollaborativeWallet() {
         showToast('This co-signer has already been added', <ToastErrorIcon />);
         return;
       }
-      const { key } = generateSignerFromMetaData({
+      const { key, signer } = generateSignerFromMetaData({
         xpub: xpubDetails[XpubTypes.P2WSH].xpub,
         derivationPath: xpubDetails[XpubTypes.P2WSH].derivationPath,
         xfp: mfp,
@@ -331,6 +330,7 @@ function SetupCollaborativeWallet() {
         }
         return item;
       });
+      dispatch(addSigningDevice([signer], null, true));
       setCoSigners(newSigners);
       if (goBack) navigation.goBack();
     } catch (err) {
