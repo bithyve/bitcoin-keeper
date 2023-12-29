@@ -278,21 +278,23 @@ function TransactionList({
 
 function SignerList({ vault }: { vault: Vault }) {
   const { colorMode } = useColorMode();
-  const { signers: keys, isMultiSig } = vault;
+  const { signers: vaultKeys, isMultiSig } = vault;
   const navigation = useNavigation();
   const { signerMap } = useSignerMap();
 
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
-      style={{ position: 'absolute', top: `${70 - keys.length}%` }}
+      style={{ position: 'absolute', top: `${70 - vaultKeys.length}%` }}
       showsHorizontalScrollIndicator={false}
       horizontal
     >
-      {keys.map((key) => {
-        const signer = signerMap[key.masterFingerprint];
+      {vaultKeys.map((vaultKey) => {
+        const signer = signerMap[vaultKey.masterFingerprint];
         const indicate =
-          !key?.registeredVaults?.find((info) => info.vaultId === vault.id && info.registered) &&
+          !vaultKey?.registeredVaults?.find(
+            (info) => info.vaultId === vault.id && info.registered
+          ) &&
           isMultiSig &&
           !UNVERIFYING_SIGNERS.includes(signer.type) &&
           !isSignerAMF(signer);
@@ -301,7 +303,7 @@ function SignerList({ vault }: { vault: Vault }) {
           <Box
             style={styles.signerCard}
             marginRight="3"
-            key={key.xfp}
+            key={vaultKey.xfp}
             backgroundColor={`${colorMode}.seashellWhite`}
           >
             <TouchableOpacity
@@ -309,6 +311,7 @@ function SignerList({ vault }: { vault: Vault }) {
                 navigation.dispatch(
                   CommonActions.navigate('SigningDeviceDetails', {
                     signer,
+                    vaultKey,
                   })
                 );
               }}

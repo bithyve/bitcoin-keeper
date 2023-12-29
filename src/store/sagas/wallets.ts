@@ -1175,10 +1175,21 @@ function* updateKeyDetailsWorker({ payload }) {
   const vaultSigner = dbManager.getObjectByPrimaryId(RealmSchema.VaultSigner, 'xpub', signer.xpub);
   const vaultSignerJSON: VaultSigner = vaultSigner.toJSON();
   if (key === 'registered') {
+    let updatedFlag = false;
     const updatedRegsteredVaults = vaultSignerJSON.registeredVaults.map((info) => {
-      return { ...info, ...value };
+      if (info.vaultId === value.vaultId) {
+        updatedFlag = true;
+        return { ...info, ...value };
+      } else {
+        return info;
+      }
     });
-    vaultSigner.registeredVaults = updatedRegsteredVaults;
+    if (!updatedFlag) {
+      updatedRegsteredVaults.push(value);
+    }
+    yield call(dbManager.updateObjectByPrimaryId, RealmSchema.VaultSigner, 'xpub', signer.xpub, {
+      registeredVaults: updatedRegsteredVaults,
+    });
     return;
   }
 

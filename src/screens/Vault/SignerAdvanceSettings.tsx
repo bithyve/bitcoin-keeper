@@ -28,7 +28,7 @@ const { width } = Dimensions.get('screen');
 
 function SignerAdvanceSettings({ route }: any) {
   const { colorMode } = useColorMode();
-  const { signer, key }: { signer: Signer; key: VaultSigner } = route.params;
+  const { signer, vaultKey }: { signer: Signer; vaultKey: VaultSigner } = route.params;
   const { showToast } = useToastMessage();
   const signerName = getSignerNameFromType(signer.type, signer.isMock, isSignerAMF(signer));
 
@@ -52,7 +52,7 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.COLDCARD:
         await registerColdCard();
         dispatch(
-          updateKeyDetails(key, 'registered', {
+          updateKeyDetails(vaultKey, 'registered', {
             registered: true,
             vaultId: activeVault.id,
           })
@@ -60,7 +60,7 @@ function SignerAdvanceSettings({ route }: any) {
         return;
       case SignerType.LEDGER:
       case SignerType.BITBOX02:
-        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey: key }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithChannel', { vaultKey }));
         break;
       case SignerType.KEYSTONE:
       case SignerType.JADE:
@@ -68,7 +68,7 @@ function SignerAdvanceSettings({ route }: any) {
       case SignerType.SEEDSIGNER:
       case SignerType.SPECTER:
       case SignerType.OTHER_SD:
-        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey: key }));
+        navigation.dispatch(CommonActions.navigate('RegisterWithQR', { vaultKey }));
         break;
       default:
         showToast('Comming soon', null, 1000);

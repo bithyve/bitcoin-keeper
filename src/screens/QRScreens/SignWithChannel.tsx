@@ -130,7 +130,7 @@ function SignWithChannel() {
           showToast('Please register the wallet before signing', null, 1000);
           return;
         }
-        const hmac = JSON.parse(registerationInfo).registeredWallet;
+        const hmac = JSON.parse(registerationInfo)?.registeredWallet;
         if (!hmac) {
           showToast('Please register the wallet before signing', null, 1000);
           return;
