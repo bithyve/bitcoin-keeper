@@ -201,7 +201,7 @@ function EnterSeedScreen({ route }) {
       const { signer: softSigner } = generateSignerFromMetaData({
         xpub: isMultisig ? multiSigXpub : singleSigXpub,
         derivationPath: isMultisig ? multiSigPath : singleSigPath,
-        xfp: masterFingerprint,
+        masterFingerprint,
         signerType: SignerType.SEED_WORDS,
         storageType: SignerStorage.WARM,
         isMultisig,
@@ -401,8 +401,8 @@ function EnterSeedScreen({ route }) {
                     styles.input,
                     item.invalid && item.name != ''
                       ? {
-                        borderColor: '#F58E6F',
-                      }
+                          borderColor: '#F58E6F',
+                        }
                       : { borderColor: '#FDF7F0' },
                   ]}
                   placeholder={`Enter ${getPlaceholder(index)} word`}
@@ -532,7 +532,7 @@ function EnterSeedScreen({ route }) {
           subTitle="Your Keeper App has successfully been recovered"
           buttonText="Ok"
           Content={SuccessModalContent}
-          close={() => { }}
+          close={() => {}}
           showCloseIcon={false}
           buttonCallback={() => {
             setRecoverySuccessModal(false);

@@ -69,7 +69,7 @@ function SetupSigningServer({ route }: { route }) {
     const { signer: signingServerKey, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType: SignerType.POLICY_SERVER,
       storageType: SignerStorage.WARM,
       isMultisig: true,

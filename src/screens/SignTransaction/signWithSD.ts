@@ -71,12 +71,12 @@ export const signTransactionWithMobileKey = async ({
   signingPayload,
   defaultVault,
   serializedPSBT,
-  signerId,
+  xfp,
 }) => {
   setPasswordModal(false);
   const inputs = idx(signingPayload, (_) => _[0].inputs);
   if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-  const [signer] = defaultVault.signers.filter((signer) => signer.xfp === signerId);
+  const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
   const { signedSerializedPSBT } = WalletOperations.internallySignVaultPSBT(
     defaultVault,
     inputs,
@@ -87,7 +87,7 @@ export const signTransactionWithMobileKey = async ({
 };
 
 export const signTransactionWithSigningServer = async ({
-  signerId,
+  xfp,
   signingPayload,
   signingServerOTP,
   serializedPSBT,
@@ -101,7 +101,7 @@ export const signTransactionWithSigningServer = async ({
     if (!childIndexArray) throw new Error('Invalid signing payload');
 
     const { signedPSBT } = await SigningServer.signPSBT(
-      signerId,
+      xfp,
       signingServerOTP ? Number(signingServerOTP) : null,
       serializedPSBT,
       childIndexArray,
@@ -118,7 +118,7 @@ export const signTransactionWithSigningServer = async ({
 export const signTransactionWithInheritanceKey = async ({
   signingPayload,
   serializedPSBT,
-  signerId,
+  xfp,
   thresholdDescriptors,
 }) => {
   try {
@@ -126,7 +126,7 @@ export const signTransactionWithInheritanceKey = async ({
     if (!childIndexArray) throw new Error('Invalid signing payload');
 
     const { signedPSBT } = await InheritanceKeyServer.signPSBT(
-      signerId,
+      xfp,
       serializedPSBT,
       childIndexArray,
       thresholdDescriptors
@@ -144,13 +144,13 @@ export const signTransactionWithSeedWords = async ({
   defaultVault,
   seedBasedSingerMnemonic,
   serializedPSBT,
-  signerId,
+  xfp,
   isMultisig,
 }) => {
   try {
     const inputs = idx(signingPayload, (_) => _[0].inputs);
     if (!inputs) throw new Error('Invalid signing payload, inputs missing');
-    const [signer] = defaultVault.signers.filter((signer) => signer.xfp === signerId);
+    const [signer] = defaultVault.signers.filter((signer) => signer.xfp === xfp);
     const networkType = config.NETWORK_TYPE;
     // we need this to generate xpriv that's not stored
     const { xpub, xpriv } = generateSeedWordsKey(

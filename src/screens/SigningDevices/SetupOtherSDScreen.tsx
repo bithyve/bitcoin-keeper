@@ -45,7 +45,7 @@ function SetupOtherSDScreen({ route }) {
       const { signer, key } = generateSignerFromMetaData({
         xpub,
         derivationPath: derivationPath.replaceAll('h', "'"),
-        xfp: masterFingerprint,
+        masterFingerprint,
         isMultisig,
         signerType: SignerType.OTHER_SD,
         storageType: SignerStorage.COLD,
@@ -104,12 +104,12 @@ function SetupOtherSDScreen({ route }) {
       }
 
       if (hw) {
-        const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = hw;
+        const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } = hw;
         if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
           const { signer, key } = generateSignerFromMetaData({
             xpub,
             derivationPath,
-            xfp,
+            masterFingerprint,
             isMultisig,
             signerType: SignerType.OTHER_SD,
             storageType: SignerStorage.COLD,
@@ -153,11 +153,11 @@ function SetupOtherSDScreen({ route }) {
       // file export from coldcard or passport(single sig)
       try {
         const ccDetails = extractColdCardExport(data, isMultisig);
-        const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
         const { signer: coldcard, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.OTHER_SD,
           storageType: SignerStorage.COLD,
@@ -175,12 +175,13 @@ function SetupOtherSDScreen({ route }) {
       if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
         // file export from passport(multisig)
         try {
-          const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(data);
+          const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+            getPassportDetails(data);
           if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
             const { signer: passport, key } = generateSignerFromMetaData({
               xpub,
               derivationPath,
-              xfp,
+              masterFingerprint,
               signerType: SignerType.OTHER_SD,
               storageType: SignerStorage.COLD,
               isMultisig,
@@ -198,13 +199,13 @@ function SetupOtherSDScreen({ route }) {
         if (!(error instanceof HWError) || error.type === HWErrorType.INCORRECT_HW) {
           // file export from keystone
           try {
-            const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } =
+            const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
               getKeystoneDetailsFromFile(data);
             if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
               const { signer: keystone, key } = generateSignerFromMetaData({
                 xpub,
                 derivationPath,
-                xfp,
+                masterFingerprint,
                 signerType: SignerType.OTHER_SD,
                 storageType: SignerStorage.COLD,
                 isMultisig,

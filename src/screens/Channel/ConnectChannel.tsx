@@ -107,14 +107,14 @@ function ConnectChannel() {
     channel.on(BITBOX_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, xfp, xpubDetails } = getBitbox02Details(
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getBitbox02Details(
           decrypted,
           isMultisig
         );
         const { signer: bitbox02, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.BITBOX02,
           storageType: SignerStorage.COLD,
@@ -146,11 +146,14 @@ function ConnectChannel() {
     channel.on(TREZOR_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, xfp, xpubDetails } = getTrezorDetails(decrypted, isMultisig);
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } = getTrezorDetails(
+          decrypted,
+          isMultisig
+        );
         const { signer: trezor, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.TREZOR,
           storageType: SignerStorage.COLD,
@@ -180,14 +183,12 @@ function ConnectChannel() {
     channel.on(LEDGER_SETUP, async (data) => {
       try {
         const decrypted = createDecipheriv(data, decryptionKey.current);
-        const { xpub, derivationPath, xfp, xpubDetails } = getLedgerDetailsFromChannel(
-          decrypted,
-          isMultisig
-        );
+        const { xpub, derivationPath, masterFingerprint, xpubDetails } =
+          getLedgerDetailsFromChannel(decrypted, isMultisig);
         const { signer: ledger, key } = generateSignerFromMetaData({
           xpub,
           derivationPath,
-          xfp,
+          masterFingerprint,
           isMultisig,
           signerType: SignerType.LEDGER,
           storageType: SignerStorage.COLD,

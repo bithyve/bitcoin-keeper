@@ -142,9 +142,9 @@ export function* updateVaultImageWorker({
   }> = [];
   const signerIdXpubMap = {};
   for (const signer of vault.signers) {
-    signerIdXpubMap[signer.signerId] = signer.xpub;
+    signerIdXpubMap[signer.xfp] = signer.xpub;
     signersData.push({
-      signerId: signer.signerId,
+      signerId: signer.xfp,
       xfpHash: hash256(signer.masterFingerprint),
     });
   }
@@ -355,7 +355,7 @@ function* recoverApp(
             const { signer } = generateSignerFromMetaData({
               xpub: config.xpub,
               derivationPath: config.path,
-              xfp: config.masterFingerprint,
+              masterFingerprint: config.masterFingerprint,
               signerType: SignerType.KEEPER,
               storageType: SignerStorage.WARM,
               isMultisig: config.isMultisig,

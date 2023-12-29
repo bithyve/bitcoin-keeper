@@ -316,7 +316,7 @@ function SetupCollaborativeWallet() {
       const { key, signer } = generateSignerFromMetaData({
         xpub: xpubDetails[XpubTypes.P2WSH].xpub,
         derivationPath: xpubDetails[XpubTypes.P2WSH].derivationPath,
-        xfp: mfp,
+        masterFingerprint: mfp,
         signerType: SignerType.KEEPER,
         storageType: SignerStorage.WARM,
         isMultisig: true,
@@ -414,7 +414,7 @@ function SetupCollaborativeWallet() {
         keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
         data={coSigners}
-        keyExtractor={(item, index) => item?.signerId ?? index}
+        keyExtractor={(item, index) => item?.xfp ?? index}
         renderItem={renderSigner}
         style={{
           marginTop: hp(52),

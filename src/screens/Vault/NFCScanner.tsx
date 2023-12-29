@@ -33,11 +33,11 @@ const NFCScanner = ({ route }) => {
   const addColdCard = async () => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
-      const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
       const { signer, key } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         isMultisig,
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,

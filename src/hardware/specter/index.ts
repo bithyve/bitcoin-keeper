@@ -3,10 +3,10 @@ import WalletUtilities from 'src/core/wallets/operations/utils';
 
 export const getSpecterDetails = (qrData) => {
   const xpub = qrData.slice(qrData.indexOf(']') + 1);
-  const xfp = qrData.slice(1, 9);
+  const masterFingerprint = qrData.slice(1, 9);
   const derivationPath = qrData
     .slice(qrData.indexOf('[') + 1, qrData.indexOf(']'))
-    .replace(xfp, 'm');
+    .replace(masterFingerprint, 'm');
   const purpose = WalletUtilities.getSignerPurposeFromPath(derivationPath);
   let forMultiSig: boolean;
   let forSingleSig: boolean;
@@ -17,5 +17,5 @@ export const getSpecterDetails = (qrData) => {
     forMultiSig = false;
     forSingleSig = true;
   }
-  return { xpub, derivationPath, xfp, forMultiSig, forSingleSig };
+  return { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig };
 };

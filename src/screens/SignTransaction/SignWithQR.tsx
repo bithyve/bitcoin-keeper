@@ -34,7 +34,7 @@ function SignWithQR() {
     collaborativeWalletId = '',
   }: { vaultKey: VaultSigner; collaborativeWalletId: string } = route.params as any;
   const { serializedPSBT } = serializedPSBTEnvelops.filter(
-    (envelop) => vaultKey.xfp === envelop.signerId
+    (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
   const { activeVault } = useVault(collaborativeWalletId);
   const isSingleSig = activeVault.scheme.n === 1;
@@ -49,17 +49,15 @@ function SignWithQR() {
             serializedPSBT,
             signedSerializedPSBT,
           });
-          dispatch(
-            updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, signerId: vaultKey.xfp })
-          );
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT: signedPsbt, xfp: vaultKey.xfp }));
         } else if (signer.type === SignerType.KEYSTONE) {
           const tx = getTxHexFromKeystonePSBT(serializedPSBT, signedSerializedPSBT);
-          dispatch(updatePSBTEnvelops({ signerId: vaultKey.xfp, txHex: tx.toHex() }));
+          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: tx.toHex() }));
         } else {
-          dispatch(updatePSBTEnvelops({ signerId: vaultKey.xfp, signedSerializedPSBT }));
+          dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, signedSerializedPSBT }));
         }
       } else {
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: vaultKey.xfp }));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
         dispatch(
           updateKeyDetails(vaultKey, 'registered', {
             registered: true,

@@ -46,7 +46,7 @@ export interface SendPhaseTwoExecutedPayload {
 export interface UpdatePSBTPayload {
   signedSerializedPSBT?: string;
   signingPayload?: SigningPayload[];
-  signerId: string;
+  xfp: string;
   txHex?: string;
 }
 
@@ -234,11 +234,11 @@ const sendAndReceiveSlice = createSlice({
     },
 
     updatePSBTEnvelops: (state, action: PayloadAction<UpdatePSBTPayload>) => {
-      const { signerId, signingPayload, signedSerializedPSBT, txHex } = action.payload;
+      const { xfp, signingPayload, signedSerializedPSBT, txHex } = action.payload;
       state.sendPhaseTwo = {
         ...state.sendPhaseTwo,
         serializedPSBTEnvelops: state.sendPhaseTwo.serializedPSBTEnvelops.map((envelop) => {
-          if (envelop.signerId === signerId) {
+          if (envelop.xfp === xfp) {
             envelop.serializedPSBT = signedSerializedPSBT || envelop.serializedPSBT;
             envelop.isSigned =
               signedSerializedPSBT ||

@@ -77,11 +77,11 @@ function SetupColdCard({ route }) {
   const addColdCard = async (mode) => {
     try {
       const ccDetails = await withNfcModal(async () => getColdcardDetails(isMultisig));
-      const { xpub, derivationPath, xfp, xpubDetails } = ccDetails;
+      const { xpub, derivationPath, masterFingerprint, xpubDetails } = ccDetails;
       const { signer: coldcard, key } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         isMultisig,
         signerType: SignerType.COLDCARD,
         storageType: SignerStorage.COLD,

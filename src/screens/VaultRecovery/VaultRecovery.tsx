@@ -172,7 +172,7 @@ function VaultRecovery({ navigation }) {
     try {
       if (signers.length <= 1) throw new Error('Add two other devices first to recover');
       const cosignersMapIds = generateCosignerMapIds(signers, SignerType.INHERITANCEKEY);
-      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+      const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,
@@ -197,7 +197,7 @@ function VaultRecovery({ navigation }) {
         const { signer: inheritanceKey } = generateSignerFromMetaData({
           xpub: setupInfo.inheritanceXpub,
           derivationPath: setupInfo.derivationPath,
-          xfp: setupInfo.masterFingerprint,
+          masterFingerprint: setupInfo.masterFingerprint,
           signerType: SignerType.INHERITANCEKEY,
           storageType: SignerStorage.WARM,
           isMultisig: true,
@@ -324,7 +324,7 @@ function VaultRecovery({ navigation }) {
             <FlatList
               showsVerticalScrollIndicator={false}
               data={signersList}
-              keyExtractor={(item, index) => item?.signerId ?? index}
+              keyExtractor={(item, index) => item?.xfp ?? index}
               renderItem={renderSigner}
               style={{
                 marginTop: hp(32),

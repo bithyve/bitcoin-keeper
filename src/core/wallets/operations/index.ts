@@ -1140,7 +1140,7 @@ export default class WalletOperations {
 
     const serializedPSBT = PSBT.toBase64();
     const serializedPSBTEnvelop: SerializedPSBTEnvelop = {
-      signerId: vaultKey.xfp,
+      xfp: vaultKey.xfp,
       signerType: signer.type,
       serializedPSBT,
       signingPayload,

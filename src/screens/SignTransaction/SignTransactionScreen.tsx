@@ -145,7 +145,7 @@ function SignTransactionScreen() {
       const isCoSignerMyself = vaultKey.masterFingerprint === collaborativeWalletId;
       if (isCoSignerMyself) {
         // self sign PSBT
-        signTransaction({ signerId: vaultKey.xfp });
+        signTransaction({ xfp: vaultKey.xfp });
       }
     });
     return () => dispatch(sendPhaseThreeReset());
@@ -177,25 +177,25 @@ function SignTransactionScreen() {
 
   const signTransaction = useCallback(
     async ({
-      signerId,
+      xfp,
       signingServerOTP,
       seedBasedSingerMnemonic,
       thresholdDescriptors,
     }: {
-      signerId?: string;
+      xfp?: string;
       signingServerOTP?: string;
       seedBasedSingerMnemonic?: string;
       thresholdDescriptors?: string[];
     } = {}) => {
-      const activeId = signerId || activeSignerId;
+      const activeId = xfp || activeSignerId;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
       const signer = signerMap[currentKey.masterFingerprint];
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
         const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-          (envelop) => envelop.signerId === activeId
+          (envelop) => envelop.xfp === activeId
         )[0];
         const copySerializedPSBTEnvelop = cloneDeep(serializedPSBTEnvelop);
-        const { signerType, serializedPSBT, signingPayload, signerId } = copySerializedPSBTEnvelop;
+        const { signerType, serializedPSBT, signingPayload, xfp } = copySerializedPSBTEnvelop;
         if (SignerType.TAPSIGNER === signerType) {
           const { signingPayload: signedPayload, signedSerializedPSBT } =
             await signTransactionWithTapsigner({
@@ -210,7 +210,7 @@ function SignTransactionScreen() {
               signer,
             });
           dispatch(
-            updatePSBTEnvelops({ signedSerializedPSBT, signerId, signingPayload: signedPayload })
+            updatePSBTEnvelops({ signedSerializedPSBT, xfp, signingPayload: signedPayload })
           );
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.COLDCARD === signerType) {
@@ -226,43 +226,43 @@ function SignTransactionScreen() {
             signingPayload,
             defaultVault,
             serializedPSBT,
-            signerId,
+            xfp,
           });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.POLICY_SERVER === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSigningServer({
-            signerId,
+            xfp,
             signingPayload,
             signingServerOTP,
             serializedPSBT,
             showOTPModal,
             showToast,
           });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.INHERITANCEKEY === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithInheritanceKey({
             signingPayload,
             serializedPSBT,
-            signerId,
+            xfp,
             thresholdDescriptors,
           });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
         } else if (SignerType.SEED_WORDS === signerType) {
           const { signedSerializedPSBT } = await signTransactionWithSeedWords({
             signingPayload,
             defaultVault,
             seedBasedSingerMnemonic,
             serializedPSBT,
-            signerId,
+            xfp,
             isMultisig: defaultVault.isMultiSig,
           });
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         } else if (SignerType.KEEPER === signerType) {
           const signedSerializedPSBT = signCosignerPSBT(parentCollaborativeWallet, serializedPSBT);
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp }));
           dispatch(healthCheckSigner([signer]));
         }
       }
@@ -292,7 +292,7 @@ function SignTransactionScreen() {
       case SignerType.POLICY_SERVER:
         if (signer.signerPolicy) {
           const serializedPSBTEnvelop = serializedPSBTEnvelops.filter(
-            (envelop) => envelop.signerId === vaultKey.xfp
+            (envelop) => envelop.xfp === vaultKey.xfp
           )[0];
           const outgoing = idx(serializedPSBTEnvelop, (_) => _.signingPayload[0].outgoing);
           if (
@@ -300,7 +300,7 @@ function SignTransactionScreen() {
             outgoing <= signer.signerPolicy.exceptions.transactionAmount
           ) {
             showToast('Auto-signing, send amount smaller than max no-check amount');
-            signTransaction({ signerId: vaultKey.xfp }); // case: OTP not required
+            signTransaction({ xfp: vaultKey.xfp }); // case: OTP not required
           } else showOTPModal(true);
         } else showOTPModal(true);
         break;
@@ -309,7 +309,7 @@ function SignTransactionScreen() {
           CommonActions.navigate({
             name: 'InputSeedWordSigner',
             params: {
-              signerId: vaultKey.xfp,
+              xfp: vaultKey.xfp,
               onSuccess: signTransaction,
             },
           })
@@ -332,7 +332,7 @@ function SignTransactionScreen() {
         break;
       case SignerType.KEEPER:
         if (vaultKey.masterFingerprint === collaborativeWalletId) {
-          signTransaction({ signerId: vaultKey.xfp });
+          signTransaction({ xfp: vaultKey.xfp });
           return;
         }
         setKeeperModal(true);

@@ -75,7 +75,7 @@ const useConfigRecovery = () => {
           const { signer } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,
-            xfp: config.masterFingerprint,
+            masterFingerprint: config.masterFingerprint,
             signerType: SignerType.OTHER_SD,
             storageType: SignerStorage.WARM,
             isMultisig: config.isMultisig,

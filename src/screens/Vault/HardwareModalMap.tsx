@@ -308,12 +308,13 @@ function SignerContent({
 }
 
 const setupPassport = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getPassportDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getPassportDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: passport, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.PASSPORT,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -329,12 +330,13 @@ const verifyPassport = (qrData, signer) => {
 };
 
 const setupSeedSigner = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSeedSignerDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getSeedSignerDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: seedSigner, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.SEEDSIGNER,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -350,12 +352,13 @@ const verifySeedSigner = (qrData, signer) => {
 };
 
 const setupSpecter = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getSpecterDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getSpecterDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.SPECTER,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -371,12 +374,13 @@ const verifySpecter = (qrData, signer) => {
 };
 
 const setupKeystone = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getKeystoneDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getKeystoneDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: keystone, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.KEYSTONE,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -392,12 +396,13 @@ const verifyKeystone = (qrData, signer) => {
 };
 
 const setupJade = (qrData, isMultisig) => {
-  const { xpub, derivationPath, xfp, forMultiSig, forSingleSig } = getJadeDetails(qrData);
+  const { xpub, derivationPath, masterFingerprint, forMultiSig, forSingleSig } =
+    getJadeDetails(qrData);
   if ((isMultisig && forMultiSig) || (!isMultisig && forSingleSig)) {
     const { signer: jade, key } = generateSignerFromMetaData({
       xpub,
       derivationPath,
-      xfp,
+      masterFingerprint,
       signerType: SignerType.JADE,
       storageType: SignerStorage.COLD,
       isMultisig,
@@ -420,7 +425,7 @@ const setupKeeperSigner = (qrData, isMultisig) => {
       derivationPath: isMultisig
         ? xpubDetails[XpubTypes.P2WSH].derivationPath
         : xpubDetails[XpubTypes.P2WPKH].derivationPath,
-      xfp: mfp,
+      masterFingerprint: mfp,
       signerType: SignerType.KEEPER,
       storageType: SignerStorage.WARM,
       isMultisig: true,
@@ -475,7 +480,7 @@ const setupMobileKey = async ({ primaryMnemonic, isMultisig }) => {
   const { signer: mobileKey, key } = generateSignerFromMetaData({
     xpub: isMultisig ? multiSigXpub : singleSigXpub,
     derivationPath: isMultisig ? multiSigPath : singleSigPath,
-    xfp: masterFingerprint,
+    masterFingerprint,
     signerType: SignerType.MOBILE_KEY,
     storageType: SignerStorage.WARM,
     isMultisig: true,
@@ -507,7 +512,7 @@ export const setupSeedWordsBasedKey = (mnemonic: string, isMultisig: boolean) =>
   const { signer: softSigner, key } = generateSignerFromMetaData({
     xpub: isMultisig ? multiSigXpub : singleSigXpub,
     derivationPath: isMultisig ? multiSigPath : singleSigPath,
-    xfp: masterFingerprint,
+    masterFingerprint,
     signerType: SignerType.SEED_WORDS,
     storageType: SignerStorage.WARM,
     isMultisig,
@@ -747,7 +752,7 @@ function HardwareModalMap({
     if (mode === InteracationMode.HEALTH_CHECK) {
       try {
         setInProgress(true);
-        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signer.signerId);
+        const { isSignerAvailable } = await SigningServer.checkSignerHealth(signer.xfp);
         if (isSignerAvailable) {
           dispatch(healthCheckSigner([signer]));
           close();
@@ -962,7 +967,7 @@ function HardwareModalMap({
           const { signer: signingServerKey } = generateSignerFromMetaData({
             xpub: response.xpub,
             derivationPath: response.derivationPath,
-            xfp: response.masterFingerprint,
+            masterFingerprint: response.masterFingerprint,
             signerType: SignerType.POLICY_SERVER,
             storageType: SignerStorage.WARM,
             isMultisig: true,
@@ -1100,7 +1105,7 @@ function HardwareModalMap({
       const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
 
       const requestId = `request-${generateKey(10)}`;
-      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+      const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,

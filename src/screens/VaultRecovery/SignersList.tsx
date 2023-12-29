@@ -366,11 +366,11 @@ function SignersList({ navigation }) {
   const { showToast } = useToastMessage();
   const verifyPassport = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getPassportDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getPassportDetails(qrData);
       const { signer: passport } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.PASSPORT,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -451,11 +451,11 @@ function SignersList({ navigation }) {
 
   const verifySeedSigner = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getSeedSignerDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getSeedSignerDetails(qrData);
       const { signer: seedSigner } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.SEEDSIGNER,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -472,11 +472,11 @@ function SignersList({ navigation }) {
 
   const verifyKeystone = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getKeystoneDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getKeystoneDetails(qrData);
       const { signer: keystone } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.KEYSTONE,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -493,11 +493,11 @@ function SignersList({ navigation }) {
 
   const verifyJade = async (qrData, resetQR) => {
     try {
-      const { xpub, derivationPath, xfp } = getJadeDetails(qrData);
+      const { xpub, derivationPath, masterFingerprint } = getJadeDetails(qrData);
       const { signer: jade } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp,
+        masterFingerprint,
         signerType: SignerType.JADE,
         storageType: SignerStorage.COLD,
         isMultisig: signingDevices.length > 1,
@@ -518,7 +518,7 @@ function SignersList({ navigation }) {
       const { signer: ksd } = generateSignerFromMetaData({
         xpub,
         derivationPath,
-        xfp: mfp,
+        masterFingerprint: mfp,
         signerType: SignerType.KEEPER,
         storageType: SignerStorage.WARM,
         isMultisig: true,
@@ -541,7 +541,7 @@ function SignersList({ navigation }) {
         const { signer: signingServerKey } = generateSignerFromMetaData({
           xpub: response.xpub,
           derivationPath: response.derivationPath,
-          xfp: response.masterFingerprint,
+          masterFingerprint: response.masterFingerprint,
           signerType: SignerType.POLICY_SERVER,
           storageType: SignerStorage.WARM,
           isMultisig: true,

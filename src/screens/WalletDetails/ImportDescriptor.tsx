@@ -62,10 +62,10 @@ function ImportDescriptorScreen({ navigation }) {
       if (parsedText) {
         const signers: VaultSigner[] = [];
         parsedText.signersDetails.forEach((config) => {
-          const { signer } = generateSignerFromMetaData({
+          const { signer, key } = generateSignerFromMetaData({
             xpub: config.xpub,
             derivationPath: config.path,
-            xfp: config.masterFingerprint,
+            masterFingerprint: config.masterFingerprint,
             signerType: SignerType.KEEPER,
             storageType: SignerStorage.WARM,
             isMultisig: config.isMultisig,

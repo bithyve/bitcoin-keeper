@@ -35,7 +35,7 @@ export const UNVERIFYING_SIGNERS = [
 export const generateSignerFromMetaData = ({
   xpub,
   derivationPath,
-  xfp: masterFingerprint,
+  masterFingerprint,
   signerType,
   storageType,
   isMultisig,
@@ -199,7 +199,7 @@ export const getMockSigner = (signerType: SignerType) => {
       xpub,
       xpriv,
       derivationPath,
-      xfp: masterFingerprint,
+      masterFingerprint,
       signerType,
       storageType: SignerStorage.COLD,
       isMock: true,

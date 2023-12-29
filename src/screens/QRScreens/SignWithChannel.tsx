@@ -77,7 +77,7 @@ function SignWithChannel() {
     (state) => state.sendAndReceive.sendPhaseTwo.serializedPSBTEnvelops
   );
   const { serializedPSBT, signingPayload } = serializedPSBTEnvelops.filter(
-    (envelop) => vaultKey.xfp === envelop.signerId
+    (envelop) => vaultKey.xfp === envelop.xfp
   )[0];
   const { showToast } = useToastMessage();
 
@@ -153,7 +153,7 @@ function SignWithChannel() {
         const decrypted = createDecipheriv(data, decryptionKey.current);
         if (signer.type === SignerType.TREZOR) {
           const { serializedTx: txHex } = decrypted;
-          dispatch(updatePSBTEnvelops({ txHex, signerId: vaultKey.xfp }));
+          dispatch(updatePSBTEnvelops({ txHex, xfp: vaultKey.xfp }));
           dispatch(healthCheckSigner([signer]));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
@@ -164,7 +164,7 @@ function SignWithChannel() {
             decrypted,
             signingPayload
           );
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: vaultKey.xfp }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
           dispatch(healthCheckSigner([signer]));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })
@@ -175,7 +175,7 @@ function SignWithChannel() {
             signingPayload,
             decrypted
           );
-          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, signerId: vaultKey.xfp }));
+          dispatch(updatePSBTEnvelops({ signedSerializedPSBT, xfp: vaultKey.xfp }));
           dispatch(healthCheckSigner([signer]));
           navgation.dispatch(
             CommonActions.navigate({ name: 'SignTransactionScreen', merge: true })

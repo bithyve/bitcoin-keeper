@@ -25,7 +25,7 @@ export const getBitbox02Details = (data, isMultisig) => {
     return {
       xpub,
       derivationPath,
-      xfp: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+      masterFingerprint: WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
       xpubDetails,
     };
   } catch (_) {

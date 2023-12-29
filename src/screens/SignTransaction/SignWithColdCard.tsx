@@ -80,11 +80,11 @@ function SignWithColdCard({ route }: { route }) {
     withNfcModal(async () => {
       if (!isMultisig) {
         const { txn } = await receiveTxHexFromColdCard();
-        dispatch(updatePSBTEnvelops({ signerId: vaultKey.xfp, txHex: txn }));
+        dispatch(updatePSBTEnvelops({ xfp: vaultKey.xfp, txHex: txn }));
         dispatch(healthCheckSigner([signer]));
       } else {
         const { psbt } = await receivePSBTFromColdCard();
-        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, signerId: vaultKey.xfp }));
+        dispatch(updatePSBTEnvelops({ signedSerializedPSBT: psbt, xfp: vaultKey.xfp }));
         dispatch(
           updateKeyDetails(vaultKey, 'registered', {
             registered: true,
