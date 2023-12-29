@@ -764,7 +764,7 @@ export default class WalletOperations {
       const bip32Derivation = [
         {
           masterFingerprint: Buffer.from(masterFingerprint, 'hex'),
-          path,
+          path: path.replaceAll('h', "'"),
           pubkey: publicKey,
         },
       ];
