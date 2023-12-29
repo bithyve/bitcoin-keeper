@@ -25,7 +25,10 @@ function RegisterWithQR({ route, navigation }: any) {
   const { signer } = useSignerFromKey(vaultKey);
   const walletConfig =
     signer.type === SignerType.SPECTER
-      ? SPECTER_PREFIX + genrateOutputDescriptors(activeVault, false).replaceAll('/**', '') + ')'
+      ? SPECTER_PREFIX +
+        `${genrateOutputDescriptors(activeVault, false).replaceAll('/**', '')}${
+          activeVault.isMultiSig ? ' )' : ''
+        }`
       : getWalletConfig({ vault: activeVault });
   const qrContents = Buffer.from(walletConfig, 'ascii').toString('hex');
   const markAsRegistered = () => {
