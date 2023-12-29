@@ -24,6 +24,9 @@ import PASSPORTLOGO from 'src/assets/images/passport_logo.svg';
 import SEEDSIGNERICON from 'src/assets/images/seedsigner_icon.svg';
 import SEEDSIGNERICONLIGHT from 'src/assets/images/seedsigner_light.svg';
 import SEEDSIGNERLOGO from 'src/assets/images/seedsignerlogo.svg';
+import SPECTERICON from 'src/assets/images/specter_icon.svg';
+import SPECTERICONLIGHT from 'src/assets/images/specter_icon_light.svg';
+import SPECTERLOGO from 'src/assets/images/seedsignerlogo.svg';
 import SEEDWORDS from 'src/assets/images/seedwords.svg';
 import SEEDWORDSLIGHT from 'src/assets/images/seedwordsLight.svg';
 import SERVER from 'src/assets/images/server.svg';
@@ -131,8 +134,13 @@ export const SDIcons = (type: SignerType, light = false) => {
       };
     case SignerType.SPECTER:
       return {
-        Icon: getColouredIcon(<SEEDSIGNERICONLIGHT />, <SEEDSIGNERICON />, light),
-        Logo: <SEEDSIGNERLOGO />,
+        Icon: getColouredIcon(<SPECTERICONLIGHT />, <SPECTERICON />, light),
+        // Logo: <SPECTERLOGO />,
+        Logo: (
+          <Text style={styles.text} color="light.secondaryText">
+            Specter DIY
+          </Text>
+        ),
         type: SignerStorage.COLD,
       };
     case SignerType.BITBOX02:
