@@ -14,7 +14,6 @@ import useToastMessage from 'src/hooks/useToastMessage';
 import TickIcon from 'src/assets/images/icon_tick.svg';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
 import HWError from 'src/hardware/HWErrorState';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
@@ -23,7 +22,6 @@ import { pickDocument } from 'src/services/documents';
 import { extractColdCardExport } from 'src/hardware/coldcard';
 import { getPassportDetails } from 'src/hardware/passport';
 import { HWErrorType } from 'src/models/enums/Hardware';
-import { VaultSigner } from 'src/core/wallets/interfaces/vault';
 import OptionCard from 'src/components/OptionCard';
 import { getKeystoneDetails, getKeystoneDetailsFromFile } from 'src/hardware/keystone';
 import { getSeedSignerDetails } from 'src/hardware/seedsigner';
@@ -63,9 +61,6 @@ function SetupOtherSDScreen({ route }) {
           CommonActions.navigate({ name: 'AddSigningDevice', merge: true, params: {} })
         );
         showToast(`${signer.signerName} added successfully`, <TickIcon />);
-        // const exsists = await checkSigningDevice(signer.signerId);
-        // if (exsists)
-        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } else if (mode === InteracationMode.HEALTH_CHECK) {
         if (key.xpub === hcSigner.xpub) {
           dispatch(healthCheckSigner([signer]));

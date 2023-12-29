@@ -32,7 +32,6 @@ import config from 'src/core/config';
 import { getTrezorDetails } from 'src/hardware/trezor';
 import { getLedgerDetailsFromChannel } from 'src/hardware/ledger';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
-import { checkSigningDevice } from '../Vault/AddSigningDevice';
 import MockWrapper from 'src/screens/Vault/MockWrapper';
 import { InteracationMode } from '../Vault/HardwareModalMap';
 import { setSigningDevices } from 'src/store/reducers/bhr';
@@ -136,9 +135,6 @@ function ConnectChannel() {
         }
 
         showToast(`${bitbox02.signerName} added successfully`, <TickIcon />);
-        // const exsists = await checkSigningDevice(bitbox02.signerId);
-        // if (exsists)
-        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -173,9 +169,6 @@ function ConnectChannel() {
           navigation.dispatch(CommonActions.navigate(navigationState));
         }
         showToast(`${trezor.signerName} added successfully`, <TickIcon />);
-        // const exsists = await checkSigningDevice(trezor.signerId);
-        // if (exsists)
-        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);
@@ -214,9 +207,6 @@ function ConnectChannel() {
         }
 
         showToast(`${ledger.signerName} added successfully`, <TickIcon />);
-        // const exsists = await checkSigningDevice(ledger.signerId);
-        // if (exsists)
-        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />);
       } catch (error) {
         if (error instanceof HWError) {
           showToast(error.message, <ToastErrorIcon />, 3000);

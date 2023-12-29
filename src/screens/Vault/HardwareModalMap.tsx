@@ -57,7 +57,6 @@ import Buttons from 'src/components/Buttons';
 import ActivityIndicatorView from 'src/components/AppActivityIndicator/ActivityIndicatorView';
 import { healthCheckSigner } from 'src/store/sagaActions/bhr';
 import SigningServer from 'src/services/operations/SigningServer';
-import { checkSigningDevice } from './AddSigningDevice';
 import * as SecureStore from 'src/storage/secure-store';
 import { setSigningDevices } from 'src/store/reducers/bhr';
 import CustomGreenButton from 'src/components/CustomButton/CustomGreenButton';
@@ -881,9 +880,6 @@ function HardwareModalMap({
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
       showToast(`${hw.signer.signerName} added successfully`, <TickIcon />);
-      // const exsists = await checkSigningDevice(hw.signerId);
-      // if (exsists)
-      //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);

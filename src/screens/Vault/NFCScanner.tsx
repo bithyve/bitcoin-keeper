@@ -17,7 +17,6 @@ import { SignerStorage, SignerType } from 'src/core/wallets/enums';
 import { useDispatch } from 'react-redux';
 import { addSigningDevice } from 'src/store/sagaActions/vaults';
 import { CommonActions, useNavigation } from '@react-navigation/native';
-import { checkSigningDevice } from './AddSigningDevice';
 import HWError from 'src/hardware/HWErrorState';
 import { captureError } from 'src/services/sentry';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -51,8 +50,6 @@ const NFCScanner = ({ route }) => {
         : { name: 'AddSigningDevice', merge: true, params: {} };
       navigation.dispatch(CommonActions.navigate(navigationState));
       showToast(`${signer.signerName} added successfully`, <TickIcon />);
-      // const exists = await checkSigningDevice(coldcard.signerId);
-      // if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
     } catch (error) {
       if (error instanceof HWError) {
         showToast(error.message, <ToastErrorIcon />, 3000);

@@ -128,11 +128,6 @@ function SetupTapsigner({ route }) {
         navigation.dispatch(CommonActions.navigate(navigationState));
       }
       showToast(`${tapsigner.signerName} added successfully`, <TickIcon />);
-      if (!isSignerAMF(tapsigner)) {
-        // const exsists = await checkSigningDevice(tapsigner.signerId);
-        // if (exsists)
-        //   showToast('Warning: Vault with this signer already exisits', <ToastErrorIcon />, 3000);
-      }
     } catch (error) {
       const errorMessage = getTapsignerErrorMessage(error);
       if (errorMessage.includes('cvc retry')) {

@@ -102,8 +102,6 @@ function SetupColdCard({ route }) {
       }
 
       showToast(`${coldcard.signerName} added successfully`, <TickIcon />);
-      // const exists = await checkSigningDevice(coldcard.signerId);
-      // if (exists) showToast('Warning: Vault with this signer already exists', <ToastErrorIcon />);
     } catch (error) {
       handleNFCError(error);
     }
