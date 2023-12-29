@@ -98,12 +98,12 @@ function SignWithQR() {
       <KeeperHeader title="Sign Transaction" subtitle="Scan the QR with the signing device" />
       <Box style={styles.center}>
         <DisplayQR qrContents={serializedPSBT} toBytes={encodeToBytes} type="base64" />
+        {signer.type === SignerType.KEEPER ? (
+          <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
+            <ShareWithNfc data={serializedPSBT} />
+          </ScrollView>
+        ) : null}
       </Box>
-      {signer.type === SignerType.KEEPER ? (
-        <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-          <ShareWithNfc data={serializedPSBT} />
-        </ScrollView>
-      ) : null}
       <Box style={styles.bottom}>
         <Buttons
           primaryText="Scan PSBT"
