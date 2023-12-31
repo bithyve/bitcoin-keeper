@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   content: {
     fontSize: 14,
     fontWeight: '600',
-    color: 'rgba(62, 82, 77, 1)',
+    color: Colors.GreenishGrey,
     width: '50%',
   },
   contentContainer: {

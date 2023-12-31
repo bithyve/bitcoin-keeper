@@ -62,6 +62,8 @@ import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
 import ActionCard from 'src/components/ActionCard';
 import AddCard from 'src/components/AddCard';
+import WalletInfoCard from 'src/components/WalletInfoCard';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
 
 const ITEM_SIZE = hp(220);
 
@@ -534,11 +536,19 @@ const WalletsScreen = ({ navigation }) => {
           //TESTING
         }
         <Box style={styles.actionContainer}>
-          {dummyData.map((data) => (
-            <ActionCard cardName={data.name} />
+          {dummyData.map((data, index) => (
+            <ActionCard key={`${index}_${data.name}`} cardName={data.name} />
           ))}
         </Box>
-        <AddCard name={'Add'} cardStyles={{ height: 260, width: 130 }} />
+        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }}>
+          <WalletInfoCard
+            walletName="Daily Spending"
+            walletDescription="for smaller amounts"
+            icon={<WalletIcon />}
+            amount={21000}
+          />
+          <AddCard name={'Add'} cardStyles={{ height: 260, width: 130 }} />
+        </Box>
 
         <WalletList
           hideAmounts={hideAmounts}

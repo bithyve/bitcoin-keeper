@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   walletDescription: {
-    color: 'rgba(62, 82, 77, 1)',
+    color: Colors.GreenishGrey,
     fontSize: 11,
   },
   circle: {
