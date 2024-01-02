@@ -376,7 +376,7 @@ function OtpContent({ signTransaction }) {
 
 function SignerModals({
   vaultId,
-  activeSignerId,
+  activeXfp,
   coldCardModal,
   tapsignerModal,
   ledgerModal,
@@ -413,7 +413,7 @@ function SignerModals({
   setSpecterModal,
 }: {
   vaultId: string;
-  activeSignerId: string;
+  activeXfp: string;
   coldCardModal: boolean;
   tapsignerModal: boolean;
   ledgerModal: boolean;
@@ -483,7 +483,7 @@ function SignerModals({
     <>
       {vaultKeys.map((vaultKey) => {
         const signer = signerMap[vaultKey.masterFingerprint];
-        const currentSigner = vaultKey.xfp === activeSignerId;
+        const currentSigner = vaultKey.xfp === activeXfp;
         if (signer.type === SignerType.TAPSIGNER) {
           const navigateToSignWithTapsigner = () => {
             setTapsignerModal(false);

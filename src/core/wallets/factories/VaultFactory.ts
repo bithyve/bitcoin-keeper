@@ -230,25 +230,25 @@ export const generateMockExtendedKey = (
   return { ...extendedKeys, derivationPath: xDerivationPath, masterFingerprint };
 };
 
-export const generateCosignerMapIds = (
+export const generateCosignerMapXfps = (
   keys: VaultSigner[],
   signerMap: { [key: string]: Signer },
   except: SignerType
 ) => {
-  const cosignerIds = [];
+  const cosignerXfps = [];
   keys.forEach((signer) => {
-    if (signerMap[signer.masterFingerprint].type !== except) cosignerIds.push(signer.xfp);
+    if (signerMap[signer.masterFingerprint].type !== except) cosignerXfps.push(signer.xfp);
   });
 
-  cosignerIds.sort();
+  cosignerXfps.sort();
 
-  const cosignersMapIds = [];
-  for (let i = 0; i < cosignerIds.length; i++) {
-    for (let j = i + 1; j < cosignerIds.length; j++) {
-      cosignersMapIds.push(cosignerIds[i] + '-' + cosignerIds[j]);
+  const cosignersMapXfps = [];
+  for (let i = 0; i < cosignerXfps.length; i++) {
+    for (let j = i + 1; j < cosignerXfps.length; j++) {
+      cosignersMapXfps.push(cosignerXfps[i] + '-' + cosignerXfps[j]);
     }
   }
-  return cosignersMapIds;
+  return cosignersMapXfps;
 };
 
 export const generateCosignerMapUpdates = (
@@ -256,7 +256,7 @@ export const generateCosignerMapUpdates = (
   assistedKey: VaultSigner,
   keys: VaultSigner[]
 ): IKSCosignersMapUpdate[] | CosignersMapUpdate[] => {
-  const cosignersMapIds = generateCosignerMapIds(
+  const cosignersMapIds = generateCosignerMapXfps(
     keys,
     signerMap,
     signerMap[assistedKey.masterFingerprint].type

@@ -86,7 +86,7 @@ function SignTransactionScreen() {
   const [otpModal, showOTPModal] = useState(false);
   const [passwordModal, setPasswordModal] = useState(false);
 
-  const [activeSignerId, setActiveSignerId] = useState<string>();
+  const [activeXfp, setActiveXfp] = useState<string>();
   const { showToast } = useToastMessage();
 
   const navigation = useNavigation();
@@ -187,7 +187,7 @@ function SignTransactionScreen() {
       seedBasedSingerMnemonic?: string;
       thresholdDescriptors?: string[];
     } = {}) => {
-      const activeId = xfp || activeSignerId;
+      const activeId = xfp || activeXfp;
       const currentKey = vaultKeys.filter((vaultKey) => vaultKey.xfp === activeId)[0];
       const signer = signerMap[currentKey.masterFingerprint];
       if (serializedPSBTEnvelops && serializedPSBTEnvelops.length) {
@@ -267,11 +267,11 @@ function SignTransactionScreen() {
         }
       }
     },
-    [activeSignerId, serializedPSBTEnvelops]
+    [activeXfp, serializedPSBTEnvelops]
   );
 
   const callbackForSigners = (vaultKey: VaultSigner, signer: Signer) => {
-    setActiveSignerId(vaultKey.xfp);
+    setActiveXfp(vaultKey.xfp);
     if (areSignaturesSufficient()) {
       showToast('We already have enough signatures, you can now broadcast.');
       return;
@@ -436,7 +436,7 @@ function SignTransactionScreen() {
       <SignerModals
         vaultId={vaultId}
         vaultKeys={vaultKeys}
-        activeSignerId={activeSignerId}
+        activeXfp={activeXfp}
         coldCardModal={coldCardModal}
         tapsignerModal={tapsignerModal}
         ledgerModal={ledgerModal}

@@ -6,7 +6,7 @@ import { Box, useColorMode, View } from 'native-base';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { EntityKind, SignerStorage, SignerType, XpubTypes } from 'src/core/wallets/enums';
 import {
-  generateCosignerMapIds,
+  generateCosignerMapXfps,
   generateMobileKey,
   generateSeedWordsKey,
 } from 'src/core/wallets/factories/VaultFactory';
@@ -961,7 +961,7 @@ function HardwareModalMap({
         setInProgress(true);
 
         if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-        const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
+        const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.POLICY_SERVER);
         const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
         if (response.xpub) {
           const { signer: signingServerKey } = generateSignerFromMetaData({
@@ -971,7 +971,7 @@ function HardwareModalMap({
             signerType: SignerType.POLICY_SERVER,
             storageType: SignerStorage.WARM,
             isMultisig: true,
-            signerId: response.id,
+            xfp: response.id,
             signerPolicy: response.policy,
           });
           setInProgress(false);
@@ -1102,7 +1102,7 @@ function HardwareModalMap({
   const requestInheritanceKeyRecovery = async (signers: VaultSigner[]) => {
     try {
       if (signingDevices.length <= 1) throw new Error('Add two others devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.INHERITANCEKEY);
 
       const requestId = `request-${generateKey(10)}`;
       const thresholdDescriptors = signers.map((signer) => signer.xfp);

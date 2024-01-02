@@ -47,7 +47,7 @@ import { SDIcons } from '../Vault/SigningDeviceIcons';
 import { KeeperContent } from '../SignTransaction/SignerModals';
 import { formatDuration } from './VaultRecovery';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
-import { generateCosignerMapIds } from 'src/core/wallets/factories/VaultFactory';
+import { generateCosignerMapXfps } from 'src/core/wallets/factories/VaultFactory';
 
 const getnavigationState = (type) => ({
   index: 5,
@@ -535,7 +535,7 @@ function SignersList({ navigation }) {
   const verifySigningServer = async (otp) => {
     try {
       if (signingDevices.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.POLICY_SERVER);
+      const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.POLICY_SERVER);
       const response = await SigningServer.fetchSignerSetupViaCosigners(cosignersMapIds[0], otp);
       if (response.xpub) {
         const { signer: signingServerKey } = generateSignerFromMetaData({
@@ -545,7 +545,7 @@ function SignersList({ navigation }) {
           signerType: SignerType.POLICY_SERVER,
           storageType: SignerStorage.WARM,
           isMultisig: true,
-          signerId: response.id,
+          xfp: response.id,
           signerPolicy: response.policy,
         });
 
@@ -561,10 +561,10 @@ function SignersList({ navigation }) {
   const requestInheritanceKey = async (signers: VaultSigner[]) => {
     try {
       if (signers.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signingDevices, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapXfps(signingDevices, SignerType.INHERITANCEKEY);
 
       const requestId = `request-${generateKey(10)}`;
-      const thresholdDescriptors = signers.map((signer) => signer.signerId);
+      const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus } = await InheritanceKeyServer.requestInheritanceKey(
         requestId,

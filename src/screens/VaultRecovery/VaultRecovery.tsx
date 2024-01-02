@@ -25,7 +25,7 @@ import { captureError } from 'src/services/sentry';
 import { addNewVault } from 'src/store/sagaActions/vaults';
 import { SignerStorage, SignerType, VaultType } from 'src/core/wallets/enums';
 import Relay from 'src/services/operations/Relay';
-import { generateCosignerMapIds, generateVaultId } from 'src/core/wallets/factories/VaultFactory';
+import { generateCosignerMapXfps, generateVaultId } from 'src/core/wallets/factories/VaultFactory';
 import config from 'src/core/config';
 import { hash256 } from 'src/services/operations/encryption';
 import TickIcon from 'src/assets/images/icon_tick.svg';
@@ -171,7 +171,7 @@ function VaultRecovery({ navigation }) {
   const checkInheritanceKeyRequest = async (signers: VaultSigner[], requestId: string) => {
     try {
       if (signers.length <= 1) throw new Error('Add two other devices first to recover');
-      const cosignersMapIds = generateCosignerMapIds(signers, SignerType.INHERITANCEKEY);
+      const cosignersMapIds = generateCosignerMapXfps(signers, SignerType.INHERITANCEKEY);
       const thresholdDescriptors = signers.map((signer) => signer.xfp);
 
       const { requestStatus, setupInfo } = await InheritanceKeyServer.requestInheritanceKey(
@@ -205,7 +205,7 @@ function VaultRecovery({ navigation }) {
             configuration: setupInfo.configuration,
             policy: setupInfo.policy,
           },
-          signerId: setupInfo.id,
+          xfp: setupInfo.id,
         });
         if (setupInfo.configuration.bsms) {
           initateRecovery(setupInfo.configuration.bsms);

@@ -42,7 +42,7 @@ export const generateSignerFromMetaData = ({
   xpriv = null,
   isMock = false,
   xpubDetails = null as XpubDetailsType,
-  signerId = null,
+  xfp = null,
   signerPolicy = null,
   inheritanceKeyInfo = null,
   isAmf = false,
@@ -86,7 +86,7 @@ export const generateSignerFromMetaData = ({
   };
 
   const key: VaultSigner = {
-    xfp: signerId || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
+    xfp: xfp || WalletUtilities.getFingerprintFromExtendedKey(xpub, network),
     derivationPath,
     xpub,
     xpriv,

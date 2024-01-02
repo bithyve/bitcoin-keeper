@@ -82,7 +82,7 @@ function AddIKS({ vault, visible, close }: { vault: Vault; visible: boolean; clo
         masterFingerprint,
         signerType: SignerType.INHERITANCEKEY,
         storageType: SignerStorage.WARM,
-        signerId: id,
+        xfp: id,
         isMultisig: true,
       });
       setInProgress(false);

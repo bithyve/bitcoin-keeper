@@ -26,9 +26,9 @@ const areSignersSame = ({ activeVault, signersState }) => {
   if (!activeVault) {
     return false;
   }
-  const currentSignerIds = signersState.map((signer) => (signer ? signer.xfp : ''));
-  const activeSignerIds = activeVault.signers.map((signer) => signer.xfp);
-  return currentSignerIds.sort().join() === activeSignerIds.sort().join();
+  const currentXfps = signersState.map((signer) => (signer ? signer.xfp : ''));
+  const activeXfps = activeVault.signers.map((signer) => signer.xfp);
+  return currentXfps.sort().join() === activeXfps.sort().join();
 };
 
 // export const updateSignerForScheme = (signer: VaultSigner, schemeN) => {
