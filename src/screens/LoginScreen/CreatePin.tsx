@@ -156,14 +156,14 @@ export default function CreatePin(props) {
           </Text>
         </Box>
         <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
-          Please remember your passcode and backup your wallet by writing down the seed words. You
-          would be locked out of the app if you forget your passcode and will have to recover it
+          Remember your Keeper app passcode and securely write down your Backup Phrase.
         </Text>
         <Box style={styles.passImg}>
           <Passwordlock />
         </Box>
         <Text color={`${colorMode}.greenText`} style={styles.modalMessageText}>
-          You would be locked out of the app if you forget your passcode and will have to recover it
+          If you forget your passcode or lose the Backup Phrase, you risk being locked out of your
+          wallet permanently.
         </Text>
       </Box>
     );
