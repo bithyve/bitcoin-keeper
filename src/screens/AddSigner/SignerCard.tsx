@@ -1,7 +1,6 @@
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import Text from '../../components/KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
-import Colors from 'src/theme/Colors';
 
 type SignerCardProps = {
   walletName: string;
@@ -18,18 +17,26 @@ function SignerCard({
   selectedCard,
   onCardSelect,
 }: SignerCardProps) {
+  const { colorMode } = useColorMode();
   const isSelected = selectedCard === walletName;
   return (
     <TouchableOpacity
       style={[styles.walletContainer, isSelected && styles.selectedCard]}
       onPress={() => onCardSelect(walletName)}
     >
-      <Box style={styles.circle} />
+      <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle} />
       <Box style={styles.detailContainer}>
-        <Box style={styles.iconWrapper}>{icon}</Box>
-        <Text style={isSelected ? { color: Colors.White } : styles.walletName}>{walletName}</Text>
+        <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.iconWrapper}>
+          {icon}
+        </Box>
+        <Text style={isSelected ? { color: `${colorMode}.white` } : styles.walletName}>
+          {walletName}
+        </Text>
         <Text
-          style={[isSelected ? { color: Colors.White } : styles.walletDescription]}
+          style={[
+            isSelected ? { color: `${colorMode}.white` } : { color: `${colorMode}.GreenishGrey` },
+            styles.walletDescription,
+          ]}
           numberOfLines={1}
         >
           {walletDescription}
@@ -56,7 +63,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   walletDescription: {
-    color: Colors.GreenishGrey,
     fontSize: 11,
   },
   circle: {
@@ -64,7 +70,6 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 20 / 2,
     alignSelf: 'flex-end',
-    borderColor: Colors.RussetBrown,
     borderWidth: 1,
   },
   detailContainer: {
@@ -77,7 +82,6 @@ const styles = StyleSheet.create({
   iconWrapper: {
     width: 34,
     height: 34,
-    backgroundColor: Colors.RussetBrown,
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',

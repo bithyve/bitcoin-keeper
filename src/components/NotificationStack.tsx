@@ -14,11 +14,10 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import Text from './KeeperText';
-import { Box } from 'native-base';
+import { Box, useColorMode } from 'native-base';
 import { useContext, useState } from 'react';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import CustomGreenButton from './CustomButton/CustomGreenButton';
-import Colors from 'src/theme/Colors';
 
 const data = [
   { id: 1, title: 'Card 1', content: 'Content for Card 1' },
@@ -49,6 +48,7 @@ type CardProps = {
 function Card({ info, index, totalLength, activeIndex, removeCard }: CardProps) {
   const { translations } = useContext(LocalizationContext);
   const { common } = translations;
+  const { colorMode } = useColorMode();
 
   const animations = useAnimatedStyle(() => {
     return {
@@ -75,18 +75,24 @@ function Card({ info, index, totalLength, activeIndex, removeCard }: CardProps) 
   });
 
   return (
-    <Animated.View style={[styles.card, animations]}>
-      <Text style={styles.title}>{info.title}</Text>
-      <Box style={styles.contentContainer}>
-        <Text style={styles.content} numberOfLines={1}>
-          {info.content}
+    <Animated.View style={[animations]}>
+      <Box style={styles.card} backgroundColor={`${colorMode}.Ivory`}>
+        <Text color={`${colorMode}.RussetBrown`} style={styles.title}>
+          {info.title}
         </Text>
-        <Box style={styles.buttonContainer}>
-          <TouchableOpacity style={{ alignSelf: 'center' }} onPress={removeCard}>
-            <Text style={styles.skip}>SKIP</Text>
-          </TouchableOpacity>
-          <Box>
-            <CustomGreenButton value={common['action']} />
+        <Box style={styles.contentContainer}>
+          <Text color={`${colorMode}.GreenishGrey`} style={styles.content} numberOfLines={1}>
+            {info.content}
+          </Text>
+          <Box style={styles.buttonContainer}>
+            <TouchableOpacity style={{ alignSelf: 'center' }} onPress={removeCard}>
+              <Text color={`${colorMode}.RussetBrown`} style={styles.skip}>
+                SKIP
+              </Text>
+            </TouchableOpacity>
+            <Box>
+              <CustomGreenButton value={common['action']} />
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -147,7 +153,6 @@ const styles = StyleSheet.create({
     width: layout.width,
     height: layout.height,
     padding: 10,
-    backgroundColor: Colors.Ivory,
     shadowColor: 'rgba(93, 110, 106, 0.5)',
     shadowRadius: 10,
     shadowOpacity: 1,
@@ -160,12 +165,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 12,
     fontWeight: '600',
-    color: Colors.RussetBrown,
   },
   content: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.GreenishGrey,
     width: '50%',
   },
   contentContainer: {
@@ -175,7 +178,6 @@ const styles = StyleSheet.create({
   },
   skip: {
     fontSize: 12,
-    color: Colors.RussetBrown,
   },
   buttonContainer: {
     flexDirection: 'row',

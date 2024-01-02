@@ -2,7 +2,6 @@ import { Box, useColorMode } from 'native-base';
 import Text from './KeeperText';
 import CopyIcon from 'src/assets/images/icon_copy.svg';
 import { StyleSheet } from 'react-native';
-import Colors from 'src/theme/Colors';
 
 type Props = {
   fingerprint: string;
@@ -11,12 +10,14 @@ type Props = {
 function WalletFingerprint({ fingerprint }: Props) {
   const { colorMode } = useColorMode();
   return (
-    <Box style={styles.container}>
+    <Box backgroundColor={`${colorMode}.Ivory`} style={styles.container}>
       <Box>
         <Text color={`${colorMode}.black`} style={styles.heading}>
           Wallet Fingerprint
         </Text>
-        <Text style={styles.value}>{fingerprint}</Text>
+        <Text color={`${colorMode}.GreenishGrey`} style={styles.value}>
+          {fingerprint}
+        </Text>
       </Box>
       <CopyIcon />
     </Box>
@@ -29,7 +30,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
-    backgroundColor: Colors.Ivory,
     width: '90%',
     borderRadius: 10,
   },
@@ -38,7 +38,6 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 16,
-    color: Colors.GreenishGrey,
   },
 });
 

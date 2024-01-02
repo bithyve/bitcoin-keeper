@@ -109,6 +109,9 @@ export const customTheme = extendTheme({
       pantoneGreen: Colors.pantoneGreen,
       seashellWhite: Colors.Seashell,
       Champagne: Colors.Champagne,
+      RussetBrown: Colors.RussetBrown,
+      GreenishGrey: Colors.GreenishGrey,
+      Ivory: Colors.Ivory,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -169,6 +172,9 @@ export const customTheme = extendTheme({
       forestGreen: Colors.ForestGreen,
       pantoneGreen: Colors.pantoneGreenDark,
       seashellWhite: Colors.SeashellDark,
+      RussetBrown: Colors.RussetBrown,
+      Ivory: Colors.Ivory,
+      GreenishGrey: Colors.GreenishGrey,
     },
   },
   config: {

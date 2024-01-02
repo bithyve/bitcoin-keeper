@@ -4,7 +4,6 @@ import LinkIcon from 'src/assets/images/link.svg';
 import openLink from 'src/utils/OpenLink';
 import { StyleSheet } from 'react-native';
 import { hp, wp } from 'src/constants/responsive';
-import Colors from 'src/theme/Colors';
 
 type NavButtonProps = {
   icon: Element;
@@ -17,7 +16,7 @@ function NavButton({ icon, heading, link }: NavButtonProps) {
 
   return (
     <Pressable onPress={() => openLink(link)}>
-      <Box style={styles.NavButtonContainer} backgroundColor={Colors.Ivory}>
+      <Box style={styles.NavButtonContainer} backgroundColor={`${colorMode}.Ivory`}>
         <Box style={styles.headingWrapper}>
           {icon}
           <Box style={{ marginLeft: wp(10) }}>
