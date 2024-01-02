@@ -4750,11 +4750,6 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/react-native/-/react-native-3.0.2.tgz#f7db242eee4820f5a3d0edcc86c920bb7d9ec0f2"
   integrity sha512-F7IoHEqf741lut4Z2K+IkWQRvXAhBiZMeY5L7BysG7Z2Z3MlIyFR+AagD8jQ/CqC1vowGnRwfLjeuwIpaeoJxA==
 
-"@types/async@^3.2.6":
-  version "3.2.22"
-  resolved "https://registry.yarnpkg.com/@types/async/-/async-3.2.22.tgz#6c8c8ee46b4dd0c7a7c33fff2bdb313bf3e639d2"
-  integrity sha512-aYsrMkRWXwJfchKtwubTIgvWcgRU8zFT+lL48l9jSu7RJKa3A+E3qwmAJVYap4Do9QzTCLm6p63JmOuII3j7dg==
-
 "@types/babel__core@^7.1.14":
   version "7.1.19"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.19.tgz#7b497495b7d1b4812bdb9d02804d0576f43ee460"
@@ -5466,7 +5461,7 @@ async-limiter@~1.0.0:
   resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.1.tgz#dd379e94f0db8310b08291f9d64c3209766617fd"
   integrity sha512-csOlWGAcRFJaI6m+F2WKdnMKr4HhdhFVBk0H/QbJFMCr+uO2kwohwXQPxw/9OCxp05r5ghVBFSyioixx3gfkNQ==
 
-async@^3.2.0, async@^3.2.2:
+async@^3.2.2:
   version "3.2.4"
   resolved "https://registry.yarnpkg.com/async/-/async-3.2.4.tgz#2d22e00f8cddeb5fde5dd33522b56d1cf569a81c"
   integrity sha512-iAB+JbDEGXhyIUavoDl9WP/Jj106Kz9DEn1DPgYw5ruDn0e3Wgi3sKFm55sASdGBNOQB8F59d9qQ7deqrHA8wQ==
@@ -6667,6 +6662,11 @@ crypto-js@^3.2.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-3.3.0.tgz#846dd1cce2f68aacfa156c8578f926a609b7976b"
   integrity sha512-DIT51nX0dCfKltpRiXV+/TVZq+Qq2NgF4644+K7Ttnla7zEzqc+kjJyiB96BHNyUTBxyjzRcZYpUdZa+QAqi6Q==
+
+crypto@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/crypto/-/crypto-1.0.1.tgz#2af1b7cad8175d24c8a1b0778255794a21803037"
+  integrity sha512-VxBKmeNcqQdiUQUW2Tzq0t377b54N2bMtXO/qiLa+6eRRmmC4qT3D4OnTGoT/U6O9aklQ/jTwbOtRMTTY8G0Ig==
 
 css-in-js-utils@^3.1.0:
   version "3.1.0"
@@ -11907,14 +11907,6 @@ react-native-tcp-socket@^5.6.2:
   dependencies:
     buffer "^5.4.3"
     eventemitter3 "^4.0.7"
-
-react-native-tor@^0.1.8:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/react-native-tor/-/react-native-tor-0.1.8.tgz#7e888aecaeb69aae5da2348639e761b6ee97c1a2"
-  integrity sha512-rRArwpqTQoUrQ3WQxc1WLkk1Eg/yjiwU775AxnSt6E7Nfy1V9H6+R9reMD5PJ/39qcuDYv3F7i3MR8Rjy7lOZA==
-  dependencies:
-    "@types/async" "^3.2.6"
-    async "^3.2.0"
 
 react-native@0.72.4, react-native@>=0.68:
   version "0.72.4"
