@@ -1,10 +1,12 @@
 import cryptoJS from 'crypto-js';
-import crypto from 'crypto';
+import { randomBytes } from 'crypto';
+import { RSA } from 'react-native-rsa-native';
 
 export const hash256 = (data: string) => cryptoJS.SHA256(data).toString(cryptoJS.enc.Hex);
 export const hash512 = (data: string) => cryptoJS.SHA512(data).toString(cryptoJS.enc.Hex);
 
-export const getRandomBytes = (size: number = 32) => crypto.randomBytes(size).toString('hex');
+export const getRandomBytes = (size: number = 32) => randomBytes(size).toString('hex');
+
 export const generateEncryptionKey = (entropy?: string, randomBytesSize?: number): string =>
   entropy ? hash256(entropy) : hash256(getRandomBytes(randomBytesSize));
 
@@ -22,4 +24,8 @@ export const generateKey = (length: number): string => {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
   }
   return result;
+};
+
+export const asymmetricEncrypt = (data: string, publicKey: string): Promise<string> => {
+  return RSA.encrypt(data, publicKey);
 };
