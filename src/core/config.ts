@@ -33,7 +33,7 @@ const DEFAULT_CONFIG = {
   ENVIRONMENT: APP_STAGE.DEVELOPMENT,
   CHANNEL_URL: 'https://keeper-channel.herokuapp.com/',
   KEEPER_HWI: 'https://connect.bitcoinkeeper.app/',
-  RAMP_BASE_URL: 'https://buy.ramp.network/',
+  RAMP_BASE_URL: 'https://app.ramp.network/',
   RAMP_REFERRAL_CODE: 'ku67r7oh5juc27bmb3h5pek8y5heyb5bdtfa66pr',
   SIGNING_SERVER_RSA_PUBKEY:
     '-----BEGIN PUBLIC KEY----- MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAr/gXW+ITXpSfp8tu9Ujw gDfcPSfFLuIDovPFRBdMP9uJ7baHqhYO1WqvrafLHZ/akhdk9XSR18Oqb7pvUfvQ Y/40QO6Qlx6zxyGoM1FOTaXY2NxCv5U+kTi2NJpMi2C7/h63ykiLD9dkO0qBCBjd /tFsv8e5GTOQXZQvIEsAyeBNsNQxNX5AY7HQI0nMjGrxKYGMaBQKFqtaJIQwESlo DSkrd5yQJQR50KwL0+/e5znemVhxS08NgjxGTVKTuiJhsJa+PWMZhlmHjcLaFrZz QjDuhqycRCwXk7tuZHOVRSI9LC+L5LfayL6Mj7N1NdmkRWRY/feXU9GlaFX8KQqq fwIDAQAB -----END PUBLIC KEY-----',
