@@ -76,7 +76,7 @@ function Card({ info, index, totalLength, activeIndex, removeCard }: CardProps) 
 
   return (
     <Animated.View style={[animations]}>
-      <Box style={styles.card} backgroundColor={`${colorMode}.Ivory`}>
+      <Box style={styles.card} backgroundColor={`${colorMode}.seashellWhite`}>
         <Text color={`${colorMode}.RussetBrown`} style={styles.title}>
           {info.title}
         </Text>

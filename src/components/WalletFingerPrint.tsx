@@ -10,7 +10,7 @@ type Props = {
 function WalletFingerprint({ fingerprint }: Props) {
   const { colorMode } = useColorMode();
   return (
-    <Box backgroundColor={`${colorMode}.Ivory`} style={styles.container}>
+    <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box>
         <Text color={`${colorMode}.black`} style={styles.heading}>
           Wallet Fingerprint

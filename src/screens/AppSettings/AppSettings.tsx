@@ -3,15 +3,13 @@ import { StyleSheet } from 'react-native';
 import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
-import BackupIcon from 'src/assets/images/backup.svg';
 import AppBackupIcon from 'src/assets/images/app_backup.svg';
+import SettingsIcon from 'src/assets/images/settings_white.svg';
 import FaqIcon from 'src/assets/images/faq.svg';
 import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
-import CurrencyTypeSwitch from 'src/components/Switch/CurrencyTypeSwitch';
 import KeeperHeader from 'src/components/KeeperHeader';
-import LinkIcon from 'src/assets/images/link.svg';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import LoginMethod from 'src/models/enums/LoginMethod';
 import ThemeMode from 'src/models/enums/ThemeMode';
@@ -19,12 +17,10 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import openLink from 'src/utils/OpenLink';
 import { RealmSchema } from 'src/storage/realm/enum';
-import { BackupAction, BackupHistory } from 'src/models/enums/BHR';
-import moment from 'moment';
+import { BackupHistory } from 'src/models/enums/BHR';
 import ToastErrorIcon from 'src/assets/images/toast_error.svg';
-import { getBackupDuration } from 'src/utils/utilities';
 import useToastMessage from 'src/hooks/useToastMessage';
-import { setThemeMode } from 'src/store/reducers/settings';
+import { setSatsEnabled, setThemeMode } from 'src/store/reducers/settings';
 import { changeLoginMethod } from 'src/store/sagaActions/login';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useQuery } from '@realm/react';
@@ -38,35 +34,15 @@ const RNBiometrics = new ReactNativeBiometrics();
 
 function AppSettings({ navigation }) {
   const { colorMode, toggleColorMode } = useColorMode();
-  const { backupMethod } = useAppSelector((state) => state.bhr);
-  const data: BackupHistory = useQuery(RealmSchema.BackupHistory);
-  const { loginMethod }: { loginMethod: LoginMethod } = useAppSelector((state) => state.settings);
+  const { loginMethod, satsEnabled }: { loginMethod: LoginMethod; satsEnabled: boolean } =
+    useAppSelector((state) => state.settings);
 
   const dispatch = useAppDispatch();
   const { showToast } = useToastMessage();
 
   const [sensorType, setSensorType] = useState('Biometrics');
   const { translations, formatString } = useContext(LocalizationContext);
-  const { common } = translations;
-  const { settings } = translations;
-  const backupWalletStrings = translations.BackupWallet;
-
-  const backupHistory = useMemo(() => data.sorted('date', true), [data]);
-  const backupSubTitle = useMemo(() => {
-    if (backupMethod === null) {
-      return 'Backup your Recovery Phrase';
-    }
-    if (backupHistory[0].title === BackupAction.SEED_BACKUP_CONFIRMED) {
-      const lastBackupDate = moment(backupHistory[0].date);
-      const today = moment(moment().unix());
-      const remainingDays = getBackupDuration() - lastBackupDate.diff(today, 'seconds');
-      if (remainingDays > 0) {
-        return `Recovery Health check due in ${Math.floor(remainingDays / 86400)} days`;
-      }
-      return 'Recovery Health check is due';
-    }
-    return backupWalletStrings[backupHistory[0].title];
-  }, [backupHistory, backupMethod]);
+  const { common, settings } = translations;
 
   useEffect(() => {
     if (colorMode === 'dark') {
@@ -131,88 +107,59 @@ function AppSettings({ navigation }) {
     toggleColorMode();
   };
 
-  function Option({ title, subTitle, onPress, Icon }) {
-    return (
-      <Pressable
-        flexDirection="row"
-        alignItems="center"
-        onPress={onPress}
-        backgroundColor={`${colorMode}.seashellWhite`}
-        style={styles.appBackupWrapper}
-        testID={`btn_${title.replace(/ /g, '_')}}`}
-      >
-        {Icon && (
-          <Box style={styles.appBackupIconWrapper}>
-            {/* { Notification indicator } */}
-            {backupMethod === null && (
-              <Box
-                backgroundColor={`${colorMode}.indicator`}
-                borderColor={`${colorMode}.white`}
-                style={styles.notificationIndicator}
-              />
-            )}
-            <BackupIcon />
-          </Box>
-        )}
-        <Box style={styles.infoWrapper}>
-          <Text color={`${colorMode}.primaryText`} style={styles.appBackupTitle}>
-            {title}
-          </Text>
-          <Text color={`${colorMode}.GreyText`} style={styles.appBackupSubTitle}>
-            {subTitle}
-          </Text>
-        </Box>
-      </Pressable>
-    );
-  }
-
-  const dummyData = [
-    {
-      name: 'App Backup',
-      icon: <AppBackupIcon />,
-    },
-    {
-      name: 'Manage Wallets',
-      icon: <WalletIcon />,
-    },
-    {
-      name: 'FAQ’s & Help',
-      icon: <FaqIcon />,
-    },
-  ];
+  const changeSatsMode = () => {
+    dispatch(setSatsEnabled(!satsEnabled));
+  };
 
   return (
     <ScreenWrapper barStyle="dark-content" backgroundcolor={`${colorMode}.primaryBackground`}>
       <KeeperHeader
-        title={`App ${common.settings}`}
+        title={`Keeper ${common.settings}`}
         subtitle={settings.settingsSubTitle}
-        rightComponent={
-          <Box style={styles.currentTypeSwitchWrapper}>
-            <CurrencyTypeSwitch />
-          </Box>
-        }
+        learnMore
+        learnBackgroundColor="light.RussetBrown"
+        learnTextColor="light.white"
+        icon={<SettingsIcon />}
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
       >
-        {
-          //TESTING
-        }
         <ScrollView showsHorizontalScrollIndicator={false}>
           <Box style={styles.actionContainer}>
-            {dummyData.map((data) => (
-              <ActionCard cardName={data.name} icon={data.icon} />
-            ))}
+            <ActionCard
+              cardName={settings.appBackup}
+              icon={<AppBackupIcon />}
+              onPress={() => {
+                navigation.navigate('BackupWallet');
+              }}
+              testID={`btn_${settings.appBackup.replace(/ /g, '_')}}`}
+            />
+            <ActionCard
+              cardName={settings.ManageWallets}
+              icon={<WalletIcon />}
+              onPress={() => navigation.navigate('ManageWallets')}
+              testID={`view_${settings.ManageWallets.replace(/ /g, '_')}`}
+            />
+            <ActionCard
+              cardName={common.FAQs}
+              icon={<FaqIcon />}
+              onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}
+              testID="btn_FAQ"
+            />
           </Box>
         </ScrollView>
-        <Option
-          title={settings.appBackup}
-          subTitle={backupSubTitle}
-          onPress={() => {
-            navigation.navigate('BackupWallet');
-          }}
-          Icon
+        <OptionCard
+          title={settings.SatsMode}
+          description={settings.satsModeSubTitle}
+          callback={() => changeThemeMode()}
+          Icon={
+            <Switch
+              value={satsEnabled}
+              onValueChange={() => changeSatsMode()}
+              testID="switch_darkmode"
+            />
+          }
         />
         <OptionCard
           title={sensorType}
@@ -258,17 +205,16 @@ function AppSettings({ navigation }) {
           description={settings.LanguageCountrySubTitle}
           callback={() => navigation.navigate('ChangeLanguage')}
         />
-        <OptionCard
-          title={settings.ManageWallets}
-          description={settings.ManageWalletsSub}
-          callback={() => navigation.navigate('ManageWallets')}
-        />
       </ScrollView>
       <Box backgroundColor={`${colorMode}.primaryBackground`}>
-        {
-          //TESTING
-        }
-        <Box style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-around' }}>
+        <Box
+          style={{
+            flexDirection: 'row',
+            gap: 10,
+            justifyContent: 'space-around',
+            marginBottom: 10,
+          }}
+        >
           <NavButton
             icon={<Telegram />}
             heading="Keeper Telegram"
@@ -280,67 +226,7 @@ function AppSettings({ navigation }) {
             link="https://twitter.com/bitcoinKeeper_"
           />
         </Box>
-        <Box style={styles.socialMediaLinkWrapper}>
-          <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
-            <Box
-              style={styles.telTweetLinkWrapper}
-              backgroundColor={`${colorMode}.primaryBackground`}
-              testID="view_ KeeperTelegram"
-            >
-              <Box style={styles.telTweetLinkWrapper2}>
-                <Telegram />
-                <Box style={{ marginLeft: wp(10) }}>
-                  <Text
-                    color={`${colorMode}.textColor2`}
-                    style={styles.telTweetLinkTitle}
-                    testID="text_ KeeperTelegram"
-                  >
-                    {settings.keeperTelegram}
-                  </Text>
-                </Box>
-              </Box>
-              <Box style={styles.linkIconWrapper}>
-                <LinkIcon />
-              </Box>
-            </Box>
-          </Pressable>
-          <Pressable
-            onPress={() => openLink('https://twitter.com/bitcoinKeeper_')}
-            testID="btn_keeperTwitter"
-          >
-            <Box
-              style={styles.telTweetLinkWrapper}
-              backgroundColor={`${colorMode}.primaryBackground`}
-              testID="view_keeperTwitter"
-            >
-              <Box style={styles.telTweetLinkWrapper2}>
-                <Twitter />
-                <Box style={{ marginLeft: wp(10) }}>
-                  <Text
-                    color={`${colorMode}.textColor2`}
-                    style={styles.telTweetLinkTitle}
-                    testID="text_keeperTwitter"
-                  >
-                    {settings.keeperTwitter}
-                  </Text>
-                </Box>
-              </Box>
-              <Box style={styles.linkIconWrapper}>
-                <LinkIcon />
-              </Box>
-            </Box>
-          </Pressable>
-        </Box>
         <Box style={styles.bottomLinkWrapper} backgroundColor={`${colorMode}.primaryBackground`}>
-          <Pressable
-            onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}knowledge-base/`)}
-            testID="btn_FAQ"
-          >
-            <Text style={styles.bottomLinkText} color={`${colorMode}.textColor2`}>
-              {common.FAQs}
-            </Text>
-          </Pressable>
-          <Text color={`${colorMode}.textColor2`}>|</Text>
           <Pressable
             onPress={() => openLink(`${KEEPER_KNOWLEDGEBASE}terms-of-service/`)}
             testID="btn_termsCondition"
@@ -443,9 +329,9 @@ const styles = StyleSheet.create({
   },
   bottomLinkWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
+    gap: 15,
   },
   bottomLinkText: {
     fontSize: 13,

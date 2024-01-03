@@ -59,7 +59,7 @@
     "change": "Change",
     "save": "Save",
     "contactCreated": "Contact Created",
-    "FAQs": "FAQ's",
+    "FAQs": "FAQ’s & Help",
     "TermsConditions": "Terms and Conditions",
     "PrivacyPolicy": "Privacy Policy",
     "ViewSeed": "View Seed",
@@ -627,7 +627,8 @@
     "checkStatus": "Check Status",
     "torSettingsNoteSubTitle": "Some WiFi networks use settings that do not let your device connect to Tor. If you get constant errors, try changing to mobile network or check your network settings",
     "orbotConnection": "Orbot Connection",
-    "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device."
+    "orbotConnectionSubTitle": "To connect to Tor via Orbot, you need to have the Orbot app installed on your device.",
+    "satsModeSubTitle": "Use Sats mode to see balance in sats"
   },
   "onboarding": {
     "Comprehensive": "Comprehensive",
