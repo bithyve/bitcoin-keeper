@@ -1,17 +1,32 @@
 import { AxiosResponse } from 'axios';
 import config from 'src/core/config';
 import {
+  EncryptedInheritancePolicy,
   IKSCosignersMapUpdate,
-  InheritanceAlert,
   InheritanceConfiguration,
-  InheritanceNotification,
   InheritancePolicy,
 } from '../interfaces';
 import RestClient from '../rest/RestClient';
+import { asymmetricEncrypt } from '../operations/encryption/index';
 
-const { HEXA_ID, SIGNING_SERVER } = config;
+const { HEXA_ID, SIGNING_SERVER, SIGNING_SERVER_RSA_PUBKEY } = config;
 
 export default class InheritanceKeyServer {
+  static getEncryptedInheritancePolicy = async (
+    policy: InheritancePolicy
+  ): Promise<EncryptedInheritancePolicy> => {
+    let encryptedPolicy: EncryptedInheritancePolicy;
+    if (policy) {
+      encryptedPolicy = {
+        ...policy,
+        alert: policy.alert
+          ? await asymmetricEncrypt(JSON.stringify(policy.alert), SIGNING_SERVER_RSA_PUBKEY)
+          : undefined,
+      };
+    }
+    return encryptedPolicy;
+  };
+
   /**
    * @returns Promise
    */
@@ -53,12 +68,14 @@ export default class InheritanceKeyServer {
     setupSuccessful: boolean;
   }> => {
     let res: AxiosResponse;
+    const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(policy);
+
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/finalizeIKSetup`, {
         HEXA_ID,
         id,
         configuration,
-        policy,
+        updatedEncryptedPolicy,
       });
     } catch (err) {
       if (err.response) throw new Error(err.response.data.err);
@@ -112,20 +129,18 @@ export default class InheritanceKeyServer {
    */
   static updateInheritancePolicy = async (
     id: string,
-    updates: {
-      notification?: InheritanceNotification;
-      alert?: InheritanceAlert;
-    },
+    updatedPolicy: InheritancePolicy,
     thresholdDescriptors: string[]
   ): Promise<{
     updated: boolean;
   }> => {
     let res: AxiosResponse;
+    const updatedEncryptedPolicy = await this.getEncryptedInheritancePolicy(updatedPolicy);
     try {
       res = await RestClient.post(`${SIGNING_SERVER}v3/updateInheritancePolicy`, {
         HEXA_ID,
         id,
-        updates,
+        updatedEncryptedPolicy,
         thresholdDescriptors,
       });
     } catch (err) {
@@ -192,7 +207,6 @@ export default class InheritanceKeyServer {
       masterFingerprint: string;
       derivationPath: string;
       configuration: InheritanceConfiguration;
-      policy: InheritancePolicy;
     };
   }> => {
     let res: AxiosResponse;
