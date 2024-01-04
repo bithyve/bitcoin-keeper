@@ -411,7 +411,8 @@
     "advanced": "Advanced"
   },
   "vault": {
-    "SetupyourVault": "Setup your Vault",
+    "SetupyourVault": "Setup a vault",
+    "configureScheme": "Configure your scheme",
     "VaultDesc": "A signing device is an an air gapped device which helps you keep your Vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signing device",

@@ -413,7 +413,8 @@
     "advanced": "Advanced"
   },
   "vault": {
-    "SetupyourVault": "Setup your Vault",
+    "SetupyourVault": "Setup a vault",
+    "configureScheme": "Configure your scheme",
     "VaultDesc": "A signing device is an air gapped device which helps you keep your Vault safe",
     "SetupNow": "Setup Now",
     "Addsigner": "Add a signing device",
@@ -632,7 +633,7 @@
     "security": "security",
     "slide01Title": "for\n your bitcoin keys",
     "privacy": "privacy",
-    "slide01Paragraph": "Use trusted signing devices (hardware wallets) for air-gapped signing or multi-sig. Add BIP 85 hot wallets or set up inheritance.",
+    "slide01Paragraph": "Use trusted signers for air-gapped signing. Use them to create singlesig hot wallets or multisig cold vaults.",
     "slide02Title": "Security should not\ncome at the cost of",
     "slide02Paragraph": "You do not need to register or provide any PII to use Keeper. Run your own node. Connect via Tor.",
     "slide03Title": "Secure bitcoin for you and\nyour loved ones, anywhere",
