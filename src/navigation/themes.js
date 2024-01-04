@@ -112,6 +112,7 @@ export const customTheme = extendTheme({
       RussetBrown: Colors.RussetBrown,
       GreenishGrey: Colors.GreenishGrey,
       GreenishBlue: Colors.GreenishBlue,
+      OffWhite: Colors.OffWhite,
     },
     dark: {
       primaryGreen: Colors.GenericViridian,
@@ -175,6 +176,7 @@ export const customTheme = extendTheme({
       RussetBrown: Colors.RussetBrown,
       GreenishGrey: Colors.GreenishGrey,
       GreenishBlue: Colors.GreenishBlue,
+      OffWhite: Colors.OffWhite,
     },
   },
   config: {

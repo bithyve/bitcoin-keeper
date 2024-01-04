@@ -78,7 +78,7 @@ function KeeperHeader({
                 numberOfLines={1}
                 style={[styles.addWalletText, { fontSize: 16 }]}
                 color={`${colorMode}.headerText`}
-                testID={`text_header_title`}
+                testID="text_header_title"
               >
                 {title}
               </Text>
@@ -87,7 +87,7 @@ function KeeperHeader({
               <Text
                 style={[styles.addWalletDescription]}
                 color={`${colorMode}.black`}
-                testID={`text_header_subtitle`}
+                testID="text_header_subtitle"
               >
                 {subtitle}
               </Text>
