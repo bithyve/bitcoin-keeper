@@ -1,7 +1,11 @@
-import React from 'react';
-import { Box, useColorMode } from 'native-base';
+import React, { useContext } from 'react';
+import { Box, Pressable, useColorMode } from 'native-base';
 import CopyIcon from 'src/assets/images/copy.svg';
 import { StyleSheet } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
+import useToastMessage from 'src/hooks/useToastMessage';
+import TickIcon from 'src/assets/images/icon_tick.svg';
+import { LocalizationContext } from 'src/context/Localization/LocContext';
 import Text from './KeeperText';
 
 type Props = {
@@ -10,6 +14,11 @@ type Props = {
 
 function WalletFingerprint({ fingerprint }: Props) {
   const { colorMode } = useColorMode();
+  const { showToast } = useToastMessage();
+
+  const { translations } = useContext(LocalizationContext);
+  const { wallet: walletTranslation } = translations;
+
   return (
     <Box backgroundColor={`${colorMode}.seashellWhite`} style={styles.container}>
       <Box style={styles.textContainer}>
@@ -20,9 +29,16 @@ function WalletFingerprint({ fingerprint }: Props) {
           {fingerprint}
         </Text>
       </Box>
-      <Box backgroundColor={`${colorMode}.OffWhite`} style={styles.iconContainer}>
+      <Pressable
+        backgroundColor={`${colorMode}.OffWhite`}
+        style={styles.iconContainer}
+        onPress={() => {
+          Clipboard.setString(fingerprint);
+          showToast(walletTranslation.walletIdCopied, <TickIcon />);
+        }}
+      >
         <CopyIcon />
-      </Box>
+      </Pressable>
     </Box>
   );
 }

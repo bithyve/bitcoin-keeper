@@ -177,7 +177,7 @@ function WalletSettings({ route }) {
         )}
       </ScrollView>
       <Box style={styles.fingerprint}>
-        <WalletFingerprint fingerprint="JWL7U89" />
+        <WalletFingerprint fingerprint={wallet.id} />
       </Box>
 
       <KeeperModal
