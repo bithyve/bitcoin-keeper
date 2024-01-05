@@ -4,6 +4,9 @@ import Text from 'src/components/KeeperText';
 import { Box, Pressable, ScrollView, useColorMode } from 'native-base';
 import { hp, wp } from 'src/constants/responsive';
 import BackupIcon from 'src/assets/images/backup.svg';
+import AppBackupIcon from 'src/assets/images/app_backup.svg';
+import FaqIcon from 'src/assets/images/faq.svg';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
 import Twitter from 'src/assets/images/Twitter.svg';
 import Telegram from 'src/assets/images/Telegram.svg';
 import CloseIcon from 'src/assets/images/cross.svg';
@@ -20,6 +23,8 @@ import { useQuery } from '@realm/react';
 import OptionCard from 'src/components/OptionCard';
 import Switch from 'src/components/Switch/Switch';
 import { KEEPER_KNOWLEDGEBASE, KEEPER_WEBSITE_BASE_URL } from 'src/core/config';
+import ActionCard from 'src/components/ActionCard';
+import NavButton from 'src/components/NavButton';
 
 function AppSettings({ navigation }) {
   const { colorMode } = useColorMode();
@@ -86,6 +91,21 @@ function AppSettings({ navigation }) {
     );
   }
 
+  const dummyData = [
+    {
+      name: 'App Backup',
+      icon: <AppBackupIcon />,
+    },
+    {
+      name: 'Manage Wallets',
+      icon: <WalletIcon />,
+    },
+    {
+      name: 'FAQ’s & Help',
+      icon: <FaqIcon />,
+    },
+  ];
+
   return (
     <ScreenWrapper backgroundcolor={`${colorMode}.primaryBackground`}>
       <TouchableOpacity onPress={() => navigation.toggleDrawer()}>
@@ -95,6 +115,16 @@ function AppSettings({ navigation }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ alignItems: 'center', paddingTop: 20 }}
       >
+        {
+          //TESTING
+        }
+        <ScrollView showsHorizontalScrollIndicator={false}>
+          <Box style={styles.actionContainer}>
+            {dummyData.map((data) => (
+              <ActionCard cardName={data.name} icon={data.icon} />
+            ))}
+          </Box>
+        </ScrollView>
         <Option
           title={settings.appBackup}
           subTitle={backupSubTitle}
@@ -144,6 +174,21 @@ function AppSettings({ navigation }) {
         />
       </ScrollView>
       <Box backgroundColor={`${colorMode}.primaryBackground`}>
+        {
+          //TESTING
+        }
+        <Box style={{ flexDirection: 'row', gap: 10, justifyContent: 'space-around' }}>
+          <NavButton
+            icon={<Telegram />}
+            heading="Keeper Telegram"
+            link="https://telegram.me/bitcoinkeeper"
+          />
+          <NavButton
+            icon={<Twitter />}
+            heading="Keeper Twitter"
+            link="https://twitter.com/bitcoinKeeper_"
+          />
+        </Box>
         <Box style={styles.socialMediaLinkWrapper}>
           <Pressable onPress={() => openLink('https://telegram.me/bitcoinkeeper')}>
             <Box
@@ -314,6 +359,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '400',
     letterSpacing: 0.79,
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    gap: 5,
   },
 });
 export default AppSettings;

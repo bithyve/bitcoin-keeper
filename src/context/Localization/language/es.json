@@ -107,7 +107,8 @@
     "some": "Some of the features will not work as expected in your Hexa app, including:",
     "fetching": "fetching your balance and transactions",
     "sending": "sending sats",
-    "contact": "contact requests"
+    "contact": "contact requests",
+    "action": "Action"
   },
   "login": {
     "login": "Login",
@@ -409,7 +410,8 @@
     "sendingFrom": "Sending From",
     "sendingFromUtxo": "Sending from selected UTXOs of",
     "AvailableToSpend": "Available to spend",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "chooseFromTemplate": "Choose from a template"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -714,5 +716,9 @@
     "addressForRamp": "Address for ramp transactions",
     "buyBitcoinRamp": "Buy bitcoin with Ramp",
     "buyBitcoinRampSubTitle": "Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+  },
+  "signer": {
+    "addSigner": "Add Signer",
+    "addSignerSubTitle": "to Valinor"
   }
 }

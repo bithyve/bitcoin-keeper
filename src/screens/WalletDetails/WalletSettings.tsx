@@ -30,6 +30,7 @@ import OptionCard from 'src/components/OptionCard';
 import ScreenWrapper from 'src/components/ScreenWrapper';
 import PasscodeVerifyModal from 'src/components/Modal/PasscodeVerify';
 import { captureError } from 'src/services/sentry';
+import WalletFingerprint from 'src/components/WalletFingerPrint';
 
 function WalletSettings({ route }) {
   const { colorMode } = useColorMode();
@@ -220,6 +221,10 @@ function WalletSettings({ route }) {
             }}
           />
         )}
+        {
+          //TESTING
+        }
+        <WalletFingerprint fingerprint="JWL7U89" />
       </ScrollView>
       <Box style={styles.note}>
         <Note

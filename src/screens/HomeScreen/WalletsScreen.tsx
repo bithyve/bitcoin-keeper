@@ -8,7 +8,7 @@ import {
 import React, { useContext, useEffect, useState } from 'react';
 import useWallets from 'src/hooks/useWallets';
 import { useAppSelector } from 'src/store/hooks';
-import { Box, useColorMode } from 'native-base';
+import { Box, ScrollView, useColorMode } from 'native-base';
 import { hp, windowHeight, windowWidth, wp } from 'src/constants/responsive';
 import { LocalizationContext } from 'src/context/Localization/LocContext';
 import { Wallet } from 'src/core/wallets/interfaces/wallet';
@@ -60,6 +60,10 @@ import HomeScreenWrapper from './components/HomeScreenWrapper';
 import CurrencyInfo from './components/CurrencyInfo';
 import { getJSONFromRealmObject } from 'src/storage/realm/utils';
 import { useQuery } from '@realm/react';
+import ActionCard from 'src/components/ActionCard';
+import AddCard from 'src/components/AddCard';
+import WalletInfoCard from 'src/components/WalletInfoCard';
+import WalletIcon from 'src/assets/images/daily_wallet.svg';
 
 const ITEM_SIZE = hp(220);
 
@@ -130,8 +134,8 @@ function WalletItem({
       onPress={() => {
         isCollaborativeWallet
           ? navigation.navigate('VaultDetails', {
-            collaborativeWalletId: item.collaborativeWalletId,
-          })
+              collaborativeWalletId: item.collaborativeWalletId,
+            })
           : navigation.navigate('WalletDetails', { walletId: item.id, walletIndex });
       }}
     >
@@ -488,114 +492,163 @@ const WalletsScreen = ({ navigation }) => {
     }
   }, [relayWalletUpdate, relayWalletError, wallets]);
 
+  const dummyData = [
+    {
+      name: 'Setup Inheritance',
+      icon: null,
+    },
+    {
+      name: 'Buy Bitcoin',
+      icon: null,
+    },
+    {
+      name: 'Manage All Signers',
+      icon: null,
+    },
+  ];
+
   return (
     <HomeScreenWrapper>
       <ActivityIndicatorView visible={defaultWalletCreation} />
-      <Box style={styles.titleWrapper}>
-        <Box style={styles.titleInfoView}>
-          <Text style={styles.titleText} color={`${colorMode}.primaryText`} testID="text_HotWallet">
-            {nonHiddenWallets?.length + collaborativeWallets?.length} Wallet
-            {nonHiddenWallets?.length + collaborativeWallets?.length > 1 && 's'}
-          </Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Box style={styles.titleWrapper}>
+          <Box style={styles.titleInfoView}>
+            <Text
+              style={styles.titleText}
+              color={`${colorMode}.primaryText`}
+              testID="text_HotWallet"
+            >
+              {nonHiddenWallets?.length + collaborativeWallets?.length} Wallet
+              {nonHiddenWallets?.length + collaborativeWallets?.length > 1 && 's'}
+            </Text>
+          </Box>
+          <Box style={styles.netBalanceView} testID="view_netBalance">
+            <CurrencyInfo
+              hideAmounts={hideAmounts}
+              amount={netBalanceWallets + netBalanceCollaborativeWallets}
+              fontSize={20}
+              color={`${colorMode}.primaryText`}
+              variation={colorMode === 'light' ? 'dark' : 'light'}
+            />
+          </Box>
         </Box>
-        <Box style={styles.netBalanceView} testID="view_netBalance">
-          <CurrencyInfo
-            hideAmounts={hideAmounts}
-            amount={netBalanceWallets + netBalanceCollaborativeWallets}
-            fontSize={20}
-            color={`${colorMode}.primaryText`}
-            variation={colorMode === 'light' ? 'dark' : 'light'}
+        {
+          //TESTING
+        }
+        <Box style={styles.actionContainer}>
+          {dummyData.map((data, index) => (
+            <ActionCard key={`${index}_${data.name}`} cardName={data.name} />
+          ))}
+        </Box>
+        <Box style={{ flexDirection: 'row', gap: 20, marginVertical: 20 }}>
+          <WalletInfoCard
+            walletName="Daily Spending"
+            walletDescription="for smaller amounts"
+            icon={<WalletIcon />}
+            amount={21000}
           />
+          <AddCard name={'Add'} cardStyles={{ height: 260, width: 130 }} />
         </Box>
-      </Box>
-      <WalletList
-        hideAmounts={hideAmounts}
-        walletIndex={walletIndex}
-        setWalletIndex={setWalletIndex}
-        wallets={allWallets}
-        walletsCount={wallets.length}
-        setAddImportVisible={() => setAddImportVisible(true)}
-        navigation={navigation}
-      />
-      <Box style={styles.listItemsWrapper}>
-        <Box style={styles.whirlpoolListItemWrapper} testID="view_WhirlpoolUTXOs">
-          {!currentWallet ? (
-            <Box style={styles.AddNewWalletIllustrationWrapper}>
-              <Box style={styles.addNewWallIconWrapper}>
-                <AddNewWalletIllustration />
+
+        <WalletList
+          hideAmounts={hideAmounts}
+          walletIndex={walletIndex}
+          setWalletIndex={setWalletIndex}
+          wallets={allWallets}
+          walletsCount={wallets.length}
+          setAddImportVisible={() => setAddImportVisible(true)}
+          navigation={navigation}
+        />
+        <Box style={styles.listItemsWrapper}>
+          <Box style={styles.whirlpoolListItemWrapper} testID="view_WhirlpoolUTXOs">
+            {!currentWallet ? (
+              <Box style={styles.AddNewWalletIllustrationWrapper}>
+                <Box style={styles.addNewWallIconWrapper}>
+                  <AddNewWalletIllustration />
+                </Box>
+                <Box style={styles.addNewWallTextWrapper}>
+                  {
+                    //TESTING
+                  }
+                  <TouchableOpacity onPress={() => navigation.navigate('AddWallet')}>
+                    <Text color="light.secondaryText" style={styles.addNewWallText}>
+                      Add a new wallet, import it, or create a collaborative wallet.
+                    </Text>
+                  </TouchableOpacity>
+                  {/* <TouchableOpacity onPress={() => navigation.navigate('AddSigner')}>
+                    <Text color="light.secondaryText" style={styles.addNewWallText}>
+                      Add a new wallet, import it, or create a collaborative wallet.
+                    </Text>
+                  </TouchableOpacity> */}
+                </Box>
               </Box>
-              <Box style={styles.addNewWallTextWrapper}>
-                <Text color="light.secondaryText" style={styles.addNewWallText}>
-                  Add a new wallet, import it, or create a collaborative wallet.
-                </Text>
-              </Box>
-            </Box>
-          ) : currentWallet.entityKind === EntityKind.VAULT ? null : (
-            <ListItemView
-              icon={colorMode === 'light' ? <WhirlpoolWhiteIcon /> : <WhirlpoolDarkIcon />}
-              title={wallet.whirlpoolUtxoTitle}
-              subTitle={wallet.whirlpoolUtxoSubTitle}
-              iconBackColor={`${colorMode}.pantoneGreen`}
-              onPress={() => {
-                if (currentWallet)
-                  navigation.navigate('UTXOManagement', {
-                    data: currentWallet,
-                    routeName: 'Wallet',
-                    accountType: WalletType.DEFAULT,
-                  });
-              }}
+            ) : currentWallet.entityKind === EntityKind.VAULT ? null : (
+              <ListItemView
+                icon={colorMode === 'light' ? <WhirlpoolWhiteIcon /> : <WhirlpoolDarkIcon />}
+                title={wallet.whirlpoolUtxoTitle}
+                subTitle={wallet.whirlpoolUtxoSubTitle}
+                iconBackColor={`${colorMode}.pantoneGreen`}
+                onPress={() => {
+                  if (currentWallet)
+                    navigation.navigate('UTXOManagement', {
+                      data: currentWallet,
+                      routeName: 'Wallet',
+                      accountType: WalletType.DEFAULT,
+                    });
+                }}
+              />
+            )}
+          </Box>
+        </Box>
+        <KeeperModal
+          dismissible={false}
+          close={() => {}}
+          visible={recepitVerificationFailed}
+          title={choosePlan.validateSubscriptionTitle}
+          subTitle={choosePlan.validateSubscriptionSubTitle}
+          Content={() => <DowngradeModalContent app={app} navigation={navigation} />}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          subTitleWidth={wp(210)}
+          showButtons
+          showCloseIcon={false}
+        />
+        <KeeperModal
+          visible={addImportVisible}
+          close={() => setAddImportVisible(false)}
+          title={importWallet.AddImportModalTitle}
+          subTitle={importWallet.AddImportModalSubTitle}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          DarkCloseIcon={colorMode === 'dark'}
+          Content={() => (
+            <AddImportWallet
+              wallets={wallets}
+              collaborativeWallets={collaborativeWallets}
+              setAddImportVisible={setAddImportVisible}
+              setDefaultWalletCreation={setDefaultWalletCreation}
+              walletIndex={walletIndex}
+              navigation={navigation}
             />
           )}
-        </Box>
-      </Box>
-      <KeeperModal
-        dismissible={false}
-        close={() => { }}
-        visible={recepitVerificationFailed}
-        title={choosePlan.validateSubscriptionTitle}
-        subTitle={choosePlan.validateSubscriptionSubTitle}
-        Content={() => <DowngradeModalContent app={app} navigation={navigation} />}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        subTitleWidth={wp(210)}
-        showButtons
-        showCloseIcon={false}
-      />
-      <KeeperModal
-        visible={addImportVisible}
-        close={() => setAddImportVisible(false)}
-        title={importWallet.AddImportModalTitle}
-        subTitle={importWallet.AddImportModalSubTitle}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        DarkCloseIcon={colorMode === 'dark'}
-        Content={() => (
-          <AddImportWallet
-            wallets={wallets}
-            collaborativeWallets={collaborativeWallets}
-            setAddImportVisible={setAddImportVisible}
-            setDefaultWalletCreation={setDefaultWalletCreation}
-            walletIndex={walletIndex}
-            navigation={navigation}
-          />
-        )}
-      />
-      <KeeperModal
-        visible={electrumErrorVisible}
-        close={() => setElectrumErrorVisible(false)}
-        title={common.connectionError}
-        subTitle={common.electrumErrorSubTitle}
-        buttonText={common.continue}
-        modalBackground={`${colorMode}.modalWhiteBackground`}
-        subTitleColor={`${colorMode}.secondaryText`}
-        textColor={`${colorMode}.primaryText`}
-        buttonTextColor="light.white"
-        DarkCloseIcon={colorMode === 'dark'}
-        buttonCallback={() => setElectrumErrorVisible(false)}
-        Content={ElectrumErrorContent}
-      />
+        />
+        <KeeperModal
+          visible={electrumErrorVisible}
+          close={() => setElectrumErrorVisible(false)}
+          title={common.connectionError}
+          subTitle={common.electrumErrorSubTitle}
+          buttonText={common.continue}
+          modalBackground={`${colorMode}.modalWhiteBackground`}
+          subTitleColor={`${colorMode}.secondaryText`}
+          textColor={`${colorMode}.primaryText`}
+          buttonTextColor="light.white"
+          DarkCloseIcon={colorMode === 'dark'}
+          buttonCallback={() => setElectrumErrorVisible(false)}
+          Content={ElectrumErrorContent}
+        />
+      </ScrollView>
     </HomeScreenWrapper>
   );
 };
@@ -744,5 +797,9 @@ const styles = StyleSheet.create({
   },
   walletIconWrapper: {
     marginVertical: hp(5),
+  },
+  actionContainer: {
+    flexDirection: 'row',
+    gap: 10,
   },
 });

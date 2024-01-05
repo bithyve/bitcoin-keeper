@@ -46,9 +46,7 @@ function IKSAddEmailPhone() {
 
       const { updated } = await InheritanceKeyServer.updateInheritancePolicy(
         ikVaultKey.xfp,
-        {
-          alert: updatedPolicy.alert,
-        },
+        updatedPolicy,
         thresholdDescriptors
       );
 

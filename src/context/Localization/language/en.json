@@ -97,7 +97,8 @@
     "somethingWrong": "Something went wrong",
     "showAsQR": "Show as QR",
     "addNow": "ADD NOW",
-    "runHealthCheck": "Run Health Check"
+    "runHealthCheck": "Run Health Check",
+    "action": "Action"
   },
   "noInternet": {
     "no": "No Internet",
@@ -411,7 +412,8 @@
     "sendingFrom": "Sending From",
     "sendingFromUtxo": "Sending from selected UTXOs of",
     "AvailableToSpend": "Available to spend",
-    "advanced": "Advanced"
+    "advanced": "Advanced",
+    "chooseFromTemplate": "Choose from a template"
   },
   "vault": {
     "SetupyourVault": "Setup your Vault",
@@ -718,5 +720,9 @@
     "addressForRamp": "Address for ramp transactions",
     "buyBitcoinRamp": "Buy bitcoin with Ramp",
     "buyBitcoinRampSubTitle": "Ramp enables BTC purchases using Apple Pay, Debit/Credit card, Bank Transfer and open banking where available payment methods available may vary based on your country"
+  },
+  "signer": {
+    "addSigner": "Add Signer",
+    "addSignerSubTitle": "to Valinor"
   }
 }
