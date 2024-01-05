@@ -147,6 +147,7 @@ export default function NotificationStack() {
 const styles = StyleSheet.create({
   container: {
     position: 'relative',
+    top: 100,
   },
   card: {
     borderRadius: layout.borderRadius,

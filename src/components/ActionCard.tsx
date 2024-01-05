@@ -1,4 +1,4 @@
-import { Box, useColorMode } from 'native-base';
+import { Box, Pressable, useColorMode } from 'native-base';
 import Text from './KeeperText';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
@@ -10,12 +10,12 @@ type ActionCardProps = {
 function ActionCard({ cardName, icon }: ActionCardProps) {
   const { colorMode } = useColorMode();
   return (
-    <TouchableOpacity style={[styles.cardContainer, { backgroundColor: `${colorMode}.Ivory` }]}>
+    <Pressable style={[styles.cardContainer]} backgroundColor={`${colorMode}.seashellWhite`}>
       <Box backgroundColor={`${colorMode}.RussetBrown`} style={styles.circle}>
         {icon && icon}
       </Box>
       <Text color={`${colorMode}.primaryText`}>{cardName}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
